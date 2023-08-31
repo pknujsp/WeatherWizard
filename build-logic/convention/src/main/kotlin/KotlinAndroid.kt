@@ -26,6 +26,7 @@ fun Project.configureKotlinAndroid(
 
         composeOptions {
             kotlinCompilerExtensionVersion = libs.findVersion("kotlin.compiler.extension").get().toString()
+            useLiveLiterals = true
         }
 
         compileOptions {

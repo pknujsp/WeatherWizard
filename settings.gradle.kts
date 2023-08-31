@@ -20,3 +20,14 @@ dependencyResolutionManagement {
 
 rootProject.name = "WeatherWizard"
 include(":app")
+include(":core")
+include(":feature")
+include(":core:data")
+include(":core:model")
+include(":core:network")
+include(":core:ui")
+include(":core:common")
+include(":feature:weather")
+include(":feature:main")
+include(":feature:favorite")
+include(":feature:settings")
