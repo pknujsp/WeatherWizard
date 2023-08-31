@@ -1,6 +1,7 @@
 package io.github.pknujsp.weatherwizard.core.model.weather.current
 
 import androidx.annotation.DrawableRes
+import io.github.pknujsp.weatherwizard.core.model.EntityModel
 import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherValueType
 
 data class CurrentWeatherEntity(
@@ -11,5 +12,4 @@ data class CurrentWeatherEntity(
     val humidity: WeatherValueType,
     val windSpeed: WeatherValueType,
     val windDirection: WeatherValueType,
-    val airQuality: WeatherValueType,
-)
+) : EntityModel

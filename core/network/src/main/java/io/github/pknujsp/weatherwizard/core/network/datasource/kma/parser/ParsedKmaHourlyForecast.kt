@@ -1,7 +1,7 @@
 package io.github.pknujsp.weatherwizard.core.network.datasource.kma.parser
 
 
-data class ParsedKmaHourlyForecast(
+ data class ParsedKmaHourlyForecast(
   val hourISO8601: String = "",
   val isHasShower: Boolean = false,
   val weatherDescription: String = "",

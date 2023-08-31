@@ -1,7 +1,7 @@
 package io.github.pknujsp.weatherwizard.core.network.datasource.kma.parser
 
 
-data class ParsedKmaDailyForecast(
+ data class ParsedKmaDailyForecast(
     val dateISO8601: String = "",
     val isSingle: Boolean = false,
     val amValues: Values? = null,

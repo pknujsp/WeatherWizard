@@ -1,5 +1,6 @@
 package io.github.pknujsp.weatherwizard.core.model.weather.current
 
+import io.github.pknujsp.weatherwizard.core.model.UiModel
 import io.github.pknujsp.weatherwizard.core.model.weather.common.AirQualityValueClass
 import io.github.pknujsp.weatherwizard.core.model.weather.common.HumidityValueClass
 import io.github.pknujsp.weatherwizard.core.model.weather.common.TemperatureValueClass
@@ -15,4 +16,4 @@ data class CurrentWeather(
     val windSpeed: WindSpeedValueClass,
     val windDirection: WindDirectionValueClass,
     val airQuality: AirQualityValueClass,
-)
+) : UiModel

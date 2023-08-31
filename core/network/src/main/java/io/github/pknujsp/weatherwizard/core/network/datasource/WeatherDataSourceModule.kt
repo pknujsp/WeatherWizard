@@ -12,12 +12,11 @@ import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
-object DataSourceModule {
-
-  @Provides
-  @Singleton
-  fun providesKmaDataSource(
-      kmaNetworkApi: KmaNetworkApi,
-      kmaHtmlParser: KmaHtmlParser,
-  ): KmaDataSource = KmaDataSourceImpl(kmaNetworkApi, kmaHtmlParser)
+object WeatherDataSourceModule {
+    @Provides
+    @Singleton
+    fun providesKmaDataSource(
+        kmaNetworkApi: KmaNetworkApi,
+        kmaHtmlParser: KmaHtmlParser,
+    ): KmaDataSource = KmaDataSourceImpl(kmaNetworkApi, kmaHtmlParser)
 }
