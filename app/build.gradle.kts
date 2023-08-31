@@ -40,5 +40,10 @@ android {
 }
 
 dependencies {
-
+    implementation(project(":core:ui"))
+    implementation(project(":feature:main"))
+    implementation(libs.androidx.activity.compose)
+    implementation(libs.androidx.activity)
+    implementation(libs.androidx.appcompat)
+    implementation(libs.material)
 }

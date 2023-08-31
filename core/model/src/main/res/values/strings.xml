@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="weather_info_head_info_update_time">업데이트</string>
+  <string name="weather_icon_description">현재 날씨 상태</string>
+
+  <string name="temperature">기온</string>
+  <string name="min_temperature">최저 기온</string>
+  <string name="max_temperature">최고 기온</string>
+  <string name="feels_like_temperature">체감 온도</string>
+  <string name="wind_speed">풍속</string>
+  <string name="max_wind_speed">최대 풍속</string>
+  <string name="wind_direction">풍향</string>
+  <string name="precipitation">강수량</string>
+  <string name="total_precipitation">총 강수량</string>
+  <string name="rainfall">강우량</string>
+  <string name="snowfall">적설량</string>
+  <string name="visibility">시정거리</string>
+  <string name="min_visibility">최소 시정거리</string>
+  <string name="pressure">대기압</string>
+  <string name="humidity">상대 습도</string>
+  <string name="uv_index">자외선 지수</string>
+  <string name="ozone">오존 농도</string>
+  <string name="air_quality_index">대기질 지수</string>
+  <string name="pm25">미세먼지(PM2.5) 농도</string>
+  <string name="pm10">초미세먼지(PM10) 농도</string>
+  <string name="sunrise">일출 시간</string>
+  <string name="sunset">일몰 시간</string>
+  <string name="moonrise">달뜨는 시간</string>
+  <string name="moonset">달지는 시간</string>
+  <string name="weather_condition">현재 날씨 상태</string>
+
+  <string name="wind_strength_0">바람이 없음</string>
+  <string name="wind_strength_1">가벼운 바람</string>
+  <string name="wind_strength_2">약한 바람</string>
+  <string name="wind_strength_3">부드러운 바람</string>
+  <string name="wind_strength_4">적당한 바람</string>
+  <string name="wind_strength_5">신선한 바람</string>
+  <string name="wind_strength_6">강한 바람</string>
+  <string name="wind_strength_7">고요한 바람</string>
+  <string name="wind_strength_8">강풍</string>
+  <string name="wind_strength_9">세찬 바람</string>
+  <string name="wind_strength_10">폭풍</string>
+  <string name="wind_strength_11">폭풍우</string>
+  <string name="wind_strength_12">허리케인</string>
+
+  <string name="pressure_very_low">매우 낮은 기압 - 폭풍이 발생할 가능성이 있습니다.</string>
+  <string name="pressure_low">낮은 기압 - 비나 눈과 같은 강수 현상이 예상됩니다.</string>
+  <string name="pressure_normal">보통의 기압 - 일반적인 날씨 조건입니다.</string>
+  <string name="pressure_high">높은 기압 - 맑은 하늘과 좋은 날씨가 예상됩니다.</string>
+  <string name="pressure_very_high">매우 높은 기압 - 매우 맑고 안정적인 날씨가 예상됩니다.</string>
+
+  <string name="visibility_extremely_low">극히 낮은 시정 - 매우 심한 안개나 폭우 등으로 시야가 심하게 제한됩니다.</string>
+  <string name="visibility_very_low">매우 낮은 시정 - 심한 안개나 비가 내립니다.</string>
+  <string name="visibility_low">낮은 시정 - 약간 안개가 끼었습니다.</string>
+  <string name="visibility_moderate">중간시정 - 조금 흐립니다.</string>
+  <string name="visibility_high">고시정 - 괜찮은 날씨입니다.</string>
+  <string name="visibility_very_high">초고시정 - 매우 맑은 날씨입니다.</string>
+
+  <string name="rainfall_none">비 그침</string>
+  <string name="rainfall_very_light">매우 가벼운 비</string>
+  <string name="rainfall_light">가벼운 비</string>
+  <string name="rainfall_moderate">중간 비</string>
+  <string name="rainfall_heavy">심한 비</string>
+  <string name="rainfall_very_heavy">매우 심한 비</string>
+
+  <string name="snowfall_none">눈 그침</string>
+  <string name="snowfall_light">가벼움</string>
+  <string name="snowfall_moderate">보통</string>
+  <string name="snowfall_heavy">많음</string>
+  <string name="snowfall_very_heavy">매우 많음</string>
+
+
+</resources>

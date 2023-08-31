@@ -1,16 +1,17 @@
 plugins {
     id("plugin.android.library")
+    alias(libs.plugins.ksp)
+    alias(libs.plugins.kotlin.parcelize)
 }
 
 android {
-    namespace = "io.github.pknujsp.model"
+    namespace = "io.github.pknujsp.weatherwizard.core.model"
 }
 
 dependencies {
-    implementation(libs.androidx.core.ktx)
-    implementation(libs.androidx.appcompat)
-    implementation(libs.material.main)
-    testImplementation(libs.junit)
-    androidTestImplementation(libs.androidx.test.ext.junit)
-    androidTestImplementation(libs.androidx.test.espresso.core)
+    implementation(libs.bundles.ktx)
+    ksp(libs.ksealedbinding.compiler)
+    implementation(libs.ksealedbinding.annotation)
+    implementation(libs.bundles.room)
+    ksp(libs.androidx.room.compiler)
 }

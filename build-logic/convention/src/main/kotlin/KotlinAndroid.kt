@@ -20,15 +20,6 @@ fun Project.configureKotlinAndroid(
         dataBinding.enable = true
         viewBinding.enable = true
 
-        buildFeatures {
-            compose = true
-        }
-
-        composeOptions {
-            kotlinCompilerExtensionVersion = libs.findVersion("kotlin.compiler.extension").get().toString()
-            useLiveLiterals = true
-        }
-
         compileOptions {
             sourceCompatibility = SharedProperty.javaCompatibility
             targetCompatibility = SharedProperty.javaCompatibility
@@ -41,6 +32,8 @@ fun Project.configureKotlinAndroid(
 
     dependencies {
         add("coreLibraryDesugaring", libs.findLibrary("android.desugarjdklibs").get())
+        add("implementation", libs.findBundle("kotlin").get())
+        add("implementation", libs.findLibrary("androidx.work.ktx").get())
     }
 }
 
@@ -59,5 +52,20 @@ private fun Project.configureKotlin() {
 
             jvmTarget = SharedProperty.jvmTarget
         }
+    }
+}
+
+fun Project.applyCompose(
+    commonExtension: CommonExtension<*, *, *, *, *>,
+) {
+
+    commonExtension.apply {
+        buildFeatures.compose = true
+
+        composeOptions {
+            kotlinCompilerExtensionVersion = libs.findVersion("kotlin.compiler.extension").get().toString()
+            useLiveLiterals = true
+        }
+
     }
 }

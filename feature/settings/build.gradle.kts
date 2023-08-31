@@ -3,14 +3,11 @@ plugins {
 }
 
 android {
-    namespace = "io.github.pknujsp.settings"
+    namespace = "io.github.pknujsp.weatherwizard.feature.settings"
 }
 
 dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
-    implementation(libs.material.main)
-    testImplementation(libs.junit)
-    androidTestImplementation(libs.androidx.test.ext.junit)
-    androidTestImplementation(libs.androidx.test.espresso.core)
+
 }

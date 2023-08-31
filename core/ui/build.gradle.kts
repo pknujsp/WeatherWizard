@@ -3,14 +3,16 @@ plugins {
 }
 
 android {
-    namespace = "io.github.pknujsp.ui"
+    namespace = "io.github.pknujsp.weatherwizard.core.ui"
+    applyCompose(this)
 }
 
 dependencies {
-    implementation(libs.androidx.core.ktx)
+    implementation(libs.bundles.ktx)
     implementation(libs.androidx.appcompat)
-    implementation(libs.material.main)
-    testImplementation(libs.junit)
-    androidTestImplementation(libs.androidx.test.ext.junit)
-    androidTestImplementation(libs.androidx.test.espresso.core)
+    implementation(libs.material)
+    implementation(platform(libs.androidx.compose.bom))
+    implementation(libs.bundles.compose.bom)
+    implementation(libs.bundles.lifecycle)
+    implementation(libs.lottie)
 }

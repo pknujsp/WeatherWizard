@@ -1,10 +1,10 @@
 [versions]
 # kotlin
-kotlin = "1.9.0"
-kotlin_compiler_extension = "1.5.2"
+kotlin = "1.9.10"
+kotlin_compiler_extension = "1.5.3"
 kotlinx_coroutines = "1.7.3"
 kotlinx_serialization_json = "1.5.0"
-ksp = "1.9.0-1.0.13"
+ksp = "1.9.10-1.0.13"
 
 android_gradle_plugin = "8.1.1"
 android_desugar_jdk_libs = "2.0.3"
@@ -90,6 +90,7 @@ accompanist-permissions = { module = "com.google.accompanist:accompanist-permiss
 
 androidx-compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "androidx_compose_bom" }
 androidx-compose-material3 = { group = "androidx.compose.material3", name = "material3" }
+androidx-compose-material3-windowsizeclass = { group = "androidx.compose.material3", name = "material3-window-size-class" }
 androidx-compose-runtime = { group = "androidx.compose.runtime", name = "runtime" }
 androidx-compose-ui-test-junit = { group = "androidx.compose.ui", name = "ui-test-junit4" }
 androidx-compose-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-manifest" }
@@ -178,10 +179,10 @@ okhttp-logginginterceptor = { module = "com.squareup.okhttp3:logging-interceptor
 coil = { module = "io.coil-kt:coil", version.ref = "coil" }
 
 # lottie --------------------------------------------------------------------------------------------------------------
-lottie = { module = "com.airbnb.android:lottie", version.ref = "lottie" }
+lottie = { module = "com.airbnb.android:lottie-compose", version.ref = "lottie" }
 
 # material--------------------------------------------------------------------------------------------------------------
-material-main = { module = "com.google.android.material:material", version.ref = "material" }
+material = { module = "com.google.android.material:material", version.ref = "material" }
 
 android-gradle-plugin = { group = "com.android.tools.build", name = "gradle", version.ref = "android_gradle_plugin" }
 kotlin-gradle-plugin = { group = "org.jetbrains.kotlin", name = "kotlin-gradle-plugin", version.ref = "kotlin" }
@@ -212,6 +213,7 @@ compose-bom = [
     "androidx-compose-foundation",
     "androidx-compose-foundation-layout",
     "androidx-compose-material3",
+    "androidx-compose-material3-windowsizeclass"
 ]
 
 ktx = ["androidx-preference-ktx", "androidx-core-ktx"]
@@ -230,8 +232,6 @@ hilt = ["androidx-hilt-android", "androidx-hilt-work", "androidx-hilt-navigation
 room = ["androidx-room-ktx", "androidx-room-runtime", "androidx-room-paging"]
 
 datastore = ["androidx-datastore-preferences", "androidx-datastore"]
-
-workmanager = ["androidx-work-ktx"]
 
 test-local = ["junit", "mockito-core", "mockito-kotlin", "kotlinx-coroutines-testImplementation", "robolectric",
     "google-dagger-hilt-testing"]

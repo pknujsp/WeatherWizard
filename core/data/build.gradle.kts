@@ -1,16 +1,13 @@
 plugins {
     id("plugin.android.library")
+    id("plugin.android.hilt")
 }
 
 android {
-    namespace = "io.github.pknujsp.data"
+    namespace = "io.github.pknujsp.weatherwizard.core.data"
 }
 
 dependencies {
-    implementation(libs.androidx.core.ktx)
+    implementation(libs.bundles.ktx)
     implementation(libs.androidx.appcompat)
-    implementation(libs.material.main)
-    testImplementation(libs.junit)
-    androidTestImplementation(libs.androidx.test.ext.junit)
-    androidTestImplementation(libs.androidx.test.espresso.core)
 }

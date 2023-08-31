@@ -3,41 +3,32 @@ package io.github.pknujsp.weatherwizard
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.viewModels
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
-import io.github.pknujsp.weatherwizard.ui.theme.WeatherWizardTheme
+import androidx.core.view.WindowCompat
+import dagger.hilt.android.AndroidEntryPoint
+import io.github.pknujsp.weatherwizard.feature.main.MainScreen
+import io.github.pknujsp.weatherwizard.core.ui.theme.MainTheme
+import io.github.pknujsp.weatherwizard.core.ui.theme.mainColorScheme
 
+
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+
+    private val viewModel: ActivityViewModel by viewModels()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        WindowCompat.setDecorFitsSystemWindows(window, false)
+
         setContent {
-            WeatherWizardTheme {
-                // A surface container using the 'background' color from the theme
-                Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
-                    Greeting("Android")
+            MainTheme {
+                Surface(modifier = Modifier.fillMaxSize(), color = mainColorScheme.background) {
+                    MainScreen()
                 }
             }
         }
-    }
-}
-
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    WeatherWizardTheme {
-        Greeting("Android")
     }
 }

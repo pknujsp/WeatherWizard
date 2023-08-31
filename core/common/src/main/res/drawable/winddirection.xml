@@ -1,0 +1,56 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+  android:viewportWidth="67.73333"
+  android:viewportHeight="67.73334"
+  android:width="256dp"
+  android:height="256dp">
+  <group
+    android:translateX="-7.732844"
+    android:translateY="-0.7707513">
+    <path
+      android:pathData="M27.12994 8.568923h0.08691a2 2 45 0 1 2 2v48.13699a2 2 135 0 1 -2 2h-0.08691a2 2 45 0 1 -2 -2v-48.13699a2 2 135 0 1 2 -2z"
+      android:fillColor="#00AEEC"
+      android:fillAlpha="0.9"
+      android:strokeLineCap="round" />
+    <group
+      android:scaleX="0.2645833"
+      android:scaleY="0.2645833"
+      android:translateX="5.36845"
+      android:translateY="13.08775">
+      <path
+        android:pathData="M199.18349 52.72504l-107.047809 61.80408 0 -123.6081591z"
+        android:fillColor="#00AEEC"
+        android:fillAlpha="0.9"
+        android:strokeLineCap="round" />
+    </group>
+  </group>
+  <group
+    android:scaleX="0.8945146"
+    android:scaleY="0.8664614"
+    android:translateX="8.05455"
+    android:translateY="34.71917">
+    <group
+      android:translateX="-5.111225"
+      android:translateY="-22.33975">
+      <path
+        android:pathData="M49.56361 34.954474C45.54562 33.713901 44.68611 28.70475 47.269823 25.89025 52.02201 20.713582 57.140205 25.178151 58.297042 30.474981 61.009432 42.894252 46.635675 43.493948 35.369795 42.886358 26.049568 42.383696 13.754448 44.796535 6.3665254 40.149635"
+        android:strokeColor="#00AEEC"
+        android:strokeWidth="2.5106"
+        android:strokeLineCap="round" />
+    </group>
+  </group>
+  <group
+    android:scaleX="0.8945146"
+    android:scaleY="0.8664614"
+    android:translateX="8.970473"
+    android:translateY="11.38714">
+    <group
+      android:translateX="-5.111225"
+      android:translateY="-22.33975">
+      <path
+        android:pathData="M49.56361 34.954474C45.54562 33.713901 44.68611 28.70475 47.269823 25.89025 52.02201 20.713582 57.140205 25.178151 58.297042 30.474981 61.009432 42.894252 46.635675 43.493948 35.369795 42.886358 26.049568 42.383696 13.754448 44.796535 6.3665254 40.149635"
+        android:strokeColor="#00AEEC"
+        android:strokeWidth="2.5106"
+        android:strokeLineCap="round" />
+    </group>
+  </group>
+</vector>
