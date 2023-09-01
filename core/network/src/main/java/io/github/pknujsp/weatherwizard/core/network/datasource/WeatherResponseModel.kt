@@ -8,3 +8,5 @@ interface CurrentWeatherResponseModel : ApiResponseModel
 interface HourlyForecastResponseModel : ApiResponseModel
 
 interface DailyForecastResponseModel : ApiResponseModel
+
+interface YesterdayWeatherResponseModel : ApiResponseModel

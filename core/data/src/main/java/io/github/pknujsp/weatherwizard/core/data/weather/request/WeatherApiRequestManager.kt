@@ -4,24 +4,24 @@ import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherDataProv
 import io.github.pknujsp.weatherwizard.core.network.ApiResponseModel
 
 interface WeatherApiRequestManager {
-    fun getCurrentWeather(
+    suspend fun getCurrentWeather(
         latitude: Double,
         longitude: Double,
         weatherDataProvider: WeatherDataProvider,
         requestId: Long
     ): Result<ApiResponseModel>
 
-    fun getHourlyForecast(latitude: Double, longitude: Double, weatherDataProvider: WeatherDataProvider, requestId: Long):
+    suspend fun getHourlyForecast(latitude: Double, longitude: Double, weatherDataProvider: WeatherDataProvider, requestId: Long):
             Result<ApiResponseModel>
 
-    fun getDailyForecast(
+    suspend fun getDailyForecast(
         latitude: Double,
         longitude: Double,
         weatherDataProvider: WeatherDataProvider,
         requestId: Long
     ): Result<ApiResponseModel>
 
-    fun getYesterdayWeather(
+    suspend fun getYesterdayWeather(
         latitude: Double,
         longitude: Double,
         weatherDataProvider: WeatherDataProvider,

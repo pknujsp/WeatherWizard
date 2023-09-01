@@ -3,6 +3,7 @@ package io.github.pknujsp.weatherwizard.core.network.datasource.kma
 import io.github.pknujsp.weatherwizard.core.network.datasource.CurrentWeatherResponseModel
 import io.github.pknujsp.weatherwizard.core.network.datasource.DailyForecastResponseModel
 import io.github.pknujsp.weatherwizard.core.network.datasource.HourlyForecastResponseModel
+import io.github.pknujsp.weatherwizard.core.network.datasource.YesterdayWeatherResponseModel
 import io.github.pknujsp.weatherwizard.core.network.datasource.kma.parser.ParsedKmaCurrentWeather
 import io.github.pknujsp.weatherwizard.core.network.datasource.kma.parser.ParsedKmaDailyForecast
 import io.github.pknujsp.weatherwizard.core.network.datasource.kma.parser.ParsedKmaHourlyForecast
@@ -10,7 +11,7 @@ import io.github.pknujsp.weatherwizard.core.network.datasource.kma.parser.Parsed
 
 class KmaCurrentWeatherResponse(
     currentWeather: ParsedKmaCurrentWeather,
-    hourlyForecast: KmaHourlyForecastResponse.Item,
+    hourlyForecast: ParsedKmaHourlyForecast,
 ) : CurrentWeatherResponseModel {
 
     val weatherCondition: String = hourlyForecast.weatherDescription
@@ -111,4 +112,10 @@ class KmaDailyForecastResponse(
         )
 
     }
+}
+
+class KmaYesterdayWeatherResponse(
+    currentWeather: ParsedKmaCurrentWeather,
+) : YesterdayWeatherResponseModel {
+    val temperature: String = currentWeather.yesterdayTemp
 }

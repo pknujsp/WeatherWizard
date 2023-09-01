@@ -7,12 +7,12 @@ import io.github.pknujsp.weatherwizard.core.model.R
 
 interface WeatherValue
 
-abstract class WeatherValueClass : WeatherValue {
-    abstract val value: WeatherDoubleValueType
-    abstract val unit: WeatherDataUnit
+abstract class WeatherValueClass<T : WeatherDataType> : WeatherValue {
+    abstract val value: T
+    abstract val unit: WeatherDataUnit<T>
 
     fun formattedIntValue(): String = "${value.toInt()}${unit.symbol}"
-    fun formattedDoubleValue(): String = "${value * 10 / 10.0}${unit.symbol}"
+    fun formattedDoubleValue(): String = "${value.toDouble() * 10 / 10.0}${unit.symbol}"
 }
 
 data class WeatherConditionValueClass(
@@ -23,12 +23,12 @@ data class WeatherConditionValueClass(
 data class TemperatureValueClass(
     override val value: TemperatureType,
     override val unit: TemperatureUnit,
-) : WeatherValueClass()
+) : WeatherValueClass<TemperatureType>()
 
 data class WindSpeedValueClass(
     override val value: WindSpeedType,
     override val unit: WindSpeedUnit,
-) : WeatherValueClass() {
+) : WeatherValueClass<WindSpeedType>() {
 
     private companion object {
         val beaufortScale = listOf(
@@ -61,23 +61,23 @@ data class WindSpeedValueClass(
 data class WindDirectionValueClass(
     override val value: WindDirectionType,
     override val unit: WindDirectionUnit,
-) : WeatherValueClass()
+) : WeatherValueClass<WindDirectionType>()
 
 data class HumidityValueClass(
     override val value: HumidityType,
     override val unit: PercentUnit,
-) : WeatherValueClass()
+) : WeatherValueClass<HumidityType>()
 
 
 data class AirQualityValueClass(
     override val value: AirQualityType,
     override val unit: AirQualityUnit,
-) : WeatherValueClass()
+) : WeatherValueClass<AirQualityType>()
 
 data class PressureValueClass(
     override val value: PressureType,
     override val unit: PressureUnit,
-) : WeatherValueClass() {
+) : WeatherValueClass<PressureType>() {
 
     private companion object {
         val pressureScale = listOf(
@@ -99,7 +99,7 @@ data class PressureValueClass(
 data class VisibilityValueClass(
     override val value: VisibilityType,
     override val unit: VisibilityUnit,
-) : WeatherValueClass() {
+) : WeatherValueClass<VisibilityType>() {
     private companion object {
         val visibilityScale = listOf(
             0.0 to R.string.visibility_extremely_low,
@@ -121,27 +121,27 @@ data class VisibilityValueClass(
 data class UVIndexValueClass(
     override val value: UVIndexType,
     override val unit: UVIndexUnit,
-) : WeatherValueClass()
+) : WeatherValueClass<UVIndexType>()
 
 data class DewPointValueClass(
     override val value: DewPointType,
     override val unit: TemperatureUnit,
-) : WeatherValueClass()
+) : WeatherValueClass<DewPointType>()
 
 data class CloudinessValueClass(
     override val value: CloudinessType,
     override val unit: PercentUnit,
-) : WeatherValueClass()
+) : WeatherValueClass<CloudinessType>()
 
 data class PrecipitationValueClass(
     override val value: PrecipitationVolumeType,
     override val unit: PrecipitationUnit,
-) : WeatherValueClass()
+) : WeatherValueClass<PrecipitationVolumeType>()
 
 data class SnowfallValueClass(
     override val value: PrecipitationVolumeType,
     override val unit: PrecipitationUnit,
-) : WeatherValueClass() {
+) : WeatherValueClass<PrecipitationVolumeType>() {
     private companion object {
         val snowfallScale = listOf(
             0.0 to R.string.snowfall_none,
@@ -162,7 +162,7 @@ data class SnowfallValueClass(
 data class RainfallValueClass(
     override val value: PrecipitationVolumeType,
     override val unit: PrecipitationUnit,
-) : WeatherValueClass() {
+) : WeatherValueClass<PrecipitationVolumeType>() {
     private companion object {
         val rainfallScale = listOf(
             0.0 to R.string.rainfall_none,
