@@ -3,7 +3,6 @@ package io.github.pknujsp.weatherwizard.core.model.weather.dailyforecast
 import io.github.pknujsp.weatherwizard.core.model.EntityModel
 import io.github.pknujsp.weatherwizard.core.model.weather.common.CloudinessType
 import io.github.pknujsp.weatherwizard.core.model.weather.common.DateTimeType
-import io.github.pknujsp.weatherwizard.core.model.weather.common.DateType
 import io.github.pknujsp.weatherwizard.core.model.weather.common.DewPointType
 import io.github.pknujsp.weatherwizard.core.model.weather.common.HumidityType
 import io.github.pknujsp.weatherwizard.core.model.weather.common.PressureType
@@ -16,22 +15,20 @@ import io.github.pknujsp.weatherwizard.core.model.weather.common.item.WindEntity
 
 data class DailyForecastEntity(
     val items: List<Item>,
-    val date: DateType,
-    val temperature: TemperatureEntity,
 ) : EntityModel {
 
     data class Item(
         val dateTime: DateTimeType,
         val weatherCondition: WeatherConditionType,
         val temperature: TemperatureEntity,
-        val dewPoint: DewPointType,
-        val humidity: HumidityType,
-        val windEntity: WindEntity,
-        val pressure: PressureType,
-        val uvIndex: UVIndexType,
-        val visibility: VisibilityType,
-        val cloudiness: CloudinessType,
+        val dewPoint: DewPointType = DewPointType.emptyValue(),
+        val humidity: HumidityType = HumidityType.emptyValue(),
+        val windEntity: WindEntity = WindEntity.emptyEntity(),
+        val pressure: PressureType = PressureType.emptyValue(),
+        val uvIndex: UVIndexType = UVIndexType.emptyValue(),
+        val visibility: VisibilityType = VisibilityType.emptyValue(),
+        val cloudiness: CloudinessType = CloudinessType.emptyValue(),
         val precipitation: PrecipitationEntity,
-        val thunder: Boolean
+        val thunder: Boolean = false
     )
 }

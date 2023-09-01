@@ -46,7 +46,6 @@ typealias PrecipitationProbabilityType = WeatherDoubleValueType
 
 typealias ContaminantConcentrationType = WeatherIntValueType
 
-typealias PrecipitationCategoryType = WeatherTextValueType
 typealias WeatherConditionType = WeatherTextValueType
 typealias DateType = WeatherTextValueType
 typealias DateTimeType = WeatherTextValueType

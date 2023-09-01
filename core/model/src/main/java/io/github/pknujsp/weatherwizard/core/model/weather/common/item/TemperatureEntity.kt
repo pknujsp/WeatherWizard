@@ -8,4 +8,5 @@ data class TemperatureEntity(
     val max: TemperatureType = TemperatureType.emptyValue(),
     val minFeelsLike: TemperatureType = TemperatureType.emptyValue(),
     val maxFeelsLike: TemperatureType = TemperatureType.emptyValue(),
+    val feelsLike: TemperatureType = TemperatureType.emptyValue(),
 )

@@ -9,4 +9,15 @@ data class WindEntity(
     val direction: WindDirectionType,
     val directionDegree: WindDirectionDegreeType,
     val gust: WindSpeedType = WindSpeedType.emptyValue(),
-)
+) {
+    companion object {
+        fun emptyEntity(): WindEntity {
+            return WindEntity(
+                WindSpeedType.emptyValue(),
+                WindDirectionType.emptyValue(),
+                WindDirectionDegreeType.emptyValue(),
+                WindSpeedType.emptyValue()
+            )
+        }
+    }
+}

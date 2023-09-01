@@ -68,6 +68,7 @@ class KmaHourlyForecastResponse(
 class KmaDailyForecastResponse(
     dailyForecasts: List<ParsedKmaDailyForecast>,
 ) : DailyForecastResponseModel {
+
     val items: List<Item> = dailyForecasts.map {
         Item(
             dateISO8601 = it.dateISO8601,

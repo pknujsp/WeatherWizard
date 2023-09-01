@@ -15,12 +15,12 @@ import io.github.pknujsp.weatherwizard.core.model.weather.common.item.WindEntity
 data class CurrentWeatherEntity(
     val weatherCondition: WeatherConditionType,
     val temperature: TemperatureEntity,
-    val dewPoint: DewPointType,
+    val dewPoint: DewPointType = DewPointType.emptyValue(),
     val humidity: HumidityType,
     val windEntity: WindEntity,
-    val pressure: PressureType,
-    val uvIndex: UVIndexType,
-    val visibility: VisibilityType,
-    val cloudiness: CloudinessType,
+    val pressure: PressureType = PressureType.emptyValue(),
+    val uvIndex: UVIndexType = UVIndexType.emptyValue(),
+    val visibility: VisibilityType = VisibilityType.emptyValue(),
+    val cloudiness: CloudinessType = CloudinessType.emptyValue(),
     val precipitation: PrecipitationEntity,
 ) : EntityModel
