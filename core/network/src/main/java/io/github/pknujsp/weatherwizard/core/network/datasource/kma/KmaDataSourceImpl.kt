@@ -2,6 +2,9 @@ package io.github.pknujsp.weatherwizard.core.network.datasource.kma
 
 import io.github.pknujsp.weatherwizard.core.network.ApiResponseModel
 import io.github.pknujsp.weatherwizard.core.network.api.kma.KmaNetworkApi
+import io.github.pknujsp.weatherwizard.core.network.datasource.kma.parameter.KmaCurrentWeatherRequestParameter
+import io.github.pknujsp.weatherwizard.core.network.datasource.kma.parameter.KmaDailyForecastRequestParameter
+import io.github.pknujsp.weatherwizard.core.network.datasource.kma.parameter.KmaHourlyForecastRequestParameter
 import io.github.pknujsp.weatherwizard.core.network.datasource.kma.parser.KmaHtmlParser
 import io.github.pknujsp.weatherwizard.core.network.datasource.kma.parser.ParsedKmaDailyForecast
 import io.github.pknujsp.weatherwizard.core.network.datasource.kma.parser.ParsedKmaHourlyForecast
@@ -26,14 +29,17 @@ class KmaDataSourceImpl @Inject constructor(
     private val forecastRequestStateMap = mutableMapOf<Long, MutableStateFlow<ForecastRequestState>>()
     private val mutex = Mutex()
 
-    override suspend fun getCurrentWeather(code: String, requestId: Long): Result<KmaCurrentWeatherResponse> {
-        requestForecast(code, requestId)
-        val hourlyForecasts = mutex.withLock { forecastRequestStateMap[requestId]!! }.filter { it !is ForecastRequestState.Waiting }.first()
+    override suspend fun getCurrentWeather(parameter: KmaCurrentWeatherRequestParameter): Result<KmaCurrentWeatherResponse> {
+        requestForecast(parameter.code, parameter.requestId)
+        val hourlyForecasts = mutex.withLock { forecastRequestStateMap[parameter.requestId]!! }.filter {
+            it !is ForecastRequestState
+            .Waiting
+        }.first()
             .onResponse<KmaHourlyForecastResponse>()
 
         if (hourlyForecasts.isFailure) return Result.failure(hourlyForecasts.exceptionOrNull()!!)
 
-        return kmaNetworkApi.getCurrentWeather(code = code).onResponse().fold(
+        return kmaNetworkApi.getCurrentWeather(code = parameter.code).onResponse().fold(
             onSuccess = {
                 val parsed = kmaHtmlParser.parseCurrentConditions(
                     document = WeakReference(Jsoup.parse(it)).get()!!,
@@ -47,16 +53,16 @@ class KmaDataSourceImpl @Inject constructor(
         )
     }
 
-    override suspend fun getHourlyForecast(code: String, requestId: Long): Result<KmaHourlyForecastResponse> {
-        requestForecast(code, requestId)
-        return mutex.withLock { forecastRequestStateMap[requestId]!! }.filter { it !is ForecastRequestState.Waiting }.first()
+    override suspend fun getHourlyForecast(parameter: KmaHourlyForecastRequestParameter): Result<KmaHourlyForecastResponse> {
+        requestForecast(parameter.code, parameter.requestId)
+        return mutex.withLock { forecastRequestStateMap[parameter.requestId]!! }.filter { it !is ForecastRequestState.Waiting }.first()
             .onResponse()
     }
 
 
-    override suspend fun getDailyForecast(code: String, requestId: Long): Result<KmaDailyForecastResponse> {
-        requestForecast(code, requestId)
-        return mutex.withLock { forecastRequestStateMap[requestId]!! }.filter { it !is ForecastRequestState.Waiting }.first()
+    override suspend fun getDailyForecast(parameter: KmaDailyForecastRequestParameter): Result<KmaDailyForecastResponse> {
+        requestForecast(parameter.code, parameter.requestId)
+        return mutex.withLock { forecastRequestStateMap[parameter.requestId]!! }.filter { it !is ForecastRequestState.Waiting }.first()
             .onResponse()
     }
 

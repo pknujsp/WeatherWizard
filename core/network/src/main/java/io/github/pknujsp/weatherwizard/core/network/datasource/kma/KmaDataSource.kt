@@ -1,9 +1,13 @@
 package io.github.pknujsp.weatherwizard.core.network.datasource.kma
 
+import io.github.pknujsp.weatherwizard.core.network.datasource.kma.parameter.KmaCurrentWeatherRequestParameter
+import io.github.pknujsp.weatherwizard.core.network.datasource.kma.parameter.KmaDailyForecastRequestParameter
+import io.github.pknujsp.weatherwizard.core.network.datasource.kma.parameter.KmaHourlyForecastRequestParameter
+
 interface KmaDataSource {
-    suspend fun getCurrentWeather(code: String, requestId: Long): Result<KmaCurrentWeatherResponse>
+    suspend fun getCurrentWeather(parameter: KmaCurrentWeatherRequestParameter): Result<KmaCurrentWeatherResponse>
 
-    suspend fun getHourlyForecast(code: String, requestId: Long): Result<KmaHourlyForecastResponse>
+    suspend fun getHourlyForecast(parameter: KmaHourlyForecastRequestParameter): Result<KmaHourlyForecastResponse>
 
-    suspend fun getDailyForecast(code: String, requestId: Long): Result<KmaDailyForecastResponse>
+    suspend fun getDailyForecast(parameter: KmaDailyForecastRequestParameter): Result<KmaDailyForecastResponse>
 }
