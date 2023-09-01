@@ -107,7 +107,7 @@ sealed class VisibilityUnit(override val symbol: String) : WeatherDataUnit<Visib
 sealed class PressureUnit(override val symbol: String) : WeatherDataUnit<PressureType>(symbol) {
     object Hectopascal : PressureUnit("hPa") {
         override fun convert(value: PressureType, to: WeatherDataUnit<*>): PressureType = when (to) {
-            InchOfMercury -> (value.value / 33.863886666667).toPressureType()
+            InchOfMercury -> (value.value / 33.863886666667).toInt().toPressureType()
             Millibar -> value
             else -> value
         }
@@ -115,8 +115,8 @@ sealed class PressureUnit(override val symbol: String) : WeatherDataUnit<Pressur
 
     object InchOfMercury : PressureUnit("inHg") {
         override fun convert(value: PressureType, to: WeatherDataUnit<*>): PressureType = when (to) {
-            Hectopascal -> (value.value * 33.863886666667).toPressureType()
-            Millibar -> (value.value * 33.863886666667).toPressureType()
+            Hectopascal -> (value.value * 33.863886666667).toInt().toPressureType()
+            Millibar -> (value.value * 33.863886666667).toInt().toPressureType()
             else -> value
         }
     }
@@ -124,7 +124,7 @@ sealed class PressureUnit(override val symbol: String) : WeatherDataUnit<Pressur
     object Millibar : PressureUnit("mb") {
         override fun convert(value: PressureType, to: WeatherDataUnit<*>): PressureType = when (to) {
             Hectopascal -> (value.value).toPressureType()
-            InchOfMercury -> (value.value / 33.863886666667).toPressureType()
+            InchOfMercury -> (value.value / 33.863886666667).toInt().toPressureType()
             else -> value
         }
     }
@@ -134,7 +134,7 @@ sealed class PressureUnit(override val symbol: String) : WeatherDataUnit<Pressur
 sealed class WindDirectionUnit(override val symbol: String) : WeatherDataUnit<WindDirectionType>(symbol) {
     object Degree : WindDirectionUnit("°") {
         override fun convert(value: WindDirectionType, to: WeatherDataUnit<*>): WindDirectionType = when (to) {
-            Compass16 -> (value.value / 22.5).toWindDirectionType()
+            Compass16 -> (value.value / 22.5).toInt().toWindDirectionType()
             Compass8 -> (value.value / 45).toWindDirectionType()
             Compass4 -> (value.value / 90).toWindDirectionType()
             else -> value
@@ -143,7 +143,7 @@ sealed class WindDirectionUnit(override val symbol: String) : WeatherDataUnit<Wi
 
     object Compass16 : WindDirectionUnit("16") {
         override fun convert(value: WindDirectionType, to: WeatherDataUnit<*>): WindDirectionType = when (to) {
-            Degree -> (value.value * 22.5).toWindDirectionType()
+            Degree -> (value.value * 22.5).toInt().toWindDirectionType()
             Compass8 -> (value.value / 2).toWindDirectionType()
             Compass4 -> (value.value / 4).toWindDirectionType()
             else -> value
@@ -182,6 +182,10 @@ sealed class UVIndexUnit(override val symbol: String) : WeatherDataUnit<UVIndexT
     }
 }
 
-sealed class PercentUnit(override val symbol: String = "%") : WeatherDataUnit<WeatherDoubleValueType>(symbol) {
+class IntPercentUnit(override val symbol: String = "%") : WeatherDataUnit<WeatherIntValueType>(symbol) {
+    override fun convert(value: WeatherIntValueType, to: WeatherDataUnit<*>): WeatherIntValueType = value
+}
+
+sealed class DoublePercentUnit(override val symbol: String = "%") : WeatherDataUnit<WeatherDoubleValueType>(symbol) {
     override fun convert(value: WeatherDoubleValueType, to: WeatherDataUnit<*>): WeatherDoubleValueType = value
 }

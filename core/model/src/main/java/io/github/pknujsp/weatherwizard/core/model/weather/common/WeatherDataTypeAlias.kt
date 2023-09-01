@@ -14,17 +14,16 @@ interface WeatherDataType {
 
 fun Double.toTemperatureType() = TemperatureType(this)
 
-fun Double.toHumidityType() = HumidityType(this)
+fun Int.toHumidityType() = HumidityType(this)
 
 fun Double.toWindSpeedType() = WindSpeedType(this)
 
-fun Double.toWindDirectionType() = WindDirectionType(this)
+fun Int.toWindDirectionType() = WindDirectionType(this)
 
-fun Double.toWindDirectionDegreeType() = WindDirectionDegreeType(this)
 
 fun Double.toAirQualityType() = AirQualityType(this)
 
-fun Double.toPressureType() = PressureType(this)
+fun Int.toPressureType() = PressureType(this)
 
 fun Double.toVisibilityType() = VisibilityType(this)
 
@@ -36,7 +35,7 @@ fun Double.toCloudinessType() = CloudinessType(this)
 
 fun Double.toPrecipitationVolumeType() = PrecipitationVolumeType(this)
 
-fun Double.toPrecipitationProbabilityType() = PrecipitationProbabilityType(this)
+fun Int.toPrecipitationProbabilityType() = PrecipitationProbabilityType(this)
 
 fun Int.toContaminantConcentrationType() = ContaminantConcentrationType(this)
 
@@ -75,20 +74,19 @@ data class WeatherTextValueType(override val value: String) : WeatherDataType {
 }
 
 typealias TemperatureType = WeatherDoubleValueType
-typealias HumidityType = WeatherDoubleValueType
 typealias WindSpeedType = WeatherDoubleValueType
-typealias WindDirectionType = WeatherDoubleValueType
-typealias WindDirectionDegreeType = WeatherDoubleValueType
 typealias AirQualityType = WeatherDoubleValueType
-typealias PressureType = WeatherDoubleValueType
 typealias VisibilityType = WeatherDoubleValueType
 typealias UVIndexType = WeatherDoubleValueType
 typealias DewPointType = WeatherDoubleValueType
 typealias CloudinessType = WeatherDoubleValueType
 typealias PrecipitationVolumeType = WeatherDoubleValueType
-typealias PrecipitationProbabilityType = WeatherDoubleValueType
 
+typealias PrecipitationProbabilityType = WeatherIntValueType
 typealias ContaminantConcentrationType = WeatherIntValueType
+typealias WindDirectionType = WeatherIntValueType
+typealias HumidityType = WeatherIntValueType
+typealias PressureType = WeatherIntValueType
 
 typealias WeatherConditionType = WeatherTextValueType
 typealias DateType = WeatherTextValueType

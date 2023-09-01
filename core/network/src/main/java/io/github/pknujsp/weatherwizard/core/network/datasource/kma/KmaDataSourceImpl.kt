@@ -1,6 +1,6 @@
 package io.github.pknujsp.weatherwizard.core.network.datasource.kma
 
-import io.github.pknujsp.weatherwizard.core.network.ApiResponseModel
+import android.util.LruCache
 import io.github.pknujsp.weatherwizard.core.network.api.kma.KmaNetworkApi
 import io.github.pknujsp.weatherwizard.core.network.datasource.kma.parameter.KmaCurrentWeatherRequestParameter
 import io.github.pknujsp.weatherwizard.core.network.datasource.kma.parameter.KmaDailyForecastRequestParameter
@@ -24,41 +24,41 @@ class KmaDataSourceImpl @Inject constructor(
 ) : KmaDataSource {
 
     private val zoneId = ZoneId.of("Asia/Seoul")
-    private val forecastRequestStateMap = mutableMapOf<Long, MutableStateFlow<ForecastRequestState>>()
+    private val forecastRequestStateMap = LruCache<Long, MutableStateFlow<ForecastRequestState>>(3)
     private val mutex = Mutex()
 
     override suspend fun getCurrentWeather(parameter: KmaCurrentWeatherRequestParameter): Result<KmaCurrentWeatherResponse> {
         request(parameter.code, parameter.requestId)
         return mutex.withLock { forecastRequestStateMap[parameter.requestId]!! }.filter { it !is ForecastRequestState.Waiting }.first()
-            .onResponse()
+            .onResponse().map { it.currentWeather }
     }
 
     override suspend fun getHourlyForecast(parameter: KmaHourlyForecastRequestParameter): Result<KmaHourlyForecastResponse> {
         request(parameter.code, parameter.requestId)
         return mutex.withLock { forecastRequestStateMap[parameter.requestId]!! }.filter { it !is ForecastRequestState.Waiting }.first()
-            .onResponse()
+            .onResponse().map { it.hourlyForecasts }
     }
 
     override suspend fun getDailyForecast(parameter: KmaDailyForecastRequestParameter): Result<KmaDailyForecastResponse> {
         request(parameter.code, parameter.requestId)
         return mutex.withLock { forecastRequestStateMap[parameter.requestId]!! }.filter { it !is ForecastRequestState.Waiting }.first()
-            .onResponse()
+            .onResponse().map { it.dailyForecasts }
     }
 
     override suspend fun getYesterdayWeather(parameter: KmaYesterdayWeatherRequestParameter): Result<KmaYesterdayWeatherResponse> {
         request(parameter.code, parameter.requestId)
         return mutex.withLock { forecastRequestStateMap[parameter.requestId]!! }.filter { it !is ForecastRequestState.Waiting }.first()
-            .onResponse()
+            .onResponse().map { it.yesterdayWeather }
     }
 
 
     private suspend fun request(code: String, requestId: Long) {
         mutex.withLock {
-            if (forecastRequestStateMap.containsKey(requestId)) {
+            if (forecastRequestStateMap.get(requestId) != null) {
                 forecastRequestStateMap[requestId]!!.value.registerWaiting()
                 return
             }
-            forecastRequestStateMap[requestId] = MutableStateFlow(ForecastRequestState.Waiting(requestId))
+            forecastRequestStateMap.put(requestId, MutableStateFlow(ForecastRequestState.Waiting(requestId)))
         }
 
         // 현재날씨
@@ -170,17 +170,15 @@ class KmaDataSourceImpl @Inject constructor(
 
     }
 
-    private suspend inline fun <reified T : ApiResponseModel> ForecastRequestState.onResponse(): Result<T> {
+    private suspend fun ForecastRequestState.onResponse(): Result<Response> {
         return when (this) {
             is ForecastRequestState.Success -> {
                 ForecastRequestState.mutex.withLock {
                     response.consume()
                     if (response.isAllConsumed()) {
-                        forecastRequestStateMap.remove(requestId)
                     }
                 }
-
-                Result.success(response as T)
+                Result.success(response)
             }
 
             is ForecastRequestState.Failure -> Result.failure(throwable)

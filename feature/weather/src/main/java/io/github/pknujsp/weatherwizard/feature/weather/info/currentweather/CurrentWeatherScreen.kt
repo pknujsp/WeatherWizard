@@ -41,10 +41,10 @@ fun CurrentWeatherScreen(weatherInfoViewModel: WeatherInfoViewModel) {
 
                     Text(
                         text = listOf(
-                            AStyle(currentWeather.temperature.value.toInt().toString()),
-                            AStyle(currentWeather.temperature.unit.symbol, span = SpanStyle(fontSize = TextUnit(24f, TextUnitType.Sp))),
+                            AStyle(currentWeather.temperature.value.value.toString(), span = SpanStyle(fontSize = TextUnit(60f,
+                                TextUnitType.Sp))),
+                            AStyle(currentWeather.temperature.unit.symbol, span = SpanStyle(fontSize = TextUnit(32f, TextUnitType.Sp))),
                         ).toAnnotated(),
-                        style = TextStyle(fontSize = TextUnit(50f, TextUnitType.Sp)),
                         modifier = Modifier.constrainAs(temperature) {
                             bottom.linkTo(parent.bottom)
                             absoluteLeft.linkTo(parent.absoluteLeft)
@@ -59,7 +59,7 @@ fun CurrentWeatherScreen(weatherInfoViewModel: WeatherInfoViewModel) {
                         modifier = Modifier
                             .size(24.dp)
                             .constrainAs(weatherIcon) {
-                                bottom.linkTo(temperature.top, margin = 8.dp)
+                                bottom.linkTo(temperature.top)
                                 absoluteLeft.linkTo(parent.absoluteLeft)
                             },
                     )
@@ -69,7 +69,8 @@ fun CurrentWeatherScreen(weatherInfoViewModel: WeatherInfoViewModel) {
                         modifier = Modifier
                             .absolutePadding(left = 8.dp)
                             .constrainAs(weatherCondition) {
-                                baseline.linkTo(weatherIcon.baseline)
+                                bottom.linkTo(weatherIcon.bottom)
+                                top.linkTo(weatherIcon.top)
                                 absoluteLeft.linkTo(weatherIcon.absoluteRight)
                             },
                         style = TextStyle(fontSize = TextUnit(20f, TextUnitType.Sp)),
@@ -78,8 +79,8 @@ fun CurrentWeatherScreen(weatherInfoViewModel: WeatherInfoViewModel) {
                     Text(
                         text = listOf(
                             AStyle(stringResource(id = WeatherDataCategory.FEELS_LIKE_TEMPERATURE.stringId)),
-                            AStyle(currentWeather.feelsLikeTemperature.value.toInt().toString(),
-                                span = SpanStyle(fontSize = TextUnit(30f, TextUnitType.Sp))),
+                            AStyle(currentWeather.feelsLikeTemperature.value.value.toString(),
+                                span = SpanStyle(fontSize = TextUnit(34f, TextUnitType.Sp))),
                             AStyle(currentWeather.feelsLikeTemperature.unit.symbol,
                                 span = SpanStyle(fontSize = TextUnit(20f, TextUnitType.Sp))),
                         ).toAnnotated(),
@@ -92,10 +93,10 @@ fun CurrentWeatherScreen(weatherInfoViewModel: WeatherInfoViewModel) {
                     Text(
                         text = "${stringResource(id = WeatherDataCategory.AIR_QUALITY_INDEX.stringId)} ${
                             currentWeather.airQuality
-                                .formattedIntValue()
+                                .formattedDoubleValue()
                         }",
                         modifier = Modifier.constrainAs(airQuality) {
-                            bottom.linkTo(feelsLikeTemperature.top, margin = 8.dp)
+                            bottom.linkTo(feelsLikeTemperature.top)
                             absoluteRight.linkTo(parent.absoluteRight)
                         },
                     )

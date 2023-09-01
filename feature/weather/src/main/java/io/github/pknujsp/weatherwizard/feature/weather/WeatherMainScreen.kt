@@ -8,8 +8,8 @@ import io.github.pknujsp.weatherwizard.feature.weather.info.WeatherInfoScreen
 
 @Composable
 fun WeatherMainScreen() {
-  val mainViewModel: WeatherMainViewModel = hiltViewModel()
-  val navController = rememberNavController()
+    val mainViewModel: WeatherMainViewModel = hiltViewModel()
+    val navController = rememberNavController()
 
-  WeatherInfoScreen()
+    WeatherInfoScreen()
 }

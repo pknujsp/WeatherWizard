@@ -32,6 +32,7 @@ import io.github.pknujsp.weatherwizard.feature.weather.info.hourlyforecast.Hourl
 fun WeatherInfoScreen() {
     val weatherInfoViewModel: WeatherInfoViewModel = hiltViewModel()
     val weatherInfo = weatherInfoViewModel.weatherInfo.collectAsState()
+    weatherInfoViewModel.loadAllWeatherData()
 
     Surface(
         modifier = Modifier

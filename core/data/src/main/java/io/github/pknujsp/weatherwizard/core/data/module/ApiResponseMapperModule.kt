@@ -11,6 +11,7 @@ import io.github.pknujsp.weatherwizard.core.data.weather.mapper.WeatherResponseM
 import io.github.pknujsp.weatherwizard.core.network.datasource.kma.KmaCurrentWeatherResponse
 import io.github.pknujsp.weatherwizard.core.network.datasource.kma.KmaDailyForecastResponse
 import io.github.pknujsp.weatherwizard.core.network.datasource.kma.KmaHourlyForecastResponse
+import io.github.pknujsp.weatherwizard.core.network.datasource.kma.KmaYesterdayWeatherResponse
 import javax.inject.Named
 import javax.inject.Singleton
 
@@ -23,13 +24,13 @@ object ApiResponseMapperModule {
     @Provides
     @Singleton
     @Named(KMA_WEATHER_RESPONSE_MAPPER)
-    fun providesKmaResponseMapper(): WeatherResponseMapper<KmaCurrentWeatherResponse, KmaHourlyForecastResponse, KmaDailyForecastResponse, KmaCurrentWeatherResponse> =
-        KmaResponseMapper()
+    fun providesKmaResponseMapper(): WeatherResponseMapper<KmaCurrentWeatherResponse, KmaHourlyForecastResponse,
+            KmaDailyForecastResponse, KmaYesterdayWeatherResponse> = KmaResponseMapper()
 
     @Singleton
     @Provides
     fun providesWeatherResponseMapperManager(
         @Named(KMA_WEATHER_RESPONSE_MAPPER)
-        kmaResponseMapper: WeatherResponseMapper<KmaCurrentWeatherResponse, KmaHourlyForecastResponse, KmaDailyForecastResponse, KmaCurrentWeatherResponse>
+        kmaResponseMapper: WeatherResponseMapper<KmaCurrentWeatherResponse, KmaHourlyForecastResponse, KmaDailyForecastResponse, KmaYesterdayWeatherResponse>
     ): WeatherResponseMapperManager = WeatherResponseMapperManagerImpl(kmaResponseMapper)
 }

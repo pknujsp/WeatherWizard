@@ -2,11 +2,14 @@ package io.github.pknujsp.weatherwizard.core.data.weather.kma
 
 import io.github.pknujsp.weatherwizard.core.data.weather.mapper.WeatherResponseMapper
 import io.github.pknujsp.weatherwizard.core.model.weather.common.DateTimeType
+import io.github.pknujsp.weatherwizard.core.model.weather.common.HumidityType
 import io.github.pknujsp.weatherwizard.core.model.weather.common.PrecipitationProbabilityType
 import io.github.pknujsp.weatherwizard.core.model.weather.common.TemperatureType
 import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherConditionType
 import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherDoubleValueType
 import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherTextValueType
+import io.github.pknujsp.weatherwizard.core.model.weather.common.WindDirectionType
+import io.github.pknujsp.weatherwizard.core.model.weather.common.WindSpeedType
 import io.github.pknujsp.weatherwizard.core.model.weather.common.item.PrecipitationEntity
 import io.github.pknujsp.weatherwizard.core.model.weather.common.item.TemperatureEntity
 import io.github.pknujsp.weatherwizard.core.model.weather.common.item.WindEntity
@@ -17,19 +20,20 @@ import io.github.pknujsp.weatherwizard.core.model.weather.yesterday.YesterdayWea
 import io.github.pknujsp.weatherwizard.core.network.datasource.kma.KmaCurrentWeatherResponse
 import io.github.pknujsp.weatherwizard.core.network.datasource.kma.KmaDailyForecastResponse
 import io.github.pknujsp.weatherwizard.core.network.datasource.kma.KmaHourlyForecastResponse
+import io.github.pknujsp.weatherwizard.core.network.datasource.kma.KmaYesterdayWeatherResponse
 import javax.inject.Inject
 
 
 class KmaResponseMapper @Inject constructor() :
-    WeatherResponseMapper<KmaCurrentWeatherResponse, KmaHourlyForecastResponse, KmaDailyForecastResponse, KmaCurrentWeatherResponse> {
+    WeatherResponseMapper<KmaCurrentWeatherResponse, KmaHourlyForecastResponse, KmaDailyForecastResponse, KmaYesterdayWeatherResponse> {
     override fun mapCurrentWeather(response: KmaCurrentWeatherResponse): CurrentWeatherEntity {
         return response.run {
             CurrentWeatherEntity(weatherCondition = WeatherTextValueType(weatherCondition),
-                temperature = TemperatureEntity(current = TemperatureType(temperature), feelsLike = TemperatureType(feelsLikeTemperature)),
-                humidity = WeatherDoubleValueType(humidity),
+                temperature = TemperatureEntity(current = TemperatureType(temperature),
+                    feelsLike = TemperatureType(feelsLikeTemperature)),
+                humidity = HumidityType(humidity),
                 windEntity = WindEntity(speed = WeatherDoubleValueType(windSpeed),
-                    direction = WeatherDoubleValueType(windDirection),
-                    directionDegree = WeatherDoubleValueType(windDirection)),
+                    direction = WindDirectionType(windDirection)),
                 precipitation = PrecipitationEntity(totalVolume = WeatherDoubleValueType(precipitationVolume)))
         }
     }
@@ -37,17 +41,16 @@ class KmaResponseMapper @Inject constructor() :
     override fun mapHourlyForecast(response: KmaHourlyForecastResponse): HourlyForecastEntity {
         val list = response.items.map { item ->
             HourlyForecastEntity.Item(
-                dateTime = WeatherTextValueType(item.hourISO8601),
+                dateTime = WeatherTextValueType(item.dateTime),
                 weatherCondition = WeatherTextValueType(item.weatherDescription),
-                temperature = TemperatureEntity(current = WeatherDoubleValueType(item.temp.toDouble()),
-                    feelsLike = WeatherDoubleValueType(item.feelsLikeTemp.toDouble())),
-                humidity = WeatherDoubleValueType(item.humidity.toDouble()),
-                wind = WindEntity(speed = WeatherDoubleValueType(item.windSpeed.toDouble()),
-                    direction = WeatherDoubleValueType(item.windDirection.toDouble()),
-                    directionDegree = WeatherDoubleValueType(item.windDirection.toDouble())),
-                precipitation = PrecipitationEntity(rainVolume = WeatherDoubleValueType(item.rainVolume.toDouble()),
-                    snowVolume = WeatherDoubleValueType(item.snowVolume.toDouble()),
-                    totalVolume = WeatherDoubleValueType(item.rainVolume.toDouble() + item.snowVolume.toDouble())),
+                temperature = TemperatureEntity(current = TemperatureType(item.temp),
+                    feelsLike = TemperatureType(item.feelsLikeTemp)),
+                humidity = HumidityType(item.humidity),
+                wind = WindEntity(speed = WindSpeedType(item.windSpeed),
+                    direction = WindDirectionType(item.windDirection)),
+                precipitation = PrecipitationEntity(rainVolume = WeatherDoubleValueType(item.rainVolume),
+                    snowVolume = WeatherDoubleValueType(item.snowVolume),
+                    totalVolume = WeatherDoubleValueType(item.rainVolume + item.snowVolume)),
                 thunder = item.isHasThunder,
             )
         }
@@ -57,7 +60,7 @@ class KmaResponseMapper @Inject constructor() :
 
     override fun mapDailyForecast(response: KmaDailyForecastResponse): DailyForecastEntity {
         val items: List<List<DailyForecastEntity.Item>> = response.items.map { item ->
-            val dateTime = item.dateISO8601
+            val dateTime = item.date
             val minTemp = item.minTemp
             val maxTemp = item.maxTemp
 
@@ -65,10 +68,10 @@ class KmaResponseMapper @Inject constructor() :
                 DailyForecastEntity.Item(
                     dateTime = DateTimeType(dateTime),
                     weatherCondition = WeatherConditionType(values.weatherDescription),
-                    precipitation = PrecipitationEntity(probability = PrecipitationProbabilityType(values.pop.toDouble())),
-                    temperature = TemperatureEntity(current = TemperatureType(minTemp.toDouble()),
-                        max = TemperatureType(maxTemp.toDouble()),
-                        min = TemperatureType(minTemp.toDouble())),
+                    precipitation = PrecipitationEntity(probability = PrecipitationProbabilityType(values.pop)),
+                    temperature = TemperatureEntity(current = TemperatureType(minTemp),
+                        max = TemperatureType(maxTemp),
+                        min = TemperatureType(minTemp)),
                 )
             }
         }
@@ -76,13 +79,10 @@ class KmaResponseMapper @Inject constructor() :
         return DailyForecastEntity(items = items.flatten())
     }
 
-    override fun mapYesterdayWeather(response: KmaCurrentWeatherResponse): YesterdayWeatherEntity {
-        return response.run {
-            YesterdayWeatherEntity(
-                temperature = TemperatureEntity(current = TemperatureType(yesterdayTemperature)),
-            )
-        }
+    override fun mapYesterdayWeather(response: KmaYesterdayWeatherResponse): YesterdayWeatherEntity {
+        return YesterdayWeatherEntity(
+            temperature = TemperatureEntity(current = TemperatureType(response.temperature)),
+        )
     }
-
 
 }

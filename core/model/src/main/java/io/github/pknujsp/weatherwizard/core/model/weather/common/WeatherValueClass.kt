@@ -13,12 +13,30 @@ abstract class WeatherValueClass<T : WeatherDataType> : WeatherValue {
 
     fun formattedIntValue(): String = "${value.toInt()}${unit.symbol}"
     fun formattedDoubleValue(): String = "${value.toDouble() * 10 / 10.0}${unit.symbol}"
+    fun value(): String = value.toString()
 }
 
 data class WeatherConditionValueClass(
     @DrawableRes val weatherIcon: Int,
     val weatherCondition: String,
-) : WeatherValue
+) : WeatherValue {
+
+    companion object {
+        private val iconMap = mapOf(
+            "맑음" to io.github.pknujsp.weatherwizard.core.common.R.drawable.day_clear,
+            "구름조금" to io.github.pknujsp.weatherwizard.core.common.R.drawable.day_partly_cloudy,
+            "구름많음" to io.github.pknujsp.weatherwizard.core.common.R.drawable.day_mostly_cloudy,
+            "흐림" to io.github.pknujsp.weatherwizard.core.common.R.drawable.overcast,
+        )
+
+        @DrawableRes
+        fun icon(condition: String): Int {
+            return iconMap[condition] ?: io.github.pknujsp.weatherwizard.core.common.R.drawable.day_clear
+        }
+    }
+
+
+}
 
 data class TemperatureValueClass(
     override val value: TemperatureType,
@@ -65,7 +83,7 @@ data class WindDirectionValueClass(
 
 data class HumidityValueClass(
     override val value: HumidityType,
-    override val unit: PercentUnit,
+    override val unit: IntPercentUnit,
 ) : WeatherValueClass<HumidityType>()
 
 
@@ -81,11 +99,11 @@ data class PressureValueClass(
 
     private companion object {
         val pressureScale = listOf(
-            980.0 to R.string.pressure_very_low,
-            1000.0 to R.string.pressure_low,
-            1020.0 to R.string.pressure_normal,
-            1040.0 to R.string.pressure_high,
-            Double.MAX_VALUE to R.string.pressure_very_high,
+            980 to R.string.pressure_very_low,
+            1000 to R.string.pressure_low,
+            1020 to R.string.pressure_normal,
+            1040 to R.string.pressure_high,
+            Int.MAX_VALUE to R.string.pressure_very_high,
         )
     }
 
@@ -130,7 +148,7 @@ data class DewPointValueClass(
 
 data class CloudinessValueClass(
     override val value: CloudinessType,
-    override val unit: PercentUnit,
+    override val unit: DoublePercentUnit,
 ) : WeatherValueClass<CloudinessType>()
 
 data class PrecipitationValueClass(

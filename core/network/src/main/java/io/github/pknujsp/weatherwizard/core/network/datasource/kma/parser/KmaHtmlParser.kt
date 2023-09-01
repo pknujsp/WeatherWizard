@@ -10,7 +10,19 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
- class KmaHtmlParser @Inject constructor() {
+class KmaHtmlParser @Inject constructor() {
+
+    private val zoneId = ZoneId.of("Asia/Seoul")
+    private val degree = "℃"
+    private val mm = "mm"
+    private val cm = "cm"
+    private val mPerS = "m/s"
+    private val percent = "%"
+    private val hour24 = "24:00"
+    private val lessThan1mm = "~1mm"
+    private val lessThan1cm = "~1cm"
+    private val rainDrop = "빗방울"
+    private val snowBlizzard = "눈날림"
 
     private val conditionDescriptionsMap = mapOf(
         "비" to "흐리고 비",
@@ -20,6 +32,25 @@ import javax.inject.Singleton
         "빗방울/눈날림" to "흐리고 비/눈",
         "눈날림" to "흐리고 눈",
         "구름 많음" to "구름많음",
+    )
+
+    private val windDirectionMap = mapOf(
+        "북북동" to 25,
+        "북동" to 45,
+        "동북동" to 67,
+        "동" to 90,
+        "동남동" to 112,
+        "남동" to 135,
+        "남남동" to 157,
+        "남" to 180,
+        "남남서" to 202,
+        "남서" to 225,
+        "서남서" to 247,
+        "서" to 270,
+        "서북서" to 292,
+        "북서" to 315,
+        "북북서" to 337,
+        "북" to 0,
     )
 
     fun parseCurrentConditions(document: Document, baseDateTime: String): ParsedKmaCurrentWeather {
@@ -39,8 +70,7 @@ import javax.inject.Singleton
         //1일전 기온
         var yesterdayTemp = wrap1.select("li.w-txt").text().replace(" ", "")
         if (yesterdayTemp.contains("℃")) {
-            val t = yesterdayTemp.replace("어제보다", "").replace("높아요", "")
-                .replace("낮아요", "").replace("℃", "")
+            val t = yesterdayTemp.replace("어제보다", "").replace("높아요", "").replace("낮아요", "").replace("℃", "")
             val currentTempVal = temp.toDouble()
             var yesterdayTempVal = t.toDouble()
             if (yesterdayTemp.contains("높아요")) {
@@ -74,9 +104,11 @@ import javax.inject.Singleton
         }
 
         return ParsedKmaCurrentWeather(
-            temp = temp, feelsLikeTemp = chill, humidity = humidity, pty = pty,
-            windDirection = windDirection, windSpeed = windSpeed, precipitationVolume = precipitationVolume,
-            baseDateTimeISO8601 = baseDateTime, yesterdayTemp = yesterdayTemp,
+            temperature = temp.toTemperature(), feelsLikeTemperature = chill.toTemperature(), humidity = humidity.toHumidity(),
+            precipitationType = pty,
+            windDirection = windDirection.toWindDirection(), windSpeed = windSpeed.toWindSpeed(),
+            precipitationVolume = precipitationVolume.toPrecipitationVolume(),
+            dateTime = baseDateTime, yesterdayTemperature = yesterdayTemp.toTemperature(),
         )
     }
 
@@ -86,28 +118,20 @@ import javax.inject.Singleton
         //오늘, 내일, 모레, 글피, 그글피
         val slides = elements.select("div.slide")
         val parsedKmaHourlyForecasts = mutableListOf<ParsedKmaHourlyForecast>()
-        var zonedDateTime = ZonedDateTime.now(ZoneId.of("Asia/Seoul"))
-        var localDate: LocalDate? = null
-        var localTime: LocalTime? = null
-        var date: String? = null
-        var time: String? = null
-        var weatherDescription: String = ""
-        var temp: String = ""
-        var feelsLikeTemp: String = ""
-        var pop: String = ""
-        var windDirection: String = ""
-        var windSpeed: String = ""
-        var humidity: String = ""
-        var thunder = false
+        var zonedDateTime = ZonedDateTime.now(zoneId)
+        var localDate: LocalDate?
+        var localTime: LocalTime?
+        var date: String?
+        var time: String?
+        var weatherDescription: String
+        var temp: String
+        var feelsLikeTemp: String
+        var pop: String
+        var windDirection: String
+        var windSpeed: String
+        var humidity: String
+        var thunder: Boolean
         var hasShower = false
-        val hour24 = "24:00"
-        val degree = "℃"
-        val mm = "mm"
-        val cm = "cm"
-        val lessThan1mm = "~1mm"
-        val lessThan1cm = "~1cm"
-        val rainDrop = "빗방울"
-        val snowBlizzard = "눈날림"
 
         for (slide in slides) {
             val uls = slide.getElementsByClass("item-wrap").select("ul")
@@ -137,8 +161,7 @@ import javax.inject.Singleton
                     false
                 }
                 temp = lis[2].getElementsByTag("span")[1].childNode(0).toString().replace(degree, "")
-                feelsLikeTemp = lis[3].getElementsByTag("span")[1].text().replace(degree, "")
-                /*
+                feelsLikeTemp = lis[3].getElementsByTag("span")[1].text().replace(degree, "")/*
                 강우+강설
                 <li class="pcp snow-exists">
                 <span class="hid">강수량: </span>
@@ -199,12 +222,12 @@ import javax.inject.Singleton
                 빗방울눈날림mm
                  */
                 val pcpText = lis[4].getElementsByTag("span")[1].text()
-                var index = 0
+                var index: Int
 
                 var hasRain = false
-                var rainVolume: String = ""
+                var rainVolume = ""
                 var hasSnow = false
-                var snowVolume: String = ""
+                var snowVolume = ""
 
                 if (pcpText.contains(mm) || pcpText.contains(cm)) {
                     if (pcpText.contains(rainDrop)) {
@@ -254,12 +277,20 @@ import javax.inject.Singleton
 
                 parsedKmaHourlyForecasts.add(
                     ParsedKmaHourlyForecast(
-                        hourISO8601 = zonedDateTime.toString(), weatherDescription = weatherDescription,
-                        temp = temp, feelsLikeTemp = feelsLikeTemp, pop = pop,
-                        windDirection = windDirection, windSpeed = windSpeed, humidity = humidity,
-                        isHasShower = hasShower, isHasThunder = thunder,
-                        isHasRain = hasRain, rainVolume = rainVolume,
-                        isHasSnow = hasSnow, snowVolume = snowVolume,
+                        dateTime = zonedDateTime.toString(),
+                        weatherDescription = weatherDescription,
+                        temp = temp.toTemperature(),
+                        feelsLikeTemp = feelsLikeTemp.toTemperature(),
+                        pop = pop.toPop(),
+                        windDirection = windDirection.toWindDirection(),
+                        windSpeed = windSpeed.toWindSpeed(),
+                        humidity = humidity.toHumidity(),
+                        isHasShower = hasShower,
+                        isHasThunder = thunder,
+                        isHasRain = hasRain,
+                        rainVolume = rainVolume.toPrecipitationVolume(),
+                        isHasSnow = hasSnow,
+                        snowVolume = snowVolume.toPrecipitationVolume(),
                     ),
                 )
             }
@@ -273,20 +304,19 @@ import javax.inject.Singleton
         val slides = elements.select("div.slide.day-ten div.daily")
         var zonedDateTime = ZonedDateTime.now(ZoneId.of("Asia/Seoul"))
         zonedDateTime = zonedDateTime.withHour(0).withMinute(0).withSecond(0).withNano(0)
-        var localDate: LocalDate? = null
-        var date: String? = null
-        var weatherDescription: String? = null
-        var minTemp: String? = null
-        var maxTemp: String? = null
-        var pop: String? = null
-        val parsedKmaDailyForecasts: MutableList<ParsedKmaDailyForecast> = arrayListOf()
+        var localDate: LocalDate?
+        var date: String?
+        var weatherDescription: String?
+        var minTemp: String
+        var maxTemp: String
+        var pop: Int
+        val parsedKmaDailyForecasts: MutableList<ParsedKmaDailyForecast> = mutableListOf()
 
         for (daily in slides) {
             val uls = daily.getElementsByClass("item-wrap").select("ul")
             date = daily.attr("data-date")
             localDate = LocalDate.parse(date)
-            zonedDateTime = zonedDateTime.withYear(localDate.year).withMonth(localDate.monthValue)
-                .withDayOfMonth(localDate.dayOfMonth)
+            zonedDateTime = zonedDateTime.withYear(localDate.year).withMonth(localDate.monthValue).withDayOfMonth(localDate.dayOfMonth)
 
             var am: ParsedKmaDailyForecast.Values? = null
             var pm: ParsedKmaDailyForecast.Values? = null
@@ -299,7 +329,7 @@ import javax.inject.Singleton
                 weatherDescription = amLis[1].getElementsByTag("span")[1].text()
                 minTemp = amLis[2].getElementsByTag("span")[1].text()
                 minTemp = minTemp.substring(3, minTemp.length - 1)
-                pop = amLis[3].getElementsByTag("span")[1].text()
+                pop = amLis[3].getElementsByTag("span")[1].text().toPop()
 
                 am = ParsedKmaDailyForecast.Values(
                     weatherDescription = weatherDescription,
@@ -309,7 +339,7 @@ import javax.inject.Singleton
                 weatherDescription = pmLis[1].getElementsByTag("span")[1].text()
                 maxTemp = pmLis[2].getElementsByTag("span")[1].text()
                 maxTemp = maxTemp.substring(3, maxTemp.length - 1)
-                pop = pmLis[3].getElementsByTag("span")[1].text()
+                pop = pmLis[3].getElementsByTag("span")[1].text().toPop()
 
                 pm = ParsedKmaDailyForecast.Values(
                     weatherDescription = weatherDescription,
@@ -322,7 +352,7 @@ import javax.inject.Singleton
                 val temps = lis[2].getElementsByTag("span")[1].text().split(" / ").toTypedArray()
                 minTemp = temps[0].substring(3, temps[0].length - 1)
                 maxTemp = temps[1].substring(3, temps[1].length - 1)
-                pop = lis[3].getElementsByTag("span")[1].text()
+                pop = lis[3].getElementsByTag("span")[1].text().toPop()
 
                 single = ParsedKmaDailyForecast.Values(
                     weatherDescription = weatherDescription,
@@ -331,7 +361,7 @@ import javax.inject.Singleton
             }
             parsedKmaDailyForecasts.add(
                 ParsedKmaDailyForecast(
-                    minTemp = minTemp, maxTemp = maxTemp, dateISO8601 = zonedDateTime.toString(),
+                    minTemp = minTemp.toTemperature(), maxTemp = maxTemp.toTemperature(), date = zonedDateTime.toString(),
                     isSingle = single == null, amValues = am, pmValues = pm,
                     singleValues = single,
                 ),
@@ -344,7 +374,7 @@ import javax.inject.Singleton
         hourlyForecasts: List<ParsedKmaHourlyForecast>,
         dailyForecasts: MutableList<ParsedKmaDailyForecast>,
     ): List<ParsedKmaDailyForecast> {
-        val firstDateTimeOfDaily = ZonedDateTime.parse(dailyForecasts[0].dateISO8601)
+        val firstDateTimeOfDaily = ZonedDateTime.parse(dailyForecasts[0].date)
         val krZoneId = firstDateTimeOfDaily.zone
 
         var criteriaDateTime = ZonedDateTime.now(krZoneId)
@@ -353,23 +383,22 @@ import javax.inject.Singleton
         var beginIdx = 0
 
         while (beginIdx < hourlyForecasts.size) {
-            if (criteriaDateTime.isBefore(ZonedDateTime.parse(hourlyForecasts[beginIdx].hourISO8601)))
-                break
+            if (criteriaDateTime.isBefore(ZonedDateTime.parse(hourlyForecasts[beginIdx].dateTime))) break
             beginIdx++
         }
-        var minTemp = Int.MAX_VALUE
-        var maxTemp = Int.MIN_VALUE
-        var hours = 0
-        var amSky: String = ""
-        var pmSky: String = ""
-        var amPop: String = ""
-        var pmPop: String = ""
-        var dateTime: ZonedDateTime? = null
-        var temp = 0
-        var hourlyForecastItemDateTime: ZonedDateTime? = null
+        var minTemp = Double.MAX_VALUE
+        var maxTemp = Double.MIN_VALUE
+        var hours: Int
+        var amSky = ""
+        var pmSky = ""
+        var amPop = 0
+        var pmPop = 0
+        var dateTime: ZonedDateTime?
+        var temp: Double
+        var hourlyForecastItemDateTime: ZonedDateTime?
 
         while (beginIdx < hourlyForecasts.size) {
-            hourlyForecastItemDateTime = ZonedDateTime.parse(hourlyForecasts[beginIdx].hourISO8601)
+            hourlyForecastItemDateTime = ZonedDateTime.parse(hourlyForecasts[beginIdx].dateTime)
 
             if (firstDateTimeOfDaily.dayOfYear == hourlyForecastItemDateTime.dayOfYear) {
                 if (hourlyForecastItemDateTime.hour == 1) {
@@ -377,7 +406,7 @@ import javax.inject.Singleton
                 }
             }
             hours = hourlyForecastItemDateTime.hour
-            if (hours == 0 && minTemp != Int.MAX_VALUE) {
+            if (hours == 0 && minTemp != Double.MAX_VALUE) {
                 dateTime = ZonedDateTime.of(
                     hourlyForecastItemDateTime.toLocalDateTime(),
                     hourlyForecastItemDateTime.zone,
@@ -385,7 +414,7 @@ import javax.inject.Singleton
                 dateTime = dateTime.minusDays(1)
                 dailyForecasts.add(
                     ParsedKmaDailyForecast(
-                        dateISO8601 = dateTime.toString(),
+                        date = dateTime.toString(),
                         amValues = ParsedKmaDailyForecast.Values(
                             pop = amPop,
                             weatherDescription = amSky,
@@ -394,13 +423,13 @@ import javax.inject.Singleton
                             pop = pmPop,
                             weatherDescription = pmSky,
                         ),
-                        minTemp = minTemp.toString(), maxTemp = maxTemp.toString(),
+                        minTemp = minTemp, maxTemp = maxTemp,
                     ),
                 )
-                minTemp = Int.MAX_VALUE
-                maxTemp = Int.MIN_VALUE
+                minTemp = Double.MAX_VALUE
+                maxTemp = Double.MIN_VALUE
             } else {
-                temp = hourlyForecasts[beginIdx].temp.toInt()
+                temp = hourlyForecasts[beginIdx].temp
                 minTemp = minOf(minTemp, temp)
                 maxTemp = maxOf(maxTemp, temp)
 
@@ -415,12 +444,11 @@ import javax.inject.Singleton
             beginIdx++
         }
 
-        dailyForecasts.sortWith { t1, t2 -> t1.dateISO8601.compareTo(t2.dateISO8601) }
+        dailyForecasts.sortWith { t1, t2 -> t1.date.compareTo(t2.date) }
         return dailyForecasts
     }
 
-    private fun convertHourlyWeatherDescriptionToMid(description: String): String {
-        /*
+    private fun convertHourlyWeatherDescriptionToMid(description: String): String {/*
     hourly -
     <item>맑음</item>
         <item>구름 많음</item>
@@ -448,11 +476,18 @@ import javax.inject.Singleton
         <item>흐리고 소나기</item>
         <item>소나기</item>
      */
-        return if (conditionDescriptionsMap.containsKey(description)) {
-            conditionDescriptionsMap[description] ?: ""
-        } else {
-            description
-        }
+        return conditionDescriptionsMap[description] ?: description
     }
 
+    private fun String.toWindDirection(): Int = windDirectionMap[this] ?: 0
+
+    private fun String.toTemperature(): Double = toDoubleOrNull() ?: 0.0
+
+    private fun String.toHumidity(): Int = replace(percent, "").toIntOrNull() ?: 0
+
+    private fun String.toWindSpeed(): Double = replace(mPerS, "").toDoubleOrNull() ?: 0.0
+
+    private fun String.toPrecipitationVolume(): Double = replace(mm, "").replace(cm, "").toDoubleOrNull() ?: 0.0
+
+    private fun String.toPop(): Int = replace(percent, "").toIntOrNull() ?: 0
 }
