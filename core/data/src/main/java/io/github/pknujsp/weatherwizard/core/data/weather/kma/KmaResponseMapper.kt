@@ -14,7 +14,6 @@ class KmaResponseMapper @Inject constructor() : WeatherResponseMapper<KmaCurrent
         KmaHourlyForecastResponse, KmaDailyForecastResponse> {
     override fun mapCurrentWeather(response: KmaCurrentWeatherResponse): CurrentWeatherEntity {
         return CurrentWeatherEntity(weatherCondition = response.weatherCondition,
-            weatherIcon = 0,
             temperature = 0.0,
             feelsLikeTemperature = 0.0,
             humidity = 0.0,

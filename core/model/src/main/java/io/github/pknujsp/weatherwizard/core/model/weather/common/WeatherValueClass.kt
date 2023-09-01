@@ -8,7 +8,7 @@ import io.github.pknujsp.weatherwizard.core.model.R
 interface WeatherValue
 
 abstract class WeatherValueClass : WeatherValue {
-    abstract val value: WeatherValueType
+    abstract val value: WeatherDoubleValueType
     abstract val unit: WeatherDataUnit
 
     fun formattedIntValue(): String = "${value.toInt()}${unit.symbol}"
@@ -134,12 +134,12 @@ data class CloudinessValueClass(
 ) : WeatherValueClass()
 
 data class PrecipitationValueClass(
-    override val value: PrecipitationType,
+    override val value: PrecipitationVolumeType,
     override val unit: PrecipitationUnit,
 ) : WeatherValueClass()
 
 data class SnowfallValueClass(
-    override val value: PrecipitationType,
+    override val value: PrecipitationVolumeType,
     override val unit: PrecipitationUnit,
 ) : WeatherValueClass() {
     private companion object {
@@ -160,7 +160,7 @@ data class SnowfallValueClass(
 }
 
 data class RainfallValueClass(
-    override val value: PrecipitationType,
+    override val value: PrecipitationVolumeType,
     override val unit: PrecipitationUnit,
 ) : WeatherValueClass() {
     private companion object {
