@@ -22,10 +22,10 @@ import io.github.pknujsp.weatherwizard.core.model.onError
 import io.github.pknujsp.weatherwizard.core.model.onLoading
 import io.github.pknujsp.weatherwizard.core.model.onSuccess
 import io.github.pknujsp.weatherwizard.core.ui.lottie.CancellableLoadingScreen
-import io.github.pknujsp.weatherwizard.feature.weather.info.currentweather.CurrentWeatherScreen
+import io.github.pknujsp.weatherwizard.feature.weather.info.currentweather.simple.CurrentWeatherScreen
 import io.github.pknujsp.weatherwizard.feature.weather.info.dailyforecast.DailyForecastScreen
 import io.github.pknujsp.weatherwizard.feature.weather.info.headinfo.HeadInfoScreen
-import io.github.pknujsp.weatherwizard.feature.weather.info.hourlyforecast.HourlyForecastScreen
+import io.github.pknujsp.weatherwizard.feature.weather.info.hourlyforecast.simple.HourlyForecastScreen
 
 @Preview(showBackground = true, backgroundColor = 0xFFFFFFFF)
 @Composable
