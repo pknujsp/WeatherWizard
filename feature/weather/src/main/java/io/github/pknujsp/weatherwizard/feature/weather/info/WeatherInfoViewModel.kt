@@ -45,24 +45,32 @@ class WeatherInfoViewModel @Inject constructor(
                 weatherDataProvider = WeatherDataProvider.Kma,
                 requestId = System.nanoTime())
 
-            result.onSuccess {
-                val currentWeather = it.currentWeatherEntity.run {
-                    CurrentWeather(weatherCondition = WeatherConditionValueClass(weatherIcon = WeatherConditionValueClass.icon
-                        (weatherCondition.value),
-                        weatherCondition = weatherCondition.value), temperature = TemperatureValueClass(temperature.current, TemperatureUnit
-                        .Celsius),
-                        feelsLikeTemperature =
-                        TemperatureValueClass(temperature.feelsLike, TemperatureUnit
-                            .Celsius), humidity = HumidityValueClass(humidity, IntPercentUnit()), windSpeed = WindSpeedValueClass
-                            (windEntity.speed, WindSpeedUnit.MeterPerSecond),
+            result.onSuccess { allWeatherDataEntity ->
+                val currentWeather = allWeatherDataEntity.currentWeatherEntity.run {
+                    CurrentWeather(weatherCondition = WeatherConditionValueClass(weatherIcon = WeatherConditionValueClass.icon(
+                        weatherCondition.value), weatherCondition = weatherCondition.value),
+                        temperature = TemperatureValueClass(temperature.current, TemperatureUnit.Celsius),
+                        feelsLikeTemperature = TemperatureValueClass(temperature.feelsLike, TemperatureUnit.Celsius),
+                        humidity = HumidityValueClass(humidity, IntPercentUnit()),
+                        windSpeed = WindSpeedValueClass(windEntity.speed, WindSpeedUnit.MeterPerSecond),
                         windDirection = WindDirectionValueClass(windEntity.direction, WindDirectionUnit.Degree),
-                        airQuality = AirQualityValueClass(AirQualityType(0.0), AirQualityUnit.AQI)
+                        airQuality = AirQualityValueClass(AirQualityType(0.0), AirQualityUnit.AQI))
+                }
+
+                val hourlyForecast = allWeatherDataEntity.hourlyForecastEntity.items.map {
+                    HourlyForecast.Item(
+                        dateTime = it.dateTime,
+                        temperature = TemperatureValueClass(it.temperature.current, TemperatureUnit.Celsius),
+                        weatherCondition = WeatherConditionValueClass(weatherIcon = WeatherConditionValueClass.icon(it.weatherCondition.value),
+                            weatherCondition = it.weatherCondition.value),
+                        windSpeed = WindSpeedValueClass(it.wind.speed, WindSpeedUnit.MeterPerSecond),
+                        windDirection = WindDirectionValueClass(it.wind.direction, WindDirectionUnit.Degree),
                     )
                 }
 
                 val weatherInfo = WeatherInfo(
                     currentWeather = currentWeather,
-                    hourlyForecast = HourlyForecast(),
+                    hourlyForecast = HourlyForecast(hourlyForecast),
                     dailyForecast = DailyForecast(),
                     yesterdayWeather = YesterdayWeather(),
                 )

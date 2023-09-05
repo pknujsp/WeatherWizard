@@ -2,7 +2,9 @@ package io.github.pknujsp.weatherwizard.feature.weather.info.currentweather.simp
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.absolutePadding
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -38,7 +40,9 @@ fun CurrentWeatherScreen(weatherInfoViewModel: WeatherInfoViewModel) {
                     title = "현재 날씨",
                     content =
                     {
-                        ConstraintLayout {
+                        ConstraintLayout(modifier = Modifier
+                            .fillMaxWidth()
+                            .wrapContentHeight()) {
                             val (
                                 weatherIcon, airQuality, temperature, weatherCondition, wind, humidity, comparedToYesterday,
                                 feelsLikeTemperature,

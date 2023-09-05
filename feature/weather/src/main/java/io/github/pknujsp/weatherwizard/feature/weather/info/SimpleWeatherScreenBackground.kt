@@ -3,12 +3,10 @@ package io.github.pknujsp.weatherwizard.feature.weather.info
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -44,14 +42,8 @@ fun SimpleWeatherScreenBackground(cardInfo: CardInfo) {
             .fillMaxWidth()
             .wrapContentHeight()) {
             Row {
-                Text(text = cardInfo.title, style = TextStyle(color = Color.White, fontSize = 18.sp), modifier = Modifier.fillMaxWidth(1f))
-                cardInfo.buttons.forEach {
-                    Button(onClick = it.second, elevation = null) {
-                        Text(text = it.first, style = TextStyle(color = Color.White, fontSize = 16.sp))
-                    }
-                }
+                Text(text = cardInfo.title, style = TextStyle(color = Color.White, fontSize = 18.sp), modifier = Modifier.fillMaxWidth())
             }
-            Spacer(modifier = Modifier.padding(12.dp))
             cardInfo.content()
         }
     }
