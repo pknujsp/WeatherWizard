@@ -18,20 +18,22 @@ import androidx.compose.ui.text.TextMeasurer
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.drawText
 import androidx.compose.ui.text.rememberTextMeasurer
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.times
 
 
 private const val VERTICAL_SPACE = 12f
-private const val X_AXIS_VALUE_INTERVAL_SPACE = 48f
 private const val TEXT_SPACE = 4f
 
 @Composable
-private fun Graph(graphData: GraphData, drawInfos: List<DrawInfo>, modifier: Modifier = Modifier) {
+private fun Graph(graphData: GraphData, drawInfos: List<DrawInfo>, modifier: Modifier = Modifier, columnWidth: Dp) {
     val textMeasurer = rememberTextMeasurer()
 
-    Canvas(modifier = modifier.width(graphData.values.first().size * X_AXIS_VALUE_INTERVAL_SPACE.dp)) {
+    Canvas(modifier = Modifier
+        .then(modifier)
+        .width(graphData.values.first().size * columnWidth)) {
         val (linePathList, linePoints) = graphData.createGraph(size.height)
         for (i in linePathList.indices) {
             drawPath(path = linePathList[i], color = drawInfos[i].lineColor, style = Stroke(drawInfos[i].lineThickness))
@@ -42,18 +44,18 @@ private fun Graph(graphData: GraphData, drawInfos: List<DrawInfo>, modifier: Mod
 }
 
 @Composable
-fun SingleGraph(graphData: GraphData, modifier: Modifier = Modifier) {
-    Graph(graphData, listOf(DrawInfo()), modifier)
+fun SingleGraph(graphData: GraphData, modifier: Modifier = Modifier, columnWidth: Dp) {
+    Graph(graphData, listOf(DrawInfo()), modifier, columnWidth)
 }
 
 @Composable
-fun MultiGraph(graphData: GraphData, modifier: Modifier = Modifier) {
+fun MultiGraph(graphData: GraphData, modifier: Modifier = Modifier, columnWidth: Dp) {
     Graph(graphData,
         listOf(
             DrawInfo(pointColor = Color.Red),
             DrawInfo(pointColor = Color.Blue),
         ),
-        modifier)
+        modifier, columnWidth)
 }
 
 private fun DrawScope.drawPointsOnLine(points: List<PointF>, drawInfo: DrawInfo) {
@@ -87,7 +89,7 @@ private fun calculateYPosition(value: Float, minValue: Float, valueLength: Float
 private class DrawInfo(
     val lineColor: Color = Color.White,
     val pointColor: Color = Color.White,
-    val textColor: Color = Color.White,
+    textColor: Color = Color.White,
     textSize: Float = 13f,
     displayMetrics: DisplayMetrics = Resources.getSystem().displayMetrics,
 ) {
@@ -103,13 +105,14 @@ private class DrawInfo(
 
 data class GraphData(
     val values: List<List<Value>>,
+    val columnWidth : Dp
 ) {
     private val minValue: Int = values.minOf { v -> v.minOf { it.value } }
     private val maxValue: Int = values.maxOf { v -> v.maxOf { it.value } }
 
     fun createGraph(height: Float): Pair<List<Path>, List<List<PointF>>> {
         val valueLength = (maxValue - minValue).toFloat()
-        val xAxisValueIntervalSpacePixel = X_AXIS_VALUE_INTERVAL_SPACE.run {
+        val xAxisValueIntervalSpacePixel = columnWidth.value.run {
             TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, this, Resources.getSystem().displayMetrics)
         }
         val verticalSpacePixel = VERTICAL_SPACE.run {

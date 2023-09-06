@@ -2,6 +2,7 @@ package io.github.pknujsp.weatherwizard.feature.weather.info.dailyforecast
 
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -20,6 +21,7 @@ import io.github.pknujsp.weatherwizard.feature.weather.info.WeatherInfoViewModel
 @Composable
 fun DailyForecastScreen(weatherInfoViewModel: WeatherInfoViewModel) {
     val weatherInfo = weatherInfoViewModel.weatherInfo.collectAsStateWithLifecycle()
+    val scrollState = rememberScrollState()
 
     weatherInfo.value.onLoading { }.onError { }.onSuccess {
         SimpleWeatherScreenBackground(
@@ -30,18 +32,8 @@ fun DailyForecastScreen(weatherInfoViewModel: WeatherInfoViewModel) {
                     "자세히" to { },
                 ),
                 content = {
-                    HorizontalScrollableForecast {
-                        MultiGraph(graphData = GraphData(
-                            listOf(
-                                it.hourlyForecast.items.map {
-                                    GraphData.Value(it.temperature.value.toInt(),
-                                        it.temperature.toString())
-                                }
-                            )
-                        ),
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(50.dp))
+                    HorizontalScrollableForecast(scrollState) {
+
                     }
                 }
             )

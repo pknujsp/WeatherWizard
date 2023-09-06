@@ -3,7 +3,6 @@ package io.github.pknujsp.weatherwizard.core.model.weather.common
 
 import android.content.Context
 import io.github.pknujsp.weatherwizard.core.model.R
-import kotlin.reflect.KProperty
 
 interface NoneValue<T> {
     val none: T
@@ -18,6 +17,8 @@ interface WeatherValueUnitType<T : Any, U : WeatherDataUnit> : WeatherValueType<
     fun convertUnit(value: T, to: U): T
 
     fun isNone(): Boolean
+
+    fun toStringWithoutUnit(): String
 }
 
 interface WeatherValueNotUnitType<out T : Any> : WeatherValueType<T>
@@ -89,6 +90,10 @@ data class TemperatureValueType(
 
     override fun isNone(): Boolean {
         return value == Double.MIN_VALUE
+    }
+
+    override fun toStringWithoutUnit(): String {
+        return if (isNone()) "" else value.toInt().toString()
     }
 
     override fun toString(): String {
@@ -171,6 +176,10 @@ data class WindSpeedValueType(
         return "$value${unit.symbol}"
     }
 
+    override fun toStringWithoutUnit(): String {
+        return if (isNone()) "" else value.toInt().toString()
+    }
+
     override fun isNone(): Boolean {
         return value == Double.MIN_VALUE
     }
@@ -222,6 +231,10 @@ data class WindDirectionValueType(
         return "$value${unit.symbol}"
     }
 
+    override fun toStringWithoutUnit(): String {
+        return if (isNone()) "" else value.toString()
+    }
+
     override fun isNone(): Boolean {
         return value == Int.MIN_VALUE
     }
@@ -270,6 +283,10 @@ data class HumidityValueType(
 
     override fun toString(): String {
         return "$value${unit.symbol}"
+    }
+
+    override fun toStringWithoutUnit(): String {
+        return if (isNone()) "" else value.toString()
     }
 
     override fun isNone(): Boolean {
@@ -336,6 +353,10 @@ data class PressureValueType(
 
     override fun toString(): String {
         return "$value${unit.symbol}"
+    }
+
+    override fun toStringWithoutUnit(): String {
+        return if (isNone()) "" else value.toString()
     }
 
     override fun isNone(): Boolean {
@@ -406,6 +427,10 @@ data class VisibilityValueType(
     override fun isNone(): Boolean {
         return value == Double.MIN_VALUE
     }
+
+    override fun toStringWithoutUnit(): String {
+        return if (isNone()) "" else value.toString()
+    }
 }
 
 data class PrecipitationValueType(
@@ -460,6 +485,10 @@ data class PrecipitationValueType(
 
     override fun isNone(): Boolean {
         return value == Double.MIN_VALUE
+    }
+
+    override fun toStringWithoutUnit(): String {
+        return if (isNone()) "" else value.toString()
     }
 }
 
@@ -528,6 +557,10 @@ data class SnowfallValueType(
     override fun isNone(): Boolean {
         return value == Double.MIN_VALUE
     }
+
+    override fun toStringWithoutUnit(): String {
+        return if (isNone()) "" else value.toString()
+    }
 }
 
 data class RainfallValueType(
@@ -594,6 +627,10 @@ data class RainfallValueType(
         return "$value${unit.symbol}"
     }
 
+    override fun toStringWithoutUnit(): String {
+        return if (isNone()) "" else value.toString()
+    }
+
     override fun isNone(): Boolean {
         return value == Double.MIN_VALUE
     }
@@ -619,5 +656,9 @@ data class ProbabilityValueType(
 
     override fun isNone(): Boolean {
         return value == Int.MIN_VALUE
+    }
+
+    override fun toStringWithoutUnit(): String {
+        return if (isNone()) "" else value.toString()
     }
 }

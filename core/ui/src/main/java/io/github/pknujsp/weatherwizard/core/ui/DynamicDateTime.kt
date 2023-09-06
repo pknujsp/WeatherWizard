@@ -1,23 +1,24 @@
 package io.github.pknujsp.weatherwizard.core.ui
 
-import android.content.res.Resources
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableIntState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.drawText
 import androidx.compose.ui.text.rememberTextMeasurer
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import java.time.LocalDate
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 
@@ -26,63 +27,63 @@ private val format = DateTimeFormatter.ofPattern("M.d\nE")
 private val textSize = 12.sp
 private val textColor = Color.White
 private val space = 2.dp
+private val textStyle = TextStyle(fontSize = textSize, textAlign = androidx.compose.ui.text.style.TextAlign.Center)
 
 @Composable
-fun DynamicDateTime(modifier: Modifier = Modifier, dateTimes: List<ZonedDateTime>, xAxisWidth: Int, currentX: MutableIntState) {
-    val columnWidth = xAxisWidth.dp.value
+fun DynamicDateTime(dateTimes: List<ZonedDateTime>, columnWidth: Dp, scrollState: ScrollState) {
     val textMeasurer = rememberTextMeasurer()
-    val textLayoutResult = textMeasurer.measure(dateTimes.first().format(format))
-    val height = (textLayoutResult.size.height / Resources.getSystem().displayMetrics.density).dp + space
+    val density = LocalDensity.current.density
+    val textLayoutResult = textMeasurer.measure(dateTimes.first().format(format), textStyle)
 
+    val columnWidthPx = columnWidth.value * density
+    val height = (textLayoutResult.size.height / density).dp + space * 2
 
-    var date = dateTimes.first().toString().run { ZonedDateTime.parse(this) }
-    var lastDate = ZonedDateTime.parse(date.toString())
-    lastDate = lastDate.minusDays(5)
+    val dateValues by remember {
+        var date = dateTimes.first().toString().run { ZonedDateTime.parse(this).toLocalDate() }
+        var lastDate = LocalDate.parse(date.toString()).minusDays(5)
 
-    val timeZone = date.zone
+        val dateValueList = mutableListOf<DateValue>()
+        var beginX: Float
 
-    val dateValueList = mutableListOf<DateValue>()
-    val dateValues by remember { mutableStateOf(dateValueList.toList()) }
-    var beginX = 0
+        for (col in dateTimes.indices) {
+            date = dateTimes[col].toLocalDate()
 
-    for (col in dateTimes.indices) {
-        date = ZonedDateTime.of(dateTimes[col].toLocalDateTime(), timeZone)
+            if (date.dayOfYear != lastDate.dayOfYear || col == 0) {
+                if (dateValueList.isNotEmpty()) {
+                    dateValueList.last().endX = columnWidthPx * (col - 1) + (columnWidthPx / 2)
+                }
 
-        if (date.dayOfYear != lastDate.dayOfYear || col == 0) {
-            if (dateValueList.size > 0) {
-                dateValueList[dateValueList.size - 1].endX = (columnWidth * (col - 1) + columnWidth / 2)
+                beginX = (columnWidthPx * col) + (columnWidthPx / 2)
+                dateValueList.add(DateValue(beginX, date))
+                lastDate = date
             }
-            beginX = (columnWidth * col + columnWidth / 2).toInt()
-            dateValueList.add(DateValue(beginX, date))
-            lastDate = date
         }
+        dateValueList.last().endX = columnWidthPx * (dateTimes.size - 1) + (columnWidthPx / 2)
+        mutableStateOf(dateValueList.toList())
     }
-    dateValueList[dateValueList.size - 1].endX = columnWidth * (dateTimes.size - 1) + columnWidth / 2
+    val firstColX = dateValues.first().beginX
 
-    val firstColX by remember { mutableIntStateOf(0) }
-
-    Canvas(
-        modifier = Modifier
-            .fillMaxWidth(columnWidth * dateTimes.size)
-            .height(height)
-    ) {
-        val y = size.height / 2
-        val x = currentX.intValue
+    Canvas(modifier = Modifier
+        .width(columnWidth * dateTimes.size)
+        .height(height)) {
+        val y = (size.height / 2) - (textLayoutResult.size.height / 2)
+        val currentX = scrollState.value
+        var amountX: Float
 
         for (dateValue in dateValues) {
-            if (x >= dateValue.beginX - firstColX && x < dateValue.endX - firstColX) {
-                dateValue.lastX = (x + firstColX).toFloat()
-            } else if (x < dateValue.beginX) {
-                dateValue.lastX = dateValue.beginX.toFloat()
+            if (currentX >= (dateValue.beginX - firstColX) && currentX < (dateValue.endX - firstColX)) {
+                dateValue.lastX = currentX + firstColX
+            } else if (currentX < dateValue.beginX) {
+                dateValue.lastX = dateValue.beginX
             }
 
-            drawText(textMeasurer.measure(dateValue.date.format(format), style = TextStyle(fontSize = textSize)),
-                textColor, Offset(dateValue.lastX, y))
+            drawText(textMeasurer.measure(dateValue.date.format(format), textStyle).apply { amountX = size.width / 2f }, textColor, Offset
+                (dateValue.lastX - amountX, y))
         }
     }
 }
 
-private class DateValue(val beginX: Int, val date: ZonedDateTime) {
-    var endX = 0f
-    var lastX = beginX.toFloat()
+private class DateValue(val beginX: Float, val date: LocalDate) {
+    var endX: Float = 0f
+    var lastX: Float = beginX
 }
