@@ -14,7 +14,7 @@ class KmaCurrentWeatherResponse(
     hourlyForecast: ParsedKmaHourlyForecast,
 ) : CurrentWeatherResponseModel {
 
-    val weatherCondition: String = hourlyForecast.weatherDescription
+    val weatherCondition: String = hourlyForecast.weatherCondition
     val temperature: Double = currentWeather.temperature
     val feelsLikeTemperature: Double = currentWeather.feelsLikeTemperature
     val humidity: Int = currentWeather.humidity
@@ -33,7 +33,7 @@ class KmaHourlyForecastResponse(
         Item(
             dateTime = it.dateTime,
             isHasShower = it.isHasShower,
-            weatherDescription = it.weatherDescription,
+            weatherDescription = it.weatherCondition,
             temp = it.temp,
             feelsLikeTemp = it.feelsLikeTemp,
             rainVolume = it.rainVolume,

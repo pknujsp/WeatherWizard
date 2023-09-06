@@ -123,7 +123,7 @@ class KmaHtmlParser @Inject constructor() {
         var localTime: LocalTime?
         var date: String?
         var time: String?
-        var weatherDescription: String
+        var weatherCondition: String
         var temp: String
         var feelsLikeTemp: String
         var pop: String
@@ -154,7 +154,7 @@ class KmaHtmlParser @Inject constructor() {
                 if (ul.hasAttr("data-sonagi")) {
                     hasShower = ul.attr("data-sonagi") == "1"
                 }
-                weatherDescription = lis[1].getElementsByTag("span")[1].text()
+                weatherCondition = lis[1].getElementsByTag("span")[1].text()
                 thunder = if (lis[1].getElementsByTag("span").size >= 3) {
                     lis[1].getElementsByTag("span")[2].className() == "lgt"
                 } else {
@@ -278,7 +278,7 @@ class KmaHtmlParser @Inject constructor() {
                 parsedKmaHourlyForecasts.add(
                     ParsedKmaHourlyForecast(
                         dateTime = zonedDateTime.toString(),
-                        weatherDescription = weatherDescription,
+                        weatherCondition = weatherCondition,
                         temp = temp.toTemperature(),
                         feelsLikeTemp = feelsLikeTemp.toTemperature(),
                         pop = pop.toPop(),
@@ -434,10 +434,10 @@ class KmaHtmlParser @Inject constructor() {
                 maxTemp = maxOf(maxTemp, temp)
 
                 if (hours == 9) {
-                    amSky = convertHourlyWeatherDescriptionToMid(hourlyForecasts[beginIdx].weatherDescription)
+                    amSky = convertHourlyWeatherDescriptionToMid(hourlyForecasts[beginIdx].weatherCondition)
                     amPop = hourlyForecasts[beginIdx].pop
                 } else if (hours == 15) {
-                    pmSky = convertHourlyWeatherDescriptionToMid(hourlyForecasts[beginIdx].weatherDescription)
+                    pmSky = convertHourlyWeatherDescriptionToMid(hourlyForecasts[beginIdx].weatherCondition)
                     pmPop = hourlyForecasts[beginIdx].pop
                 }
             }
@@ -450,10 +450,9 @@ class KmaHtmlParser @Inject constructor() {
 
     private fun convertHourlyWeatherDescriptionToMid(description: String): String {/*
     hourly -
-    <item>맑음</item>
+        <item>맑음</item>
         <item>구름 많음</item>
         <item>흐림</item>
-
         <item>비</item>
         <item>비/눈</item>
         <item>눈</item>
@@ -463,7 +462,7 @@ class KmaHtmlParser @Inject constructor() {
         <item>눈날림</item>
 
     mid -
-    <item>맑음</item>
+        <item>맑음</item>
         <item>구름많음</item>
         <item>구름많고 비</item>
         <item>구름많고 눈</item>

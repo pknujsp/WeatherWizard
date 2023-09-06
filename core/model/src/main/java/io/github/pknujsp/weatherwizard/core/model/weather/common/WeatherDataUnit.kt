@@ -45,6 +45,6 @@ sealed class WindDirectionUnit(override val symbol: String) : WeatherDataUnit {
 
 }
 
-sealed class PercentageUnit(override val symbol: String) : WeatherDataUnit {
-    data object Percent : PercentageUnit("%")
+data object PercentageUnit : WeatherDataUnit {
+    override val symbol: String = "%"
 }

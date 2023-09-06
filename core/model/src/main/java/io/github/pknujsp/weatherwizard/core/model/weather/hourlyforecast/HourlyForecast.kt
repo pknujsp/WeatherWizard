@@ -1,7 +1,12 @@
 package io.github.pknujsp.weatherwizard.core.model.weather.hourlyforecast
 
 import io.github.pknujsp.weatherwizard.core.model.UiModel
-import io.github.pknujsp.weatherwizard.core.model.weather.common.DateTimeType
+import io.github.pknujsp.weatherwizard.core.model.weather.common.DateTimeValueType
+import io.github.pknujsp.weatherwizard.core.model.weather.common.HumidityValueType
+import io.github.pknujsp.weatherwizard.core.model.weather.common.PrecipitationValueType
+import io.github.pknujsp.weatherwizard.core.model.weather.common.ProbabilityValueType
+import io.github.pknujsp.weatherwizard.core.model.weather.common.RainfallValueType
+import io.github.pknujsp.weatherwizard.core.model.weather.common.SnowfallValueType
 import io.github.pknujsp.weatherwizard.core.model.weather.common.TemperatureValueType
 import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherConditionValueType
 import io.github.pknujsp.weatherwizard.core.model.weather.common.WindDirectionValueType
@@ -11,10 +16,17 @@ data class HourlyForecast(
     val items: List<Item>
 ) : UiModel {
     data class Item(
-        val dateTime: DateTimeType,
+        val dateTime: DateTimeValueType,
         val weatherCondition: WeatherConditionValueType,
         val temperature: TemperatureValueType,
+        val humidity: HumidityValueType,
         val windSpeed: WindSpeedValueType,
         val windDirection: WindDirectionValueType,
+        val rainfallVolume: RainfallValueType,
+        val snowfallVolume: SnowfallValueType,
+        val rainfallProbability: ProbabilityValueType,
+        val snowfallProbability: ProbabilityValueType,
+        val precipitationVolume: PrecipitationValueType,
+        val precipitationProbability: ProbabilityValueType,
     )
 }

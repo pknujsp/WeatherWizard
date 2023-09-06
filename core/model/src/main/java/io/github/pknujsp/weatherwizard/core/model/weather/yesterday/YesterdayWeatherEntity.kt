@@ -1,9 +1,9 @@
 package io.github.pknujsp.weatherwizard.core.model.weather.yesterday
 
 import io.github.pknujsp.weatherwizard.core.model.EntityModel
-import io.github.pknujsp.weatherwizard.core.model.weather.common.item.TemperatureEntity
+import io.github.pknujsp.weatherwizard.core.model.weather.common.TemperatureValueType
 
 
 data class YesterdayWeatherEntity(
-    val temperature: TemperatureEntity,
+    val temperature: TemperatureValueType,
 ) : EntityModel

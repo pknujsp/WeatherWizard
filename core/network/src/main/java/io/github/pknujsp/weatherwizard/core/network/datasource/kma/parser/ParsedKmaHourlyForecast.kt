@@ -3,7 +3,7 @@ package io.github.pknujsp.weatherwizard.core.network.datasource.kma.parser
 
 data class ParsedKmaHourlyForecast(
     val dateTime: String,
-    val weatherDescription: String,
+    val weatherCondition: String,
     val temp: Double,
     val feelsLikeTemp: Double,
     val rainVolume: Double,

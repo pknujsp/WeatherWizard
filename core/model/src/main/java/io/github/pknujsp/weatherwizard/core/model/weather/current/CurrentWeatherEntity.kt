@@ -15,5 +15,5 @@ data class CurrentWeatherEntity(
     val humidity: HumidityValueType,
     val windSpeed: WindSpeedValueType,
     val windDirection: WindDirectionValueType,
-    val precipitation: PrecipitationValueType,
+    val precipitationVolume: PrecipitationValueType,
 ) : EntityModel

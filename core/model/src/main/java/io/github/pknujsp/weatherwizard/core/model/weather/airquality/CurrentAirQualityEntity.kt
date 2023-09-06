@@ -1,8 +1,7 @@
 package io.github.pknujsp.weatherwizard.core.model.weather.airquality
 
 import io.github.pknujsp.weatherwizard.core.model.EntityModel
-import io.github.pknujsp.weatherwizard.core.model.weather.common.ContaminantConcentrationType
-import io.github.pknujsp.weatherwizard.core.model.weather.common.DateTimeType
+import io.github.pknujsp.weatherwizard.core.model.weather.common.DateTimeValueType
 
 /**
  * @param co 일산화탄소 농도
@@ -13,23 +12,15 @@ import io.github.pknujsp.weatherwizard.core.model.weather.common.DateTimeType
  * @param so2 아황산가스 농도
  */
 class CurrentAirQualityEntity(
-    val co: ContaminantConcentrationType,
-    val no2: ContaminantConcentrationType,
-    val o3: ContaminantConcentrationType,
-    val pm10: ContaminantConcentrationType,
-    val pm25: ContaminantConcentrationType,
-    val so2: ContaminantConcentrationType,
+    val co: Int,
+    val no2: Int,
+    val o3: Int,
+    val pm10: Int,
+    val pm25: Int,
+    val so2: Int,
     val station: StationEntity,
-    val dateTime:DateTimeType,
+    val dateTime: DateTimeValueType,
 
-) : EntityModel {
-    val hasAirQuality: Boolean
-        get() = !co.isEmpty() or !no2.isEmpty() or !o3.isEmpty() or !pm10.isEmpty() or !pm25.isEmpty() or !so2.isEmpty()
+    ) : EntityModel {
 
-    val hasCo = !co.isEmpty()
-    val hasNo2 = !no2.isEmpty()
-    val hasO3 = !o3.isEmpty()
-    val hasPm10 = !pm10.isEmpty()
-    val hasPm25 = !pm25.isEmpty()
-    val hasSo2 = !so2.isEmpty()
 }

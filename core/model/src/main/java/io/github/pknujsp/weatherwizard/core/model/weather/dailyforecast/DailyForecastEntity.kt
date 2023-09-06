@@ -18,11 +18,11 @@ data class DailyForecastEntity(
         val weatherCondition: WeatherConditionValueType,
         val minTemperature: TemperatureValueType,
         val maxTemperature: TemperatureValueType,
-        val rainfallVolume: RainfallValueType,
-        val snowfallVolume: SnowfallValueType,
-        val rainfallProbability: ProbabilityValueType,
-        val snowfallProbability: ProbabilityValueType,
-        val precipitationVolume: PrecipitationValueType,
+        val rainfallVolume: RainfallValueType = RainfallValueType.none,
+        val snowfallVolume: SnowfallValueType = SnowfallValueType.none,
+        val rainfallProbability: ProbabilityValueType = ProbabilityValueType.none,
+        val snowfallProbability: ProbabilityValueType = ProbabilityValueType.none,
+        val precipitationVolume: PrecipitationValueType = PrecipitationValueType.none,
         val precipitationProbability: ProbabilityValueType,
     )
 }

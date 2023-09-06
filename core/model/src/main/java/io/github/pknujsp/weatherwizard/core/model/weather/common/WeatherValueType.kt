@@ -2,7 +2,6 @@ package io.github.pknujsp.weatherwizard.core.model.weather.common
 
 
 import android.content.Context
-import androidx.annotation.DrawableRes
 import io.github.pknujsp.weatherwizard.core.model.R
 import kotlin.reflect.KProperty
 
@@ -17,6 +16,8 @@ interface WeatherValueType<out T : Any> {
 interface WeatherValueUnitType<T : Any, U : WeatherDataUnit> : WeatherValueType<T> {
     val unit: U
     fun convertUnit(value: T, to: U): T
+
+    fun isNone(): Boolean
 }
 
 interface WeatherValueNotUnitType<out T : Any> : WeatherValueType<T>
@@ -37,30 +38,15 @@ data class DateTimeValueType(
 
 
 data class WeatherConditionValueType(
-    @DrawableRes val weatherIcon: Int,
-    override val value: String,
-) : WeatherValueNotUnitType<String> {
-
-    companion object {
-        private val iconMap = mapOf(
-            "맑음" to io.github.pknujsp.weatherwizard.core.common.R.drawable.day_clear,
-            "구름조금" to io.github.pknujsp.weatherwizard.core.common.R.drawable.day_partly_cloudy,
-            "구름많음" to io.github.pknujsp.weatherwizard.core.common.R.drawable.day_mostly_cloudy,
-            "흐림" to io.github.pknujsp.weatherwizard.core.common.R.drawable.overcast,
-        )
-
-        @DrawableRes
-        fun icon(condition: String): Int {
-            return iconMap[condition] ?: io.github.pknujsp.weatherwizard.core.common.R.drawable.day_clear
-        }
-    }
+    override val value: WeatherConditionCategory,
+) : WeatherValueNotUnitType<WeatherConditionCategory> {
 
     override fun toString(): String {
-        return value
+        return value.toString()
     }
 
     operator fun getValue(thisRef: Any?, property: KProperty<*>): String {
-        return value
+        return value.toString()
     }
 }
 
@@ -68,6 +54,10 @@ data class TemperatureValueType(
     override val value: Double,
     override val unit: TemperatureUnit,
 ) : WeatherValueUnitType<Double, TemperatureUnit> {
+
+    companion object : NoneValue<TemperatureValueType> {
+        override val none: TemperatureValueType = TemperatureValueType(Double.MAX_VALUE, TemperatureUnit.Celsius)
+    }
 
     override fun convertUnit(value: Double, to: TemperatureUnit): Double {
         return when (unit to to) {
@@ -109,6 +99,10 @@ data class TemperatureValueType(
     operator fun getValue(thisRef: Any?, property: KProperty<*>): Double {
         return value
     }
+
+    override fun isNone(): Boolean {
+        return value == Double.MAX_VALUE
+    }
 }
 
 data class WindSpeedValueType(
@@ -116,8 +110,10 @@ data class WindSpeedValueType(
     override val unit: WindSpeedUnit,
 ) : WeatherValueUnitType<Double, WindSpeedUnit> {
 
-    private companion object {
-        val beaufortScale = listOf(
+    companion object : NoneValue<WindSpeedValueType> {
+        override val none: WindSpeedValueType = WindSpeedValueType(Double.MAX_VALUE, WindSpeedUnit.KilometerPerHour)
+
+        private val beaufortScale = listOf(
             0.0 to R.string.wind_strength_0,
             1.0 to R.string.wind_strength_1,
             5.0 to R.string.wind_strength_2,
@@ -183,12 +179,22 @@ data class WindSpeedValueType(
     operator fun getValue(thisRef: Any?, property: KProperty<*>): Double {
         return value
     }
+
+    override fun isNone(): Boolean {
+        return value == Double.MAX_VALUE
+    }
 }
 
 data class WindDirectionValueType(
     override val value: Int,
     override val unit: WindDirectionUnit,
 ) : WeatherValueUnitType<Int, WindDirectionUnit> {
+
+    companion object : NoneValue<WindDirectionValueType> {
+        override val none: WindDirectionValueType = WindDirectionValueType(Int.MAX_VALUE, WindDirectionUnit.Degree)
+
+    }
+
     override fun convertUnit(value: Int, to: WindDirectionUnit): Int {
         return value
     }
@@ -224,6 +230,10 @@ data class WindDirectionValueType(
     operator fun getValue(thisRef: Any?, property: KProperty<*>): Int {
         return value
     }
+
+    override fun isNone(): Boolean {
+        return value == Int.MAX_VALUE
+    }
 }
 
 data class HumidityValueType(
@@ -231,8 +241,8 @@ data class HumidityValueType(
     override val unit: PercentageUnit,
 ) : WeatherValueUnitType<Int, PercentageUnit> {
 
-    companion object : NoneValue<Int> {
-        override val none: Int = Int.MAX_VALUE
+    companion object : NoneValue<HumidityValueType> {
+        override val none: HumidityValueType = HumidityValueType(Int.MAX_VALUE, PercentageUnit)
     }
 
     override fun convertUnit(value: Int, to: PercentageUnit): Int {
@@ -271,6 +281,9 @@ data class HumidityValueType(
         return value
     }
 
+    override fun isNone(): Boolean {
+        return value == Int.MAX_VALUE
+    }
 }
 
 
@@ -279,8 +292,11 @@ data class PressureValueType(
     override val unit: PressureUnit,
 ) : WeatherValueUnitType<Int, PressureUnit> {
 
-    private companion object {
-        val pressureScale = listOf(
+    companion object : NoneValue<PressureValueType> {
+        override val none: PressureValueType = PressureValueType(Int.MAX_VALUE, PressureUnit.Hectopascal)
+
+
+        private val pressureScale = listOf(
             980 to R.string.pressure_very_low,
             1000 to R.string.pressure_low,
             1020 to R.string.pressure_normal,
@@ -330,14 +346,21 @@ data class PressureValueType(
     operator fun getValue(thisRef: Any?, property: KProperty<*>): Int {
         return value
     }
+
+    override fun isNone(): Boolean {
+        return value == Int.MAX_VALUE
+    }
 }
 
 data class VisibilityValueType(
     override val value: Double,
     override val unit: VisibilityUnit,
 ) : WeatherValueUnitType<Double, VisibilityUnit> {
-    private companion object {
-        val visibilityScale = listOf(
+    companion object : NoneValue<VisibilityValueType> {
+        override val none: VisibilityValueType = VisibilityValueType(Double.MAX_VALUE, VisibilityUnit.Kilometer)
+
+
+        private val visibilityScale = listOf(
             0.0 to R.string.visibility_extremely_low,
             1.0 to R.string.visibility_very_low,
             4.0 to R.string.visibility_low,
@@ -388,12 +411,21 @@ data class VisibilityValueType(
     operator fun getValue(thisRef: Any?, property: KProperty<*>): Double {
         return value
     }
+
+    override fun isNone(): Boolean {
+        return value == Double.MAX_VALUE
+    }
 }
 
 data class PrecipitationValueType(
     override val value: Double,
     override val unit: PrecipitationUnit,
 ) : WeatherValueUnitType<Double, PrecipitationUnit> {
+
+    companion object : NoneValue<PrecipitationValueType> {
+        override val none: PrecipitationValueType = PrecipitationValueType(Double.MAX_VALUE, PrecipitationUnit.Millimeter)
+
+    }
 
     override fun convertUnit(value: Double, to: PrecipitationUnit): Double {
         return when (unit to to) {
@@ -434,14 +466,20 @@ data class PrecipitationValueType(
     operator fun getValue(thisRef: Any?, property: KProperty<*>): Double {
         return value
     }
+
+    override fun isNone(): Boolean {
+        return value == Double.MAX_VALUE
+    }
 }
 
 data class SnowfallValueType(
     override val value: Double,
     override val unit: PrecipitationUnit,
 ) : WeatherValueUnitType<Double, PrecipitationUnit> {
-    private companion object {
-        val snowfallScale = listOf(
+    companion object : NoneValue<SnowfallValueType> {
+        override val none: SnowfallValueType = SnowfallValueType(Double.MAX_VALUE, PrecipitationUnit.Millimeter)
+
+        private val snowfallScale = listOf(
             0.0 to R.string.snowfall_none,
             2.5 to R.string.snowfall_light,
             7.6 to R.string.snowfall_moderate,
@@ -495,14 +533,21 @@ data class SnowfallValueType(
     operator fun getValue(thisRef: Any?, property: KProperty<*>): Double {
         return value
     }
+
+    override fun isNone(): Boolean {
+        return value == Double.MAX_VALUE
+    }
 }
 
 data class RainfallValueType(
     override val value: Double,
     override val unit: PrecipitationUnit,
 ) : WeatherValueUnitType<Double, PrecipitationUnit> {
-    private companion object {
-        val rainfallScale = listOf(
+
+    companion object : NoneValue<RainfallValueType> {
+        override val none: RainfallValueType = RainfallValueType(Double.MAX_VALUE, PrecipitationUnit.Millimeter)
+
+        private val rainfallScale = listOf(
             0.0 to R.string.rainfall_none,
             1.0 to R.string.rainfall_very_light,
             4.0 to R.string.rainfall_light,
@@ -557,6 +602,10 @@ data class RainfallValueType(
     operator fun getValue(thisRef: Any?, property: KProperty<*>): Double {
         return value
     }
+
+    override fun isNone(): Boolean {
+        return value == Double.MAX_VALUE
+    }
 }
 
 
@@ -565,6 +614,9 @@ data class ProbabilityValueType(
     override val unit: PercentageUnit,
 ) : WeatherValueUnitType<Int, PercentageUnit> {
 
+    companion object : NoneValue<ProbabilityValueType> {
+        override val none: ProbabilityValueType = ProbabilityValueType(Int.MAX_VALUE, PercentageUnit)
+    }
 
     override fun convertUnit(value: Int, to: PercentageUnit): Int {
         return value
@@ -572,5 +624,9 @@ data class ProbabilityValueType(
 
     operator fun getValue(thisRef: Any?, property: KProperty<*>): Int {
         return value
+    }
+
+    override fun isNone(): Boolean {
+        return value == Int.MAX_VALUE
     }
 }
