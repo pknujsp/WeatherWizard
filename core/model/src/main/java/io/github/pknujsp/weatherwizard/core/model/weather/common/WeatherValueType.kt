@@ -46,7 +46,7 @@ data class TemperatureValueType(
 ) : WeatherValueUnitType<Double, TemperatureUnit> {
 
     companion object : NoneValue<TemperatureValueType> {
-        override val none: TemperatureValueType = TemperatureValueType(Double.MAX_VALUE, TemperatureUnit.Celsius)
+        override val none: TemperatureValueType = TemperatureValueType(Double.MIN_VALUE, TemperatureUnit.Celsius)
     }
 
     override fun convertUnit(value: Double, to: TemperatureUnit): Double {
@@ -88,7 +88,7 @@ data class TemperatureValueType(
 
 
     override fun isNone(): Boolean {
-        return value == Double.MAX_VALUE
+        return value == Double.MIN_VALUE
     }
 
     override fun toString(): String {
@@ -102,7 +102,7 @@ data class WindSpeedValueType(
 ) : WeatherValueUnitType<Double, WindSpeedUnit> {
 
     companion object : NoneValue<WindSpeedValueType> {
-        override val none: WindSpeedValueType = WindSpeedValueType(Double.MAX_VALUE, WindSpeedUnit.KilometerPerHour)
+        override val none: WindSpeedValueType = WindSpeedValueType(Double.MIN_VALUE, WindSpeedUnit.KilometerPerHour)
 
         private val beaufortScale = listOf(
             0.0 to R.string.wind_strength_0,
@@ -172,7 +172,7 @@ data class WindSpeedValueType(
     }
 
     override fun isNone(): Boolean {
-        return value == Double.MAX_VALUE
+        return value == Double.MIN_VALUE
     }
 }
 
@@ -182,7 +182,7 @@ data class WindDirectionValueType(
 ) : WeatherValueUnitType<Int, WindDirectionUnit> {
 
     companion object : NoneValue<WindDirectionValueType> {
-        override val none: WindDirectionValueType = WindDirectionValueType(Int.MAX_VALUE, WindDirectionUnit.Degree)
+        override val none: WindDirectionValueType = WindDirectionValueType(Int.MIN_VALUE, WindDirectionUnit.Degree)
 
     }
 
@@ -223,7 +223,7 @@ data class WindDirectionValueType(
     }
 
     override fun isNone(): Boolean {
-        return value == Int.MAX_VALUE
+        return value == Int.MIN_VALUE
     }
 }
 
@@ -233,7 +233,7 @@ data class HumidityValueType(
 ) : WeatherValueUnitType<Int, PercentageUnit> {
 
     companion object : NoneValue<HumidityValueType> {
-        override val none: HumidityValueType = HumidityValueType(Int.MAX_VALUE, PercentageUnit)
+        override val none: HumidityValueType = HumidityValueType(Int.MIN_VALUE, PercentageUnit)
     }
 
     override fun convertUnit(value: Int, to: PercentageUnit): Int {
@@ -273,7 +273,7 @@ data class HumidityValueType(
     }
 
     override fun isNone(): Boolean {
-        return value == Int.MAX_VALUE
+        return value == Int.MIN_VALUE
     }
 }
 
@@ -284,7 +284,7 @@ data class PressureValueType(
 ) : WeatherValueUnitType<Int, PressureUnit> {
 
     companion object : NoneValue<PressureValueType> {
-        override val none: PressureValueType = PressureValueType(Int.MAX_VALUE, PressureUnit.Hectopascal)
+        override val none: PressureValueType = PressureValueType(Int.MIN_VALUE, PressureUnit.Hectopascal)
 
 
         private val pressureScale = listOf(
@@ -339,7 +339,7 @@ data class PressureValueType(
     }
 
     override fun isNone(): Boolean {
-        return value == Int.MAX_VALUE
+        return value == Int.MIN_VALUE
     }
 }
 
@@ -348,7 +348,7 @@ data class VisibilityValueType(
     override val unit: VisibilityUnit,
 ) : WeatherValueUnitType<Double, VisibilityUnit> {
     companion object : NoneValue<VisibilityValueType> {
-        override val none: VisibilityValueType = VisibilityValueType(Double.MAX_VALUE, VisibilityUnit.Kilometer)
+        override val none: VisibilityValueType = VisibilityValueType(Double.MIN_VALUE, VisibilityUnit.Kilometer)
 
 
         private val visibilityScale = listOf(
@@ -404,7 +404,7 @@ data class VisibilityValueType(
     }
 
     override fun isNone(): Boolean {
-        return value == Double.MAX_VALUE
+        return value == Double.MIN_VALUE
     }
 }
 
@@ -414,7 +414,7 @@ data class PrecipitationValueType(
 ) : WeatherValueUnitType<Double, PrecipitationUnit> {
 
     companion object : NoneValue<PrecipitationValueType> {
-        override val none: PrecipitationValueType = PrecipitationValueType(Double.MAX_VALUE, PrecipitationUnit.Millimeter)
+        override val none: PrecipitationValueType = PrecipitationValueType(Double.MIN_VALUE, PrecipitationUnit.Millimeter)
 
     }
 
@@ -459,7 +459,7 @@ data class PrecipitationValueType(
     }
 
     override fun isNone(): Boolean {
-        return value == Double.MAX_VALUE
+        return value == Double.MIN_VALUE
     }
 }
 
@@ -468,7 +468,7 @@ data class SnowfallValueType(
     override val unit: PrecipitationUnit,
 ) : WeatherValueUnitType<Double, PrecipitationUnit> {
     companion object : NoneValue<SnowfallValueType> {
-        override val none: SnowfallValueType = SnowfallValueType(Double.MAX_VALUE, PrecipitationUnit.Millimeter)
+        override val none: SnowfallValueType = SnowfallValueType(Double.MIN_VALUE, PrecipitationUnit.Millimeter)
 
         private val snowfallScale = listOf(
             0.0 to R.string.snowfall_none,
@@ -526,7 +526,7 @@ data class SnowfallValueType(
     }
 
     override fun isNone(): Boolean {
-        return value == Double.MAX_VALUE
+        return value == Double.MIN_VALUE
     }
 }
 
@@ -536,7 +536,7 @@ data class RainfallValueType(
 ) : WeatherValueUnitType<Double, PrecipitationUnit> {
 
     companion object : NoneValue<RainfallValueType> {
-        override val none: RainfallValueType = RainfallValueType(Double.MAX_VALUE, PrecipitationUnit.Millimeter)
+        override val none: RainfallValueType = RainfallValueType(Double.MIN_VALUE, PrecipitationUnit.Millimeter)
 
         private val rainfallScale = listOf(
             0.0 to R.string.rainfall_none,
@@ -595,7 +595,7 @@ data class RainfallValueType(
     }
 
     override fun isNone(): Boolean {
-        return value == Double.MAX_VALUE
+        return value == Double.MIN_VALUE
     }
 }
 
@@ -606,7 +606,7 @@ data class ProbabilityValueType(
 ) : WeatherValueUnitType<Int, PercentageUnit> {
 
     companion object : NoneValue<ProbabilityValueType> {
-        override val none: ProbabilityValueType = ProbabilityValueType(Int.MAX_VALUE, PercentageUnit)
+        override val none: ProbabilityValueType = ProbabilityValueType(Int.MIN_VALUE, PercentageUnit)
     }
 
     override fun convertUnit(value: Int, to: PercentageUnit): Int {
@@ -618,6 +618,6 @@ data class ProbabilityValueType(
     }
 
     override fun isNone(): Boolean {
-        return value == Int.MAX_VALUE
+        return value == Int.MIN_VALUE
     }
 }
