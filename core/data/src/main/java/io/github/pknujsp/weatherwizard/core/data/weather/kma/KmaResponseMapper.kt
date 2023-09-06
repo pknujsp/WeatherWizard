@@ -37,7 +37,8 @@ class KmaResponseMapper @Inject constructor() :
     private companion object : DefaultValueUnit {
         val weatherConditionMap = mapOf(
             "맑음" to WeatherConditionCategory.Clear,
-            "구름 조금" to WeatherConditionCategory.PartlyCloudy,
+            "구름조금" to WeatherConditionCategory.PartlyCloudy,
+            "구름많음" to WeatherConditionCategory.MostlyCloudy,
             "구름 많음" to WeatherConditionCategory.MostlyCloudy,
             "흐림" to WeatherConditionCategory.Overcast,
             "비" to WeatherConditionCategory.Rain,

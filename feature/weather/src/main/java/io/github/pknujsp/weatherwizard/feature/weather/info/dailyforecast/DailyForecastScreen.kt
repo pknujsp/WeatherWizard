@@ -34,8 +34,8 @@ fun DailyForecastScreen(weatherInfoViewModel: WeatherInfoViewModel) {
                         MultiGraph(graphData = GraphData(
                             listOf(
                                 it.hourlyForecast.items.map {
-                                    GraphData.Value(it.temperature.value.value.toInt(),
-                                        it.temperature.formattedDoubleValue())
+                                    GraphData.Value(it.temperature.value.toInt(),
+                                        it.temperature.toString())
                                 }
                             )
                         ),

@@ -31,9 +31,6 @@ data class DateTimeValueType(
         return value
     }
 
-    operator fun getValue(thisRef: Any?, property: KProperty<*>): String {
-        return value
-    }
 }
 
 
@@ -41,13 +38,6 @@ data class WeatherConditionValueType(
     override val value: WeatherConditionCategory,
 ) : WeatherValueNotUnitType<WeatherConditionCategory> {
 
-    override fun toString(): String {
-        return value.toString()
-    }
-
-    operator fun getValue(thisRef: Any?, property: KProperty<*>): String {
-        return value.toString()
-    }
 }
 
 data class TemperatureValueType(
@@ -96,12 +86,13 @@ data class TemperatureValueType(
         return TemperatureValueType(-value, unit)
     }
 
-    operator fun getValue(thisRef: Any?, property: KProperty<*>): Double {
-        return value
-    }
 
     override fun isNone(): Boolean {
         return value == Double.MAX_VALUE
+    }
+
+    override fun toString(): String {
+        return "${value.toInt()}${unit.symbol}"
     }
 }
 
@@ -176,8 +167,8 @@ data class WindSpeedValueType(
         return WindSpeedValueType(-value, unit)
     }
 
-    operator fun getValue(thisRef: Any?, property: KProperty<*>): Double {
-        return value
+    override fun toString(): String {
+        return "$value${unit.symbol}"
     }
 
     override fun isNone(): Boolean {
@@ -227,8 +218,8 @@ data class WindDirectionValueType(
         return WindDirectionValueType(-value, unit)
     }
 
-    operator fun getValue(thisRef: Any?, property: KProperty<*>): Int {
-        return value
+    override fun toString(): String {
+        return "$value${unit.symbol}"
     }
 
     override fun isNone(): Boolean {
@@ -277,8 +268,8 @@ data class HumidityValueType(
         return HumidityValueType(-value, unit)
     }
 
-    operator fun getValue(thisRef: Any?, property: KProperty<*>): Int {
-        return value
+    override fun toString(): String {
+        return "$value${unit.symbol}"
     }
 
     override fun isNone(): Boolean {
@@ -343,8 +334,8 @@ data class PressureValueType(
         return PressureValueType(-value, unit)
     }
 
-    operator fun getValue(thisRef: Any?, property: KProperty<*>): Int {
-        return value
+    override fun toString(): String {
+        return "$value${unit.symbol}"
     }
 
     override fun isNone(): Boolean {
@@ -408,8 +399,8 @@ data class VisibilityValueType(
         return VisibilityValueType(-value, unit)
     }
 
-    operator fun getValue(thisRef: Any?, property: KProperty<*>): Double {
-        return value
+    override fun toString(): String {
+        return "$value${unit.symbol}"
     }
 
     override fun isNone(): Boolean {
@@ -463,8 +454,8 @@ data class PrecipitationValueType(
         return PrecipitationValueType(-value, unit)
     }
 
-    operator fun getValue(thisRef: Any?, property: KProperty<*>): Double {
-        return value
+    override fun toString(): String {
+        return "$value${unit.symbol}"
     }
 
     override fun isNone(): Boolean {
@@ -530,8 +521,8 @@ data class SnowfallValueType(
         return SnowfallValueType(-value, unit)
     }
 
-    operator fun getValue(thisRef: Any?, property: KProperty<*>): Double {
-        return value
+    override fun toString(): String {
+        return "$value${unit.symbol}"
     }
 
     override fun isNone(): Boolean {
@@ -599,8 +590,8 @@ data class RainfallValueType(
         return RainfallValueType(-value, unit)
     }
 
-    operator fun getValue(thisRef: Any?, property: KProperty<*>): Double {
-        return value
+    override fun toString(): String {
+        return "$value${unit.symbol}"
     }
 
     override fun isNone(): Boolean {
@@ -622,8 +613,8 @@ data class ProbabilityValueType(
         return value
     }
 
-    operator fun getValue(thisRef: Any?, property: KProperty<*>): Int {
-        return value
+    override fun toString(): String {
+        return "$value${unit.symbol}"
     }
 
     override fun isNone(): Boolean {

@@ -7,19 +7,8 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import io.github.pknujsp.weatherwizard.core.domain.weather.GetAllWeatherDataUseCase
 import io.github.pknujsp.weatherwizard.core.model.UiState
 import io.github.pknujsp.weatherwizard.core.model.WeatherInfo
-import io.github.pknujsp.weatherwizard.core.model.weather.common.AirQualityType
-import io.github.pknujsp.weatherwizard.core.model.weather.common.AirQualityUnit
-import io.github.pknujsp.weatherwizard.core.model.weather.common.AirQualityValueType
-import io.github.pknujsp.weatherwizard.core.model.weather.common.HumidityValueType
-import io.github.pknujsp.weatherwizard.core.model.weather.common.IntPercentUnit
-import io.github.pknujsp.weatherwizard.core.model.weather.common.TemperatureUnit
-import io.github.pknujsp.weatherwizard.core.model.weather.common.TemperatureValueType
 import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherConditionValueType
 import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherDataProvider
-import io.github.pknujsp.weatherwizard.core.model.weather.common.WindDirectionUnit
-import io.github.pknujsp.weatherwizard.core.model.weather.common.WindDirectionValueType
-import io.github.pknujsp.weatherwizard.core.model.weather.common.WindSpeedUnit
-import io.github.pknujsp.weatherwizard.core.model.weather.common.WindSpeedValueType
 import io.github.pknujsp.weatherwizard.core.model.weather.current.CurrentWeather
 import io.github.pknujsp.weatherwizard.core.model.weather.dailyforecast.DailyForecast
 import io.github.pknujsp.weatherwizard.core.model.weather.hourlyforecast.HourlyForecast
@@ -29,6 +18,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import java.time.LocalDate
+import java.time.ZonedDateTime
 import javax.inject.Inject
 
 @HiltViewModel
@@ -48,51 +38,61 @@ class WeatherInfoViewModel @Inject constructor(
 
             result.onSuccess { allWeatherDataEntity ->
                 val currentWeather = allWeatherDataEntity.currentWeatherEntity.run {
-                    CurrentWeather(weatherCondition = WeatherConditionValueType(weatherIcon = WeatherConditionValueType.icon(
-                        weatherCondition.value), weatherCondition = weatherCondition.value),
-                        temperature = TemperatureValueType(temperature.current, TemperatureUnit.Celsius),
-                        feelsLikeTemperature = TemperatureValueType(temperature.feelsLike, TemperatureUnit.Celsius),
-                        humidity = HumidityValueType(humidity, IntPercentUnit()),
-                        windSpeed = WindSpeedValueType(windEntity.speed, WindSpeedUnit.MeterPerSecond),
-                        windDirection = WindDirectionValueType(windEntity.direction, WindDirectionUnit.Degree),
-                        airQuality = AirQualityValueType(AirQualityType(0.0), AirQualityUnit.AQI))
+                    CurrentWeather(weatherCondition = weatherCondition,
+                        temperature = temperature,
+                        feelsLikeTemperature = feelsLikeTemperature,
+                        humidity = humidity,
+                        windSpeed = windSpeed,
+                        windDirection = windDirection,
+                        precipitationVolume = precipitationVolume
+                    )
                 }
 
                 val hourlyForecast = allWeatherDataEntity.hourlyForecastEntity.items.map {
                     HourlyForecast.Item(
                         dateTime = it.dateTime,
-                        temperature = TemperatureValueType(it.temperature.current, TemperatureUnit.Celsius),
-                        weatherCondition = WeatherConditionValueType(weatherIcon = WeatherConditionValueType.icon(it.weatherCondition.value),
-                            weatherCondition = it.weatherCondition.value),
-                        windSpeed = WindSpeedValueType(it.wind.speed, WindSpeedUnit.MeterPerSecond),
-                        windDirection = WindDirectionValueType(it.wind.direction, WindDirectionUnit.Degree),
+                        weatherCondition = it.weatherCondition,
+                        temperature = it.temperature,
+                        feelsLikeTemperature = it.feelsLikeTemperature,
+                        humidity = it.humidity,
+                        windSpeed = it.windSpeed,
+                        windDirection = it.windDirection,
+                        precipitationVolume = it.precipitationVolume,
+                        precipitationProbability = it.precipitationProbability,
                     )
                 }
 
                 val dailyForecast = allWeatherDataEntity.dailyForecastEntity.items.let { items ->
                     val listMap = mutableMapOf<LocalDate, DailyForecast.DayItem>()
                     items.forEach { item ->
-                        val date = LocalDate.parse(item.dateTime.value)
+                        val date = ZonedDateTime.parse(item.dateTime.value).toLocalDate()
 
                         if (!listMap.containsKey(date)) {
                             listMap[date] = DailyForecast.DayItem()
                         }
                         listMap[date]?.addValue(
                             dateTime = item.dateTime,
-                            weatherCondition = WeatherConditionValueType(weatherIcon = WeatherConditionValueType.icon(item.weatherCondition.value),
-                                weatherCondition = item.weatherCondition.value),
-                            precipitationProbability = item.precipitation.probability,
+                            weatherCondition = item.weatherCondition,
+                            precipitationProbability = item.precipitationProbability,
+                            minTemperature = item.minTemperature,
+                            maxTemperature = item.maxTemperature
                         )
                     }
 
                     listMap.toList().sortedBy { it.first }.map { it.second }
                 }
 
+                val yesterdayWeather = allWeatherDataEntity.yesterdayWeatherEntity.run {
+                    YesterdayWeather(
+                        temperature = temperature
+                    )
+                }
+
                 val weatherInfo = WeatherInfo(
                     currentWeather = currentWeather,
                     hourlyForecast = HourlyForecast(hourlyForecast),
                     dailyForecast = DailyForecast(dailyForecast),
-                    yesterdayWeather = YesterdayWeather(),
+                    yesterdayWeather = yesterdayWeather,
                 )
 
                 _weatherInfo.value = UiState.Success(weatherInfo)
