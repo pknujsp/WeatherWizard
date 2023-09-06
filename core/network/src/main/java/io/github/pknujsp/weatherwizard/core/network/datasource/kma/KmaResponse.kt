@@ -14,15 +14,15 @@ class KmaCurrentWeatherResponse(
     hourlyForecast: ParsedKmaHourlyForecast,
 ) : CurrentWeatherResponseModel {
 
-    val weatherCondition: String = hourlyForecast.weatherDescription
-    val temperature: Double = currentWeather.temp.toDouble()
-    val feelsLikeTemperature: Double = currentWeather.feelsLikeTemp.toDouble()
-    val humidity: Double = currentWeather.humidity.toDouble()
-    val windSpeed: Double = currentWeather.windSpeed.toDouble()
-    val windDirection: Double = currentWeather.windDirection.toDouble()
-    val yesterdayTemperature: Double = currentWeather.yesterdayTemp.toDouble()
-    val precipitationVolume: Double = currentWeather.precipitationVolume.toDouble()
-    val pty: String = currentWeather.pty
+    val weatherCondition: String = hourlyForecast.weatherCondition
+    val temperature: Double = currentWeather.temperature
+    val feelsLikeTemperature: Double = currentWeather.feelsLikeTemperature
+    val humidity: Int = currentWeather.humidity
+    val windSpeed: Double = currentWeather.windSpeed
+    val windDirection: Int = currentWeather.windDirection
+    val yesterdayTemperature: Double = currentWeather.yesterdayTemperature
+    val precipitationVolume: Double = currentWeather.precipitationVolume
+    val precipitationType: String = currentWeather.precipitationType
 }
 
 class KmaHourlyForecastResponse(
@@ -31,9 +31,9 @@ class KmaHourlyForecastResponse(
 
     val items: List<Item> = hourlyForecasts.map {
         Item(
-            hourISO8601 = it.hourISO8601,
+            dateTime = it.dateTime,
             isHasShower = it.isHasShower,
-            weatherDescription = it.weatherDescription,
+            weatherDescription = it.weatherCondition,
             temp = it.temp,
             feelsLikeTemp = it.feelsLikeTemp,
             rainVolume = it.rainVolume,
@@ -49,17 +49,17 @@ class KmaHourlyForecastResponse(
     }
 
     data class Item(
-        val hourISO8601: String = "",
+        val dateTime: String,
         val isHasShower: Boolean = false,
-        val weatherDescription: String = "",
-        val temp: String = "",
-        val feelsLikeTemp: String = "",
-        val rainVolume: String = "",
-        val snowVolume: String = "",
-        val pop: String = "",
-        val windDirection: String = "",
-        val windSpeed: String = "",
-        val humidity: String = "",
+        val weatherDescription: String,
+        val temp: Double,
+        val feelsLikeTemp: Double,
+        val rainVolume: Double,
+        val snowVolume: Double,
+        val pop: Int,
+        val windDirection: Int,
+        val windSpeed: Double,
+        val humidity: Int,
         val isHasRain: Boolean = false,
         val isHasSnow: Boolean = false,
         val isHasThunder: Boolean = false,
@@ -72,7 +72,7 @@ class KmaDailyForecastResponse(
 
     val items: List<Item> = dailyForecasts.map {
         Item(
-            dateISO8601 = it.dateISO8601,
+            date = it.date,
             isSingle = it.isSingle,
             amValues = it.amValues?.let { amValues ->
                 Item.Values(
@@ -98,17 +98,17 @@ class KmaDailyForecastResponse(
     }
 
     data class Item(
-        val dateISO8601: String = "",
+        val date: String,
         val isSingle: Boolean = false,
         val amValues: Values? = null,
         val pmValues: Values? = null,
         val singleValues: Values? = null,
-        val minTemp: String = "",
-        val maxTemp: String = "",
+        val minTemp: Double,
+        val maxTemp: Double,
     ) {
         data class Values(
-            var weatherDescription: String = "",
-            var pop: String = "",
+            var weatherDescription: String,
+            var pop: Int,
         )
 
     }
@@ -117,5 +117,5 @@ class KmaDailyForecastResponse(
 class KmaYesterdayWeatherResponse(
     currentWeather: ParsedKmaCurrentWeather,
 ) : YesterdayWeatherResponseModel {
-    val temperature: String = currentWeather.yesterdayTemp
+    val temperature: Double = currentWeather.yesterdayTemperature
 }

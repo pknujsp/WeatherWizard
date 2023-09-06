@@ -10,12 +10,14 @@ import io.github.pknujsp.weatherwizard.core.network.ApiResponseModel
 import io.github.pknujsp.weatherwizard.core.network.datasource.kma.KmaCurrentWeatherResponse
 import io.github.pknujsp.weatherwizard.core.network.datasource.kma.KmaDailyForecastResponse
 import io.github.pknujsp.weatherwizard.core.network.datasource.kma.KmaHourlyForecastResponse
+import io.github.pknujsp.weatherwizard.core.network.datasource.kma.KmaYesterdayWeatherResponse
 import javax.inject.Inject
 import javax.inject.Named
 
 class WeatherResponseMapperManagerImpl @Inject constructor(
     @Named(KMA_WEATHER_RESPONSE_MAPPER)
-    private val kmaResponseMapper: WeatherResponseMapper<KmaCurrentWeatherResponse, KmaHourlyForecastResponse, KmaDailyForecastResponse, KmaCurrentWeatherResponse>
+    private val kmaResponseMapper: WeatherResponseMapper<KmaCurrentWeatherResponse, KmaHourlyForecastResponse, KmaDailyForecastResponse,
+            KmaYesterdayWeatherResponse>
 ) : WeatherResponseMapperManager {
     override fun mapCurrentWeather(response: ApiResponseModel, weatherDataProvider: WeatherDataProvider): CurrentWeatherEntity =
         when (weatherDataProvider) {
@@ -37,7 +39,7 @@ class WeatherResponseMapperManagerImpl @Inject constructor(
 
     override fun mapYesterdayWeather(response: ApiResponseModel, weatherDataProvider: WeatherDataProvider): YesterdayWeatherEntity =
         when (weatherDataProvider) {
-            is WeatherDataProvider.Kma -> kmaResponseMapper.mapYesterdayWeather(response as KmaCurrentWeatherResponse)
+            is WeatherDataProvider.Kma -> kmaResponseMapper.mapYesterdayWeather(response as KmaYesterdayWeatherResponse)
             is WeatherDataProvider.MetNorway -> TODO()
         }
 

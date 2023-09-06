@@ -80,7 +80,4 @@ enum class WeatherDataCategory(@StringRes val stringId: Int) {
     // 현재 날씨 상태(맑음, 흐림 등)
     WEATHER_CONDITION(R.string.weather_condition);
 
-    companion object {
-        fun WeatherDataCategory.stringId(): Int = stringId
-    }
 }

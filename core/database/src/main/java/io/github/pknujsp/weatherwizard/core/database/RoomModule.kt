@@ -18,7 +18,7 @@ object RoomModule {
     fun providesPretainedRoomDb(@ApplicationContext context: Context): PretainedRoomDb = synchronized(this) {
         Room.databaseBuilder(
             context, PretainedRoomDb::class.java, "pretained.db",
-        ).createFromAsset("pretained.db").build()
+        ).createFromAsset("db/pretained.db").build()
     }
 }
 

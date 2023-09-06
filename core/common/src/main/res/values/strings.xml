@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<resources>
+    <string name="clear">맑음</string>
+    <string name="partly_cloudy">구름 조금</string>
+    <string name="mostly_cloudy">구름 많음</string>
+    <string name="overcast">흐림</string>
+    <string name="no_precipitation">강수없음</string>
+    <string name="rain">비</string>
+    <string name="rain_and_snow">진눈깨비</string>
+    <string name="snow">눈</string>
+    <string name="shower">소나기</string>
+    <string name="raindrop">빗방울</string>
+    <string name="raindrop_and_snow_blizzard">빗방울/눈날림</string>
+    <string name="snow_blizzard">눈날림</string>
+    <string name="kma_mid_clear">맑음</string>
+    <string name="kma_mid_mostly_cloudy">구름많음</string>
+    <string name="kma_mid_mostly_cloudy_rain">구름많고 비</string>
+    <string name="kma_mid_mostly_cloudy_snow">구름많고 눈</string>
+    <string name="kma_mid_mostly_cloudy_rain_and_snow">구름많고 비/눈</string>
+    <string name="kma_mid_mostly_cloudy_shower">구름많고 소나기</string>
+    <string name="kma_mid_overcast">흐림</string>
+    <string name="kma_mid_overcast_rain">흐리고 비</string>
+    <string name="kma_mid_overcast_snow">흐리고 눈</string>
+    <string name="kma_mid_overcast_rain_and_snow">흐리고 비/눈</string>
+    <string name="kma_mid_overcast_shower">흐리고 소나기</string>
+    <string name="kma_mid_shower">소나기</string>
+    <string name="kma_mid_sleet">비/눈</string>
+</resources>

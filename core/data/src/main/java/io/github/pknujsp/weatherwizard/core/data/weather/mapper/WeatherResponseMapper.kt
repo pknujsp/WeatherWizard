@@ -21,4 +21,5 @@ interface WeatherResponseMapper<C : CurrentWeatherResponseModel,
     fun mapDailyForecast(response: D): DailyForecastEntity
 
     fun mapYesterdayWeather(response: Y): YesterdayWeatherEntity
+
 }

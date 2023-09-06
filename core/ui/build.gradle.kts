@@ -8,6 +8,8 @@ android {
 }
 
 dependencies {
+    implementation(project(":core:model"))
+    implementation(project(":core:common"))
     implementation(libs.bundles.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)

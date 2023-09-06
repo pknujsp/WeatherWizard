@@ -7,7 +7,8 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -22,22 +23,24 @@ import io.github.pknujsp.weatherwizard.core.model.onError
 import io.github.pknujsp.weatherwizard.core.model.onLoading
 import io.github.pknujsp.weatherwizard.core.model.onSuccess
 import io.github.pknujsp.weatherwizard.core.ui.lottie.CancellableLoadingScreen
-import io.github.pknujsp.weatherwizard.feature.weather.info.currentweather.CurrentWeatherScreen
+import io.github.pknujsp.weatherwizard.feature.weather.info.currentweather.simple.CurrentWeatherScreen
 import io.github.pknujsp.weatherwizard.feature.weather.info.dailyforecast.DailyForecastScreen
 import io.github.pknujsp.weatherwizard.feature.weather.info.headinfo.HeadInfoScreen
-import io.github.pknujsp.weatherwizard.feature.weather.info.hourlyforecast.HourlyForecastScreen
+import io.github.pknujsp.weatherwizard.feature.weather.info.hourlyforecast.simple.HourlyForecastScreen
 
 @Preview(showBackground = true, backgroundColor = 0xFFFFFFFF)
 @Composable
 fun WeatherInfoScreen() {
+    val scrollState = rememberScrollState()
     val weatherInfoViewModel: WeatherInfoViewModel = hiltViewModel()
     val weatherInfo = weatherInfoViewModel.weatherInfo.collectAsState()
+    weatherInfoViewModel.loadAllWeatherData()
 
     Surface(
         modifier = Modifier
+            .verticalScroll(scrollState, true)
             .fillMaxWidth()
-            .fillMaxHeight()
-            .padding(horizontal = 16.dp),
+            .fillMaxHeight(),
     ) {
         Column(
             verticalArrangement = Arrangement.Center,
