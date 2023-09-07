@@ -1,6 +1,5 @@
 package io.github.pknujsp.weatherwizard.core.ui.weather.item
 
-import android.graphics.drawable.shapes.Shape
 import android.widget.Toast
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
@@ -16,6 +15,7 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -33,9 +33,9 @@ import java.time.ZonedDateTime
 
 @Composable
 fun HourlyForecastItem(hourlyForecast: HourlyForecast, modifier: Modifier) {
-    val displayRainfallVolume = hourlyForecast.items.any { it.rainfallVolume.value > 0 }
-    val displaySnowfallVolume = hourlyForecast.items.any { it.snowfallVolume.value > 0 }
-    val displayPrecipitationVolume = hourlyForecast.items.any { it.precipitationVolume.value > 0 }
+    val displayRainfallVolume = remember { hourlyForecast.items.any { it.rainfallVolume.value > 0 } }
+    val displaySnowfallVolume = remember { hourlyForecast.items.any { it.snowfallVolume.value > 0 } }
+    val displayPrecipitationVolume = remember { hourlyForecast.items.any { it.precipitationVolume.value > 0 } }
     val context = LocalContext.current
 
     Row(modifier = Modifier
@@ -45,7 +45,7 @@ fun HourlyForecastItem(hourlyForecast: HourlyForecast, modifier: Modifier) {
             Item(
                 item = ItemData(
                     time = ZonedDateTime.parse(hourly.dateTime.value).hour.toString(),
-                    icon = hourly.weatherCondition.value.dayWeatherIcon,
+                    icon = hourly.weatherIcon,
                     weatherCondition = hourly.weatherCondition.value.stringRes,
                     precipitationProbability = hourly.precipitationProbability.toString(),
                     precipitationVolume = hourly.precipitationVolume.toStringWithoutUnit(),
@@ -67,20 +67,20 @@ fun HourlyForecastItem(hourlyForecast: HourlyForecast, modifier: Modifier) {
 
 @Composable
 private fun Item(item: ItemData, modifier: Modifier, onClick: (String) -> Unit) {
-
     // 시각, 아이콘, 강수확률, 강수량
     item.run {
         val weatherConditionText = stringResource(id = weatherCondition)
         Column(
             modifier = Modifier
                 .then(modifier)
-                .clip(RoundedCornerShape(12.dp))
+                .clip(RoundedCornerShape(8.dp))
                 .clickable { onClick(weatherConditionText) },
             horizontalAlignment = Alignment
                 .CenterHorizontally,
         ) {
             Text(text = time, style = TextStyle(fontSize = 13.sp, color = Color.White))
-            Image(imageVector = ImageVector.vectorResource(id = icon), contentDescription = weatherConditionText)
+            Image(imageVector = ImageVector.vectorResource(id = icon), contentDescription = weatherConditionText,
+                modifier = Modifier.padding(4.dp))
 
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Center) {
                 Image(imageVector = ImageVector.vectorResource(id = ItemData.probabilityIcon), contentDescription = null,

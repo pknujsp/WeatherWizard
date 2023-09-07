@@ -3,7 +3,9 @@ package io.github.pknujsp.weatherwizard.feature.weather.info
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -16,8 +18,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
-private const val ALPHA = 0.6f
-private val backgroundColor = Color.Gray.copy(alpha = ALPHA)
+private val backgroundColor = Color(18, 18, 18, (0.671 * 255).toInt())
 
 @Composable
 private fun DefaultSurface(content: @Composable () -> Unit) {
@@ -27,7 +28,6 @@ private fun DefaultSurface(content: @Composable () -> Unit) {
             .wrapContentHeight()
             .padding(horizontal = 12.dp, vertical = 8.dp),
         shape = RoundedCornerShape(12.dp),
-        shadowElevation = 4.dp,
         color = backgroundColor,
     ) {
         content()
@@ -38,12 +38,13 @@ private fun DefaultSurface(content: @Composable () -> Unit) {
 fun SimpleWeatherScreenBackground(cardInfo: CardInfo) {
     DefaultSurface {
         Column(modifier = Modifier
-            .padding(vertical = 8.dp)
+            .padding(vertical = 12.dp)
             .fillMaxWidth()
             .wrapContentHeight()) {
-            Row {
+            Row(modifier = Modifier.padding(horizontal = 14.dp)) {
                 Text(text = cardInfo.title, style = TextStyle(color = Color.White, fontSize = 18.sp), modifier = Modifier.fillMaxWidth())
             }
+            Spacer(modifier = Modifier.height(8.dp))
             cardInfo.content()
         }
     }

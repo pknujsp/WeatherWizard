@@ -1,28 +1,38 @@
 package io.github.pknujsp.weatherwizard.feature.weather.info
 
 
+import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Surface
+import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import coil.compose.AsyncImage
+import coil.request.ImageRequest
 import io.github.pknujsp.weatherwizard.core.model.onError
 import io.github.pknujsp.weatherwizard.core.model.onLoading
 import io.github.pknujsp.weatherwizard.core.model.onSuccess
 import io.github.pknujsp.weatherwizard.core.ui.lottie.CancellableLoadingScreen
+import io.github.pknujsp.weatherwizard.feature.flickr.FlickrImageItemScreen
+import io.github.pknujsp.weatherwizard.feature.weather.R
 import io.github.pknujsp.weatherwizard.feature.weather.info.currentweather.simple.CurrentWeatherScreen
 import io.github.pknujsp.weatherwizard.feature.weather.info.dailyforecast.DailyForecastScreen
 import io.github.pknujsp.weatherwizard.feature.weather.info.headinfo.HeadInfoScreen
@@ -31,29 +41,47 @@ import io.github.pknujsp.weatherwizard.feature.weather.info.hourlyforecast.simpl
 @Preview(showBackground = true, backgroundColor = 0xFFFFFFFF)
 @Composable
 fun WeatherInfoScreen() {
-    val scrollState = rememberScrollState()
     val weatherInfoViewModel: WeatherInfoViewModel = hiltViewModel()
-    val weatherInfo = weatherInfoViewModel.weatherInfo.collectAsState()
-    weatherInfoViewModel.loadAllWeatherData()
+    Log.d("WeatherInfoScreen", "loadAllWeatherData")
 
-    Surface(
+    val backgroundImage = rememberSaveable { mutableStateOf("") }
+    val weatherInfo = weatherInfoViewModel.weatherInfo.collectAsStateWithLifecycle()
+
+    Box(
         modifier = Modifier
-            .verticalScroll(scrollState, true)
-            .fillMaxWidth()
-            .fillMaxHeight(),
     ) {
+        AsyncImage(
+            modifier = Modifier
+                .fillMaxWidth()
+                .fillMaxHeight(),
+            contentScale = ContentScale.FillBounds,
+            alignment = Alignment.Center,
+            model = ImageRequest.Builder(LocalContext.current)
+                .data(backgroundImage.value)
+                .build(),
+            contentDescription = stringResource(R.string.background_image),
+        )
         Column(
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier
+                .fillMaxWidth()
+                .fillMaxHeight()
+                .statusBarsPadding()
+                .navigationBarsPadding()
         ) {
             weatherInfo.value.onLoading {
+                weatherInfoViewModel.loadAllWeatherData()
                 CancellableLoadingScreen("날씨 정보를 불러오는 중") {
 
                 }
             }.onSuccess {
                 HeadInfoScreen(weatherInfoViewModel)
-                ItemSpacer(60.dp)
                 CurrentWeatherScreen(weatherInfoViewModel)
+                ItemSpacer(8.dp)
+                FlickrImageItemScreen(weatherInfoViewModel.flickrRequestParameter.value!!) {
+                    backgroundImage.value = it
+                }
                 ItemSpacer()
                 HourlyForecastScreen(weatherInfoViewModel)
                 ItemSpacer()
@@ -64,6 +92,7 @@ fun WeatherInfoScreen() {
             }
         }
     }
+
 }
 
 @Composable

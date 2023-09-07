@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.konan.properties.Properties
+
 plugins {
     id("plugin.android.library")
     alias(libs.plugins.ksp)
@@ -6,6 +8,17 @@ plugins {
 
 android {
     namespace = "io.github.pknujsp.weatherwizard.core.model"
+
+    @Suppress("UnstableApiUsage")
+    buildFeatures {
+        buildConfig = true
+    }
+
+    defaultConfig {
+        val properties = Properties()
+        properties.load(project.rootProject.file("/local.properties").bufferedReader())
+        buildConfigField("String", "FLICKR_KEY", "\"${properties["flickr_key"]}\"")
+    }
 }
 
 dependencies {
@@ -15,4 +28,5 @@ dependencies {
     implementation(libs.ksealedbinding.annotation)
     implementation(libs.bundles.room)
     ksp(libs.androidx.room.compiler)
+    implementation(libs.sunrisesunsetcalculator)
 }

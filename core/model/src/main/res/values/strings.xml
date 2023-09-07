@@ -6,7 +6,7 @@
   <string name="temperature">기온</string>
   <string name="min_temperature">최저 기온</string>
   <string name="max_temperature">최고 기온</string>
-  <string name="feels_like_temperature">체감 온도</string>
+  <string name="feels_like_temperature">체감온도</string>
   <string name="wind_speed">풍속</string>
   <string name="max_wind_speed">최대 풍속</string>
   <string name="wind_direction">풍향</string>
@@ -17,10 +17,10 @@
   <string name="visibility">시정거리</string>
   <string name="min_visibility">최소 시정거리</string>
   <string name="pressure">대기압</string>
-  <string name="humidity">상대 습도</string>
+  <string name="humidity">습도</string>
   <string name="uv_index">자외선 지수</string>
   <string name="ozone">오존 농도</string>
-  <string name="air_quality_index">대기질 지수</string>
+  <string name="air_quality_index">대기질</string>
   <string name="pm25">미세먼지(PM2.5) 농도</string>
   <string name="pm10">초미세먼지(PM10) 농도</string>
   <string name="sunrise">일출 시간</string>

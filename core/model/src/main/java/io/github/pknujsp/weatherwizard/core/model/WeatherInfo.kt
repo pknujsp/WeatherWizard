@@ -1,5 +1,6 @@
 package io.github.pknujsp.weatherwizard.core.model
 
+import io.github.pknujsp.weatherwizard.core.model.flickr.FlickrRequestParameters
 import io.github.pknujsp.weatherwizard.core.model.weather.current.CurrentWeather
 import io.github.pknujsp.weatherwizard.core.model.weather.dailyforecast.DailyForecast
 import io.github.pknujsp.weatherwizard.core.model.weather.hourlyforecast.HourlyForecast
@@ -10,4 +11,6 @@ data class WeatherInfo(
     val hourlyForecast: HourlyForecast,
     val dailyForecast: DailyForecast,
     val yesterdayWeather: YesterdayWeather,
-) : UiModel
+) : UiModel {
+
+}

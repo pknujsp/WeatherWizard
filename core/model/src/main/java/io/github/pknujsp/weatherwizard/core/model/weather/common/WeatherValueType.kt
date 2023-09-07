@@ -488,7 +488,7 @@ data class PrecipitationValueType(
     }
 
     override fun toStringWithoutUnit(): String {
-        return if (isNone()) "" else value.toString()
+        return if (isNone()) "-" else value.toString()
     }
 }
 
@@ -651,7 +651,7 @@ data class ProbabilityValueType(
     }
 
     override fun toString(): String {
-        return "$value${unit.symbol}"
+        return if (isNone()) "-" else "$value${unit.symbol}"
     }
 
     override fun isNone(): Boolean {

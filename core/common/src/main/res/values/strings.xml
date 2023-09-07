@@ -25,4 +25,11 @@
     <string name="kma_mid_overcast_shower">흐리고 소나기</string>
     <string name="kma_mid_shower">소나기</string>
     <string name="kma_mid_sleet">비/눈</string>
+    <string name="than_yesterday">어제보다</string>
+    <string name="as_yesterday">어제와</string>
+    <string name="same_temperature">같은 기온</string>
+    <string name="higher">높아요</string>
+    <string name="lower">낮아요</string>
+    <string name="is_">이에요</string>
+    <string name="reload">다시시도</string>
 </resources>

@@ -1,5 +1,6 @@
 plugins {
     id("plugin.android.library")
+    id("plugin.android.hilt")
 }
 
 android {
@@ -12,4 +13,5 @@ dependencies {
     implementation(libs.androidx.appcompat)
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.compose.ui)
+    implementation(libs.sunrisesunsetcalculator)
 }

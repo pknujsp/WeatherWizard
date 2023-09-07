@@ -1,6 +1,7 @@
 package io.github.pknujsp.weatherwizard.core.network.datasource.kma.parser
 
 
+import io.github.pknujsp.weatherwizard.core.model.weather.common.ProbabilityValueType
 import org.jsoup.nodes.Document
 import java.time.LocalDate
 import java.time.LocalTime
@@ -488,5 +489,5 @@ class KmaHtmlParser @Inject constructor() {
 
     private fun String.toPrecipitationVolume(): Double = replace(mm, "").replace(cm, "").toDoubleOrNull() ?: 0.0
 
-    private fun String.toPop(): Int = replace(percent, "").toIntOrNull() ?: 0
+    private fun String.toPop(): Int = replace(percent, "").toIntOrNull() ?: ProbabilityValueType.none.value
 }

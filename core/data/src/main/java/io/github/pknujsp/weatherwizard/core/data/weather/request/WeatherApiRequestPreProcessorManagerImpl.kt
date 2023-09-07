@@ -1,9 +1,8 @@
 package io.github.pknujsp.weatherwizard.core.data.weather.request
 
 import io.github.pknujsp.weatherwizard.core.data.weather.WeatherRequestPreProcessor
-import io.github.pknujsp.weatherwizard.core.data.weather.kma.KmaRequestPreProcessor
 import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherDataProvider
-import io.github.pknujsp.weatherwizard.core.network.ApiRequestParameter
+import io.github.pknujsp.weatherwizard.core.model.ApiRequestParameter
 import javax.inject.Inject
 
 class WeatherApiRequestPreProcessorManagerImpl @Inject constructor(

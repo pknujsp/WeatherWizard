@@ -1,5 +1,7 @@
 package io.github.pknujsp.weatherwizard.core.model.weather.current
 
+import androidx.annotation.DrawableRes
+import io.github.pknujsp.weatherwizard.core.common.util.DayNightCalculator
 import io.github.pknujsp.weatherwizard.core.model.UiModel
 import io.github.pknujsp.weatherwizard.core.model.weather.common.HumidityValueType
 import io.github.pknujsp.weatherwizard.core.model.weather.common.PrecipitationValueType
@@ -7,8 +9,9 @@ import io.github.pknujsp.weatherwizard.core.model.weather.common.TemperatureValu
 import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherConditionValueType
 import io.github.pknujsp.weatherwizard.core.model.weather.common.WindDirectionValueType
 import io.github.pknujsp.weatherwizard.core.model.weather.common.WindSpeedValueType
+import java.util.Calendar
 
-data class CurrentWeather(
+class CurrentWeather(
     val weatherCondition: WeatherConditionValueType,
     val temperature: TemperatureValueType,
     val feelsLikeTemperature: TemperatureValueType,
@@ -16,4 +19,9 @@ data class CurrentWeather(
     val windSpeed: WindSpeedValueType,
     val windDirection: WindDirectionValueType,
     val precipitationVolume: PrecipitationValueType,
-) : UiModel
+    dayNightCalculator: DayNightCalculator,
+    currentCalendar: Calendar
+) : UiModel {
+    @DrawableRes val weatherIcon: Int =
+        weatherCondition.value.getWeatherIconByTimeOfDay(dayNightCalculator.calculate(currentCalendar) == DayNightCalculator.DayNight.DAY)
+}
