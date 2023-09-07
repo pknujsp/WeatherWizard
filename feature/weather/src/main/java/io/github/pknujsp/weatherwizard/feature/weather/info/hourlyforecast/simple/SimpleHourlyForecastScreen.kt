@@ -34,7 +34,7 @@ fun HourlyForecastScreen(weatherInfoViewModel: WeatherInfoViewModel) {
     val scrollState = rememberScrollState()
 
     weatherInfo.value.onLoading { }.onError { }.onSuccess {
-        SimpleWeatherScreenBackground(CardInfo(title = "시간별 날씨",
+        SimpleWeatherScreenBackground(CardInfo(title = "시간별 예보",
             buttons = listOf(
                 "비교" to { },
                 "자세히" to { },

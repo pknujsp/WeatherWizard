@@ -55,7 +55,6 @@ fun WeatherInfoScreen() {
                 }
             }.onSuccess {
                 HeadInfoScreen(weatherInfoViewModel)
-                ItemSpacer(60.dp)
                 CurrentWeatherScreen(weatherInfoViewModel)
                 ItemSpacer()
                 HourlyForecastScreen(weatherInfoViewModel)
