@@ -3,7 +3,6 @@ package io.github.pknujsp.weatherwizard.feature.weather.info.hourlyforecast.simp
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -28,9 +27,6 @@ private val columnWidth = 52.dp
 @Composable
 fun HourlyForecastScreen(weatherInfoViewModel: WeatherInfoViewModel) {
     val weatherInfo = weatherInfoViewModel.weatherInfo.collectAsStateWithLifecycle()
-    val columnItemModifier = Modifier
-        .width(columnWidth)
-        .wrapContentHeight()
     val scrollState = rememberScrollState()
 
     weatherInfo.value.onLoading { }.onError { }.onSuccess {
@@ -40,16 +36,16 @@ fun HourlyForecastScreen(weatherInfoViewModel: WeatherInfoViewModel) {
                 "자세히" to { },
             ),
             content = {
-                HorizontalScrollableForecast(scrollState) {
+                HorizontalScrollableForecast(scrollState = scrollState) {
                     DynamicDateTime(dateTimes = it.hourlyForecast.items.map { ZonedDateTime.parse(it.dateTime.value) },
                         columnWidth = columnWidth,
                         scrollState = scrollState)
-                    HourlyForecastItem(hourlyForecast = it.hourlyForecast, columnItemModifier)
+                    HourlyForecastItem(hourlyForecast = it.hourlyForecast, Modifier.width(columnWidth))
                     SingleGraph(graphData = GraphData(listOf(it.hourlyForecast.items.map {
                         GraphData.Value(it.temperature.value.toInt(), it.temperature.toString())
                     }), columnWidth), modifier = Modifier
                         .fillMaxWidth()
-                        .height(100.dp), columnWidth)
+                        .height(90.dp), columnWidth)
                 }
             }))
     }

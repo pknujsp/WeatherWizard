@@ -3,6 +3,7 @@ package io.github.pknujsp.weatherwizard.core.ui
 import android.content.res.Resources
 import android.graphics.PointF
 import android.util.DisplayMetrics
+import android.util.Log
 import android.util.TypedValue
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.width

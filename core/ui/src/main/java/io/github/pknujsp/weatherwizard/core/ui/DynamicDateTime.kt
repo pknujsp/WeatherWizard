@@ -1,12 +1,12 @@
 package io.github.pknujsp.weatherwizard.core.ui
 
+import android.util.Log
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -30,15 +30,19 @@ private val space = 2.dp
 private val textStyle = TextStyle(fontSize = textSize, textAlign = androidx.compose.ui.text.style.TextAlign.Center)
 
 @Composable
-fun DynamicDateTime(dateTimes: List<ZonedDateTime>, columnWidth: Dp, scrollState: ScrollState) {
+fun DynamicDateTime(
+    dateTimes: List<ZonedDateTime>,
+    columnWidth: Dp,
+    scrollState: ScrollState,
+) {
     val textMeasurer = rememberTextMeasurer()
     val density = LocalDensity.current.density
-    val textLayoutResult = textMeasurer.measure(dateTimes.first().format(format), textStyle)
 
+    val textLayoutResult = textMeasurer.measure(dateTimes.first().format(format), textStyle)
     val columnWidthPx = columnWidth.value * density
     val height = (textLayoutResult.size.height / density).dp + space * 2
 
-    val dateValues by remember {
+    val dateValues = remember {
         var date = dateTimes.first().toString().run { ZonedDateTime.parse(this).toLocalDate() }
         var lastDate = LocalDate.parse(date.toString()).minusDays(5)
 
@@ -59,9 +63,9 @@ fun DynamicDateTime(dateTimes: List<ZonedDateTime>, columnWidth: Dp, scrollState
             }
         }
         dateValueList.last().endX = columnWidthPx * (dateTimes.size - 1) + (columnWidthPx / 2)
-        mutableStateOf(dateValueList.toList())
+        dateValueList.toList()
     }
-    val firstColX = dateValues.first().beginX
+    val firstColX = remember { dateValues.first().beginX }
 
     Canvas(modifier = Modifier
         .width(columnWidth * dateTimes.size)
