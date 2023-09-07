@@ -38,10 +38,10 @@ private fun DefaultSurface(content: @Composable () -> Unit) {
 fun SimpleWeatherScreenBackground(cardInfo: CardInfo) {
     DefaultSurface {
         Column(modifier = Modifier
-            .padding(vertical = 8.dp)
+            .padding(vertical = 12.dp)
             .fillMaxWidth()
             .wrapContentHeight()) {
-            Row(modifier = Modifier.padding(horizontal = 12.dp)) {
+            Row(modifier = Modifier.padding(horizontal = 14.dp)) {
                 Text(text = cardInfo.title, style = TextStyle(color = Color.White, fontSize = 18.sp), modifier = Modifier.fillMaxWidth())
             }
             Spacer(modifier = Modifier.height(8.dp))
