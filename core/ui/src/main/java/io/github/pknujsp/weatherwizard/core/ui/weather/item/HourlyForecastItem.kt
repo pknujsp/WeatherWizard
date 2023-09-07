@@ -1,6 +1,5 @@
 package io.github.pknujsp.weatherwizard.core.ui.weather.item
 
-import android.graphics.drawable.shapes.Shape
 import android.widget.Toast
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
@@ -80,7 +79,8 @@ private fun Item(item: ItemData, modifier: Modifier, onClick: (String) -> Unit) 
                 .CenterHorizontally,
         ) {
             Text(text = time, style = TextStyle(fontSize = 13.sp, color = Color.White))
-            Image(imageVector = ImageVector.vectorResource(id = icon), contentDescription = weatherConditionText)
+            Image(imageVector = ImageVector.vectorResource(id = icon), contentDescription = weatherConditionText,
+                modifier = Modifier.padding(4.dp))
 
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Center) {
                 Image(imageVector = ImageVector.vectorResource(id = ItemData.probabilityIcon), contentDescription = null,

@@ -10,13 +10,9 @@ import androidx.compose.ui.Modifier
 
 @Composable
 fun HorizontalScrollableForecast(scrollState: ScrollState, content: @Composable () -> Unit) {
-    Box(
-        Modifier
-            .wrapContentHeight()
-            .horizontalScroll(scrollState),
-    ) {
-        Column {
-            content()
-        }
+    Column(Modifier
+        .wrapContentHeight()
+        .horizontalScroll(scrollState)) {
+        content()
     }
 }

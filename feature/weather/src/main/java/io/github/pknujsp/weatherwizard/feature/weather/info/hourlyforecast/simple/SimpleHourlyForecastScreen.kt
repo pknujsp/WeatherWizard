@@ -23,7 +23,7 @@ import io.github.pknujsp.weatherwizard.feature.weather.info.WeatherInfoViewModel
 import java.time.ZonedDateTime
 
 
-private val columnWidth = 48.dp
+private val columnWidth = 52.dp
 
 @Composable
 fun HourlyForecastScreen(weatherInfoViewModel: WeatherInfoViewModel) {
