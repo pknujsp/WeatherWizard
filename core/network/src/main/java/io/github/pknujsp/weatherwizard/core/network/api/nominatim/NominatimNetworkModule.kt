@@ -5,25 +5,22 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
-import io.github.pknujsp.weatherwizard.core.network.api.flickr.FlickrNetworkApi
-import io.github.pknujsp.weatherwizard.core.network.datasource.flickr.FlickrDataSource
-import io.github.pknujsp.weatherwizard.core.network.datasource.flickr.FlickrDataSourceImpl
+import io.github.pknujsp.weatherwizard.core.common.module.AppLocale
+import io.github.pknujsp.weatherwizard.core.network.datasource.nominatim.NominatimDataSource
+import io.github.pknujsp.weatherwizard.core.network.datasource.nominatim.NominatimDataSourceImpl
 import kotlinx.serialization.json.Json
 import okhttp3.MediaType
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
+import java.util.Locale
+import javax.inject.Inject
 import javax.inject.Singleton
 
 @InstallIn(SingletonComponent::class)
 @Module
 object NominatimNetworkModule {
     private const val NOMINATIM_URL = "https://nominatim.openstreetmap.org/"
-
-    private val json = Json {
-        ignoreUnknownKeys = true
-        isLenient = true
-        coerceInputValues = true
-    }
+    @Inject lateinit var json: Json
 
     @Provides
     @Singleton
@@ -34,6 +31,6 @@ object NominatimNetworkModule {
 
     @Provides
     @Singleton
-    fun providesNominatimDataSource(flickrNetworkApi: FlickrNetworkApi): FlickrDataSource =
-        FlickrDataSourceImpl(flickrNetworkApi)
+    fun providesNominatimDataSource(nominatimNetworkApi: NominatimNetworkApi, @AppLocale appLocale: Locale): NominatimDataSource =
+        NominatimDataSourceImpl(nominatimNetworkApi, appLocale)
 }

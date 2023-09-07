@@ -11,6 +11,7 @@ import kotlinx.serialization.json.Json
 import okhttp3.MediaType
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
+import javax.inject.Inject
 import javax.inject.Singleton
 
 @InstallIn(SingletonComponent::class)
@@ -18,11 +19,7 @@ import javax.inject.Singleton
 object FlickrNetworkModule {
     private const val FLICKR_URL = "https://www.flickr.com/services/"
 
-    private val json = Json {
-        ignoreUnknownKeys = true
-        isLenient = true
-        coerceInputValues = true
-    }
+    @Inject lateinit var json: Json
 
     @Provides
     @Singleton

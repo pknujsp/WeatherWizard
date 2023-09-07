@@ -1,6 +1,7 @@
 package io.github.pknujsp.weatherwizard.core.network.datasource.nominatim.response
 
 
+import io.github.pknujsp.weatherwizard.core.network.ApiResponseModel
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -9,7 +10,7 @@ data class GeoCodeResponse(
     @SerialName("features") val features: List<Feature> = listOf(),
     @SerialName("licence") val licence: String = "", // Data © OpenStreetMap contributors, ODbL 1.0. http://osm.org/copyright
     @SerialName("type") val type: String = "" // FeatureCollection
-) {
+) : ApiResponseModel {
     @Serializable
     data class Feature(
         @SerialName("bbox") val bbox: List<Double> = listOf(),
@@ -52,7 +53,8 @@ data class GeoCodeResponse(
                 @SerialName("quarter") val quarter: String = "", // 내동
                 @SerialName("state") val state: String = "", // 평안북도
                 @SerialName("suburb") val suburb: String = "", // 동인천동
-                @SerialName("village") val village: String = "" // 내동
+                @SerialName("village") val village: String = "", // 내동
+                @SerialName("road") val road: String = "" // 구지로
             )
         }
     }

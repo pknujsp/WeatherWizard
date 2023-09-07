@@ -1,6 +1,7 @@
 package io.github.pknujsp.weatherwizard.core.network.datasource.nominatim.response
 
 
+import io.github.pknujsp.weatherwizard.core.network.ApiResponseModel
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -9,7 +10,7 @@ data class ReverseGeoCodeResponse(
     @SerialName("features") val features: List<Feature> = listOf(),
     @SerialName("licence") val licence: String = "", // Data © OpenStreetMap contributors, ODbL 1.0. http://osm.org/copyright
     @SerialName("type") val type: String = "" // FeatureCollection
-) {
+) : ApiResponseModel {
     @Serializable
     data class Feature(
         @SerialName("bbox") val bbox: List<Double> = listOf(),
@@ -28,7 +29,8 @@ data class ReverseGeoCodeResponse(
             @SerialName("address") val address: Address = Address(),
             @SerialName("addresstype") val addresstype: String = "", // place
             @SerialName("category") val category: String = "", // place
-            @SerialName("display_name") val displayName: String = "", // 71, Via Guglielmo Marconi, Marconi, Porto-Saragozza, Bologna, Emilia-Romagna, 40122, 이탈리아
+            @SerialName("display_name")
+            val displayName: String = "", // 71, Via Guglielmo Marconi, Marconi, Porto-Saragozza, Bologna, Emilia-Romagna, 40122, 이탈리아
             @SerialName("importance") val importance: Double = 0.0, // 9.99999999995449e-06
             @SerialName("name") val name: String = "",
             @SerialName("osm_id") val osmId: Int = 0, // 1704756187
@@ -49,7 +51,9 @@ data class ReverseGeoCodeResponse(
                 @SerialName("postcode") val postCode: String = "", // 40122
                 @SerialName("road") val road: String = "", // Via Guglielmo Marconi
                 @SerialName("state") val state: String = "", // Emilia-Romagna
-                @SerialName("suburb") val suburb: String = "" // Marconi
+                @SerialName("suburb") val suburb: String = "", // Marconi
+                @SerialName("province") val province: String = "", // Bologna
+                @SerialName("quarter") val quarter: String = "" // Porto-Saragozza
             )
         }
     }
