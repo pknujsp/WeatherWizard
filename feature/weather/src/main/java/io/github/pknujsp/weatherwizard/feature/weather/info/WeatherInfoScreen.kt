@@ -15,10 +15,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.pknujsp.weatherwizard.core.model.onError
 import io.github.pknujsp.weatherwizard.core.model.onLoading
 import io.github.pknujsp.weatherwizard.core.model.onSuccess
@@ -33,7 +35,7 @@ import io.github.pknujsp.weatherwizard.feature.weather.info.hourlyforecast.simpl
 fun WeatherInfoScreen() {
     val scrollState = rememberScrollState()
     val weatherInfoViewModel: WeatherInfoViewModel = hiltViewModel()
-    val weatherInfo = weatherInfoViewModel.weatherInfo.collectAsState()
+    val weatherInfo = weatherInfoViewModel.weatherInfo.collectAsStateWithLifecycle()
     weatherInfoViewModel.loadAllWeatherData()
 
     Surface(
@@ -41,6 +43,7 @@ fun WeatherInfoScreen() {
             .verticalScroll(scrollState, true)
             .fillMaxWidth()
             .fillMaxHeight(),
+        color = Color.LightGray
     ) {
         Column(
             verticalArrangement = Arrangement.Center,

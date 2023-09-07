@@ -9,9 +9,9 @@ import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
 import androidx.core.view.WindowCompat
 import dagger.hilt.android.AndroidEntryPoint
-import io.github.pknujsp.weatherwizard.feature.main.MainScreen
 import io.github.pknujsp.weatherwizard.core.ui.theme.MainTheme
 import io.github.pknujsp.weatherwizard.core.ui.theme.mainColorScheme
+import io.github.pknujsp.weatherwizard.feature.main.MainScreen
 
 
 @AndroidEntryPoint
@@ -22,6 +22,10 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         WindowCompat.setDecorFitsSystemWindows(window, false)
+        window.setFlags(
+            android.view.WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
+            android.view.WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS
+        )
 
         setContent {
             MainTheme {
