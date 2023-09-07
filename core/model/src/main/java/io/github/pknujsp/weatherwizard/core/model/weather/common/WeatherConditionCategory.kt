@@ -2,6 +2,7 @@ package io.github.pknujsp.weatherwizard.core.model.weather.common
 
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
+import io.github.pknujsp.weatherwizard.core.model.flickr.FlickrGalleryId
 import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherConditionCategory.Clear
 import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherConditionCategory.MostlyCloudy
 import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherConditionCategory.Overcast
@@ -36,13 +37,16 @@ sealed class WeatherConditionCategory(
     @StringRes open val stringRes: Int,
     @DrawableRes open val dayWeatherIcon: Int,
     @DrawableRes open val nightWeatherIcon: Int,
-) {
 
+    open val flickrGalleryName: FlickrGalleryId
+
+) {
 
     data object Clear : WeatherConditionCategory(
         io.github.pknujsp.weatherwizard.core.common.R.string.clear,
         io.github.pknujsp.weatherwizard.core.common.R.drawable.day_clear,
         io.github.pknujsp.weatherwizard.core.common.R.drawable.night_clear,
+        FlickrGalleryId.Clear,
     )
 
 
@@ -50,44 +54,72 @@ sealed class WeatherConditionCategory(
         io.github.pknujsp.weatherwizard.core.common.R.string.partly_cloudy,
         io.github.pknujsp.weatherwizard.core.common.R.drawable.day_partly_cloudy,
         io.github.pknujsp.weatherwizard.core.common.R.drawable.night_partly_cloudy,
+        FlickrGalleryId.PartlyCloudy,
     )
 
-    data object MostlyCloudy : WeatherConditionCategory(io.github.pknujsp.weatherwizard.core.common.R.string.mostly_cloudy,
+    data object MostlyCloudy : WeatherConditionCategory(
+        io.github.pknujsp.weatherwizard.core.common.R.string.mostly_cloudy,
         io.github.pknujsp.weatherwizard.core.common.R.drawable.day_mostly_cloudy,
-        io.github.pknujsp.weatherwizard.core.common.R.drawable.night_mostly_cloudy)
+        io.github.pknujsp.weatherwizard.core.common.R.drawable.night_mostly_cloudy,
+        FlickrGalleryId.MostlyCloudy,
+    )
 
-    data object Overcast : WeatherConditionCategory(io.github.pknujsp.weatherwizard.core.common.R.string.overcast,
+    data object Overcast : WeatherConditionCategory(
+        io.github.pknujsp.weatherwizard.core.common.R.string.overcast,
         io.github.pknujsp.weatherwizard.core.common.R.drawable.overcast,
-        io.github.pknujsp.weatherwizard.core.common.R.drawable.overcast)
+        io.github.pknujsp.weatherwizard.core.common.R.drawable.overcast,
+        FlickrGalleryId.Overcast,
+    )
 
-    data object Rain : WeatherConditionCategory(io.github.pknujsp.weatherwizard.core.common.R.string.rain,
+    data object Rain : WeatherConditionCategory(
+        io.github.pknujsp.weatherwizard.core.common.R.string.rain,
         io.github.pknujsp.weatherwizard.core.common.R.drawable.rain,
-        io.github.pknujsp.weatherwizard.core.common.R.drawable.rain)
+        io.github.pknujsp.weatherwizard.core.common.R.drawable.rain,
+        FlickrGalleryId.Rain,
+    )
 
-    data object RainAndSnow : WeatherConditionCategory(io.github.pknujsp.weatherwizard.core.common.R.string.rain_and_snow,
+    data object RainAndSnow : WeatherConditionCategory(
+        io.github.pknujsp.weatherwizard.core.common.R.string.rain_and_snow,
         io.github.pknujsp.weatherwizard.core.common.R.drawable.sleet,
-        io.github.pknujsp.weatherwizard.core.common.R.drawable.sleet)
+        io.github.pknujsp.weatherwizard.core.common.R.drawable.sleet,
+        FlickrGalleryId.Rain,
+    )
 
-    data object Snow : WeatherConditionCategory(io.github.pknujsp.weatherwizard.core.common.R.string.snow,
+    data object Snow : WeatherConditionCategory(
+        io.github.pknujsp.weatherwizard.core.common.R.string.snow,
         io.github.pknujsp.weatherwizard.core.common.R.drawable.snow,
-        io.github.pknujsp.weatherwizard.core.common.R.drawable.snow)
+        io.github.pknujsp.weatherwizard.core.common.R.drawable.snow,
+        FlickrGalleryId.Snow,
+    )
 
-    data object Shower : WeatherConditionCategory(io.github.pknujsp.weatherwizard.core.common.R.string.shower,
+    data object Shower : WeatherConditionCategory(
+        io.github.pknujsp.weatherwizard.core.common.R.string.shower,
         io.github.pknujsp.weatherwizard.core.common.R.drawable.showers,
-        io.github.pknujsp.weatherwizard.core.common.R.drawable.showers)
+        io.github.pknujsp.weatherwizard.core.common.R.drawable.showers,
+        FlickrGalleryId.Rain,
+    )
 
-    data object Raindrop : WeatherConditionCategory(io.github.pknujsp.weatherwizard.core.common.R.string.raindrop,
+    data object Raindrop : WeatherConditionCategory(
+        io.github.pknujsp.weatherwizard.core.common.R.string.raindrop,
         io.github.pknujsp.weatherwizard.core.common.R.drawable.raindrop,
-        io.github.pknujsp.weatherwizard.core.common.R.drawable.raindrop)
+        io.github.pknujsp.weatherwizard.core.common.R.drawable.raindrop,
+        FlickrGalleryId.Rain,
+    )
 
     data object RaindropAndSnowBlizzard :
-        WeatherConditionCategory(io.github.pknujsp.weatherwizard.core.common.R.string.raindrop_and_snow_blizzard,
+        WeatherConditionCategory(
+            io.github.pknujsp.weatherwizard.core.common.R.string.raindrop_and_snow_blizzard,
             io.github.pknujsp.weatherwizard.core.common.R.drawable.sleet,
-            io.github.pknujsp.weatherwizard.core.common.R.drawable.sleet)
+            io.github.pknujsp.weatherwizard.core.common.R.drawable.sleet,
+            FlickrGalleryId.Rain,
+        )
 
-    data object SnowBlizzard : WeatherConditionCategory(io.github.pknujsp.weatherwizard.core.common.R.string.snow_blizzard,
+    data object SnowBlizzard : WeatherConditionCategory(
+        io.github.pknujsp.weatherwizard.core.common.R.string.snow_blizzard,
         io.github.pknujsp.weatherwizard.core.common.R.drawable.snow,
-        io.github.pknujsp.weatherwizard.core.common.R.drawable.snow)
+        io.github.pknujsp.weatherwizard.core.common.R.drawable.snow,
+        FlickrGalleryId.Snow,
+    )
 }
 
 

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="flickr_clear" translatable="false">clear</string>
+    <string name="flickr_partly_cloudy" translatable="false">partly cloudy</string>
+    <string name="flickr_mostly_cloudy" translatable="false">mostly cloudy</string>
+    <string name="flickr_overcast" translatable="false">overcast</string>
+    <string name="flickr_rain" translatable="false">rain</string>
+    <string name="flickr_snow" translatable="false">snow</string>
+</resources>

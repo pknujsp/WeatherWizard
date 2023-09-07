@@ -72,6 +72,7 @@ ktlint_gradle_plugin = "11.5.1"
 detekt = "1.23.1"
 
 jsoup = "1.16.1"
+sunrisesunsetcalculator = "1.2"
 
 
 # 라이브러리 의존성------------------------------------------------------------------------------------------------------------------------
@@ -183,6 +184,8 @@ lottie = { module = "com.airbnb.android:lottie-compose", version.ref = "lottie" 
 
 # material--------------------------------------------------------------------------------------------------------------
 material = { module = "com.google.android.material:material", version.ref = "material" }
+
+sunrisesunsetcalculator = { module = "com.luckycatlabs:SunriseSunsetCalculator", version.ref = "sunrisesunsetcalculator" }
 
 android-gradle-plugin = { group = "com.android.tools.build", name = "gradle", version.ref = "android_gradle_plugin" }
 kotlin-gradle-plugin = { group = "org.jetbrains.kotlin", name = "kotlin-gradle-plugin", version.ref = "kotlin" }
