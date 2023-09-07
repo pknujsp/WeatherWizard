@@ -1,12 +1,10 @@
-package io.github.pknujsp.weatherwizard.core.network.datasource.flickr
+package io.github.pknujsp.weatherwizard.core.model.flickr
 
 import com.luckycatlabs.sunrisesunset.SunriseSunsetCalculator
 import com.luckycatlabs.sunrisesunset.dto.Location
-import io.github.pknujsp.weatherwizard.core.model.weather.common.PrecipitationValueType
+import io.github.pknujsp.weatherwizard.core.model.ApiRequestParameter
+import io.github.pknujsp.weatherwizard.core.model.BuildConfig
 import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherConditionCategory
-import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherDataProvider
-import io.github.pknujsp.weatherwizard.core.network.ApiRequestParameter
-import io.github.pknujsp.weatherwizard.core.network.BuildConfig
 import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.util.Calendar
@@ -14,12 +12,10 @@ import java.util.SimpleTimeZone
 import java.util.concurrent.TimeUnit
 
 data class FlickrRequestParameters(
-    val weatherDataProvider: WeatherDataProvider,
     val weatherCondition: WeatherConditionCategory,
     val latitude: Double,
     val longitude: Double,
     val zoneId: ZoneId,
-    val precipitationVolume: PrecipitationValueType,
     val refreshDateTime: ZonedDateTime,
 ) {
 

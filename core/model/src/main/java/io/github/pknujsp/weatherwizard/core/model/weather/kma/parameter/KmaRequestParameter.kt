@@ -1,6 +1,6 @@
-package io.github.pknujsp.weatherwizard.core.network.datasource.kma.parameter
+package io.github.pknujsp.weatherwizard.core.model.weather.kma.parameter
 
-import io.github.pknujsp.weatherwizard.core.network.ApiRequestParameter
+import io.github.pknujsp.weatherwizard.core.model.ApiRequestParameter
 
 
 data class KmaCurrentWeatherRequestParameter(

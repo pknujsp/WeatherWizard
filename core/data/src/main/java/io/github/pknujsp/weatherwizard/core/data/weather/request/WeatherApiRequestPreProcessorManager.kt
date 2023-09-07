@@ -1,7 +1,7 @@
 package io.github.pknujsp.weatherwizard.core.data.weather.request
 
 import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherDataProvider
-import io.github.pknujsp.weatherwizard.core.network.ApiRequestParameter
+import io.github.pknujsp.weatherwizard.core.model.ApiRequestParameter
 
 interface WeatherApiRequestPreProcessorManager {
     suspend fun getCurrentWeatherRequestParameter(

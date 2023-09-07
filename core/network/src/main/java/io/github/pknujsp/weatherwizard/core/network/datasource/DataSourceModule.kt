@@ -23,9 +23,4 @@ object DataSourceModule {
         kmaHtmlParser: KmaHtmlParser,
     ): KmaDataSource = KmaDataSourceImpl(kmaNetworkApi, kmaHtmlParser)
 
-    @Provides
-    @Singleton
-    fun providesFlickrDataSource(
-        flickrNetworkApi: FlickrNetworkApi
-    ): FlickrDataSource = FlickrDataSourceImpl(flickrNetworkApi)
 }

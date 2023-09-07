@@ -3,7 +3,7 @@ package io.github.pknujsp.weatherwizard.core.data.flickr
 import android.util.LruCache
 import io.github.pknujsp.weatherwizard.core.model.flickr.FlickrImageEntity
 import io.github.pknujsp.weatherwizard.core.network.datasource.flickr.FlickrDataSource
-import io.github.pknujsp.weatherwizard.core.network.datasource.flickr.FlickrRequestParameters
+import io.github.pknujsp.weatherwizard.core.model.flickr.FlickrRequestParameters
 import javax.inject.Inject
 
 class FlickrRepositoryImpl @Inject constructor(

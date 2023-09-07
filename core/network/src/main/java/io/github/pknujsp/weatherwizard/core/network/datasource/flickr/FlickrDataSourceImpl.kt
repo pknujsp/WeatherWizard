@@ -1,5 +1,6 @@
 package io.github.pknujsp.weatherwizard.core.network.datasource.flickr
 
+import io.github.pknujsp.weatherwizard.core.model.flickr.FlickrRequestParameters
 import io.github.pknujsp.weatherwizard.core.network.api.flickr.FlickrNetworkApi
 import javax.inject.Inject
 

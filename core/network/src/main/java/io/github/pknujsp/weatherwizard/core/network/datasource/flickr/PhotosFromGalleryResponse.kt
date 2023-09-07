@@ -11,19 +11,25 @@ data class PhotosFromGalleryResponse(
 
     @Serializable
     data class Photos(
-        @SerialName("page") val page: String = "",
-        @SerialName("pages") var pages: String = "",
-        @SerialName("perpage") var perPage: String = "",
-        @SerialName("total") var total: String = "",
-        @SerialName("photo") var photo: List<Photo>,
+        @SerialName("page") val page: Int = 0,
+        @SerialName("pages") val pages: Int = 0,
+        @SerialName("perpage") val perPage: Int = 0,
+        @SerialName("total") val total: Int = 0,
+        @SerialName("photo") val photo: List<Photo> = emptyList(),
     ) {
         @Serializable
         data class Photo(
-            @SerialName("id") var id: String = "",
-            @SerialName("owner") var owner: String = "",
-            @SerialName("secret") var secret: String = "",
-            @SerialName("server") var server: String = "",
-            @SerialName("title") var title: String = "",
+            @SerialName("id") val id: String = "",
+            @SerialName("owner") val owner: String = "",
+            @SerialName("secret") val secret: String = "",
+            @SerialName("server") val server: String = "",
+            @SerialName("title") val title: String = "",
+            @SerialName("farm") val farm: Int = 0,
+            @SerialName("ispublic") val isPublic: Int = 0,
+            @SerialName("isfriend") val isFriend: Int = 0,
+            @SerialName("isfamily") val isFamily: Int = 0,
+            @SerialName("is_primary") val isPrimary: Int = 0,
+            @SerialName("has_comment") val hasComment: Int = 0,
         )
     }
 

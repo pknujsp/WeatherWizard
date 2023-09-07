@@ -1,4 +1,4 @@
-package io.github.pknujsp.weatherwizard.core.network
+package io.github.pknujsp.weatherwizard.core.model
 
 interface ApiRequestParameter {
     val requestId: Long
