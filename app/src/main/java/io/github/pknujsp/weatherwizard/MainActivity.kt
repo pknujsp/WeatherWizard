@@ -1,5 +1,6 @@
 package io.github.pknujsp.weatherwizard
 
+import android.graphics.Color
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -26,6 +27,14 @@ class MainActivity : ComponentActivity() {
             android.view.WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
             android.view.WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS
         )
+        window.apply {
+            navigationBarColor = Color.TRANSPARENT
+            statusBarColor = Color.TRANSPARENT
+        }
+        WindowCompat.getInsetsController(window, window.decorView).apply {
+            isAppearanceLightStatusBars = false
+            isAppearanceLightNavigationBars = false
+        }
 
         setContent {
             MainTheme {

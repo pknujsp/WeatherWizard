@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.material3.Button
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -40,25 +39,23 @@ private fun LoadingScreen(text: String? = null, onDismissRequest: (() -> Unit)? 
         properties = DialogProperties(dismissOnBackPress = false,
             dismissOnClickOutside = false,
             usePlatformDefaultWidth = false,
-            decorFitsSystemWindows = false)) {
-        Surface(modifier = Modifier
-            .fillMaxWidth()
-            .fillMaxHeight()) {
-            Column(verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier.background(color = Color.Black.copy(alpha = 0.4f))) {
-                LottieAnimation(
-                    composition,
-                    progress = { progress },
-                )
-                text?.run {
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Text(text = this, fontSize = 16.sp, color = Color.White)
-                }
-                content?.run {
-                    Spacer(modifier = Modifier.height(16.dp))
-                    this()
-                }
+            decorFitsSystemWindows = true)) {
+        Column(verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier
+                .fillMaxWidth()
+                .fillMaxHeight()) {
+            LottieAnimation(
+                composition,
+                progress = { progress },
+            )
+            text?.run {
+                Spacer(modifier = Modifier.height(16.dp))
+                Text(text = this, fontSize = 16.sp, color = Color.White)
+            }
+            content?.run {
+                Spacer(modifier = Modifier.height(16.dp))
+                this()
             }
         }
     }
