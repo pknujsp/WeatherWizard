@@ -20,6 +20,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.pknujsp.weatherwizard.core.common.util.AStyle
@@ -37,122 +38,105 @@ fun CurrentWeatherScreen(weatherInfoViewModel: WeatherInfoViewModel) {
     val weatherInfo = weatherInfoViewModel.weatherInfo.collectAsStateWithLifecycle()
 
     weatherInfo.value.onSuccess {
-        val currentWeather = it.currentWeather
+        it.currentWeather.let { currentWeather ->
+            ConstraintLayout(modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 12.dp)
+                .wrapContentHeight()) {
+                val (weatherIcon, airQuality, temperature, weatherCondition, wind, humidity, comparedToYesterday, feelsLikeTemperature, yesterday) = createRefs()
 
-        ConstraintLayout(modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 12.dp)
-            .wrapContentHeight()) {
-            val (
-                weatherIcon, airQuality, temperature, weatherCondition, wind, humidity, comparedToYesterday,
-                feelsLikeTemperature,
-            ) = createRefs()
-
-            Text(
-                text = listOf(
+                Text(text = listOf(
                     AStyle(currentWeather.temperature.value.toInt().toString(),
                         span = SpanStyle(
-                            fontSize = TextUnit(72f, TextUnitType.Sp),
+                            fontSize = TextUnit(80f, TextUnitType.Sp),
                             color = textColor,
                         )),
                     AStyle(currentWeather.temperature.unit.symbol,
                         span = SpanStyle(fontSize = TextUnit(36f, TextUnitType.Sp), color = textColor)),
-                ).toAnnotated(),
-                modifier = Modifier.constrainAs(temperature) {
-                    bottom.linkTo(parent.bottom)
+                ).toAnnotated(), modifier = Modifier.constrainAs(temperature) {
+                    bottom.linkTo(yesterday.top)
                     absoluteLeft.linkTo(parent.absoluteLeft)
-                },
-                style = LocalTextStyle.current.merge(notIncludeTextPaddingStyle).merge(outlineTextStyle)
-            )
+                }, style = LocalTextStyle.current.merge(notIncludeTextPaddingStyle).merge(outlineTextStyle))
 
-            Image(
-                imageVector = ImageVector.vectorResource(id = currentWeather.weatherCondition.value.dayWeatherIcon),
-                contentDescription = stringResource(
-                    id = io.github.pknujsp.weatherwizard.core.model.R.string.weather_icon_description,
-                ),
-                modifier = Modifier
-                    .size(32.dp)
-                    .constrainAs(weatherIcon) {
-                        bottom.linkTo(temperature.top)
-                        absoluteLeft.linkTo(parent.absoluteLeft)
-                    },
-            )
+                Image(
+                    imageVector = ImageVector.vectorResource(id = currentWeather.weatherCondition.value.dayWeatherIcon),
+                    contentDescription = stringResource(
+                        id = io.github.pknujsp.weatherwizard.core.model.R.string.weather_icon_description,
+                    ),
+                    modifier = Modifier
+                        .size(34.dp)
+                        .constrainAs(weatherIcon) {
+                            bottom.linkTo(temperature.top)
+                            absoluteLeft.linkTo(parent.absoluteLeft)
+                        },
+                )
 
-            Text(
-                text = stringResource(currentWeather.weatherCondition.value.stringRes),
-                modifier = Modifier
-                    .absolutePadding(left = 8.dp)
-                    .constrainAs(weatherCondition) {
-                        bottom.linkTo(weatherIcon.bottom)
-                        top.linkTo(weatherIcon.top)
-                        absoluteLeft.linkTo(weatherIcon.absoluteRight)
-                    },
-                style = TextStyle(fontSize = TextUnit(22f, TextUnitType.Sp), color = textColor).merge(
-                    outlineTextStyle
-                ),
-            )
+                Text(
+                    text = stringResource(currentWeather.weatherCondition.value.stringRes),
+                    modifier = Modifier
+                        .absolutePadding(left = 8.dp)
+                        .constrainAs(weatherCondition) {
+                            bottom.linkTo(weatherIcon.bottom)
+                            top.linkTo(weatherIcon.top)
+                            absoluteLeft.linkTo(weatherIcon.absoluteRight)
+                        },
+                    style = TextStyle(fontSize = TextUnit(22f, TextUnitType.Sp), color = textColor).merge(outlineTextStyle)
+                        .merge(notIncludeTextPaddingStyle),
+                )
 
-            Text(
-                text = listOf(
+                Text(text = listOf(
                     AStyle("${stringResource(id = WeatherDataCategory.FEELS_LIKE_TEMPERATURE.stringId)} ",
                         span = SpanStyle(fontSize = TextUnit(16f, TextUnitType.Sp), color = textColor)),
                     AStyle(currentWeather.feelsLikeTemperature.value.toInt().toString(),
-                        span = SpanStyle(fontSize = TextUnit(38f, TextUnitType.Sp), color = textColor)),
+                        span = SpanStyle(fontSize = TextUnit(42f, TextUnitType.Sp), color = textColor)),
                     AStyle(currentWeather.feelsLikeTemperature.unit.symbol,
                         span = SpanStyle(fontSize = TextUnit(22f, TextUnitType.Sp), color = textColor)),
-                ).toAnnotated(),
-                modifier = Modifier.constrainAs(feelsLikeTemperature) {
-                    bottom.linkTo(parent.bottom)
+                ).toAnnotated(), modifier = Modifier.constrainAs(feelsLikeTemperature) {
+                    baseline.linkTo(temperature.baseline)
                     absoluteRight.linkTo(parent.absoluteRight)
-                },
-                style = LocalTextStyle.current.merge(notIncludeTextPaddingStyle).merge(
-                    outlineTextStyle
-                )
-            )
+                }, style = LocalTextStyle.current.merge(notIncludeTextPaddingStyle).merge(outlineTextStyle))
 
-            Text(
-                text = listOf(
+                Text(text = listOf(
                     AStyle("${stringResource(id = WeatherDataCategory.HUMIDITY.stringId)} ",
                         span = SpanStyle(fontSize = TextUnit(16f, TextUnitType.Sp), color = textColor)),
                     AStyle(currentWeather.humidity.toString(),
                         span = SpanStyle(fontSize = TextUnit(16f, TextUnitType.Sp), color = textColor)),
-                ).toAnnotated(),
-                modifier = Modifier.constrainAs(humidity) {
+                ).toAnnotated(), modifier = Modifier.constrainAs(humidity) {
                     bottom.linkTo(wind.top, 4.dp)
                     absoluteRight.linkTo(parent.absoluteRight)
-                },
-                style = outlineTextStyle
-            )
+                }, style = outlineTextStyle)
 
-            Text(
-                text = listOf(
+                Text(text = listOf(
                     AStyle(
                         "${currentWeather.windDirection} ",
                         span = SpanStyle(fontSize = TextUnit(14f, TextUnitType.Sp), color = textColor),
                     ),
                     AStyle(currentWeather.windSpeed.strength(LocalContext.current),
                         span = SpanStyle(fontSize = TextUnit(16f, TextUnitType.Sp), color = textColor)),
-                ).toAnnotated(),
-                modifier = Modifier.constrainAs(wind) {
+                ).toAnnotated(), modifier = Modifier.constrainAs(wind) {
                     bottom.linkTo(airQuality.top, 4.dp)
                     absoluteRight.linkTo(parent.absoluteRight)
-                },
-                style = outlineTextStyle
-            )
+                }, style = outlineTextStyle)
 
-            Text(
-                text = listOf(
+                Text(text = listOf(
                     AStyle("${stringResource(id = WeatherDataCategory.AIR_QUALITY_INDEX.stringId)} ",
                         span = SpanStyle(fontSize = TextUnit(16f, TextUnitType.Sp), color = textColor)),
-                    AStyle("좋음",
-                        span = SpanStyle(fontSize = TextUnit(16f, TextUnitType.Sp), color = textColor)),
-                ).toAnnotated(),
-                modifier = Modifier.constrainAs(airQuality) {
+                    AStyle("좋음", span = SpanStyle(fontSize = TextUnit(16f, TextUnitType.Sp), color = textColor)),
+                ).toAnnotated(), modifier = Modifier.constrainAs(airQuality) {
                     bottom.linkTo(feelsLikeTemperature.top, 8.dp)
                     absoluteRight.linkTo(parent.absoluteRight)
-                },
-                style = outlineTextStyle
-            )
+                }, style = outlineTextStyle)
+
+
+                Text(text = it.yesterdayWeather.text(currentWeather.temperature, LocalContext.current),
+                    modifier = Modifier.constrainAs(yesterday) {
+                        bottom.linkTo(parent.bottom)
+                        absoluteLeft.linkTo(parent.absoluteLeft)
+                    },
+                    style = outlineTextStyle,
+                    color = textColor,
+                    fontSize = 15.sp)
+            }
         }
     }
 }

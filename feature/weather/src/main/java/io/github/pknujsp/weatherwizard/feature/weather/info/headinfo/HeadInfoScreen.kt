@@ -87,5 +87,4 @@ fun HeadInfoScreen(weatherInfoViewModel: WeatherInfoViewModel) {
     }
 }
 
-
 private val dateTimeFormatter = DateTimeFormatter.ofPattern("M.d E HH:mm")
