@@ -1,5 +1,6 @@
 package io.github.pknujsp.weatherwizard.core.network.datasource.flickr
 
+import io.github.pknujsp.weatherwizard.core.network.ApiResponseModel
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -7,7 +8,7 @@ import kotlinx.serialization.Serializable
 data class PhotosFromGalleryResponse(
     @SerialName("photos") val photos: Photos,
     @SerialName("stat") val stat: String = ""
-) {
+) : ApiResponseModel {
 
     @Serializable
     data class Photos(

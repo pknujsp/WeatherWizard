@@ -17,8 +17,9 @@ object KmaNetworkModule {
 
     @Provides
     @Singleton
-    fun providesKmaNetworkApi(okHttpClient: OkHttpClient) = Retrofit.Builder().client(okHttpClient).baseUrl(KMA_URL).addConverterFactory(
-        ScalarsConverterFactory.create(),
-    ).build().create(KmaNetworkApi::class.java)
+    fun providesKmaNetworkApi(okHttpClient: OkHttpClient): KmaNetworkApi =
+        Retrofit.Builder().client(okHttpClient).baseUrl(KMA_URL).addConverterFactory(
+            ScalarsConverterFactory.create(),
+        ).build().create(KmaNetworkApi::class.java)
 
 }
