@@ -45,7 +45,7 @@ fun HourlyForecastItem(hourlyForecast: HourlyForecast, modifier: Modifier) {
             Item(
                 item = ItemData(
                     time = ZonedDateTime.parse(hourly.dateTime.value).hour.toString(),
-                    icon = hourly.weatherCondition.value.dayWeatherIcon,
+                    icon = hourly.weatherIcon,
                     weatherCondition = hourly.weatherCondition.value.stringRes,
                     precipitationProbability = hourly.precipitationProbability.toString(),
                     precipitationVolume = hourly.precipitationVolume.toStringWithoutUnit(),

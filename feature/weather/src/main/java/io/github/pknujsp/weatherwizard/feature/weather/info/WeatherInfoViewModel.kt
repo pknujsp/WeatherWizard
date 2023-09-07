@@ -4,6 +4,9 @@ package io.github.pknujsp.weatherwizard.feature.weather.info
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import io.github.pknujsp.weatherwizard.core.common.util.DayNightCalculator
+import io.github.pknujsp.weatherwizard.core.common.util.toCalendar
+import io.github.pknujsp.weatherwizard.core.common.util.toTimeZone
 import io.github.pknujsp.weatherwizard.core.domain.weather.GetAllWeatherDataUseCase
 import io.github.pknujsp.weatherwizard.core.model.UiState
 import io.github.pknujsp.weatherwizard.core.model.WeatherInfo
@@ -46,6 +49,9 @@ class WeatherInfoViewModel @Inject constructor(
                 requestId = System.nanoTime())
 
             result.onSuccess { allWeatherDataEntity ->
+                val dayNightCalculator = DayNightCalculator(latitude, longitude, requestDateTime.toTimeZone())
+                val currentCalendar = requestDateTime.toCalendar()
+
                 val currentWeather = allWeatherDataEntity.currentWeatherEntity.run {
                     CurrentWeather(weatherCondition = weatherCondition,
                         temperature = temperature,
@@ -53,7 +59,9 @@ class WeatherInfoViewModel @Inject constructor(
                         humidity = humidity,
                         windSpeed = windSpeed,
                         windDirection = windDirection,
-                        precipitationVolume = precipitationVolume
+                        precipitationVolume = precipitationVolume,
+                        dayNightCalculator = dayNightCalculator,
+                        currentCalendar = currentCalendar
                     )
                 }
 
@@ -68,6 +76,8 @@ class WeatherInfoViewModel @Inject constructor(
                         windDirection = it.windDirection,
                         precipitationVolume = it.precipitationVolume,
                         precipitationProbability = it.precipitationProbability,
+                        dayNightCalculator = dayNightCalculator,
+                        currentCalendar = ZonedDateTime.parse(it.dateTime.value).toCalendar()
                     )
                 }
 

@@ -37,10 +37,11 @@ sealed class WeatherConditionCategory(
     @StringRes open val stringRes: Int,
     @DrawableRes open val dayWeatherIcon: Int,
     @DrawableRes open val nightWeatherIcon: Int,
-
     open val flickrGalleryName: FlickrGalleryId
-
 ) {
+
+    fun getWeatherIconByTimeOfDay(isDay: Boolean): Int =
+        if (isDay) dayWeatherIcon else nightWeatherIcon
 
     data object Clear : WeatherConditionCategory(
         io.github.pknujsp.weatherwizard.core.common.R.string.clear,

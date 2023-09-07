@@ -59,7 +59,7 @@ fun CurrentWeatherScreen(weatherInfoViewModel: WeatherInfoViewModel) {
                 }, style = LocalTextStyle.current.merge(notIncludeTextPaddingStyle).merge(outlineTextStyle))
 
                 Image(
-                    imageVector = ImageVector.vectorResource(id = currentWeather.weatherCondition.value.dayWeatherIcon),
+                    imageVector = ImageVector.vectorResource(id = currentWeather.weatherIcon),
                     contentDescription = stringResource(
                         id = io.github.pknujsp.weatherwizard.core.model.R.string.weather_icon_description,
                     ),
