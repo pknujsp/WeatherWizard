@@ -7,10 +7,12 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import io.github.pknujsp.weatherwizard.core.common.util.DayNightCalculator
 import io.github.pknujsp.weatherwizard.core.common.util.toCalendar
 import io.github.pknujsp.weatherwizard.core.common.util.toTimeZone
+import io.github.pknujsp.weatherwizard.core.data.nominatim.NominatimRepository
 import io.github.pknujsp.weatherwizard.core.domain.weather.GetAllWeatherDataUseCase
 import io.github.pknujsp.weatherwizard.core.model.UiState
 import io.github.pknujsp.weatherwizard.core.model.WeatherInfo
 import io.github.pknujsp.weatherwizard.core.model.flickr.FlickrRequestParameters
+import io.github.pknujsp.weatherwizard.core.model.nominatim.ReverseGeoCode
 import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherDataProvider
 import io.github.pknujsp.weatherwizard.core.model.weather.current.CurrentWeather
 import io.github.pknujsp.weatherwizard.core.model.weather.dailyforecast.DailyForecast
@@ -28,11 +30,15 @@ import javax.inject.Inject
 
 @HiltViewModel
 class WeatherInfoViewModel @Inject constructor(
-    private val getAllWeatherDataUseCase: GetAllWeatherDataUseCase
+    private val getAllWeatherDataUseCase: GetAllWeatherDataUseCase,
+    private val nominatimRepository: NominatimRepository,
 ) : ViewModel() {
 
     private val _weatherInfo = MutableStateFlow<UiState<WeatherInfo>>(UiState.Loading)
-    val weatherInfo = _weatherInfo.asStateFlow()
+    val weatherInfo: StateFlow<UiState<WeatherInfo>> = _weatherInfo
+
+    private val _reverseGeoCode = MutableStateFlow<UiState<ReverseGeoCode>>(UiState.Loading)
+    val reverseGeoCode: StateFlow<UiState<ReverseGeoCode>> = _reverseGeoCode
 
     private val _flickrRequestParameter = MutableStateFlow<FlickrRequestParameters?>(null)
 
@@ -44,6 +50,8 @@ class WeatherInfoViewModel @Inject constructor(
             val longitude = 128.86341167027018
             val weatherDataProvider = WeatherDataProvider.Kma
             val requestDateTime = ZonedDateTime.now()
+
+            reverseGeoCode(latitude, longitude)
 
             val result = getAllWeatherDataUseCase(latitude, longitude, weatherDataProvider,
                 requestId = System.nanoTime())
@@ -123,6 +131,22 @@ class WeatherInfoViewModel @Inject constructor(
                 _weatherInfo.value = UiState.Success(weatherInfo)
             }.onFailure {
                 _weatherInfo.value = UiState.Error(it)
+            }
+        }
+    }
+
+    private fun reverseGeoCode(latitude: Double, longitude: Double) {
+        viewModelScope.launch(Dispatchers.IO) {
+            nominatimRepository.reverseGeoCode(latitude, longitude).onSuccess {
+                _reverseGeoCode.value = UiState.Success(ReverseGeoCode(
+                    displayName = it.simpleDisplayName,
+                    country = it.country,
+                    countryCode = it.countryCode,
+                    latitude = it.latitude,
+                    longitude = it.longitude,
+                ))
+            }.onFailure {
+                _reverseGeoCode.value = UiState.Error(it)
             }
         }
     }

@@ -38,25 +38,23 @@ import java.time.format.DateTimeFormatter
 
 @Composable
 fun HeadInfoScreen(weatherInfoViewModel: WeatherInfoViewModel) {
-    val weatherInfo = weatherInfoViewModel.weatherInfo.collectAsStateWithLifecycle()
-
-    weatherInfo.value.onSuccess {
+    weatherInfoViewModel.reverseGeoCode.collectAsStateWithLifecycle().value.onSuccess {
         Column(
             horizontalAlignment = Alignment.Start,
             verticalArrangement = Arrangement.Center,
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(top = 32.dp, bottom = 40.dp, start = 12.dp, end = 60.dp),
+                .padding(top = 36.dp, bottom = 40.dp, start = 12.dp, end = 60.dp),
         ) {
             Text(
                 text = listOf(
                     AStyle(
-                        "대한민국\n",
+                        "${it.country}\n",
                         span = SpanStyle(
                             fontSize = TextUnit(30f, TextUnitType.Sp),
                         ),
                     ),
-                    AStyle("부산광역시 중구", span = SpanStyle(fontSize = TextUnit(26f, TextUnitType.Sp))),
+                    AStyle(it.displayName, span = SpanStyle(fontSize = TextUnit(26f, TextUnitType.Sp))),
                 ).toAnnotated(),
                 textAlign = TextAlign.Start,
                 style = LocalTextStyle.current.merge(outlineTextStyle),

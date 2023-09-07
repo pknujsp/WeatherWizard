@@ -5,6 +5,7 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import kotlinx.serialization.json.Json
+import javax.inject.Qualifier
 import javax.inject.Singleton
 
 @InstallIn(SingletonComponent::class)
@@ -13,6 +14,7 @@ object UtilsModule {
 
     @Provides
     @Singleton
+    @KtJson
     fun providesKtJson(): Json = Json {
         ignoreUnknownKeys = true
         isLenient = true
@@ -20,3 +22,7 @@ object UtilsModule {
     }
 
 }
+
+@Qualifier
+@Retention(AnnotationRetention.RUNTIME)
+annotation class KtJson
