@@ -6,8 +6,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class PhotosFromGalleryResponse(
-    @SerialName("photos") val photos: Photos,
-    @SerialName("stat") val stat: String = ""
+    @SerialName("photos") val photos: Photos, @SerialName("stat") val stat: String = ""
 ) : ApiResponseModel {
 
     @Serializable
@@ -24,13 +23,7 @@ data class PhotosFromGalleryResponse(
             @SerialName("owner") var owner: String = "",
             @SerialName("secret") var secret: String = "",
             @SerialName("server") var server: String = "",
-            @SerialName("farm") var farm: String = "",
             @SerialName("title") var title: String = "",
-            @SerialName("ispublic") var isPublic: String = "",
-            @SerialName("isfriend") var isFriend: String = "",
-            @SerialName("isfamily") var isFamily: String = "",
-            @SerialName("is_primary") var isPrimary: String = "",
-            @SerialName("has_comment") var hasComment: String = "",
         )
     }
 
