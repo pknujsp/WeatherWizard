@@ -1,6 +1,5 @@
 package io.github.pknujsp.weatherwizard.feature.weather.info.headinfo
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -17,9 +16,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -28,6 +26,8 @@ import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import coil.compose.AsyncImage
+import coil.request.ImageRequest
 import io.github.pknujsp.weatherwizard.core.common.util.AStyle
 import io.github.pknujsp.weatherwizard.core.common.util.toAnnotated
 import io.github.pknujsp.weatherwizard.core.model.onSuccess
@@ -67,8 +67,10 @@ fun HeadInfoScreen(weatherInfoViewModel: WeatherInfoViewModel) {
                 horizontalArrangement = Arrangement.Start,
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                Image(
-                    imageVector = ImageVector.vectorResource(id = io.github.pknujsp.weatherwizard.core.common.R.drawable.round_update_24),
+                AsyncImage(
+                    model = ImageRequest.Builder(LocalContext.current)
+                        .data(io.github.pknujsp.weatherwizard.core.common.R.drawable.round_update_24)
+                        .crossfade(false).build(),
                     contentDescription = stringResource(id = io.github.pknujsp.weatherwizard.core.model.R.string.weather_info_head_info_update_time),
                     colorFilter = ColorFilter.tint(Color.White),
                     modifier = Modifier.size(18.dp),
