@@ -33,6 +33,8 @@ import io.github.pknujsp.weatherwizard.feature.weather.info.WeatherInfoViewModel
 
 private val textColor = Color.White
 
+private val labelTextSize = 14.sp
+
 @Composable
 fun CurrentWeatherScreen(weatherInfoViewModel: WeatherInfoViewModel) {
     val weatherInfo = weatherInfoViewModel.weatherInfo.collectAsStateWithLifecycle()
@@ -48,11 +50,11 @@ fun CurrentWeatherScreen(weatherInfoViewModel: WeatherInfoViewModel) {
                 Text(text = listOf(
                     AStyle(currentWeather.temperature.value.toInt().toString(),
                         span = SpanStyle(
-                            fontSize = TextUnit(80f, TextUnitType.Sp),
+                            fontSize = TextUnit(100f, TextUnitType.Sp),
                             color = textColor,
                         )),
                     AStyle(currentWeather.temperature.unit.symbol,
-                        span = SpanStyle(fontSize = TextUnit(36f, TextUnitType.Sp), color = textColor)),
+                        span = SpanStyle(fontSize = TextUnit(38f, TextUnitType.Sp), color = textColor)),
                 ).toAnnotated(), modifier = Modifier.constrainAs(temperature) {
                     bottom.linkTo(yesterday.top)
                     absoluteLeft.linkTo(parent.absoluteLeft)
@@ -64,7 +66,7 @@ fun CurrentWeatherScreen(weatherInfoViewModel: WeatherInfoViewModel) {
                         id = io.github.pknujsp.weatherwizard.core.model.R.string.weather_icon_description,
                     ),
                     modifier = Modifier
-                        .size(34.dp)
+                        .size(38.dp)
                         .constrainAs(weatherIcon) {
                             bottom.linkTo(temperature.top)
                             absoluteLeft.linkTo(parent.absoluteLeft)
@@ -80,15 +82,14 @@ fun CurrentWeatherScreen(weatherInfoViewModel: WeatherInfoViewModel) {
                             top.linkTo(weatherIcon.top)
                             absoluteLeft.linkTo(weatherIcon.absoluteRight)
                         },
-                    style = TextStyle(fontSize = TextUnit(22f, TextUnitType.Sp), color = textColor).merge(outlineTextStyle)
-                        .merge(notIncludeTextPaddingStyle),
+                    style = TextStyle(fontSize = TextUnit(23f, TextUnitType.Sp), color = textColor).merge(outlineTextStyle),
                 )
 
                 Text(text = listOf(
                     AStyle("${stringResource(id = WeatherDataCategory.FEELS_LIKE_TEMPERATURE.stringId)} ",
-                        span = SpanStyle(fontSize = TextUnit(16f, TextUnitType.Sp), color = textColor)),
+                        span = SpanStyle(fontSize = TextUnit(15f, TextUnitType.Sp), color = textColor)),
                     AStyle(currentWeather.feelsLikeTemperature.value.toInt().toString(),
-                        span = SpanStyle(fontSize = TextUnit(42f, TextUnitType.Sp), color = textColor)),
+                        span = SpanStyle(fontSize = TextUnit(48f, TextUnitType.Sp), color = textColor)),
                     AStyle(currentWeather.feelsLikeTemperature.unit.symbol,
                         span = SpanStyle(fontSize = TextUnit(22f, TextUnitType.Sp), color = textColor)),
                 ).toAnnotated(), modifier = Modifier.constrainAs(feelsLikeTemperature) {
@@ -98,7 +99,7 @@ fun CurrentWeatherScreen(weatherInfoViewModel: WeatherInfoViewModel) {
 
                 Text(text = listOf(
                     AStyle("${stringResource(id = WeatherDataCategory.HUMIDITY.stringId)} ",
-                        span = SpanStyle(fontSize = TextUnit(16f, TextUnitType.Sp), color = textColor)),
+                        span = SpanStyle(fontSize = labelTextSize, color = textColor)),
                     AStyle(currentWeather.humidity.toString(),
                         span = SpanStyle(fontSize = TextUnit(16f, TextUnitType.Sp), color = textColor)),
                 ).toAnnotated(), modifier = Modifier.constrainAs(humidity) {
@@ -120,7 +121,7 @@ fun CurrentWeatherScreen(weatherInfoViewModel: WeatherInfoViewModel) {
 
                 Text(text = listOf(
                     AStyle("${stringResource(id = WeatherDataCategory.AIR_QUALITY_INDEX.stringId)} ",
-                        span = SpanStyle(fontSize = TextUnit(16f, TextUnitType.Sp), color = textColor)),
+                        span = SpanStyle(fontSize = labelTextSize, color = textColor)),
                     AStyle("좋음", span = SpanStyle(fontSize = TextUnit(16f, TextUnitType.Sp), color = textColor)),
                 ).toAnnotated(), modifier = Modifier.constrainAs(airQuality) {
                     bottom.linkTo(feelsLikeTemperature.top, 8.dp)
@@ -133,7 +134,7 @@ fun CurrentWeatherScreen(weatherInfoViewModel: WeatherInfoViewModel) {
                         bottom.linkTo(parent.bottom)
                         absoluteLeft.linkTo(parent.absoluteLeft)
                     },
-                    style = outlineTextStyle,
+                    style = LocalTextStyle.current.merge(outlineTextStyle),
                     color = textColor,
                     fontSize = 15.sp)
             }

@@ -44,23 +44,23 @@ fun HeadInfoScreen(weatherInfoViewModel: WeatherInfoViewModel) {
             verticalArrangement = Arrangement.Center,
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(top = 36.dp, bottom = 40.dp, start = 12.dp, end = 60.dp),
+                .padding(top = 36.dp, bottom = 80.dp, start = 12.dp, end = 60.dp),
         ) {
             Text(
                 text = listOf(
                     AStyle(
                         "${it.country}\n",
                         span = SpanStyle(
-                            fontSize = TextUnit(30f, TextUnitType.Sp),
+                            fontSize = TextUnit(32f, TextUnitType.Sp),
                         ),
                     ),
-                    AStyle(it.displayName, span = SpanStyle(fontSize = TextUnit(26f, TextUnitType.Sp))),
+                    AStyle(it.displayName, span = SpanStyle(fontSize = TextUnit(28f, TextUnitType.Sp))),
                 ).toAnnotated(),
                 textAlign = TextAlign.Start,
                 style = LocalTextStyle.current.merge(outlineTextStyle),
                 fontWeight = FontWeight.Bold,
                 color = Color.White,
-                lineHeight = 30.sp,
+                lineHeight = 32.sp,
             )
             Spacer(modifier = Modifier.height(4.dp))
             Row(
@@ -70,7 +70,7 @@ fun HeadInfoScreen(weatherInfoViewModel: WeatherInfoViewModel) {
                 Image(
                     imageVector = ImageVector.vectorResource(id = io.github.pknujsp.weatherwizard.core.common.R.drawable.round_update_24),
                     contentDescription = stringResource(id = io.github.pknujsp.weatherwizard.core.model.R.string.weather_info_head_info_update_time),
-                    colorFilter = ColorFilter.tint(Color.Gray),
+                    colorFilter = ColorFilter.tint(Color.White),
                     modifier = Modifier.size(18.dp),
                 )
                 Spacer(modifier = Modifier.width(4.dp))

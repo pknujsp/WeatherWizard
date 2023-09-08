@@ -1,14 +1,14 @@
 package io.github.pknujsp.weatherwizard.core.ui.lottie
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -67,7 +67,10 @@ fun CancellableLoadingScreen(
     onDismissRequest: () -> Unit,
 ) {
     LoadingScreen(text, onDismissRequest) {
-        Button(onClick = { onDismissRequest() }) {
+        TextButton(
+            onClick = { onDismissRequest() },
+            colors = ButtonDefaults.textButtonColors(contentColor = Color.White, disabledContentColor = Color.White),
+        ) {
             Text(text = "취소")
         }
     }

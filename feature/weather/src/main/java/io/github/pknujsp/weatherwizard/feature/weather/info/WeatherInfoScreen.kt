@@ -54,7 +54,7 @@ fun WeatherInfoScreen() {
             modifier = Modifier
                 .fillMaxWidth()
                 .fillMaxHeight(),
-            contentScale = ContentScale.FillBounds,
+            contentScale = ContentScale.Crop,
             alignment = Alignment.Center,
             model = ImageRequest.Builder(LocalContext.current)
                 .data(backgroundImage.value)
@@ -82,7 +82,6 @@ fun WeatherInfoScreen() {
                 FlickrImageItemScreen(weatherInfoViewModel.flickrRequestParameter.value!!) {
                     backgroundImage.value = it
                 }
-                ItemSpacer()
                 HourlyForecastScreen(weatherInfoViewModel)
                 ItemSpacer()
                 DailyForecastScreen(weatherInfoViewModel)
