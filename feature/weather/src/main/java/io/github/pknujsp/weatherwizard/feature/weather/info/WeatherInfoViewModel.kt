@@ -84,9 +84,7 @@ class WeatherInfoViewModel @Inject constructor(
                         windDirection = it.windDirection,
                         precipitationVolume = it.precipitationVolume,
                         precipitationProbability = it.precipitationProbability,
-                        dayNightCalculator = dayNightCalculator,
-                        currentCalendar = ZonedDateTime.parse(it.dateTime.value).toCalendar()
-                    )
+                        dayNightCalculator = dayNightCalculator, )
                 }
 
                 val dailyForecast = allWeatherDataEntity.dailyForecastEntity.items.let { items ->

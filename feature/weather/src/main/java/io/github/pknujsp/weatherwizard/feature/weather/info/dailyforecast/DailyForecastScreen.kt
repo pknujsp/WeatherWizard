@@ -10,9 +10,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.pknujsp.weatherwizard.core.model.onError
 import io.github.pknujsp.weatherwizard.core.model.onLoading
 import io.github.pknujsp.weatherwizard.core.model.onSuccess
-import io.github.pknujsp.weatherwizard.core.ui.GraphData
-import io.github.pknujsp.weatherwizard.core.ui.MultiGraph
-import io.github.pknujsp.weatherwizard.core.ui.SingleGraph
 import io.github.pknujsp.weatherwizard.core.ui.weather.forecast.HorizontalScrollableForecast
 import io.github.pknujsp.weatherwizard.feature.weather.info.CardInfo
 import io.github.pknujsp.weatherwizard.feature.weather.info.SimpleWeatherScreenBackground

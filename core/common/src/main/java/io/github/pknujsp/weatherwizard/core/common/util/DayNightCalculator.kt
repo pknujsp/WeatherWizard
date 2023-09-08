@@ -20,7 +20,7 @@ class DayNightCalculator(latitude: Double, longitude: Double, timeZone: TimeZone
             sunRise to sunSet
         }
 
-        return if (sunRise.before(currentCalendar) && sunSet.after(currentCalendar)) DayNight.DAY else DayNight.NIGHT
+        return if (sunRise.before(currentCalendar) and sunSet.after(currentCalendar)) DayNight.DAY else DayNight.NIGHT
     }
 
     private fun Calendar.toDay(): Triple<Int, Int, Int> = Triple(this.get(Calendar.YEAR), this.get(Calendar.MONTH), this.get(Calendar.DATE))
