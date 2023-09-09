@@ -44,7 +44,7 @@ fun HeadInfoScreen(weatherInfoViewModel: WeatherInfoViewModel) {
             verticalArrangement = Arrangement.Center,
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(top = 36.dp, bottom = 80.dp, start = 12.dp, end = 60.dp),
+                .padding(top = 48.dp, bottom = 80.dp, start = 12.dp, end = 60.dp),
         ) {
             Text(
                 text = listOf(

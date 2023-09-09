@@ -19,7 +19,6 @@ class DayNightCalculator(latitude: Double, longitude: Double, timeZone: TimeZone
             val sunSet = calculator.getOfficialSunsetCalendarForDate(currentCalendar)
             sunRise to sunSet
         }
-
         return if (sunRise.before(currentCalendar) and sunSet.after(currentCalendar)) DayNight.DAY else DayNight.NIGHT
     }
 

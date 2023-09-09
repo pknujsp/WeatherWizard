@@ -16,34 +16,20 @@ data class GetInfoPhotoResponse(
 
     @Serializable
     data class Photo(
-        @SerialName("comments") val comments: Comments = Comments(),
-        @SerialName("dates") val dates: Dates = Dates(),
         @SerialName("dateuploaded") val dateuploaded: String = "", // 1548444483
-        @SerialName("description") val description: Description = Description(),
-        @SerialName("editability") val editability: Editability = Editability(),
         @SerialName("farm") val farm: Int = 0, // 5
-        @SerialName("geoperms") val geoperms: Geoperms = Geoperms(),
         @SerialName("id") val id: String = "", // 32999137498
         @SerialName("isfavorite") val isfavorite: Int = 0, // 0
         @SerialName("license") val license: String = "", // 4
-        @SerialName("location") val location: Location = Location(),
         @SerialName("media") val media: String = "", // photo
-        @SerialName("notes") val notes: Notes = Notes(),
         @SerialName("originalformat") val originalformat: String = "", // jpg
         @SerialName("originalsecret") val originalSecret: String = "", // f235c29542
         @SerialName("owner") val owner: Owner = Owner(),
         @SerialName("people") val people: People = People(),
-        @SerialName("publiceditability") val publiceditability: Publiceditability = Publiceditability(),
-        @SerialName("rotation") val rotation: Int = 0, // 0
-        @SerialName("safety_level") val safetyLevel: String = "", // 0
         @SerialName("secret") val secret: String = "", // 774df2c9ee
         @SerialName("server") val server: String = "", // 4815
         @SerialName("tags") val tags: Tags = Tags(),
-        @SerialName("title") val title: Title = Title(),
         @SerialName("urls") val urls: Urls = Urls(),
-        @SerialName("usage") val usage: Usage = Usage(),
-        @SerialName("views") val views: String = "", // 566
-        @SerialName("visibility") val visibility: Visibility = Visibility()
     ) {
         @Serializable
         data class Comments(
@@ -121,10 +107,7 @@ data class GetInfoPhotoResponse(
             )
         }
 
-        @Serializable
-        data class Notes(
-            @SerialName("note") val note: List<String>? = null
-        )
+
 
         @Serializable
         data class Owner(
@@ -166,7 +149,7 @@ data class GetInfoPhotoResponse(
                 @SerialName("authorname") val authorname: String = "", // lazy fri13th
                 @SerialName("_content") val content: String = "", // tour
                 @SerialName("id") val id: String = "", // 2972730-32999137498-3768
-                @SerialName("machine_tag") val machineTag: Int = 0, // 0
+                @SerialName("machine_tag") val machineTag: String = "",
                 @SerialName("raw") val raw: String = "" // tour
             )
         }

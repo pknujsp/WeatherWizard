@@ -1,7 +1,6 @@
 package io.github.pknujsp.weatherwizard.feature.weather.info
 
 
-import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -42,14 +41,10 @@ import io.github.pknujsp.weatherwizard.feature.weather.info.hourlyforecast.simpl
 @Composable
 fun WeatherInfoScreen() {
     val weatherInfoViewModel: WeatherInfoViewModel = hiltViewModel()
-    Log.d("WeatherInfoScreen", "loadAllWeatherData")
+    val backgroundImageUrl = rememberSaveable { mutableStateOf("") }
+    val weatherInfo = weatherInfoViewModel.weatherDataState.collectAsStateWithLifecycle()
 
-    val backgroundImage = rememberSaveable { mutableStateOf("") }
-    val weatherInfo = weatherInfoViewModel.weatherInfo.collectAsStateWithLifecycle()
-
-    Box(
-        modifier = Modifier
-    ) {
+    Box {
         AsyncImage(
             modifier = Modifier
                 .fillMaxWidth()
@@ -57,7 +52,7 @@ fun WeatherInfoScreen() {
             contentScale = ContentScale.Crop,
             alignment = Alignment.Center,
             model = ImageRequest.Builder(LocalContext.current)
-                .data(backgroundImage.value)
+                .data(backgroundImageUrl.value)
                 .build(),
             contentDescription = stringResource(R.string.background_image),
         )
@@ -79,8 +74,8 @@ fun WeatherInfoScreen() {
                 HeadInfoScreen(weatherInfoViewModel)
                 CurrentWeatherScreen(weatherInfoViewModel)
                 ItemSpacer(8.dp)
-                FlickrImageItemScreen(weatherInfoViewModel.flickrRequestParameter.value!!) {
-                    backgroundImage.value = it
+                FlickrImageItemScreen(weatherInfoViewModel.flickrRequestParameter) {
+                    backgroundImageUrl.value = it
                 }
                 HourlyForecastScreen(weatherInfoViewModel)
                 ItemSpacer()
@@ -91,7 +86,6 @@ fun WeatherInfoScreen() {
             }
         }
     }
-
 }
 
 @Composable

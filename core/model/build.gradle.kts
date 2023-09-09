@@ -8,6 +8,7 @@ plugins {
 
 android {
     namespace = "io.github.pknujsp.weatherwizard.core.model"
+    applyCompose(this)
 
     @Suppress("UnstableApiUsage")
     buildFeatures {
@@ -29,4 +30,8 @@ dependencies {
     implementation(libs.bundles.room)
     ksp(libs.androidx.room.compiler)
     implementation(libs.sunrisesunsetcalculator)
+
+    implementation(platform(libs.androidx.compose.bom))
+    implementation(libs.androidx.compose.ui)
+    implementation(libs.androidx.compose.foundation)
 }

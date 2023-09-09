@@ -1,6 +1,5 @@
 package io.github.pknujsp.weatherwizard.feature.flickr
 
-import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
@@ -32,24 +31,31 @@ import io.github.pknujsp.weatherwizard.core.model.onError
 import io.github.pknujsp.weatherwizard.core.model.onLoading
 import io.github.pknujsp.weatherwizard.core.model.onSuccess
 import io.github.pknujsp.weatherwizard.core.ui.theme.outlineTextStyle
+import kotlinx.coroutines.flow.StateFlow
 
 @Composable
 fun FlickrImageItemScreen(
-    requestParameter: FlickrRequestParameters,
+    parameterFlow: StateFlow<FlickrRequestParameters?>,
     onLoadedImage: (String) -> Unit
 ) {
     val viewModel = hiltViewModel<FlickrImageViewModel>()
     val imageUrl = rememberSaveable { mutableStateOf("") }
+    val requestParameter = parameterFlow.collectAsStateWithLifecycle()
 
-    viewModel.image.collectAsStateWithLifecycle().value.onSuccess {
+    val flickerImageEntity = viewModel.image.collectAsStateWithLifecycle()
+    flickerImageEntity.value.onSuccess {
         imageUrl.value = it.imageUrl
         if (it.imageUrl.isNotEmpty()) {
             onLoadedImage(it.imageUrl)
         }
     }.onError {
         imageUrl.value = ""
-    }.onLoading {
-        viewModel.load(requestParameter)
+    }
+
+    requestParameter.value?.run {
+        flickerImageEntity.value.onLoading {
+            viewModel.load(this)
+        }
     }
 
     UrlItem(url = imageUrl.value, onClick = { viewModel.reload() })
