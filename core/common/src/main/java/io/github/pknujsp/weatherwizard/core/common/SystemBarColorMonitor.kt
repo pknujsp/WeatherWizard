@@ -17,10 +17,10 @@ import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import kotlinx.coroutines.CoroutineName
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.delay
@@ -42,9 +42,9 @@ class SystemBarColorMonitor(
 ) {
     private val waitLock = Mutex()
     private var waiting: Job? = null
-    private val coroutineScope = MainScope() + CoroutineName("SystemBarColorAnalyzer")
+    private val coroutineScope = CoroutineScope(Dispatchers.Default) + CoroutineName("SystemBarColorAnalyzer")
     private val onChangedFragmentFlow =
-        MutableSharedFlow<Unit>(onBufferOverflow = BufferOverflow.SUSPEND, replay = 1, extraBufferCapacity = 6)
+        MutableSharedFlow<Unit>(onBufferOverflow = BufferOverflow.DROP_OLDEST, replay = 1, extraBufferCapacity = 0)
 
     private var _decorView: View? = activity.window.decorView
     private val decorView: View get() = _decorView!!
@@ -56,24 +56,17 @@ class SystemBarColorMonitor(
 
     private val criteriaColor = 140
     private val avgRange = 20
-    private val delayTime = 80L
+    private val delayTime = 150L
 
-    private val _statusBarColor = MutableSharedFlow<SystemBarStyler.SystemBarColor>(
-        onBufferOverflow = BufferOverflow.DROP_OLDEST, replay = 1,
-        extraBufferCapacity = 2,
-    )
-
-    private val _navigationBarColor = MutableSharedFlow<SystemBarStyler.SystemBarColor>(
-        onBufferOverflow = BufferOverflow.DROP_OLDEST, replay = 1,
-        extraBufferCapacity = 2,
-    )
+    private var statusBarColor: SystemBarStyler.SystemBarColor = SystemBarStyler.SystemBarColor.UNKNOWN
+    private var navBarColor: SystemBarStyler.SystemBarColor = SystemBarStyler.SystemBarColor.UNKNOWN
 
     init {
         lifecycle.addObserver(
             object : DefaultLifecycleObserver {
                 override fun onStart(owner: LifecycleOwner) {
                     super.onStart(owner)
-                    convert()
+                    requestConvert()
                 }
 
                 override fun onDestroy(owner: LifecycleOwner) {
@@ -85,24 +78,34 @@ class SystemBarColorMonitor(
             },
         )
 
-        coroutineScope.launch(Dispatchers.Default) {
+        coroutineScope.launch {
             onChangedFragmentFlow.collect {
-                val convertJob = launch(start = CoroutineStart.LAZY) {
-                    val colors = startConvert()
-                    withContext(Dispatchers.Main) {
-                        systemBarController.setStyle(colors.first, colors.second)
+                val convertJob = launch(start = CoroutineStart.LAZY, context = Dispatchers.Default) {
+                    val (status, nav) = convert()
+
+                    if (statusBarColor != status || navBarColor != nav) {
+                        statusBarColor = status
+                        navBarColor = nav
+
+                        withContext(Dispatchers.Main) {
+                            systemBarController.setStyle(statusBarColor, navBarColor)
+                        }
+                    }
+
+                }
+
+                withContext(Dispatchers.Main) {
+                    decorView.doOnPreDraw {
+                        convertJob.start()
                     }
                 }
 
-                decorView.doOnPreDraw {
-                    convertJob.start()
-                }
                 convertJob.join()
             }
         }
     }
 
-    private suspend fun startConvert(): Pair<SystemBarStyler.SystemBarColor, SystemBarStyler.SystemBarColor> {
+    private suspend fun convert(): Pair<SystemBarStyler.SystemBarColor, SystemBarStyler.SystemBarColor> {
         val statusBarBitmap = Bitmap.createBitmap(decorView.width, statusBarHeight, Bitmap.Config.ARGB_8888)
         val navigationBarBitmap = Bitmap.createBitmap(decorView.width, navigationBarHeight, Bitmap.Config.ARGB_8888)
 
@@ -114,9 +117,6 @@ class SystemBarColorMonitor(
 
         statusBarBitmap.recycle()
         navigationBarBitmap.recycle()
-
-        _statusBarColor.emit(statusBarColor)
-        _navigationBarColor.emit(navigationBarColor)
 
         return statusBarColor to navigationBarColor
     }
@@ -154,11 +154,11 @@ class SystemBarColorMonitor(
         )
     }
 
-    fun convert() {
+    fun requestConvert() {
         coroutineScope.launch {
             waitLock.withLock {
                 if (waiting?.isActive == true) waiting?.cancel()
-                waiting = launch(Dispatchers.Default) {
+                waiting = launch {
                     delay(delayTime)
                     onChangedFragmentFlow.emit(Unit)
                 }

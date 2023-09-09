@@ -9,8 +9,10 @@ import androidx.core.view.WindowInsetsControllerCompat
 
 class SystemBarStyler(window: Window) : SystemBarController {
     enum class SystemBarColor {
-        BLACK, WHITE
+        BLACK, WHITE, UNKNOWN
     }
+
+
 
     private val windowInsetsController: WindowInsetsControllerCompat
 
@@ -26,6 +28,7 @@ class SystemBarStyler(window: Window) : SystemBarController {
 
 
     override fun setStyle(statusBarColor: SystemBarColor, navBarColor: SystemBarColor) {
+        println("Changing system bar color...")
         windowInsetsController.apply {
             isAppearanceLightStatusBars = statusBarColor == SystemBarColor.BLACK
             isAppearanceLightNavigationBars = navBarColor == SystemBarColor.BLACK
