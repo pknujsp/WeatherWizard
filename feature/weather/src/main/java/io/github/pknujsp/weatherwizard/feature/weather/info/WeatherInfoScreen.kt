@@ -1,7 +1,6 @@
 package io.github.pknujsp.weatherwizard.feature.weather.info
 
 
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -34,7 +33,7 @@ import io.github.pknujsp.weatherwizard.core.ui.lottie.CancellableLoadingScreen
 import io.github.pknujsp.weatherwizard.feature.flickr.FlickrImageItemScreen
 import io.github.pknujsp.weatherwizard.feature.weather.R
 import io.github.pknujsp.weatherwizard.feature.weather.info.currentweather.simple.CurrentWeatherScreen
-import io.github.pknujsp.weatherwizard.feature.weather.info.dailyforecast.DailyForecastScreen
+import io.github.pknujsp.weatherwizard.feature.weather.info.dailyforecast.SimpleDailyForecastScreen
 import io.github.pknujsp.weatherwizard.feature.weather.info.headinfo.HeadInfoScreen
 import io.github.pknujsp.weatherwizard.feature.weather.info.hourlyforecast.simple.HourlyForecastScreen
 
@@ -66,12 +65,10 @@ fun WeatherInfoScreen() {
             weatherInfoViewModel.loadAllWeatherData()
         }.onSuccess {
             LazyColumn(
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier
                     .fillMaxWidth()
                     .fillMaxHeight(),
-                state = rememberLazyListState()
+                state = rememberLazyListState(),
             ) {
                 item { HeadInfoScreen(weatherInfoViewModel) }
                 item { CurrentWeatherScreen(weatherInfoViewModel) }
@@ -82,8 +79,9 @@ fun WeatherInfoScreen() {
                 }
                 item { HourlyForecastScreen(weatherInfoViewModel) }
                 item {
-                    DailyForecastScreen(weatherInfoViewModel)
+                    SimpleDailyForecastScreen(weatherInfoViewModel)
                 }
+                item { Spacer(modifier = Modifier.height(62.dp)) }
             }
 
         }.onError { throwable ->

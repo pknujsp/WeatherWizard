@@ -3,6 +3,7 @@ package io.github.pknujsp.weatherwizard.feature.weather.info.hourlyforecast.simp
 import android.util.Log
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.pknujsp.weatherwizard.core.model.onLoading
 import io.github.pknujsp.weatherwizard.core.model.onSuccess
@@ -16,17 +17,16 @@ import kotlinx.coroutines.DelicateCoroutinesApi
 
 @Composable
 fun HourlyForecastScreen(weatherInfoViewModel: WeatherInfoViewModel) {
-    val hourlyForecast = weatherInfoViewModel.hourlyForecast.collectAsStateWithLifecycle()
+    val hourlyForecast by weatherInfoViewModel.hourlyForecast.collectAsStateWithLifecycle()
     val lazyListState = rememberLazyListState()
 
-    hourlyForecast.value.onLoading { }.onSuccess {
+    hourlyForecast.onLoading { }.onSuccess {
         SimpleWeatherScreenBackground(CardInfo(title = "시간별 예보",
             buttons = listOf(
                 "비교" to { },
                 "자세히" to { },
             ),
             content = {
-                Log.d("HourlyForecastScreen", "Render HourlyForecastScreen")
                 DynamicDateTime(it, lazyListState)
                 HourlyForecastItem(hourlyForecast = it, lazyListState)
             }))

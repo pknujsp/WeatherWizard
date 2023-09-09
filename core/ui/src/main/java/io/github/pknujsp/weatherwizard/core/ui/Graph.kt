@@ -9,6 +9,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Fill
+import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.drawText
 import androidx.compose.ui.text.rememberTextMeasurer
@@ -55,6 +56,53 @@ fun SingleGraph(
                 textLayoutResult = textLayoutResult,
                 topLeft = Offset(center.x - textLayoutResult.size.width / 2, centerY + amountY + drawInfo.textSpace),
             )
+        }
+    }
+}
+
+
+@Composable
+fun MultiGraph(
+    drawInfo: List<DrawInfo>,
+    linePoint: List<NewGraph.LinePoint>,
+    text: List<String>,
+    modifier: Modifier,
+) {
+    val textMeasurer = rememberTextMeasurer()
+    Canvas(modifier = modifier) {
+        var textLayoutResult: TextLayoutResult
+        val amountY: Float = (size.height - linePoint[0].drawingBoxHeight) / 2
+
+        linePoint.zip(drawInfo).forEachIndexed { i, (line, draw) ->
+            textLayoutResult = textMeasurer.measure(text[i], draw.textStyle)
+            line.run {
+                if (leftY != -1f) {
+                    drawLine(start = Offset(0f, leftY + amountY),
+                        end = Offset(center.x, centerY + amountY),
+                        color = draw.lineColor,
+                        strokeWidth = draw
+                            .lineThickness)
+                }
+                if (rightY != -1f) {
+                    drawLine(start = Offset(center.x, centerY + amountY),
+                        end = Offset(size.width, rightY + amountY),
+                        color = draw.lineColor,
+                        strokeWidth =
+                        draw.lineThickness)
+                }
+
+                drawCircle(
+                    color = draw.pointColor,
+                    radius = draw.pointRadius,
+                    center = Offset(center.x, centerY + amountY),
+                    style = Fill,
+                )
+                drawText(
+                    textLayoutResult = textLayoutResult,
+                    topLeft = Offset(center.x - textLayoutResult.size.width / 2,
+                        amountY + centerY + (if (i != 0) -draw.textSpace - textLayoutResult.size.height else draw.textSpace)),
+                )
+            }
         }
     }
 }

@@ -27,7 +27,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
-import java.time.LocalDate
 import java.time.ZonedDateTime
 import javax.inject.Inject
 
@@ -154,25 +153,7 @@ class WeatherInfoViewModel @Inject constructor(
         dailyForecastEntity: DailyForecastEntity
     ) {
         viewModelScope.launch(Dispatchers.Default) {
-            val dailyForecast = dailyForecastEntity.items.let { items ->
-                val listMap = mutableMapOf<LocalDate, DailyForecast.DayItem>()
-                items.forEach { item ->
-                    val date = ZonedDateTime.parse(item.dateTime.value).toLocalDate()
-
-                    if (!listMap.containsKey(date)) {
-                        listMap[date] = DailyForecast.DayItem()
-                    }
-                    listMap[date]?.addValue(dateTime = item.dateTime,
-                        weatherCondition = item.weatherCondition,
-                        precipitationProbability = item.precipitationProbability,
-                        minTemperature = item.minTemperature,
-                        maxTemperature = item.maxTemperature)
-                }
-
-                listMap.toList().sortedBy { it.first }.map { it.second }
-            }
-
-            _dailyForecast.value = UiState.Success(DailyForecast(dailyForecast))
+            _dailyForecast.value = UiState.Success(DailyForecast(dailyForecastEntity))
         }
     }
 
