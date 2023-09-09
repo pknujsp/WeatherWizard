@@ -3,17 +3,19 @@ package io.github.pknujsp.weatherwizard.feature.weather.info
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
@@ -41,8 +43,8 @@ import io.github.pknujsp.weatherwizard.feature.weather.info.hourlyforecast.simpl
 @Composable
 fun WeatherInfoScreen() {
     val weatherInfoViewModel: WeatherInfoViewModel = hiltViewModel()
-    val backgroundImageUrl = rememberSaveable { mutableStateOf("") }
-    val weatherInfo = weatherInfoViewModel.weatherDataState.collectAsStateWithLifecycle()
+    val backgroundImageUrl by remember { derivedStateOf { mutableStateOf("") } }
+    val weatherInfo by weatherInfoViewModel.weatherDataState.collectAsStateWithLifecycle()
 
     Box {
         AsyncImage(
@@ -53,37 +55,41 @@ fun WeatherInfoScreen() {
             alignment = Alignment.Center,
             model = ImageRequest.Builder(LocalContext.current)
                 .data(backgroundImageUrl.value)
+                .crossfade(250)
                 .build(),
             contentDescription = stringResource(R.string.background_image),
         )
-        Column(
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier
-                .fillMaxWidth()
-                .fillMaxHeight()
-                .statusBarsPadding()
-                .navigationBarsPadding()
-        ) {
-            weatherInfo.value.onLoading {
-                weatherInfoViewModel.loadAllWeatherData()
-                CancellableLoadingScreen("날씨 정보를 불러오는 중") {
 
-                }
-            }.onSuccess {
-                HeadInfoScreen(weatherInfoViewModel)
-                CurrentWeatherScreen(weatherInfoViewModel)
-                ItemSpacer(8.dp)
-                FlickrImageItemScreen(weatherInfoViewModel.flickrRequestParameter) {
-                    backgroundImageUrl.value = it
-                }
-                HourlyForecastScreen(weatherInfoViewModel)
-                ItemSpacer()
-                DailyForecastScreen(weatherInfoViewModel)
-                ItemSpacer()
-            }.onError { throwable ->
-                Text(text = throwable.message ?: "Error")
+        weatherInfo.onLoading {
+            CancellableLoadingScreen(stringResource(id = io.github.pknujsp.weatherwizard.core.common.R.string.loading_weather_data)) {
+
             }
+            weatherInfoViewModel.loadAllWeatherData()
+        }.onSuccess {
+            LazyColumn(
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .fillMaxHeight()
+                    .statusBarsPadding()
+                    .navigationBarsPadding()
+            ) {
+                item { HeadInfoScreen(weatherInfoViewModel) }
+                item { CurrentWeatherScreen(weatherInfoViewModel) }
+                item {
+                    FlickrImageItemScreen(weatherInfoViewModel.flickrRequestParameter) {
+                        backgroundImageUrl.value = it
+                    }
+                }
+                item { HourlyForecastScreen(weatherInfoViewModel) }
+                item {
+                    DailyForecastScreen(weatherInfoViewModel)
+                }
+            }
+
+        }.onError { throwable ->
+            Text(text = throwable.message ?: "Error")
         }
     }
 }

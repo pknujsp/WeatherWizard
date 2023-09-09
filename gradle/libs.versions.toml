@@ -1,9 +1,13 @@
 [versions]
 # kotlin
+flipper = "0.216.0"
+flipperLeakcanary2Plugin = "0.216.0"
+flipperLithoPlugin = "0.216.0"
+flipperNetworkPlugin = "0.216.0"
 kotlin = "1.9.10"
 kotlin_compiler_extension = "1.5.3"
 kotlinx_coroutines = "1.7.3"
-kotlinx_serialization_json = "1.5.0"
+kotlinx_serialization_json = "1.5.1"
 ksp = "1.9.10-1.0.13"
 
 android_gradle_plugin = "8.1.1"
@@ -11,9 +15,9 @@ android_desugar_jdk_libs = "2.0.3"
 
 androidx_core = "1.10.1"
 androidx_activity = "1.7.2"
-androidx_navigation = "2.7.1"
+androidx_navigation = "2.7.2"
 androidx_compose_bom = "2023.08.00"
-androidx_lifecycle = "2.6.1"
+androidx_lifecycle = "2.6.2"
 androidx_datastore = "1.0.0"
 androidx_workmanager = "2.8.1"
 androidx_room = "2.5.2"
@@ -24,7 +28,7 @@ androidx_hilt = "2.47"
 androidx_hilt_compose_navigation = "1.0.0"
 androidx_hilt_work = "1.0.0"
 androidx_windowmanager = "1.0.0"
-androidx_paging = "3.2.0"
+androidx_paging = "3.2.1"
 accompanist = "0.32.0"
 
 androidx_test_espresso = "3.5.1"
@@ -43,6 +47,8 @@ androidx_splashscreen = "1.0.1"
 google_oss_plugin = "0.10.6"
 
 junit = "4.13.2"
+leakcanaryAndroid = "2.8.1"
+lithoAnnotations = "0.48.0"
 mockit = "5.4.0"
 mockitKotlin = "5.1.0"
 robolectric = "4.10.3"
@@ -57,6 +63,7 @@ retrofit2_kotlinx_serialization_json = "1.0.0"
 okhttp3 = "4.11.0"
 
 compile_sdk = "34"
+soloader = "0.10.5"
 target_sdk = "34"
 min_sdk = "26"
 
@@ -67,7 +74,7 @@ firebase_analytics = "21.3.0"
 
 ksealedbinding = "1.0.0"
 
-ktlint = "0.50.0"
+ktlint = "1.0.0"
 ktlint_gradle_plugin = "11.5.1"
 detekt = "1.23.1"
 
@@ -142,6 +149,15 @@ androidx-test-ext-junit-ktx = { module = "androidx.test.ext:junit-ktx", version.
 androidx-test-ext-truth = { module = "androidx.test.ext:truth", version.ref = "androidx_test_truth" }
 androidx-test-arch-core = { module = "androidx.arch.core:core-testing", version.ref = "androidx_test_arch" }
 
+# debugImplementation------------------------------------------------------------------------------------------------------------------------
+flipper = { module = "com.facebook.flipper:flipper", version.ref = "flipper" }
+flipper-leakcanary2-plugin = { module = "com.facebook.flipper:flipper-leakcanary2-plugin", version.ref = "flipperLeakcanary2Plugin" }
+flipper-litho-plugin = { module = "com.facebook.flipper:flipper-litho-plugin", version.ref = "flipperLithoPlugin" }
+flipper-network-plugin = { module = "com.facebook.flipper:flipper-network-plugin", version.ref = "flipperNetworkPlugin" }
+leakcanary-android = { module = "com.squareup.leakcanary:leakcanary-android", version.ref = "leakcanaryAndroid" }
+litho-annotations = { module = "com.facebook.litho:litho-annotations", version.ref = "lithoAnnotations" }
+
+
 # testImplementation------------------------------------------------------------------------------------------------------------------------
 mockito-core = { module = "org.mockito:mockito-core", version.ref = "mockit" }
 mockito-kotlin = { module = "org.mockito.kotlin:mockito-kotlin", version.ref = "mockitKotlin" }
@@ -185,6 +201,7 @@ lottie = { module = "com.airbnb.android:lottie-compose", version.ref = "lottie" 
 # material--------------------------------------------------------------------------------------------------------------
 material = { module = "com.google.android.material:material", version.ref = "material" }
 
+soloader = { module = "com.facebook.soloader:soloader", version.ref = "soloader" }
 sunrisesunsetcalculator = { module = "com.luckycatlabs:SunriseSunsetCalculator", version.ref = "sunrisesunsetcalculator" }
 
 android-gradle-plugin = { group = "com.android.tools.build", name = "gradle", version.ref = "android_gradle_plugin" }

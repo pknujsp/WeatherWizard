@@ -17,7 +17,6 @@ fun Project.configureKotlinAndroid(
             testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         }
 
-        dataBinding.enable = true
         viewBinding.enable = true
 
         compileOptions {

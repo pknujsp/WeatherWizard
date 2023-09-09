@@ -9,9 +9,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Fill
-import androidx.compose.ui.text.TextMeasurer
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.drawText
+import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
@@ -23,20 +23,21 @@ fun SingleGraph(
     linePoint: NewGraph.LinePoint,
     text: String,
     modifier: Modifier,
-    textMeasurer: TextMeasurer,
 ) {
-    val textLayoutResult = textMeasurer.measure(text, drawInfo.textStyle)
+    val textMeasurer = rememberTextMeasurer()
     Canvas(modifier = modifier) {
+        val textLayoutResult = textMeasurer.measure(text, drawInfo.textStyle)
         val amountY = (size.height - linePoint.drawingBoxHeight) / 2
+
         linePoint.run {
-            if (!leftY.isNaN()) {
+            if (leftY != -1f) {
                 drawLine(start = Offset(0f, leftY + amountY),
                     end = Offset(center.x, centerY + amountY),
                     color = drawInfo.lineColor,
                     strokeWidth = drawInfo
                         .lineThickness)
             }
-            if (!rightY.isNaN()) {
+            if (rightY != -1f) {
                 drawLine(start = Offset(center.x, centerY + amountY),
                     end = Offset(size.width, rightY + amountY),
                     color = drawInfo.lineColor,

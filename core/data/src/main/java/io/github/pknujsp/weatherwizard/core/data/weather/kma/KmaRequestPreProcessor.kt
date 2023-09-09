@@ -27,7 +27,7 @@ class KmaRequestPreProcessor @Inject constructor(
         val list = korCoordinateDao.findCoordinates(latitude, longitude)
         val criteriaLatLng = doubleArrayOf(latitude, longitude)
         var minDistance = Double.MAX_VALUE
-        var distance = 0.0
+        var distance: Double
         val compLatLng = DoubleArray(2)
         lateinit var nearbyKmaAreaCodeDto: KorCoordinateDto
 

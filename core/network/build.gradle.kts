@@ -8,8 +8,6 @@ plugins {
 
 android {
     namespace = "io.github.pknujsp.weatherwizard.core.network"
-
-
 }
 
 dependencies {
@@ -19,4 +17,5 @@ dependencies {
     implementation(libs.bundles.retrofit)
     implementation(libs.jsoup)
     implementation(libs.sunrisesunsetcalculator)
+    implementation(libs.okhttp.logginginterceptor)
 }

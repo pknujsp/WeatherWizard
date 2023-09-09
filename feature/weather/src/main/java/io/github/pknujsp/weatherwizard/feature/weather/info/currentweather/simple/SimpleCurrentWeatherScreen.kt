@@ -1,6 +1,5 @@
 package io.github.pknujsp.weatherwizard.feature.weather.info.currentweather.simple
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.absolutePadding
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -9,12 +8,11 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.TextUnit
@@ -23,6 +21,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import coil.compose.AsyncImage
+import coil.request.ImageRequest
 import io.github.pknujsp.weatherwizard.core.common.util.AStyle
 import io.github.pknujsp.weatherwizard.core.common.util.toAnnotated
 import io.github.pknujsp.weatherwizard.core.model.onSuccess
@@ -32,14 +32,14 @@ import io.github.pknujsp.weatherwizard.core.ui.theme.outlineTextStyle
 import io.github.pknujsp.weatherwizard.feature.weather.info.WeatherInfoViewModel
 
 
-
 @Composable
 fun CurrentWeatherScreen(weatherInfoViewModel: WeatherInfoViewModel) {
-    val currentWeather = weatherInfoViewModel.currentWeather.collectAsStateWithLifecycle()
+    val currentWeather by weatherInfoViewModel.currentWeather.collectAsStateWithLifecycle()
+    val yesterdayWeather by weatherInfoViewModel.yesterdayWeather.collectAsStateWithLifecycle()
     val textColor = Color.White
     val labelTextSize = 14.sp
 
-    currentWeather.value.onSuccess { currentWeather ->
+    currentWeather.onSuccess { currentWeather ->
         ConstraintLayout(modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 12.dp)
@@ -59,8 +59,9 @@ fun CurrentWeatherScreen(weatherInfoViewModel: WeatherInfoViewModel) {
                 absoluteLeft.linkTo(parent.absoluteLeft)
             }, style = LocalTextStyle.current.merge(notIncludeTextPaddingStyle).merge(outlineTextStyle))
 
-            Image(
-                imageVector = ImageVector.vectorResource(id = currentWeather.weatherIcon),
+            AsyncImage(
+                model = ImageRequest.Builder(LocalContext.current)
+                    .data(currentWeather.weatherIcon).crossfade(true).build(),
                 contentDescription = stringResource(
                     id = io.github.pknujsp.weatherwizard.core.model.R.string.weather_icon_description,
                 ),
@@ -127,8 +128,8 @@ fun CurrentWeatherScreen(weatherInfoViewModel: WeatherInfoViewModel) {
                 absoluteRight.linkTo(parent.absoluteRight)
             }, style = outlineTextStyle)
 
-            weatherInfoViewModel.yesterdayWeather.collectAsStateWithLifecycle().value.onSuccess { yesterdayWeather ->
-                Text(text = yesterdayWeather.text(currentWeather.temperature, LocalContext.current),
+            yesterdayWeather.onSuccess {
+                Text(text = it.text(currentWeather.temperature, LocalContext.current),
                     modifier = Modifier.constrainAs(yesterday) {
                         bottom.linkTo(parent.bottom)
                         absoluteLeft.linkTo(parent.absoluteLeft)

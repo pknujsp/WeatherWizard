@@ -1,6 +1,7 @@
 package io.github.pknujsp.weatherwizard.core.ui
 
 import android.content.res.Resources
+import android.util.Log
 import android.util.TypedValue
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -11,7 +12,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.drawText
 import androidx.compose.ui.text.rememberTextMeasurer
@@ -19,25 +19,25 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import io.github.pknujsp.weatherwizard.core.model.weather.hourlyforecast.HourlyForecast
 
+val textSize = 12.sp
+val textColor = Color.White
+val space = 2.dp
 
 @Composable
 fun DynamicDateTime(
     hourlyForecast: HourlyForecast, lazyListState: LazyListState
 ) {
-    val density = LocalDensity.current.density
-    val textSize = 12.sp
-    val textColor = Color.White
-    val space = 2.dp
-
-    val dateItems = remember { hourlyForecast.date }
     val textMeasurer = rememberTextMeasurer()
-
-    val textStyle = TextStyle(fontSize = textSize, textAlign = androidx.compose.ui.text.style.TextAlign.Center)
-    val textLayoutResult = remember { textMeasurer.measure(dateItems.items.first().date, textStyle) }
+    val textStyle = remember {
+        TextStyle(fontSize = textSize, textAlign = androidx.compose.ui.text.style.TextAlign.Center)
+    }
+    val textLayoutResult = remember {
+        textMeasurer.measure(hourlyForecast.date.items.first().date, textStyle)
+    }
     val columnWidthPx = remember {
         TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, HourlyForecast.itemWidth.value, Resources.getSystem().displayMetrics).toInt()
     }
-    val height = remember { (textLayoutResult.size.height / density).dp + (space * 2) }
+    val height = remember { (textLayoutResult.size.height / Resources.getSystem().displayMetrics.density).dp + (space * 2) }
 
     Canvas(modifier = Modifier
         .fillMaxWidth()
@@ -46,9 +46,9 @@ fun DynamicDateTime(
         val y = (size.height / 2) - (textLayoutResult.size.height / 2)
         val rightOnBoxInRow = leftOnBoxInRow + size.width
         var amountX: Int
-        val firstItemX = dateItems.firstItemX
+        val firstItemX = hourlyForecast.date.firstItemX
 
-        for (dateValue in dateItems.items) {
+        for (dateValue in hourlyForecast.date.items) {
             if (dateValue.beginX > rightOnBoxInRow || dateValue.endX < leftOnBoxInRow - columnWidthPx) continue
 
             dateValue.apply {

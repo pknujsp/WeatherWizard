@@ -22,12 +22,12 @@ class NewGraph(
                 left = if (i > 0)
                     right
                 else
-                    Float.NaN
+                    -1f
 
                 right = if (i < lastIndex)
                     center + if (center < centerPoints[i + 1]) (centerPoints[i + 1] - center) / 2 else (center - centerPoints[i + 1]) / -2
                 else
-                    Float.NaN
+                    -1f
 
                 LinePoint(left, center, right, height)
             }

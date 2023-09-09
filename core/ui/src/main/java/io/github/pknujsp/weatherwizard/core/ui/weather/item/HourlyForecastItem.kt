@@ -3,8 +3,6 @@ package io.github.pknujsp.weatherwizard.core.ui.weather.item
 import android.content.res.Resources
 import android.util.TypedValue
 import android.widget.Toast
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -22,10 +20,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.unit.dp
@@ -38,7 +34,6 @@ import io.github.pknujsp.weatherwizard.core.ui.NewGraph
 import io.github.pknujsp.weatherwizard.core.ui.SingleGraph
 
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun HourlyForecastItem(hourlyForecast: HourlyForecast, lazyListState: LazyListState) {
     val context = LocalContext.current
@@ -96,7 +91,10 @@ private fun Item(
                 modifier = Modifier.padding(4.dp))
 
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Center) {
-                Image(imageVector = ImageVector.vectorResource(id = HourlyForecast.Item.probabilityIcon),
+                AsyncImage(model = ImageRequest.Builder(LocalContext.current)
+                    .data(HourlyForecast.Item.probabilityIcon)
+                    .crossfade(false)
+                    .build(),
                     contentDescription = null,
                     modifier = HourlyForecast.Item.imageModifier)
                 Text(text = precipitationProbability, style = TextStyle(fontSize = 12.sp, color = Color.White))
@@ -104,7 +102,10 @@ private fun Item(
 
             if (hourlyForecast.displayPrecipitationVolume and precipitationVolume.isNotEmpty()) {
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Center) {
-                    Image(imageVector = ImageVector.vectorResource(id = HourlyForecast.Item.rainfallIcon),
+                    AsyncImage(model = ImageRequest.Builder(LocalContext.current)
+                        .data(HourlyForecast.Item.rainfallIcon)
+                        .crossfade(false)
+                        .build(),
                         contentDescription = null,
                         modifier = HourlyForecast.Item.imageModifier)
                     Text(text = precipitationVolume, style = TextStyle(fontSize = 12.sp, color = Color.White))
@@ -112,7 +113,10 @@ private fun Item(
             }
             if (hourlyForecast.displayRainfallVolume and rainfallVolume.isNotEmpty()) {
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Center) {
-                    Image(imageVector = ImageVector.vectorResource(id = HourlyForecast.Item.rainfallIcon),
+                    AsyncImage(model = ImageRequest.Builder(LocalContext.current)
+                        .data(HourlyForecast.Item.rainfallIcon)
+                        .crossfade(false)
+                        .build(),
                         contentDescription = null,
                         modifier = HourlyForecast.Item.imageModifier)
                     Text(text = rainfallVolume, style = TextStyle(fontSize = 12.sp, color = Color.White))
@@ -120,7 +124,10 @@ private fun Item(
             }
             if (hourlyForecast.displaySnowfallVolume and snowfallVolume.isNotEmpty()) {
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Center) {
-                    Image(imageVector = ImageVector.vectorResource(id = HourlyForecast.Item.snowfallIcon),
+                    AsyncImage(model = ImageRequest.Builder(LocalContext.current)
+                        .data(HourlyForecast.Item.snowfallIcon)
+                        .crossfade(false)
+                        .build(),
                         contentDescription = null,
                         modifier = HourlyForecast.Item.imageModifier)
                     Text(text = snowfallVolume, style = TextStyle(fontSize = 12.sp, color = Color.White))
@@ -134,7 +141,6 @@ private fun Item(
                 modifier = Modifier
                     .then(modifier)
                     .height(100.dp),
-                textMeasurer = rememberTextMeasurer(),
             )
         }
     }

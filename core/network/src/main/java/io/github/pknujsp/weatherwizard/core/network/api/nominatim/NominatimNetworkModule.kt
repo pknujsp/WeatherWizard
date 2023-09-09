@@ -11,6 +11,7 @@ import io.github.pknujsp.weatherwizard.core.network.datasource.nominatim.Nominat
 import io.github.pknujsp.weatherwizard.core.network.datasource.nominatim.NominatimDataSourceImpl
 import kotlinx.serialization.json.Json
 import okhttp3.MediaType
+import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import java.util.Locale
@@ -25,7 +26,7 @@ object NominatimNetworkModule {
     @Singleton
     fun providesNominatimNetworkApi(okHttpClient: OkHttpClient, @KtJson json: Json): NominatimNetworkApi =
         Retrofit.Builder().client(okHttpClient).baseUrl(nominatimUrl).addConverterFactory(
-            json.asConverterFactory(MediaType.get("application/json"))
+            json.asConverterFactory("application/json".toMediaType())
         ).build().create(NominatimNetworkApi::class.java)
 
     @Provides

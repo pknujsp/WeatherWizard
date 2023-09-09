@@ -10,8 +10,10 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
@@ -38,57 +40,58 @@ fun FlickrImageItemScreen(
     parameterFlow: StateFlow<FlickrRequestParameters?>,
     onLoadedImage: (String) -> Unit
 ) {
-    val viewModel = hiltViewModel<FlickrImageViewModel>()
-    val imageUrl = rememberSaveable { mutableStateOf("") }
-    val requestParameter = parameterFlow.collectAsStateWithLifecycle()
-
-    val flickerImageEntity = viewModel.image.collectAsStateWithLifecycle()
-    flickerImageEntity.value.onSuccess {
-        imageUrl.value = it.imageUrl
-        if (it.imageUrl.isNotEmpty()) {
-            onLoadedImage(it.imageUrl)
-        }
-    }.onError {
-        imageUrl.value = ""
+    val viewModel: FlickrImageViewModel = hiltViewModel()
+    val context = LocalContext.current
+    var imageUrl by rememberSaveable {
+        mutableStateOf(context.getString(io.github.pknujsp.weatherwizard.feature.flickr.R.string
+            .loading_image))
     }
 
-    requestParameter.value?.run {
-        flickerImageEntity.value.onLoading {
+    val requestParameter = parameterFlow.collectAsStateWithLifecycle()
+    val flickerImageEntity = viewModel.image.collectAsStateWithLifecycle()
+
+    flickerImageEntity.value.onSuccess {
+        imageUrl = it.imageUrl
+        onLoadedImage(it.imageUrl)
+    }.onError {
+        imageUrl = stringResource(id = R.string.reload)
+    }.onLoading {
+        requestParameter.value?.run {
             viewModel.load(this)
         }
     }
 
-    UrlItem(url = imageUrl.value, onClick = { viewModel.reload() })
+    UrlItem(url = imageUrl, onClick = { viewModel.reload() })
 }
 
 @Composable
 private fun UrlItem(url: String, onClick: () -> Unit) {
     Row(modifier = Modifier
-        .padding(start = 84.dp, end = 14.dp)
+        .padding(start = 84.dp, end = 14.dp, top = 6.dp)
         .fillMaxWidth(),
         horizontalArrangement = Arrangement.End,
         verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
 
-        Text(text = url.ifEmpty { stringResource(id = R.string.reload) },
+        Text(text = url,
             textDecoration = TextDecoration.Underline,
             color = Color.White,
             fontSize = 11.sp,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
             style = LocalTextStyle.current.merge(outlineTextStyle),
+            textAlign = androidx.compose.ui.text.style.TextAlign.End,
             modifier = Modifier
                 .weight(1f)
                 .clickable { onClick() })
         Spacer(modifier = Modifier.padding(horizontal = 4.dp))
-
         AsyncImage(
             model = ImageRequest.Builder(LocalContext.current)
                 .data(R.drawable.flickrlogo)
-                .crossfade(true)
+                .crossfade(false)
                 .build(),
             contentDescription = stringResource(io.github.pknujsp.weatherwizard.feature.flickr.R.string.flickr),
             contentScale = ContentScale.Inside,
-            modifier = Modifier.width(30.dp)
+            modifier = Modifier.width(31.dp)
         )
     }
 }
