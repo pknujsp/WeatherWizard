@@ -7,6 +7,7 @@ import dagger.hilt.components.SingletonComponent
 import io.github.pknujsp.weatherwizard.core.network.datasource.kma.KmaDataSource
 import io.github.pknujsp.weatherwizard.core.network.datasource.kma.KmaDataSourceImpl
 import io.github.pknujsp.weatherwizard.core.network.datasource.kma.parser.KmaHtmlParser
+import io.github.pknujsp.weatherwizard.core.network.retrofit.NetworkApiCallAdapterFactory
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.scalars.ScalarsConverterFactory
@@ -21,7 +22,7 @@ object KmaNetworkModule {
     @Provides
     @Singleton
     fun providesKmaNetworkApi(okHttpClient: OkHttpClient): KmaNetworkApi =
-        Retrofit.Builder().client(okHttpClient).baseUrl(KMA_URL).addConverterFactory(
+        Retrofit.Builder().client(okHttpClient).baseUrl(KMA_URL).addCallAdapterFactory(NetworkApiCallAdapterFactory()).addConverterFactory(
             ScalarsConverterFactory.create(),
         ).build().create(KmaNetworkApi::class.java)
 

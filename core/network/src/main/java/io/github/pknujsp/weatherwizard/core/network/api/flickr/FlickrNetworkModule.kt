@@ -8,8 +8,8 @@ import dagger.hilt.components.SingletonComponent
 import io.github.pknujsp.weatherwizard.core.common.module.KtJson
 import io.github.pknujsp.weatherwizard.core.network.datasource.flickr.FlickrDataSource
 import io.github.pknujsp.weatherwizard.core.network.datasource.flickr.FlickrDataSourceImpl
+import io.github.pknujsp.weatherwizard.core.network.retrofit.NetworkApiCallAdapterFactory
 import kotlinx.serialization.json.Json
-import okhttp3.MediaType
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
@@ -23,9 +23,10 @@ object FlickrNetworkModule {
     @Provides
     @Singleton
     fun providesFlickrNetworkApi(okHttpClient: OkHttpClient, @KtJson json: Json): FlickrNetworkApi =
-        Retrofit.Builder().client(okHttpClient).baseUrl(flickrUrl).addConverterFactory(
-            json.asConverterFactory("application/json".toMediaType())
-        ).build().create(FlickrNetworkApi::class.java)
+        Retrofit.Builder().client(okHttpClient).baseUrl(flickrUrl).addCallAdapterFactory(NetworkApiCallAdapterFactory())
+            .addConverterFactory(
+                json.asConverterFactory("application/json".toMediaType())
+            ).build().create(FlickrNetworkApi::class.java)
 
     @Provides
     @Singleton
