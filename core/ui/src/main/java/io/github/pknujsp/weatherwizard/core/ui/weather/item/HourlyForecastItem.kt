@@ -28,9 +28,10 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.rememberTextMeasurer
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil.compose.AsyncImage
+import coil.request.ImageRequest
 import io.github.pknujsp.weatherwizard.core.model.weather.hourlyforecast.HourlyForecast
 import io.github.pknujsp.weatherwizard.core.ui.DrawInfo
 import io.github.pknujsp.weatherwizard.core.ui.NewGraph
@@ -43,7 +44,9 @@ fun HourlyForecastItem(hourlyForecast: HourlyForecast, lazyListState: LazyListSt
     val context = LocalContext.current
 
     val graphHeight = remember {
-        TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, HourlyForecast.temperatureGraphHeight.value, Resources.getSystem().displayMetrics)
+        TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,
+            HourlyForecast.temperatureGraphHeight.value,
+            Resources.getSystem().displayMetrics)
     }
     val linePoints = remember {
         NewGraph(listOf(hourlyForecast.items.map { it.temperatureInt })).createNewGraph(graphHeight)[0]
@@ -85,7 +88,10 @@ private fun Item(
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Text(text = time, style = TextStyle(fontSize = 13.sp, color = Color.White))
-            Image(imageVector = ImageVector.vectorResource(id = weatherIcon),
+            AsyncImage(model = ImageRequest.Builder(LocalContext.current)
+                .data(weatherIcon)
+                .crossfade(false)
+                .build(),
                 contentDescription = weatherConditionText,
                 modifier = Modifier.padding(4.dp))
 
