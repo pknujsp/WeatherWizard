@@ -27,16 +27,18 @@ class DailyForecast(
     init {
         items = dailyForecastEntity.items.let { items ->
             val listMap = mutableMapOf<String, Item>()
-            items.forEach { item ->
+            items.forEachIndexed { i, item ->
                 val date = ZonedDateTime.parse(item.dateTime.value).format(dateFormatter)
 
                 if (!listMap.containsKey(date)) {
-                    listMap[date] = Item(date = date,
+                    listMap[date] = Item(
+                        id = i,
+                        date = date,
                         minTemperature = item.minTemperature.toString(),
                         maxTemperature = item.maxTemperature.toString(),
                         minTemperatureInt = item.minTemperature.value.toInt(),
                         maxTemperatureInt = item.maxTemperature.value.toInt(),
-                        itemCount = 1)
+                    )
                 }
                 listMap[date]?.add(
                     item.weatherCondition, item.precipitationProbability)
@@ -48,8 +50,9 @@ class DailyForecast(
 
 
     class Item(
+        val id: Int,
         val date: String, val minTemperature: String, val maxTemperature: String,
-        val minTemperatureInt: Int, val maxTemperatureInt: Int, val itemCount: Int
+        val minTemperatureInt: Int, val maxTemperatureInt: Int
     ) {
         private val _weatherConditionIcons: MutableList<Int> = mutableListOf()
         private val _weatherConditions: MutableList<Int> = mutableListOf()

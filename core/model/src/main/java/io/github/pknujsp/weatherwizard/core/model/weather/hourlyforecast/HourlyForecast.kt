@@ -43,6 +43,7 @@ class HourlyForecast(
     }
 
     class Item(
+        val id: Int,
         weatherCondition: WeatherConditionValueType,
         dateTime: DateTimeValueType,
         temperature: TemperatureValueType,

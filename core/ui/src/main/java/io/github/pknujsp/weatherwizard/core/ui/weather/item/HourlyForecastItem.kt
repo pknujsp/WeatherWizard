@@ -23,7 +23,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
@@ -55,7 +54,8 @@ fun HourlyForecastItem(hourlyForecast: HourlyForecast, lazyListState: LazyListSt
             .wrapContentHeight(),
         state = lazyListState,
     ) {
-        items(hourlyForecast.items.size) { i ->
+        items(count = hourlyForecast.items.size,
+            key = { hourlyForecast.items[it].id }) { i ->
             Item(i, hourlyForecast, itemModifier, linePoints[i], graphDrawInfo) {
                 Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
             }

@@ -1,7 +1,6 @@
 package io.github.pknujsp.weatherwizard
 
 import android.os.Bundle
-import android.view.ViewTreeObserver
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
@@ -20,19 +19,12 @@ import io.github.pknujsp.weatherwizard.feature.main.MainScreen
 class MainActivity : ComponentActivity() {
 
     private val viewModel: ActivityViewModel by viewModels()
-    private var layoutListener: ViewTreeObserver.OnGlobalLayoutListener? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         val systemBarStyler = SystemBarStyler(window)
-        val systemBarColorMonitor = SystemBarColorMonitor(this, systemBarStyler, lifecycle)
-
-        layoutListener = ViewTreeObserver.OnGlobalLayoutListener {
-            systemBarColorMonitor.requestConvert()
-            println("Analyzing system bar color...")
-        }
-        window.decorView.viewTreeObserver.addOnGlobalLayoutListener(layoutListener)
+        val systemBarColorMonitor = SystemBarColorMonitor(window, systemBarStyler, lifecycle)
 
         setContent {
             MainTheme {
@@ -45,8 +37,6 @@ class MainActivity : ComponentActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        layoutListener?.let {
-            window.decorView.viewTreeObserver.removeOnGlobalLayoutListener(it)
-        }
+
     }
 }

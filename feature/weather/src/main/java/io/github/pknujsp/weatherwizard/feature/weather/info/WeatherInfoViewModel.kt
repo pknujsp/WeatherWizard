@@ -128,8 +128,9 @@ class WeatherInfoViewModel @Inject constructor(
         hourlyForecastEntity: HourlyForecastEntity, dayNightCalculator: DayNightCalculator
     ) {
         viewModelScope.launch(Dispatchers.Default) {
-            val hourlyForecast = hourlyForecastEntity.items.map {
+            val hourlyForecast = hourlyForecastEntity.items.mapIndexed { i, it ->
                 HourlyForecast.Item(
+                    id = i,
                     dateTime = it.dateTime,
                     weatherCondition = it.weatherCondition,
                     temperature = it.temperature,

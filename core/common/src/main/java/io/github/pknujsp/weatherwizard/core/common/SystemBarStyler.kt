@@ -12,8 +12,6 @@ class SystemBarStyler(window: Window) : SystemBarController {
         BLACK, WHITE, UNKNOWN
     }
 
-
-
     private val windowInsetsController: WindowInsetsControllerCompat
 
     init {

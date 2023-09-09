@@ -17,10 +17,10 @@ import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import kotlinx.coroutines.CoroutineName
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.delay
@@ -35,20 +35,20 @@ import kotlin.coroutines.resume
 
 @SuppressLint("InternalInsetResource", "DiscouragedApi")
 class SystemBarColorMonitor(
-    activity: Activity,
+    window: Window,
     private val systemBarController: SystemBarController,
     lifecycle: Lifecycle,
     resource: Resources = Resources.getSystem()
 ) {
     private val waitLock = Mutex()
     private var waiting: Job? = null
-    private val coroutineScope = CoroutineScope(Dispatchers.Default) + CoroutineName("SystemBarColorAnalyzer")
+    private val coroutineScope = MainScope() + CoroutineName("SystemBarColorAnalyzer")
     private val onChangedFragmentFlow =
         MutableSharedFlow<Unit>(onBufferOverflow = BufferOverflow.DROP_OLDEST, replay = 1, extraBufferCapacity = 0)
 
-    private var _decorView: View? = activity.window.decorView
+    private var _decorView: View? = window.decorView
     private val decorView: View get() = _decorView!!
-    private var _window: Window? = activity.window
+    private var _window: Window? = window
     private val window: Window get() = _window!!
 
     private val statusBarHeight = resource.getDimensionPixelSize(resource.getIdentifier("status_bar_height", "dimen", "android"))
@@ -91,13 +91,10 @@ class SystemBarColorMonitor(
                             systemBarController.setStyle(statusBarColor, navBarColor)
                         }
                     }
-
                 }
 
-                withContext(Dispatchers.Main) {
-                    decorView.doOnPreDraw {
-                        convertJob.start()
-                    }
+                decorView.doOnPreDraw {
+                    convertJob.start()
                 }
 
                 convertJob.join()
@@ -128,15 +125,9 @@ class SystemBarColorMonitor(
     }
 
 
-    private fun Int.toGrayScale(): Int = kotlin.run {
-        val r = Color.red(this)
-        val g = Color.green(this)
-        val b = Color.blue(this)
-        val a = Color.alpha(this)
+    private fun Int.toGrayScale(): Int = if (Color.alpha(this) == 0) -1
+    else (0.2989 * Color.red(this) + 0.5870 * Color.green(this) + 0.1140 * Color.blue(this)).toInt()
 
-        if (a == 0) -1
-        else (0.2989 * r + 0.5870 * g + 0.1140 * b).toInt()
-    }
 
     private fun Int.toColor() = toGrayScale().let { gray ->
         if (gray == 0 || gray == -1) SystemBarStyler.SystemBarColor.WHITE
@@ -155,7 +146,7 @@ class SystemBarColorMonitor(
     }
 
     fun requestConvert() {
-        coroutineScope.launch {
+        coroutineScope.launch(Dispatchers.Default) {
             waitLock.withLock {
                 if (waiting?.isActive == true) waiting?.cancel()
                 waiting = launch {

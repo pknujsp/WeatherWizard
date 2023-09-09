@@ -55,10 +55,10 @@ fun SimpleDailyForecastItem(dailyForecast: DailyForecast) {
             .wrapContentHeight(),
         state = rememberLazyListState(),
     ) {
-        items(dailyForecast.items.size) { i ->
+        items(count = dailyForecast.items.size,
+            key = { dailyForecast.items[it].id }) { i ->
             Item(i, dailyForecast, linePoints, graphDrawInfos) { conditions ->
-                val text = conditions.joinToString(",") { context.getString(it) }
-                Toast.makeText(context, text, Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, conditions.joinToString(",") { context.getString(it) }, Toast.LENGTH_SHORT).show()
             }
         }
     }
