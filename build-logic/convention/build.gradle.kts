@@ -21,6 +21,7 @@ dependencies {
     compileOnly(libs.ksp.gradle.plugin)
 }
 
+
 gradlePlugin {
     plugins {
         register("androidLibrary") {

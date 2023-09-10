@@ -81,6 +81,8 @@ detekt = "1.23.1"
 jsoup = "1.16.1"
 sunrisesunsetcalculator = "1.2"
 
+osmdroid = "6.1.16"
+
 
 # 라이브러리 의존성------------------------------------------------------------------------------------------------------------------------
 [libraries]
@@ -194,6 +196,8 @@ okhttp = { module = "com.squareup.okhttp3:okhttp", version.ref = "okhttp3" }
 okhttp-logginginterceptor = { module = "com.squareup.okhttp3:logging-interceptor", version.ref = "okhttp3" }
 
 coil = { module = "io.coil-kt:coil-compose", version.ref = "coil" }
+
+osmdroid = { module = "org.osmdroid:osmdroid-android", version.ref = "osmdroid" }
 
 # lottie --------------------------------------------------------------------------------------------------------------
 lottie = { module = "com.airbnb.android:lottie-compose", version.ref = "lottie" }

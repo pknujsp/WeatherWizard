@@ -110,7 +110,7 @@ private fun Item(
                         .build(),
                         contentDescription = null,
                         modifier = Modifier
-                            .alpha(if (hourlyForecast.displayPrecipitationVolume and precipitationVolume.isNotEmpty()) 1f else
+                            .alpha(if (precipitationVolume.isNotEmpty()) 1f else
                                 0f)
                             .then(HourlyForecast.Item.imageModifier))
                     Text(text = precipitationVolume,
@@ -130,10 +130,10 @@ private fun Item(
                         .build(),
                         contentDescription = null,
                         modifier = Modifier
-                            .alpha(if (hourlyForecast.displayRainfallVolume and rainfallVolume.isNotEmpty()) 1f else
+                            .alpha(if (rainfallVolume.isNotEmpty()) 1f else
                                 0f)
                             .then(HourlyForecast.Item.imageModifier))
-                    Text(text = rainfallVolume, style = TextStyle(fontSize = 12.sp, color = if (hourlyForecast.displayRainfallVolume and
+                    Text(text = rainfallVolume, style = TextStyle(fontSize = 12.sp, color = if (
                         rainfallVolume.isNotEmpty()) Color.White else
                         Color.Transparent))
                 }
@@ -150,10 +150,10 @@ private fun Item(
                         .build(),
                         contentDescription = null,
                         modifier = Modifier
-                            .alpha(if (hourlyForecast.displaySnowfallVolume and snowfallVolume.isNotEmpty()) 1f else
+                            .alpha(if (snowfallVolume.isNotEmpty()) 1f else
                                 0f)
                             .then(HourlyForecast.Item.imageModifier))
-                    Text(text = snowfallVolume, style = TextStyle(fontSize = 12.sp, color = if (hourlyForecast.displaySnowfallVolume and
+                    Text(text = snowfallVolume, style = TextStyle(fontSize = 12.sp, color = if (
                         snowfallVolume.isNotEmpty()) Color.White else
                         Color.Transparent))
                 }
