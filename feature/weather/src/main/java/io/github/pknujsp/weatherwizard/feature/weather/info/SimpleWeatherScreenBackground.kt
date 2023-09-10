@@ -17,6 +17,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import io.github.pknujsp.weatherwizard.core.ui.PlaceHolder
 
 private val backgroundColor = Color(18, 18, 18, (0.671 * 255).toInt())
 
@@ -48,6 +49,14 @@ fun SimpleWeatherScreenBackground(cardInfo: CardInfo) {
             cardInfo.content()
         }
     }
+}
+
+@Composable
+fun SimpleWeatherBackgroundPlaceHolder() {
+    PlaceHolder(Modifier
+        .fillMaxWidth()
+        .height(160.dp)
+        .padding(horizontal = 12.dp, vertical = 8.dp))
 }
 
 data class CardInfo(

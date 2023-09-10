@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -31,7 +32,9 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import io.github.pknujsp.weatherwizard.core.common.util.AStyle
 import io.github.pknujsp.weatherwizard.core.common.util.toAnnotated
+import io.github.pknujsp.weatherwizard.core.model.onLoading
 import io.github.pknujsp.weatherwizard.core.model.onSuccess
+import io.github.pknujsp.weatherwizard.core.ui.PlaceHolder
 import io.github.pknujsp.weatherwizard.core.ui.theme.outlineTextStyle
 import io.github.pknujsp.weatherwizard.feature.weather.info.WeatherInfoViewModel
 import java.time.LocalDateTime
@@ -39,15 +42,15 @@ import java.time.format.DateTimeFormatter
 
 @Composable
 fun HeadInfoScreen(weatherInfoViewModel: WeatherInfoViewModel) {
-    weatherInfoViewModel.reverseGeoCode.collectAsStateWithLifecycle().value.onSuccess {
-        Column(
-            horizontalAlignment = Alignment.Start,
-            verticalArrangement = Arrangement.Center,
-            modifier = Modifier
-                .fillMaxWidth()
-                .statusBarsPadding()
-                .padding(top = 48.dp, bottom = 80.dp, start = 12.dp, end = 60.dp),
-        ) {
+    val headInfo by weatherInfoViewModel.reverseGeoCode.collectAsStateWithLifecycle()
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .statusBarsPadding()
+            .padding(top = 48.dp, bottom = 80.dp, start = 12.dp, end = 60.dp),
+    ) {
+        headInfo.onSuccess {
             Text(
                 text = listOf(
                     AStyle(
@@ -79,14 +82,19 @@ fun HeadInfoScreen(weatherInfoViewModel: WeatherInfoViewModel) {
                 )
                 Spacer(modifier = Modifier.width(4.dp))
                 Text(
-                    text = LocalDateTime.now().format(dateTimeFormatter),
+                    text = LocalDateTime.now().format(DateTimeFormatter.ofPattern("M.d E HH:mm")),
                     fontSize = TextUnit(15f, TextUnitType.Sp),
                     color = Color.White,
                     style = LocalTextStyle.current.merge(outlineTextStyle),
                 )
             }
+        }.onLoading {
+            // placeholder
+            PlaceHolder(Modifier
+                .size(100.dp, 32.dp)
+                .padding(bottom = 4.dp))
+            PlaceHolder(Modifier
+                .size(130.dp, 80.dp))
         }
     }
 }
-
-private val dateTimeFormatter = DateTimeFormatter.ofPattern("M.d E HH:mm")

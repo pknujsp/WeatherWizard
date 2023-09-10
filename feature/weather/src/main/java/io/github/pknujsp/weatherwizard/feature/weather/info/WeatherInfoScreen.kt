@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -26,9 +25,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
-import io.github.pknujsp.weatherwizard.core.model.onError
 import io.github.pknujsp.weatherwizard.core.model.onLoading
-import io.github.pknujsp.weatherwizard.core.model.onSuccess
 import io.github.pknujsp.weatherwizard.core.ui.lottie.CancellableLoadingScreen
 import io.github.pknujsp.weatherwizard.feature.flickr.FlickrImageItemScreen
 import io.github.pknujsp.weatherwizard.feature.weather.R
@@ -58,35 +55,32 @@ fun WeatherInfoScreen() {
             contentDescription = stringResource(R.string.background_image),
         )
 
-        weatherInfo.onLoading {
-            CancellableLoadingScreen(stringResource(id = io.github.pknujsp.weatherwizard.core.common.R.string.loading_weather_data)) {
-
-            }
-            weatherInfoViewModel.loadAllWeatherData()
-        }.onSuccess {
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .fillMaxHeight(),
-                state = rememberLazyListState(),
-            ) {
-                item { HeadInfoScreen(weatherInfoViewModel) }
-                item { CurrentWeatherScreen(weatherInfoViewModel) }
-                item {
-                    FlickrImageItemScreen(weatherInfoViewModel.flickrRequestParameter) {
-                        backgroundImageUrl.value = it
-                    }
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxWidth()
+                .fillMaxHeight(),
+            state = rememberLazyListState(),
+        ) {
+            item { HeadInfoScreen(weatherInfoViewModel) }
+            item { CurrentWeatherScreen(weatherInfoViewModel) }
+            item {
+                FlickrImageItemScreen(weatherInfoViewModel.flickrRequestParameter) {
+                    backgroundImageUrl.value = it
                 }
-                item { HourlyForecastScreen(weatherInfoViewModel) }
-                item {
-                    SimpleDailyForecastScreen(weatherInfoViewModel)
-                }
-                item { Spacer(modifier = Modifier.height(62.dp)) }
             }
-
-        }.onError { throwable ->
-            Text(text = throwable.message ?: "Error")
+            item { HourlyForecastScreen(weatherInfoViewModel) }
+            item {
+                SimpleDailyForecastScreen(weatherInfoViewModel)
+            }
+            item { Spacer(modifier = Modifier.height(62.dp)) }
         }
+    }
+
+    weatherInfo.onLoading {
+        CancellableLoadingScreen(stringResource(id = io.github.pknujsp.weatherwizard.core.common.R.string.loading_weather_data)) {
+
+        }
+        weatherInfoViewModel.loadAllWeatherData()
     }
 }
 

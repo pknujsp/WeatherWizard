@@ -1,5 +1,6 @@
 package io.github.pknujsp.weatherwizard.feature.weather.info.currentweather.simple
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.absolutePadding
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -9,6 +10,8 @@ import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -25,8 +28,10 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import io.github.pknujsp.weatherwizard.core.common.util.AStyle
 import io.github.pknujsp.weatherwizard.core.common.util.toAnnotated
+import io.github.pknujsp.weatherwizard.core.model.onLoading
 import io.github.pknujsp.weatherwizard.core.model.onSuccess
 import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherDataCategory
+import io.github.pknujsp.weatherwizard.core.ui.PlaceHolder
 import io.github.pknujsp.weatherwizard.core.ui.theme.notIncludeTextPaddingStyle
 import io.github.pknujsp.weatherwizard.core.ui.theme.outlineTextStyle
 import io.github.pknujsp.weatherwizard.feature.weather.info.WeatherInfoViewModel
@@ -36,8 +41,8 @@ import io.github.pknujsp.weatherwizard.feature.weather.info.WeatherInfoViewModel
 fun CurrentWeatherScreen(weatherInfoViewModel: WeatherInfoViewModel) {
     val currentWeather by weatherInfoViewModel.currentWeather.collectAsStateWithLifecycle()
     val yesterdayWeather by weatherInfoViewModel.yesterdayWeather.collectAsStateWithLifecycle()
-    val textColor = Color.White
-    val labelTextSize = 14.sp
+    val textColor = remember { Color.White }
+    val labelTextSize = remember { 14.sp }
 
     currentWeather.onSuccess { currentWeather ->
         ConstraintLayout(modifier = Modifier
@@ -138,6 +143,19 @@ fun CurrentWeatherScreen(weatherInfoViewModel: WeatherInfoViewModel) {
                     color = textColor,
                     fontSize = 15.sp)
             }
+        }
+    }.onLoading {
+        Box(modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 12.dp)
+            .wrapContentHeight()) {
+            PlaceHolder(modifier = Modifier
+                .size(80.dp)
+                .align(Alignment.BottomStart))
+
+            PlaceHolder(modifier = Modifier
+                .size(60.dp)
+                .align(Alignment.BottomEnd))
         }
     }
 }

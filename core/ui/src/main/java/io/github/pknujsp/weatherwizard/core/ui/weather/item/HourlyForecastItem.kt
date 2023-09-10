@@ -21,6 +21,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
@@ -37,11 +38,7 @@ import io.github.pknujsp.weatherwizard.core.ui.SingleGraph
 fun HourlyForecastItem(hourlyForecast: HourlyForecast, lazyListState: LazyListState) {
     val context = LocalContext.current
 
-    val graphHeight = remember {
-        TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,
-            HourlyForecast.temperatureGraphHeight.value,
-            Resources.getSystem().displayMetrics)
-    }
+    val graphHeight = with(LocalDensity.current) {  HourlyForecast.temperatureGraphHeight.toPx() }
     val linePoints = remember {
         NewGraph(listOf(hourlyForecast.items.map { it.temperatureInt })).createNewGraph(graphHeight)[0]
     }

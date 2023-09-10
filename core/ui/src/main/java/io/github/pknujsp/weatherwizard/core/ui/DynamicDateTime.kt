@@ -42,6 +42,9 @@ fun DynamicDateTime(
     Canvas(modifier = Modifier
         .fillMaxWidth()
         .height(height)) {
+
+        println("Recompositioning DynamicDateTime")
+
         val leftOnBoxInRow = lazyListState.firstVisibleItemIndex * columnWidthPx + lazyListState.firstVisibleItemScrollOffset
         val y = (size.height / 2) - (textLayoutResult.size.height / 2)
         val rightOnBoxInRow = leftOnBoxInRow + size.width

@@ -24,6 +24,7 @@ import io.github.pknujsp.weatherwizard.core.model.weather.yesterday.YesterdayWea
 import io.github.pknujsp.weatherwizard.core.model.weather.yesterday.YesterdayWeatherEntity
 import io.github.pknujsp.weatherwizard.core.ui.weather.item.DynamicDateTimeUiCreator
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -42,8 +43,8 @@ class WeatherInfoViewModel @Inject constructor(
     private val _reverseGeoCode = MutableStateFlow<UiState<ReverseGeoCode>>(UiState.Loading)
     val reverseGeoCode: StateFlow<UiState<ReverseGeoCode>> = _reverseGeoCode
 
-    private val _flickrRequestParameter = MutableStateFlow<FlickrRequestParameters?>(null)
-    val flickrRequestParameter: StateFlow<FlickrRequestParameters?> = _flickrRequestParameter
+    private val _flickrRequestParameter = MutableStateFlow<UiState<FlickrRequestParameters>>(UiState.Loading)
+    val flickrRequestParameter: StateFlow<UiState<FlickrRequestParameters>> = _flickrRequestParameter
 
     private val _currentWeather = MutableStateFlow<UiState<CurrentWeather>>(UiState.Loading)
     val currentWeather: StateFlow<UiState<CurrentWeather>> = _currentWeather
@@ -170,10 +171,12 @@ class WeatherInfoViewModel @Inject constructor(
         weatherCondition: WeatherConditionCategory, latitude: Double, longitude: Double, requestDateTime: ZonedDateTime
     ) {
         viewModelScope.launch(Dispatchers.Default) {
-            _flickrRequestParameter.value = FlickrRequestParameters(
-                weatherCondition = weatherCondition, latitude = latitude,
-                longitude = longitude, refreshDateTime = requestDateTime,
-            )
+            _flickrRequestParameter.value = UiState.Success(FlickrRequestParameters(
+                weatherCondition = weatherCondition,
+                latitude = latitude,
+                longitude = longitude,
+                refreshDateTime = requestDateTime,
+            ))
         }
     }
 }
