@@ -2,7 +2,7 @@ package io.github.pknujsp.weatherwizard.core.network.api.nominatim
 
 import io.github.pknujsp.weatherwizard.core.network.datasource.nominatim.response.GeoCodeResponse
 import io.github.pknujsp.weatherwizard.core.network.datasource.nominatim.response.ReverseGeoCodeResponse
-import retrofit2.Response
+import io.github.pknujsp.weatherwizard.core.network.retrofit.NetworkApiResult
 import retrofit2.http.GET
 import retrofit2.http.Header
 import retrofit2.http.Query
@@ -19,7 +19,7 @@ interface NominatimNetworkApi {
         @Query("format") format: String = "geojson",
         @Query("zoom") zoom: Int = 14,
         @Header("Accept-Language") lang: String?
-    ): Response<ReverseGeoCodeResponse>
+    ): NetworkApiResult<ReverseGeoCodeResponse>
 
     //nominatim geocode
     //https://nominatim.openstreetmap.org/search?q=%EB%82%B4%EB%8F%99&format=geojson&addressdetails=1
@@ -29,5 +29,5 @@ interface NominatimNetworkApi {
         @Query("format") format: String = "geojson",
         @Query("addressdetails") addressDetails: Int = 1,
         @Header("Accept-Language") lang: String?
-    ): Response<GeoCodeResponse>
+    ): NetworkApiResult<GeoCodeResponse>
 }

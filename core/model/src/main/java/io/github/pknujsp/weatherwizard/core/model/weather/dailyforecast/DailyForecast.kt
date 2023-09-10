@@ -1,60 +1,71 @@
 package io.github.pknujsp.weatherwizard.core.model.weather.dailyforecast
 
+import androidx.annotation.DrawableRes
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 import io.github.pknujsp.weatherwizard.core.model.UiModel
-import io.github.pknujsp.weatherwizard.core.model.weather.common.DateTimeValueType
 import io.github.pknujsp.weatherwizard.core.model.weather.common.ProbabilityValueType
-import io.github.pknujsp.weatherwizard.core.model.weather.common.TemperatureValueType
 import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherConditionValueType
+import java.time.ZonedDateTime
+import java.time.format.DateTimeFormatter
 
-data class DailyForecast(
-    val dayItems: List<DayItem>
+class DailyForecast(
+    dailyForecastEntity: DailyForecastEntity,
 ) : UiModel {
+    val items: List<Item>
 
-    class DayItem {
-        private val dateTimes: MutableList<DateTimeValueType> = mutableListOf()
-        private val weatherConditions: MutableList<WeatherConditionValueType> = mutableListOf()
-        private val precipitationProbabilities: MutableList<ProbabilityValueType> = mutableListOf()
+    companion object {
+        val itemWidth: Dp = 92.dp
+        val temperatureGraphHeight: Dp = 50.dp
+        private val dateFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("M/d\nE")
 
-        private var _minTemperature: TemperatureValueType? = null
-            set(value) {
-                if (field == null) {
-                    field = value
-                } else {
-                    if (value!!.value < field!!.value) {
-                        field = value
-                    }
+        @DrawableRes val probabilityIcon = io.github.pknujsp.weatherwizard.core.common.R.drawable.pop
+        @DrawableRes val rainfallIcon = io.github.pknujsp.weatherwizard.core.common.R.drawable.raindrop
+        @DrawableRes val snowfallIcon = io.github.pknujsp.weatherwizard.core.common.R.drawable.snowparticle
+    }
+
+    init {
+        items = dailyForecastEntity.items.let { items ->
+            val listMap = mutableMapOf<String, Item>()
+            items.forEachIndexed { i, item ->
+                val date = ZonedDateTime.parse(item.dateTime.value).format(dateFormatter)
+
+                if (!listMap.containsKey(date)) {
+                    listMap[date] = Item(
+                        id = i,
+                        date = date,
+                        minTemperature = item.minTemperature.toString(),
+                        maxTemperature = item.maxTemperature.toString(),
+                        minTemperatureInt = item.minTemperature.value.toInt(),
+                        maxTemperatureInt = item.maxTemperature.value.toInt(),
+                    )
                 }
+                listMap[date]?.add(
+                    item.weatherCondition, item.precipitationProbability)
             }
-        val minTemperature: TemperatureValueType
-            get() = TemperatureValueType(_minTemperature!!.value, _minTemperature!!.unit)
 
-        private var _maxTemperature: TemperatureValueType? = null
-            set(value) {
-                if (field == null) {
-                    field = value
-                } else {
-                    if (value!!.value > field!!.value) {
-                        field = value
-                    }
-                }
-            }
-        val maxTemperature: TemperatureValueType
-            get() = _maxTemperature!!
-
-        fun addValue(
-            dateTime: DateTimeValueType,
-            weatherCondition: WeatherConditionValueType,
-            precipitationProbability: ProbabilityValueType,
-            minTemperature: TemperatureValueType,
-            maxTemperature: TemperatureValueType
-        ) {
-            dateTimes.add(dateTime)
-            weatherConditions.add(weatherCondition)
-            precipitationProbabilities.add(precipitationProbability)
-
-            _minTemperature = minTemperature
-            _maxTemperature = maxTemperature
+            listMap.toList().sortedBy { it.first }.map { it.second }
         }
+    }
 
+
+    class Item(
+        val id: Int,
+        val date: String, val minTemperature: String, val maxTemperature: String,
+        val minTemperatureInt: Int, val maxTemperatureInt: Int
+    ) {
+        private val _weatherConditionIcons: MutableList<Int> = mutableListOf()
+        private val _weatherConditions: MutableList<Int> = mutableListOf()
+        private val _precipitationProbabilities: MutableList<String> = mutableListOf()
+
+        val weatherConditionIcons: List<Int> = _weatherConditionIcons
+        val weatherConditions: List<Int> = _weatherConditions
+        val precipitationProbabilities: List<String> = _precipitationProbabilities
+
+        fun add(weatherCondition: WeatherConditionValueType, precipitationProbability: ProbabilityValueType) {
+            _weatherConditionIcons.add(weatherCondition.value.dayWeatherIcon)
+            _weatherConditions.add(weatherCondition.value.stringRes)
+            _precipitationProbabilities.add(precipitationProbability.toString())
+        }
     }
 }

@@ -1,5 +1,6 @@
 package io.github.pknujsp.weatherwizard.core.data.weather.kma
 
+import io.github.pknujsp.weatherwizard.core.common.util.toLeastZero
 import io.github.pknujsp.weatherwizard.core.data.weather.DefaultValueUnit
 import io.github.pknujsp.weatherwizard.core.data.weather.mapper.WeatherResponseMapper
 import io.github.pknujsp.weatherwizard.core.model.weather.common.DateTimeValueType
@@ -92,7 +93,9 @@ class KmaResponseMapper @Inject constructor() :
                 feelsLikeTemperature = TemperatureValueType(item.feelsLikeTemp, DEFAULT_TEMPERATURE_UNIT),
                 rainfallVolume = RainfallValueType(item.rainVolume, DEFAULT_PRECIPITATION_UNIT),
                 snowfallVolume = SnowfallValueType(item.snowVolume, DEFAULT_PRECIPITATION_UNIT),
-                precipitationVolume = PrecipitationValueType(item.rainVolume + item.snowVolume, DEFAULT_PRECIPITATION_UNIT),
+                precipitationVolume = PrecipitationValueType(if (item.rainVolume.isNaN() and item.snowVolume.isNaN())
+                    PrecipitationValueType.none.value else item.rainVolume.toLeastZero() + item.snowVolume.toLeastZero(),
+                    DEFAULT_PRECIPITATION_UNIT),
                 precipitationProbability = ProbabilityValueType(item.pop, PercentageUnit),
             )
         }

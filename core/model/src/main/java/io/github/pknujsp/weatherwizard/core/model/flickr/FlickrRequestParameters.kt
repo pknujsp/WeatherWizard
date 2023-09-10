@@ -15,9 +15,9 @@ data class FlickrRequestParameters(
     val weatherCondition: WeatherConditionCategory,
     val latitude: Double,
     val longitude: Double,
-    val zoneId: ZoneId,
     val refreshDateTime: ZonedDateTime,
 ) {
+    private val zoneId: ZoneId = refreshDateTime.zone
 
     fun toGetPhotosFromGalleryParameter(): FlickrGetPhotosFromGalleryParameter {
         val lastRefreshDateTime: ZonedDateTime = refreshDateTime.withZoneSameInstant(zoneId)

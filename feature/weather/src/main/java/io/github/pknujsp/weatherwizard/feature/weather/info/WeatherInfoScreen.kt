@@ -1,20 +1,19 @@
 package io.github.pknujsp.weatherwizard.feature.weather.info
 
 
-import android.util.Log
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.navigationBarsPadding
-import androidx.compose.foundation.layout.statusBarsPadding
-import androidx.compose.material3.Text
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
@@ -27,14 +26,12 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
-import io.github.pknujsp.weatherwizard.core.model.onError
 import io.github.pknujsp.weatherwizard.core.model.onLoading
-import io.github.pknujsp.weatherwizard.core.model.onSuccess
 import io.github.pknujsp.weatherwizard.core.ui.lottie.CancellableLoadingScreen
 import io.github.pknujsp.weatherwizard.feature.flickr.FlickrImageItemScreen
 import io.github.pknujsp.weatherwizard.feature.weather.R
 import io.github.pknujsp.weatherwizard.feature.weather.info.currentweather.simple.CurrentWeatherScreen
-import io.github.pknujsp.weatherwizard.feature.weather.info.dailyforecast.DailyForecastScreen
+import io.github.pknujsp.weatherwizard.feature.weather.info.dailyforecast.SimpleDailyForecastScreen
 import io.github.pknujsp.weatherwizard.feature.weather.info.headinfo.HeadInfoScreen
 import io.github.pknujsp.weatherwizard.feature.weather.info.hourlyforecast.simple.HourlyForecastScreen
 
@@ -42,57 +39,46 @@ import io.github.pknujsp.weatherwizard.feature.weather.info.hourlyforecast.simpl
 @Composable
 fun WeatherInfoScreen() {
     val weatherInfoViewModel: WeatherInfoViewModel = hiltViewModel()
-    Log.d("WeatherInfoScreen", "loadAllWeatherData")
+    val backgroundImageUrl by remember { derivedStateOf { mutableStateOf("") } }
+    val weatherInfo by weatherInfoViewModel.weatherDataState.collectAsStateWithLifecycle()
 
-    val backgroundImage = rememberSaveable { mutableStateOf("") }
-    val weatherInfo = weatherInfoViewModel.weatherInfo.collectAsStateWithLifecycle()
-
-    Box(
-        modifier = Modifier
-    ) {
+    Box {
         AsyncImage(
             modifier = Modifier
                 .fillMaxWidth()
                 .fillMaxHeight(),
-            contentScale = ContentScale.FillBounds,
+            contentScale = ContentScale.Crop,
             alignment = Alignment.Center,
             model = ImageRequest.Builder(LocalContext.current)
-                .data(backgroundImage.value)
+                .data(backgroundImageUrl.value)
+                .crossfade(200)
                 .build(),
             contentDescription = stringResource(R.string.background_image),
         )
+
         Column(
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
                 .fillMaxWidth()
                 .fillMaxHeight()
-                .statusBarsPadding()
-                .navigationBarsPadding()
+                .verticalScroll(rememberScrollState()),
         ) {
-            weatherInfo.value.onLoading {
-                weatherInfoViewModel.loadAllWeatherData()
-                CancellableLoadingScreen("날씨 정보를 불러오는 중") {
-
-                }
-            }.onSuccess {
-                HeadInfoScreen(weatherInfoViewModel)
-                CurrentWeatherScreen(weatherInfoViewModel)
-                ItemSpacer(8.dp)
-                FlickrImageItemScreen(weatherInfoViewModel.flickrRequestParameter.value!!) {
-                    backgroundImage.value = it
-                }
-                ItemSpacer()
-                HourlyForecastScreen(weatherInfoViewModel)
-                ItemSpacer()
-                DailyForecastScreen(weatherInfoViewModel)
-                ItemSpacer()
-            }.onError { throwable ->
-                Text(text = throwable.message ?: "Error")
+            HeadInfoScreen(weatherInfoViewModel)
+            CurrentWeatherScreen(weatherInfoViewModel)
+            FlickrImageItemScreen(weatherInfoViewModel.flickrRequestParameter) {
+                backgroundImageUrl.value = it
             }
+            HourlyForecastScreen(weatherInfoViewModel)
+            SimpleDailyForecastScreen(weatherInfoViewModel)
+            Spacer(modifier = Modifier.height(62.dp))
         }
     }
 
+    weatherInfo.onLoading {
+        CancellableLoadingScreen(stringResource(id = io.github.pknujsp.weatherwizard.core.common.R.string.loading_weather_data)) {
+
+        }
+        weatherInfoViewModel.loadAllWeatherData()
+    }
 }
 
 @Composable

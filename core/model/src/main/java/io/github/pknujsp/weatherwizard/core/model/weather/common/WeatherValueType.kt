@@ -439,7 +439,7 @@ data class PrecipitationValueType(
 ) : WeatherValueUnitType<Double, PrecipitationUnit> {
 
     companion object : NoneValue<PrecipitationValueType> {
-        override val none: PrecipitationValueType = PrecipitationValueType(Double.MIN_VALUE, PrecipitationUnit.Millimeter)
+        override val none: PrecipitationValueType = PrecipitationValueType(Double.NaN, PrecipitationUnit.Millimeter)
 
     }
 
@@ -484,11 +484,11 @@ data class PrecipitationValueType(
     }
 
     override fun isNone(): Boolean {
-        return value == Double.MIN_VALUE
+        return value.isNaN()
     }
 
     override fun toStringWithoutUnit(): String {
-        return if (isNone()) "-" else value.toString()
+        return if (isNone()) "" else value.toString()
     }
 }
 

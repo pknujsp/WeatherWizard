@@ -41,4 +41,7 @@ class FlickrImageViewModel @Inject constructor(
             load(this)
         }
     }
+
+
+
 }

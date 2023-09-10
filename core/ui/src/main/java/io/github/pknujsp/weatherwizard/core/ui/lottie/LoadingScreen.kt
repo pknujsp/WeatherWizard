@@ -1,23 +1,26 @@
 package io.github.pknujsp.weatherwizard.core.ui.lottie
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import com.airbnb.lottie.AsyncUpdates
 import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.LottieConstants
@@ -27,11 +30,11 @@ import io.github.pknujsp.weatherwizard.core.ui.R
 
 @Composable
 private fun LoadingScreen(text: String? = null, onDismissRequest: (() -> Unit)? = null, content: @Composable (() -> Unit)? = null) {
-    val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(R.raw.animation_loading))
+    val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(R.raw.animation_lma54law))
     val progress by animateLottieCompositionAsState(composition,
         iterations = LottieConstants.IterateForever,
         reverseOnRepeat = true,
-        speed = 3f)
+        speed = 1.8f)
 
     Dialog(onDismissRequest = {
         onDismissRequest?.invoke()
@@ -46,12 +49,16 @@ private fun LoadingScreen(text: String? = null, onDismissRequest: (() -> Unit)? 
                 .fillMaxWidth()
                 .fillMaxHeight()) {
             LottieAnimation(
-                composition,
+                modifier = Modifier
+                    .height(140.dp)
+                    .align(Alignment.CenterHorizontally),
+                composition = composition,
                 progress = { progress },
+                contentScale = ContentScale.FillHeight,
+                asyncUpdates = AsyncUpdates.ENABLED
             )
             text?.run {
-                Spacer(modifier = Modifier.height(16.dp))
-                Text(text = this, fontSize = 16.sp, color = Color.White)
+                Text(text = this, fontSize = 15.sp, color = Color.White)
             }
             content?.run {
                 Spacer(modifier = Modifier.height(16.dp))
@@ -67,8 +74,11 @@ fun CancellableLoadingScreen(
     onDismissRequest: () -> Unit,
 ) {
     LoadingScreen(text, onDismissRequest) {
-        Button(onClick = { onDismissRequest() }) {
-            Text(text = "취소")
+        TextButton(
+            onClick = { onDismissRequest() },
+            colors = ButtonDefaults.textButtonColors(contentColor = Color.White, disabledContentColor = Color.White),
+        ) {
+            Text(text = stringResource(id = io.github.pknujsp.weatherwizard.core.common.R.string.cancel))
         }
     }
 }

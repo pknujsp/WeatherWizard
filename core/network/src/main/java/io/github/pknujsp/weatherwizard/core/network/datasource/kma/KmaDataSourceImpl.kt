@@ -7,6 +7,7 @@ import io.github.pknujsp.weatherwizard.core.model.weather.kma.parameter.KmaDaily
 import io.github.pknujsp.weatherwizard.core.model.weather.kma.parameter.KmaHourlyForecastRequestParameter
 import io.github.pknujsp.weatherwizard.core.model.weather.kma.parameter.KmaYesterdayWeatherRequestParameter
 import io.github.pknujsp.weatherwizard.core.network.datasource.kma.parser.KmaHtmlParser
+import io.github.pknujsp.weatherwizard.core.network.retrofit.onResult
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
@@ -62,7 +63,7 @@ class KmaDataSourceImpl @Inject constructor(
         }
 
         // 현재날씨
-        val currentResponse = kmaNetworkApi.getCurrentWeather(code = code).onResponse().fold(
+        val currentResponse = kmaNetworkApi.getCurrentWeather(code = code).onResult().fold(
             onSuccess = {
                 val parsed = kmaHtmlParser.parseCurrentConditions(
                     document = WeakReference(Jsoup.parse(it)).get()!!,
@@ -73,7 +74,7 @@ class KmaDataSourceImpl @Inject constructor(
             onFailure = { Result.failure(it) },
         )
 
-        val forecastResponse = kmaNetworkApi.getHourlyAndDailyForecast(code = code).onResponse().fold(
+        val forecastResponse = kmaNetworkApi.getHourlyAndDailyForecast(code = code).onResult().fold(
             onSuccess = {
                 val parsedHourlyForecast = kmaHtmlParser.parseHourlyForecasts(
                     document = WeakReference(

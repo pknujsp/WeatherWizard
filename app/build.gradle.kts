@@ -41,6 +41,8 @@ android {
 
 dependencies {
     implementation(project(":core:ui"))
+    implementation(project(":core:common"))
+    implementation(project(":core:model"))
     implementation(project(":feature:main"))
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.activity)

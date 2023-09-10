@@ -1,7 +1,14 @@
 package io.github.pknujsp.weatherwizard.core.model.weather.hourlyforecast
 
 import androidx.annotation.DrawableRes
+import androidx.annotation.StringRes
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 import io.github.pknujsp.weatherwizard.core.common.util.DayNightCalculator
+import io.github.pknujsp.weatherwizard.core.common.util.toCalendar
 import io.github.pknujsp.weatherwizard.core.model.UiModel
 import io.github.pknujsp.weatherwizard.core.model.weather.common.DateTimeValueType
 import io.github.pknujsp.weatherwizard.core.model.weather.common.HumidityValueType
@@ -13,29 +20,74 @@ import io.github.pknujsp.weatherwizard.core.model.weather.common.TemperatureValu
 import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherConditionValueType
 import io.github.pknujsp.weatherwizard.core.model.weather.common.WindDirectionValueType
 import io.github.pknujsp.weatherwizard.core.model.weather.common.WindSpeedValueType
-import java.util.Calendar
+import java.time.ZonedDateTime
 
-data class HourlyForecast(
-    val items: List<Item>
+class HourlyForecast(
+    val items: List<Item>, val date: Date
 ) : UiModel {
-    class Item(
-        val dateTime: DateTimeValueType,
-        val weatherCondition: WeatherConditionValueType,
-        val temperature: TemperatureValueType,
-        val feelsLikeTemperature: TemperatureValueType,
-        val humidity: HumidityValueType,
-        val windSpeed: WindSpeedValueType,
-        val windDirection: WindDirectionValueType,
-        val rainfallVolume: RainfallValueType = RainfallValueType.none,
-        val snowfallVolume: SnowfallValueType = SnowfallValueType.none,
-        val rainfallProbability: ProbabilityValueType = ProbabilityValueType.none,
-        val snowfallProbability: ProbabilityValueType = ProbabilityValueType.none,
-        val precipitationVolume: PrecipitationValueType,
-        val precipitationProbability: ProbabilityValueType,
-        dayNightCalculator: DayNightCalculator,
-        currentCalendar: Calendar
-    ) {
-        @DrawableRes val weatherIcon: Int =
-            weatherCondition.value.getWeatherIconByTimeOfDay(dayNightCalculator.calculate(currentCalendar) == DayNightCalculator.DayNight.DAY)
+
+    val displayRainfallVolume = items.any { it.rainfallVolume.isNotEmpty() }
+    val displaySnowfallVolume = items.any { it.snowfallVolume.isNotEmpty() }
+    val displayPrecipitationVolume = items.any { it.precipitationVolume.isNotEmpty() }
+
+    companion object {
+        val itemWidth: Dp = 54.dp
+        val temperatureGraphHeight: Dp = 65.dp
     }
+
+    class Date(val items: List<Item>, val firstItemX: Int) : UiModel {
+        class Item(val beginX: Int, val date: String) {
+            var endX: Int = 0
+            var displayX: Int = beginX
+        }
+    }
+
+    class Item(
+        val id: Int,
+        weatherCondition: WeatherConditionValueType,
+        dateTime: DateTimeValueType,
+        temperature: TemperatureValueType,
+        feelsLikeTemperature: TemperatureValueType,
+        humidity: HumidityValueType,
+        windSpeed: WindSpeedValueType,
+        windDirection: WindDirectionValueType,
+        rainfallVolume: RainfallValueType = RainfallValueType.none,
+        snowfallVolume: SnowfallValueType = SnowfallValueType.none,
+        rainfallProbability: ProbabilityValueType = ProbabilityValueType.none,
+        snowfallProbability: ProbabilityValueType = ProbabilityValueType.none,
+        precipitationVolume: PrecipitationValueType,
+        precipitationProbability: ProbabilityValueType,
+        dayNightCalculator: DayNightCalculator,
+    ) : UiModel {
+
+        val temperature: String = temperature.toString()
+        val temperatureInt: Int = temperature.value.toInt()
+        val precipitationProbability: String = precipitationProbability.toString()
+        val precipitationVolume: String = precipitationVolume.toStringWithoutUnit()
+        val rainfallVolume: String = rainfallVolume.toStringWithoutUnit()
+        val snowfallVolume: String = snowfallVolume.toStringWithoutUnit()
+
+        @DrawableRes val weatherIcon: Int
+        val time: String
+        @StringRes val weatherCondition: Int = weatherCondition.value.stringRes
+
+        init {
+            ZonedDateTime.parse(dateTime.value).run {
+                weatherIcon =
+                    weatherCondition.value.getWeatherIconByTimeOfDay(dayNightCalculator.calculate(toCalendar()) == DayNightCalculator.DayNight.DAY)
+                time = hour.toString()
+            }
+        }
+
+        companion object {
+            @DrawableRes val probabilityIcon = io.github.pknujsp.weatherwizard.core.common.R.drawable.pop
+            @DrawableRes val rainfallIcon = io.github.pknujsp.weatherwizard.core.common.R.drawable.raindrop
+            @DrawableRes val snowfallIcon = io.github.pknujsp.weatherwizard.core.common.R.drawable.snowparticle
+            val imageModifier = Modifier
+                .size(14.dp)
+                .padding(end = 4.dp)
+        }
+
+    }
+
 }

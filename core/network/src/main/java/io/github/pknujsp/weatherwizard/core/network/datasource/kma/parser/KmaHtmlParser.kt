@@ -1,6 +1,7 @@
 package io.github.pknujsp.weatherwizard.core.network.datasource.kma.parser
 
 
+import io.github.pknujsp.weatherwizard.core.model.weather.common.PrecipitationValueType
 import io.github.pknujsp.weatherwizard.core.model.weather.common.ProbabilityValueType
 import org.jsoup.nodes.Document
 import java.time.LocalDate
@@ -101,7 +102,7 @@ class KmaHtmlParser @Inject constructor() {
         }
         var precipitationVolume = spans2[2].text().replace(" ", "")
         if (precipitationVolume.contains("-")) {
-            precipitationVolume = "0.0mm"
+            precipitationVolume = "mm"
         }
 
         return ParsedKmaCurrentWeather(
@@ -487,7 +488,9 @@ class KmaHtmlParser @Inject constructor() {
 
     private fun String.toWindSpeed(): Double = replace(mPerS, "").toDoubleOrNull() ?: 0.0
 
-    private fun String.toPrecipitationVolume(): Double = replace(mm, "").replace(cm, "").toDoubleOrNull() ?: 0.0
+    private fun String.toPrecipitationVolume(): Double =
+        replace("0.0", "").replace(mm, "").replace(cm, "").toDoubleOrNull() ?: PrecipitationValueType.none
+            .value
 
     private fun String.toPop(): Int = replace(percent, "").toIntOrNull() ?: ProbabilityValueType.none.value
 }

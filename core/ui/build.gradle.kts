@@ -17,4 +17,5 @@ dependencies {
     implementation(libs.bundles.compose.bom)
     implementation(libs.bundles.lifecycle)
     implementation(libs.lottie)
+    implementation(libs.coil)
 }
