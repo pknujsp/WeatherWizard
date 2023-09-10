@@ -89,12 +89,12 @@ fun HeadInfoScreen(weatherInfoViewModel: WeatherInfoViewModel) {
                 )
             }
         }.onLoading {
-            // placeholder
             PlaceHolder(Modifier
-                .size(100.dp, 32.dp)
+                .size(90.dp, 28.dp)
                 .padding(bottom = 4.dp))
             PlaceHolder(Modifier
-                .size(130.dp, 80.dp))
+                .size(130.dp, 32.dp)
+                .padding(bottom = 80.dp))
         }
     }
 }

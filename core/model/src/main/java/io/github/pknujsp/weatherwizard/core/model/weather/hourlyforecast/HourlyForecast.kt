@@ -84,10 +84,9 @@ class HourlyForecast(
             @DrawableRes val rainfallIcon = io.github.pknujsp.weatherwizard.core.common.R.drawable.raindrop
             @DrawableRes val snowfallIcon = io.github.pknujsp.weatherwizard.core.common.R.drawable.snowparticle
             val imageModifier = Modifier
-                .size(12.dp)
+                .size(14.dp)
                 .padding(end = 4.dp)
         }
-
 
     }
 

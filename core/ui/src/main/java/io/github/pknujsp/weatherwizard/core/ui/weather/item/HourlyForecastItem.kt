@@ -1,7 +1,5 @@
 package io.github.pknujsp.weatherwizard.core.ui.weather.item
 
-import android.content.res.Resources
-import android.util.TypedValue
 import android.widget.Toast
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -19,6 +17,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
@@ -38,7 +37,7 @@ import io.github.pknujsp.weatherwizard.core.ui.SingleGraph
 fun HourlyForecastItem(hourlyForecast: HourlyForecast, lazyListState: LazyListState) {
     val context = LocalContext.current
 
-    val graphHeight = with(LocalDensity.current) {  HourlyForecast.temperatureGraphHeight.toPx() }
+    val graphHeight = with(LocalDensity.current) { HourlyForecast.temperatureGraphHeight.toPx() }
     val linePoints = remember {
         NewGraph(listOf(hourlyForecast.items.map { it.temperatureInt })).createNewGraph(graphHeight)[0]
     }
@@ -79,7 +78,9 @@ private fun Item(
                 .clickable { onClick(weatherConditionText) },
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
+            // 시각
             Text(text = time, style = TextStyle(fontSize = 13.sp, color = Color.White))
+            // 아이콘
             AsyncImage(model = ImageRequest.Builder(LocalContext.current)
                 .data(weatherIcon)
                 .crossfade(false)
@@ -87,6 +88,7 @@ private fun Item(
                 contentDescription = weatherConditionText,
                 modifier = Modifier.padding(4.dp))
 
+            // 강수확률
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Center) {
                 AsyncImage(model = ImageRequest.Builder(LocalContext.current)
                     .data(HourlyForecast.Item.probabilityIcon)
@@ -97,40 +99,67 @@ private fun Item(
                 Text(text = precipitationProbability, style = TextStyle(fontSize = 12.sp, color = Color.White))
             }
 
-            if (hourlyForecast.displayPrecipitationVolume and precipitationVolume.isNotEmpty()) {
-                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Center) {
+            // 강수량
+            if (hourlyForecast.displayPrecipitationVolume) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center) {
                     AsyncImage(model = ImageRequest.Builder(LocalContext.current)
                         .data(HourlyForecast.Item.rainfallIcon)
                         .crossfade(false)
                         .build(),
                         contentDescription = null,
-                        modifier = HourlyForecast.Item.imageModifier)
-                    Text(text = precipitationVolume, style = TextStyle(fontSize = 12.sp, color = Color.White))
+                        modifier = Modifier
+                            .alpha(if (hourlyForecast.displayPrecipitationVolume and precipitationVolume.isNotEmpty()) 1f else
+                                0f)
+                            .then(HourlyForecast.Item.imageModifier))
+                    Text(text = precipitationVolume,
+                        style = TextStyle(fontSize = 12.sp, color = if (hourlyForecast.displayPrecipitationVolume and
+                            precipitationVolume.isNotEmpty()) Color.White else
+                            Color.Transparent))
                 }
             }
-            if (hourlyForecast.displayRainfallVolume and rainfallVolume.isNotEmpty()) {
-                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Center) {
+            // 강우량
+            if (hourlyForecast.displayRainfallVolume) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center) {
                     AsyncImage(model = ImageRequest.Builder(LocalContext.current)
                         .data(HourlyForecast.Item.rainfallIcon)
                         .crossfade(false)
                         .build(),
                         contentDescription = null,
-                        modifier = HourlyForecast.Item.imageModifier)
-                    Text(text = rainfallVolume, style = TextStyle(fontSize = 12.sp, color = Color.White))
+                        modifier = Modifier
+                            .alpha(if (hourlyForecast.displayRainfallVolume and rainfallVolume.isNotEmpty()) 1f else
+                                0f)
+                            .then(HourlyForecast.Item.imageModifier))
+                    Text(text = rainfallVolume, style = TextStyle(fontSize = 12.sp, color = if (hourlyForecast.displayRainfallVolume and
+                        rainfallVolume.isNotEmpty()) Color.White else
+                        Color.Transparent))
                 }
             }
-            if (hourlyForecast.displaySnowfallVolume and snowfallVolume.isNotEmpty()) {
-                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Center) {
+
+            // 강설량
+            if (hourlyForecast.displaySnowfallVolume) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center) {
                     AsyncImage(model = ImageRequest.Builder(LocalContext.current)
                         .data(HourlyForecast.Item.snowfallIcon)
                         .crossfade(false)
                         .build(),
                         contentDescription = null,
-                        modifier = HourlyForecast.Item.imageModifier)
-                    Text(text = snowfallVolume, style = TextStyle(fontSize = 12.sp, color = Color.White))
+                        modifier = Modifier
+                            .alpha(if (hourlyForecast.displaySnowfallVolume and snowfallVolume.isNotEmpty()) 1f else
+                                0f)
+                            .then(HourlyForecast.Item.imageModifier))
+                    Text(text = snowfallVolume, style = TextStyle(fontSize = 12.sp, color = if (hourlyForecast.displaySnowfallVolume and
+                        snowfallVolume.isNotEmpty()) Color.White else
+                        Color.Transparent))
                 }
             }
 
+            // 기온
             SingleGraph(
                 drawInfo = drawInfo,
                 linePoint = linePoint,
