@@ -480,6 +480,12 @@ class KmaHtmlParser @Inject constructor() {
         return conditionDescriptionsMap[description] ?: description
     }
 
+    private fun Document.parseForecastSummary():String{
+        val summary = getElementsByClass("cmp-fct-summary")
+        val summaryText = summary[0].text()
+        return summaryText
+    }
+
     private fun String.toWindDirection(): Int = windDirectionMap[this] ?: 0
 
     private fun String.toTemperature(): Double = toDoubleOrNull() ?: 0.0

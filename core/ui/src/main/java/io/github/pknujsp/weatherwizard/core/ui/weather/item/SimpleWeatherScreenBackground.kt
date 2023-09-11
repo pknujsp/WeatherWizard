@@ -1,4 +1,4 @@
-package io.github.pknujsp.weatherwizard.feature.weather.info
+package io.github.pknujsp.weatherwizard.core.ui.weather.item
 
 
 import androidx.compose.foundation.layout.Column

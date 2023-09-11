@@ -1,23 +1,16 @@
 package io.github.pknujsp.weatherwizard.feature.weather.info.hourlyforecast.simple
 
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.DpSize
-import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.pknujsp.weatherwizard.core.model.onLoading
 import io.github.pknujsp.weatherwizard.core.model.onSuccess
 import io.github.pknujsp.weatherwizard.core.ui.DynamicDateTime
-import io.github.pknujsp.weatherwizard.core.ui.PlaceHolder
+import io.github.pknujsp.weatherwizard.core.ui.weather.item.CardInfo
 import io.github.pknujsp.weatherwizard.core.ui.weather.item.HourlyForecastItem
-import io.github.pknujsp.weatherwizard.feature.weather.info.CardInfo
-import io.github.pknujsp.weatherwizard.feature.weather.info.SimpleWeatherBackgroundPlaceHolder
-import io.github.pknujsp.weatherwizard.feature.weather.info.SimpleWeatherScreenBackground
+import io.github.pknujsp.weatherwizard.core.ui.weather.item.SimpleWeatherBackgroundPlaceHolder
+import io.github.pknujsp.weatherwizard.core.ui.weather.item.SimpleWeatherScreenBackground
 import io.github.pknujsp.weatherwizard.feature.weather.info.WeatherInfoViewModel
 
 

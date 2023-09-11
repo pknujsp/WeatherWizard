@@ -29,6 +29,7 @@ import coil.request.ImageRequest
 import io.github.pknujsp.weatherwizard.core.model.onLoading
 import io.github.pknujsp.weatherwizard.core.ui.lottie.CancellableLoadingScreen
 import io.github.pknujsp.weatherwizard.feature.flickr.FlickrImageItemScreen
+import io.github.pknujsp.weatherwizard.feature.map.MapScreen
 import io.github.pknujsp.weatherwizard.feature.weather.R
 import io.github.pknujsp.weatherwizard.feature.weather.info.currentweather.simple.CurrentWeatherScreen
 import io.github.pknujsp.weatherwizard.feature.weather.info.dailyforecast.SimpleDailyForecastScreen
@@ -69,6 +70,7 @@ fun WeatherInfoScreen() {
             }
             HourlyForecastScreen(weatherInfoViewModel)
             SimpleDailyForecastScreen(weatherInfoViewModel)
+            MapScreen()
             Spacer(modifier = Modifier.height(62.dp))
         }
     }
