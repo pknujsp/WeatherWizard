@@ -39,11 +39,11 @@ import io.github.pknujsp.weatherwizard.feature.weather.info.hourlyforecast.simpl
 @Preview(showBackground = true, backgroundColor = 0xFFFFFFFF)
 @Composable
 fun WeatherInfoScreen() {
-    val weatherInfoViewModel: WeatherInfoViewModel = hiltViewModel()
-    val backgroundImageUrl by remember { derivedStateOf { mutableStateOf("") } }
-    val weatherInfo by weatherInfoViewModel.weatherDataState.collectAsStateWithLifecycle()
-
     Box {
+        val weatherInfoViewModel: WeatherInfoViewModel = hiltViewModel()
+        val backgroundImageUrl by remember { derivedStateOf { mutableStateOf("") } }
+        val weatherInfo by weatherInfoViewModel.weatherDataState.collectAsStateWithLifecycle()
+
         AsyncImage(
             modifier = Modifier
                 .fillMaxWidth()
@@ -73,14 +73,15 @@ fun WeatherInfoScreen() {
             MapScreen()
             Spacer(modifier = Modifier.height(62.dp))
         }
-    }
 
-    weatherInfo.onLoading {
-        CancellableLoadingScreen(stringResource(id = io.github.pknujsp.weatherwizard.core.common.R.string.loading_weather_data)) {
-
+        weatherInfo.onLoading {
+            CancellableLoadingScreen(stringResource(id = io.github.pknujsp.weatherwizard.core.common.R.string.loading_weather_data)) {
+            }
+            weatherInfoViewModel.loadAllWeatherData()
         }
-        weatherInfoViewModel.loadAllWeatherData()
     }
+
+
 }
 
 @Composable

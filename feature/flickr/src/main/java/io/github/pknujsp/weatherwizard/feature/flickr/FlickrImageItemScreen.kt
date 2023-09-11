@@ -44,31 +44,33 @@ fun FlickrImageItemScreen(
     onLoadedImage: (String) -> Unit
 ) {
     val viewModel: FlickrImageViewModel = hiltViewModel()
+    val flickerImageEntity by viewModel.image.collectAsStateWithLifecycle()
+
     val context = LocalContext.current
     var imageUrl by remember {
         mutableStateOf(context.getString(io.github.pknujsp.weatherwizard.feature.flickr.R.string
             .loading_image))
     }
 
-    val requestParameter by parameterFlow.collectAsStateWithLifecycle()
-    val flickerImageEntity by viewModel.image.collectAsStateWithLifecycle()
 
     flickerImageEntity.onSuccess {
         imageUrl = it.imageUrl
         onLoadedImage(it.imageUrl)
     }.onError {
         imageUrl = stringResource(id = R.string.reload)
+    }.onLoading {
+        val requestParameter by parameterFlow.collectAsStateWithLifecycle()
+        requestParameter.onLoading {
+            PlaceHolder(modifier = Modifier
+                .fillMaxWidth()
+                .height(13.dp)
+                .padding(start = 84.dp, end = 14.dp, top = 6.dp))
+        }.onSuccess {
+            viewModel.load(it)
+            UrlItem(url = imageUrl, onClick = { viewModel.reload() })
+        }
     }
 
-    requestParameter.onLoading {
-        PlaceHolder(modifier = Modifier
-            .fillMaxWidth()
-            .height(13.dp)
-            .padding(start = 84.dp, end = 14.dp, top = 6.dp))
-    }.onSuccess {
-        viewModel.load(it)
-        UrlItem(url = imageUrl, onClick = { viewModel.reload() })
-    }
 }
 
 @Composable

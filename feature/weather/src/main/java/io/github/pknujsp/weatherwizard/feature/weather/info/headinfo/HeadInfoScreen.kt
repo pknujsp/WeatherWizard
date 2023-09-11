@@ -42,14 +42,14 @@ import java.time.format.DateTimeFormatter
 
 @Composable
 fun HeadInfoScreen(weatherInfoViewModel: WeatherInfoViewModel) {
-    val headInfo by weatherInfoViewModel.reverseGeoCode.collectAsStateWithLifecycle()
-
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .statusBarsPadding()
             .padding(top = 48.dp, bottom = 80.dp, start = 12.dp, end = 60.dp),
     ) {
+        val headInfo by weatherInfoViewModel.reverseGeoCode.collectAsStateWithLifecycle()
+
         headInfo.onSuccess {
             Text(
                 text = listOf(

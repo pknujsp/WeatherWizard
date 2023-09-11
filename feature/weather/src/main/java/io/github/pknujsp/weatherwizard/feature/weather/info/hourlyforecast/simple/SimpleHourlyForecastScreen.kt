@@ -17,7 +17,6 @@ import io.github.pknujsp.weatherwizard.feature.weather.info.WeatherInfoViewModel
 @Composable
 fun HourlyForecastScreen(weatherInfoViewModel: WeatherInfoViewModel) {
     val hourlyForecast by weatherInfoViewModel.hourlyForecast.collectAsStateWithLifecycle()
-    val lazyListState = rememberLazyListState()
 
     hourlyForecast.onLoading {
         SimpleWeatherBackgroundPlaceHolder()
@@ -28,6 +27,8 @@ fun HourlyForecastScreen(weatherInfoViewModel: WeatherInfoViewModel) {
                 "자세히" to { },
             ),
             content = {
+                val lazyListState = rememberLazyListState()
+
                 DynamicDateTime(it, lazyListState)
                 HourlyForecastItem(hourlyForecast = it, lazyListState)
             }))
