@@ -32,7 +32,68 @@ import org.osmdroid.views.MapView
 @SuppressLint("ClickableViewAccessibility")
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
-fun MapScreen(requestWeatherDataArgs: () -> StateFlow<UiState<RequestWeatherDataArgs>>) {
+private fun MapScreen(latitude: Double, longitude: Double) {
+
+    val viewModel = hiltViewModel<RainViewerViewModel>()
+    val coroutineScope = rememberCoroutineScope()
+
+    AndroidView(modifier = Modifier
+        .fillMaxSize(), factory = { context ->
+        Configuration.getInstance().run {
+            load(context, PreferenceManager.getDefaultSharedPreferences(context))
+            userAgentValue = context.packageName
+            animationSpeedShort = 230
+            animationSpeedDefault = 230
+            isMapViewHardwareAccelerated = true
+        }
+
+        MapView(context).apply {
+            clipToOutline = true
+            setBackgroundResource(R.drawable.map_background)
+            setTileSource(org.osmdroid.tileprovider.tilesource.TileSourceFactory.MAPNIK)
+
+            /*
+            overlays.add(MyLocationNewOverlay(GpsMyLocationProvider(context).apply {
+                startLocationProvider { location, _ ->
+
+                }
+            }, this).apply {
+                enableMyLocation()
+                isEnabled = true
+            })
+
+             */
+            maxZoomLevel = viewModel.maxZoomLevel.toDouble()
+            minZoomLevel = viewModel.minZoomLevel.toDouble()
+            setMultiTouchControls(true)
+            zoomController.setVisibility(org.osmdroid.views.CustomZoomButtonsController.Visibility.NEVER)
+            isTilesScaledToDpi = false
+            isHorizontalMapRepetitionEnabled = false
+            isVerticalMapRepetitionEnabled = false
+
+            setOnTouchListener { v, _ ->
+                v.parent.requestDisallowInterceptTouchEvent(true)
+                false
+            }
+
+            coroutineScope.launch {
+                viewModel.radarTiles.collect { overlayUiState ->
+                    overlayUiState.onSuccess {
+                        overlays.add(it.overlays[it.currentIndex])
+                    }
+                }
+            }
+
+            controller.animateTo(org.osmdroid.util.GeoPoint(latitude, longitude), 6.0, 0)
+        }
+    }, update = {
+        it.onResume()
+    })
+
+}
+
+@Composable
+fun SimpleMapScreen(requestWeatherDataArgs: () -> StateFlow<UiState<RequestWeatherDataArgs>>) {
     val state by requestWeatherDataArgs().collectAsStateWithLifecycle()
 
     state.onLoading {
@@ -43,64 +104,8 @@ fun MapScreen(requestWeatherDataArgs: () -> StateFlow<UiState<RequestWeatherData
                 .fillMaxWidth()
                 .padding(horizontal = 12.dp)
                 .height(230.dp)) {
-                val viewModel = hiltViewModel<RainViewerViewModel>()
-                val coroutineScope = rememberCoroutineScope()
-
-                AndroidView(modifier = Modifier
-                    .fillMaxSize(), factory = { context ->
-                    Configuration.getInstance().run {
-                        load(context, PreferenceManager.getDefaultSharedPreferences(context))
-                        userAgentValue = context.packageName
-                        animationSpeedShort = 230
-                        animationSpeedDefault = 230
-                        isMapViewHardwareAccelerated = true
-                    }
-
-                    MapView(context).apply {
-                        clipToOutline = true
-                        setBackgroundResource(R.drawable.map_background)
-                        setTileSource(org.osmdroid.tileprovider.tilesource.TileSourceFactory.MAPNIK)
-
-                        /*
-                        overlays.add(MyLocationNewOverlay(GpsMyLocationProvider(context).apply {
-                            startLocationProvider { location, _ ->
-
-                            }
-                        }, this).apply {
-                            enableMyLocation()
-                            isEnabled = true
-                        })
-
-                         */
-                        maxZoomLevel = viewModel.maxZoomLevel.toDouble()
-                        minZoomLevel = viewModel.minZoomLevel.toDouble()
-                        setMultiTouchControls(true)
-                        zoomController.setVisibility(org.osmdroid.views.CustomZoomButtonsController.Visibility.NEVER)
-                        isTilesScaledToDpi = false
-                        isHorizontalMapRepetitionEnabled = false
-                        isVerticalMapRepetitionEnabled = false
-
-                        setOnTouchListener { v, _ ->
-                            v.parent.requestDisallowInterceptTouchEvent(true)
-                            false
-                        }
-
-                        coroutineScope.launch {
-                            viewModel.radarTiles.collect { overlayUiState ->
-                                overlayUiState.onSuccess {
-                                    overlays.add(it.overlays[it.currentIndex])
-                                }
-                            }
-                        }
-
-                        controller.animateTo(org.osmdroid.util.GeoPoint(it.latitude, it.longitude), 6.0, 0)
-                    }
-                }, update = {
-                    it.onResume()
-                })
+                MapScreen(it.latitude, it.longitude)
             }
-
         })
     }
-
 }

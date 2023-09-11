@@ -5,8 +5,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.github.pknujsp.weatherwizard.core.common.util.DayNightCalculator
-import io.github.pknujsp.weatherwizard.core.common.util.toCalendar
-import io.github.pknujsp.weatherwizard.core.common.util.toTimeZone
 import io.github.pknujsp.weatherwizard.core.data.nominatim.NominatimRepository
 import io.github.pknujsp.weatherwizard.core.domain.weather.GetAllWeatherDataUseCase
 import io.github.pknujsp.weatherwizard.core.model.UiState
@@ -39,8 +37,8 @@ class WeatherInfoViewModel @Inject constructor(
     private val _weatherDataState = MutableStateFlow<UiState<Unit>>(UiState.Loading)
     val weatherDataState: StateFlow<UiState<Unit>> = _weatherDataState
 
-    private val _coordinate = MutableStateFlow<UiState<RequestWeatherDataArgs>>(UiState.Loading)
-    val coordinate: StateFlow<UiState<RequestWeatherDataArgs>> = _coordinate
+    private val _requestArgs = MutableStateFlow<UiState<RequestWeatherDataArgs>>(UiState.Loading)
+    val requestArgs: StateFlow<UiState<RequestWeatherDataArgs>> = _requestArgs
 
     private val _reverseGeoCode = MutableStateFlow<UiState<ReverseGeoCode>>(UiState.Loading)
     val reverseGeoCode: StateFlow<UiState<ReverseGeoCode>> = _reverseGeoCode
@@ -70,7 +68,7 @@ class WeatherInfoViewModel @Inject constructor(
                     weatherDataProvider,
                     requestId).onSuccess { allWeatherDataEntity ->
 
-                    _coordinate.value = UiState.Success(requestWeatherDataArgs)
+                    _requestArgs.value = UiState.Success(requestWeatherDataArgs)
                     createFlickrRequestParameter(allWeatherDataEntity.currentWeatherEntity.weatherCondition.value, latitude, longitude,
                         requestDateTime)
                     createCurrentWeatherUiModel(allWeatherDataEntity.currentWeatherEntity, dayNightCalculator, currentCalendar)

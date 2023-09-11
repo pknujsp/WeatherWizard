@@ -29,7 +29,7 @@ import io.github.pknujsp.weatherwizard.core.model.onLoading
 import io.github.pknujsp.weatherwizard.core.model.weather.RequestWeatherDataArgs
 import io.github.pknujsp.weatherwizard.core.ui.lottie.CancellableLoadingScreen
 import io.github.pknujsp.weatherwizard.feature.flickr.FlickrImageItemScreen
-import io.github.pknujsp.weatherwizard.feature.map.MapScreen
+import io.github.pknujsp.weatherwizard.feature.map.SimpleMapScreen
 import io.github.pknujsp.weatherwizard.feature.weather.R
 import io.github.pknujsp.weatherwizard.feature.weather.info.currentweather.simple.CurrentWeatherScreen
 import io.github.pknujsp.weatherwizard.feature.weather.info.dailyforecast.SimpleDailyForecastScreen
@@ -64,12 +64,12 @@ fun WeatherInfoScreen(args: () -> RequestWeatherDataArgs) {
         ) {
             HeadInfoScreen(weatherInfoViewModel)
             CurrentWeatherScreen(weatherInfoViewModel)
-            FlickrImageItemScreen(weatherInfoViewModel.flickrRequestParameter) {
+            FlickrImageItemScreen({ weatherInfoViewModel.flickrRequestParameter }) {
                 backgroundImageUrl.value = it
             }
             HourlyForecastScreen(weatherInfoViewModel)
             SimpleDailyForecastScreen(weatherInfoViewModel)
-            MapScreen { weatherInfoViewModel.coordinate }
+            SimpleMapScreen { weatherInfoViewModel.requestArgs }
             Spacer(modifier = Modifier.height(62.dp))
         }
 

@@ -40,7 +40,7 @@ import kotlinx.coroutines.flow.StateFlow
 
 @Composable
 fun FlickrImageItemScreen(
-    parameterFlow: StateFlow<UiState<FlickrRequestParameters>>,
+    parameterFlow: () -> StateFlow<UiState<FlickrRequestParameters>>,
     onLoadedImage: (String) -> Unit
 ) {
     val viewModel: FlickrImageViewModel = hiltViewModel()
@@ -52,14 +52,13 @@ fun FlickrImageItemScreen(
             .loading_image))
     }
 
-
     flickerImageEntity.onSuccess {
         imageUrl = it.imageUrl
         onLoadedImage(it.imageUrl)
     }.onError {
         imageUrl = stringResource(id = R.string.reload)
     }.onLoading {
-        val requestParameter by parameterFlow.collectAsStateWithLifecycle()
+        val requestParameter by parameterFlow().collectAsStateWithLifecycle()
         requestParameter.onLoading {
             PlaceHolder(modifier = Modifier
                 .fillMaxWidth()
