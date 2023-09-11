@@ -15,8 +15,10 @@ import androidx.preference.PreferenceManager
 import io.github.pknujsp.weatherwizard.core.ui.weather.item.CardInfo
 import io.github.pknujsp.weatherwizard.core.ui.weather.item.SimpleWeatherScreenBackground
 import org.osmdroid.config.Configuration
+import org.osmdroid.events.MapListener
+import org.osmdroid.events.ScrollEvent
+import org.osmdroid.events.ZoomEvent
 import org.osmdroid.views.MapView
-import org.osmdroid.views.overlay.gestures.RotationGestureOverlay
 import org.osmdroid.views.overlay.mylocation.GpsMyLocationProvider
 import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay
 
@@ -53,18 +55,29 @@ fun MapScreen() {
                         enableMyLocation()
                         isEnabled = true
                     })
-                    overlays.add(RotationGestureOverlay(this).apply {
-                        isEnabled = false
-                    })
-
                     minZoomLevel = 2.0
                     setMultiTouchControls(true)
                     zoomController.setVisibility(org.osmdroid.views.CustomZoomButtonsController.Visibility.NEVER)
                     isTilesScaledToDpi = true
+
                     setOnTouchListener { v, _ ->
                         v.parent.requestDisallowInterceptTouchEvent(true)
                         false
                     }
+                    addMapListener(
+                        object : MapListener {
+                            override fun onScroll(event: ScrollEvent?): Boolean {
+                                event?.source?.mapCenter?.run {
+
+                                }
+                                return true
+                            }
+
+                            override fun onZoom(event: ZoomEvent?): Boolean {
+                                return true
+                            }
+                        }
+                    )
                 }
             }, update = {
                 it.onResume()
