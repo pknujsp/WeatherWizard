@@ -1,4 +1,4 @@
-package io.github.pknujsp.weatherwizard.core.network.datasource.rainviewer
+package io.github.pknujsp.weatherwizard.core.network.api.rainviewer
 
 import io.github.pknujsp.weatherwizard.core.network.ApiResponseModel
 import kotlinx.serialization.SerialName

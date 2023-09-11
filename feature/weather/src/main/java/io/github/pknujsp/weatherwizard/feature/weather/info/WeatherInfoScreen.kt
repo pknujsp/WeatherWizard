@@ -19,7 +19,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -27,6 +26,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import io.github.pknujsp.weatherwizard.core.model.onLoading
+import io.github.pknujsp.weatherwizard.core.model.weather.RequestWeatherDataArgs
 import io.github.pknujsp.weatherwizard.core.ui.lottie.CancellableLoadingScreen
 import io.github.pknujsp.weatherwizard.feature.flickr.FlickrImageItemScreen
 import io.github.pknujsp.weatherwizard.feature.map.MapScreen
@@ -36,9 +36,8 @@ import io.github.pknujsp.weatherwizard.feature.weather.info.dailyforecast.Simple
 import io.github.pknujsp.weatherwizard.feature.weather.info.headinfo.HeadInfoScreen
 import io.github.pknujsp.weatherwizard.feature.weather.info.hourlyforecast.simple.HourlyForecastScreen
 
-@Preview(showBackground = true, backgroundColor = 0xFFFFFFFF)
 @Composable
-fun WeatherInfoScreen() {
+fun WeatherInfoScreen(args: () -> RequestWeatherDataArgs) {
     Box {
         val weatherInfoViewModel: WeatherInfoViewModel = hiltViewModel()
         val backgroundImageUrl by remember { derivedStateOf { mutableStateOf("") } }
@@ -70,14 +69,14 @@ fun WeatherInfoScreen() {
             }
             HourlyForecastScreen(weatherInfoViewModel)
             SimpleDailyForecastScreen(weatherInfoViewModel)
-            MapScreen()
+            MapScreen { weatherInfoViewModel.coordinate }
             Spacer(modifier = Modifier.height(62.dp))
         }
 
         weatherInfo.onLoading {
             CancellableLoadingScreen(stringResource(id = io.github.pknujsp.weatherwizard.core.common.R.string.loading_weather_data)) {
             }
-            weatherInfoViewModel.loadAllWeatherData()
+            weatherInfoViewModel.loadAllWeatherData(args())
         }
     }
 

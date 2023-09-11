@@ -12,8 +12,8 @@ import io.github.pknujsp.weatherwizard.core.domain.weather.GetAllWeatherDataUseC
 import io.github.pknujsp.weatherwizard.core.model.UiState
 import io.github.pknujsp.weatherwizard.core.model.flickr.FlickrRequestParameters
 import io.github.pknujsp.weatherwizard.core.model.nominatim.ReverseGeoCode
+import io.github.pknujsp.weatherwizard.core.model.weather.RequestWeatherDataArgs
 import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherConditionCategory
-import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherDataProvider
 import io.github.pknujsp.weatherwizard.core.model.weather.current.CurrentWeather
 import io.github.pknujsp.weatherwizard.core.model.weather.current.CurrentWeatherEntity
 import io.github.pknujsp.weatherwizard.core.model.weather.dailyforecast.DailyForecast
@@ -24,7 +24,6 @@ import io.github.pknujsp.weatherwizard.core.model.weather.yesterday.YesterdayWea
 import io.github.pknujsp.weatherwizard.core.model.weather.yesterday.YesterdayWeatherEntity
 import io.github.pknujsp.weatherwizard.core.ui.weather.item.DynamicDateTimeUiCreator
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -39,6 +38,9 @@ class WeatherInfoViewModel @Inject constructor(
 
     private val _weatherDataState = MutableStateFlow<UiState<Unit>>(UiState.Loading)
     val weatherDataState: StateFlow<UiState<Unit>> = _weatherDataState
+
+    private val _coordinate = MutableStateFlow<UiState<RequestWeatherDataArgs>>(UiState.Loading)
+    val coordinate: StateFlow<UiState<RequestWeatherDataArgs>> = _coordinate
 
     private val _reverseGeoCode = MutableStateFlow<UiState<ReverseGeoCode>>(UiState.Loading)
     val reverseGeoCode: StateFlow<UiState<ReverseGeoCode>> = _reverseGeoCode
@@ -58,32 +60,28 @@ class WeatherInfoViewModel @Inject constructor(
     private val _yesterdayWeather = MutableStateFlow<UiState<YesterdayWeather>>(UiState.Loading)
     val yesterdayWeather: StateFlow<UiState<YesterdayWeather>> = _yesterdayWeather
 
-    fun loadAllWeatherData() {
+    fun loadAllWeatherData(requestWeatherDataArgs: RequestWeatherDataArgs) {
         viewModelScope.launch(Dispatchers.IO) {
-            val latitude = 35.236323256911774
-            val longitude = 128.86341167027018
-            val weatherDataProvider = WeatherDataProvider.Kma
-            val requestDateTime = ZonedDateTime.now()
+            requestWeatherDataArgs.run {
+                reverseGeoCode(latitude, longitude)
 
-            reverseGeoCode(latitude, longitude)
+                getAllWeatherDataUseCase(latitude,
+                    longitude,
+                    weatherDataProvider,
+                    requestId).onSuccess { allWeatherDataEntity ->
 
-            getAllWeatherDataUseCase(latitude,
-                longitude,
-                weatherDataProvider,
-                requestId = System.nanoTime()).onSuccess { allWeatherDataEntity ->
-                val dayNightCalculator = DayNightCalculator(latitude, longitude, requestDateTime.toTimeZone())
-                val currentCalendar = requestDateTime.toCalendar()
+                    _coordinate.value = UiState.Success(requestWeatherDataArgs)
+                    createFlickrRequestParameter(allWeatherDataEntity.currentWeatherEntity.weatherCondition.value, latitude, longitude,
+                        requestDateTime)
+                    createCurrentWeatherUiModel(allWeatherDataEntity.currentWeatherEntity, dayNightCalculator, currentCalendar)
+                    createHourlyForecastUiModel(allWeatherDataEntity.hourlyForecastEntity, dayNightCalculator)
+                    createDailyForecastUiModel(allWeatherDataEntity.dailyForecastEntity)
+                    createYesterdayWeatherUiModel(allWeatherDataEntity.yesterdayWeatherEntity)
 
-                createFlickrRequestParameter(allWeatherDataEntity.currentWeatherEntity.weatherCondition.value, latitude, longitude,
-                    requestDateTime)
-                createCurrentWeatherUiModel(allWeatherDataEntity.currentWeatherEntity, dayNightCalculator, currentCalendar)
-                createHourlyForecastUiModel(allWeatherDataEntity.hourlyForecastEntity, dayNightCalculator)
-                createDailyForecastUiModel(allWeatherDataEntity.dailyForecastEntity)
-                createYesterdayWeatherUiModel(allWeatherDataEntity.yesterdayWeatherEntity)
-
-                _weatherDataState.value = UiState.Success(Unit)
-            }.onFailure {
-                _weatherDataState.value = UiState.Error(it)
+                    _weatherDataState.value = UiState.Success(Unit)
+                }.onFailure {
+                    _weatherDataState.value = UiState.Error(it)
+                }
             }
         }
     }

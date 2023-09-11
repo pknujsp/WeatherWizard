@@ -8,20 +8,10 @@ import kotlinx.serialization.Serializable
 data class RadarTiles(
     val generated: Int,
     val host: String,
-    val radar: Radar,
-    val satellite: Satellite,
+    val currentIndex:Int,
+    val radar: List<Data>,
     val version: String
 ) : UiModel {
-
-    data class Radar(
-        val nowcast: List<Data>, val past: List<Data>
-    )
-
-
-    data class Satellite(
-        val infrared: List<Data>
-    )
-
 
     data class Data(
         val path: String, val time: Int

@@ -6,10 +6,13 @@ import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import io.github.pknujsp.weatherwizard.core.data.nominatim.NominatimRepository
 import io.github.pknujsp.weatherwizard.core.data.nominatim.NominatimRepositoryImpl
+import io.github.pknujsp.weatherwizard.core.data.rainviewer.RadarTilesRepository
+import io.github.pknujsp.weatherwizard.core.data.rainviewer.RadarTilesRepositoryImpl
 import io.github.pknujsp.weatherwizard.core.data.weather.WeatherDataRepository
 import io.github.pknujsp.weatherwizard.core.data.weather.WeatherDataRepositoryImpl
 import io.github.pknujsp.weatherwizard.core.data.weather.mapper.WeatherResponseMapperManager
 import io.github.pknujsp.weatherwizard.core.data.weather.request.WeatherApiRequestManager
+import io.github.pknujsp.weatherwizard.core.network.api.rainviewer.RainViewerDataSource
 import io.github.pknujsp.weatherwizard.core.network.datasource.nominatim.NominatimDataSource
 import javax.inject.Singleton
 
@@ -30,4 +33,9 @@ object RepositoryModule {
     @Singleton
     fun providesNominatimRepository(nominatimDataSource: NominatimDataSource): NominatimRepository =
         NominatimRepositoryImpl(nominatimDataSource)
+
+    @Provides
+    @Singleton
+    fun providesRadartilesRepository(rainViewerDataSource: RainViewerDataSource): RadarTilesRepository =
+        RadarTilesRepositoryImpl(rainViewerDataSource)
 }
