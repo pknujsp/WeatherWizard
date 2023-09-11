@@ -92,8 +92,9 @@ fun HeadInfoScreen(weatherInfoViewModel: WeatherInfoViewModel) {
             PlaceHolder(Modifier
                 .size(90.dp, 28.dp)
                 .padding(bottom = 4.dp))
+
             PlaceHolder(Modifier
-                .size(130.dp, 32.dp)
+                .size(160.dp, 32.dp)
                 .padding(bottom = 80.dp))
         }
     }

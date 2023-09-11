@@ -6,6 +6,8 @@ import org.osmdroid.tileprovider.MapTileProviderBasic
 import org.osmdroid.tileprovider.tilesource.OnlineTileSourceBase
 import org.osmdroid.util.MapTileIndex
 import org.osmdroid.views.overlay.TilesOverlay
+import java.time.Instant
+import java.time.ZonedDateTime
 
 class RadarTilesOverlay(
     context: Context,
@@ -16,8 +18,27 @@ class RadarTilesOverlay(
     optionColorScheme: Int,
     optionSmoothData: Int,
     optionSnowColors: Int,
+    requestTime: ZonedDateTime,
     val currentIndex: Int = radarTiles.currentIndex
 ) {
+
+    val times: List<String> = radarTiles.radar.run {
+        val timeZone = requestTime.zone
+        val dateTimeFormatter = java.time.format.DateTimeFormatter.ofPattern("M/d E HH:mm")
+        val past = context.getString(R.string.past)
+        val now = context.getString(R.string.now)
+        val future = context.getString(R.string.future)
+
+        var pointInTime: String
+        mapIndexed { index, it ->
+            ZonedDateTime.ofInstant(Instant.ofEpochSecond(it.time.toLong()), timeZone).let { time ->
+                pointInTime = if (index == currentIndex) now
+                else if (time.isAfter(requestTime)) future
+                else past
+                "$pointInTime ${time.format(dateTimeFormatter)}"
+            }
+        }
+    }
 
     val overlays: List<TilesOverlay> = radarTiles.run {
         radar.mapIndexed { index, it ->

@@ -18,7 +18,6 @@ data class RainViewerResponse(
     )
 
     @Serializable
-
     data class Satellite(
         @SerialName("infrared") val infrared: List<Data>
     )

@@ -12,24 +12,21 @@ class RadarTilesRepositoryImpl @Inject constructor(
     private val cache = LruCache<Int, RadarTiles>(1)
 
     override suspend fun getTiles(): Result<RadarTiles> {
-
-
         return rainViewerDataSource.getJson().map {
             if (it.generated in cache.snapshot().keys) {
                 return@map cache[it.generated]
             }
-
             RadarTiles(
                 it.generated,
                 it.host,
-                currentIndex = it.radar.past.size - 1,
+                currentIndex = it.radar.past.size,
                 it.run { radar.past + radar.nowcast }.map { data ->
                     RadarTiles.Data(
                         data.path,
                         data.time
                     )
                 },
-                it.version
+                it.version,
             ).apply {
                 cache.put(generated, this)
             }

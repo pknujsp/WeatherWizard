@@ -43,32 +43,38 @@ fun FlickrImageItemScreen(
     parameterFlow: () -> StateFlow<UiState<FlickrRequestParameters>>,
     onLoadedImage: (String) -> Unit
 ) {
-    val viewModel: FlickrImageViewModel = hiltViewModel()
-    val flickerImageEntity by viewModel.image.collectAsStateWithLifecycle()
+    val requestParameter by parameterFlow().collectAsStateWithLifecycle()
+    requestParameter.onLoading {
+        PlaceHolder(modifier = Modifier
+            .fillMaxWidth()
+            .height(13.dp)
+            .padding(start = 84.dp, end = 14.dp, top = 6.dp))
+    }.onSuccess { requestParameters ->
+        val viewModel: FlickrImageViewModel = hiltViewModel()
+        viewModel.load(requestParameters)
 
-    val context = LocalContext.current
-    var imageUrl by remember {
-        mutableStateOf(context.getString(io.github.pknujsp.weatherwizard.feature.flickr.R.string
-            .loading_image))
-    }
-
-    flickerImageEntity.onSuccess {
-        imageUrl = it.imageUrl
-        onLoadedImage(it.imageUrl)
-    }.onError {
-        imageUrl = stringResource(id = R.string.reload)
-    }.onLoading {
-        val requestParameter by parameterFlow().collectAsStateWithLifecycle()
-        requestParameter.onLoading {
-            PlaceHolder(modifier = Modifier
-                .fillMaxWidth()
-                .height(13.dp)
-                .padding(start = 84.dp, end = 14.dp, top = 6.dp))
-        }.onSuccess {
-            viewModel.load(it)
-            UrlItem(url = imageUrl, onClick = { viewModel.reload() })
+        val flickerImageEntity by viewModel.image.collectAsStateWithLifecycle()
+        val context = LocalContext.current
+        var imageUrl by remember {
+            mutableStateOf("")
         }
+
+        flickerImageEntity.onSuccess {
+            imageUrl = it.imageUrl
+            onLoadedImage(it.imageUrl)
+        }.onError {
+            imageUrl = stringResource(id = R.string.reload)
+        }.onLoading {
+            imageUrl = stringResource(io.github.pknujsp.weatherwizard.feature.flickr.R.string
+                .loading_image)
+        }
+
+        UrlItem(url = imageUrl, onClick = {
+            if (imageUrl.isNotEmpty())
+                viewModel.reload()
+        })
     }
+
 
 }
 
