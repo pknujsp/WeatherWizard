@@ -45,7 +45,6 @@ import io.github.pknujsp.weatherwizard.core.model.weather.RequestWeatherDataArgs
 import io.github.pknujsp.weatherwizard.core.ui.weather.item.CardInfo
 import io.github.pknujsp.weatherwizard.core.ui.weather.item.SimpleWeatherBackgroundPlaceHolder
 import io.github.pknujsp.weatherwizard.core.ui.weather.item.SimpleWeatherScreenBackground
-import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
@@ -68,29 +67,25 @@ private fun MapScreen(latitude: Double, longitude: Double, radarAdapter: RadarAd
             userAgentValue = context.packageName
             animationSpeedShort = 230
             animationSpeedDefault = 230
+            tileDownloadThreads = 3
             isMapViewHardwareAccelerated = true
+            cacheMapTileOvershoot = (12).toShort()
+            cacheMapTileCount = (12).toShort()
         }
 
         MapView(context).apply {
             clipToOutline = true
             setBackgroundResource(R.drawable.map_background)
             setTileSource(org.osmdroid.tileprovider.tilesource.TileSourceFactory.MAPNIK)
+            tileProvider.tileCache.setStressedMemory(true)
+            tileProvider.tileCache.ensureCapacity(10000)
+            forceHasOverlappingRendering(true)
 
-            /*
-            overlays.add(MyLocationNewOverlay(GpsMyLocationProvider(context).apply {
-                startLocationProvider { location, _ ->
-
-                }
-            }, this).apply {
-                enableMyLocation()
-                isEnabled = true
-            })
-
-             */
             maxZoomLevel = viewModel.maxZoomLevel.toDouble()
             minZoomLevel = viewModel.minZoomLevel.toDouble()
             setMultiTouchControls(true)
             zoomController.setVisibility(org.osmdroid.views.CustomZoomButtonsController.Visibility.NEVER)
+
             isTilesScaledToDpi = false
             isHorizontalMapRepetitionEnabled = true
             isVerticalMapRepetitionEnabled = true
@@ -100,32 +95,32 @@ private fun MapScreen(latitude: Double, longitude: Double, radarAdapter: RadarAd
                 false
             }
 
+            radarAdapter.setRadarController(adapterScope, viewModel)
+
             radarScope.launch {
                 viewModel.timePosition.combine(viewModel.radarTiles) { time, tiles -> time to tiles }.collect { (time, tiles) ->
-                    tiles.onSuccess {
+                    tiles.onSuccess { radarTilesOverlay ->
                         overlays.clear()
-                        overlays.add(it.overlays[time])
+                        overlays.add(radarTilesOverlay.overlays[time].let {
+                            it.second.mView = this@apply
+                            it.first
+                        })
                         invalidate()
                     }
                 }
             }
 
-            adapterScope.launch {
-                radarAdapter.setRadarController(SupervisorJob(), viewModel)
-            }
-
             refreshScope.launch {
                 viewModel.refresh.collect {
-                    invalidate()
+                    postInvalidate()
                 }
             }
-
-            controller.animateTo(org.osmdroid.util.GeoPoint(latitude, longitude), 6.0, 0)
-            simpleMapController.init(this)
 
         }
     }, update = {
         it.onResume()
+        it.controller.animateTo(org.osmdroid.util.GeoPoint(latitude, longitude), 6.0, 0)
+        simpleMapController.init(it)
     })
 
 }
@@ -146,7 +141,7 @@ fun SimpleMapScreen(requestWeatherDataArgs: () -> StateFlow<UiState<RequestWeath
 
                 Box(modifier = Modifier
                     .fillMaxWidth()
-                    .height(240.dp)) {
+                    .height(235.dp)) {
 
                     val simpleMapController = remember { SimpleMapController() }
 

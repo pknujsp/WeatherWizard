@@ -1,8 +1,6 @@
 package io.github.pknujsp.weatherwizard.feature.map
 
-import kotlinx.coroutines.CompletableJob
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -53,9 +51,9 @@ class RadarAdapter {
     private val _playing = MutableStateFlow(false)
     val playing: StateFlow<Boolean> = _playing
 
-    fun setRadarController(job: CompletableJob, radarController: RadarController) {
+    fun setRadarController(scope: CoroutineScope, radarController: RadarController) {
         this.radarController = radarController
-        CoroutineScope(job).launch {
+        scope.launch {
             launch {
                 radarController.playing.collect {
                     _playing.value = it

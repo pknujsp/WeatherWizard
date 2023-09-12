@@ -23,7 +23,7 @@ class RainViewerViewModel @Inject constructor(
     radarTilesRepository: RadarTilesRepository,
     @ApplicationContext context: Context,
 ) : ViewModel(), RadarController {
-    private val playDelay: Long = 700L
+    private val playDelay: Long = 1000L
     private val playCounts = 20
 
     private val _playing = MutableStateFlow(false)
@@ -43,9 +43,9 @@ class RainViewerViewModel @Inject constructor(
     private val _refresh = MutableSharedFlow<Unit>(replay = 0)
     val refresh: SharedFlow<Unit> = _refresh
 
-    private val optionTileSize = 512 // can be 256 or 512.
-    private val optionColorScheme = 3 // from 0 to 8. Check the https://rainviewer.com/api/color-schemes.html for additional information
-    private val optionSmoothData = 1 // 0 - not smooth, 1 - smooth
+    private val optionTileSize = 256 // can be 256 or 512.
+    private val optionColorScheme = 4 // from 0 to 8. Check the https://rainviewer.com/api/color-schemes.html for additional information
+    private val optionSmoothData = 0 // 0 - not smooth, 1 - smooth
     private val optionSnowColors = 1 // 0 - do not show snow colors, 1 - show snow colors
 
     val minZoomLevel: Float = 2f

@@ -1,6 +1,7 @@
 package io.github.pknujsp.weatherwizard.feature.map
 
 import android.content.Context
+import android.graphics.Color
 import io.github.pknujsp.weatherwizard.core.model.rainviewer.RadarTiles
 import org.osmdroid.tileprovider.MapTileProviderBasic
 import org.osmdroid.tileprovider.tilesource.OnlineTileSourceBase
@@ -40,12 +41,12 @@ class RadarTilesOverlay(
         }
     }
 
-    val overlays: List<TilesOverlay> = radarTiles.run {
+    val overlays: List<Pair<TilesOverlay, OverlayHandler>> = radarTiles.run {
         radar.mapIndexed { index, it ->
-            val customTileSource =
+            val handler = OverlayHandler()
+            val tileProvider = MapTileProviderBasic(context,
                 object : OnlineTileSourceBase("RadarTiles_$index", minZoomLevel.toInt(), maxZoomLevel.toInt(), optionTileSize, ".png",
                     emptyArray()) {
-
                     override fun getTileURLString(pMapTileIndex: Long): String {
                         val x = MapTileIndex.getX(pMapTileIndex)
                         val y = MapTileIndex.getY(pMapTileIndex)
@@ -53,16 +54,16 @@ class RadarTilesOverlay(
 
                         return "${host}${it.path}/$optionTileSize/$zoom/$x/$y/$optionColorScheme/${optionSmoothData}_$optionSnowColors.png"
                     }
-
                     // https://tilecache.rainviewer.com/v2/satellite/689559864b21/512/2/2/1/3/1_1.png
-                }
-
-            val tileProvider = MapTileProviderBasic(context).apply {
-                tileSource = customTileSource
+                }).apply {
+                tileCache.setStressedMemory(true)
+                tileRequestCompleteHandlers.add(
+                    handler
+                )
             }
             TilesOverlay(tileProvider, context).apply {
-                isEnabled = true
-            }
+                loadingBackgroundColor = Color.TRANSPARENT
+            } to handler
         }
     }
 }
