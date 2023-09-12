@@ -4,6 +4,8 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import io.github.pknujsp.weatherwizard.core.data.aqicn.AirQualityRepository
+import io.github.pknujsp.weatherwizard.core.data.aqicn.AirQualityRepositoryImpl
 import io.github.pknujsp.weatherwizard.core.data.nominatim.NominatimRepository
 import io.github.pknujsp.weatherwizard.core.data.nominatim.NominatimRepositoryImpl
 import io.github.pknujsp.weatherwizard.core.data.rainviewer.RadarTilesRepository
@@ -12,8 +14,9 @@ import io.github.pknujsp.weatherwizard.core.data.weather.WeatherDataRepository
 import io.github.pknujsp.weatherwizard.core.data.weather.WeatherDataRepositoryImpl
 import io.github.pknujsp.weatherwizard.core.data.weather.mapper.WeatherResponseMapperManager
 import io.github.pknujsp.weatherwizard.core.data.weather.request.WeatherApiRequestManager
-import io.github.pknujsp.weatherwizard.core.network.api.rainviewer.RainViewerDataSource
+import io.github.pknujsp.weatherwizard.core.network.api.aqicn.AqiCnDataSource
 import io.github.pknujsp.weatherwizard.core.network.api.nominatim.NominatimDataSource
+import io.github.pknujsp.weatherwizard.core.network.api.rainviewer.RainViewerDataSource
 import javax.inject.Singleton
 
 @InstallIn(SingletonComponent::class)
@@ -38,4 +41,9 @@ object RepositoryModule {
     @Singleton
     fun providesRadartilesRepository(rainViewerDataSource: RainViewerDataSource): RadarTilesRepository =
         RadarTilesRepositoryImpl(rainViewerDataSource)
+
+    @Provides
+    @Singleton
+    fun providesAirQualityRepository(aqiCnDataSource: AqiCnDataSource): AirQualityRepository =
+        AirQualityRepositoryImpl(aqiCnDataSource)
 }

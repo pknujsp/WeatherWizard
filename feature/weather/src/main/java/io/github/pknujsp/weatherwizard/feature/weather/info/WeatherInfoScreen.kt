@@ -29,6 +29,7 @@ import io.github.pknujsp.weatherwizard.core.model.airquality.dailyforecast.dummy
 import io.github.pknujsp.weatherwizard.core.model.onLoading
 import io.github.pknujsp.weatherwizard.core.model.weather.RequestWeatherDataArgs
 import io.github.pknujsp.weatherwizard.core.ui.lottie.CancellableLoadingScreen
+import io.github.pknujsp.weatherwizard.feature.airquality.AirQualityScreen
 import io.github.pknujsp.weatherwizard.feature.airquality.BarGraph
 import io.github.pknujsp.weatherwizard.feature.flickr.FlickrImageItemScreen
 import io.github.pknujsp.weatherwizard.feature.map.SimpleMapScreen
@@ -72,7 +73,7 @@ fun WeatherInfoScreen(args: () -> RequestWeatherDataArgs) {
             HourlyForecastScreen(weatherInfoViewModel)
             SimpleDailyForecastScreen(weatherInfoViewModel)
             SimpleMapScreen { weatherInfoViewModel.requestArgs }
-            BarGraph(dummyAirQualityDailyForecast)
+            AirQualityScreen{ args() }
             Spacer(modifier = Modifier.height(62.dp))
         }
 

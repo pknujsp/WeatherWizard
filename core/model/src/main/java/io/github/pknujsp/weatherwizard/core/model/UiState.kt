@@ -10,8 +10,7 @@ sealed interface UiState<out T> {
 }
 
 @KBindFunc
-sealed class DataState<out T : Number, R>(val value: Int, var size: Int = 1) {
-    data class Success(val result: Int) : DataState<Int, String>(result)
-    class Error(value: Int) : DataState<Int, String>(value)
-    object Loading : DataState<Int, String>(2)
+sealed interface VarState<out T> {
+    data object Uninitialized : VarState<Nothing>
+    data class Initialized<out T>(val data: T) : VarState<T>
 }
