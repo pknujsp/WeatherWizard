@@ -17,6 +17,8 @@ data class AqiCnResponse(
         val aqi: String,
         @SerialName("idx")
         val idx: String,
+        @SerialName("attributions")
+        val attributions: List<Attribution>,
         @SerialName("dominentpol")
         val dominentPol: String,
         @SerialName("city")
@@ -28,6 +30,14 @@ data class AqiCnResponse(
         @SerialName("forecast")
         val forecast: Forecast,
     ) {
+
+        @Serializable
+        data class Attribution(
+            @SerialName("url")
+            val url: String,
+            @SerialName("name")
+            val name: String
+        )
 
         @Serializable
         data class City(

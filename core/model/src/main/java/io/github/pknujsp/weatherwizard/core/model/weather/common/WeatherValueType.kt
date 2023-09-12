@@ -3,6 +3,7 @@ package io.github.pknujsp.weatherwizard.core.model.weather.common
 
 import android.content.Context
 import io.github.pknujsp.weatherwizard.core.model.R
+import io.github.pknujsp.weatherwizard.core.model.airquality.AirQualityDescription
 
 interface NoneValue<T> {
     val none: T
@@ -56,35 +57,6 @@ data class TemperatureValueType(
             TemperatureUnit.Fahrenheit to TemperatureUnit.Celsius -> (value - 32) * 5 / 9
             else -> value
         }
-    }
-
-
-    operator fun plus(other: TemperatureValueType): TemperatureValueType {
-        return TemperatureValueType(value + other.value, unit)
-    }
-
-    operator fun minus(other: TemperatureValueType): TemperatureValueType {
-        return TemperatureValueType(value - other.value, unit)
-    }
-
-    operator fun times(other: TemperatureValueType): TemperatureValueType {
-        return TemperatureValueType(value * other.value, unit)
-    }
-
-    operator fun div(other: TemperatureValueType): TemperatureValueType {
-        return TemperatureValueType(value / other.value, unit)
-    }
-
-    operator fun rem(other: TemperatureValueType): TemperatureValueType {
-        return TemperatureValueType(value % other.value, unit)
-    }
-
-    operator fun unaryPlus(): TemperatureValueType {
-        return TemperatureValueType(+value, unit)
-    }
-
-    operator fun unaryMinus(): TemperatureValueType {
-        return TemperatureValueType(-value, unit)
     }
 
 
@@ -144,34 +116,6 @@ data class WindSpeedValueType(
     }
 
 
-    operator fun plus(other: WindSpeedValueType): WindSpeedValueType {
-        return WindSpeedValueType(value + other.value, unit)
-    }
-
-    operator fun minus(other: WindSpeedValueType): WindSpeedValueType {
-        return WindSpeedValueType(value - other.value, unit)
-    }
-
-    operator fun times(other: WindSpeedValueType): WindSpeedValueType {
-        return WindSpeedValueType(value * other.value, unit)
-    }
-
-    operator fun div(other: WindSpeedValueType): WindSpeedValueType {
-        return WindSpeedValueType(value / other.value, unit)
-    }
-
-    operator fun rem(other: WindSpeedValueType): WindSpeedValueType {
-        return WindSpeedValueType(value % other.value, unit)
-    }
-
-    operator fun unaryPlus(): WindSpeedValueType {
-        return WindSpeedValueType(+value, unit)
-    }
-
-    operator fun unaryMinus(): WindSpeedValueType {
-        return WindSpeedValueType(-value, unit)
-    }
-
     override fun toString(): String {
         return "$value${unit.symbol}"
     }
@@ -199,33 +143,6 @@ data class WindDirectionValueType(
         return value
     }
 
-    operator fun plus(other: WindDirectionValueType): WindDirectionValueType {
-        return WindDirectionValueType(value + other.value, unit)
-    }
-
-    operator fun minus(other: WindDirectionValueType): WindDirectionValueType {
-        return WindDirectionValueType(value - other.value, unit)
-    }
-
-    operator fun times(other: WindDirectionValueType): WindDirectionValueType {
-        return WindDirectionValueType(value * other.value, unit)
-    }
-
-    operator fun div(other: WindDirectionValueType): WindDirectionValueType {
-        return WindDirectionValueType(value / other.value, unit)
-    }
-
-    operator fun rem(other: WindDirectionValueType): WindDirectionValueType {
-        return WindDirectionValueType(value % other.value, unit)
-    }
-
-    operator fun unaryPlus(): WindDirectionValueType {
-        return WindDirectionValueType(+value, unit)
-    }
-
-    operator fun unaryMinus(): WindDirectionValueType {
-        return WindDirectionValueType(-value, unit)
-    }
 
     override fun toString(): String {
         return "$value${unit.symbol}"
@@ -251,34 +168,6 @@ data class HumidityValueType(
 
     override fun convertUnit(value: Int, to: PercentageUnit): Int {
         return value
-    }
-
-    operator fun plus(other: HumidityValueType): HumidityValueType {
-        return HumidityValueType(value + other.value, unit)
-    }
-
-    operator fun minus(other: HumidityValueType): HumidityValueType {
-        return HumidityValueType(value - other.value, unit)
-    }
-
-    operator fun times(other: HumidityValueType): HumidityValueType {
-        return HumidityValueType(value * other.value, unit)
-    }
-
-    operator fun div(other: HumidityValueType): HumidityValueType {
-        return HumidityValueType(value / other.value, unit)
-    }
-
-    operator fun rem(other: HumidityValueType): HumidityValueType {
-        return HumidityValueType(value % other.value, unit)
-    }
-
-    operator fun unaryPlus(): HumidityValueType {
-        return HumidityValueType(+value, unit)
-    }
-
-    operator fun unaryMinus(): HumidityValueType {
-        return HumidityValueType(-value, unit)
     }
 
     override fun toString(): String {
@@ -323,33 +212,6 @@ data class PressureValueType(
         return value
     }
 
-    operator fun plus(other: PressureValueType): PressureValueType {
-        return PressureValueType(value + other.value, unit)
-    }
-
-    operator fun minus(other: PressureValueType): PressureValueType {
-        return PressureValueType(value - other.value, unit)
-    }
-
-    operator fun times(other: PressureValueType): PressureValueType {
-        return PressureValueType(value * other.value, unit)
-    }
-
-    operator fun div(other: PressureValueType): PressureValueType {
-        return PressureValueType(value / other.value, unit)
-    }
-
-    operator fun rem(other: PressureValueType): PressureValueType {
-        return PressureValueType(value % other.value, unit)
-    }
-
-    operator fun unaryPlus(): PressureValueType {
-        return PressureValueType(+value, unit)
-    }
-
-    operator fun unaryMinus(): PressureValueType {
-        return PressureValueType(-value, unit)
-    }
 
     override fun toString(): String {
         return "$value${unit.symbol}"
@@ -392,34 +254,6 @@ data class VisibilityValueType(
         return value
     }
 
-    operator fun plus(other: VisibilityValueType): VisibilityValueType {
-        return VisibilityValueType(value + other.value, unit)
-    }
-
-    operator fun minus(other: VisibilityValueType): VisibilityValueType {
-        return VisibilityValueType(value - other.value, unit)
-    }
-
-    operator fun times(other: VisibilityValueType): VisibilityValueType {
-        return VisibilityValueType(value * other.value, unit)
-    }
-
-    operator fun div(other: VisibilityValueType): VisibilityValueType {
-        return VisibilityValueType(value / other.value, unit)
-    }
-
-    operator fun rem(other: VisibilityValueType): VisibilityValueType {
-        return VisibilityValueType(value % other.value, unit)
-    }
-
-    operator fun unaryPlus(): VisibilityValueType {
-        return VisibilityValueType(+value, unit)
-    }
-
-    operator fun unaryMinus(): VisibilityValueType {
-        return VisibilityValueType(-value, unit)
-    }
-
     override fun toString(): String {
         return "$value${unit.symbol}"
     }
@@ -449,34 +283,6 @@ data class PrecipitationValueType(
             PrecipitationUnit.Centimeter to PrecipitationUnit.Millimeter -> value * 10
             else -> value
         }
-    }
-
-    operator fun plus(other: PrecipitationValueType): PrecipitationValueType {
-        return PrecipitationValueType(value + other.value, unit)
-    }
-
-    operator fun minus(other: PrecipitationValueType): PrecipitationValueType {
-        return PrecipitationValueType(value - other.value, unit)
-    }
-
-    operator fun times(other: PrecipitationValueType): PrecipitationValueType {
-        return PrecipitationValueType(value * other.value, unit)
-    }
-
-    operator fun div(other: PrecipitationValueType): PrecipitationValueType {
-        return PrecipitationValueType(value / other.value, unit)
-    }
-
-    operator fun rem(other: PrecipitationValueType): PrecipitationValueType {
-        return PrecipitationValueType(value % other.value, unit)
-    }
-
-    operator fun unaryPlus(): PrecipitationValueType {
-        return PrecipitationValueType(+value, unit)
-    }
-
-    operator fun unaryMinus(): PrecipitationValueType {
-        return PrecipitationValueType(-value, unit)
     }
 
     override fun toString(): String {
@@ -522,33 +328,6 @@ data class SnowfallValueType(
         }
     }
 
-    operator fun plus(other: SnowfallValueType): SnowfallValueType {
-        return SnowfallValueType(value + other.value, unit)
-    }
-
-    operator fun minus(other: SnowfallValueType): SnowfallValueType {
-        return SnowfallValueType(value - other.value, unit)
-    }
-
-    operator fun times(other: SnowfallValueType): SnowfallValueType {
-        return SnowfallValueType(value * other.value, unit)
-    }
-
-    operator fun div(other: SnowfallValueType): SnowfallValueType {
-        return SnowfallValueType(value / other.value, unit)
-    }
-
-    operator fun rem(other: SnowfallValueType): SnowfallValueType {
-        return SnowfallValueType(value % other.value, unit)
-    }
-
-    operator fun unaryPlus(): SnowfallValueType {
-        return SnowfallValueType(+value, unit)
-    }
-
-    operator fun unaryMinus(): SnowfallValueType {
-        return SnowfallValueType(-value, unit)
-    }
 
     override fun toString(): String {
         return "$value${unit.symbol}"
@@ -595,33 +374,6 @@ data class RainfallValueType(
         }
     }
 
-    operator fun plus(other: RainfallValueType): RainfallValueType {
-        return RainfallValueType(value + other.value, unit)
-    }
-
-    operator fun minus(other: RainfallValueType): RainfallValueType {
-        return RainfallValueType(value - other.value, unit)
-    }
-
-    operator fun times(other: RainfallValueType): RainfallValueType {
-        return RainfallValueType(value * other.value, unit)
-    }
-
-    operator fun div(other: RainfallValueType): RainfallValueType {
-        return RainfallValueType(value / other.value, unit)
-    }
-
-    operator fun rem(other: RainfallValueType): RainfallValueType {
-        return RainfallValueType(value % other.value, unit)
-    }
-
-    operator fun unaryPlus(): RainfallValueType {
-        return RainfallValueType(+value, unit)
-    }
-
-    operator fun unaryMinus(): RainfallValueType {
-        return RainfallValueType(-value, unit)
-    }
 
     override fun toString(): String {
         return "$value${unit.symbol}"
@@ -661,4 +413,15 @@ data class ProbabilityValueType(
     override fun toStringWithoutUnit(): String {
         return if (isNone()) "" else value.toString()
     }
+}
+
+data class AirQualityValueType(
+    override val value: Int,
+    val airQualityDescription: AirQualityDescription
+) : WeatherValueNotUnitType<Int> {
+
+    override fun toString(): String {
+        return value.toString()
+    }
+
 }
