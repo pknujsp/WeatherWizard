@@ -11,6 +11,7 @@ dependencies {
     implementation(project(":core:data"))
     implementation(project(":feature:flickr"))
     implementation(project(":feature:map"))
+    implementation(project(":feature:airquality"))
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.androidx.constraintlayout.compose)

@@ -40,8 +40,7 @@ enum class AirQualityDescription(@StringRes val descriptionStringId: Int, val co
                 in UNHEALTHY_FOR_SENSITIVE_GROUPS.range -> UNHEALTHY_FOR_SENSITIVE_GROUPS
                 in UNHEALTHY.range -> UNHEALTHY
                 in VERY_UNHEALTHY.range -> VERY_UNHEALTHY
-                in HAZARDOUS.range -> HAZARDOUS
-                else -> throw IllegalArgumentException("Invalid value: $value")
+                else -> HAZARDOUS
             }
         }
     }

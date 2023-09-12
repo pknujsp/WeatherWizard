@@ -25,9 +25,11 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
+import io.github.pknujsp.weatherwizard.core.model.airquality.dailyforecast.dummyAirQualityDailyForecast
 import io.github.pknujsp.weatherwizard.core.model.onLoading
 import io.github.pknujsp.weatherwizard.core.model.weather.RequestWeatherDataArgs
 import io.github.pknujsp.weatherwizard.core.ui.lottie.CancellableLoadingScreen
+import io.github.pknujsp.weatherwizard.feature.airquality.BarGraph
 import io.github.pknujsp.weatherwizard.feature.flickr.FlickrImageItemScreen
 import io.github.pknujsp.weatherwizard.feature.map.SimpleMapScreen
 import io.github.pknujsp.weatherwizard.feature.weather.R
@@ -70,6 +72,7 @@ fun WeatherInfoScreen(args: () -> RequestWeatherDataArgs) {
             HourlyForecastScreen(weatherInfoViewModel)
             SimpleDailyForecastScreen(weatherInfoViewModel)
             SimpleMapScreen { weatherInfoViewModel.requestArgs }
+            BarGraph(dummyAirQualityDailyForecast)
             Spacer(modifier = Modifier.height(62.dp))
         }
 

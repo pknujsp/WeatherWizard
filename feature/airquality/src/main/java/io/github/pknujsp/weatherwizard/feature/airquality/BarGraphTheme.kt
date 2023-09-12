@@ -8,27 +8,35 @@ import androidx.compose.ui.unit.sp
 
 
 internal enum class BarSize(val width: Dp, val height: Dp, val horizontalPadding: Dp) {
-    SMALL(20.dp, 60.dp, 4.dp),
-    MEDIUM(32.dp, 80.dp, 8.dp),
+    SMALL(38.dp, 110.dp, 8.dp),
+    MEDIUM(50.dp, 160.dp, 12.dp),
 }
 
-internal enum class TextStyle(val fontSize: TextUnit, val color: Color) {
+internal enum class IndexTextStyle(val fontSize: TextUnit, val color: Color) {
     SMALL(12.sp, Color.White),
-    MEDIUM(14.sp, Color.White),
+    MEDIUM(13.sp, Color.White),
+}
+
+internal enum class DateTextStyle(val fontSize: TextUnit, val color: Color) {
+    SMALL(12.sp, Color.White),
+    MEDIUM(13.sp, Color.White),
 }
 
 internal sealed interface BarGraphTheme {
     val barSize: BarSize
-    val textStyle: TextStyle
+    val indexTextStyle: IndexTextStyle
+    val dateTextStyle: DateTextStyle
 
     data object Small : BarGraphTheme {
         override val barSize: BarSize = BarSize.SMALL
-        override val textStyle: TextStyle = TextStyle.SMALL
+        override val indexTextStyle: IndexTextStyle = IndexTextStyle.SMALL
+        override val dateTextStyle: DateTextStyle = DateTextStyle.SMALL
     }
 
     data object Medium : BarGraphTheme {
         override val barSize: BarSize = BarSize.MEDIUM
-        override val textStyle: TextStyle = TextStyle.MEDIUM
+        override val indexTextStyle: IndexTextStyle = IndexTextStyle.MEDIUM
+        override val dateTextStyle: DateTextStyle = DateTextStyle.MEDIUM
     }
 
 }

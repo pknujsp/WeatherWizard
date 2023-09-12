@@ -76,4 +76,18 @@
     <string name="airquality_3_unhealthy">나쁨</string>
     <string name="airquality_4_very_unhealthy">매우 나쁨</string>
     <string name="airquality_5_hazardous">최악</string>
+
+    <string name="air_pollutant_pm10">미세먼지</string>
+    <string name="air_pollutant_pm25">초미세먼지</string>
+    <string name="air_pollutant_o3">오존</string>
+    <string name="air_pollutant_no2">이산화질소</string>
+    <string name="air_pollutant_co">일산화탄소</string>
+    <string name="air_pollutant_so2">아황산가스</string>
+
+    <string name="air_pollutant_pm10_description">지름이 2.5μm 이하인 먼지로, 호흡기 질환을 유발할 수 있습니다.</string>
+    <string name="air_pollutant_pm25_description">지름이 2.5μm 이하인 매우 미세한 먼지로, 심각한 호흡기 질환을 유발할 수 있습니다.</string>
+    <string name="air_pollutant_o3_description">오존은 대기 중에 존재하는 가스로, 높은 농도에서는 호흡기 질환을 유발할 수 있습니다.</string>
+    <string name="air_pollutant_no2_description">이산화질소는 대기 중에 존재하는 가스로, 높은 농도에서는 호흡기 질환을 유발할 수 있습니다.</string>
+    <string name="air_pollutant_co_description">일산화탄소는 대기 중에 존재하는 가스로, 높은 농도에서는 호흡기 질환을 유발할 수 있습니다.</string>
+    <string name="air_pollutant_so2_description">아황산가스는 대기 중에 존재하는 가스로, 높은 농도에서는 호흡기 질환을 유발할 수 있습니다.</string>
 </resources>
