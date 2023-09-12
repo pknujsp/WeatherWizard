@@ -1,12 +1,12 @@
-package io.github.pknujsp.weatherwizard.core.network.datasource.kma
+package io.github.pknujsp.weatherwizard.core.network.api.kma
 
-import io.github.pknujsp.weatherwizard.core.network.datasource.CurrentWeatherResponseModel
-import io.github.pknujsp.weatherwizard.core.network.datasource.DailyForecastResponseModel
-import io.github.pknujsp.weatherwizard.core.network.datasource.HourlyForecastResponseModel
-import io.github.pknujsp.weatherwizard.core.network.datasource.YesterdayWeatherResponseModel
-import io.github.pknujsp.weatherwizard.core.network.datasource.kma.parser.ParsedKmaCurrentWeather
-import io.github.pknujsp.weatherwizard.core.network.datasource.kma.parser.ParsedKmaDailyForecast
-import io.github.pknujsp.weatherwizard.core.network.datasource.kma.parser.ParsedKmaHourlyForecast
+import io.github.pknujsp.weatherwizard.core.network.api.CurrentWeatherResponseModel
+import io.github.pknujsp.weatherwizard.core.network.api.DailyForecastResponseModel
+import io.github.pknujsp.weatherwizard.core.network.api.HourlyForecastResponseModel
+import io.github.pknujsp.weatherwizard.core.network.api.YesterdayWeatherResponseModel
+import io.github.pknujsp.weatherwizard.core.network.api.kma.parser.ParsedKmaCurrentWeather
+import io.github.pknujsp.weatherwizard.core.network.api.kma.parser.ParsedKmaDailyForecast
+import io.github.pknujsp.weatherwizard.core.network.api.kma.parser.ParsedKmaHourlyForecast
 
 
 class KmaCurrentWeatherResponse(

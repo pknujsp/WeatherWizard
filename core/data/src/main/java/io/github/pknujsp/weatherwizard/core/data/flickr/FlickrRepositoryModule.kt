@@ -4,7 +4,7 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
-import io.github.pknujsp.weatherwizard.core.network.datasource.flickr.FlickrDataSource
+import io.github.pknujsp.weatherwizard.core.network.api.flickr.FlickrDataSource
 import javax.inject.Singleton
 
 @InstallIn(SingletonComponent::class)

@@ -19,6 +19,7 @@ android {
         val properties = Properties()
         properties.load(project.rootProject.file("/local.properties").bufferedReader())
         buildConfigField("String", "FLICKR_KEY", "\"${properties["flickr_key"]}\"")
+        buildConfigField("String", "AQICN_KEY", "\"${properties["aqicn_key"]}\"")
     }
 }
 

@@ -6,9 +6,9 @@ import io.github.pknujsp.weatherwizard.core.model.weather.dailyforecast.DailyFor
 import io.github.pknujsp.weatherwizard.core.model.weather.hourlyforecast.HourlyForecastEntity
 import io.github.pknujsp.weatherwizard.core.model.weather.yesterday.YesterdayWeatherEntity
 import io.github.pknujsp.weatherwizard.core.network.ApiResponseModel
-import io.github.pknujsp.weatherwizard.core.network.datasource.CurrentWeatherResponseModel
-import io.github.pknujsp.weatherwizard.core.network.datasource.DailyForecastResponseModel
-import io.github.pknujsp.weatherwizard.core.network.datasource.HourlyForecastResponseModel
+import io.github.pknujsp.weatherwizard.core.network.api.CurrentWeatherResponseModel
+import io.github.pknujsp.weatherwizard.core.network.api.DailyForecastResponseModel
+import io.github.pknujsp.weatherwizard.core.network.api.HourlyForecastResponseModel
 
 interface WeatherResponseMapper<C : CurrentWeatherResponseModel,
         H : HourlyForecastResponseModel,

@@ -1,4 +1,4 @@
-package io.github.pknujsp.weatherwizard.core.network.datasource.kma
+package io.github.pknujsp.weatherwizard.core.network.api.kma
 
 import io.github.pknujsp.weatherwizard.core.model.weather.kma.parameter.KmaCurrentWeatherRequestParameter
 import io.github.pknujsp.weatherwizard.core.model.weather.kma.parameter.KmaDailyForecastRequestParameter

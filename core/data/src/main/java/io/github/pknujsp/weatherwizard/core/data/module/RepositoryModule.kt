@@ -13,7 +13,7 @@ import io.github.pknujsp.weatherwizard.core.data.weather.WeatherDataRepositoryIm
 import io.github.pknujsp.weatherwizard.core.data.weather.mapper.WeatherResponseMapperManager
 import io.github.pknujsp.weatherwizard.core.data.weather.request.WeatherApiRequestManager
 import io.github.pknujsp.weatherwizard.core.network.api.rainviewer.RainViewerDataSource
-import io.github.pknujsp.weatherwizard.core.network.datasource.nominatim.NominatimDataSource
+import io.github.pknujsp.weatherwizard.core.network.api.nominatim.NominatimDataSource
 import javax.inject.Singleton
 
 @InstallIn(SingletonComponent::class)

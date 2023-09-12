@@ -1,4 +1,4 @@
-package io.github.pknujsp.weatherwizard.core.network.datasource.nominatim.response
+package io.github.pknujsp.weatherwizard.core.network.api.nominatim.response
 
 
 import io.github.pknujsp.weatherwizard.core.network.ApiResponseModel

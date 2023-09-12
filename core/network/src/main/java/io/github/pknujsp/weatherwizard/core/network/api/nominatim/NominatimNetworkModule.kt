@@ -7,8 +7,8 @@ import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import io.github.pknujsp.weatherwizard.core.common.module.AppLocale
 import io.github.pknujsp.weatherwizard.core.common.module.KtJson
-import io.github.pknujsp.weatherwizard.core.network.datasource.nominatim.NominatimDataSource
-import io.github.pknujsp.weatherwizard.core.network.datasource.nominatim.NominatimDataSourceImpl
+import io.github.pknujsp.weatherwizard.core.network.api.nominatim.NominatimDataSource
+import io.github.pknujsp.weatherwizard.core.network.api.nominatim.NominatimDataSourceImpl
 import io.github.pknujsp.weatherwizard.core.network.retrofit.NetworkApiCallAdapterFactory
 import kotlinx.serialization.json.Json
 import okhttp3.MediaType.Companion.toMediaType

@@ -1,4 +1,4 @@
-package io.github.pknujsp.weatherwizard.core.network.datasource.flickr
+package io.github.pknujsp.weatherwizard.core.network.api.flickr
 
 import io.github.pknujsp.weatherwizard.core.model.flickr.FlickrRequestParameters
 

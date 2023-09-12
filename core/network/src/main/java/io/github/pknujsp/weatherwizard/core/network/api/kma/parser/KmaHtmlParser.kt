@@ -1,4 +1,4 @@
-package io.github.pknujsp.weatherwizard.core.network.datasource.kma.parser
+package io.github.pknujsp.weatherwizard.core.network.api.kma.parser
 
 
 import io.github.pknujsp.weatherwizard.core.model.weather.common.PrecipitationValueType

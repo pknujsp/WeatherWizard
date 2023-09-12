@@ -8,10 +8,10 @@ import io.github.pknujsp.weatherwizard.core.data.weather.kma.KmaResponseMapper
 import io.github.pknujsp.weatherwizard.core.data.weather.mapper.WeatherResponseMapper
 import io.github.pknujsp.weatherwizard.core.data.weather.mapper.WeatherResponseMapperManager
 import io.github.pknujsp.weatherwizard.core.data.weather.mapper.WeatherResponseMapperManagerImpl
-import io.github.pknujsp.weatherwizard.core.network.datasource.kma.KmaCurrentWeatherResponse
-import io.github.pknujsp.weatherwizard.core.network.datasource.kma.KmaDailyForecastResponse
-import io.github.pknujsp.weatherwizard.core.network.datasource.kma.KmaHourlyForecastResponse
-import io.github.pknujsp.weatherwizard.core.network.datasource.kma.KmaYesterdayWeatherResponse
+import io.github.pknujsp.weatherwizard.core.network.api.kma.KmaCurrentWeatherResponse
+import io.github.pknujsp.weatherwizard.core.network.api.kma.KmaDailyForecastResponse
+import io.github.pknujsp.weatherwizard.core.network.api.kma.KmaHourlyForecastResponse
+import io.github.pknujsp.weatherwizard.core.network.api.kma.KmaYesterdayWeatherResponse
 import javax.inject.Named
 import javax.inject.Singleton
 

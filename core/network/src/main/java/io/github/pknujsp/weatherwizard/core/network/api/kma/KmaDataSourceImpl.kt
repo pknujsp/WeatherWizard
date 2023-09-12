@@ -1,4 +1,4 @@
-package io.github.pknujsp.weatherwizard.core.network.datasource.kma
+package io.github.pknujsp.weatherwizard.core.network.api.kma
 
 import android.util.LruCache
 import io.github.pknujsp.weatherwizard.core.network.api.kma.KmaNetworkApi
@@ -6,7 +6,7 @@ import io.github.pknujsp.weatherwizard.core.model.weather.kma.parameter.KmaCurre
 import io.github.pknujsp.weatherwizard.core.model.weather.kma.parameter.KmaDailyForecastRequestParameter
 import io.github.pknujsp.weatherwizard.core.model.weather.kma.parameter.KmaHourlyForecastRequestParameter
 import io.github.pknujsp.weatherwizard.core.model.weather.kma.parameter.KmaYesterdayWeatherRequestParameter
-import io.github.pknujsp.weatherwizard.core.network.datasource.kma.parser.KmaHtmlParser
+import io.github.pknujsp.weatherwizard.core.network.api.kma.parser.KmaHtmlParser
 import io.github.pknujsp.weatherwizard.core.network.retrofit.onResult
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.filter

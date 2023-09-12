@@ -25,10 +25,10 @@ import io.github.pknujsp.weatherwizard.core.model.weather.current.CurrentWeather
 import io.github.pknujsp.weatherwizard.core.model.weather.dailyforecast.DailyForecastEntity
 import io.github.pknujsp.weatherwizard.core.model.weather.hourlyforecast.HourlyForecastEntity
 import io.github.pknujsp.weatherwizard.core.model.weather.yesterday.YesterdayWeatherEntity
-import io.github.pknujsp.weatherwizard.core.network.datasource.kma.KmaCurrentWeatherResponse
-import io.github.pknujsp.weatherwizard.core.network.datasource.kma.KmaDailyForecastResponse
-import io.github.pknujsp.weatherwizard.core.network.datasource.kma.KmaHourlyForecastResponse
-import io.github.pknujsp.weatherwizard.core.network.datasource.kma.KmaYesterdayWeatherResponse
+import io.github.pknujsp.weatherwizard.core.network.api.kma.KmaCurrentWeatherResponse
+import io.github.pknujsp.weatherwizard.core.network.api.kma.KmaDailyForecastResponse
+import io.github.pknujsp.weatherwizard.core.network.api.kma.KmaHourlyForecastResponse
+import io.github.pknujsp.weatherwizard.core.network.api.kma.KmaYesterdayWeatherResponse
 import javax.inject.Inject
 
 

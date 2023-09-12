@@ -1,4 +1,4 @@
-package io.github.pknujsp.weatherwizard.core.network.datasource
+package io.github.pknujsp.weatherwizard.core.network.api
 
 import io.github.pknujsp.weatherwizard.core.network.ApiResponseModel
 
