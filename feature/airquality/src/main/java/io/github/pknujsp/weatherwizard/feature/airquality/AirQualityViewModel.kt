@@ -12,7 +12,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
-import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import javax.inject.Inject
 
@@ -23,6 +22,12 @@ class AirQualityViewModel @Inject constructor(
 
     private val _airQuality: MutableStateFlow<UiState<SimpleAirQuality>> = MutableStateFlow(UiState.Loading)
     val airQuality: StateFlow<UiState<SimpleAirQuality>> = _airQuality
+
+    fun reload() {
+        viewModelScope.launch {
+            _airQuality.value = UiState.Loading
+        }
+    }
 
     fun loadAirQuality(latitude: Double, longitude: Double) {
         viewModelScope.launch(Dispatchers.IO) {
