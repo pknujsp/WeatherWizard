@@ -5,12 +5,9 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -19,6 +16,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -74,7 +72,7 @@ fun AirQualityScreen(requestWeatherDataArgs: () -> RequestWeatherDataArgs) {
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun ColumnScope.SimpleCurrent(simpleAirQuality: SimpleAirQuality) {
-    Text(text = listOf(AStyle(text = stringResource(io.github.pknujsp.weatherwizard.feature.airquality.R.string.current_air_quality),
+    Text(text = listOf(AStyle(text = "${stringResource(io.github.pknujsp.weatherwizard.feature.airquality.R.string.current_air_quality)}: ",
         span = SpanStyle(color = Color.White, fontSize = 13.sp)),
         AStyle(text = stringResource(simpleAirQuality.current.aqi.airQualityDescription.descriptionStringId),
             span = SpanStyle(color = simpleAirQuality.current.aqi.airQualityDescription.color, fontSize = 16.sp)),
@@ -82,7 +80,6 @@ private fun ColumnScope.SimpleCurrent(simpleAirQuality: SimpleAirQuality) {
             span = SpanStyle(color = simpleAirQuality.current.aqi.airQualityDescription.color,
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Bold))).toAnnotated())
-    Spacer(modifier = Modifier.height(4.dp))
 
     val grids = simpleAirQuality.current.run {
         listOf(
@@ -94,34 +91,23 @@ private fun ColumnScope.SimpleCurrent(simpleAirQuality: SimpleAirQuality) {
             stringResource(AirPollutants.CO.nameResId) to co,
         )
     }
-    /*
-    LazyVerticalGrid(userScrollEnabled = false,
-        modifier = Modifier
-            .fillMaxWidth()
-            .wrapContentHeight(),
-        columns = GridCells.Fixed(3),
-        contentPadding = PaddingValues(horizontal = 4.dp, vertical = 6.dp)) {
-        items(grids, key = { it.first }) { (pollutant, value) ->
-            Text(text = listOf(AStyle(text = "${pollutant}\n", span = SpanStyle(color = Color.White, fontSize = 13.sp)),
-                AStyle(text = "$value",
-                    span = SpanStyle(color = value.airQualityDescription.color,
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Bold))).toAnnotated())
-        }
-    }
 
-     */
 
-    FlowRow {
-        simpleAirQuality.dailyForecast.forEach { (pollutant, value) ->
-            Text(text = listOf(AStyle(text = "${pollutant}\n", span = SpanStyle(color = Color.White, fontSize = 13.sp)),
-                AStyle(text = "$value",
-                    span = SpanStyle(color = value.airQualityDescription.color,
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Bold))).toAnnotated(),
+    FlowRow(maxItemsInEachRow = 3, verticalArrangement = Arrangement.Center, horizontalArrangement = Arrangement.Center,
+        modifier = Modifier.fillMaxWidth()) {
+        grids.forEach { (pollutant, value) ->
+            Text(
+                text = listOf(AStyle(text = "${pollutant}\n", span = SpanStyle(color = Color.White, fontSize = 13.sp)),
+                    AStyle(text = stringResource(value.airQualityDescription.descriptionStringId),
+                        span = SpanStyle(color = value.airQualityDescription.color,
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Bold))).toAnnotated(),
                 modifier = Modifier
-                    .wrapContentSize(align = androidx.compose.ui.Alignment.Center)
-                    .padding(6.dp, 4.dp))
+                    .weight(1f)
+                    .padding(6.dp, 4.dp),
+                lineHeight = 24.sp,
+                textAlign = TextAlign.Center
+            )
         }
     }
 }
