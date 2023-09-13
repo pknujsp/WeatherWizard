@@ -8,12 +8,12 @@ import androidx.compose.ui.unit.sp
 
 
 internal enum class BarSize(val width: Dp, val height: Dp, val horizontalPadding: Dp) {
-    SMALL(38.dp, 110.dp, 8.dp),
+    SMALL(40.dp, 100.dp, 10.dp),
     MEDIUM(50.dp, 160.dp, 12.dp),
 }
 
 internal enum class IndexTextStyle(val fontSize: TextUnit, val color: Color) {
-    SMALL(12.sp, Color.White),
+    SMALL(11.sp, Color.White),
     MEDIUM(13.sp, Color.White),
 }
 

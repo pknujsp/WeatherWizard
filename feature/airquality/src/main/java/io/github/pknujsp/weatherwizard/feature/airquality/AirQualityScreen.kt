@@ -1,15 +1,13 @@
 package io.github.pknujsp.weatherwizard.feature.airquality
 
-import androidx.compose.foundation.gestures.Orientation
-import androidx.compose.foundation.gestures.scrollable
-import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -25,22 +23,25 @@ import io.github.pknujsp.weatherwizard.core.ui.weather.item.SimpleWeatherScreenB
 fun AirQualityScreen(requestWeatherDataArgs: () -> RequestWeatherDataArgs) {
     val viewModel = hiltViewModel<AirQualityViewModel>()
     val airQuality by viewModel.airQuality.collectAsStateWithLifecycle()
+
     airQuality.onLoading {
         SimpleWeatherBackgroundPlaceHolder()
+        requestWeatherDataArgs().run {
+            viewModel.loadAirQuality(latitude, longitude)
+        }
     }.onSuccess {
-        SimpleWeatherScreenBackground(CardInfo(title = "대기질",
+        SimpleWeatherScreenBackground(CardInfo(title = stringResource(io.github.pknujsp.weatherwizard.core.model.R.string.air_quality_index),
             buttons = listOf(
-                "자세히" to { },
+                stringResource(id = io.github.pknujsp.weatherwizard.core.common.R.string.detail) to { },
             ),
             content = {
-                Row(
+                Column(
                     modifier = Modifier
                         .fillMaxWidth()
                         .wrapContentHeight()
-                        .padding(horizontal = 12.dp, vertical = 8.dp)
-                        .scrollable(rememberScrollState(), orientation = Orientation.Horizontal),
+                        .padding(horizontal = 12.dp, vertical = 8.dp),
                 ) {
-
+                    BarGraph(forecast = it.dailyForecast)
                 }
             }))
     }

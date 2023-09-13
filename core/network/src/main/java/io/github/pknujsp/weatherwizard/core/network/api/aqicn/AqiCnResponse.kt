@@ -100,8 +100,6 @@ data class AqiCnResponse(
                 val pm10: List<ForecastPollutant>,
                 @SerialName("pm25")
                 val pm25: List<ForecastPollutant>,
-                @SerialName("uvi")
-                val uvi: List<ForecastPollutant>
             ) {
 
                 @Serializable

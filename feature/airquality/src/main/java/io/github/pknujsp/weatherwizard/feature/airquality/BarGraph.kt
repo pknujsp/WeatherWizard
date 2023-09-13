@@ -18,41 +18,42 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.drawText
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import io.github.pknujsp.weatherwizard.core.model.airquality.dailyforecast.AirQualityDailyForecast
-import io.github.pknujsp.weatherwizard.core.ui.weather.item.CardInfo
-import io.github.pknujsp.weatherwizard.core.ui.weather.item.SimpleWeatherScreenBackground
+import io.github.pknujsp.weatherwizard.core.model.airquality.SimpleAirQuality
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 
 
 @Composable
-fun BarGraph(forecast: AirQualityDailyForecast) {
-    SimpleWeatherScreenBackground(CardInfo(title = "대기질",
-        buttons = listOf(
-            "자세히" to { },
-        ),
-        content = {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .wrapContentHeight()
-                    .padding(horizontal = 12.dp, vertical = 8.dp)
-                    .scrollable(rememberScrollState(), orientation = Orientation.Horizontal),
-            ) {
-                forecast.simpleItems.forEach { item ->
-                    Bar(BarGraphTheme.Small, item)
-                }
-            }
-        }))
+fun BarGraph(forecast: List<SimpleAirQuality.DailyItem>) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .graphicsLayer(clip = false)
+            .wrapContentHeight()
+            .scrollable(rememberScrollState(), orientation = Orientation.Horizontal),
+    ) {
+        val dateTimeFormatter = DateTimeFormatter.ofPattern("M.d\nE")
+        val today = LocalDate.now()
+
+        forecast.forEach { item ->
+            Bar(BarGraphTheme.Small, item, dateTimeFormatter, today)
+        }
+    }
+
 }
 
 
 @Composable
 private fun Bar(
-    barGraphTheme: BarGraphTheme, item: AirQualityDailyForecast.SimpleDailyItem
+    barGraphTheme: BarGraphTheme, item: SimpleAirQuality.DailyItem, dateTimeFormatter: DateTimeFormatter, today: LocalDate
 ) {
     Column(
         modifier = Modifier
@@ -60,25 +61,25 @@ private fun Bar(
             .fillMaxHeight(),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        val textMeasurer = rememberTextMeasurer()
+        val indexTextResult = rememberTextMeasurer().measure(text = stringResource(item.aqi.airQualityDescription.descriptionStringId),
+            maxLines = 1,
+            style = TextStyle(
+                fontSize = barGraphTheme.indexTextStyle.fontSize,
+                color = barGraphTheme.indexTextStyle.color,
+                textAlign = TextAlign.Center,
+            ))
+
         Canvas(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = barGraphTheme.barSize.horizontalPadding)
                 .height(barGraphTheme.barSize.height),
         ) {
-            val indexTextResult = textMeasurer.measure(item.index.toString(),
-                TextStyle(
-                    fontSize = barGraphTheme.indexTextStyle.fontSize,
-                    color = barGraphTheme.indexTextStyle.color,
-                    textAlign = androidx.compose.ui.text.style.TextAlign.Center
-                ))
-
             val barHeight = (size.height - indexTextResult.size.height) * item.barHeightRatio
             val barTop = size.height - barHeight
 
             drawRoundRect(
-                color = item.airQualityDescription.color,
+                color = item.aqi.airQualityDescription.color,
                 topLeft = androidx.compose.ui.geometry.Offset(0f, barTop),
                 size = androidx.compose.ui.geometry.Size(size.width, barHeight),
                 cornerRadius = CornerRadius(4.dp.toPx())
@@ -90,11 +91,14 @@ private fun Bar(
                 color = barGraphTheme.indexTextStyle.color)
         }
 
-        Text(text = item.dateTime,
+        Text(text = if (item.dateTime.isEqual(today)) stringResource(id = io.github.pknujsp.weatherwizard.core.common.R.string.today)
+        else item.dateTime.format(dateTimeFormatter),
             fontSize = barGraphTheme.dateTextStyle.fontSize,
             color = barGraphTheme.dateTextStyle.color,
+            lineHeight = barGraphTheme.dateTextStyle.fontSize,
+            maxLines = 2,
+            overflow = TextOverflow.Visible,
             softWrap = true,
-            lineHeight = barGraphTheme.dateTextStyle.fontSize * 1.4f,
             textAlign = TextAlign.Center)
     }
 

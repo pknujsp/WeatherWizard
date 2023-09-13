@@ -32,8 +32,8 @@ class AirQualityRepositoryImpl @Inject constructor(
                         airQualityDescription = AirQualityDescription.fromValue(iaqi.so2.v.toInt())))
 
                 val info = AirQualityEntity.Info(dataMeasurementTime = ZonedDateTime.parse(time.iso),
-                    dataSourceName = city.name,
-                    dataSourceWebsiteUrl = city.url,
+                    dataSourceName = attributions.first().name,
+                    dataSourceWebsiteUrl = attributions.first().url,
                     stationLatitude = city.geo[0].toDouble(),
                     stationLongitude = city.geo[1].toDouble(),
                     stationName = city.name)

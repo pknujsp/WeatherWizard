@@ -3,7 +3,6 @@ import org.jetbrains.kotlin.konan.properties.Properties
 plugins {
     id("plugin.android.library")
     id("plugin.android.hilt")
-    alias(libs.plugins.ksp)
     alias(libs.plugins.kotlin.serialization)
 }
 

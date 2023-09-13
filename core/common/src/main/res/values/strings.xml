@@ -39,4 +39,6 @@
     <string name="next">다음</string>
     <string name="zoom_in">확대</string>
     <string name="zoom_out">축소</string>
+    <string name="detail">자세히</string>
+    <string name="today">오늘</string>
 </resources>
