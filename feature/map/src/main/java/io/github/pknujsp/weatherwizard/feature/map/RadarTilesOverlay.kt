@@ -2,8 +2,10 @@ package io.github.pknujsp.weatherwizard.feature.map
 
 import android.content.Context
 import android.graphics.Color
+import android.util.Log
 import io.github.pknujsp.weatherwizard.core.model.rainviewer.RadarTiles
 import org.osmdroid.tileprovider.MapTileProviderBasic
+import org.osmdroid.tileprovider.modules.SqlTileWriter
 import org.osmdroid.tileprovider.tilesource.OnlineTileSourceBase
 import org.osmdroid.util.MapTileIndex
 import org.osmdroid.views.overlay.TilesOverlay
@@ -44,18 +46,21 @@ class RadarTilesOverlay(
     val overlays: List<Pair<TilesOverlay, OverlayHandler>> = radarTiles.run {
         radar.mapIndexed { index, it ->
             val handler = OverlayHandler()
+            val tileSourceName = "RadarTiles_$index"
             val tileProvider = MapTileProviderBasic(context,
-                object : OnlineTileSourceBase("RadarTiles_$index", minZoomLevel.toInt(), maxZoomLevel.toInt(), optionTileSize, ".png",
+                object : OnlineTileSourceBase(tileSourceName, minZoomLevel.toInt(), maxZoomLevel.toInt(), optionTileSize, "",
                     emptyArray()) {
                     override fun getTileURLString(pMapTileIndex: Long): String {
                         val x = MapTileIndex.getX(pMapTileIndex)
                         val y = MapTileIndex.getY(pMapTileIndex)
-                        val zoom = MapTileIndex.getZoom(pMapTileIndex)
-
-                        return "${host}${it.path}/$optionTileSize/$zoom/$x/$y/$optionColorScheme/${optionSmoothData}_$optionSnowColors.png"
+                        val z = MapTileIndex.getZoom(pMapTileIndex)
+                        return "$host${it.path}/$optionTileSize/$z/$x/$y/$optionColorScheme/${optionSmoothData}_$optionSnowColors.png"
                     }
-                    // https://tilecache.rainviewer.com/v2/satellite/689559864b21/512/2/2/1/3/1_1.png
+                }, SqlTileWriter().apply {
+                    if(purgeCache(tileSourceName))
+                        Log.d("RadarTilesOverlay", "purgedCache: $tileSourceName")
                 }).apply {
+                setOfflineFirst(false)
                 tileCache.setStressedMemory(true)
                 tileRequestCompleteHandlers.add(
                     handler

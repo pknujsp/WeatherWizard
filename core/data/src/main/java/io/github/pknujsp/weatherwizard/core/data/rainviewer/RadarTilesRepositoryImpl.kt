@@ -13,6 +13,7 @@ class RadarTilesRepositoryImpl @Inject constructor(
 
     override suspend fun getTiles(): Result<RadarTiles> {
         return rainViewerDataSource.getJson().map {
+            println("radar_tiles: getTiles()")
             if (it.generated in cache.snapshot().keys) {
                 return@map cache[it.generated]
             }

@@ -11,9 +11,7 @@ import io.github.pknujsp.weatherwizard.core.model.onSuccess
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -37,25 +35,21 @@ class RainViewerViewModel @Inject constructor(
     private val _raderTiles: MutableStateFlow<UiState<RadarTilesOverlay>> = MutableStateFlow(UiState.Loading)
     val radarTiles: StateFlow<UiState<RadarTilesOverlay>> = _raderTiles
 
-    private val _timePosition = MutableStateFlow(0)
+    private val _timePosition = MutableStateFlow(-1)
     val timePosition: StateFlow<Int> = _timePosition
 
-    private val _refresh = MutableSharedFlow<Unit>(replay = 0)
-    val refresh: SharedFlow<Unit> = _refresh
-
     private val optionTileSize = 256 // can be 256 or 512.
-    private val optionColorScheme = 4 // from 0 to 8. Check the https://rainviewer.com/api/color-schemes.html for additional information
+    private val optionColorScheme = 8 // from 0 to 8. Check the https://rainviewer.com/api/color-schemes.html for additional information
     private val optionSmoothData = 0 // 0 - not smooth, 1 - smooth
     private val optionSnowColors = 1 // 0 - do not show snow colors, 1 - show snow colors
 
     val minZoomLevel: Float = 2f
-    val maxZoomLevel: Float = 18f
+    val maxZoomLevel: Float = 19f
 
     init {
         viewModelScope.launch(Dispatchers.IO) {
             radarTilesRepository.getTiles().onSuccess {
-                val radarTilesOverlay = RadarTilesOverlay(
-                    context = context,
+                val radarTilesOverlay = RadarTilesOverlay(context = context,
                     radarTiles = it,
                     minZoomLevel = minZoomLevel,
                     maxZoomLevel = maxZoomLevel,
@@ -63,8 +57,7 @@ class RainViewerViewModel @Inject constructor(
                     optionColorScheme = optionColorScheme,
                     optionSmoothData = optionSmoothData,
                     optionSnowColors = optionSnowColors,
-                    requestTime = it.requestTime
-                )
+                    requestTime = it.requestTime)
                 _raderTiles.value = UiState.Success(radarTilesOverlay)
                 _timePosition.emit(it.currentIndex)
                 _time.value = radarTilesOverlay.times[it.currentIndex]
@@ -74,21 +67,19 @@ class RainViewerViewModel @Inject constructor(
         }
     }
 
-    private fun Int.calibrateTimePosition(max: Int): Int {
-        return when {
-            this < 0 -> max
-            this > max -> 0
-            else -> this
-        }
+    private fun Int.calibrateTimePosition(max: Int): Int = when {
+        this < 0 -> max
+        this > max -> 0
+        else -> this
     }
+
 
     override fun beforeRadar() {
         viewModelScope.launch {
-            if (playingJob == null) {
-                radarTiles.value.onSuccess {
-                    _timePosition.emit((timePosition.value - 1).calibrateTimePosition(it.overlays.lastIndex))
-                    _time.value = it.times[timePosition.value]
-                }
+            radarTiles.value.onSuccess {
+                stop()
+                _timePosition.emit((timePosition.value - 1).calibrateTimePosition(it.overlays.lastIndex))
+                _time.value = it.times[timePosition.value]
             }
         }
     }
@@ -96,6 +87,7 @@ class RainViewerViewModel @Inject constructor(
     override fun nextRadar() {
         viewModelScope.launch {
             radarTiles.value.onSuccess {
+                stop()
                 _timePosition.emit((timePosition.value + 1).calibrateTimePosition(it.overlays.lastIndex))
                 _time.value = it.times[timePosition.value]
             }
@@ -104,35 +96,34 @@ class RainViewerViewModel @Inject constructor(
 
     override fun play() {
         viewModelScope.launch {
-            playingJob?.run {
-                cancel()
-                _playing.value = false
-                playingJob = null
-                refresh()
-            } ?: run {
+            if (!stop()) {
                 playingJob = launch {
-                    _playing.value = !playing.value
-                    if (playing.value) {
+                    _playing.value = true
+                    radarTiles.value.onSuccess { radarTiles ->
                         repeat(playCounts) {
-                            nextRadar()
+                            _timePosition.emit((timePosition.value + 1).calibrateTimePosition(radarTiles.overlays.lastIndex))
+                            _time.value = radarTiles.times[timePosition.value]
                             delay(playDelay)
                         }
                     }
-                    _playing.value = !playing.value
+                    _playing.value = false
+                    playingJob = null
                 }
             }
         }
     }
 
+    private fun stop(): Boolean = playingJob?.run {
+        cancel()
+        _playing.value = false
+        playingJob = null
+        true
+    } ?: false
+
     override fun currentRadar() {
         viewModelScope.launch {
-            playingJob?.cancel()
+            stop()
             _timePosition.emit((radarTiles.value as UiState.Success).data.currentIndex)
         }
     }
-
-    private suspend fun refresh() {
-        _refresh.emit(Unit)
-    }
-
 }
