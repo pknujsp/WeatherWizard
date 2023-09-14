@@ -41,4 +41,5 @@
     <string name="zoom_out">축소</string>
     <string name="detail">자세히</string>
     <string name="today">오늘</string>
+    <string name="sun_set_rise">일출, 일몰</string>
 </resources>
