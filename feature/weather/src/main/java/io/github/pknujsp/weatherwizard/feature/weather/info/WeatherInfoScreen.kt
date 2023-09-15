@@ -31,6 +31,7 @@ import io.github.pknujsp.weatherwizard.core.ui.lottie.CancellableLoadingScreen
 import io.github.pknujsp.weatherwizard.feature.airquality.AirQualityScreen
 import io.github.pknujsp.weatherwizard.feature.flickr.FlickrImageItemScreen
 import io.github.pknujsp.weatherwizard.feature.map.SimpleMapScreen
+import io.github.pknujsp.weatherwizard.feature.sunsetrise.SimpleSunSetRiseScreen
 import io.github.pknujsp.weatherwizard.feature.weather.R
 import io.github.pknujsp.weatherwizard.feature.weather.info.currentweather.simple.CurrentWeatherScreen
 import io.github.pknujsp.weatherwizard.feature.weather.info.dailyforecast.SimpleDailyForecastScreen
@@ -72,6 +73,7 @@ fun WeatherInfoScreen(args: () -> RequestWeatherDataArgs) {
             SimpleDailyForecastScreen(weatherInfoViewModel)
             SimpleMapScreen { weatherInfoViewModel.requestArgs }
             AirQualityScreen { args() }
+            SimpleSunSetRiseScreen()
             Spacer(modifier = Modifier.height(62.dp))
         }
 

@@ -1,35 +1,53 @@
 package io.github.pknujsp.weatherwizard.feature.sunsetrise
 
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.Path
-import androidx.compose.ui.graphics.asAndroidPath
+import androidx.compose.ui.graphics.PathMeasure
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.res.imageResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.drawText
+import androidx.compose.ui.text.rememberTextMeasurer
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.core.content.ContextCompat
+import androidx.core.graphics.drawable.toBitmap
+import io.github.pknujsp.weatherwizard.core.common.util.DayNightCalculator
+import io.github.pknujsp.weatherwizard.core.common.util.SunSetRise
+import io.github.pknujsp.weatherwizard.core.common.util.toCalendar
 import io.github.pknujsp.weatherwizard.core.ui.weather.item.CardInfo
 import io.github.pknujsp.weatherwizard.core.ui.weather.item.SimpleWeatherScreenBackground
-import java.time.LocalDateTime
-import java.time.ZoneId
+import java.time.ZonedDateTime
+import java.time.format.DateTimeFormatter
+import kotlin.math.abs
 
 
 @Composable
 fun SimpleSunSetRiseScreen() {
     SimpleWeatherScreenBackground(cardInfo = CardInfo(title = stringResource(io.github.pknujsp.weatherwizard.core.common.R.string.sun_set_rise)) {
-
+        SunSetRiseContent()
     })
 }
 
@@ -41,12 +59,26 @@ private fun SunSetRiseContent() {
     Box(modifier = Modifier
         .fillMaxWidth()
         .height(boxHeight)) {
-        val now = remember { LocalDateTime.now() }
-        val times = remember {
-            listOf(SunSetRise.SUN_SET to now.minusHours(3),
-                SunSetRise.SUN_RISE to now.plusHours(4),
-                SunSetRise.SUN_SET to now.plusHours(12))
+        val dayNightCalculator = remember { DayNightCalculator(37.5665, 126.9780) }
+
+        var times by remember {
+            mutableStateOf(dayNightCalculator.getSunSetRiseTimes(ZonedDateTime.now().toCalendar()))
         }
+
+        val broadcastReceiver = remember {
+            object : BroadcastReceiver() {
+                override fun onReceive(context: Context?, intent: Intent?) {
+                    intent?.action?.run {
+                        if (this == Intent.ACTION_TIME_TICK) {
+                            times = dayNightCalculator.getSunSetRiseTimes(ZonedDateTime.now().toCalendar())
+                        }
+                    }
+                }
+            }
+        }
+
+        LocalContext.current.registerReceiver(broadcastReceiver, IntentFilter(Intent.ACTION_TIME_TICK))
+
         val boxHeightPx = with(LocalDensity.current) { boxHeight.toPx() }
 
         // 수평 분할선 x, y
@@ -60,13 +92,15 @@ private fun SunSetRiseContent() {
             16.dp.toPx()
         }
         val curveMaxHeight = (boxHeightPx - centerHorizontalLinePoint.y) * 0.7f
+        val iconSize = with(LocalDensity.current) { 30.dp.toPx() }
 
-        /*
-        val currentIcon =
-            ImageBitmap.imageResource(if (times.first().first == SunSetRise.SUN_RISE) io.github.pknujsp.weatherwizard.core.common.R.drawable.day_clear else io.github.pknujsp.weatherwizard.core.common.R.drawable.night_clear)
-        */
-        val iconSize = with(LocalDensity.current) { 32.dp.toPx() }
+        val currentIcon = ContextCompat.getDrawable(LocalContext.current,
+            if (times.first().first == SunSetRise.SUN_RISE) io.github.pknujsp.weatherwizard.core.common.R.drawable.day_clear
+            else io.github.pknujsp.weatherwizard.core.common.R.drawable.night_clear)!!
+            .toBitmap(width = iconSize.toInt(), height = iconSize.toInt()).asImageBitmap()
 
+        val dateTimeFormatter = DateTimeFormatter.ofPattern("M.d E\nHH:mm")
+        val textMeasurer = rememberTextMeasurer()
 
         Canvas(Modifier.fillMaxSize()) {
             // 곡선 시작/종료 지점 y
@@ -80,17 +114,17 @@ private fun SunSetRiseContent() {
 
             // 수직 분할선 x
             val firstVerticalDividerX = size.width * 0.1f
-            val secondVerticalDividerX = size.width * 0.55f
+            val secondVerticalDividerX = size.width * 0.6f
             val thirdVerticalDividerX = size.width * 0.9f
 
             // 현재 시각 아이콘 x
-            val nowIconOffsetX = centerHorizontalLinePoint.x + now.run {
+            val nowIconOffsetX = centerHorizontalLinePoint.x + ZonedDateTime.now().run {
                 val xRangeLength = secondVerticalDividerX - firstVerticalDividerX
-                val zoneOffset = ZoneId.systemDefault().rules.getOffset(this)
-                val previousTimeMinutes = times.first().second.toEpochSecond(zoneOffset) / 60
-                val nextTimeMinutes = times.last().second.toEpochSecond(zoneOffset) / 60
+                val previousTimeMinutes = times.first().second.toEpochSecond() / 60
+                val nextTimeMinutes = times[1].second.toEpochSecond() / 60
+                val currMinutes = toEpochSecond() / 60
 
-                ((toEpochSecond(zoneOffset) / 60) - previousTimeMinutes) / (nextTimeMinutes - previousTimeMinutes) * xRangeLength
+                firstVerticalDividerX + ((currMinutes - previousTimeMinutes).toFloat() / (nextTimeMinutes - previousTimeMinutes)) * xRangeLength
             }
 
             val firstCurve = times[0].first.run {
@@ -139,8 +173,7 @@ private fun SunSetRiseContent() {
             }
 
             val path = Path()
-            path.moveTo(0f,
-                centerHorizontalLinePoint.y + if (times.first().first == SunSetRise.SUN_RISE) curveMaxHeight else -curveMaxHeight)
+            path.moveTo(0f, curveStartY)
 
             // 곡선 그리기
             path.cubicTo(firstCurve.point1.x,
@@ -185,10 +218,51 @@ private fun SunSetRiseContent() {
                 Offset(centerHorizontalLinePoint.x, centerHorizontalLinePoint.y),
                 Offset(size.width, centerHorizontalLinePoint.y))
 
-            val currentIconY = path.asAndroidPath().computeBounds()
+            PathMeasure().let { pathMeasure ->
+                pathMeasure.setPath(path, false)
+                val step = 0.01f
+                val length = pathMeasure.length
+                var closestOffset: Offset = Offset(0f, 0f)
+                var minDiff = Float.MAX_VALUE
+                var diff: Float
+                var offset: Offset
 
-            drawCircle(Color.White, radius = 16f, center = Offset(nowIconOffsetX, currentIconY))
-            //drawImage(image = currentIcon, topLeft = Offset(nowIconOffsetX - iconSize / 2f, currentIconY - iconSize / 2f))
+                for (i in 0..100) {
+                    offset = pathMeasure.getPosition(i * step * length)
+                    diff = abs(nowIconOffsetX - offset.x)
+
+                    if (diff < minDiff) {
+                        closestOffset = offset
+                        minDiff = diff
+                    } else if (diff > minDiff) {
+                        break
+                    }
+                }
+
+                drawImage(currentIcon, Offset(nowIconOffsetX - (iconSize / 2f), closestOffset.y - (iconSize * 0.6f)))
+
+                var xAmount: Float
+                var yAmount: Float
+
+                drawText(textLayoutResult = textMeasurer.measure(text = times[0].second.format(dateTimeFormatter),
+                    style = TextStyle(fontSize = 12.sp, textAlign = TextAlign.Center)).apply {
+                    xAmount = size.width / 2f
+                    yAmount = size.height / 2f
+                }, topLeft = Offset(firstVerticalDividerX - xAmount, verticalDividerTop - yAmount), color = Color.White)
+
+                drawText(textLayoutResult = textMeasurer.measure(text = times[1].second.format(dateTimeFormatter),
+                    style = TextStyle(fontSize = 12.sp, textAlign = TextAlign.Center)).apply {
+                    xAmount = size.width / 2f
+                    yAmount = size.height / 2f
+                }, topLeft = Offset(secondVerticalDividerX - xAmount, verticalDividerTop - yAmount), color = Color.White)
+
+                drawText(textLayoutResult = textMeasurer.measure(text = times[2].second.format(dateTimeFormatter),
+                    style = TextStyle(fontSize = 12.sp, textAlign = TextAlign.Center)).apply {
+                    xAmount = size.width / 2f
+                    yAmount = size.height / 2f
+                }, topLeft = Offset(thirdVerticalDividerX - xAmount, verticalDividerTop - yAmount), color = Color.White)
+            }
+
         }
     }
 }
