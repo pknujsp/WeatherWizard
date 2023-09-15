@@ -32,29 +32,42 @@ class DayNightCalculator(latitude: Double, longitude: Double, timeZone: TimeZone
     }
 
     fun getSunSetRiseTimes(currentCalendar: Calendar): List<Pair<SunSetRise, ZonedDateTime>> {
-        return calculator.let { calculator ->
-            val curr = calculate(currentCalendar)
+        val currentDayNight = calculate(currentCalendar)
 
-            val prevs = if (curr == DayNight.NIGHT) SunSetRise.SUN_SET to calculator.getOfficialSunsetCalendarForDate(currentCalendar)
-                .toZonedDateTime()
-            else
-                SunSetRise.SUN_RISE to calculator.getOfficialSunriseCalendarForDate(currentCalendar).toZonedDateTime()
-
-            val next =
-                if (curr == DayNight.NIGHT) SunSetRise.SUN_RISE to calculator.getOfficialSunriseCalendarForDate(currentCalendar.let {
-                    (it.clone() as Calendar).apply { add(Calendar.DATE, 1) }
-                }).toZonedDateTime() else
-                    SunSetRise.SUN_SET to calculator
-                        .getOfficialSunsetCalendarForDate(currentCalendar).toZonedDateTime()
-
-            val third = currentCalendar.let {
-                val n = (it.clone() as Calendar).apply { add(Calendar.DATE, 1) }
-                if (curr == DayNight.NIGHT) SunSetRise.SUN_SET to calculator.getOfficialSunsetCalendarForDate(n).toZonedDateTime() else
-                    SunSetRise.SUN_RISE to calculator.getOfficialSunsetCalendarForDate(n).toZonedDateTime()
+        val lastSunSetRiseTime = if (currentDayNight == DayNight.DAY) {
+            getSunRiseTime(currentCalendar)
+        } else {
+            if (currentCalendar.before(getSunSetTime(currentCalendar))) {
+                getSunSetTime(currentCalendar.run { (clone() as Calendar).apply { add(Calendar.DATE, -1) } })
+            } else {
+                getSunSetTime(currentCalendar)
             }
-
-            listOf(prevs, next, third)
         }
+        val changedDate = currentCalendar.get(Calendar.DATE) != lastSunSetRiseTime.get(Calendar.DATE)
+
+        val sunSetRiseTimes = mutableListOf<Pair<SunSetRise, ZonedDateTime>>()
+        val first = if (currentDayNight == DayNight.DAY) SunSetRise.SUN_RISE else SunSetRise.SUN_SET
+        val second = if (currentDayNight == DayNight.DAY) SunSetRise.SUN_SET else SunSetRise.SUN_RISE
+        val third = if (second == SunSetRise.SUN_RISE) SunSetRise.SUN_SET else SunSetRise.SUN_RISE
+
+        val firstTime = lastSunSetRiseTime.toZonedDateTime()
+        val secondTime = if (first == SunSetRise.SUN_RISE) {
+            getSunSetTime(currentCalendar).toZonedDateTime()
+        } else {
+            getSunRiseTime(currentCalendar.run { if (changedDate) this else (clone() as Calendar).apply { add(Calendar.DATE, 1) } })
+                .toZonedDateTime()
+        }
+        val thirdTime = if (second == SunSetRise.SUN_RISE) {
+            getSunSetTime(currentCalendar.run { if (changedDate) this else (clone() as Calendar).apply { add(Calendar.DATE, 1) } })
+                .toZonedDateTime()
+        } else {
+            getSunRiseTime(currentCalendar.run { (clone() as Calendar).apply { add(Calendar.DATE, 1) } }).toZonedDateTime()
+        }
+
+        sunSetRiseTimes.add(first to firstTime)
+        sunSetRiseTimes.add(second to secondTime)
+        sunSetRiseTimes.add(third to thirdTime)
+        return sunSetRiseTimes
     }
 
     private fun Calendar.toDay(): Triple<Int, Int, Int> = Triple(this.get(Calendar.YEAR), this.get(Calendar.MONTH), this.get(Calendar.DATE))

@@ -42,4 +42,7 @@
     <string name="detail">자세히</string>
     <string name="today">오늘</string>
     <string name="sun_set_rise">일출, 일몰</string>
+    <string name="now">현재</string>
+    <string name="sun_rise">일출</string>
+    <string name="sun_set">일몰</string>
 </resources>

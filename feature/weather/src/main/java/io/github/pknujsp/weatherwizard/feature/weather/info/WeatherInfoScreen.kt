@@ -73,7 +73,7 @@ fun WeatherInfoScreen(args: () -> RequestWeatherDataArgs) {
             SimpleDailyForecastScreen(weatherInfoViewModel)
             SimpleMapScreen { weatherInfoViewModel.requestArgs }
             AirQualityScreen { args() }
-            SimpleSunSetRiseScreen()
+            SimpleSunSetRiseScreen(args().latitude, args().longitude)
             Spacer(modifier = Modifier.height(62.dp))
         }
 
