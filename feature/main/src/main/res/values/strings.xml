@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="weather_info">날씨 정보</string>
+    <string name="area_info">지역 정보</string>
+    <string name="settings">설정</string>
+</resources>

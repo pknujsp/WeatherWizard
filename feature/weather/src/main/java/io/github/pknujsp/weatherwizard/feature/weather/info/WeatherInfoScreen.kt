@@ -44,6 +44,7 @@ fun WeatherInfoScreen(args: () -> RequestWeatherDataArgs) {
         val weatherInfoViewModel: WeatherInfoViewModel = hiltViewModel()
         val backgroundImageUrl by remember { derivedStateOf { mutableStateOf("") } }
         val weatherInfo by weatherInfoViewModel.weatherDataState.collectAsStateWithLifecycle()
+        val scrollState = rememberScrollState()
 
         AsyncImage(
             modifier = Modifier
@@ -62,7 +63,7 @@ fun WeatherInfoScreen(args: () -> RequestWeatherDataArgs) {
             modifier = Modifier
                 .fillMaxWidth()
                 .fillMaxHeight()
-                .verticalScroll(rememberScrollState()),
+                .verticalScroll(scrollState),
         ) {
             HeadInfoScreen(weatherInfoViewModel)
             CurrentWeatherScreen(weatherInfoViewModel)
@@ -74,7 +75,7 @@ fun WeatherInfoScreen(args: () -> RequestWeatherDataArgs) {
             SimpleMapScreen { weatherInfoViewModel.requestArgs }
             AirQualityScreen { args() }
             SimpleSunSetRiseScreen(args().latitude, args().longitude)
-            Spacer(modifier = Modifier.height(62.dp))
+            Spacer(modifier = Modifier.height(48.dp))
         }
 
         weatherInfo.onLoading {

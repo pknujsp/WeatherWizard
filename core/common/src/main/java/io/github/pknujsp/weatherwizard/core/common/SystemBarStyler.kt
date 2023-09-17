@@ -18,8 +18,8 @@ class SystemBarStyler(window: Window) : SystemBarController {
         WindowCompat.setDecorFitsSystemWindows(window, false)
         window.apply {
             setFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS, WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS)
-            navigationBarColor = Color.TRANSPARENT
             statusBarColor = Color.TRANSPARENT
+            //navigationBarColor = Color.TRANSPARENT
         }
         windowInsetsController = WindowCompat.getInsetsController(window, window.decorView)
     }
