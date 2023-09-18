@@ -46,4 +46,5 @@
     <string name="sun_rise">일출</string>
     <string name="sun_set">일몰</string>
     <string name="refresh">새로고침</string>
+    <string name="current_location">현재 위치</string>
 </resources>

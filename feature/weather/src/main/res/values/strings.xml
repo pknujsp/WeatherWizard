@@ -1,4 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="background_image">배경 사진</string>
+    <string name="title_why_you_need_permissions">권한이 필요합니다</string>
+    <string name="description_why_you_need_permissions">현재 위치의 날씨 정보를 파악하기 위해서는 위치 권한이 필요합니다.</string>
+    <string name="grant_permissions">권한 부여\n</string>
+    <string name="close">닫기</string>
 </resources>
