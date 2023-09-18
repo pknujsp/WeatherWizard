@@ -7,6 +7,7 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
+import io.github.pknujsp.weatherwizard.core.database.roomdb.NotPretainedRoomDb
 import io.github.pknujsp.weatherwizard.core.database.roomdb.PretainedRoomDb
 import javax.inject.Singleton
 
@@ -20,6 +21,14 @@ object RoomModule {
             context, PretainedRoomDb::class.java, "pretained.db",
         ).createFromAsset("db/pretained.db").build()
     }
+
+    @Provides
+    @Singleton
+    fun providesNotPretainedRoomDb(@ApplicationContext context: Context): NotPretainedRoomDb = synchronized(this) {
+        Room.databaseBuilder(
+            context, NotPretainedRoomDb::class.java, "not_pretained.db",
+        ).build()
+    }
 }
 
 @Module
@@ -27,4 +36,7 @@ object RoomModule {
 object DaoModule {
     @Provides
     fun providesKorCoordinateDao(pretainedRoomDb: PretainedRoomDb) = pretainedRoomDb.korCoordinateDao()
+
+    @Provides
+    fun providesFavoriteAreaListDao(notPretainedRoomDb: NotPretainedRoomDb) = notPretainedRoomDb.favoriteAreaListDao()
 }

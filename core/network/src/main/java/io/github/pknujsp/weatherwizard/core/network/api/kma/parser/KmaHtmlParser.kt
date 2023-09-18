@@ -105,6 +105,10 @@ class KmaHtmlParser @Inject constructor() {
             precipitationVolume = "mm"
         }
 
+        if (precipitationVolume.contains("~")) {
+            precipitationVolume = PrecipitationValueType.rainDrop.value.toString()
+        }
+
         return ParsedKmaCurrentWeather(
             temperature = temp.toTemperature(), feelsLikeTemperature = chill.toTemperature(), humidity = humidity.toHumidity(),
             precipitationType = pty,
@@ -276,6 +280,13 @@ class KmaHtmlParser @Inject constructor() {
                     windSpeed = ""
                 }
                 humidity = lis[7].getElementsByTag("span")[1].text()
+
+                if (rainVolume.contains("~")) {
+                    rainVolume = PrecipitationValueType.rainDrop.value.toString()
+                }
+                if (snowVolume.contains("~")) {
+                    snowVolume = PrecipitationValueType.snowDrop.value.toString()
+                }
 
                 parsedKmaHourlyForecasts.add(
                     ParsedKmaHourlyForecast(
@@ -480,7 +491,7 @@ class KmaHtmlParser @Inject constructor() {
         return conditionDescriptionsMap[description] ?: description
     }
 
-    private fun Document.parseForecastSummary():String{
+    private fun Document.parseForecastSummary(): String {
         val summary = getElementsByClass("cmp-fct-summary")
         val summaryText = summary[0].text()
         return summaryText
