@@ -10,13 +10,13 @@ interface FavoriteAreaListDao {
     suspend fun getAll(): List<FavoriteAreaListDto>
 
     @Query("SELECT * FROM favorite_area_list WHERE id = :id")
-    suspend fun getById(id: Long): FavoriteAreaListDto
+    suspend fun getById(id: Long): FavoriteAreaListDto?
 
     @Query("SELECT * FROM favorite_area_list WHERE areaName = :areaName")
-    suspend fun getByAreaName(areaName: String): FavoriteAreaListDto
+    suspend fun getByAreaName(areaName: String): FavoriteAreaListDto?
 
     @Query("SELECT * FROM favorite_area_list WHERE countryName = :countryName")
-    suspend fun getByCountryName(countryName: String): FavoriteAreaListDto
+    suspend fun getByCountryName(countryName: String): FavoriteAreaListDto?
 
     @Upsert
     suspend fun insert(favoriteAreaListDto: FavoriteAreaListDto)

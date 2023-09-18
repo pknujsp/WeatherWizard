@@ -7,6 +7,9 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
+import io.github.pknujsp.weatherwizard.core.database.favoritearea.FavoriteAreaListDao
+import io.github.pknujsp.weatherwizard.core.database.favoritearea.FavoriteAreaListDataSource
+import io.github.pknujsp.weatherwizard.core.database.favoritearea.FavoriteAreaListDataSourceImpl
 import io.github.pknujsp.weatherwizard.core.database.roomdb.NotPretainedRoomDb
 import io.github.pknujsp.weatherwizard.core.database.roomdb.PretainedRoomDb
 import javax.inject.Singleton
@@ -39,4 +42,13 @@ object DaoModule {
 
     @Provides
     fun providesFavoriteAreaListDao(notPretainedRoomDb: NotPretainedRoomDb) = notPretainedRoomDb.favoriteAreaListDao()
+}
+
+@Module
+@InstallIn(SingletonComponent::class)
+object DBDataSourceModule {
+    @Provides
+    @Singleton
+    fun providesFavoriteAreaListDataSource(favoriteAreaListDao: FavoriteAreaListDao): FavoriteAreaListDataSource =
+        FavoriteAreaListDataSourceImpl(favoriteAreaListDao)
 }
