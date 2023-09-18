@@ -12,8 +12,8 @@ import io.github.pknujsp.weatherwizard.core.domain.weather.GetAllWeatherDataUseC
 import io.github.pknujsp.weatherwizard.core.model.UiState
 import io.github.pknujsp.weatherwizard.core.model.flickr.FlickrRequestParameters
 import io.github.pknujsp.weatherwizard.core.model.nominatim.ReverseGeoCode
+import io.github.pknujsp.weatherwizard.core.model.weather.RequestWeatherDataArgs
 import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherConditionCategory
-import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherDataProvider
 import io.github.pknujsp.weatherwizard.core.model.weather.current.CurrentWeather
 import io.github.pknujsp.weatherwizard.core.model.weather.current.CurrentWeatherEntity
 import io.github.pknujsp.weatherwizard.core.model.weather.dailyforecast.DailyForecast
@@ -29,6 +29,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import java.time.ZonedDateTime
+import java.time.format.DateTimeFormatter
 import javax.inject.Inject
 
 @HiltViewModel
@@ -39,6 +40,9 @@ class WeatherInfoViewModel @Inject constructor(
 
     private val _weatherDataState = MutableStateFlow<UiState<Unit>>(UiState.Loading)
     val weatherDataState: StateFlow<UiState<Unit>> = _weatherDataState
+
+    private val _requestArgs = MutableStateFlow<UiState<RequestWeatherDataArgs>>(UiState.Loading)
+    val requestArgs: StateFlow<UiState<RequestWeatherDataArgs>> = _requestArgs
 
     private val _reverseGeoCode = MutableStateFlow<UiState<ReverseGeoCode>>(UiState.Loading)
     val reverseGeoCode: StateFlow<UiState<ReverseGeoCode>> = _reverseGeoCode
@@ -58,37 +62,44 @@ class WeatherInfoViewModel @Inject constructor(
     private val _yesterdayWeather = MutableStateFlow<UiState<YesterdayWeather>>(UiState.Loading)
     val yesterdayWeather: StateFlow<UiState<YesterdayWeather>> = _yesterdayWeather
 
-    fun loadAllWeatherData() {
+    fun loadAllWeatherData(requestWeatherDataArgs: RequestWeatherDataArgs) {
         viewModelScope.launch(Dispatchers.IO) {
-            val latitude = 35.236323256911774
-            val longitude = 128.86341167027018
-            val weatherDataProvider = WeatherDataProvider.Kma
-            val requestDateTime = ZonedDateTime.now()
+            requestWeatherDataArgs.run {
+                _requestArgs.value = UiState.Success(requestWeatherDataArgs)
+                val requestDateTime = ZonedDateTime.now()
+                reverseGeoCode(latitude, longitude, requestDateTime)
 
-            reverseGeoCode(latitude, longitude)
-
-            getAllWeatherDataUseCase(latitude,
-                longitude,
-                weatherDataProvider,
-                requestId = System.nanoTime()).onSuccess { allWeatherDataEntity ->
                 val dayNightCalculator = DayNightCalculator(latitude, longitude, requestDateTime.toTimeZone())
                 val currentCalendar = requestDateTime.toCalendar()
 
-                createFlickrRequestParameter(allWeatherDataEntity.currentWeatherEntity.weatherCondition.value, latitude, longitude,
-                    requestDateTime)
-                createCurrentWeatherUiModel(allWeatherDataEntity.currentWeatherEntity, dayNightCalculator, currentCalendar)
-                createHourlyForecastUiModel(allWeatherDataEntity.hourlyForecastEntity, dayNightCalculator)
-                createDailyForecastUiModel(allWeatherDataEntity.dailyForecastEntity)
-                createYesterdayWeatherUiModel(allWeatherDataEntity.yesterdayWeatherEntity)
+                getAllWeatherDataUseCase(latitude,
+                    longitude,
+                    weatherDataProvider,
+                    requestDateTime.toInstant().toEpochMilli()).onSuccess { allWeatherDataEntity ->
+                    createFlickrRequestParameter(allWeatherDataEntity.currentWeatherEntity.weatherCondition.value,
+                        latitude,
+                        longitude,
+                        requestDateTime)
+                    createCurrentWeatherUiModel(allWeatherDataEntity.currentWeatherEntity, dayNightCalculator, currentCalendar)
+                    createHourlyForecastUiModel(allWeatherDataEntity.hourlyForecastEntity, dayNightCalculator)
+                    createDailyForecastUiModel(allWeatherDataEntity.dailyForecastEntity)
+                    createYesterdayWeatherUiModel(allWeatherDataEntity.yesterdayWeatherEntity)
 
-                _weatherDataState.value = UiState.Success(Unit)
-            }.onFailure {
-                _weatherDataState.value = UiState.Error(it)
+                    _weatherDataState.value = UiState.Success(Unit)
+                }.onFailure {
+                    _weatherDataState.value = UiState.Error(it)
+                }
             }
         }
     }
 
-    private fun reverseGeoCode(latitude: Double, longitude: Double) {
+    fun reload() {
+        viewModelScope.launch {
+            _weatherDataState.value = UiState.Loading
+        }
+    }
+
+    private fun reverseGeoCode(latitude: Double, longitude: Double, requestDateTime: ZonedDateTime) {
         viewModelScope.launch(Dispatchers.IO) {
             nominatimRepository.reverseGeoCode(latitude, longitude).onSuccess {
                 _reverseGeoCode.value = UiState.Success(ReverseGeoCode(
@@ -97,6 +108,7 @@ class WeatherInfoViewModel @Inject constructor(
                     countryCode = it.countryCode,
                     latitude = it.latitude,
                     longitude = it.longitude,
+                    requestDateTime = requestDateTime.format(DateTimeFormatter.ofPattern("M.d EEE HH:mm"))
                 ))
             }.onFailure {
                 _reverseGeoCode.value = UiState.Error(it)
@@ -109,6 +121,7 @@ class WeatherInfoViewModel @Inject constructor(
         currentWeatherEntity: CurrentWeatherEntity, dayNightCalculator: DayNightCalculator, currentCalendar: java.util.Calendar
     ) {
         viewModelScope.launch(Dispatchers.Default) {
+            _currentWeather.value = UiState.Loading
             val currentWeather = currentWeatherEntity.run {
                 CurrentWeather(weatherCondition = weatherCondition,
                     temperature = temperature,

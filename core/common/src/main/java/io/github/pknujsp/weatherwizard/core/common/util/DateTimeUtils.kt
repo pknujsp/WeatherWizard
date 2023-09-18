@@ -17,3 +17,5 @@ fun ZonedDateTime.toCalendar(): Calendar = Calendar.Builder()
         Calendar.MINUTE, minute,
         Calendar.SECOND, second,
     ).build()
+
+fun Calendar.toZonedDateTime(): ZonedDateTime = toInstant().atZone(timeZone.toZoneId())

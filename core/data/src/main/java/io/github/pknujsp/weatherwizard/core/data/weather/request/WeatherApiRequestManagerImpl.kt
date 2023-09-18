@@ -2,7 +2,7 @@ package io.github.pknujsp.weatherwizard.core.data.weather.request
 
 import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherDataProvider
 import io.github.pknujsp.weatherwizard.core.network.ApiResponseModel
-import io.github.pknujsp.weatherwizard.core.network.datasource.kma.KmaDataSource
+import io.github.pknujsp.weatherwizard.core.network.api.kma.KmaDataSource
 import io.github.pknujsp.weatherwizard.core.model.weather.kma.parameter.KmaCurrentWeatherRequestParameter
 import io.github.pknujsp.weatherwizard.core.model.weather.kma.parameter.KmaDailyForecastRequestParameter
 import io.github.pknujsp.weatherwizard.core.model.weather.kma.parameter.KmaHourlyForecastRequestParameter

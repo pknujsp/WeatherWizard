@@ -3,7 +3,7 @@ package io.github.pknujsp.weatherwizard.core.data.nominatim
 import io.github.pknujsp.weatherwizard.core.common.util.LocationDistance
 import io.github.pknujsp.weatherwizard.core.model.nominatim.GeoCodeEntity
 import io.github.pknujsp.weatherwizard.core.model.nominatim.ReverseGeoCodeEntity
-import io.github.pknujsp.weatherwizard.core.network.datasource.nominatim.NominatimDataSource
+import io.github.pknujsp.weatherwizard.core.network.api.nominatim.NominatimDataSource
 import javax.inject.Inject
 
 class NominatimRepositoryImpl @Inject constructor(

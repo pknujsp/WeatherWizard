@@ -40,11 +40,12 @@ import io.github.pknujsp.weatherwizard.feature.weather.info.WeatherInfoViewModel
 @Composable
 fun CurrentWeatherScreen(weatherInfoViewModel: WeatherInfoViewModel) {
     val currentWeather by weatherInfoViewModel.currentWeather.collectAsStateWithLifecycle()
-    val yesterdayWeather by weatherInfoViewModel.yesterdayWeather.collectAsStateWithLifecycle()
-    val textColor = remember { Color.White }
-    val labelTextSize = remember { 14.sp }
 
     currentWeather.onSuccess { currentWeather ->
+        val yesterdayWeather by weatherInfoViewModel.yesterdayWeather.collectAsStateWithLifecycle()
+        val textColor = remember { Color.White }
+        val labelTextSize = remember { 14.sp }
+
         ConstraintLayout(modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 12.dp)
@@ -145,17 +146,6 @@ fun CurrentWeatherScreen(weatherInfoViewModel: WeatherInfoViewModel) {
             }
         }
     }.onLoading {
-        Box(modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 12.dp)
-            .wrapContentHeight()) {
-            PlaceHolder(modifier = Modifier
-                .size(80.dp)
-                .align(Alignment.BottomStart))
 
-            PlaceHolder(modifier = Modifier
-                .size(60.dp)
-                .align(Alignment.BottomEnd))
-        }
     }
 }

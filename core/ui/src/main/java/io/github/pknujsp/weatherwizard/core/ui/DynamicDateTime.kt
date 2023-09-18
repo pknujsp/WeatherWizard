@@ -1,7 +1,6 @@
 package io.github.pknujsp.weatherwizard.core.ui
 
 import android.content.res.Resources
-import android.util.Log
 import android.util.TypedValue
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -42,7 +41,6 @@ fun DynamicDateTime(
     Canvas(modifier = Modifier
         .fillMaxWidth()
         .height(height)) {
-
         println("Recompositioning DynamicDateTime")
 
         val leftOnBoxInRow = lazyListState.firstVisibleItemIndex * columnWidthPx + lazyListState.firstVisibleItemScrollOffset

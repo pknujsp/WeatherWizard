@@ -6,8 +6,8 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import io.github.pknujsp.weatherwizard.core.common.module.KtJson
-import io.github.pknujsp.weatherwizard.core.network.datasource.flickr.FlickrDataSource
-import io.github.pknujsp.weatherwizard.core.network.datasource.flickr.FlickrDataSourceImpl
+import io.github.pknujsp.weatherwizard.core.network.api.flickr.FlickrDataSource
+import io.github.pknujsp.weatherwizard.core.network.api.flickr.FlickrDataSourceImpl
 import io.github.pknujsp.weatherwizard.core.network.retrofit.NetworkApiCallAdapterFactory
 import kotlinx.serialization.json.Json
 import okhttp3.MediaType.Companion.toMediaType

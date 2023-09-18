@@ -1,7 +1,7 @@
 package io.github.pknujsp.weatherwizard.core.network.api.flickr
 
-import io.github.pknujsp.weatherwizard.core.network.datasource.flickr.GetInfoPhotoResponse
-import io.github.pknujsp.weatherwizard.core.network.datasource.flickr.PhotosFromGalleryResponse
+import io.github.pknujsp.weatherwizard.core.network.api.flickr.GetInfoPhotoResponse
+import io.github.pknujsp.weatherwizard.core.network.api.flickr.PhotosFromGalleryResponse
 import io.github.pknujsp.weatherwizard.core.network.retrofit.NetworkApiResult
 import retrofit2.Response
 import retrofit2.http.GET

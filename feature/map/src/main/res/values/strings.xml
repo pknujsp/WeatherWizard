@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="play_all_radars">기상 레이더 재생</string>
+    <string name="past">과거</string>
+    <string name="now">현재</string>
+    <string name="future">미래</string>
+</resources>

@@ -7,13 +7,14 @@ class HiltConventionPlugin : Plugin<Project> {
         with(target) {
             with(pluginManager) {
                 apply("org.jetbrains.kotlin.kapt")
+                apply("com.google.devtools.ksp")
                 apply("com.google.dagger.hilt.android")
             }
 
             dependencies {
                 "implementation"(libs.findBundle("hilt").get())
-                "kapt"(libs.findLibrary("androidx.hilt.work.compilerKapt").get())
-                "kapt"(libs.findLibrary("androidx.hilt.compilerKapt").get())
+                //"kapt"(libs.findLibrary("androidx.hilt.work.compilerKapt").get())
+                "ksp"(libs.findLibrary("androidx.hilt.compilerKapt").get())
                 "androidTestImplementation"(libs.findLibrary("androidx.hilt.android.testandroid").get())
             }
         }

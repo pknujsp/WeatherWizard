@@ -7,7 +7,7 @@ import dagger.hilt.components.SingletonComponent
 import io.github.pknujsp.weatherwizard.core.data.weather.request.WeatherApiRequestManager
 import io.github.pknujsp.weatherwizard.core.data.weather.request.WeatherApiRequestManagerImpl
 import io.github.pknujsp.weatherwizard.core.data.weather.request.WeatherApiRequestPreProcessorManager
-import io.github.pknujsp.weatherwizard.core.network.datasource.kma.KmaDataSource
+import io.github.pknujsp.weatherwizard.core.network.api.kma.KmaDataSource
 import javax.inject.Singleton
 
 @InstallIn(SingletonComponent::class)

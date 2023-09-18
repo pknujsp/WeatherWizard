@@ -1,7 +1,7 @@
 package io.github.pknujsp.weatherwizard.core.network.api.nominatim
 
-import io.github.pknujsp.weatherwizard.core.network.datasource.nominatim.response.GeoCodeResponse
-import io.github.pknujsp.weatherwizard.core.network.datasource.nominatim.response.ReverseGeoCodeResponse
+import io.github.pknujsp.weatherwizard.core.network.api.nominatim.response.GeoCodeResponse
+import io.github.pknujsp.weatherwizard.core.network.api.nominatim.response.ReverseGeoCodeResponse
 import io.github.pknujsp.weatherwizard.core.network.retrofit.NetworkApiResult
 import retrofit2.http.GET
 import retrofit2.http.Header

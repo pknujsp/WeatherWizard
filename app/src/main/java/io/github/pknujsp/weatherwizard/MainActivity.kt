@@ -11,7 +11,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import io.github.pknujsp.weatherwizard.core.common.SystemBarColorMonitor
 import io.github.pknujsp.weatherwizard.core.common.SystemBarStyler
 import io.github.pknujsp.weatherwizard.core.ui.theme.MainTheme
-import io.github.pknujsp.weatherwizard.core.ui.theme.mainColorScheme
+import io.github.pknujsp.weatherwizard.core.ui.theme.AppColorScheme
 import io.github.pknujsp.weatherwizard.feature.main.MainScreen
 
 
@@ -24,11 +24,11 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         val systemBarStyler = SystemBarStyler(window)
-        val systemBarColorMonitor = SystemBarColorMonitor(window, systemBarStyler, lifecycle)
+        //val systemBarColorMonitor = SystemBarColorMonitor(window, systemBarStyler, lifecycle)
 
         setContent {
             MainTheme {
-                Surface(modifier = Modifier.fillMaxSize(), color = mainColorScheme.background) {
+                Surface(modifier = Modifier.fillMaxSize(), color = AppColorScheme.background) {
                     MainScreen()
                 }
             }

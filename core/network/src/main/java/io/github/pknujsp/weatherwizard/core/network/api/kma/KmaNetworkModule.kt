@@ -4,9 +4,9 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
-import io.github.pknujsp.weatherwizard.core.network.datasource.kma.KmaDataSource
-import io.github.pknujsp.weatherwizard.core.network.datasource.kma.KmaDataSourceImpl
-import io.github.pknujsp.weatherwizard.core.network.datasource.kma.parser.KmaHtmlParser
+import io.github.pknujsp.weatherwizard.core.network.api.kma.KmaDataSource
+import io.github.pknujsp.weatherwizard.core.network.api.kma.KmaDataSourceImpl
+import io.github.pknujsp.weatherwizard.core.network.api.kma.parser.KmaHtmlParser
 import io.github.pknujsp.weatherwizard.core.network.retrofit.NetworkApiCallAdapterFactory
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
