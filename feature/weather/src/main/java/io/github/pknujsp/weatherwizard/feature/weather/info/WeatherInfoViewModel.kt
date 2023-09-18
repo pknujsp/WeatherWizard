@@ -5,6 +5,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.github.pknujsp.weatherwizard.core.common.util.DayNightCalculator
+import io.github.pknujsp.weatherwizard.core.common.util.toCalendar
+import io.github.pknujsp.weatherwizard.core.common.util.toTimeZone
 import io.github.pknujsp.weatherwizard.core.data.nominatim.NominatimRepository
 import io.github.pknujsp.weatherwizard.core.domain.weather.GetAllWeatherDataUseCase
 import io.github.pknujsp.weatherwizard.core.model.UiState
@@ -22,10 +24,12 @@ import io.github.pknujsp.weatherwizard.core.model.weather.yesterday.YesterdayWea
 import io.github.pknujsp.weatherwizard.core.model.weather.yesterday.YesterdayWeatherEntity
 import io.github.pknujsp.weatherwizard.core.ui.weather.item.DynamicDateTimeUiCreator
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import java.time.ZonedDateTime
+import java.time.format.DateTimeFormatter
 import javax.inject.Inject
 
 @HiltViewModel
@@ -61,15 +65,20 @@ class WeatherInfoViewModel @Inject constructor(
     fun loadAllWeatherData(requestWeatherDataArgs: RequestWeatherDataArgs) {
         viewModelScope.launch(Dispatchers.IO) {
             requestWeatherDataArgs.run {
-                reverseGeoCode(latitude, longitude)
+                _requestArgs.value = UiState.Success(requestWeatherDataArgs)
+                val requestDateTime = ZonedDateTime.now()
+                reverseGeoCode(latitude, longitude, requestDateTime)
+
+                val dayNightCalculator = DayNightCalculator(latitude, longitude, requestDateTime.toTimeZone())
+                val currentCalendar = requestDateTime.toCalendar()
 
                 getAllWeatherDataUseCase(latitude,
                     longitude,
                     weatherDataProvider,
-                    requestId).onSuccess { allWeatherDataEntity ->
-
-                    _requestArgs.value = UiState.Success(requestWeatherDataArgs)
-                    createFlickrRequestParameter(allWeatherDataEntity.currentWeatherEntity.weatherCondition.value, latitude, longitude,
+                    requestDateTime.toInstant().toEpochMilli()).onSuccess { allWeatherDataEntity ->
+                    createFlickrRequestParameter(allWeatherDataEntity.currentWeatherEntity.weatherCondition.value,
+                        latitude,
+                        longitude,
                         requestDateTime)
                     createCurrentWeatherUiModel(allWeatherDataEntity.currentWeatherEntity, dayNightCalculator, currentCalendar)
                     createHourlyForecastUiModel(allWeatherDataEntity.hourlyForecastEntity, dayNightCalculator)
@@ -84,7 +93,13 @@ class WeatherInfoViewModel @Inject constructor(
         }
     }
 
-    private fun reverseGeoCode(latitude: Double, longitude: Double) {
+    fun reload() {
+        viewModelScope.launch {
+            _weatherDataState.value = UiState.Loading
+        }
+    }
+
+    private fun reverseGeoCode(latitude: Double, longitude: Double, requestDateTime: ZonedDateTime) {
         viewModelScope.launch(Dispatchers.IO) {
             nominatimRepository.reverseGeoCode(latitude, longitude).onSuccess {
                 _reverseGeoCode.value = UiState.Success(ReverseGeoCode(
@@ -93,6 +108,7 @@ class WeatherInfoViewModel @Inject constructor(
                     countryCode = it.countryCode,
                     latitude = it.latitude,
                     longitude = it.longitude,
+                    requestDateTime = requestDateTime.format(DateTimeFormatter.ofPattern("M.d EEE HH:mm"))
                 ))
             }.onFailure {
                 _reverseGeoCode.value = UiState.Error(it)
@@ -105,6 +121,7 @@ class WeatherInfoViewModel @Inject constructor(
         currentWeatherEntity: CurrentWeatherEntity, dayNightCalculator: DayNightCalculator, currentCalendar: java.util.Calendar
     ) {
         viewModelScope.launch(Dispatchers.Default) {
+            _currentWeather.value = UiState.Loading
             val currentWeather = currentWeatherEntity.run {
                 CurrentWeather(weatherCondition = weatherCondition,
                     temperature = temperature,

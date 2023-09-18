@@ -13,9 +13,6 @@ data class RequestWeatherDataArgs(
     val latitude: Double,
     val longitude: Double,
     val weatherDataProvider: WeatherDataProvider,
-    val requestId: Long,
-    val requestDateTime: ZonedDateTime = ZonedDateTime.now()
 ) : ControllerArgs {
-    val dayNightCalculator = DayNightCalculator(latitude, longitude, requestDateTime.toTimeZone())
-    val currentCalendar = requestDateTime.toCalendar()
+
 }

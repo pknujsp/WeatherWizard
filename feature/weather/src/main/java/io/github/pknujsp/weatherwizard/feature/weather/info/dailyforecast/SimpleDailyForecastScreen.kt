@@ -16,7 +16,7 @@ fun SimpleDailyForecastScreen(weatherInfoViewModel: WeatherInfoViewModel) {
     val dailyForecast by weatherInfoViewModel.dailyForecast.collectAsStateWithLifecycle()
 
     dailyForecast.onLoading {
-        SimpleWeatherBackgroundPlaceHolder()
+
     }.onError { }.onSuccess {
         SimpleWeatherScreenBackground(
             CardInfo(

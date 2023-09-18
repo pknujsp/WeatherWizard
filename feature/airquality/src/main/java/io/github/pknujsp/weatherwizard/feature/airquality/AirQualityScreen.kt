@@ -31,7 +31,6 @@ import io.github.pknujsp.weatherwizard.core.model.onLoading
 import io.github.pknujsp.weatherwizard.core.model.onSuccess
 import io.github.pknujsp.weatherwizard.core.model.weather.RequestWeatherDataArgs
 import io.github.pknujsp.weatherwizard.core.ui.weather.item.CardInfo
-import io.github.pknujsp.weatherwizard.core.ui.weather.item.SimpleWeatherBackgroundPlaceHolder
 import io.github.pknujsp.weatherwizard.core.ui.weather.item.SimpleWeatherFailedBox
 import io.github.pknujsp.weatherwizard.core.ui.weather.item.SimpleWeatherScreenBackground
 
@@ -42,7 +41,6 @@ fun AirQualityScreen(requestWeatherDataArgs: () -> RequestWeatherDataArgs) {
     val airQuality by viewModel.airQuality.collectAsStateWithLifecycle()
 
     airQuality.onLoading {
-        SimpleWeatherBackgroundPlaceHolder()
         requestWeatherDataArgs().run {
             viewModel.loadAirQuality(latitude, longitude)
         }

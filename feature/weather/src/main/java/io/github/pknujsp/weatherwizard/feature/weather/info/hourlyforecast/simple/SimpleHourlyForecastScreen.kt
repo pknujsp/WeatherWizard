@@ -19,7 +19,6 @@ fun HourlyForecastScreen(weatherInfoViewModel: WeatherInfoViewModel) {
     val hourlyForecast by weatherInfoViewModel.hourlyForecast.collectAsStateWithLifecycle()
 
     hourlyForecast.onLoading {
-        SimpleWeatherBackgroundPlaceHolder()
     }.onSuccess {
         SimpleWeatherScreenBackground(CardInfo(title = "시간별 예보",
             buttons = listOf(

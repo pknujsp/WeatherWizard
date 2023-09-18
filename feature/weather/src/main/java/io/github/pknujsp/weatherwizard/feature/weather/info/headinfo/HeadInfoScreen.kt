@@ -34,11 +34,8 @@ import io.github.pknujsp.weatherwizard.core.common.util.AStyle
 import io.github.pknujsp.weatherwizard.core.common.util.toAnnotated
 import io.github.pknujsp.weatherwizard.core.model.onLoading
 import io.github.pknujsp.weatherwizard.core.model.onSuccess
-import io.github.pknujsp.weatherwizard.core.ui.PlaceHolder
 import io.github.pknujsp.weatherwizard.core.ui.theme.outlineTextStyle
 import io.github.pknujsp.weatherwizard.feature.weather.info.WeatherInfoViewModel
-import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
 
 @Composable
 fun HeadInfoScreen(weatherInfoViewModel: WeatherInfoViewModel) {
@@ -46,7 +43,7 @@ fun HeadInfoScreen(weatherInfoViewModel: WeatherInfoViewModel) {
         modifier = Modifier
             .fillMaxWidth()
             .statusBarsPadding()
-            .padding(top = 48.dp, bottom = 80.dp, start = 12.dp, end = 60.dp),
+            .padding(bottom = 100.dp, start = 12.dp, end = 60.dp),
     ) {
         val headInfo by weatherInfoViewModel.reverseGeoCode.collectAsStateWithLifecycle()
 
@@ -82,20 +79,14 @@ fun HeadInfoScreen(weatherInfoViewModel: WeatherInfoViewModel) {
                 )
                 Spacer(modifier = Modifier.width(4.dp))
                 Text(
-                    text = LocalDateTime.now().format(DateTimeFormatter.ofPattern("M.d E HH:mm")),
+                    text = it.requestDateTime,
                     fontSize = TextUnit(15f, TextUnitType.Sp),
                     color = Color.White,
                     style = LocalTextStyle.current.merge(outlineTextStyle),
                 )
             }
         }.onLoading {
-            PlaceHolder(Modifier
-                .size(90.dp, 28.dp)
-                .padding(bottom = 4.dp))
 
-            PlaceHolder(Modifier
-                .size(160.dp, 32.dp)
-                .padding(bottom = 80.dp))
         }
     }
 }

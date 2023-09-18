@@ -136,7 +136,7 @@ fun SimpleMapScreen(requestWeatherDataArgs: () -> StateFlow<UiState<RequestWeath
     val state by requestWeatherDataArgs().collectAsStateWithLifecycle()
 
     state.onLoading {
-        SimpleWeatherBackgroundPlaceHolder()
+
     }.onSuccess {
         SimpleWeatherScreenBackground(CardInfo(title = "기상 레이더") {
             Column(modifier = Modifier

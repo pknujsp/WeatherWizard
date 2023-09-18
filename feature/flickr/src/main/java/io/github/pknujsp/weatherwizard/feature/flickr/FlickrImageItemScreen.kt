@@ -45,10 +45,7 @@ fun FlickrImageItemScreen(
 ) {
     val requestParameter by parameterFlow().collectAsStateWithLifecycle()
     requestParameter.onLoading {
-        PlaceHolder(modifier = Modifier
-            .fillMaxWidth()
-            .height(13.dp)
-            .padding(start = 84.dp, end = 14.dp, top = 6.dp))
+
     }.onSuccess { requestParameters ->
         val viewModel: FlickrImageViewModel = hiltViewModel()
         viewModel.load(requestParameters)

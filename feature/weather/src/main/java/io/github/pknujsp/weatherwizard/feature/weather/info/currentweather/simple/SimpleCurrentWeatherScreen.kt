@@ -146,17 +146,6 @@ fun CurrentWeatherScreen(weatherInfoViewModel: WeatherInfoViewModel) {
             }
         }
     }.onLoading {
-        Box(modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 12.dp)
-            .wrapContentHeight()) {
-            PlaceHolder(modifier = Modifier
-                .size(80.dp)
-                .align(Alignment.BottomStart))
 
-            PlaceHolder(modifier = Modifier
-                .size(60.dp)
-                .align(Alignment.BottomEnd))
-        }
     }
 }

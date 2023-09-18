@@ -17,11 +17,15 @@ class SystemBarStyler(window: Window) : SystemBarController {
     init {
         WindowCompat.setDecorFitsSystemWindows(window, false)
         window.apply {
-            setFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS, WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS)
+            //setFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS, WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS)
             statusBarColor = Color.TRANSPARENT
-            //navigationBarColor = Color.TRANSPARENT
+            navigationBarColor = Color.TRANSPARENT
         }
         windowInsetsController = WindowCompat.getInsetsController(window, window.decorView)
+        windowInsetsController.apply {
+            isAppearanceLightStatusBars = false
+            isAppearanceLightNavigationBars = true
+        }
     }
 
 
