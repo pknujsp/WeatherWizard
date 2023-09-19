@@ -75,7 +75,7 @@ fun CustomTopAppBar(
     windowInsets: WindowInsets = TopAppBarDefaults.windowInsets,
     colors: CustomTopAppBarColors,
     maxHeight: Dp = 56.dp,
-    pinnedHeight: Dp = 42.dp,
+    pinnedHeight: Dp = 52.dp,
     scrollBehavior: TopAppBarScrollBehavior
 ) {
     if (maxHeight <= pinnedHeight) {

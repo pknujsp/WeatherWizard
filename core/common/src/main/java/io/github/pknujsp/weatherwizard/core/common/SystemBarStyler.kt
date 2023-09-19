@@ -23,7 +23,7 @@ class SystemBarStyler(window: Window) : SystemBarController {
         }
         windowInsetsController = WindowCompat.getInsetsController(window, window.decorView)
         windowInsetsController.apply {
-            isAppearanceLightStatusBars = false
+            isAppearanceLightStatusBars = true
             isAppearanceLightNavigationBars = true
         }
     }

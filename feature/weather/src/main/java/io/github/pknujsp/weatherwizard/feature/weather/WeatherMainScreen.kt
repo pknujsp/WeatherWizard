@@ -1,21 +1,23 @@
 package io.github.pknujsp.weatherwizard.feature.weather
 
 
-import android.app.Activity
+import android.util.Log
+import androidx.annotation.StringRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -23,17 +25,17 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
-import androidx.core.view.WindowCompat
+import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.rememberNavController
 import io.github.pknujsp.weatherwizard.core.common.LocationPermissionManager
 import io.github.pknujsp.weatherwizard.core.common.OpenSettingsForLocationPermission
+import io.github.pknujsp.weatherwizard.core.common.UnavailableFeature
 import io.github.pknujsp.weatherwizard.core.model.weather.RequestWeatherDataArgs
 import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherDataProvider
 import io.github.pknujsp.weatherwizard.core.ui.RoundedButton
@@ -46,66 +48,43 @@ fun WeatherMainScreen() {
     val mainViewModel: WeatherMainViewModel = hiltViewModel()
     val navController = rememberNavController()
 
-    val view = LocalView.current
-    LaunchedEffect(Unit) {
-        (view.context as Activity).window.run {
-            WindowCompat.getInsetsController(this, decorView).apply {
-                isAppearanceLightStatusBars = false
-            }
+    var permissionGranted by remember { mutableStateOf(false) }
+    var openPermissionActivity by remember { mutableStateOf(false) }
+    var unavailable by remember { mutableStateOf(false) }
+    var refreshKey by remember { mutableStateOf(0) }
+
+    if (unavailable) {
+        UnavailableFeatureScreen(title = R.string.title_why_you_need_permissions,
+            unavailableFeature = UnavailableFeature.LOCATION_PERMISSION_DENIED) {
+            openPermissionActivity = true
         }
     }
 
-    var permissionStatus by remember { mutableStateOf(false) }
-    var openSettings by remember { mutableStateOf(false) }
-    var openPermissionDialog by remember { mutableStateOf(false) }
-
-    if (openPermissionDialog) {
-        PermissionDialog(onDismissRequest = {
-            openPermissionDialog = false
-        }, onGrantPermission = {
-            openPermissionDialog = false
-            permissionStatus = true
-            openSettings = true
-        })
-    }
-
-    if (openSettings) {
+    if (openPermissionActivity) {
         OpenSettingsForLocationPermission {
-            openSettings = false
-            permissionStatus = false
+            Log.d("WeatherMainScreen", "onActivityResult, refreshKey: $refreshKey")
+            openPermissionActivity = false
+            refreshKey++
         }
     }
 
-    if (permissionStatus) {
+    if (permissionGranted) {
         WeatherInfoScreen(RequestWeatherDataArgs(latitude = 35.236323256911774,
             longitude = 128.86341167027018,
             weatherDataProvider = WeatherDataProvider.Kma))
     } else {
-        LocationPermission(permissionStatus = {
-            permissionStatus = it
-        }, openSettings = {
-            openSettings = it
-        }, openPermissionDialog = {
-            openPermissionDialog = true
-        })
+        LocationPermissionManager(onPermissionGranted = {
+            permissionGranted = true
+            openPermissionActivity = false
+            unavailable = false
+        }, onPermissionDenied = {
+            unavailable = true
+        }, onShouldShowRationale = {
+            unavailable = true
+        }, onNeverAskAgain = {
+            unavailable = true
+        }, refreshKey)
     }
-}
-
-@Composable
-private fun LocationPermission(
-    permissionStatus: (Boolean) -> Unit,
-    openSettings: (Boolean) -> Unit,
-    openPermissionDialog: () -> Unit
-) {
-    LocationPermissionManager(onPermissionGranted = {
-        permissionStatus(true)
-    }, onPermissionDenied = {
-        permissionStatus(false)
-    }, onShouldShowRationale = {
-        openPermissionDialog()
-    }, onNeverAskAgain = {
-        openSettings(true)
-    })
 }
 
 @Composable
@@ -132,5 +111,31 @@ private fun PermissionDialog(onDismissRequest: () -> Unit, onGrantPermission: ()
                 RoundedButton(text = stringResource(id = R.string.grant_permissions), onClick = onGrantPermission)
             }
         }
+    }
+}
+
+@Composable
+fun UnavailableFeatureScreen(@StringRes title: Int, unavailableFeature: UnavailableFeature, onClick: () -> Unit) {
+    ConstraintLayout(modifier = Modifier
+        .fillMaxSize()
+        .padding(horizontal = 16.dp, vertical = 24.dp)
+        .statusBarsPadding()) {
+        val (titleCons, messageCons, actionCons) = createRefs()
+        Text(text = stringResource(title), style = MaterialTheme.typography.titleLarge, modifier = Modifier.constrainAs(titleCons) {
+            top.linkTo(parent.top)
+            start.linkTo(parent.start)
+        })
+        Text(text = stringResource(unavailableFeature.message),
+            style = MaterialTheme.typography.bodyLarge,
+            modifier = Modifier.constrainAs(messageCons) {
+                top.linkTo(titleCons.bottom, margin = 36.dp)
+                start.linkTo(parent.start)
+            })
+        RoundedButton(text = stringResource(id = unavailableFeature.action),
+            onClick = onClick,
+            modifier = Modifier.constrainAs(actionCons) {
+                bottom.linkTo(parent.bottom)
+                end.linkTo(parent.end)
+            })
     }
 }

@@ -7,6 +7,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.provider.Settings
+import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.Composable
@@ -15,7 +16,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.app.ActivityCompat
@@ -30,8 +30,7 @@ import androidx.core.content.ContextCompat
 @Composable
 fun LocationPermissionManager(
     onPermissionGranted: () -> Unit, onPermissionDenied: () -> Unit, onShouldShowRationale: () -> Unit,
-    onNeverAskAgain: ()
-    -> Unit
+    onNeverAskAgain: () -> Unit, refreshKey: Int
 ) {
     val context = LocalContext.current
     val activity = context as Activity
@@ -39,7 +38,7 @@ fun LocationPermissionManager(
         arrayOf(onPermissionGranted, onPermissionDenied, onShouldShowRationale, onNeverAskAgain)
     )
 
-    val permissions = rememberSaveable {
+    val permissions = remember {
         arrayOf(
             Manifest.permission.ACCESS_FINE_LOCATION,
             Manifest.permission.ACCESS_COARSE_LOCATION
@@ -50,6 +49,7 @@ fun LocationPermissionManager(
     val permissionLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
     ) { result ->
+        Log.d("LocationPermissionManager", "result: $result")
         if (result.all { it.value }) {
             permissionState[0]()
         } else {
@@ -65,8 +65,10 @@ fun LocationPermissionManager(
         }
     }
 
-    LaunchedEffect(Unit) {
+    LaunchedEffect(refreshKey) {
+        Log.d("LocationPermissionManager", "refreshKey: $refreshKey")
         permissions.map { permission -> ContextCompat.checkSelfPermission(context, permission) }.run {
+            Log.d("LocationPermissionManager", "permissions: $this")
             if (any { it != PackageManager.PERMISSION_GRANTED }) {
                 if (ActivityCompat.shouldShowRequestPermissionRationale(
                         activity,

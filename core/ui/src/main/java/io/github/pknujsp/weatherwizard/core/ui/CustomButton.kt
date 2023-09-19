@@ -17,18 +17,19 @@ import io.github.pknujsp.weatherwizard.core.ui.theme.AppColorScheme
 
 @Composable
 fun RoundedButton(
+    modifier: Modifier = Modifier,
     colors: ButtonColors = ButtonDefaults.buttonColors(containerColor =
     AppColorScheme.primary,
         contentColor = Color.White), text: String, onClick: () -> Unit
 ) {
-    BaseButton(colors, text, onClick)
+    BaseButton(modifier, colors, text, onClick)
 }
 
 @Composable
-private fun BaseButton(colors: ButtonColors, text: String, onClick: () -> Unit) {
+private fun BaseButton(modifier: Modifier, colors: ButtonColors, text: String, onClick: () -> Unit) {
     Button(
         onClick = onClick,
-        modifier = Modifier.wrapContentSize(),
+        modifier = modifier.wrapContentSize(),
         shape = RoundedCornerShape(8.dp),
         elevation = ButtonDefaults.buttonElevation(),
         colors = colors,
