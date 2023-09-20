@@ -1,17 +1,20 @@
 package io.github.pknujsp.weatherwizard.feature.settings
 
 import androidx.compose.runtime.Composable
-import androidx.navigation.NavGraphBuilder
+import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import androidx.navigation.navigation
+import androidx.navigation.compose.rememberNavController
 
 @Composable
 fun SettingsScreen() {
 
 }
 
-fun NavGraphBuilder.settingsGraph() {
-    navigation(startDestination = SettingsRoutes.Main.route, route = SettingsRoutes.route) {
+
+@Composable
+fun HostSettingsScreen() {
+    val navController = rememberNavController()
+    NavHost(navController = navController, route = SettingsRoutes.route, startDestination = SettingsRoutes.Main.route) {
         composable(SettingsRoutes.Main.route) { SettingsScreen() }
     }
 }

@@ -26,15 +26,12 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import io.github.pknujsp.weatherwizard.core.ui.ParentRoutes
-import io.github.pknujsp.weatherwizard.feature.favorite.FavoriteRoutes
-import io.github.pknujsp.weatherwizard.feature.favorite.favoriteAreaGraph
-import io.github.pknujsp.weatherwizard.feature.settings.SettingsRoutes
-import io.github.pknujsp.weatherwizard.feature.settings.settingsGraph
-import io.github.pknujsp.weatherwizard.feature.weather.WeatherRoutes
-import io.github.pknujsp.weatherwizard.feature.weather.mainWeatherGraph
+import io.github.pknujsp.weatherwizard.feature.favorite.HostFavoriteScreen
+import io.github.pknujsp.weatherwizard.feature.settings.HostSettingsScreen
+import io.github.pknujsp.weatherwizard.feature.weather.HostWeatherScreen
 
 
 @Preview
@@ -47,11 +44,18 @@ fun MainScreen() {
         BottomNavigationBar(backStackEntry, navController)
     }) { paddingValues ->
         NavHost(modifier = Modifier.padding(bottom = paddingValues.calculateBottomPadding()),
-            navController = navController, route = "Root",
-            startDestination = WeatherRoutes.route) {
-            mainWeatherGraph(navController)
-            favoriteAreaGraph(navController)
-            settingsGraph()
+            navController = navController,
+            route = MainRoutes.route,
+            startDestination = MainRoutes.Weather.route) {
+            composable(MainRoutes.Weather.route) {
+                HostWeatherScreen()
+            }
+            composable(MainRoutes.Favorite.route) {
+                HostFavoriteScreen()
+            }
+            composable(MainRoutes.Settings.route) {
+                HostSettingsScreen()
+            }
         }
     }
 }
@@ -68,27 +72,30 @@ private fun BottomNavigationBar(
         .fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceAround) {
-        BottomNavigationBarItem(route = WeatherRoutes, backStackEntry, navController)
-        BottomNavigationBarItem(route = FavoriteRoutes, backStackEntry, navController)
-        BottomNavigationBarItem(route = SettingsRoutes, backStackEntry, navController)
+        BottomNavigationBarItem(MainRoutes.Weather, backStackEntry, navController)
+        BottomNavigationBarItem(MainRoutes.Favorite, backStackEntry, navController)
+        BottomNavigationBarItem(MainRoutes.Settings, backStackEntry, navController)
     }
 }
 
 @Composable
 private fun RowScope.BottomNavigationBarItem(
-    route: ParentRoutes, backStackEntry: NavBackStackEntry?, navController: NavHostController
+    route: MainRoutes, backStackEntry: NavBackStackEntry?, navController: NavHostController
 ) {
     Box(modifier = Modifier
         .weight(1f)
         .clip(CircleShape)
         .background(Color.Transparent)
-        .clickable(onClick = {
+        .clickable {
             navController.navigate(route.route) {
-                restoreState = true
                 launchSingleTop = true
+                backStackEntry?.destination?.route?.let {
+                    popUpTo(it) {
+                        inclusive = true
+                    }
+                }
             }
-        }),
-        contentAlignment = Alignment.Center) {
+        }, contentAlignment = Alignment.Center) {
         Icon(painter = painterResource(id = route.navIcon),
             contentDescription = stringResource(id = route.navTitle),
             modifier = Modifier

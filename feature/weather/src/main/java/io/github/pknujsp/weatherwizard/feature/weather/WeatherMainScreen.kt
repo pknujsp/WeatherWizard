@@ -27,6 +27,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
+import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navigation
@@ -83,6 +84,17 @@ fun WeatherMainScreen() {
     }
 }
 
+@Composable
+fun HostWeatherScreen() {
+    val navController = rememberNavController()
+    NavHost(
+        navController = navController, route = WeatherRoutes.route,
+        startDestination = WeatherRoutes.Main.route) {
+        composable(WeatherRoutes.Main.route) {
+            WeatherMainScreen()
+        }
+    }
+}
 
 @Composable
 fun UnavailableFeatureScreen(@StringRes title: Int, unavailableFeature: UnavailableFeature, onClick: () -> Unit) {
@@ -104,6 +116,7 @@ fun UnavailableFeatureScreen(@StringRes title: Int, unavailableFeature: Unavaila
         )
     }
 }
+
 
 fun NavGraphBuilder.mainWeatherGraph(navController: NavController) {
     navigation(startDestination = WeatherRoutes.Main.route, route = WeatherRoutes.route) {
