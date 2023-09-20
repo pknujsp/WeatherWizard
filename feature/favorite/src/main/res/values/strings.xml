@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="favorite_area_list">지역 목록</string>
+    <string name="add_new_area">지역 추가</string>
 </resources>

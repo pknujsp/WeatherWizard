@@ -14,6 +14,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -25,30 +26,32 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import io.github.pknujsp.weatherwizard.feature.favorite.FavoriteScreen
-import io.github.pknujsp.weatherwizard.feature.main.navigation.MainRoutes
-import io.github.pknujsp.weatherwizard.feature.settings.SettingsScreen
-import io.github.pknujsp.weatherwizard.feature.weather.WeatherMainScreen
+import io.github.pknujsp.weatherwizard.core.ui.ParentRoutes
+import io.github.pknujsp.weatherwizard.feature.favorite.FavoriteRoutes
+import io.github.pknujsp.weatherwizard.feature.favorite.favoriteAreaGraph
+import io.github.pknujsp.weatherwizard.feature.settings.SettingsRoutes
+import io.github.pknujsp.weatherwizard.feature.settings.settingsGraph
+import io.github.pknujsp.weatherwizard.feature.weather.WeatherRoutes
+import io.github.pknujsp.weatherwizard.feature.weather.mainWeatherGraph
 
 
 @Preview
 @Composable
 fun MainScreen() {
     val navController = rememberNavController()
-    val backStackEntry = navController.currentBackStackEntryAsState()
+    val backStackEntry by navController.currentBackStackEntryAsState()
 
     Scaffold(bottomBar = {
-        BottomNavigationBar({ backStackEntry.value }, navController)
+        BottomNavigationBar(backStackEntry, navController)
     }) { paddingValues ->
         NavHost(modifier = Modifier.padding(bottom = paddingValues.calculateBottomPadding()),
-            navController = navController,
-            startDestination = MainRoutes.Home.route) {
-            composable(MainRoutes.Home.route) { WeatherMainScreen() }
-            composable(MainRoutes.Favorite.route) { FavoriteScreen() }
-            composable(MainRoutes.Settings.route) { SettingsScreen() }
+            navController = navController, route = "Root",
+            startDestination = WeatherRoutes.route) {
+            mainWeatherGraph(navController)
+            favoriteAreaGraph(navController)
+            settingsGraph()
         }
     }
 }
@@ -56,7 +59,7 @@ fun MainScreen() {
 
 @Composable
 private fun BottomNavigationBar(
-    backStackEntry: () -> NavBackStackEntry?, navController: NavHostController
+    backStackEntry: NavBackStackEntry?, navController: NavHostController
 ) {
     Row(modifier = Modifier
         .background(Color.White)
@@ -65,27 +68,32 @@ private fun BottomNavigationBar(
         .fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceAround) {
-        BottomNavigationBarItem(route = MainRoutes.Home, backStackEntry, navController)
-        BottomNavigationBarItem(route = MainRoutes.Favorite, backStackEntry, navController)
-        BottomNavigationBarItem(route = MainRoutes.Settings, backStackEntry, navController)
+        BottomNavigationBarItem(route = WeatherRoutes, backStackEntry, navController)
+        BottomNavigationBarItem(route = FavoriteRoutes, backStackEntry, navController)
+        BottomNavigationBarItem(route = SettingsRoutes, backStackEntry, navController)
     }
 }
 
 @Composable
 private fun RowScope.BottomNavigationBarItem(
-    route: MainRoutes, backStackEntry: () -> NavBackStackEntry?, navController: NavHostController
+    route: ParentRoutes, backStackEntry: NavBackStackEntry?, navController: NavHostController
 ) {
     Box(modifier = Modifier
         .weight(1f)
         .clip(CircleShape)
         .background(Color.Transparent)
-        .clickable(onClick = { navController.navigate(route.route) }),
+        .clickable(onClick = {
+            navController.navigate(route.route) {
+                restoreState = true
+                launchSingleTop = true
+            }
+        }),
         contentAlignment = Alignment.Center) {
         Icon(painter = painterResource(id = route.navIcon),
             contentDescription = stringResource(id = route.navTitle),
             modifier = Modifier
                 .size(32.dp)
                 .padding(4.dp),
-            tint = if (backStackEntry()?.destination?.route == route.route) Color.Blue else Color.Gray)
+            tint = if (backStackEntry?.destination?.route == route.route) Color.Blue else Color.Gray)
     }
 }

@@ -4,4 +4,7 @@
     <string name="past">과거</string>
     <string name="now">현재</string>
     <string name="future">미래</string>
+    <string name="search">검색</string>
+    <string name="search_area">추가할 지역명을 입력해주세요</string>
+    <string name="clear_query">검색어 초기화</string>
 </resources>

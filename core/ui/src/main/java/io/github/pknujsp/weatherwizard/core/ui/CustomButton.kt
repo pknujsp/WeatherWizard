@@ -29,8 +29,8 @@ fun RoundedButton(
 private fun BaseButton(modifier: Modifier, colors: ButtonColors, text: String, onClick: () -> Unit) {
     Button(
         onClick = onClick,
-        modifier = modifier.wrapContentSize(),
-        shape = RoundedCornerShape(8.dp),
+        modifier = modifier,
+        shape = RoundedCornerShape(12.dp),
         elevation = ButtonDefaults.buttonElevation(),
         colors = colors,
         border = BorderStroke(0.dp, Color.Transparent),

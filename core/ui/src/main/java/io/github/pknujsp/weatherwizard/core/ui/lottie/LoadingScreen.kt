@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -16,6 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
@@ -50,15 +52,15 @@ private fun LoadingScreen(text: String? = null, onDismissRequest: (() -> Unit)? 
                 .fillMaxHeight()) {
             LottieAnimation(
                 modifier = Modifier
-                    .height(140.dp)
+                    .width(100.dp)
                     .align(Alignment.CenterHorizontally),
                 composition = composition,
                 progress = { progress },
-                contentScale = ContentScale.FillHeight,
+                contentScale = ContentScale.FillWidth,
                 asyncUpdates = AsyncUpdates.ENABLED
             )
             text?.run {
-                Text(text = this, fontSize = 15.sp, color = Color.White)
+                Text(text = this, fontSize = 16.sp, color = Color.White, fontWeight = FontWeight.Bold)
             }
             content?.run {
                 Spacer(modifier = Modifier.height(16.dp))
