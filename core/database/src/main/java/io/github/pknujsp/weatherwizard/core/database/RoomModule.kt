@@ -12,6 +12,9 @@ import io.github.pknujsp.weatherwizard.core.database.favoritearea.FavoriteAreaLi
 import io.github.pknujsp.weatherwizard.core.database.favoritearea.FavoriteAreaListDataSourceImpl
 import io.github.pknujsp.weatherwizard.core.database.roomdb.NotPretainedRoomDb
 import io.github.pknujsp.weatherwizard.core.database.roomdb.PretainedRoomDb
+import io.github.pknujsp.weatherwizard.core.database.searchhistory.SearchHistoryDao
+import io.github.pknujsp.weatherwizard.core.database.searchhistory.SearchHistoryLocalDataSource
+import io.github.pknujsp.weatherwizard.core.database.searchhistory.SearchHistoryLocalDataSourceImpl
 import javax.inject.Singleton
 
 @Module
@@ -42,6 +45,9 @@ object DaoModule {
 
     @Provides
     fun providesFavoriteAreaListDao(notPretainedRoomDb: NotPretainedRoomDb) = notPretainedRoomDb.favoriteAreaListDao()
+
+    @Provides
+    fun providesSearchHistoryDao(notPretainedRoomDb: NotPretainedRoomDb) = notPretainedRoomDb.searchHistoryDao()
 }
 
 @Module
@@ -51,4 +57,9 @@ object DBDataSourceModule {
     @Singleton
     fun providesFavoriteAreaListDataSource(favoriteAreaListDao: FavoriteAreaListDao): FavoriteAreaListDataSource =
         FavoriteAreaListDataSourceImpl(favoriteAreaListDao)
+
+    @Provides
+    @Singleton
+    fun providesSearchHistoryDataSource(searchHistoryDao: SearchHistoryDao): SearchHistoryLocalDataSource =
+        SearchHistoryLocalDataSourceImpl(searchHistoryDao)
 }

@@ -29,7 +29,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
@@ -46,10 +45,10 @@ fun SearchAreaScreen(navController: NavController) {
         .fillMaxSize()
         .statusBarsPadding()) {
         var text by rememberSaveable { mutableStateOf("") }
-        TitleTextWithNavigation(title = stringResource(id = R.string.search_area)) {
+        TitleTextWithNavigation(title = stringResource(id = io.github.pknujsp.weatherwizard.feature.favorite.R.string.add_new_area)) {
             navController.popBackStack()
         }
-        SearchBar {
+        SearchBar(Modifier.padding(horizontal = 16.dp)) {
             text = it
         }
         LazyColumn {
@@ -60,12 +59,11 @@ fun SearchAreaScreen(navController: NavController) {
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
-fun SearchBar(onTextChange: (String) -> Unit) {
-    Row(modifier = Modifier
+fun SearchBar(modifier: Modifier, onTextChange: (String) -> Unit) {
+    Row(modifier = modifier
         .fillMaxWidth()
-        .background(Color.LightGray, shape = RoundedCornerShape(12.dp))
-        .shadow(4.dp, RoundedCornerShape(12.dp), ambientColor = Color.Black, spotColor = Color.Black)
-        .padding(horizontal = 14.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically,
+        .background(Color(0xFFD8D8D8), shape = RoundedCornerShape(30.dp))
+        .padding(horizontal = 14.dp, vertical = 4.dp), verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(8.dp)) {
 
         val keyboardController = LocalSoftwareKeyboardController.current
@@ -79,13 +77,13 @@ fun SearchBar(onTextChange: (String) -> Unit) {
         },
             singleLine = true,
             modifier = Modifier
-                .fillMaxWidth()
-                .defaultMinSize(minHeight = 32.dp),
+                .fillMaxWidth(),
             colors = TextFieldDefaults.colors(
                 unfocusedContainerColor = Color.Transparent,
                 focusedContainerColor = Color.Transparent,
                 focusedIndicatorColor = Color.Transparent,
                 unfocusedIndicatorColor = Color.Transparent,
+                focusedLabelColor = Color.Blue,
             ),
             shape = RectangleShape,
             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),

@@ -19,9 +19,8 @@ import androidx.compose.ui.unit.sp
 
 @Composable
 private fun TitleText(title: String, modifier: Modifier = Modifier) {
-    Text(text = title, fontSize = 26.sp, fontWeight = FontWeight.Bold, color = Color.Black,
+    Text(text = title, fontSize = 24.sp, fontWeight = FontWeight.Bold, color = Color.Black,
         modifier = modifier
-            .padding(top = 24.dp, bottom = 16.dp, start = 16.dp)
             .wrapContentSize())
 }
 
@@ -47,5 +46,5 @@ fun TitleTextWithNavigation(
 fun TitleTextWithoutNavigation(
     title: String, modifier: Modifier = Modifier,
 ) {
-    TitleText(title = title, modifier = modifier)
+    TitleText(title = title, modifier = modifier.padding(top = 24.dp, bottom = 16.dp, start = 16.dp))
 }
