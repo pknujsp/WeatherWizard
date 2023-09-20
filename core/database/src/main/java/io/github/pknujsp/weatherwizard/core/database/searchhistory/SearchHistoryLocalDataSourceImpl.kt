@@ -9,9 +9,7 @@ class SearchHistoryLocalDataSourceImpl @Inject constructor(
         return searchHistoryDao.insert(SearchHistoryDto(query = query))
     }
 
-    override suspend fun getAll(): List<SearchHistoryDto> {
-        return searchHistoryDao.getAll()
-    }
+    override fun getAll() = searchHistoryDao.getAll()
 
     override suspend fun deleteAll() {
         searchHistoryDao.deleteAll()

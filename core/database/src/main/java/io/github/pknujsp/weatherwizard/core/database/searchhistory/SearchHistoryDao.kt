@@ -4,6 +4,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface SearchHistoryDao {
@@ -12,7 +13,7 @@ interface SearchHistoryDao {
     suspend fun insert(searchHistoryDto: SearchHistoryDto): Long
 
     @Query("SELECT * FROM search_history ORDER BY id DESC")
-    suspend fun getAll(): List<SearchHistoryDto>
+    fun getAll(): Flow<List<SearchHistoryDto>>
 
     @Query("DELETE FROM search_history")
     suspend fun deleteAll()

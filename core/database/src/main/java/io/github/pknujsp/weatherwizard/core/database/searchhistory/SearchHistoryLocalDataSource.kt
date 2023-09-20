@@ -1,10 +1,12 @@
 package io.github.pknujsp.weatherwizard.core.database.searchhistory
 
+import kotlinx.coroutines.flow.Flow
+
 interface SearchHistoryLocalDataSource {
 
     suspend fun insert(query: String): Long
 
-    suspend fun getAll(): List<SearchHistoryDto>
+    fun getAll(): Flow<List<SearchHistoryDto>>
 
     suspend fun deleteAll()
 

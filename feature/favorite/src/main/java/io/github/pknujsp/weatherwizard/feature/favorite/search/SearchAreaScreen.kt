@@ -4,12 +4,10 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -35,6 +33,7 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import io.github.pknujsp.weatherwizard.core.ui.TitleTextWithNavigation
 import io.github.pknujsp.weatherwizard.feature.map.R
@@ -44,22 +43,23 @@ fun SearchAreaScreen(navController: NavController) {
     Column(modifier = Modifier
         .fillMaxSize()
         .statusBarsPadding()) {
-        var text by rememberSaveable { mutableStateOf("") }
+        val searchAreaViewModel: SearchAreaViewModel = hiltViewModel()
+
         TitleTextWithNavigation(title = stringResource(id = io.github.pknujsp.weatherwizard.feature.favorite.R.string.add_new_area)) {
             navController.popBackStack()
         }
         SearchBar(Modifier.padding(horizontal = 16.dp)) {
-            text = it
+            searchAreaViewModel.search(it)
         }
-        LazyColumn {
-
+        SearchHistoryScreen {
+            searchAreaViewModel.search(it)
         }
     }
 }
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
-fun SearchBar(modifier: Modifier, onTextChange: (String) -> Unit) {
+fun SearchBar(modifier: Modifier, onSendQuery: (String) -> Unit) {
     Row(modifier = modifier
         .fillMaxWidth()
         .background(Color(0xFFD8D8D8), shape = RoundedCornerShape(30.dp))
@@ -73,7 +73,6 @@ fun SearchBar(modifier: Modifier, onTextChange: (String) -> Unit) {
             contentDescription = stringResource(R.string.search), tint = Color.DarkGray)
         TextField(value = text, label = { Text(text = stringResource(id = R.string.search_area)) }, onValueChange = {
             text = it
-            onTextChange(it)
         },
             singleLine = true,
             modifier = Modifier
@@ -88,8 +87,9 @@ fun SearchBar(modifier: Modifier, onTextChange: (String) -> Unit) {
             shape = RectangleShape,
             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
             keyboardActions = KeyboardActions(
-                onDone = {
+                onSearch = {
                     keyboardController?.hide()
+                    onSendQuery(text)
                 }
             ),
             trailingIcon = {

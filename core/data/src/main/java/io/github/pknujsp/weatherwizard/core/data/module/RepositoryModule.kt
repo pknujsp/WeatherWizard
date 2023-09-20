@@ -19,7 +19,6 @@ import io.github.pknujsp.weatherwizard.core.data.weather.WeatherDataRepositoryIm
 import io.github.pknujsp.weatherwizard.core.data.weather.mapper.WeatherResponseMapperManager
 import io.github.pknujsp.weatherwizard.core.data.weather.request.WeatherApiRequestManager
 import io.github.pknujsp.weatherwizard.core.database.AppDataStore
-import io.github.pknujsp.weatherwizard.core.database.favoritearea.FavoriteAreaListDao
 import io.github.pknujsp.weatherwizard.core.database.favoritearea.FavoriteAreaListDataSource
 import io.github.pknujsp.weatherwizard.core.network.api.aqicn.AqiCnDataSource
 import io.github.pknujsp.weatherwizard.core.network.api.nominatim.NominatimDataSource
@@ -61,6 +60,6 @@ object RepositoryModule {
 
     @Singleton
     @Provides
-    fun providesTargetAreaRepository(appDataStore: AppDataStore) : TargetAreaRepository =
+    fun providesTargetAreaRepository(appDataStore: AppDataStore): TargetAreaRepository =
         TargetAreaRepositoryImpl(appDataStore)
 }
