@@ -4,7 +4,7 @@ import kotlinx.coroutines.flow.Flow
 
 interface SearchHistoryLocalDataSource {
 
-    suspend fun insert(query: String): Long
+    suspend fun insert(query: String)
 
     fun getAll(): Flow<List<SearchHistoryDto>>
 

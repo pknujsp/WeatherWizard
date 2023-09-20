@@ -4,7 +4,7 @@ import io.github.pknujsp.weatherwizard.core.model.searchhistory.SearchHistory
 import kotlinx.coroutines.flow.Flow
 
 interface SearchHistoryRepository {
-    suspend fun insert(query: String): Long
+    suspend fun insert(query: String)
     fun getAll(): Flow<List<SearchHistory>>
     suspend fun deleteAll()
     suspend fun deleteById(id: Long)

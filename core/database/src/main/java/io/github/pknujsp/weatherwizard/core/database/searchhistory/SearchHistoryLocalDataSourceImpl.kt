@@ -5,8 +5,8 @@ import javax.inject.Inject
 class SearchHistoryLocalDataSourceImpl @Inject constructor(
     private val searchHistoryDao: SearchHistoryDao
 ) : SearchHistoryLocalDataSource {
-    override suspend fun insert(query: String): Long {
-        return searchHistoryDao.insert(SearchHistoryDto(query = query))
+    override suspend fun insert(query: String) {
+        searchHistoryDao.insert(query)
     }
 
     override fun getAll() = searchHistoryDao.getAll()

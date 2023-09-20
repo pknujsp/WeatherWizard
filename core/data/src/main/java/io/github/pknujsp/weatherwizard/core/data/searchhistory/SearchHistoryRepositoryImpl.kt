@@ -8,8 +8,8 @@ import javax.inject.Inject
 class SearchHistoryRepositoryImpl @Inject constructor(
     private val searchHistoryLocalDataSource: SearchHistoryLocalDataSource
 ) : SearchHistoryRepository {
-    override suspend fun insert(query: String): Long {
-        return searchHistoryLocalDataSource.insert(query)
+    override suspend fun insert(query: String) {
+        searchHistoryLocalDataSource.insert(query)
     }
 
     override fun getAll() = searchHistoryLocalDataSource.getAll().map {
