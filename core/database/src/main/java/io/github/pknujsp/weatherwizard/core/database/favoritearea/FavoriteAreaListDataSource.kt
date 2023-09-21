@@ -12,7 +12,7 @@ interface FavoriteAreaListDataSource {
 
     suspend fun getByCountryName(countryName: String): DBEntityState<FavoriteAreaListDto>
 
-    suspend fun insert(favoriteAreaListDto: FavoriteAreaListDto)
+    suspend fun insert(favoriteAreaListDto: FavoriteAreaListDto): Long
 
     suspend fun deleteById(id: Long)
 }

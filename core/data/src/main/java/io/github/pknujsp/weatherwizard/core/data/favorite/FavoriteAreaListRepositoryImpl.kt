@@ -40,8 +40,8 @@ class FavoriteAreaListRepositoryImpl @Inject constructor(
     }
 
 
-    override suspend fun insert(favoriteAreaListEntity: FavoriteAreaListEntity) {
-        favoriteAreaListDataSource.insert(
+    override suspend fun insert(favoriteAreaListEntity: FavoriteAreaListEntity): Long {
+        return favoriteAreaListDataSource.insert(
             FavoriteAreaListDto(
                 areaName = favoriteAreaListEntity.areaName,
                 countryName = favoriteAreaListEntity.countryName,

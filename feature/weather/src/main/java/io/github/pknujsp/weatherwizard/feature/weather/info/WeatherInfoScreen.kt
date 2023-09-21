@@ -46,6 +46,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
+import io.github.pknujsp.weatherwizard.core.common.util.DayNightCalculator
 import io.github.pknujsp.weatherwizard.core.model.UiState
 import io.github.pknujsp.weatherwizard.core.model.nominatim.ReverseGeoCode
 import io.github.pknujsp.weatherwizard.core.model.onLoading
@@ -70,6 +71,7 @@ import io.github.pknujsp.weatherwizard.feature.weather.info.hourlyforecast.simpl
 fun WeatherInfoScreen(args: RequestWeatherDataArgs) {
     val weatherInfoViewModel: WeatherInfoViewModel = hiltViewModel()
     val backgroundImageUrl by remember { derivedStateOf { mutableStateOf("") } }
+    val currentDayOrNight by remember { derivedStateOf { mutableStateOf(DayNightCalculator.DayNight.NIGHT) } }
     val weatherInfo by weatherInfoViewModel.weatherDataState.collectAsStateWithLifecycle()
     val scrollState = rememberScrollState()
 
@@ -80,7 +82,7 @@ fun WeatherInfoScreen(args: RequestWeatherDataArgs) {
     LaunchedEffect(Unit) {
         (view.context as Activity).window.run {
             WindowCompat.getInsetsController(this, decorView).apply {
-                isAppearanceLightStatusBars = false
+                isAppearanceLightStatusBars = currentDayOrNight.value == DayNightCalculator.DayNight.DAY
             }
         }
     }
@@ -138,7 +140,9 @@ fun WeatherInfoScreen(args: RequestWeatherDataArgs) {
                     SimpleDailyForecastScreen(weatherInfoViewModel)
                     SimpleMapScreen { weatherInfoViewModel.requestArgs }
                     AirQualityScreen { args }
-                    SimpleSunSetRiseScreen(args.latitude, args.longitude)
+                    SimpleSunSetRiseScreen(args.latitude, args.longitude) {
+                        currentDayOrNight.value = it
+                    }
                     Spacer(modifier = Modifier.height(36.dp))
                 }
             }
@@ -151,11 +155,6 @@ fun WeatherInfoScreen(args: RequestWeatherDataArgs) {
 
 @Composable
 private fun PlaceHolder() {
-    io.github.pknujsp.weatherwizard.core.ui.PlaceHolder(modifier = Modifier
-        .width(100.dp)
-        .height(28.dp)
-        .padding(start = 12.dp, end = 80.dp, top = 20.dp))
-
     Box(modifier = Modifier
         .fillMaxWidth()
         .padding(horizontal = 12.dp)

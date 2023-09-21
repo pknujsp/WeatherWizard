@@ -28,8 +28,8 @@ class FavoriteAreaListDataSourceImpl @Inject constructor(
         } ?: DBEntityState.NotExists
     }
 
-    override suspend fun insert(favoriteAreaListDto: FavoriteAreaListDto) {
-        favoriteAreaListDao.insert(favoriteAreaListDto)
+    override suspend fun insert(favoriteAreaListDto: FavoriteAreaListDto): Long {
+        return favoriteAreaListDao.insert(favoriteAreaListDto)
     }
 
     override suspend fun deleteById(id: Long) {

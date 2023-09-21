@@ -24,5 +24,7 @@ data class GeoCodeEntity(
         if (county.isNotEmpty()) append(" ").append(county)
         if (suburb.isNotEmpty()) append(" ").append(suburb)
         if (quarter.isNotEmpty()) append(" ").append(quarter)
+
+        if (isEmpty()) append(displayName.replace(", $country", ""))
     }.toString().trim()
 }

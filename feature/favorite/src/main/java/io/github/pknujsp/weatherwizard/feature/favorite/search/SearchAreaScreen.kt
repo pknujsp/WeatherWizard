@@ -50,7 +50,14 @@ fun SearchAreaScreen(navController: NavController) {
         .statusBarsPadding()) {
         val searchAreaViewModel: SearchAreaViewModel = hiltViewModel()
         val searchResult by searchAreaViewModel.searchResult.collectAsStateWithLifecycle()
-        var query by remember { mutableStateOf("") }
+        val uiAction by searchAreaViewModel.uiAction.collectAsStateWithLifecycle()
+
+        uiAction.onOnSelectedArea {
+            val backStack = navController.currentBackStackEntry
+            val backStackEntry = navController.previousBackStackEntry
+        }
+
+        var query by remember { mutableStateOf("" to 0L) }
         val showSearchHistory by remember {
             derivedStateOf {
                 mutableStateOf(true)
@@ -61,8 +68,9 @@ fun SearchAreaScreen(navController: NavController) {
             navController.popBackStack()
         }
         SearchBar(Modifier.padding(horizontal = 16.dp), query, onChangeQuery = {
-            if (it.isEmpty())
+            if (it.isEmpty()) {
                 showSearchHistory.value = true
+            }
         }) {
             searchAreaViewModel.search(it)
             showSearchHistory.value = false
@@ -71,20 +79,18 @@ fun SearchAreaScreen(navController: NavController) {
         if (showSearchHistory.value) {
             SearchHistoryScreen {
                 searchAreaViewModel.search(it)
-                query = it
+                query = it to System.currentTimeMillis()
                 showSearchHistory.value = false
             }
         } else {
-            SearchResultScreen(navController, searchResult) {
-
-            }
+            SearchResultScreen(navController, searchResult)
         }
     }
 }
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
-fun SearchBar(modifier: Modifier, query: String, onChangeQuery: (String) -> Unit, onSendQuery: (String) -> Unit) {
+fun SearchBar(modifier: Modifier, query: Pair<String, Long>, onChangeQuery: (String) -> Unit, onSendQuery: (String) -> Unit) {
     Row(modifier = modifier
         .fillMaxWidth()
         .background(Color(0xFFD8D8D8), shape = RoundedCornerShape(30.dp))
@@ -94,10 +100,10 @@ fun SearchBar(modifier: Modifier, query: String, onChangeQuery: (String) -> Unit
         val context = LocalContext.current
         val messageIfEmpty = stringResource(id = R.string.search_area)
         val keyboardController = LocalSoftwareKeyboardController.current
-        var text by remember { mutableStateOf("") }
+        var text by remember { mutableStateOf(query.first) }
 
-        LaunchedEffect(query) {
-            text = query
+        LaunchedEffect(query.second) {
+            text = query.first
         }
 
         Icon(imageVector = Icons.Rounded.Search,
@@ -129,12 +135,14 @@ fun SearchBar(modifier: Modifier, query: String, onChangeQuery: (String) -> Unit
                 }
             ),
             trailingIcon = {
-                IconButton(onClick = {
-                    text = ""
-                    onChangeQuery("")
-                }) {
-                    Icon(imageVector = Icons.Rounded.Clear, contentDescription =
-                    stringResource(id = R.string.clear_query))
+                if (text.isNotEmpty()) {
+                    IconButton(onClick = {
+                        text = ""
+                        onChangeQuery("")
+                    }) {
+                        Icon(imageVector = Icons.Rounded.Clear, contentDescription =
+                        stringResource(id = R.string.clear_query))
+                    }
                 }
             }
         )

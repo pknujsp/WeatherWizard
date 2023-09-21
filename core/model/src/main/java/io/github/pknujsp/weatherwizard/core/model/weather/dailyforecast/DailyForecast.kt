@@ -28,23 +28,22 @@ class DailyForecast(
         items = dailyForecastEntity.items.let { items ->
             val listMap = mutableMapOf<String, Item>()
             items.forEachIndexed { i, item ->
-                val date = ZonedDateTime.parse(item.dateTime.value).format(dateFormatter)
-
-                if (!listMap.containsKey(date)) {
-                    listMap[date] = Item(
-                        id = i,
-                        date = date,
-                        minTemperature = item.minTemperature.toString(),
-                        maxTemperature = item.maxTemperature.toString(),
-                        minTemperatureInt = item.minTemperature.value.toInt(),
-                        maxTemperatureInt = item.maxTemperature.value.toInt(),
-                    )
+                ZonedDateTime.parse(item.dateTime.value).format(dateFormatter).let { date ->
+                    if (!listMap.containsKey(date)) {
+                        listMap[date] = Item(
+                            id = i,
+                            date = date,
+                            minTemperature = item.minTemperature.toString(),
+                            maxTemperature = item.maxTemperature.toString(),
+                            minTemperatureInt = item.minTemperature.value.toInt(),
+                            maxTemperatureInt = item.maxTemperature.value.toInt(),
+                        )
+                    }
+                    listMap[date]?.add(
+                        item.weatherCondition, item.precipitationProbability)
                 }
-                listMap[date]?.add(
-                    item.weatherCondition, item.precipitationProbability)
             }
-
-            listMap.toList().sortedBy { it.first }.map { it.second }
+            listMap.toList().map { it.second }
         }
     }
 

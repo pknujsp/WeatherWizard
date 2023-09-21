@@ -8,7 +8,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -24,20 +24,18 @@ import io.github.pknujsp.weatherwizard.core.model.onSuccess
 
 
 @Composable
-fun SearchResultScreen(navController: NavController, searchResult: UiState<List<GeoCode>>, onSelect: (GeoCode) -> Unit) {
+fun SearchResultScreen(navController: NavController, searchResult: UiState<List<GeoCode>>) {
     Box(modifier = Modifier.fillMaxSize()) {
         searchResult.onSuccess {
             Column(modifier = Modifier
                 .fillMaxWidth()
                 .verticalScroll(rememberScrollState())) {
                 it.forEach { geoCode ->
-                    SearchResultItem(geoCode) {
-                        onSelect(geoCode)
-                    }
+                    SearchResultItem(geoCode)
                 }
             }
         }.onLoading {
-            LinearProgressIndicator(
+            CircularProgressIndicator(
                 modifier = Modifier
                     .align(Alignment.Center)
                     .padding(24.dp),
@@ -47,12 +45,12 @@ fun SearchResultScreen(navController: NavController, searchResult: UiState<List<
 }
 
 @Composable
-fun SearchResultItem(geoCode: GeoCode, onSelect: () -> Unit) {
+fun SearchResultItem(geoCode: GeoCode) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
             .clickable {
-                onSelect()
+                geoCode.onSelected?.invoke()
             },
     ) {
         Column(modifier = Modifier
@@ -60,7 +58,7 @@ fun SearchResultItem(geoCode: GeoCode, onSelect: () -> Unit) {
             .align(Alignment.CenterStart)
             .padding(horizontal = 16.dp, vertical = 8.dp)) {
             Text(text = geoCode.country, fontSize = 13.sp, color = Color.Gray,
-                modifier = Modifier.padding(bottom = 4.dp))
+                modifier = Modifier.padding(bottom = 2.dp))
             Text(text = geoCode.displayName, fontSize = 16.sp, color = Color.Black)
         }
     }

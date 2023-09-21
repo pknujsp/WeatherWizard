@@ -53,7 +53,7 @@ fun HeadInfoScreen(weatherInfoViewModel: WeatherInfoViewModel) {
                     AStyle(
                         "${it.country}\n",
                         span = SpanStyle(
-                            fontSize = TextUnit(32f, TextUnitType.Sp),
+                            fontSize = TextUnit(26f, TextUnitType.Sp),
                         ),
                     ),
                     AStyle(it.displayName, span = SpanStyle(fontSize = TextUnit(28f, TextUnitType.Sp))),

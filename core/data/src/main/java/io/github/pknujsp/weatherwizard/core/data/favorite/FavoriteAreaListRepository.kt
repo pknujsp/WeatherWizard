@@ -8,9 +8,7 @@ interface FavoriteAreaListRepository {
 
     suspend fun getById(id: Long): Result<FavoriteAreaListEntity>
 
-    suspend fun insert(favoriteAreaListEntity: FavoriteAreaListEntity)
+    suspend fun insert(favoriteAreaListEntity: FavoriteAreaListEntity): Long
 
     suspend fun deleteById(id: Long)
-
-
 }

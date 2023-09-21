@@ -1,6 +1,8 @@
 package io.github.pknujsp.weatherwizard.core.database.favoritearea
 
 import androidx.room.Dao
+import androidx.room.Insert
+import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Upsert
 
@@ -18,8 +20,8 @@ interface FavoriteAreaListDao {
     @Query("SELECT * FROM favorite_area_list WHERE countryName = :countryName")
     suspend fun getByCountryName(countryName: String): FavoriteAreaListDto?
 
-    @Upsert
-    suspend fun insert(favoriteAreaListDto: FavoriteAreaListDto)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insert(favoriteAreaListDto: FavoriteAreaListDto) :Long
 
     @Query("DELETE FROM favorite_area_list WHERE id = :id")
     suspend fun deleteById(id: Long)
