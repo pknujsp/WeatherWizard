@@ -2,7 +2,6 @@ package io.github.pknujsp.weatherwizard.core.common
 
 import android.graphics.Color
 import android.view.Window
-import android.view.WindowManager
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsControllerCompat
 

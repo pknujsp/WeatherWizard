@@ -1,6 +1,4 @@
-package io.github.pknujsp.weatherwizard.feature.main
-
-import io.github.pknujsp.weatherwizard.core.ui.ParentRoutes
+package io.github.pknujsp.weatherwizard.core.ui
 
 sealed interface MainRoutes : ParentRoutes {
 

@@ -52,7 +52,7 @@ private fun LoadingScreen(text: String? = null, onDismissRequest: (() -> Unit)? 
             LottieAnimation(
                 modifier = Modifier
                     .scale(2.5f)
-                    .height(56.dp)
+                    .height(70.dp)
                     .align(Alignment.CenterHorizontally),
                 composition = composition,
                 progress = { progress },

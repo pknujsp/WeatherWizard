@@ -1,7 +1,6 @@
 package io.github.pknujsp.weatherwizard.feature.weather
 
 
-import android.util.Log
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -9,7 +8,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -59,16 +57,13 @@ fun WeatherMainScreen() {
 
     if (openPermissionActivity) {
         OpenSettingsForLocationPermission {
-            Log.d("WeatherMainScreen", "onActivityResult, refreshKey: $refreshKey")
             openPermissionActivity = false
             refreshKey++
         }
     }
 
     if (permissionGranted) {
-        WeatherInfoScreen(RequestWeatherDataArgs(latitude = 35.236323256911774,
-            longitude = 128.86341167027018,
-            weatherDataProvider = WeatherDataProvider.Kma))
+        WeatherInfoScreen()
     } else {
         LocationPermissionManager(onPermissionGranted = {
             permissionGranted = true
@@ -100,8 +95,7 @@ fun HostWeatherScreen() {
 fun UnavailableFeatureScreen(@StringRes title: Int, unavailableFeature: UnavailableFeature, onClick: () -> Unit) {
     Column(modifier = Modifier
         .fillMaxSize()
-        .padding(horizontal = 16.dp, vertical = 24.dp)
-        .statusBarsPadding(),
+        .padding(horizontal = 16.dp, vertical = 24.dp),
         verticalArrangement = Arrangement.Center) {
         Text(text = stringResource(title), style = TextStyle(fontSize = 24.sp, color = Color.Black))
         Spacer(modifier = Modifier.height(16.dp))

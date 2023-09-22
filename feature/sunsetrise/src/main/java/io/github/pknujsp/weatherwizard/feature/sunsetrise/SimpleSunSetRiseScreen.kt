@@ -36,9 +36,7 @@ import java.time.format.DateTimeFormatter
 @Composable
 fun SimpleSunSetRiseScreen(latitude: Double, longitude: Double, currentDayOrNight: (DayNightCalculator.DayNight) -> Unit) {
     SimpleWeatherScreenBackground(cardInfo = CardInfo(title = stringResource(io.github.pknujsp.weatherwizard.core.common.R.string.sun_set_rise)) {
-        SunSetRiseContent(latitude, longitude) {
-            currentDayOrNight(it)
-        }
+        SunSetRiseContent(latitude, longitude, currentDayOrNight)
     })
 }
 

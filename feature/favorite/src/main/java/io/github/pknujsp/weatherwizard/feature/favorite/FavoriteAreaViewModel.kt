@@ -32,7 +32,8 @@ class FavoriteAreaViewModel @Inject constructor(
             _favoriteAreaList.value = favoriteAreaRepository.getAll().run {
                 UiState.Success(
                     map {
-                        FavoriteArea(id = it.id, areaName = it.areaName, countryName = it.countryName
+                        FavoriteArea(id = it.id, areaName = it.areaName, countryName = it.countryName,
+                            placeId = it.placeId
                         )
                     }
                 )

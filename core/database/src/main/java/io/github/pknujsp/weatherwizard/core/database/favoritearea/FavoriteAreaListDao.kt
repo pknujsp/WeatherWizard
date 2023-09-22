@@ -2,28 +2,39 @@ package io.github.pknujsp.weatherwizard.core.database.favoritearea
 
 import androidx.room.Dao
 import androidx.room.Insert
-import androidx.room.OnConflictStrategy
 import androidx.room.Query
-import androidx.room.Upsert
+import androidx.room.Transaction
 
 @Dao
-interface FavoriteAreaListDao {
+abstract class FavoriteAreaListDao {
     @Query("SELECT * FROM favorite_area_list")
-    suspend fun getAll(): List<FavoriteAreaListDto>
+    abstract suspend fun getAll(): List<FavoriteAreaListDto>
 
     @Query("SELECT * FROM favorite_area_list WHERE id = :id")
-    suspend fun getById(id: Long): FavoriteAreaListDto?
+    abstract suspend fun getById(id: Long): FavoriteAreaListDto?
 
     @Query("SELECT * FROM favorite_area_list WHERE areaName = :areaName")
-    suspend fun getByAreaName(areaName: String): FavoriteAreaListDto?
+    abstract suspend fun getByAreaName(areaName: String): FavoriteAreaListDto?
 
     @Query("SELECT * FROM favorite_area_list WHERE countryName = :countryName")
-    suspend fun getByCountryName(countryName: String): FavoriteAreaListDto?
+    abstract suspend fun getByCountryName(countryName: String): FavoriteAreaListDto?
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insert(favoriteAreaListDto: FavoriteAreaListDto) :Long
+    @Transaction
+    open suspend fun insert(favoriteAreaListDto: FavoriteAreaListDto): Long {
+        return if (!contains(favoriteAreaListDto.placeId)) {
+            realInsert(favoriteAreaListDto)
+        } else {
+            -1L
+        }
+    }
+
+    @Insert
+    abstract suspend fun realInsert(favoriteAreaListDto: FavoriteAreaListDto): Long
+
+    @Query("SELECT EXISTS(SELECT * FROM favorite_area_list WHERE placeId = :placeId)")
+    abstract suspend fun contains(placeId: Long): Boolean
 
     @Query("DELETE FROM favorite_area_list WHERE id = :id")
-    suspend fun deleteById(id: Long)
+    abstract suspend fun deleteById(id: Long)
 
 }

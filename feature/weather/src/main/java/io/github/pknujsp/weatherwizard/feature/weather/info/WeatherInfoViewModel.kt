@@ -7,13 +7,17 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import io.github.pknujsp.weatherwizard.core.common.util.DayNightCalculator
 import io.github.pknujsp.weatherwizard.core.common.util.toCalendar
 import io.github.pknujsp.weatherwizard.core.common.util.toTimeZone
+import io.github.pknujsp.weatherwizard.core.data.favorite.FavoriteAreaListRepository
+import io.github.pknujsp.weatherwizard.core.data.favorite.TargetAreaRepository
 import io.github.pknujsp.weatherwizard.core.data.nominatim.NominatimRepository
 import io.github.pknujsp.weatherwizard.core.domain.weather.GetAllWeatherDataUseCase
 import io.github.pknujsp.weatherwizard.core.model.UiState
+import io.github.pknujsp.weatherwizard.core.model.favorite.TargetAreaType
 import io.github.pknujsp.weatherwizard.core.model.flickr.FlickrRequestParameters
 import io.github.pknujsp.weatherwizard.core.model.nominatim.ReverseGeoCode
 import io.github.pknujsp.weatherwizard.core.model.weather.RequestWeatherDataArgs
 import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherConditionCategory
+import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherDataProvider
 import io.github.pknujsp.weatherwizard.core.model.weather.current.CurrentWeather
 import io.github.pknujsp.weatherwizard.core.model.weather.current.CurrentWeatherEntity
 import io.github.pknujsp.weatherwizard.core.model.weather.dailyforecast.DailyForecast
@@ -24,7 +28,6 @@ import io.github.pknujsp.weatherwizard.core.model.weather.yesterday.YesterdayWea
 import io.github.pknujsp.weatherwizard.core.model.weather.yesterday.YesterdayWeatherEntity
 import io.github.pknujsp.weatherwizard.core.ui.weather.item.DynamicDateTimeUiCreator
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -36,6 +39,8 @@ import javax.inject.Inject
 class WeatherInfoViewModel @Inject constructor(
     private val getAllWeatherDataUseCase: GetAllWeatherDataUseCase,
     private val nominatimRepository: NominatimRepository,
+    private val targetAreaRepository: TargetAreaRepository,
+    private val favoriteAreaListRepository: FavoriteAreaListRepository,
 ) : ViewModel() {
 
     private val _weatherDataState = MutableStateFlow<UiState<Unit>>(UiState.Loading)
@@ -61,6 +66,26 @@ class WeatherInfoViewModel @Inject constructor(
 
     private val _yesterdayWeather = MutableStateFlow<UiState<YesterdayWeather>>(UiState.Loading)
     val yesterdayWeather: StateFlow<UiState<YesterdayWeather>> = _yesterdayWeather
+
+    init {
+        viewModelScope.launch {
+            _requestArgs.value = targetAreaRepository.getTargetArea().let { targetAreaType ->
+                UiState.Success(
+                    if (targetAreaType is TargetAreaType.CurrentLocation) {
+                        RequestWeatherDataArgs(latitude = 35.236323256911774,
+                            longitude = 128.86341167027018,
+                            weatherDataProvider = WeatherDataProvider.Kma)
+                    } else {
+                        favoriteAreaListRepository.getById(targetAreaType.id).getOrThrow().run {
+                            RequestWeatherDataArgs(latitude = latitude,
+                                longitude = longitude,
+                                weatherDataProvider = WeatherDataProvider.Kma)
+                        }
+                    }
+                )
+            }
+        }
+    }
 
     fun loadAllWeatherData(requestWeatherDataArgs: RequestWeatherDataArgs) {
         viewModelScope.launch(Dispatchers.IO) {

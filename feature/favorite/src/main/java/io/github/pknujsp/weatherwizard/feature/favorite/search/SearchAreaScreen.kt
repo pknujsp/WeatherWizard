@@ -1,6 +1,7 @@
 package io.github.pknujsp.weatherwizard.feature.favorite.search
 
 import android.widget.Toast
+import androidx.activity.ComponentActivity
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -8,7 +9,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -40,21 +40,23 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
+import io.github.pknujsp.weatherwizard.core.ui.MainRoutes
+import io.github.pknujsp.weatherwizard.core.ui.RootNavControllerViewModel
 import io.github.pknujsp.weatherwizard.core.ui.TitleTextWithNavigation
 import io.github.pknujsp.weatherwizard.feature.map.R
 
 @Composable
 fun SearchAreaScreen(navController: NavController) {
     Column(modifier = Modifier
-        .fillMaxSize()
-        .statusBarsPadding()) {
+        .fillMaxSize()) {
         val searchAreaViewModel: SearchAreaViewModel = hiltViewModel()
         val searchResult by searchAreaViewModel.searchResult.collectAsStateWithLifecycle()
         val uiAction by searchAreaViewModel.uiAction.collectAsStateWithLifecycle()
+        val rootNavControllerViewModel: RootNavControllerViewModel = hiltViewModel(viewModelStoreOwner =
+        (LocalContext.current as ComponentActivity))
 
         uiAction.onOnSelectedArea {
-            val backStack = navController.currentBackStackEntry
-            val backStackEntry = navController.previousBackStackEntry
+            rootNavControllerViewModel.navigate(MainRoutes.Weather)
         }
 
         var query by remember { mutableStateOf("" to 0L) }

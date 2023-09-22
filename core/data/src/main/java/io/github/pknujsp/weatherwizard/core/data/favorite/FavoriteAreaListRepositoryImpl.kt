@@ -16,7 +16,8 @@ class FavoriteAreaListRepositoryImpl @Inject constructor(
                 areaName = it.areaName,
                 countryName = it.countryName,
                 latitude = it.latitude,
-                longitude = it.longitude
+                longitude = it.longitude,
+                placeId = it.placeId
             )
         }
     }
@@ -30,7 +31,8 @@ class FavoriteAreaListRepositoryImpl @Inject constructor(
                         areaName = it.data.areaName,
                         countryName = it.data.countryName,
                         latitude = it.data.latitude,
-                        longitude = it.data.longitude
+                        longitude = it.data.longitude,
+                        placeId = it.data.placeId
                     )
                 )
 
@@ -46,7 +48,8 @@ class FavoriteAreaListRepositoryImpl @Inject constructor(
                 areaName = favoriteAreaListEntity.areaName,
                 countryName = favoriteAreaListEntity.countryName,
                 latitude = favoriteAreaListEntity.latitude,
-                longitude = favoriteAreaListEntity.longitude
+                longitude = favoriteAreaListEntity.longitude,
+                placeId = favoriteAreaListEntity.placeId
             )
         )
     }

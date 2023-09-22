@@ -3,6 +3,7 @@ package io.github.pknujsp.weatherwizard.core.model.nominatim
 import io.github.pknujsp.weatherwizard.core.model.EntityModel
 
 data class GeoCodeEntity(
+    val placeId: Long,
     val displayName: String,
     val countryCode: String,
     val country: String,

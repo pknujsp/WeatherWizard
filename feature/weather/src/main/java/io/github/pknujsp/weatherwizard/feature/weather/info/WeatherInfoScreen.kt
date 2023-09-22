@@ -8,12 +8,13 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -32,6 +33,7 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -51,7 +53,6 @@ import io.github.pknujsp.weatherwizard.core.model.UiState
 import io.github.pknujsp.weatherwizard.core.model.nominatim.ReverseGeoCode
 import io.github.pknujsp.weatherwizard.core.model.onLoading
 import io.github.pknujsp.weatherwizard.core.model.onSuccess
-import io.github.pknujsp.weatherwizard.core.model.weather.RequestWeatherDataArgs
 import io.github.pknujsp.weatherwizard.core.ui.lottie.CancellableLoadingScreen
 import io.github.pknujsp.weatherwizard.core.ui.weather.item.SimpleWeatherBackgroundPlaceHolder
 import io.github.pknujsp.weatherwizard.feature.airquality.AirQualityScreen
@@ -68,10 +69,11 @@ import io.github.pknujsp.weatherwizard.feature.weather.info.hourlyforecast.simpl
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
-fun WeatherInfoScreen(args: RequestWeatherDataArgs) {
+fun WeatherInfoScreen() {
     val weatherInfoViewModel: WeatherInfoViewModel = hiltViewModel()
+    val args by weatherInfoViewModel.requestArgs.collectAsStateWithLifecycle()
     val backgroundImageUrl by remember { derivedStateOf { mutableStateOf("") } }
-    val currentDayOrNight by remember { derivedStateOf { mutableStateOf(DayNightCalculator.DayNight.NIGHT) } }
+    var currentDayOrNight by remember { mutableStateOf(DayNightCalculator.DayNight.NIGHT) }
     val weatherInfo by weatherInfoViewModel.weatherDataState.collectAsStateWithLifecycle()
     val scrollState = rememberScrollState()
 
@@ -79,71 +81,86 @@ fun WeatherInfoScreen(args: RequestWeatherDataArgs) {
     val headInfo by weatherInfoViewModel.reverseGeoCode.collectAsStateWithLifecycle()
 
     val view = LocalView.current
-    LaunchedEffect(Unit) {
+    val insetController = remember {
         (view.context as Activity).window.run {
-            WindowCompat.getInsetsController(this, decorView).apply {
-                isAppearanceLightStatusBars = currentDayOrNight.value == DayNightCalculator.DayNight.DAY
-            }
+            WindowCompat.getInsetsController(this, decorView)
         }
     }
 
-    Scaffold(modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection), topBar = {
-        CustomTopAppBar(smallTitle = {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(imageVector = Icons.Rounded.Place, contentDescription = null, tint = Color.LightGray, modifier = Modifier.size(16.dp))
-                Text(text = if (headInfo is UiState.Success) (headInfo as UiState
-                .Success<ReverseGeoCode>).data.displayName else "")
-            }
-        },
-            actions = {
-                IconButton(onClick = { weatherInfoViewModel.reload() }) {
-                    Icon(imageVector = Icons.Rounded.Refresh, contentDescription = null)
-                }
-            },
-            scrollBehavior = scrollBehavior,
-            colors = CustomTopAppBarColors(
-                containerColor = Color.Transparent,
-                scrolledContainerColor = Color.Transparent,
-                titleContentColor = Color.White,
-                navigationIconContentColor = Color.White,
-                actionIconContentColor = Color.White,
-            ),
-            modifier = Modifier
-                .background(Color.Transparent))
-    }) { innerPadding ->
-        Box {
-            AsyncImage(
-                modifier = Modifier.fillMaxSize(),
-                contentScale = ContentScale.Crop,
-                alignment = Alignment.Center,
-                model = ImageRequest.Builder(LocalContext.current).data(backgroundImageUrl.value).crossfade(200).build(),
-                contentDescription = stringResource(R.string.background_image),
-            )
+    LaunchedEffect(currentDayOrNight) {
+        insetController.run {
+            isAppearanceLightNavigationBars = currentDayOrNight == DayNightCalculator.DayNight.DAY
+        }
+    }
 
+    Box {
+        AsyncImage(
+            modifier = Modifier.fillMaxSize(),
+            contentScale = ContentScale.Crop,
+            alignment = Alignment.Center,
+            model = ImageRequest.Builder(LocalContext.current).data(backgroundImageUrl.value).crossfade(200).build(),
+            contentDescription = stringResource(R.string.background_image),
+        )
+
+        Scaffold(modifier = Modifier
+            .nestedScroll(scrollBehavior.nestedScrollConnection)
+            .navigationBarsPadding(),
+            containerColor = Color.Transparent, topBar = {
+                CustomTopAppBar(smallTitle = {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(imageVector = Icons.Rounded.Place,
+                            contentDescription = null,
+                            tint = Color.LightGray,
+                            modifier = Modifier.size(16.dp))
+                        Text(text = if (headInfo is UiState.Success) (headInfo as UiState
+                        .Success<ReverseGeoCode>).data.displayName else "")
+                    }
+                },
+                    actions = {
+                        IconButton(onClick = { weatherInfoViewModel.reload() }) {
+                            Icon(imageVector = Icons.Rounded.Refresh, contentDescription = null)
+                        }
+                    },
+                    scrollBehavior = scrollBehavior,
+                    colors = CustomTopAppBarColors(
+                        containerColor = Color.Transparent,
+                        scrolledContainerColor = Color.Transparent,
+                        titleContentColor = Color.White,
+                        navigationIconContentColor = Color.White,
+                        actionIconContentColor = Color.White,
+                    ),
+                    modifier = Modifier
+                        .background(color = Color.Transparent),
+                    windowInsets = WindowInsets(0.dp, 0.dp, 0.dp, 0.dp))
+            }) { innerPadding ->
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(top = innerPadding.calculateTopPadding())
                     .verticalScroll(scrollState),
             ) {
                 weatherInfo.onLoading {
                     PlaceHolder()
                     CancellableLoadingScreen(stringResource(id = io.github.pknujsp.weatherwizard.core.common.R.string.loading_weather_data)) {}
-                    weatherInfoViewModel.loadAllWeatherData(args)
+                    args.onSuccess {
+                        weatherInfoViewModel.loadAllWeatherData(it)
+                    }
                 }.onSuccess {
-                    HeadInfoScreen(weatherInfoViewModel)
-                    CurrentWeatherScreen(weatherInfoViewModel)
-                    FlickrImageItemScreen({ weatherInfoViewModel.flickrRequestParameter }) {
-                        backgroundImageUrl.value = it
+                    args.onSuccess { requestWeatherDataArgs ->
+                        Spacer(modifier = Modifier.height(innerPadding.calculateTopPadding()))
+                        HeadInfoScreen(weatherInfoViewModel)
+                        CurrentWeatherScreen(weatherInfoViewModel)
+                        FlickrImageItemScreen({ weatherInfoViewModel.flickrRequestParameter }) {
+                            backgroundImageUrl.value = it
+                        }
+                        HourlyForecastScreen(weatherInfoViewModel)
+                        SimpleDailyForecastScreen(weatherInfoViewModel)
+                        SimpleMapScreen { weatherInfoViewModel.requestArgs }
+                        AirQualityScreen(requestWeatherDataArgs)
+                        SimpleSunSetRiseScreen(requestWeatherDataArgs.latitude, requestWeatherDataArgs.longitude) {
+                            currentDayOrNight = it
+                        }
+                        Spacer(modifier = Modifier.height(36.dp))
                     }
-                    HourlyForecastScreen(weatherInfoViewModel)
-                    SimpleDailyForecastScreen(weatherInfoViewModel)
-                    SimpleMapScreen { weatherInfoViewModel.requestArgs }
-                    AirQualityScreen { args }
-                    SimpleSunSetRiseScreen(args.latitude, args.longitude) {
-                        currentDayOrNight.value = it
-                    }
-                    Spacer(modifier = Modifier.height(36.dp))
                 }
             }
         }

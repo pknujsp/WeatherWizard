@@ -30,16 +30,28 @@ class SearchAreaViewModel @Inject constructor(
     private val _searchResult = MutableStateFlow<UiState<List<GeoCode>>>(UiState.Loading)
     val searchResult: StateFlow<UiState<List<GeoCode>>> = _searchResult
 
+    private val lastFavoriteAreaIdList = MutableStateFlow<List<Long>>(emptyList())
+
     private val _uiAction = MutableStateFlow<Action>(Action.Default)
     val uiAction: StateFlow<Action> = _uiAction
+
+    init {
+        viewModelScope.launch(Dispatchers.IO) {
+            lastFavoriteAreaIdList.value = favoriteAreaRepository.getAll().map {
+                it.placeId
+            }
+        }
+    }
 
     fun search(query: String) {
         viewModelScope.launch(Dispatchers.IO) {
             searchHistoryRepository.insert(query)
             nominatimRepository.geoCode(query).map { geoCodeEntities ->
+                val addedIds = lastFavoriteAreaIdList.value
                 geoCodeEntities.map { item ->
-                    GeoCode(displayName = item.simpleDisplayName, countryCode =
-                    item.countryCode, country = item.country, latitude = item.latitude, longitude = item.longitude
+                    GeoCode(placeId = item.placeId, displayName = item.simpleDisplayName, countryCode =
+                    item.countryCode, country = item.country, latitude = item.latitude, longitude = item.longitude, isAdded = addedIds
+                        .contains(item.placeId)
                     )
                 }.distinctBy { item -> item.displayName }.map {
                     it.onSelected = {
@@ -59,7 +71,8 @@ class SearchAreaViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             val newId = favoriteAreaRepository.insert(
                 FavoriteAreaListEntity(areaName = geoCode.displayName, countryName = geoCode.country, latitude = geoCode.latitude,
-                    longitude = geoCode.longitude)
+                    longitude = geoCode.longitude,
+                    placeId = geoCode.placeId)
             )
             targetAreaRepository.updateTargetArea(TargetAreaType.CustomLocation(newId))
             _uiAction.value = Action.OnSelectedArea
