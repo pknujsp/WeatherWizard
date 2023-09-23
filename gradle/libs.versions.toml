@@ -45,6 +45,8 @@ androidx_test_hilt = "2.48"
 
 androidx_splashscreen = "1.0.1"
 
+android_gms_play_services_location = "21.0.1"
+
 google_oss_plugin = "0.10.6"
 
 junit = "4.13.2"
@@ -114,7 +116,7 @@ androidx-compose-ui = { group = "androidx.compose.ui", name = "ui" }
 androidx-compose-foundation = { group = "androidx.compose.foundation", name = "foundation" }
 androidx-compose-foundation-layout = { group = "androidx.compose.foundation", name = "foundation-layout" }
 
-androidx-collection = { module="androidx.collection:collection-ktx", version.ref = "androidx_collection" }
+androidx-collection = { module = "androidx.collection:collection-ktx", version.ref = "androidx_collection" }
 androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "androidx_appcompat" }
 androidx-preference-ktx = { group = "androidx.preference", name = "preference-ktx", version.ref = "androidx_preference_ktx" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "androidx_core" }
@@ -202,6 +204,8 @@ okhttp-logginginterceptor = { module = "com.squareup.okhttp3:logging-interceptor
 coil = { module = "io.coil-kt:coil-compose", version.ref = "coil" }
 
 osmdroid = { module = "org.osmdroid:osmdroid-android", version.ref = "osmdroid" }
+
+android_gms_play_services_location = { module = "com.google.android.gms:play-services-location", version.ref = "android_gms_play_services_location" }
 
 # lottie --------------------------------------------------------------------------------------------------------------
 lottie = { module = "com.airbnb.android:lottie-compose", version.ref = "lottie" }

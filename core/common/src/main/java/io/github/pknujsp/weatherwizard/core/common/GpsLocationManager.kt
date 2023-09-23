@@ -1,108 +1,80 @@
 package io.github.pknujsp.weatherwizard.core.common
 
+import android.annotation.SuppressLint
+import android.content.Context
+import android.location.Location
+import android.os.Looper
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationCallback
+import com.google.android.gms.location.LocationRequest
+import com.google.android.gms.location.LocationResult
+import com.google.android.gms.location.LocationServices
+import com.google.android.gms.location.Priority
+import kotlin.coroutines.resume
+import kotlin.coroutines.suspendCoroutine
 
-import android.Manifest
-import android.app.Activity
-import android.content.Intent
-import android.content.pm.PackageManager
-import android.net.Uri
-import android.provider.Settings
-import android.util.Log
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberUpdatedState
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.platform.LocalContext
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
-
-/**
- * @param onPermissionGranted 권한이 허용되었을 때 실행되는 람다
- * @param onPermissionDenied 권한이 거부되었을 때 실행되는 람다
- * @param onShouldShowRationale 권한이 필요한 이유를 설명해야 할 때 실행되는 람다
- * @param onNeverAskAgain 권한 요청이 다시 묻지 않음으로 되었을때 실행되는 람다
- */
-@Composable
-fun LocationPermissionManager(
-    onPermissionGranted: () -> Unit, onPermissionDenied: () -> Unit, onShouldShowRationale: () -> Unit,
-    onNeverAskAgain: () -> Unit, refreshKey: Int
-) {
-    val context = LocalContext.current
-    val activity = context as Activity
-    val permissionState by rememberUpdatedState(
-        arrayOf(onPermissionGranted, onPermissionDenied, onShouldShowRationale, onNeverAskAgain)
-    )
-
-    val permissions = remember {
-        arrayOf(
-            Manifest.permission.ACCESS_FINE_LOCATION,
-            Manifest.permission.ACCESS_COARSE_LOCATION
-        )
+class GpsLocationManager(context: Context) {
+    private companion object {
+        var fusedLocationProvider: FusedLocationProviderClient? = null
+        var requestingLocationUpdates: Boolean = false
+        var callback: LocationCallback? = null
     }
-    var requestPermission by remember { mutableStateOf(true) }
 
-    val permissionLauncher = rememberLauncherForActivityResult(
-        ActivityResultContracts.RequestMultiplePermissions()
-    ) { result ->
-        Log.d("LocationPermissionManager", "result: $result")
-        if (result.all { it.value }) {
-            permissionState[0]()
+    init {
+        if (fusedLocationProvider == null) {
+            fusedLocationProvider = LocationServices.getFusedLocationProviderClient(context)
+        }
+    }
+
+    @SuppressLint("MissingPermission")
+    suspend fun getCurrentLocation(): CurrentLocationResult {
+        var result = suspendCoroutine { continuation ->
+            fusedLocationProvider?.lastLocation?.addOnCompleteListener { task ->
+                val result = if (task.isSuccessful) {
+                    task.result?.run {
+                        Result.success(this)
+                    } ?: Result.failure(Throwable("Location is null"))
+                } else {
+                    Result.failure(task.exception!!)
+                }
+                continuation.resume(result)
+            }
+        }
+        if (result.isFailure) {
+            result = findCurrentLocation()
+        }
+
+        return if (result.isSuccess) {
+            CurrentLocationResult.Success(result.getOrThrow())
         } else {
-            if (ActivityCompat.shouldShowRequestPermissionRationale(activity, Manifest.permission.ACCESS_FINE_LOCATION)) {
-                permissionState[2]()
-            } else {
-                if (requestPermission) {
-                    permissionState[3]()
-                } else {
-                    permissionState[1]()
+            CurrentLocationResult.Failure(result.exceptionOrNull()!!)
+        }
+    }
+
+    @SuppressLint("MissingPermission")
+    private suspend fun findCurrentLocation(): Result<Location> = suspendCoroutine { continuation ->
+        if (requestingLocationUpdates) {
+            callback?.run {
+                fusedLocationProvider?.removeLocationUpdates(this)
+            }
+        }
+
+        callback = object : LocationCallback() {
+            override fun onLocationResult(p: LocationResult) {
+                fusedLocationProvider?.removeLocationUpdates(this)
+                p.lastLocation?.let { continuation.resume(Result.success(it)) } ?: kotlin.run {
+                    continuation.resumeWith(Result.failure(Throwable("Location is null")))
                 }
             }
         }
+
+        fusedLocationProvider?.requestLocationUpdates(LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 1000L).build(),
+            callback!!,
+            Looper.getMainLooper())
     }
 
-    LaunchedEffect(refreshKey) {
-        Log.d("LocationPermissionManager", "refreshKey: $refreshKey")
-        permissions.map { permission -> ContextCompat.checkSelfPermission(context, permission) }.run {
-            Log.d("LocationPermissionManager", "permissions: $this")
-            if (any { it != PackageManager.PERMISSION_GRANTED }) {
-                if (ActivityCompat.shouldShowRequestPermissionRationale(
-                        activity,
-                        Manifest.permission.ACCESS_FINE_LOCATION
-                    )
-                ) {
-                    permissionState[2]()
-                } else {
-                    requestPermission = false
-                    permissionLauncher.launch(permissions)
-                }
-            } else {
-                permissionState[0]()
-            }
-        }
-    }
-}
-
-@Composable
-fun OpenSettingsForLocationPermission(onReturnedFromSettings: () -> Unit) {
-    val context = LocalContext.current
-    val onReturnedFromSettingsState by rememberUpdatedState(onReturnedFromSettings)
-
-    val settingsLauncher = rememberLauncherForActivityResult(
-        ActivityResultContracts.StartActivityForResult()
-    ) {
-        onReturnedFromSettingsState()
-    }
-
-    LaunchedEffect(Unit) {
-        val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
-            val uri = Uri.fromParts("package", context.packageName, null)
-            data = uri
-        }
-        settingsLauncher.launch(intent)
+    sealed interface CurrentLocationResult {
+        data class Success(val location: Location) : CurrentLocationResult
+        data class Failure(val throwable: Throwable) : CurrentLocationResult
     }
 }
