@@ -58,17 +58,19 @@ class GpsLocationManager(context: Context) {
                 fusedLocationProvider?.removeLocationUpdates(this)
             }
         }
+        requestingLocationUpdates = true
 
         callback = object : LocationCallback() {
             override fun onLocationResult(p: LocationResult) {
                 fusedLocationProvider?.removeLocationUpdates(this)
+                requestingLocationUpdates = false
                 p.lastLocation?.let { continuation.resume(Result.success(it)) } ?: kotlin.run {
                     continuation.resumeWith(Result.failure(Throwable("Location is null")))
                 }
             }
         }
 
-        fusedLocationProvider?.requestLocationUpdates(LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 1000L).build(),
+        fusedLocationProvider?.requestLocationUpdates(LocationRequest.Builder(Priority.PRIORITY_BALANCED_POWER_ACCURACY, 100L).build(),
             callback!!,
             Looper.getMainLooper())
     }

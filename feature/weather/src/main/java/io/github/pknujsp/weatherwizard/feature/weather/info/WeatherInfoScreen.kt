@@ -33,6 +33,7 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -48,8 +49,10 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
+import io.github.pknujsp.weatherwizard.core.common.GpsLocationManager
 import io.github.pknujsp.weatherwizard.core.common.util.DayNightCalculator
 import io.github.pknujsp.weatherwizard.core.model.UiState
+import io.github.pknujsp.weatherwizard.core.model.favorite.TargetAreaType
 import io.github.pknujsp.weatherwizard.core.model.nominatim.ReverseGeoCode
 import io.github.pknujsp.weatherwizard.core.model.onLoading
 import io.github.pknujsp.weatherwizard.core.model.onSuccess
@@ -66,6 +69,7 @@ import io.github.pknujsp.weatherwizard.feature.weather.info.currentweather.simpl
 import io.github.pknujsp.weatherwizard.feature.weather.info.dailyforecast.SimpleDailyForecastScreen
 import io.github.pknujsp.weatherwizard.feature.weather.info.headinfo.HeadInfoScreen
 import io.github.pknujsp.weatherwizard.feature.weather.info.hourlyforecast.simple.HourlyForecastScreen
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
@@ -75,7 +79,9 @@ fun WeatherInfoScreen() {
     val backgroundImageUrl by remember { derivedStateOf { mutableStateOf("") } }
     var currentDayOrNight by remember { mutableStateOf(DayNightCalculator.DayNight.NIGHT) }
     val weatherInfo by weatherInfoViewModel.weatherDataState.collectAsStateWithLifecycle()
+    val coroutineScope = rememberCoroutineScope()
     val scrollState = rememberScrollState()
+    val context = LocalContext.current
 
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
     val headInfo by weatherInfoViewModel.reverseGeoCode.collectAsStateWithLifecycle()
@@ -86,12 +92,26 @@ fun WeatherInfoScreen() {
             WindowCompat.getInsetsController(this, decorView)
         }
     }
-
     LaunchedEffect(currentDayOrNight) {
         insetController.run {
             isAppearanceLightNavigationBars = currentDayOrNight == DayNightCalculator.DayNight.DAY
         }
     }
+
+    LaunchedEffect(Unit) {
+        coroutineScope.launch {
+            weatherInfoViewModel.targetAreaType.collect { typeUiState ->
+                typeUiState.onSuccess {
+                    if (it is TargetAreaType.CurrentLocation) {
+                        val result = GpsLocationManager(context).getCurrentLocation()
+                        if (result is GpsLocationManager.CurrentLocationResult.Success)
+                            weatherInfoViewModel.setArgs(result.location)
+                    }
+                }
+            }
+        }
+    }
+
 
     Box {
         AsyncImage(
@@ -125,12 +145,12 @@ fun WeatherInfoScreen() {
                     colors = CustomTopAppBarColors(
                         containerColor = Color.Transparent,
                         scrolledContainerColor = Color.Transparent,
-                        titleContentColor = Color.White,
-                        navigationIconContentColor = Color.White,
-                        actionIconContentColor = Color.White,
+                        titleContentColor = Color.Black,
+                        navigationIconContentColor = Color.Black,
+                        actionIconContentColor = Color.Black,
                     ),
                     modifier = Modifier
-                        .background(color = Color.Transparent),
+                        .background(color = Color.White),
                     windowInsets = WindowInsets(0.dp, 0.dp, 0.dp, 0.dp))
             }) { innerPadding ->
             Column(

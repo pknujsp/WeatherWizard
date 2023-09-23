@@ -1,5 +1,6 @@
 package io.github.pknujsp.weatherwizard.feature.favorite
 
+import androidx.activity.ComponentActivity
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -15,8 +16,8 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.rounded.LocationOn
+import androidx.compose.material.icons.rounded.MoreVert
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -28,6 +29,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
@@ -39,10 +41,10 @@ import androidx.navigation.NavController
 import io.github.pknujsp.weatherwizard.core.model.favorite.FavoriteArea
 import io.github.pknujsp.weatherwizard.core.model.favorite.TargetAreaType
 import io.github.pknujsp.weatherwizard.core.model.onSuccess
+import io.github.pknujsp.weatherwizard.core.ui.MainRoutes
+import io.github.pknujsp.weatherwizard.core.ui.RootNavControllerViewModel
 import io.github.pknujsp.weatherwizard.core.ui.RoundedButton
 import io.github.pknujsp.weatherwizard.core.ui.TitleTextWithoutNavigation
-
-private val fabColor = Color(0xFF296DF6)
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -52,6 +54,8 @@ fun FavoriteAreaListScreen(navController: NavController) {
     val viewModel: FavoriteAreaViewModel = hiltViewModel()
     val favoriteAreaList by viewModel.favoriteAreaList.collectAsStateWithLifecycle()
     val targetArea by viewModel.targetArea.collectAsStateWithLifecycle()
+    val rootNavControllerViewModel: RootNavControllerViewModel = hiltViewModel(viewModelStoreOwner =
+    (LocalContext.current as ComponentActivity))
 
     Column(modifier = Modifier
         .fillMaxSize()) {
@@ -62,11 +66,13 @@ fun FavoriteAreaListScreen(navController: NavController) {
                 item {
                     CurrentLocationItem(checked = { targetArea.id }) {
                         viewModel.updateTargetArea(TargetAreaType.CurrentLocation)
+                        rootNavControllerViewModel.navigate(MainRoutes.Weather)
                     }
                 }
                 items(it) { favoriteArea ->
                     AreaItem(favoriteArea, checked = { targetArea.id }) {
                         viewModel.updateTargetArea(TargetAreaType.CustomLocation(favoriteArea.id))
+                        rootNavControllerViewModel.navigate(MainRoutes.Weather)
                     }
                 }
             }
@@ -98,7 +104,7 @@ private fun AreaItem(favoriteArea: FavoriteArea, checked: () -> Long, onClick: (
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween) {
             IconButton(onClick = { /*TODO*/ }) {
-                Icon(imageVector = Icons.Default.MoreVert, contentDescription = null)
+                Icon(imageVector = Icons.Rounded.MoreVert, contentDescription = null)
             }
             Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.Center) {
                 Text(text = favoriteArea.countryName, style = TextStyle(fontSize = 12.sp, color = Color.Gray))

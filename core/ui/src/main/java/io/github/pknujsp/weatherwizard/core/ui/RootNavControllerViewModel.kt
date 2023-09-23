@@ -3,8 +3,8 @@ package io.github.pknujsp.weatherwizard.core.ui
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -12,12 +12,12 @@ import javax.inject.Inject
 class RootNavControllerViewModel @Inject constructor(
 ) : ViewModel() {
 
-    private val _requestedRoute = MutableStateFlow<NewRoute>(NewRoute.Initial)
-    val requestedRoute: StateFlow<NewRoute> = _requestedRoute
+    private val _requestedRoute = MutableSharedFlow<NewRoute>(replay = 0, extraBufferCapacity = 1)
+    val requestedRoute: SharedFlow<NewRoute> = _requestedRoute
 
     fun navigate(route: MainRoutes) {
         viewModelScope.launch {
-            _requestedRoute.value = NewRoute.Requested(route)
+            _requestedRoute.emit(NewRoute.Requested(route))
         }
     }
 }

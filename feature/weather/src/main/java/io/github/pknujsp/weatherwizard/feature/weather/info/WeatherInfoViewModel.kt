@@ -1,6 +1,7 @@
 package io.github.pknujsp.weatherwizard.feature.weather.info
 
 
+import android.location.Location
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -67,23 +68,29 @@ class WeatherInfoViewModel @Inject constructor(
     private val _yesterdayWeather = MutableStateFlow<UiState<YesterdayWeather>>(UiState.Loading)
     val yesterdayWeather: StateFlow<UiState<YesterdayWeather>> = _yesterdayWeather
 
+    private val _targetAreaType = MutableStateFlow<UiState<TargetAreaType>>(UiState.Loading)
+    val targetAreaType: StateFlow<UiState<TargetAreaType>> = _targetAreaType
+
     init {
         viewModelScope.launch {
             _requestArgs.value = targetAreaRepository.getTargetArea().let { targetAreaType ->
-                UiState.Success(
-                    if (targetAreaType is TargetAreaType.CurrentLocation) {
-                        RequestWeatherDataArgs(latitude = 35.236323256911774,
-                            longitude = 128.86341167027018,
-                            weatherDataProvider = WeatherDataProvider.Kma)
-                    } else {
-                        favoriteAreaListRepository.getById(targetAreaType.id).getOrThrow().run {
-                            RequestWeatherDataArgs(latitude = latitude,
-                                longitude = longitude,
-                                weatherDataProvider = WeatherDataProvider.Kma)
-                        }
-                    }
-                )
+                _targetAreaType.value = UiState.Success(targetAreaType)
+                if (targetAreaType is TargetAreaType.CustomLocation) {
+                    UiState.Success(favoriteAreaListRepository.getById(targetAreaType.id).getOrThrow().run {
+                        RequestWeatherDataArgs(latitude = latitude, longitude = longitude, weatherDataProvider = WeatherDataProvider.Kma)
+                    })
+                } else {
+                    UiState.Loading
+                }
             }
+        }
+    }
+
+    fun setArgs(location: Location) {
+        viewModelScope.launch {
+            _requestArgs.value = UiState.Success(RequestWeatherDataArgs(latitude = location.latitude,
+                longitude = location.longitude,
+                weatherDataProvider = WeatherDataProvider.Kma))
         }
     }
 
@@ -127,14 +134,12 @@ class WeatherInfoViewModel @Inject constructor(
     private fun reverseGeoCode(latitude: Double, longitude: Double, requestDateTime: ZonedDateTime) {
         viewModelScope.launch(Dispatchers.IO) {
             nominatimRepository.reverseGeoCode(latitude, longitude).onSuccess {
-                _reverseGeoCode.value = UiState.Success(ReverseGeoCode(
-                    displayName = it.simpleDisplayName,
+                _reverseGeoCode.value = UiState.Success(ReverseGeoCode(displayName = it.simpleDisplayName,
                     country = it.country,
                     countryCode = it.countryCode,
                     latitude = it.latitude,
                     longitude = it.longitude,
-                    requestDateTime = requestDateTime.format(DateTimeFormatter.ofPattern("M.d EEE HH:mm"))
-                ))
+                    requestDateTime = requestDateTime.format(DateTimeFormatter.ofPattern("M.d EEE HH:mm"))))
             }.onFailure {
                 _reverseGeoCode.value = UiState.Error(it)
             }
