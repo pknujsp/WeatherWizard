@@ -44,7 +44,7 @@ fun CurrentWeatherScreen(weatherInfoViewModel: WeatherInfoViewModel) {
     currentWeather.onSuccess { currentWeather ->
         val yesterdayWeather by weatherInfoViewModel.yesterdayWeather.collectAsStateWithLifecycle()
         val textColor = remember { Color.White }
-        val labelTextSize = remember { 14.sp }
+        val labelTextSize = remember { 13.sp }
 
         ConstraintLayout(modifier = Modifier
             .fillMaxWidth()
@@ -55,8 +55,9 @@ fun CurrentWeatherScreen(weatherInfoViewModel: WeatherInfoViewModel) {
             Text(text = listOf(
                 AStyle(currentWeather.temperature.value.toInt().toString(),
                     span = SpanStyle(
-                        fontSize = TextUnit(100f, TextUnitType.Sp),
+                        fontSize = 100.sp,
                         color = textColor,
+                        letterSpacing = (-2).sp
                     )),
                 AStyle(currentWeather.temperature.unit.symbol,
                     span = SpanStyle(fontSize = TextUnit(38f, TextUnitType.Sp), color = textColor)),
@@ -140,7 +141,7 @@ fun CurrentWeatherScreen(weatherInfoViewModel: WeatherInfoViewModel) {
                         bottom.linkTo(parent.bottom)
                         absoluteLeft.linkTo(parent.absoluteLeft)
                     },
-                    style = LocalTextStyle.current.merge(outlineTextStyle),
+                    style = LocalTextStyle.current.merge(outlineTextStyle).merge(notIncludeTextPaddingStyle),
                     color = textColor,
                     fontSize = 15.sp)
             }

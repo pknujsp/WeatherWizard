@@ -9,7 +9,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.LocalTextStyle
@@ -97,7 +97,8 @@ private fun TopNavBar(
     backStackEntry: NavBackStackEntry?, navController: NavHostController
 ) {
     Row(modifier = Modifier
-        .background(Color.Transparent)
+        .background(Color.White)
+        .padding(start = 12.dp)
         .statusBarsPadding()
         .fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,
@@ -124,10 +125,10 @@ private fun RowScope.TopNavBarItem(
     },
         border = null,
         contentPadding = PaddingValues(
-            start = 12.dp,
-            top = 12.dp,
-            end = 0.dp,
-            bottom = 12.dp
+            start = 6.dp,
+            top = 16.dp,
+            end = 6.dp,
+            bottom = 16.dp
         ),
         colors = ButtonDefaults.textButtonColors(contentColor = if (backStackEntry?.destination?.route == route.route) Color.Black else Color
             .Gray,
@@ -135,7 +136,7 @@ private fun RowScope.TopNavBarItem(
         Text(text = stringResource(id = route.navTitle),
             fontSize = 20.sp,
             fontWeight = FontWeight.ExtraBold,
-            letterSpacing = (-0.5).sp,
+            letterSpacing = (-0.6).sp,
             style = LocalTextStyle.current.merge(outlineTextStyle))
     }
 }

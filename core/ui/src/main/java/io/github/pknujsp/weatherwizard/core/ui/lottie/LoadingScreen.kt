@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -53,6 +54,7 @@ private fun LoadingScreen(text: String? = null, onDismissRequest: (() -> Unit)? 
                 modifier = Modifier
                     .scale(2.5f)
                     .height(70.dp)
+                    .padding(bottom = 16.dp)
                     .align(Alignment.CenterHorizontally),
                 composition = composition,
                 progress = { progress },

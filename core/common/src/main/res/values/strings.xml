@@ -58,8 +58,8 @@
     <string name="grant_permissions">권한 부여</string>
     <string name="close">닫기</string>
     <string name="back">뒤로 가기</string>
-    <string name="nav_weather">날씨 정보</string>
+    <string name="nav_weather">날씨</string>
     <string name="nav_settings">설정</string>
-    <string name="nav_favorite_areas">즐겨찾는 지역</string>
+    <string name="nav_favorite_areas">즐겨찾기</string>
     <string name="delete">삭제</string>
 </resources>

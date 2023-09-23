@@ -3,6 +3,7 @@ package io.github.pknujsp.weatherwizard.feature.weather.info
 
 import android.app.Activity
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
@@ -15,6 +16,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -24,6 +26,7 @@ import androidx.compose.material.icons.rounded.Refresh
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
@@ -38,25 +41,34 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.TextUnit
+import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.core.view.WindowCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import io.github.pknujsp.weatherwizard.core.common.GpsLocationManager
+import io.github.pknujsp.weatherwizard.core.common.util.AStyle
 import io.github.pknujsp.weatherwizard.core.common.util.DayNightCalculator
-import io.github.pknujsp.weatherwizard.core.model.UiState
+import io.github.pknujsp.weatherwizard.core.common.util.toAnnotated
 import io.github.pknujsp.weatherwizard.core.model.favorite.TargetAreaType
-import io.github.pknujsp.weatherwizard.core.model.nominatim.ReverseGeoCode
 import io.github.pknujsp.weatherwizard.core.model.onLoading
 import io.github.pknujsp.weatherwizard.core.model.onSuccess
 import io.github.pknujsp.weatherwizard.core.ui.lottie.CancellableLoadingScreen
+import io.github.pknujsp.weatherwizard.core.ui.theme.notIncludeTextPaddingStyle
+import io.github.pknujsp.weatherwizard.core.ui.theme.outlineTextStyle
 import io.github.pknujsp.weatherwizard.core.ui.weather.item.SimpleWeatherBackgroundPlaceHolder
 import io.github.pknujsp.weatherwizard.feature.airquality.AirQualityScreen
 import io.github.pknujsp.weatherwizard.feature.flickr.FlickrImageItemScreen
@@ -67,7 +79,6 @@ import io.github.pknujsp.weatherwizard.feature.weather.CustomTopAppBarColors
 import io.github.pknujsp.weatherwizard.feature.weather.R
 import io.github.pknujsp.weatherwizard.feature.weather.info.currentweather.simple.CurrentWeatherScreen
 import io.github.pknujsp.weatherwizard.feature.weather.info.dailyforecast.SimpleDailyForecastScreen
-import io.github.pknujsp.weatherwizard.feature.weather.info.headinfo.HeadInfoScreen
 import io.github.pknujsp.weatherwizard.feature.weather.info.hourlyforecast.simple.HourlyForecastScreen
 import kotlinx.coroutines.launch
 
@@ -92,11 +103,6 @@ fun WeatherInfoScreen() {
             WindowCompat.getInsetsController(this, decorView)
         }
     }
-    LaunchedEffect(currentDayOrNight) {
-        insetController.run {
-            isAppearanceLightNavigationBars = currentDayOrNight == DayNightCalculator.DayNight.DAY
-        }
-    }
 
     LaunchedEffect(Unit) {
         coroutineScope.launch {
@@ -104,38 +110,95 @@ fun WeatherInfoScreen() {
                 typeUiState.onSuccess {
                     if (it is TargetAreaType.CurrentLocation) {
                         val result = GpsLocationManager(context).getCurrentLocation()
-                        if (result is GpsLocationManager.CurrentLocationResult.Success)
-                            weatherInfoViewModel.setArgs(result.location)
+                        if (result is GpsLocationManager.CurrentLocationResult.Success) weatherInfoViewModel.setArgs(result.location)
                     }
                 }
             }
         }
     }
 
-
     Box {
         AsyncImage(
             modifier = Modifier.fillMaxSize(),
             contentScale = ContentScale.Crop,
             alignment = Alignment.Center,
-            model = ImageRequest.Builder(LocalContext.current).data(backgroundImageUrl.value).crossfade(200).build(),
+            model = ImageRequest.Builder(LocalContext.current).data(backgroundImageUrl.value).crossfade(250).build(),
             contentDescription = stringResource(R.string.background_image),
         )
 
         Scaffold(modifier = Modifier
-            .nestedScroll(scrollBehavior.nestedScrollConnection)
-            .navigationBarsPadding(),
-            containerColor = Color.Transparent, topBar = {
+            .nestedScroll(scrollBehavior.nestedScrollConnection),
+            containerColor = Color.Transparent,
+            topBar = {
                 CustomTopAppBar(smallTitle = {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(imageVector = Icons.Rounded.Place,
-                            contentDescription = null,
-                            tint = Color.LightGray,
-                            modifier = Modifier.size(16.dp))
-                        Text(text = if (headInfo is UiState.Success) (headInfo as UiState
-                        .Success<ReverseGeoCode>).data.displayName else "")
+                    Column(horizontalAlignment = Alignment.Start, verticalArrangement = Arrangement.Center) {
+                        headInfo.onSuccess {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Icon(imageVector = Icons.Rounded.Place,
+                                    contentDescription = null,
+                                    tint = Color.White,
+                                    modifier = Modifier
+                                        .size(14.dp)
+                                        .padding(end = 4.dp))
+                                Text(
+                                    text = it.displayName, color = Color.White, fontSize = 14.sp, style = LocalTextStyle.current.merge
+                                        (notIncludeTextPaddingStyle)
+                                )
+                            }
+                            Text(
+                                text = it.requestDateTime,
+                                fontSize = TextUnit(11f, TextUnitType.Sp),
+                                color = Color.White, style = LocalTextStyle.current.merge
+                                    (notIncludeTextPaddingStyle)
+                            )
+                        }
                     }
                 },
+                    bigTitle = {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(end = 60.dp),
+                        ) {
+                            headInfo.onSuccess {
+                                Text(
+                                    text = listOf(
+                                        AStyle(
+                                            "${it.country}\n",
+                                            span = SpanStyle(
+                                                fontSize = TextUnit(18f, TextUnitType.Sp),
+                                            ),
+                                        ),
+                                        AStyle(it.displayName, span = SpanStyle(fontSize = TextUnit(24f, TextUnitType.Sp))),
+                                    ).toAnnotated(),
+                                    textAlign = TextAlign.Start,
+                                    fontWeight = FontWeight.Bold,
+                                    color = Color.White,
+                                    lineHeight = 28.sp,
+                                )
+                                Spacer(modifier = Modifier.height(4.dp))
+                                Row(
+                                    horizontalArrangement = Arrangement.Start,
+                                    verticalAlignment = Alignment.CenterVertically,
+                                ) {
+                                    AsyncImage(
+                                        model = ImageRequest.Builder(LocalContext.current)
+                                            .data(io.github.pknujsp.weatherwizard.core.common.R.drawable.round_update_24).crossfade(false)
+                                            .build(),
+                                        contentDescription = stringResource(id = io.github.pknujsp.weatherwizard.core.model.R.string.weather_info_head_info_update_time),
+                                        colorFilter = ColorFilter.tint(Color.White),
+                                        modifier = Modifier.size(16.dp),
+                                    )
+                                    Spacer(modifier = Modifier.width(4.dp))
+                                    Text(
+                                        text = it.requestDateTime,
+                                        fontSize = TextUnit(14f, TextUnitType.Sp),
+                                        color = Color.White,
+                                    )
+                                }
+                            }
+                        }
+                    },
                     actions = {
                         IconButton(onClick = { weatherInfoViewModel.reload() }) {
                             Icon(imageVector = Icons.Rounded.Refresh, contentDescription = null)
@@ -144,13 +207,12 @@ fun WeatherInfoScreen() {
                     scrollBehavior = scrollBehavior,
                     colors = CustomTopAppBarColors(
                         containerColor = Color.Transparent,
-                        scrolledContainerColor = Color.Transparent,
-                        titleContentColor = Color.Black,
-                        navigationIconContentColor = Color.Black,
-                        actionIconContentColor = Color.Black,
+                        scrolledContainerColor = Color.Gray.copy(alpha = 0.8f),
+                        titleContentColor = Color.White,
+                        navigationIconContentColor = Color.White,
+                        actionIconContentColor = Color.White,
                     ),
-                    modifier = Modifier
-                        .background(color = Color.White),
+                    modifier = Modifier.background(color = Color.Transparent),
                     windowInsets = WindowInsets(0.dp, 0.dp, 0.dp, 0.dp))
             }) { innerPadding ->
             Column(
@@ -166,12 +228,9 @@ fun WeatherInfoScreen() {
                     }
                 }.onSuccess {
                     args.onSuccess { requestWeatherDataArgs ->
-                        Spacer(modifier = Modifier.height(innerPadding.calculateTopPadding()))
-                        HeadInfoScreen(weatherInfoViewModel)
+                        Spacer(modifier = Modifier.height(innerPadding.calculateTopPadding() + 50.dp))
+                        //HeadInfoScreen(weatherInfoViewModel)
                         CurrentWeatherScreen(weatherInfoViewModel)
-                        FlickrImageItemScreen({ weatherInfoViewModel.flickrRequestParameter }) {
-                            backgroundImageUrl.value = it
-                        }
                         HourlyForecastScreen(weatherInfoViewModel)
                         SimpleDailyForecastScreen(weatherInfoViewModel)
                         SimpleMapScreen { weatherInfoViewModel.requestArgs }
@@ -179,7 +238,10 @@ fun WeatherInfoScreen() {
                         SimpleSunSetRiseScreen(requestWeatherDataArgs.latitude, requestWeatherDataArgs.longitude) {
                             currentDayOrNight = it
                         }
-                        Spacer(modifier = Modifier.height(36.dp))
+                        FlickrImageItemScreen({ weatherInfoViewModel.flickrRequestParameter }) {
+                            backgroundImageUrl.value = it
+                        }
+                        Spacer(modifier = Modifier.height(56.dp))
                     }
                 }
             }
