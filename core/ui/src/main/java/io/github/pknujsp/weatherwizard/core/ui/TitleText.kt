@@ -31,7 +31,7 @@ fun TitleTextWithNavigation(
 ) {
     Row(
         modifier = modifier
-            .padding(top = 24.dp, bottom = 16.dp, start = 16.dp),
+            .padding(bottom = 16.dp, start = 16.dp),
         verticalAlignment = androidx.compose.ui.Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(12.dp)
     ) {
@@ -46,5 +46,5 @@ fun TitleTextWithNavigation(
 fun TitleTextWithoutNavigation(
     title: String, modifier: Modifier = Modifier,
 ) {
-    TitleText(title = title, modifier = modifier.padding(top = 24.dp, bottom = 16.dp, start = 16.dp))
+    TitleText(title = title, modifier = modifier.padding(bottom = 16.dp, start = 16.dp))
 }
