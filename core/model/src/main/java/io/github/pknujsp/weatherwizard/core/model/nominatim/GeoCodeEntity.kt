@@ -3,6 +3,7 @@ package io.github.pknujsp.weatherwizard.core.model.nominatim
 import io.github.pknujsp.weatherwizard.core.model.EntityModel
 
 data class GeoCodeEntity(
+    val placeId: Long,
     val displayName: String,
     val countryCode: String,
     val country: String,
@@ -24,5 +25,7 @@ data class GeoCodeEntity(
         if (county.isNotEmpty()) append(" ").append(county)
         if (suburb.isNotEmpty()) append(" ").append(suburb)
         if (quarter.isNotEmpty()) append(" ").append(quarter)
+
+        if (isEmpty()) append(displayName.replace(", $country", ""))
     }.toString().trim()
 }

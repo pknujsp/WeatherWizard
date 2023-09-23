@@ -36,12 +36,12 @@ import io.github.pknujsp.weatherwizard.core.ui.weather.item.SimpleWeatherScreenB
 
 
 @Composable
-fun AirQualityScreen(requestWeatherDataArgs: () -> RequestWeatherDataArgs) {
+fun AirQualityScreen(requestWeatherDataArgs : RequestWeatherDataArgs) {
     val viewModel = hiltViewModel<AirQualityViewModel>()
     val airQuality by viewModel.airQuality.collectAsStateWithLifecycle()
 
     airQuality.onLoading {
-        requestWeatherDataArgs().run {
+        requestWeatherDataArgs.run {
             viewModel.loadAirQuality(latitude, longitude)
         }
     }.onSuccess {

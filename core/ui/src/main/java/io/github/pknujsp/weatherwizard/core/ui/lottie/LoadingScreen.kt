@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -13,14 +14,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
-import com.airbnb.lottie.AsyncUpdates
 import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.LottieConstants
@@ -34,7 +36,7 @@ private fun LoadingScreen(text: String? = null, onDismissRequest: (() -> Unit)? 
     val progress by animateLottieCompositionAsState(composition,
         iterations = LottieConstants.IterateForever,
         reverseOnRepeat = true,
-        speed = 1.8f)
+        speed = 1.1f)
 
     Dialog(onDismissRequest = {
         onDismissRequest?.invoke()
@@ -50,15 +52,16 @@ private fun LoadingScreen(text: String? = null, onDismissRequest: (() -> Unit)? 
                 .fillMaxHeight()) {
             LottieAnimation(
                 modifier = Modifier
-                    .height(140.dp)
+                    .scale(2.5f)
+                    .height(70.dp)
+                    .padding(bottom = 16.dp)
                     .align(Alignment.CenterHorizontally),
                 composition = composition,
                 progress = { progress },
                 contentScale = ContentScale.FillHeight,
-                asyncUpdates = AsyncUpdates.ENABLED
             )
             text?.run {
-                Text(text = this, fontSize = 15.sp, color = Color.White)
+                Text(text = this, fontSize = 16.sp, color = Color.White, fontWeight = FontWeight.Bold)
             }
             content?.run {
                 Spacer(modifier = Modifier.height(16.dp))

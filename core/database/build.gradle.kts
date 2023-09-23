@@ -15,4 +15,5 @@ dependencies {
     implementation(libs.androidx.appcompat)
     implementation(libs.bundles.room)
     ksp(libs.androidx.room.compiler)
+    implementation(libs.bundles.datastore)
 }

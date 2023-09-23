@@ -55,11 +55,11 @@ import kotlin.math.max
 import kotlin.math.roundToInt
 
 
-internal val TopTitleAlphaEasing = CubicBezierEasing(.8f, 0f, .8f, .15f)
-private val MediumTitleBottomPadding = 0.dp
-private val LargeTitleBottomPadding = 0.dp
-private val TopAppBarHorizontalPadding = 4.dp
-private val TopAppBarTitleInset = 16.dp - TopAppBarHorizontalPadding
+private val topTitleAlphaEasing = CubicBezierEasing(.8f, 0f, .8f, .15f)
+private val mediumTitleBottomPadding = 0.dp
+private val largeTitleBottomPadding = 0.dp
+private val topAppBarHorizontalPadding = 4.dp
+private val topAppBarTitleInset = 16.dp - topAppBarHorizontalPadding
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -67,15 +67,15 @@ fun CustomTopAppBar(
     modifier: Modifier = Modifier,
     bigTitle: @Composable (() -> Unit)? = null,
     bigTitleTextStyle: TextStyle = Typography().titleLarge,
-    titleBottomPadding: Dp = MediumTitleBottomPadding,
+    titleBottomPadding: Dp = mediumTitleBottomPadding,
     smallTitle: @Composable () -> Unit,
     smallTitleTextStyle: TextStyle = Typography().titleMedium,
     navigationIcon: @Composable (() -> Unit)? = null,
     actions: @Composable RowScope.() -> Unit,
     windowInsets: WindowInsets = TopAppBarDefaults.windowInsets,
     colors: CustomTopAppBarColors,
-    maxHeight: Dp = 56.dp,
-    pinnedHeight: Dp = 42.dp,
+    maxHeight: Dp = 140.dp,
+    pinnedHeight: Dp = 52.dp,
     scrollBehavior: TopAppBarScrollBehavior
 ) {
     if (maxHeight <= pinnedHeight) {
@@ -116,7 +116,7 @@ fun CustomTopAppBar(
             content = actions
         )
     }
-    val topTitleAlpha = TopTitleAlphaEasing.transform(colorTransitionFraction)
+    val topTitleAlpha = topTitleAlphaEasing.transform(colorTransitionFraction)
     val bottomTitleAlpha = 1f - colorTransitionFraction
 // Hide the top row title semantics when its alpha value goes below 0.5 threshold.
 // Hide the bottom row title semantics when the top title semantics are active.
@@ -155,7 +155,6 @@ fun CustomTopAppBar(
                 actionIconContentColor =
                 colors.actionIconContentColor,
                 title = smallTitle,
-                titleTextStyle = smallTitleTextStyle,
                 titleAlpha = topTitleAlpha,
                 titleVerticalArrangement = Arrangement.Center,
                 titleHorizontalArrangement = Arrangement.Start,
@@ -176,7 +175,6 @@ fun CustomTopAppBar(
                 actionIconContentColor =
                 colors.actionIconContentColor,
                 title = bigTitle,
-                titleTextStyle = bigTitleTextStyle,
                 titleAlpha = bottomTitleAlpha,
                 titleVerticalArrangement = Arrangement.Center,
                 titleHorizontalArrangement = Arrangement.Start,
@@ -197,7 +195,6 @@ private fun TopAppBarLayout(
     titleContentColor: Color,
     actionIconContentColor: Color,
     title: @Composable (() -> Unit)? = null,
-    titleTextStyle: TextStyle,
     titleAlpha: Float,
     titleVerticalArrangement: Arrangement.Vertical,
     titleHorizontalArrangement: Arrangement.Horizontal,
@@ -211,7 +208,7 @@ private fun TopAppBarLayout(
             Box(
                 Modifier
                     .layoutId("navigationIcon")
-                    .padding(start = TopAppBarHorizontalPadding)
+                    .padding(start = topAppBarHorizontalPadding)
             ) {
                 navigationIcon?.run {
                     CompositionLocalProvider(
@@ -223,23 +220,18 @@ private fun TopAppBarLayout(
             Box(
                 Modifier
                     .layoutId("title")
-                    .padding(horizontal = TopAppBarHorizontalPadding)
+                    .padding(horizontal = topAppBarHorizontalPadding)
                     .then(if (hideTitleSemantics) Modifier.clearAndSetSemantics { } else Modifier)
                     .graphicsLayer(alpha = titleAlpha)
             ) {
                 title?.run {
-                    ProvideTextStyle(value = titleTextStyle) {
-                        CompositionLocalProvider(
-                            LocalContentColor provides titleContentColor,
-                            content = this
-                        )
-                    }
+                    invoke()
                 }
             }
             Box(
                 Modifier
                     .layoutId("actionIcons")
-                    .padding(end = TopAppBarHorizontalPadding)
+                    .padding(end = topAppBarHorizontalPadding)
             ) {
                 CompositionLocalProvider(
                     LocalContentColor provides actionIconContentColor,
@@ -292,7 +284,7 @@ private fun TopAppBarLayout(
                     // Arrangement.Start.
                     // An TopAppBarTitleInset will make sure the title is offset in case the
                     // navigation icon is missing.
-                    else -> max(TopAppBarTitleInset.roundToPx(), navigationIconPlaceable.width)
+                    else -> max(topAppBarTitleInset.roundToPx(), navigationIconPlaceable.width)
                 },
                 y = when (titleVerticalArrangement) {
                     Arrangement.Center -> (layoutHeight - titlePlaceable.height) / 2

@@ -27,50 +27,27 @@ internal fun DrawScope.drawBaseLines(pointInfo: PointInfo, timeInfo: TimeInfo, l
     val firstCurve = timeInfo.times[0].first.run {
         val p1 = Offset(firstVerticalDividerX, centerHorizontalLinePoint.y)
 
-        val p2X = firstVerticalDividerX + (secondVerticalDividerX - firstVerticalDividerX) * 0.25f
+        val p2X = firstVerticalDividerX + (secondVerticalDividerX - firstVerticalDividerX) / 2f
         val p2Y = centerHorizontalLinePoint.y + if (this == SunSetRise.SUN_RISE) -layoutInfo.curveMaxHeight else layoutInfo.curveMaxHeight
         val p2 = Offset(p2X, p2Y)
 
-        val p3X = firstVerticalDividerX + (secondVerticalDividerX - firstVerticalDividerX) / 2f
-        CurveInfo(p1, p2, Offset(p3X, p2.y))
-    }
-
-    val secondCurve = timeInfo.times[0].first.run {
-        val p1 = firstCurve.point3
-        val p2 = Offset(firstVerticalDividerX + (secondVerticalDividerX - firstVerticalDividerX) * 0.75f, p1.y)
         CurveInfo(p1, p2, Offset(secondVerticalDividerX, centerHorizontalLinePoint.y))
     }
 
-    val thirdCurve = timeInfo.times[1].first.run {
-        val p1 = secondCurve.point3
+    val endCurve = timeInfo.times[1].first.run {
+        val p1 = firstCurve.point3
 
-        val p2X = secondVerticalDividerX + (thirdVerticalDividerX - secondVerticalDividerX) * 0.25f
+        val p2X = secondVerticalDividerX + (thirdVerticalDividerX - secondVerticalDividerX) / 2f
         val p2Y = centerHorizontalLinePoint.y + if (this == SunSetRise.SUN_RISE) -layoutInfo.curveMaxHeight else layoutInfo.curveMaxHeight
         val p2 = Offset(p2X, p2Y)
 
-        val p3X = secondVerticalDividerX + (thirdVerticalDividerX - secondVerticalDividerX) / 2f
-        CurveInfo(p1, p2, Offset(p3X, p2.y))
-    }
-
-    val fourthCurve = timeInfo.times[1].first.run {
-        val p1 = thirdCurve.point3
-        val p2 = Offset(secondVerticalDividerX + (thirdVerticalDividerX - secondVerticalDividerX) * 0.75f, p1.y)
         CurveInfo(p1, p2, Offset(thirdVerticalDividerX, centerHorizontalLinePoint.y))
     }
 
-    val endCurve = timeInfo.times[2].first.run {
-        val p1 = fourthCurve.point3
-
-        val p2X = (thirdVerticalDividerX + (thirdVerticalDividerX - secondVerticalDividerX) * 0.25f)
-        val p2Y = centerHorizontalLinePoint.y + if (this == SunSetRise.SUN_RISE) -layoutInfo.curveMaxHeight else layoutInfo.curveMaxHeight
-        val p2 = Offset(p2X, p2Y)
-
-        val p3X = thirdVerticalDividerX + (thirdVerticalDividerX - secondVerticalDividerX) / 2f
-        CurveInfo(p1, p2, Offset(p3X, p2.y))
-    }
 
     val path = Path()
-    path.moveTo(0f, curveStartY)
+    path.moveTo(firstCurve.point1.x,
+        firstCurve.point1.y)
 
     // 곡선 그리기
     path.cubicTo(firstCurve.point1.x,
@@ -79,26 +56,13 @@ internal fun DrawScope.drawBaseLines(pointInfo: PointInfo, timeInfo: TimeInfo, l
         firstCurve.point2.y,
         firstCurve.point3.x,
         firstCurve.point3.y)
-    path.cubicTo(secondCurve.point1.x,
-        secondCurve.point1.y,
-        secondCurve.point2.x,
-        secondCurve.point2.y,
-        secondCurve.point3.x,
-        secondCurve.point3.y)
-    path.cubicTo(thirdCurve.point1.x,
-        thirdCurve.point1.y,
-        thirdCurve.point2.x,
-        thirdCurve.point2.y,
-        thirdCurve.point3.x,
-        thirdCurve.point3.y)
-    path.cubicTo(fourthCurve.point1.x,
-        fourthCurve.point1.y,
-        fourthCurve.point2.x,
-        fourthCurve.point2.y,
-        fourthCurve.point3.x,
-        fourthCurve.point3.y)
+    path.cubicTo(endCurve.point1.x,
+        endCurve.point1.y,
+        endCurve.point2.x,
+        endCurve.point2.y,
+        endCurve.point3.x,
+        endCurve.point3.y)
 
-    path.cubicTo(endCurve.point1.x, endCurve.point1.y, endCurve.point2.x, endCurve.point2.y, endCurve.point3.x, endCurve.point3.y)
     drawPath(path, color = Color.White, style = Stroke(width = 2f))
 
     drawLine(Color.White,

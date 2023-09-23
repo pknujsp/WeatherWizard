@@ -34,14 +34,14 @@ import java.time.format.DateTimeFormatter
 
 
 @Composable
-fun SimpleSunSetRiseScreen(latitude: Double, longitude: Double) {
+fun SimpleSunSetRiseScreen(latitude: Double, longitude: Double, currentDayOrNight: (DayNightCalculator.DayNight) -> Unit) {
     SimpleWeatherScreenBackground(cardInfo = CardInfo(title = stringResource(io.github.pknujsp.weatherwizard.core.common.R.string.sun_set_rise)) {
-        SunSetRiseContent(latitude, longitude)
+        SunSetRiseContent(latitude, longitude, currentDayOrNight)
     })
 }
 
 @Composable
-private fun SunSetRiseContent(latitude: Double, longitude: Double) {
+private fun SunSetRiseContent(latitude: Double, longitude: Double, currentDayOrNight: (DayNightCalculator.DayNight) -> Unit) {
     val boxHeight: Dp = 160.dp
 
     Box(modifier = Modifier
@@ -58,7 +58,9 @@ private fun SunSetRiseContent(latitude: Double, longitude: Double) {
             val broadcastReceiver = object : BroadcastReceiver() {
                 override fun onReceive(context: Context?, intent: Intent?) {
                     context?.run {
-                        times.value = TimeInfo(dayNightCalculator, this)
+                        times.value = TimeInfo(dayNightCalculator, this).apply {
+                            currentDayOrNight(if (this.times.first().first == SunSetRise.SUN_SET) DayNightCalculator.DayNight.NIGHT else DayNightCalculator.DayNight.DAY)
+                        }
                     }
                 }
             }
@@ -80,7 +82,7 @@ private fun SunSetRiseContent(latitude: Double, longitude: Double) {
         val curveStartEndHeightFromCenterHorizontalLine = with(LocalDensity.current) {
             16.dp.toPx()
         }
-        val curveMaxHeight = (boxHeightPx - centerHorizontalLinePoint.y) * 0.7f
+        val curveMaxHeight = (boxHeightPx - centerHorizontalLinePoint.y) * 0.9f
         val iconSize = with(LocalDensity.current) { 30.dp.toPx() }
 
         val currentIcon = ContextCompat.getDrawable(LocalContext.current, times.value.times[0].first.iconRes)!!.toBitmap(width =

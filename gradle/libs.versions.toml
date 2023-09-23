@@ -7,7 +7,7 @@ flipperNetworkPlugin = "0.216.0"
 kotlin = "1.9.10"
 kotlin_compiler_extension = "1.5.3"
 kotlinx_coroutines = "1.7.3"
-kotlinx_serialization_json = "1.5.1"
+kotlinx_serialization_json = "1.6.0"
 ksp = "1.9.10-1.0.13"
 
 android_gradle_plugin = "8.1.1"
@@ -16,7 +16,7 @@ android_desugar_jdk_libs = "2.0.3"
 androidx_collection = "1.2.0"
 androidx_core = "1.10.1"
 androidx_activity = "1.7.2"
-androidx_navigation = "2.7.2"
+androidx_navigation = "2.7.3"
 androidx_compose_bom = "2023.09.00"
 androidx_lifecycle = "2.6.2"
 androidx_datastore = "1.0.0"
@@ -44,6 +44,8 @@ androidx_test_arch = "2.2.0"
 androidx_test_hilt = "2.48"
 
 androidx_splashscreen = "1.0.1"
+
+android_gms_play_services_location = "21.0.1"
 
 google_oss_plugin = "0.10.6"
 
@@ -76,13 +78,13 @@ firebase_analytics = "21.3.0"
 ksealedbinding = "1.0.0"
 
 ktlint = "1.0.0"
-ktlint_gradle_plugin = "11.5.1"
+ktlint_gradle_plugin = "11.6.0"
 detekt = "1.23.1"
 
 jsoup = "1.16.1"
 sunrisesunsetcalculator = "1.2"
 
-osmdroid = "6.1.16"
+osmdroid = "6.1.17"
 uiautomator = "2.2.0"
 benchmark-macro-junit4 = "1.1.1"
 
@@ -114,7 +116,7 @@ androidx-compose-ui = { group = "androidx.compose.ui", name = "ui" }
 androidx-compose-foundation = { group = "androidx.compose.foundation", name = "foundation" }
 androidx-compose-foundation-layout = { group = "androidx.compose.foundation", name = "foundation-layout" }
 
-androidx-collection = { module="androidx.collection:collection-ktx", version.ref = "androidx_collection" }
+androidx-collection = { module = "androidx.collection:collection-ktx", version.ref = "androidx_collection" }
 androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "androidx_appcompat" }
 androidx-preference-ktx = { group = "androidx.preference", name = "preference-ktx", version.ref = "androidx_preference_ktx" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "androidx_core" }
@@ -202,6 +204,8 @@ okhttp-logginginterceptor = { module = "com.squareup.okhttp3:logging-interceptor
 coil = { module = "io.coil-kt:coil-compose", version.ref = "coil" }
 
 osmdroid = { module = "org.osmdroid:osmdroid-android", version.ref = "osmdroid" }
+
+android_gms_play_services_location = { module = "com.google.android.gms:play-services-location", version.ref = "android_gms_play_services_location" }
 
 # lottie --------------------------------------------------------------------------------------------------------------
 lottie = { module = "com.airbnb.android:lottie-compose", version.ref = "lottie" }

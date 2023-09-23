@@ -274,7 +274,10 @@ data class PrecipitationValueType(
 
     companion object : NoneValue<PrecipitationValueType> {
         override val none: PrecipitationValueType = PrecipitationValueType(Double.NaN, PrecipitationUnit.Millimeter)
+        private val drop: Double = 0.1
 
+        val rainDrop = PrecipitationValueType(drop, PrecipitationUnit.Millimeter)
+        val snowDrop = PrecipitationValueType(drop, PrecipitationUnit.Millimeter)
     }
 
     override fun convertUnit(value: Double, to: PrecipitationUnit): Double {
@@ -294,7 +297,7 @@ data class PrecipitationValueType(
     }
 
     override fun toStringWithoutUnit(): String {
-        return if (isNone()) "" else value.toString()
+        return if (isNone()) "" else if (value == drop) "~1" else value.toString()
     }
 }
 

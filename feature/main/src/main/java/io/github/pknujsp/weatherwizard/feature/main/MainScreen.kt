@@ -1,91 +1,142 @@
 package io.github.pknujsp.weatherwizard.feature.main
 
+import androidx.activity.ComponentActivity
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.Icon
-import androidx.compose.material3.Scaffold
+import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.LocalTextStyle
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import io.github.pknujsp.weatherwizard.feature.favorite.FavoriteScreen
-import io.github.pknujsp.weatherwizard.feature.main.navigation.MainRoutes
-import io.github.pknujsp.weatherwizard.feature.settings.SettingsScreen
-import io.github.pknujsp.weatherwizard.feature.weather.WeatherMainScreen
+import io.github.pknujsp.weatherwizard.core.ui.MainRoutes
+import io.github.pknujsp.weatherwizard.core.ui.NewRoute
+import io.github.pknujsp.weatherwizard.core.ui.RootNavControllerViewModel
+import io.github.pknujsp.weatherwizard.core.ui.theme.outlineTextStyle
+import io.github.pknujsp.weatherwizard.feature.favorite.HostFavoriteScreen
+import io.github.pknujsp.weatherwizard.feature.settings.HostSettingsScreen
+import io.github.pknujsp.weatherwizard.feature.weather.HostWeatherScreen
+import kotlinx.coroutines.launch
 
 
-@Preview
 @Composable
 fun MainScreen() {
-    val navController = rememberNavController()
-    val backStackEntry = navController.currentBackStackEntryAsState()
 
-    Scaffold(bottomBar = {
-        BottomNavigationBar({ backStackEntry.value }, navController)
-    }) { paddingValues ->
-        NavHost(modifier = Modifier.padding(bottom = paddingValues.calculateBottomPadding()),
-            navController = navController,
-            startDestination = MainRoutes.Home.route) {
-            composable(MainRoutes.Home.route) { WeatherMainScreen() }
-            composable(MainRoutes.Favorite.route) { FavoriteScreen() }
-            composable(MainRoutes.Settings.route) { SettingsScreen() }
+    val rootNavController = rememberNavController()
+    val backStackEntry by rootNavController.currentBackStackEntryAsState()
+    val rootNavControllerViewModel: RootNavControllerViewModel = hiltViewModel(viewModelStoreOwner =
+    (LocalContext.current as ComponentActivity))
+    val coroutineScope = rememberCoroutineScope()
+
+    LaunchedEffect(Unit) {
+        coroutineScope.launch {
+            rootNavControllerViewModel.requestedRoute.collect { newRoute ->
+                when (newRoute) {
+                    is NewRoute.Requested -> {
+                        rootNavController.navigate(newRoute.route.route) {
+                            launchSingleTop = true
+                            backStackEntry?.destination?.route?.let {
+                                popUpTo(it) {
+                                    inclusive = true
+                                }
+                            }
+                        }
+                    }
+
+                    else -> {}
+                }
+            }
+        }
+    }
+
+    Column(modifier = Modifier
+        .fillMaxSize()
+        .background(Color.Transparent)) {
+        TopNavBar(backStackEntry, rootNavController)
+        NavHost(navController = rootNavController, route = MainRoutes.route, startDestination = MainRoutes.Weather.route) {
+            composable(MainRoutes.Weather.route) {
+                HostWeatherScreen()
+            }
+            composable(MainRoutes.Favorite.route) {
+                HostFavoriteScreen()
+            }
+            composable(MainRoutes.Settings.route) {
+                HostSettingsScreen()
+            }
         }
     }
 }
 
-
 @Composable
-private fun BottomNavigationBar(
-    backStackEntry: () -> NavBackStackEntry?, navController: NavHostController
+private fun TopNavBar(
+    backStackEntry: NavBackStackEntry?, navController: NavHostController
 ) {
     Row(modifier = Modifier
         .background(Color.White)
-        .navigationBarsPadding()
-        .padding(vertical = 8.dp)
+        .padding(start = 12.dp)
+        .statusBarsPadding()
         .fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceAround) {
-        BottomNavigationBarItem(route = MainRoutes.Home, backStackEntry, navController)
-        BottomNavigationBarItem(route = MainRoutes.Favorite, backStackEntry, navController)
-        BottomNavigationBarItem(route = MainRoutes.Settings, backStackEntry, navController)
+        horizontalArrangement = Arrangement.Start) {
+        TopNavBarItem(MainRoutes.Weather, backStackEntry, navController)
+        TopNavBarItem(MainRoutes.Favorite, backStackEntry, navController)
+        TopNavBarItem(MainRoutes.Settings, backStackEntry, navController)
     }
 }
 
 @Composable
-private fun RowScope.BottomNavigationBarItem(
-    route: MainRoutes, backStackEntry: () -> NavBackStackEntry?, navController: NavHostController
+private fun RowScope.TopNavBarItem(
+    route: MainRoutes, backStackEntry: NavBackStackEntry?, navController: NavHostController
 ) {
-    Box(modifier = Modifier
-        .weight(1f)
-        .clip(CircleShape)
-        .background(Color.Transparent)
-        .clickable(onClick = { navController.navigate(route.route) }),
-        contentAlignment = Alignment.Center) {
-        Icon(painter = painterResource(id = route.navIcon),
-            contentDescription = stringResource(id = route.navTitle),
-            modifier = Modifier
-                .size(32.dp)
-                .padding(4.dp),
-            tint = if (backStackEntry()?.destination?.route == route.route) Color.Blue else Color.Gray)
+    TextButton(onClick = {
+        navController.navigate(route.route) {
+            launchSingleTop = true
+            backStackEntry?.destination?.route?.let {
+                popUpTo(it) {
+                    inclusive = true
+                }
+            }
+        }
+    },
+        border = null,
+        contentPadding = PaddingValues(
+            start = 6.dp,
+            top = 16.dp,
+            end = 6.dp,
+            bottom = 16.dp
+        ),
+        colors = ButtonDefaults.textButtonColors(contentColor = if (backStackEntry?.destination?.route == route.route) Color.Black else Color
+            .Gray,
+            containerColor = Color.Transparent)) {
+        Text(text = stringResource(id = route.navTitle),
+            fontSize = 20.sp,
+            fontWeight = FontWeight.ExtraBold,
+            letterSpacing = (-0.6).sp,
+            style = LocalTextStyle.current.merge(outlineTextStyle))
     }
 }

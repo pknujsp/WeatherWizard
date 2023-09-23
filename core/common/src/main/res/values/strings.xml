@@ -46,4 +46,20 @@
     <string name="sun_rise">일출</string>
     <string name="sun_set">일몰</string>
     <string name="refresh">새로고침</string>
+    <string name="current_location">현재 위치</string>
+    <string name="location_permission_denied">위치 권한이 허용되어 있지 않아 진행이 불가능 합니다.</string>
+    <string name="network_unavailable">네트워크(Wifi, Mobile~)가 연결되어 있지 않습니다.</string>
+    <string name="location_service_disabled">위치 정보 기능이 꺼져있습니다.</string>
+    <string name="open_settings_for_location_permission">권한 부여</string>
+    <string name="okay">확인</string>
+    <string name="open_settings_for_location_service">위치 활성화</string>
+    <string name="title_why_you_need_permissions">권한이 필요합니다</string>
+    <string name="description_why_you_need_permissions">현재 위치의 날씨 정보를 파악하기 위해서는 위치 권한이 필요합니다.</string>
+    <string name="grant_permissions">권한 부여</string>
+    <string name="close">닫기</string>
+    <string name="back">뒤로 가기</string>
+    <string name="nav_weather">날씨</string>
+    <string name="nav_settings">설정</string>
+    <string name="nav_favorite_areas">즐겨찾기</string>
+    <string name="delete">삭제</string>
 </resources>
