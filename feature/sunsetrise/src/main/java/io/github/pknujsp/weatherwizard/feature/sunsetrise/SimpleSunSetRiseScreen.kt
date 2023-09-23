@@ -82,7 +82,7 @@ private fun SunSetRiseContent(latitude: Double, longitude: Double, currentDayOrN
         val curveStartEndHeightFromCenterHorizontalLine = with(LocalDensity.current) {
             16.dp.toPx()
         }
-        val curveMaxHeight = (boxHeightPx - centerHorizontalLinePoint.y) * 0.7f
+        val curveMaxHeight = (boxHeightPx - centerHorizontalLinePoint.y) * 0.9f
         val iconSize = with(LocalDensity.current) { 30.dp.toPx() }
 
         val currentIcon = ContextCompat.getDrawable(LocalContext.current, times.value.times[0].first.iconRes)!!.toBitmap(width =
