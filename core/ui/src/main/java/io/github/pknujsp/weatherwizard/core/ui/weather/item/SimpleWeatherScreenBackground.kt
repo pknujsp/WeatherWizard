@@ -31,8 +31,7 @@ private fun DefaultSurface(content: @Composable () -> Unit) {
     Surface(
         modifier = Modifier
             .fillMaxWidth()
-            .wrapContentHeight()
-            .padding(horizontal = 12.dp, vertical = 8.dp),
+            .wrapContentHeight(),
         shape = RoundedCornerShape(12.dp),
         color = backgroundColor,
     ) {

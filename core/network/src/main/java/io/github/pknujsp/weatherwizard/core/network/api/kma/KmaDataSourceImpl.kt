@@ -1,7 +1,6 @@
 package io.github.pknujsp.weatherwizard.core.network.api.kma
 
 import android.util.LruCache
-import io.github.pknujsp.weatherwizard.core.network.api.kma.KmaNetworkApi
 import io.github.pknujsp.weatherwizard.core.model.weather.kma.parameter.KmaCurrentWeatherRequestParameter
 import io.github.pknujsp.weatherwizard.core.model.weather.kma.parameter.KmaDailyForecastRequestParameter
 import io.github.pknujsp.weatherwizard.core.model.weather.kma.parameter.KmaHourlyForecastRequestParameter
@@ -123,11 +122,6 @@ class KmaDataSourceImpl @Inject constructor(
 
     }
 
-    private fun retrofit2.Response<String>.onResponse(): Result<String> {
-        return if (isSuccessful and !body().isNullOrEmpty()) Result.success(body()!!)
-        else Result.failure(Throwable(errorBody()?.toString() ?: "Unknown error"))
-    }
-
     private data class Response(
         val currentWeather: KmaCurrentWeatherResponse,
         val hourlyForecasts: KmaHourlyForecastResponse,
@@ -176,8 +170,6 @@ class KmaDataSourceImpl @Inject constructor(
             is ForecastRequestState.Success -> {
                 ForecastRequestState.mutex.withLock {
                     response.consume()
-                    if (response.isAllConsumed()) {
-                    }
                 }
                 Result.success(response)
             }
