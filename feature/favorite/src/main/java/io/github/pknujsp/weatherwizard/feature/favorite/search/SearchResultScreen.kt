@@ -41,6 +41,8 @@ fun SearchResultScreen(navController: NavController, searchResult: UiState<List<
                 modifier = Modifier
                     .align(Alignment.Center)
                     .padding(24.dp),
+                color = Color.Black,
+                trackColor = Color(0xFFD9D9D9),
             )
         }
     }

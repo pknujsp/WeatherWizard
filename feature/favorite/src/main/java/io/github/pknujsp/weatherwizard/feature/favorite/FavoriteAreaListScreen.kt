@@ -43,7 +43,7 @@ import io.github.pknujsp.weatherwizard.core.model.favorite.TargetAreaType
 import io.github.pknujsp.weatherwizard.core.model.onSuccess
 import io.github.pknujsp.weatherwizard.core.ui.MainRoutes
 import io.github.pknujsp.weatherwizard.core.ui.RootNavControllerViewModel
-import io.github.pknujsp.weatherwizard.core.ui.RoundedButton
+import io.github.pknujsp.weatherwizard.core.ui.SecondaryButton
 import io.github.pknujsp.weatherwizard.core.ui.TitleTextWithoutNavigation
 
 
@@ -78,11 +78,10 @@ fun FavoriteAreaListScreen(navController: NavController) {
             }
         }
 
-        RoundedButton(text = stringResource(id = R.string.add_new_area),
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 8.dp)) {
-            navController.navigate(FavoriteRoutes.AreaSearch.route)
+        Box(modifier = Modifier.padding(12.dp)) {
+            SecondaryButton(text = stringResource(id = R.string.add_new_area), modifier = Modifier.fillMaxWidth()) {
+                navController.navigate(FavoriteRoutes.AreaSearch.route)
+            }
         }
     }
 

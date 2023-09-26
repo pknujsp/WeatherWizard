@@ -21,7 +21,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Place
-import androidx.compose.material.icons.rounded.Refresh
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -44,6 +43,7 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -170,7 +170,7 @@ fun WeatherInfoScreen() {
                             ) {
                                 AsyncImage(
                                     model = ImageRequest.Builder(LocalContext.current)
-                                        .data(io.github.pknujsp.weatherwizard.core.common.R.drawable.round_update_24).crossfade(false)
+                                        .data(io.github.pknujsp.weatherwizard.core.common.R.drawable.ic_time).crossfade(false)
                                         .build(),
                                     contentDescription = stringResource(id = io.github.pknujsp.weatherwizard.core.model.R.string.weather_info_head_info_update_time),
                                     colorFilter = ColorFilter.tint(Color.Black),
@@ -188,7 +188,8 @@ fun WeatherInfoScreen() {
                 },
                 actions = {
                     IconButton(onClick = { weatherInfoViewModel.reload() }) {
-                        Icon(imageVector = Icons.Rounded.Refresh, contentDescription = null)
+                        Icon(painter = painterResource(id = io.github.pknujsp.weatherwizard.core.common.R.drawable.ic_refresh),
+                            contentDescription = null)
                     }
                 },
                 scrollBehavior = scrollBehavior,

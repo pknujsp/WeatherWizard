@@ -20,7 +20,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
-import io.github.pknujsp.weatherwizard.core.ui.RoundedButton
+import io.github.pknujsp.weatherwizard.core.ui.PrimaryButton
 import io.github.pknujsp.weatherwizard.core.ui.theme.AppColorScheme
 
 
@@ -44,11 +44,11 @@ fun PermissionDialog(onDismissRequest: () -> Unit, onGrantPermission: () -> Unit
             Row(modifier = Modifier
                 .align(Alignment.CenterHorizontally)
                 .fillMaxWidth(), horizontalArrangement = Arrangement.End) {
-                RoundedButton(colors = ButtonDefaults.buttonColors(
+                PrimaryButton(colors = ButtonDefaults.buttonColors(
                     containerColor = Color.White,
                     contentColor = AppColorScheme.primary
                 ), text = stringResource(id = io.github.pknujsp.weatherwizard.core.common.R.string.close), onClick = onDismissRequest)
-                RoundedButton(text = stringResource(id = io.github.pknujsp.weatherwizard.core.common.R.string.grant_permissions),
+                PrimaryButton(text = stringResource(id = io.github.pknujsp.weatherwizard.core.common.R.string.grant_permissions),
                     onClick = onGrantPermission)
             }
         }

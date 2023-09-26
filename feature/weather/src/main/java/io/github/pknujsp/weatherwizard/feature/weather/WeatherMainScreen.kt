@@ -15,6 +15,7 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
@@ -32,9 +33,7 @@ import androidx.navigation.navigation
 import io.github.pknujsp.weatherwizard.core.common.LocationPermissionManager
 import io.github.pknujsp.weatherwizard.core.common.OpenSettingsForLocationPermission
 import io.github.pknujsp.weatherwizard.core.common.UnavailableFeature
-import io.github.pknujsp.weatherwizard.core.model.weather.RequestWeatherDataArgs
-import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherDataProvider
-import io.github.pknujsp.weatherwizard.core.ui.RoundedButton
+import io.github.pknujsp.weatherwizard.core.ui.PrimaryButton
 import io.github.pknujsp.weatherwizard.feature.weather.info.WeatherInfoScreen
 
 @Composable
@@ -104,9 +103,10 @@ fun UnavailableFeatureScreen(@StringRes title: Int, unavailableFeature: Unavaila
             style = TextStyle(fontSize = 16.sp, color = Color.DarkGray)
         )
         Spacer(modifier = Modifier.height(16.dp))
-        RoundedButton(
+        PrimaryButton(
             text = stringResource(id = unavailableFeature.action),
             onClick = onClick,
+            modifier = Modifier.align(Alignment.End)
         )
     }
 }

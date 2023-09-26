@@ -95,8 +95,8 @@ fun SearchAreaScreen(navController: NavController) {
 fun SearchBar(modifier: Modifier, query: Pair<String, Long>, onChangeQuery: (String) -> Unit, onSendQuery: (String) -> Unit) {
     Row(modifier = modifier
         .fillMaxWidth()
-        .background(Color(0xFFD8D8D8), shape = RoundedCornerShape(30.dp))
-        .padding(horizontal = 14.dp, vertical = 4.dp), verticalAlignment = Alignment.CenterVertically,
+        .background(Color.Transparent, shape = RectangleShape)
+        .padding(horizontal = 12.dp, vertical = 4.dp), verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(8.dp)) {
 
         val context = LocalContext.current
@@ -109,7 +109,7 @@ fun SearchBar(modifier: Modifier, query: Pair<String, Long>, onChangeQuery: (Str
         }
 
         Icon(imageVector = Icons.Rounded.Search,
-            contentDescription = stringResource(R.string.search), tint = Color.DarkGray)
+            contentDescription = stringResource(R.string.search), tint = Color.Black)
         TextField(value = text, label = { Text(text = stringResource(id = R.string.search_area)) }, onValueChange = {
             text = it
             onChangeQuery(it)
@@ -122,7 +122,7 @@ fun SearchBar(modifier: Modifier, query: Pair<String, Long>, onChangeQuery: (Str
                 focusedContainerColor = Color.Transparent,
                 focusedIndicatorColor = Color.Transparent,
                 unfocusedIndicatorColor = Color.Transparent,
-                focusedLabelColor = Color.Blue,
+                focusedLabelColor = Color.Gray,
             ),
             shape = RectangleShape,
             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),

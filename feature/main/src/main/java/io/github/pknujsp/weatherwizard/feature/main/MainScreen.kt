@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -25,6 +24,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -37,7 +37,6 @@ import androidx.navigation.compose.rememberNavController
 import io.github.pknujsp.weatherwizard.core.ui.MainRoutes
 import io.github.pknujsp.weatherwizard.core.ui.NewRoute
 import io.github.pknujsp.weatherwizard.core.ui.RootNavControllerViewModel
-import io.github.pknujsp.weatherwizard.core.ui.theme.outlineTextStyle
 import io.github.pknujsp.weatherwizard.feature.favorite.HostFavoriteScreen
 import io.github.pknujsp.weatherwizard.feature.settings.HostSettingsScreen
 import io.github.pknujsp.weatherwizard.feature.weather.HostWeatherScreen
@@ -131,12 +130,13 @@ private fun RowScope.TopNavBarItem(
             bottom = 16.dp
         ),
         colors = ButtonDefaults.textButtonColors(contentColor = if (backStackEntry?.destination?.route == route.route) Color.Black else Color
-            .Gray,
+            (0xFF666666),
             containerColor = Color.Transparent)) {
         Text(text = stringResource(id = route.navTitle),
-            fontSize = 20.sp,
-            fontWeight = FontWeight.ExtraBold,
-            letterSpacing = (-0.6).sp,
-            style = LocalTextStyle.current.merge(outlineTextStyle))
+            fontSize = 19.sp,
+            fontWeight = FontWeight(400),
+            letterSpacing = 0.sp,
+            lineHeight = 24.sp,
+            textDecoration = if (backStackEntry?.destination?.route == route.route) TextDecoration.Underline else TextDecoration.None)
     }
 }

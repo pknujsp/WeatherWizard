@@ -1,7 +1,7 @@
 package io.github.pknujsp.weatherwizard.feature.map
 
 import android.annotation.SuppressLint
-import android.util.Log
+import android.content.res.ColorStateList
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
@@ -39,12 +39,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.core.content.res.ResourcesCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.pknujsp.weatherwizard.core.model.UiState
@@ -52,7 +54,6 @@ import io.github.pknujsp.weatherwizard.core.model.onLoading
 import io.github.pknujsp.weatherwizard.core.model.onSuccess
 import io.github.pknujsp.weatherwizard.core.model.weather.RequestWeatherDataArgs
 import io.github.pknujsp.weatherwizard.core.ui.weather.item.CardInfo
-import io.github.pknujsp.weatherwizard.core.ui.weather.item.SimpleWeatherBackgroundPlaceHolder
 import io.github.pknujsp.weatherwizard.core.ui.weather.item.SimpleWeatherScreenBackground
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
@@ -61,8 +62,11 @@ import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
 import org.osmdroid.config.Configuration
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory.MAPNIK
+import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.MapView
+import org.osmdroid.views.overlay.Marker
 
+private const val POI_MARKER_ID = "poi"
 
 @SuppressLint("ClickableViewAccessibility")
 @OptIn(ExperimentalComposeUiApi::class)
@@ -85,8 +89,9 @@ private fun MapScreen(latitude: Double, longitude: Double, radarAdapter: RadarAd
             clipToOutline = true
             setBackgroundResource(R.drawable.map_background)
             setTileSource(MAPNIK)
+
             tileProvider.tileCache.setStressedMemory(true)
-            tileProvider.tileCache.ensureCapacity(10000)
+            tileProvider.tileCache.ensureCapacity(100)
 
             maxZoomLevel = viewModel.maxZoomLevel.toDouble()
             minZoomLevel = viewModel.minZoomLevel.toDouble()
@@ -103,19 +108,18 @@ private fun MapScreen(latitude: Double, longitude: Double, radarAdapter: RadarAd
             }
 
             radarAdapter.setRadarController(adapterScope, viewModel)
-            controller.animateTo(org.osmdroid.util.GeoPoint(latitude, longitude), 6.0, 0)
+            poiOnMap(latitude, longitude)
+            controller.animateTo(GeoPoint(latitude, longitude), 6.0, 0)
             simpleMapController.init(this)
         }
     }, update = { mapView ->
         mapView.onResume()
         radarScope.launch {
             viewModel.timePosition.combine(viewModel.radarTiles) { time, tiles -> time to tiles }.distinctUntilChanged()
-                .filter { (time, tiles) -> time != -1 }
-                .collect { (time, tiles) ->
+                .filter { (time, tiles) -> time != -1 }.collect { (time, tiles) ->
                     tiles.onSuccess { radarTilesOverlay ->
                         if (!(mapView.overlays.isNotEmpty() and mapView.overlays.contains(radarTilesOverlay.overlays[time].first))) {
-                            Log.d("radar", "radar_time: $time")
-                            mapView.overlays.clear()
+                            mapView.overlays.removeIf { it !is Marker }
                             mapView.overlays.add(radarTilesOverlay.overlays[time].let {
                                 if (it.second.mView == null) it.second.mView = mapView
                                 it.first
@@ -130,6 +134,18 @@ private fun MapScreen(latitude: Double, longitude: Double, radarAdapter: RadarAd
 
 }
 
+private fun MapView.poiOnMap(latitude: Double, longitude: Double) {
+    Marker(this).apply {
+        id = POI_MARKER_ID
+        position = GeoPoint(latitude, longitude)
+        setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
+        setDefaultIcon()
+        icon = ResourcesCompat.getDrawable(resources, io.github.pknujsp.weatherwizard.core.common.R.drawable.poi_on_map, null)!!.also {
+            it.setTintList(ColorStateList.valueOf(Color.Blue.toArgb()))
+        }
+        overlays.add(this)
+    }
+}
 
 @Composable
 fun SimpleMapScreen(requestWeatherDataArgs: () -> StateFlow<UiState<RequestWeatherDataArgs>>) {
@@ -176,8 +192,7 @@ private fun RadarControllerScreen(radarAdapter: RadarAdapter) {
 
 
         IconToggleButton(
-            modifier = Modifier
-                .size(32.dp),
+            modifier = Modifier.size(32.dp),
             checked = false,
             colors = IconButtonDefaults.iconToggleButtonColors(checkedContainerColor = Color.Transparent,
                 containerColor = Color.Transparent,
@@ -204,14 +219,10 @@ private fun RadarControllerScreen(radarAdapter: RadarAdapter) {
             Icon(painter = painterResource(playIcon.value.first), contentDescription = stringResource(id = R.string.play_all_radars))
             if (playIcon.value.second) {
                 val infiniteTransition = rememberInfiniteTransition("PlayingButton")
-                val angle by infiniteTransition.animateFloat(
-                    initialValue = 0f,
+                val angle by infiniteTransition.animateFloat(initialValue = 0f,
                     targetValue = 360f,
-                    animationSpec = infiniteRepeatable(
-                        animation = tween(2000, easing = LinearEasing),
-                        repeatMode = RepeatMode.Restart
-                    ), label = "PlayingButton"
-                )
+                    animationSpec = infiniteRepeatable(animation = tween(2000, easing = LinearEasing), repeatMode = RepeatMode.Restart),
+                    label = "PlayingButton")
 
                 Image(painter = painterResource(R.drawable.round_loading_circle_orange),
                     contentDescription = stringResource(id = R.string.play_all_radars),
