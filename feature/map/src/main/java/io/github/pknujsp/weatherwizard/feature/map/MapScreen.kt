@@ -139,7 +139,6 @@ private fun MapView.poiOnMap(latitude: Double, longitude: Double) {
         id = POI_MARKER_ID
         position = GeoPoint(latitude, longitude)
         setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
-        setDefaultIcon()
         icon = ResourcesCompat.getDrawable(resources, io.github.pknujsp.weatherwizard.core.common.R.drawable.poi_on_map, null)!!.also {
             it.setTintList(ColorStateList.valueOf(Color.Blue.toArgb()))
         }
@@ -162,7 +161,7 @@ fun SimpleMapScreen(requestWeatherDataArgs: () -> StateFlow<UiState<RequestWeath
 
                 Box(modifier = Modifier
                     .fillMaxWidth()
-                    .height(235.dp)) {
+                    .height(240.dp)) {
 
                     val simpleMapController = remember { SimpleMapController() }
 

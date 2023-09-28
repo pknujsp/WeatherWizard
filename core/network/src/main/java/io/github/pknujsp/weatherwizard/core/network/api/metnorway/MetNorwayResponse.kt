@@ -4,6 +4,7 @@ package io.github.pknujsp.weatherwizard.core.network.api.metnorway
 import io.github.pknujsp.weatherwizard.core.network.ApiResponseModel
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import java.time.Instant
 
 @Serializable
 data class MetNorwayResponse(
@@ -81,9 +82,9 @@ data class MetNorwayResponse(
             @Serializable
             data class Data(
                 @SerialName("instant") val instant: Instant,
-                @SerialName("next_12_hours") val next12Hours: Next12Hours,
-                @SerialName("next_1_hours") val next1Hours: Next1Hours,
-                @SerialName("next_6_hours") val next6Hours: Next6Hours
+                @SerialName("next_12_hours") val next12Hours: Next12Hours? = null,
+                @SerialName("next_1_hours") val next1Hours: Next1Hours? = null,
+                @SerialName("next_6_hours") val next6Hours: Next6Hours? = null
             ) {
                 @Serializable
                 data class Instant(

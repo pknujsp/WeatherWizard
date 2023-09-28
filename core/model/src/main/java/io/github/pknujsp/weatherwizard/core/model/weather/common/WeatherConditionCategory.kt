@@ -23,14 +23,14 @@ import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherConditio
  * @property Clear 맑음
  * @property PartlyCloudy 구름 조금
  * @property MostlyCloudy 구름 많음
- *  @property Overcast 흐림
- *  @property Rain 비
- *  @property RainAndSnow 비/눈
- *  @property Snow 눈
- *  @property Shower 소나기
- *  @property Raindrop 빗방울
- *  @property RaindropAndSnowBlizzard 빗방울/눈날림
- *  @property SnowBlizzard 눈날림
+ * @property Overcast 흐림
+ * @property Rain 비
+ * @property RainAndSnow 비/눈
+ * @property Snow 눈
+ * @property Shower 소나기
+ * @property Raindrop 빗방울
+ * @property RaindropAndSnowBlizzard 빗방울/눈날림
+ * @property SnowBlizzard 눈날림
  *
  */
 sealed class WeatherConditionCategory(
@@ -40,8 +40,7 @@ sealed class WeatherConditionCategory(
     open val flickrGalleryName: FlickrGalleryId
 ) {
 
-    fun getWeatherIconByTimeOfDay(isDay: Boolean): Int =
-        if (isDay) dayWeatherIcon else nightWeatherIcon
+    fun getWeatherIconByTimeOfDay(isDay: Boolean): Int = if (isDay) dayWeatherIcon else nightWeatherIcon
 
     data object Clear : WeatherConditionCategory(
         io.github.pknujsp.weatherwizard.core.common.R.string.clear,
@@ -107,13 +106,12 @@ sealed class WeatherConditionCategory(
         FlickrGalleryId.Rain,
     )
 
-    data object RaindropAndSnowBlizzard :
-        WeatherConditionCategory(
-            io.github.pknujsp.weatherwizard.core.common.R.string.raindrop_and_snow_blizzard,
-            io.github.pknujsp.weatherwizard.core.common.R.drawable.ic_sleet,
-            io.github.pknujsp.weatherwizard.core.common.R.drawable.ic_sleet,
-            FlickrGalleryId.Rain,
-        )
+    data object RaindropAndSnowBlizzard : WeatherConditionCategory(
+        io.github.pknujsp.weatherwizard.core.common.R.string.raindrop_and_snow_blizzard,
+        io.github.pknujsp.weatherwizard.core.common.R.drawable.ic_sleet,
+        io.github.pknujsp.weatherwizard.core.common.R.drawable.ic_sleet,
+        FlickrGalleryId.Rain,
+    )
 
     data object SnowBlizzard : WeatherConditionCategory(
         io.github.pknujsp.weatherwizard.core.common.R.string.snow_blizzard,
