@@ -12,7 +12,6 @@ import androidx.compose.foundation.gestures.draggable
 import androidx.compose.foundation.gestures.rememberDraggableState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.WindowInsets
@@ -22,7 +21,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.LocalContentColor
-import androidx.compose.material3.ProvideTextStyle
 import androidx.compose.material3.Surface
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.TopAppBarScrollBehavior
@@ -74,7 +72,7 @@ fun CustomTopAppBar(
     actions: @Composable RowScope.() -> Unit,
     windowInsets: WindowInsets = TopAppBarDefaults.windowInsets,
     colors: CustomTopAppBarColors,
-    maxHeight: Dp = 140.dp,
+    maxHeight: Dp = 150.dp,
     pinnedHeight: Dp = 52.dp,
     scrollBehavior: TopAppBarScrollBehavior
 ) {
@@ -144,7 +142,7 @@ fun CustomTopAppBar(
     }
 
     Surface(modifier = modifier.then(appBarDragModifier), color = appBarContainerColor) {
-        Column {
+        Box {
             TopAppBarLayout(
                 modifier = Modifier
                     .windowInsetsPadding(windowInsets),

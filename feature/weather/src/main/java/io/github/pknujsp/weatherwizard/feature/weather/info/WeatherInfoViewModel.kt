@@ -79,7 +79,7 @@ class WeatherInfoViewModel @Inject constructor(
                     UiState.Success(favoriteAreaListRepository.getById(targetAreaType.id).getOrThrow().run {
                         RequestWeatherDataArgs(latitude = latitude,
                             longitude = longitude,
-                            weatherDataProvider = WeatherDataProvider.MetNorway)
+                            weatherDataProvider = WeatherDataProvider.Kma)
                     })
                 } else {
                     UiState.Loading
@@ -92,7 +92,7 @@ class WeatherInfoViewModel @Inject constructor(
         viewModelScope.launch {
             _requestArgs.value = UiState.Success(RequestWeatherDataArgs(latitude = location.latitude,
                 longitude = location.longitude,
-                weatherDataProvider = WeatherDataProvider.MetNorway))
+                weatherDataProvider = WeatherDataProvider.Kma))
         }
     }
 
@@ -138,12 +138,14 @@ class WeatherInfoViewModel @Inject constructor(
     private fun reverseGeoCode(latitude: Double, longitude: Double, requestDateTime: ZonedDateTime) {
         viewModelScope.launch(Dispatchers.IO) {
             nominatimRepository.reverseGeoCode(latitude, longitude).onSuccess {
-                _reverseGeoCode.value = UiState.Success(ReverseGeoCode(displayName = it.simpleDisplayName,
+                _reverseGeoCode.value = UiState.Success(ReverseGeoCode(
+                    displayName = it.simpleDisplayName,
                     country = it.country,
                     countryCode = it.countryCode,
                     latitude = it.latitude,
                     longitude = it.longitude,
-                    requestDateTime = requestDateTime.format(DateTimeFormatter.ofPattern("M.d EEE HH:mm"))))
+                    requestDateTime = requestDateTime.format(DateTimeFormatter.ofPattern("M.d EEE HH:mm")),
+                ))
             }.onFailure {
                 _reverseGeoCode.value = UiState.Error(it)
             }

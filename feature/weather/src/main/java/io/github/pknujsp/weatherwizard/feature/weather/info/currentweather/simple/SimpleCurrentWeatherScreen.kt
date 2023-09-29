@@ -3,10 +3,9 @@ package io.github.pknujsp.weatherwizard.feature.weather.info.currentweather.simp
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.absolutePadding
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.Text
@@ -24,6 +23,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.unit.dp
@@ -49,9 +49,7 @@ fun CurrentWeatherScreen(weatherInfoViewModel: WeatherInfoViewModel, backgroundI
 
     currentWeather.onSuccess { currentWeather ->
 
-        Column(
-            verticalArrangement = Arrangement.spacedBy(8.dp),
-        ) {
+        Column {
             ConstraintLayout(modifier = Modifier
                 .fillMaxWidth()
                 .background(Color.White, RoundedCornerShape(12.dp))
@@ -61,7 +59,7 @@ fun CurrentWeatherScreen(weatherInfoViewModel: WeatherInfoViewModel, backgroundI
 
                 AsyncImage(
                     modifier = Modifier
-                        .height(180.dp)
+                        .wrapContentHeight()
                         .fillMaxWidth()
                         .constrainAs(background) {
                             bottom.linkTo(parent.bottom)
@@ -91,24 +89,25 @@ fun CurrentWeatherScreen(weatherInfoViewModel: WeatherInfoViewModel, backgroundI
                         id = io.github.pknujsp.weatherwizard.core.model.R.string.weather_icon_description,
                     ),
                     modifier = Modifier
-                        .size(42.dp)
+                        .size(90.dp)
                         .constrainAs(weatherIcon) {
-                            bottom.linkTo(temperature.top)
-                            absoluteLeft.linkTo(temperature.absoluteLeft)
+                            bottom.linkTo(condition.top)
+                            start.linkTo(parent.start)
+                            end.linkTo(parent.end)
                         },
                 )
 
                 Text(
                     text = stringResource(currentWeather.weatherCondition.value.stringRes),
                     modifier = Modifier
-                        .absolutePadding(left = 8.dp)
                         .constrainAs(condition) {
-                            bottom.linkTo(weatherIcon.bottom)
-                            top.linkTo(weatherIcon.top)
-                            absoluteLeft.linkTo(weatherIcon.absoluteRight)
+                            bottom.linkTo(temperature.top)
+                            start.linkTo(parent.start)
+                            end.linkTo(parent.end)
                         },
-                    style = TextStyle(fontSize = TextUnit(23f, TextUnitType.Sp), color = textColor, fontWeight = FontWeight.Light).merge(
-                        outlineTextStyle),
+                    style = TextStyle(fontSize = TextUnit(24f, TextUnitType.Sp), color = textColor, fontWeight = FontWeight.Medium,
+                        textAlign = TextAlign.Center)
+                        .merge(outlineTextStyle),
                 )
 
                 Text(text = listOf(

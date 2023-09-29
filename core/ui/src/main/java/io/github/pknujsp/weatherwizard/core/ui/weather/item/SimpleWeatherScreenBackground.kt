@@ -24,7 +24,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import io.github.pknujsp.weatherwizard.core.ui.PlaceHolder
 
-private val backgroundColor = Color(18, 18, 18, (0.671 * 255).toInt())
+private val backgroundColor = Color(177, 177, 177, 255)
 
 @Composable
 private fun DefaultSurface(content: @Composable () -> Unit) {

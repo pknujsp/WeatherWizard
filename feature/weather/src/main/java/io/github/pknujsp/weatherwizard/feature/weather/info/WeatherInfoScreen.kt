@@ -3,6 +3,7 @@ package io.github.pknujsp.weatherwizard.feature.weather.info
 
 import android.app.Activity
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -73,6 +74,7 @@ import io.github.pknujsp.weatherwizard.feature.map.SimpleMapScreen
 import io.github.pknujsp.weatherwizard.feature.sunsetrise.SimpleSunSetRiseScreen
 import io.github.pknujsp.weatherwizard.feature.weather.CustomTopAppBar
 import io.github.pknujsp.weatherwizard.feature.weather.CustomTopAppBarColors
+import io.github.pknujsp.weatherwizard.feature.weather.R
 import io.github.pknujsp.weatherwizard.feature.weather.info.currentweather.simple.CurrentWeatherScreen
 import io.github.pknujsp.weatherwizard.feature.weather.info.dailyforecast.SimpleDailyForecastScreen
 import io.github.pknujsp.weatherwizard.feature.weather.info.hourlyforecast.simple.HourlyForecastScreen
@@ -147,7 +149,7 @@ fun WeatherInfoScreen() {
                             .fillMaxWidth()
                             .padding(end = 60.dp),
                     ) {
-                        headInfo.onSuccess {
+                        headInfo.onSuccess { it ->
                             Text(
                                 text = listOf(
                                     AStyle(
@@ -183,6 +185,30 @@ fun WeatherInfoScreen() {
                                     color = Color.Black,
                                 )
                             }
+                            Row(
+                                horizontalArrangement = Arrangement.Start,
+                                verticalAlignment = Alignment.CenterVertically,
+                                modifier = Modifier.clickable {
+
+                                }
+                            ) {
+                                args.onSuccess { args ->
+                                    AsyncImage(
+                                        model = ImageRequest.Builder(LocalContext.current)
+                                            .data(args.weatherDataProvider.logo).crossfade(false)
+                                            .build(),
+                                        contentDescription = stringResource(id = R.string.weather_provider),
+                                        colorFilter = ColorFilter.tint(Color.Black),
+                                        modifier = Modifier.size(16.dp),
+                                    )
+                                    Spacer(modifier = Modifier.width(4.dp))
+                                    Text(
+                                        text = stringResource(id = args.weatherDataProvider.name),
+                                        fontSize = TextUnit(14f, TextUnitType.Sp),
+                                        color = Color.Black,
+                                    )
+                                }
+                            }
                         }
                     }
                 },
@@ -195,7 +221,7 @@ fun WeatherInfoScreen() {
                 scrollBehavior = scrollBehavior,
                 colors = CustomTopAppBarColors(
                     containerColor = Color.Transparent,
-                    scrolledContainerColor = Color.White,
+                    scrolledContainerColor = Color.Transparent,
                     titleContentColor = Color.Black,
                     navigationIconContentColor = Color.Black,
                     actionIconContentColor = Color.Black,

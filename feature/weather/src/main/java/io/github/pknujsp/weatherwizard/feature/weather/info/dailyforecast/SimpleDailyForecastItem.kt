@@ -99,9 +99,10 @@ private fun Item(
                 }
             }
 
-            if(dailyForecast.displayPrecipitationProbability){
+            if (dailyForecast.displayPrecipitationProbability) {
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Center) {
-                    AsyncImage(model = ImageRequest.Builder(LocalContext.current).data(DailyForecast.probabilityIcon).crossfade(false).build(),
+                    AsyncImage(model = ImageRequest.Builder(LocalContext.current).data(DailyForecast.probabilityIcon).crossfade(false)
+                        .build(),
                         contentDescription = null,
                         modifier = Modifier
                             .size(12.dp)

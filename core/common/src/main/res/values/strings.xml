@@ -62,4 +62,6 @@
     <string name="nav_settings">설정</string>
     <string name="nav_favorite_areas">즐겨찾기</string>
     <string name="delete">삭제</string>
+    <string name="kma">대한민국 기상청</string>
+    <string name="met_norway">노르웨이 기상청</string>
 </resources>
