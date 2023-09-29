@@ -77,7 +77,9 @@ class WeatherInfoViewModel @Inject constructor(
                 _targetAreaType.value = UiState.Success(targetAreaType)
                 if (targetAreaType is TargetAreaType.CustomLocation) {
                     UiState.Success(favoriteAreaListRepository.getById(targetAreaType.id).getOrThrow().run {
-                        RequestWeatherDataArgs(latitude = latitude, longitude = longitude, weatherDataProvider = WeatherDataProvider.Kma)
+                        RequestWeatherDataArgs(latitude = latitude,
+                            longitude = longitude,
+                            weatherDataProvider = WeatherDataProvider.MetNorway)
                     })
                 } else {
                     UiState.Loading
@@ -90,7 +92,7 @@ class WeatherInfoViewModel @Inject constructor(
         viewModelScope.launch {
             _requestArgs.value = UiState.Success(RequestWeatherDataArgs(latitude = location.latitude,
                 longitude = location.longitude,
-                weatherDataProvider = WeatherDataProvider.Kma))
+                weatherDataProvider = WeatherDataProvider.MetNorway))
         }
     }
 
@@ -115,7 +117,9 @@ class WeatherInfoViewModel @Inject constructor(
                     createCurrentWeatherUiModel(allWeatherDataEntity.currentWeatherEntity, dayNightCalculator, currentCalendar)
                     createHourlyForecastUiModel(allWeatherDataEntity.hourlyForecastEntity, dayNightCalculator)
                     createDailyForecastUiModel(allWeatherDataEntity.dailyForecastEntity)
-                    createYesterdayWeatherUiModel(allWeatherDataEntity.yesterdayWeatherEntity)
+                    allWeatherDataEntity.yesterdayWeatherEntity?.run {
+                        createYesterdayWeatherUiModel(this)
+                    }
 
                     _weatherDataState.value = UiState.Success(Unit)
                 }.onFailure {

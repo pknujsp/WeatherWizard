@@ -93,8 +93,7 @@ class KmaResponseMapper @Inject constructor() :
                 feelsLikeTemperature = TemperatureValueType(item.feelsLikeTemp, DEFAULT_TEMPERATURE_UNIT),
                 rainfallVolume = RainfallValueType(item.rainVolume, DEFAULT_PRECIPITATION_UNIT),
                 snowfallVolume = SnowfallValueType(item.snowVolume, DEFAULT_PRECIPITATION_UNIT),
-                precipitationVolume = PrecipitationValueType(if (item.rainVolume.isNaN() and item.snowVolume.isNaN())
-                    PrecipitationValueType.none.value else item.rainVolume.toLeastZero() + item.snowVolume.toLeastZero(),
+                precipitationVolume = PrecipitationValueType(if (item.rainVolume.isNaN() and item.snowVolume.isNaN()) PrecipitationValueType.none.value else item.rainVolume.toLeastZero() + item.snowVolume.toLeastZero(),
                     DEFAULT_PRECIPITATION_UNIT),
                 precipitationProbability = ProbabilityValueType(item.pop, PercentageUnit),
             )

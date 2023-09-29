@@ -13,6 +13,7 @@ class DailyForecast(
     dailyForecastEntity: DailyForecastEntity,
 ) : UiModel {
     val items: List<Item>
+    val displayPrecipitationProbability: Boolean
 
     companion object {
         val itemWidth: Dp = 92.dp
@@ -45,6 +46,9 @@ class DailyForecast(
             }
             listMap.toList().map { it.second }
         }
+
+        val nonPop = "-"
+        displayPrecipitationProbability = items.any { it -> it.precipitationProbabilities.any { it != nonPop } }
     }
 
 

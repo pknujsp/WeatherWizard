@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyListState
@@ -86,17 +87,21 @@ private fun Item(
                 .crossfade(false)
                 .build(),
                 contentDescription = weatherConditionText,
-                modifier = Modifier.padding(4.dp))
+                modifier = Modifier
+                    .padding(4.dp)
+                    .size(32.dp))
 
             // 강수확률
-            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Center) {
-                AsyncImage(model = ImageRequest.Builder(LocalContext.current)
-                    .data(HourlyForecast.Item.probabilityIcon)
-                    .crossfade(false)
-                    .build(),
-                    contentDescription = null,
-                    modifier = HourlyForecast.Item.imageModifier)
-                Text(text = precipitationProbability, style = TextStyle(fontSize = 12.sp, color = Color.White))
+            if (hourlyForecast.displayPrecipitationProbability) {
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Center) {
+                    AsyncImage(model = ImageRequest.Builder(LocalContext.current)
+                        .data(HourlyForecast.Item.probabilityIcon)
+                        .crossfade(false)
+                        .build(),
+                        contentDescription = null,
+                        modifier = HourlyForecast.Item.imageModifier)
+                    Text(text = precipitationProbability, style = TextStyle(fontSize = 12.sp, color = Color.White))
+                }
             }
 
             // 강수량
@@ -114,9 +119,9 @@ private fun Item(
                                 0f)
                             .then(HourlyForecast.Item.imageModifier))
                     Text(text = precipitationVolume,
-                        style = TextStyle(fontSize = 12.sp, color = if (hourlyForecast.displayPrecipitationVolume and
-                            precipitationVolume.isNotEmpty()) Color.White else
-                            Color.Transparent))
+                        style = TextStyle(fontSize = 12.sp,
+                            color = if (hourlyForecast.displayPrecipitationVolume and precipitationVolume.isNotEmpty()) Color.White else
+                                Color.Transparent))
                 }
             }
             // 강우량

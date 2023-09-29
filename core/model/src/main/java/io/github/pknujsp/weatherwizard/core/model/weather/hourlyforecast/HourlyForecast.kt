@@ -29,6 +29,7 @@ class HourlyForecast(
     val displayRainfallVolume = items.any { it.rainfallVolume.isNotEmpty() }
     val displaySnowfallVolume = items.any { it.snowfallVolume.isNotEmpty() }
     val displayPrecipitationVolume = items.any { it.precipitationVolume.isNotEmpty() }
+    val displayPrecipitationProbability = items.any { it.precipitationProbability != "-" }
 
     companion object {
         val itemWidth: Dp = 54.dp

@@ -10,28 +10,35 @@ import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherConditio
 import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherConditionValueType
 import io.github.pknujsp.weatherwizard.core.model.weather.common.WindSpeedUnit
 import io.github.pknujsp.weatherwizard.core.model.weather.common.WindSpeedValueType
+import io.github.pknujsp.weatherwizard.core.network.api.DailyForecastResponseModel
 import io.github.pknujsp.weatherwizard.core.network.api.metnorway.MetNorwayResponse
-import java.time.LocalDateTime
+import java.time.ZonedDateTime
 
 class MetNorwayDailyForecastResponse(
     metNorwayResponse: MetNorwayResponse, symbols: Map<String, WeatherConditionCategory>
-) {
+) : DailyForecastResponseModel {
 
     val items: List<Item>
 
     private companion object {
         val sixTimes = listOf(0, 6, 12, 18)
+        val night = "_night"
+        val day = "_day"
     }
 
     init {
         val result = mutableListOf<Item>()
         // 기온, 풍향, 풍속, 강수량
-        metNorwayResponse.properties.timeseries.groupBy { LocalDateTime.parse(it.time).toLocalDate() }.let { groups ->
-            groups.entries.forEach { (date, items) ->
+        metNorwayResponse.properties.timeseries.groupBy { ZonedDateTime.parse(it.time).toLocalDate() }.let { groups ->
+            for ((i, entry) in groups.entries.withIndex()) {
+                if (i == groups.size - 1) continue
+
+                val date = entry.key
+                val items = entry.value
                 var minTemp = Double.MAX_VALUE
                 var maxTemp = Double.MIN_VALUE
 
-                val firstTime = LocalDateTime.parse(items.first().time)
+                val firstTime = ZonedDateTime.parse(items.first().time)
 
                 items.forEach { item ->
                     item.data.instant.details.airTemperature.run {
@@ -65,11 +72,10 @@ class MetNorwayDailyForecastResponse(
         items = result
     }
 
-    private fun LocalDateTime.isSkip(): Boolean = hour > 12
 
     private fun List<MetNorwayResponse.Properties.Timesery>.createAmPmDataList(symbols: Map<String, WeatherConditionCategory>): List<AmPmData> {
         val items = mutableListOf<AmPmData>()
-        map { LocalDateTime.parse(it.time).hour to it }.let { pairs ->
+        map { ZonedDateTime.parse(it.time).hour to it }.let { pairs ->
             pairs.filter { it.first < 12 }.createAmPmData(AmPm.AM, symbols)?.run { items.add(this) }
             pairs.filter { it.first >= 12 }.createAmPmData(AmPm.PM, symbols)?.run { items.add(this) }
         }
@@ -95,7 +101,7 @@ class MetNorwayDailyForecastResponse(
 
     private fun List<Pair<Int, MetNorwayResponse.Properties.Timesery>>.getWeatherCondition(symbols: Map<String, WeatherConditionCategory>) =
         groupBy { it.second.data.next1Hours?.summary?.symbolCode ?: it.second.data.next6Hours!!.summary.symbolCode }.let { groups ->
-            groups.entries.maxBy { it.value.size }.let { symbols[it.key]!! }
+            groups.entries.maxBy { it.value.size }.let { symbols[it.key.replace(night, "").replace(day, "")]!! }
         }
 
     data class Item(

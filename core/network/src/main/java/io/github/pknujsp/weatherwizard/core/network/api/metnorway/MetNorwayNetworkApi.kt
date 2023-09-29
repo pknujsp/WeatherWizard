@@ -7,8 +7,8 @@ import retrofit2.http.Query
 
 
 interface MetNorwayNetworkApi {
-    @Headers("User-Agent: WeatherWizard")
+    @Headers("User-Agent: BestWeatherApp https://github.com/pknujsp")
     @GET("locationforecast/2.0/complete")
-    fun getLocationForecast(@Query("lat", encoded = true) latitude: Double, @Query("lon", encoded = true) longitude: Double):
+    suspend fun getLocationForecast(@Query("lat") latitude: Double, @Query("lon") longitude: Double):
             NetworkApiResult<MetNorwayResponse>
 }

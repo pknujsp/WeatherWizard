@@ -99,14 +99,16 @@ private fun Item(
                 }
             }
 
-            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Center) {
-                AsyncImage(model = ImageRequest.Builder(LocalContext.current).data(DailyForecast.probabilityIcon).crossfade(false).build(),
-                    contentDescription = null,
-                    modifier = Modifier
-                        .size(12.dp)
-                        .padding(end = 4.dp))
-                Text(text = precipitationProbabilities.joinToString("/"),
-                    style = TextStyle(fontSize = 12.sp, color = Color.White))
+            if(dailyForecast.displayPrecipitationProbability){
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Center) {
+                    AsyncImage(model = ImageRequest.Builder(LocalContext.current).data(DailyForecast.probabilityIcon).crossfade(false).build(),
+                        contentDescription = null,
+                        modifier = Modifier
+                            .size(12.dp)
+                            .padding(end = 4.dp))
+                    Text(text = precipitationProbabilities.joinToString("/"),
+                        style = TextStyle(fontSize = 12.sp, color = Color.White))
+                }
             }
 
             MultiGraph(drawInfos,

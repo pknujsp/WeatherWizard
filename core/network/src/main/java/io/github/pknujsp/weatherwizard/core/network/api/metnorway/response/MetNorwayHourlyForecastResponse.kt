@@ -16,6 +16,7 @@ import io.github.pknujsp.weatherwizard.core.model.weather.common.WindDirectionUn
 import io.github.pknujsp.weatherwizard.core.model.weather.common.WindDirectionValueType
 import io.github.pknujsp.weatherwizard.core.model.weather.common.WindSpeedUnit
 import io.github.pknujsp.weatherwizard.core.model.weather.common.WindSpeedValueType
+import io.github.pknujsp.weatherwizard.core.network.api.HourlyForecastResponseModel
 import io.github.pknujsp.weatherwizard.core.network.api.metnorway.MetNorwayResponse
 import java.time.ZoneId
 import java.time.ZonedDateTime
@@ -24,16 +25,18 @@ class MetNorwayHourlyForecastResponse(
     metNorwayResponse: MetNorwayResponse,
     weatherUtil: WeatherUtil,
     symbols: Map<String, WeatherConditionCategory>
-) {
+) : HourlyForecastResponseModel {
     val items: List<Item> = metNorwayResponse.properties.timeseries.let { timeseries ->
         val zero = 0.0
-
-        var precipitationVolume: Double = 0.0
+        var precipitationVolume = 0.0
         var hasPrecipitation = false
 
         val zoneId = ZoneId.systemDefault()
         var windSpeed: WindSpeedValueType
         var weatherCondition: WeatherConditionValueType? = null
+
+        val night = "_night"
+        val day = "_day"
 
         timeseries.filter { it.data.next1Hours != null && it.data.next6Hours != null }.map { hourly ->
             hourly.data.instant.details.let { instantDetails ->
@@ -49,7 +52,7 @@ class MetNorwayHourlyForecastResponse(
                 }
 
                 (hourly.data.next1Hours?.summary?.symbolCode ?: hourly.data.next6Hours?.summary?.symbolCode)?.let { symbolCode ->
-                    weatherCondition = WeatherConditionValueType(symbols[symbolCode]!!)
+                    weatherCondition = WeatherConditionValueType(symbols[symbolCode.replace(day, "").replace(night, "")]!!)
                 }
 
                 Item(

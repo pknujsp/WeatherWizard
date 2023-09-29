@@ -10,5 +10,5 @@ data class AllWeatherDataEntity(
     val currentWeatherEntity: CurrentWeatherEntity,
     val hourlyForecastEntity: HourlyForecastEntity,
     val dailyForecastEntity: DailyForecastEntity,
-    val yesterdayWeatherEntity: YesterdayWeatherEntity
+    val yesterdayWeatherEntity: YesterdayWeatherEntity? = null
 ) : EntityModel
