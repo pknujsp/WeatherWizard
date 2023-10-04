@@ -8,6 +8,7 @@ import io.github.pknujsp.weatherwizard.core.data.weather.request.WeatherApiReque
 import io.github.pknujsp.weatherwizard.core.data.weather.request.WeatherApiRequestManagerImpl
 import io.github.pknujsp.weatherwizard.core.data.weather.request.WeatherApiRequestPreProcessorManager
 import io.github.pknujsp.weatherwizard.core.network.api.kma.KmaDataSource
+import io.github.pknujsp.weatherwizard.core.network.api.metnorway.MetNorwayDataSource
 import javax.inject.Singleton
 
 @InstallIn(SingletonComponent::class)
@@ -18,7 +19,8 @@ object ApiRequestManagerModule {
     @Singleton
     fun providesWeatherApiRequestManager(
         kmaDataSource: KmaDataSource,
+        metNorwayDataSource: MetNorwayDataSource,
         weatherApiRequestPreProcessorManager: WeatherApiRequestPreProcessorManager
-    ): WeatherApiRequestManager = WeatherApiRequestManagerImpl(kmaDataSource, weatherApiRequestPreProcessorManager)
+    ): WeatherApiRequestManager = WeatherApiRequestManagerImpl(kmaDataSource, metNorwayDataSource, weatherApiRequestPreProcessorManager)
 
 }

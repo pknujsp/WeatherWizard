@@ -2,21 +2,32 @@ package io.github.pknujsp.weatherwizard.core.common
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.Intent
 import android.location.Location
+import android.location.LocationManager
 import android.os.Looper
+import android.provider.Settings
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberUpdatedState
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
+import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
 class GpsLocationManager(context: Context) {
     private companion object {
         var fusedLocationProvider: FusedLocationProviderClient? = null
-        var requestingLocationUpdates: Boolean = false
+        var locationManager: LocationManager? = null
+        val requestingLocationUpdates = AtomicBoolean(false)
         var callback: LocationCallback? = null
     }
 
@@ -24,7 +35,12 @@ class GpsLocationManager(context: Context) {
         if (fusedLocationProvider == null) {
             fusedLocationProvider = LocationServices.getFusedLocationProviderClient(context)
         }
+        if (locationManager == null) {
+            locationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
+        }
     }
+
+    fun isGpsProviderEnabled(): Boolean = locationManager?.isProviderEnabled(LocationManager.GPS_PROVIDER) ?: false
 
     @SuppressLint("MissingPermission")
     suspend fun getCurrentLocation(): CurrentLocationResult {
@@ -41,7 +57,9 @@ class GpsLocationManager(context: Context) {
             }
         }
         if (result.isFailure) {
-            result = findCurrentLocation()
+            result = findCurrentLocation()?.run {
+                Result.success(this)
+            } ?: Result.failure(Throwable("Location is null"))
         }
 
         return if (result.isSuccess) {
@@ -52,27 +70,45 @@ class GpsLocationManager(context: Context) {
     }
 
     @SuppressLint("MissingPermission")
-    private suspend fun findCurrentLocation(): Result<Location> = suspendCoroutine { continuation ->
-        if (requestingLocationUpdates) {
+    private suspend fun findCurrentLocation(): Location? = suspendCoroutine { continuation ->
+        if (requestingLocationUpdates.get()) {
             callback?.run {
                 fusedLocationProvider?.removeLocationUpdates(this)
             }
+        } else {
+            requestingLocationUpdates.set(true)
         }
-        requestingLocationUpdates = true
 
         callback = object : LocationCallback() {
+            val resumed = AtomicBoolean(false)
+
             override fun onLocationResult(p: LocationResult) {
-                fusedLocationProvider?.removeLocationUpdates(this)
-                requestingLocationUpdates = false
-                p.lastLocation?.let { continuation.resume(Result.success(it)) } ?: kotlin.run {
-                    continuation.resumeWith(Result.failure(Throwable("Location is null")))
+                if (!resumed.get()) {
+                    fusedLocationProvider?.removeLocationUpdates(this)
+                    requestingLocationUpdates.set(false)
+                    resumed.set(true)
+                    continuation.resume(p.lastLocation)
                 }
             }
         }
 
         fusedLocationProvider?.requestLocationUpdates(LocationRequest.Builder(Priority.PRIORITY_BALANCED_POWER_ACCURACY, 100L).build(),
-            callback!!,
-            Looper.getMainLooper())
+            callback!!, Looper.getMainLooper())
+    }
+
+    @Composable
+    fun OpenSettingsForLocation(onReturnedFromSettings: () -> Unit) {
+        val onReturnedFromSettingsState by rememberUpdatedState(onReturnedFromSettings)
+
+        val settingsLauncher = rememberLauncherForActivityResult(
+            ActivityResultContracts.StartActivityForResult()
+        ) {
+            onReturnedFromSettingsState()
+        }
+
+        LaunchedEffect(Unit) {
+            settingsLauncher.launch(Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS))
+        }
     }
 
     sealed interface CurrentLocationResult {

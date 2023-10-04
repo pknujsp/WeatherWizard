@@ -13,6 +13,7 @@ import io.github.pknujsp.weatherwizard.core.model.UiState
 import io.github.pknujsp.weatherwizard.core.model.favorite.FavoriteAreaListEntity
 import io.github.pknujsp.weatherwizard.core.model.favorite.TargetAreaType
 import io.github.pknujsp.weatherwizard.core.model.nominatim.GeoCode
+import io.github.pknujsp.weatherwizard.core.model.nominatim.GeoCodeEntity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -35,6 +36,8 @@ class SearchAreaViewModel @Inject constructor(
     private val _uiAction = MutableStateFlow<Action>(Action.Default)
     val uiAction: StateFlow<Action> = _uiAction
 
+    private val filters = arrayOf("place")
+
     init {
         viewModelScope.launch(Dispatchers.IO) {
             lastFavoriteAreaIdList.value = favoriteAreaRepository.getAll().map {
@@ -48,7 +51,7 @@ class SearchAreaViewModel @Inject constructor(
             searchHistoryRepository.insert(query)
             nominatimRepository.geoCode(query).map { geoCodeEntities ->
                 val addedIds = lastFavoriteAreaIdList.value
-                geoCodeEntities.map { item ->
+                geoCodeEntities.filterPlace().map { item ->
                     GeoCode(placeId = item.placeId, displayName = item.simpleDisplayName, countryCode =
                     item.countryCode, country = item.country, latitude = item.latitude, longitude = item.longitude, isAdded = addedIds
                         .contains(item.placeId)
@@ -78,6 +81,9 @@ class SearchAreaViewModel @Inject constructor(
             _uiAction.value = Action.OnSelectedArea
         }
     }
+
+    private fun List<GeoCodeEntity>.filterPlace(): List<GeoCodeEntity> = filter { it.category in filters }
+
 }
 
 @KBindFunc

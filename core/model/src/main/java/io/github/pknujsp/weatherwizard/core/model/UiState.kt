@@ -21,3 +21,11 @@ sealed interface VarState<out T> {
         override fun valueNotNull(): T = data
     }
 }
+
+@KBindFunc
+sealed interface ProcessState {
+    data object Idle : ProcessState
+    data object Running : ProcessState
+    data object Succeed : ProcessState
+    data object Failed : ProcessState
+}

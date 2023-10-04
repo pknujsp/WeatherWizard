@@ -7,15 +7,15 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class ReverseGeoCodeResponse(
-    @SerialName("features") val features: List<Feature> = listOf(),
+    @SerialName("features") val features: List<Feature>,
     @SerialName("licence") val licence: String = "", // Data © OpenStreetMap contributors, ODbL 1.0. http://osm.org/copyright
     @SerialName("type") val type: String = "" // FeatureCollection
 ) : ApiResponseModel {
     @Serializable
     data class Feature(
-        @SerialName("bbox") val bbox: List<Double> = listOf(),
-        @SerialName("geometry") val geometry: Geometry = Geometry(),
-        @SerialName("properties") val properties: Properties = Properties(),
+        @SerialName("bbox") val bbox: List<Double>,
+        @SerialName("geometry") val geometry: Geometry,
+        @SerialName("properties") val properties: Properties,
         @SerialName("type") val type: String = "" // Feature
     ) {
         @Serializable
@@ -26,14 +26,14 @@ data class ReverseGeoCodeResponse(
 
         @Serializable
         data class Properties(
-            @SerialName("address") val address: Address = Address(),
+            @SerialName("address") val address: Address,
             @SerialName("addresstype") val addresstype: String = "", // place
             @SerialName("category") val category: String = "", // place
             @SerialName("display_name")
             val displayName: String = "", // 71, Via Guglielmo Marconi, Marconi, Porto-Saragozza, Bologna, Emilia-Romagna, 40122, 이탈리아
             @SerialName("importance") val importance: Double = 0.0, // 9.99999999995449e-06
             @SerialName("name") val name: String = "",
-            @SerialName("osm_id") val osmId: Int = 0, // 1704756187
+            @SerialName("osm_id") val osmId: String = "", // 1704756187
             @SerialName("osm_type") val osmType: String = "", // node
             @SerialName("place_id") val placeId: Int = 0, // 97614718
             @SerialName("place_rank") val placeRank: Int = 0, // 30

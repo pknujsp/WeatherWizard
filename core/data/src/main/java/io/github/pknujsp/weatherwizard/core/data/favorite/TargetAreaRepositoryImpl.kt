@@ -14,7 +14,7 @@ class TargetAreaRepositoryImpl @Inject constructor(
     override suspend fun getTargetArea(): TargetAreaType {
         return appDataStore.readAsLong(targetAreaKey).run {
             if (this is DBEntityState.Exists) {
-                if (data == TargetAreaType.CurrentLocation.id) {
+                if (data == TargetAreaType.CurrentLocation.locationId) {
                     TargetAreaType.CurrentLocation
                 } else {
                     TargetAreaType.CustomLocation(data)
@@ -26,7 +26,7 @@ class TargetAreaRepositoryImpl @Inject constructor(
     }
 
     override suspend fun updateTargetArea(target: TargetAreaType) {
-        appDataStore.save(targetAreaKey, target.id)
+        appDataStore.save(targetAreaKey, target.locationId)
     }
 
 }

@@ -1,6 +1,5 @@
 package io.github.pknujsp.weatherwizard.core.data.weather.mapper
 
-import io.github.pknujsp.weatherwizard.core.data.module.ApiResponseMapperModule.KMA_WEATHER_RESPONSE_MAPPER
 import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherDataProvider
 import io.github.pknujsp.weatherwizard.core.model.weather.current.CurrentWeatherEntity
 import io.github.pknujsp.weatherwizard.core.model.weather.dailyforecast.DailyForecastEntity
@@ -11,36 +10,39 @@ import io.github.pknujsp.weatherwizard.core.network.api.kma.KmaCurrentWeatherRes
 import io.github.pknujsp.weatherwizard.core.network.api.kma.KmaDailyForecastResponse
 import io.github.pknujsp.weatherwizard.core.network.api.kma.KmaHourlyForecastResponse
 import io.github.pknujsp.weatherwizard.core.network.api.kma.KmaYesterdayWeatherResponse
+import io.github.pknujsp.weatherwizard.core.network.api.metnorway.response.MetNorwayCurrentWeatherResponse
+import io.github.pknujsp.weatherwizard.core.network.api.metnorway.response.MetNorwayDailyForecastResponse
+import io.github.pknujsp.weatherwizard.core.network.api.metnorway.response.MetNorwayHourlyForecastResponse
 import javax.inject.Inject
-import javax.inject.Named
 
 class WeatherResponseMapperManagerImpl @Inject constructor(
-    @Named(KMA_WEATHER_RESPONSE_MAPPER)
     private val kmaResponseMapper: WeatherResponseMapper<KmaCurrentWeatherResponse, KmaHourlyForecastResponse, KmaDailyForecastResponse,
-            KmaYesterdayWeatherResponse>
+            KmaYesterdayWeatherResponse>,
+    private val metNorwayResponseMapper: WeatherResponseMapper<MetNorwayCurrentWeatherResponse, MetNorwayHourlyForecastResponse,
+            MetNorwayDailyForecastResponse, KmaYesterdayWeatherResponse>
 ) : WeatherResponseMapperManager {
     override fun mapCurrentWeather(response: ApiResponseModel, weatherDataProvider: WeatherDataProvider): CurrentWeatherEntity =
         when (weatherDataProvider) {
             is WeatherDataProvider.Kma -> kmaResponseMapper.mapCurrentWeather(response as KmaCurrentWeatherResponse)
-            is WeatherDataProvider.MetNorway -> TODO()
+            is WeatherDataProvider.MetNorway -> metNorwayResponseMapper.mapCurrentWeather(response as MetNorwayCurrentWeatherResponse)
         }
 
     override fun mapHourlyForecast(response: ApiResponseModel, weatherDataProvider: WeatherDataProvider): HourlyForecastEntity =
         when (weatherDataProvider) {
             is WeatherDataProvider.Kma -> kmaResponseMapper.mapHourlyForecast(response as KmaHourlyForecastResponse)
-            is WeatherDataProvider.MetNorway -> TODO()
+            is WeatherDataProvider.MetNorway -> metNorwayResponseMapper.mapHourlyForecast(response as MetNorwayHourlyForecastResponse)
         }
 
     override fun mapDailyForecast(response: ApiResponseModel, weatherDataProvider: WeatherDataProvider): DailyForecastEntity =
         when (weatherDataProvider) {
             is WeatherDataProvider.Kma -> kmaResponseMapper.mapDailyForecast(response as KmaDailyForecastResponse)
-            is WeatherDataProvider.MetNorway -> TODO()
+            is WeatherDataProvider.MetNorway -> metNorwayResponseMapper.mapDailyForecast(response as MetNorwayDailyForecastResponse)
         }
 
     override fun mapYesterdayWeather(response: ApiResponseModel, weatherDataProvider: WeatherDataProvider): YesterdayWeatherEntity =
         when (weatherDataProvider) {
             is WeatherDataProvider.Kma -> kmaResponseMapper.mapYesterdayWeather(response as KmaYesterdayWeatherResponse)
-            is WeatherDataProvider.MetNorway -> TODO()
+            is WeatherDataProvider.MetNorway -> TODO("기능 없음")
         }
 
 }

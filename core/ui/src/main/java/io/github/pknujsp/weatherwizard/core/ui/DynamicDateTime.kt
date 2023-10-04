@@ -16,7 +16,7 @@ import androidx.compose.ui.text.drawText
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import io.github.pknujsp.weatherwizard.core.model.weather.hourlyforecast.HourlyForecast
+import io.github.pknujsp.weatherwizard.core.model.weather.hourlyforecast.SimpleHourlyForecast
 
 val textSize = 12.sp
 val textColor = Color.White
@@ -24,17 +24,36 @@ val space = 2.dp
 
 @Composable
 fun DynamicDateTime(
-    hourlyForecast: HourlyForecast, lazyListState: LazyListState
+    dateTimeInfo: SimpleHourlyForecast.DateTimeInfo, lazyListState: LazyListState
+) {
+    DateTime(dateTimeInfo, lazyListState.firstVisibleItemScrollOffset, lazyListState.firstVisibleItemIndex)
+}
+
+@Composable
+fun DynamicDateTime(
+    dateTimeInfo: SimpleHourlyForecast.DateTimeInfo,
+    offset: Int,
+    index: Int
+) {
+    DateTime(dateTimeInfo, offset, index)
+}
+
+@Composable
+private fun DateTime(
+    dateTimeInfo: SimpleHourlyForecast.DateTimeInfo,
+    offset: Int,
+    index: Int
 ) {
     val textMeasurer = rememberTextMeasurer()
     val textStyle = remember {
         TextStyle(fontSize = textSize, textAlign = androidx.compose.ui.text.style.TextAlign.Center)
     }
     val textLayoutResult = remember {
-        textMeasurer.measure(hourlyForecast.date.items.first().date, textStyle)
+        textMeasurer.measure(dateTimeInfo.items.first().date, textStyle)
     }
     val columnWidthPx = remember {
-        TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, HourlyForecast.itemWidth.value, Resources.getSystem().displayMetrics).toInt()
+        TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, SimpleHourlyForecast.itemWidth.value, Resources.getSystem().displayMetrics)
+            .toInt()
     }
     val height = remember { (textLayoutResult.size.height / Resources.getSystem().displayMetrics.density).dp + (space * 2) }
 
@@ -43,13 +62,13 @@ fun DynamicDateTime(
         .height(height)) {
         println("Recompositioning DynamicDateTime")
 
-        val leftOnBoxInRow = lazyListState.firstVisibleItemIndex * columnWidthPx + lazyListState.firstVisibleItemScrollOffset
+        val leftOnBoxInRow = index * columnWidthPx + offset
         val y = (size.height / 2) - (textLayoutResult.size.height / 2)
         val rightOnBoxInRow = leftOnBoxInRow + size.width
         var amountX: Int
-        val firstItemX = hourlyForecast.date.firstItemX
+        val firstItemX = dateTimeInfo.firstItemX
 
-        for (dateValue in hourlyForecast.date.items) {
+        for (dateValue in dateTimeInfo.items) {
             if (dateValue.beginX > rightOnBoxInRow || dateValue.endX < leftOnBoxInRow - columnWidthPx) continue
 
             dateValue.apply {

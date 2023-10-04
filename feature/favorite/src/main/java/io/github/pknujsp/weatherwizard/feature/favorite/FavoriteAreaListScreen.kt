@@ -29,6 +29,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
@@ -43,7 +44,7 @@ import io.github.pknujsp.weatherwizard.core.model.favorite.TargetAreaType
 import io.github.pknujsp.weatherwizard.core.model.onSuccess
 import io.github.pknujsp.weatherwizard.core.ui.MainRoutes
 import io.github.pknujsp.weatherwizard.core.ui.RootNavControllerViewModel
-import io.github.pknujsp.weatherwizard.core.ui.RoundedButton
+import io.github.pknujsp.weatherwizard.core.ui.SecondaryButton
 import io.github.pknujsp.weatherwizard.core.ui.TitleTextWithoutNavigation
 
 
@@ -64,13 +65,13 @@ fun FavoriteAreaListScreen(navController: NavController) {
         LazyColumn(modifier = Modifier.weight(1f), state = lazyListState) {
             favoriteAreaList.onSuccess {
                 item {
-                    CurrentLocationItem(checked = { targetArea.id }) {
+                    CurrentLocationItem(checked = { targetArea.locationId }) {
                         viewModel.updateTargetArea(TargetAreaType.CurrentLocation)
                         rootNavControllerViewModel.navigate(MainRoutes.Weather)
                     }
                 }
                 items(it) { favoriteArea ->
-                    AreaItem(favoriteArea, checked = { targetArea.id }) {
+                    AreaItem(favoriteArea, checked = { targetArea.locationId }) {
                         viewModel.updateTargetArea(TargetAreaType.CustomLocation(favoriteArea.id))
                         rootNavControllerViewModel.navigate(MainRoutes.Weather)
                     }
@@ -78,11 +79,10 @@ fun FavoriteAreaListScreen(navController: NavController) {
             }
         }
 
-        RoundedButton(text = stringResource(id = R.string.add_new_area),
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 8.dp)) {
-            navController.navigate(FavoriteRoutes.AreaSearch.route)
+        Box(modifier = Modifier.padding(12.dp)) {
+            SecondaryButton(text = stringResource(id = R.string.add_new_area), modifier = Modifier.fillMaxWidth()) {
+                navController.navigate(FavoriteRoutes.AreaSearch.route)
+            }
         }
     }
 
@@ -98,8 +98,8 @@ private fun AreaItem(favoriteArea: FavoriteArea, checked: () -> Long, onClick: (
         Row(modifier = Modifier
             .fillMaxWidth()
             .wrapContentHeight()
-            .shadow(elevation = 2.dp, shape = RoundedCornerShape(8.dp))
-            .background(color = Color.White, shape = RoundedCornerShape(8.dp))
+            .shadow(elevation = 2.dp, shape = RectangleShape)
+            .background(color = Color.White, shape = RectangleShape)
             .padding(horizontal = 8.dp, vertical = 6.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween) {
@@ -141,7 +141,7 @@ private fun CurrentLocationItem(checked: () -> Long, onClick: () -> Unit) {
             Text(text = stringResource(id = io.github.pknujsp.weatherwizard.core.common.R.string.current_location),
                 style = TextStyle(fontSize = 16.sp, color = Color.Blue, textAlign = TextAlign.Left),
                 modifier = Modifier.weight(1f))
-            Checkbox(checked = checked() == TargetAreaType.CurrentLocation.id, onCheckedChange = {
+            Checkbox(checked = checked() == TargetAreaType.CurrentLocation.locationId, onCheckedChange = {
                 onClick()
             })
         }

@@ -8,6 +8,7 @@ import io.github.pknujsp.weatherwizard.core.model.weather.common.RainfallValueTy
 import io.github.pknujsp.weatherwizard.core.model.weather.common.SnowfallValueType
 import io.github.pknujsp.weatherwizard.core.model.weather.common.TemperatureValueType
 import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherConditionValueType
+import io.github.pknujsp.weatherwizard.core.model.weather.common.WindSpeedValueType
 
 data class DailyForecastEntity(
     val items: List<Item>,
@@ -24,5 +25,7 @@ data class DailyForecastEntity(
         val snowfallProbability: ProbabilityValueType = ProbabilityValueType.none,
         val precipitationVolume: PrecipitationValueType = PrecipitationValueType.none,
         val precipitationProbability: ProbabilityValueType,
+        val windMinSpeed: WindSpeedValueType = WindSpeedValueType.none,
+        val windMaxSpeed: WindSpeedValueType = WindSpeedValueType.none,
     )
 }

@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.LocalTextStyle
@@ -34,16 +33,15 @@ import io.github.pknujsp.weatherwizard.core.model.flickr.FlickrRequestParameters
 import io.github.pknujsp.weatherwizard.core.model.onError
 import io.github.pknujsp.weatherwizard.core.model.onLoading
 import io.github.pknujsp.weatherwizard.core.model.onSuccess
-import io.github.pknujsp.weatherwizard.core.ui.PlaceHolder
 import io.github.pknujsp.weatherwizard.core.ui.theme.outlineTextStyle
 import kotlinx.coroutines.flow.StateFlow
 
 @Composable
 fun FlickrImageItemScreen(
-    parameterFlow: () -> StateFlow<UiState<FlickrRequestParameters>>,
+    parameterFlow: StateFlow<UiState<FlickrRequestParameters>>,
     onLoadedImage: (String) -> Unit
 ) {
-    val requestParameter by parameterFlow().collectAsStateWithLifecycle()
+    val requestParameter by parameterFlow.collectAsStateWithLifecycle()
     requestParameter.onLoading {
 
     }.onSuccess { requestParameters ->
@@ -61,6 +59,7 @@ fun FlickrImageItemScreen(
             onLoadedImage(it.imageUrl)
         }.onError {
             imageUrl = stringResource(id = R.string.reload)
+            onLoadedImage("")
         }.onLoading {
             imageUrl = stringResource(io.github.pknujsp.weatherwizard.feature.flickr.R.string
                 .loading_image)

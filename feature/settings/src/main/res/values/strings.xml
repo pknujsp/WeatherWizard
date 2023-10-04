@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="title_value_unit">값 단위</string>
+    <string name="description_value_unit">온도: ℃, ℉, 풍속: m/s, km/h 등</string>
+    <string name="title_weather_condition_animation">날씨 상태 효과</string>
+    <string name="description_weather_condition_animation">날씨 상태에 따라 애니메이션 효과를 표시합니다.</string>
+    <string name="title_refresh_widget">위젯 새로고침</string>
+    <string name="description_refresh_widget">위젯을 새로고침합니다.</string>
+
+    <string name="title_temperature_unit">온도 단위</string>
+    <string name="title_wind_speed_unit">풍속 단위</string>
+    <string name="title_precipitation_unit">강수량 단위</string>
+    <string name="title_weather_data_provider">기본 날씨 제공사</string>
+
+</resources>
