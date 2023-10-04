@@ -1,5 +1,6 @@
 package io.github.pknujsp.weatherwizard.feature.settings
 
+import android.app.Activity
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
@@ -12,6 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.core.view.WindowCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
@@ -59,6 +61,8 @@ fun SettingsScreen(navController: NavController, viewModel: SettingsViewModel) {
 fun HostSettingsScreen() {
     val navController = rememberNavController()
     val viewModel = hiltViewModel<SettingsViewModel>()
+    val window = (LocalContext.current as Activity).window
+    WindowCompat.getInsetsController(window, window.decorView).isAppearanceLightNavigationBars = true
 
     NavHost(navController = navController, route = SettingsRoutes.route, startDestination = SettingsRoutes.Main.route,
         modifier = Modifier.navigationBarsPadding()) {

@@ -16,6 +16,7 @@ data class GeoCodeEntity(
     val quarter: String,
     val state: String,
     val suburb: String,
+    val category: String
 ) : EntityModel {
 
     // 순서 : country > province > city > county > suburb > quarter > road
