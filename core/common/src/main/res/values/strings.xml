@@ -64,4 +64,13 @@
     <string name="delete">삭제</string>
     <string name="kma">대한민국 기상청</string>
     <string name="met_norway">노르웨이 기상청</string>
+    <string name="hourly_forecast">시간별 예보</string>
+    <string name="daily_forecast">일별 예보</string>
+    <string name="title_network_is_unavailable">네트워크 연결 필요</string>
+    <string name="open_settings_for_network">연결하기</string>
+    <string name="title_location_is_disabled">위치 사용이 비활성화됨</string>
+    <string name="finding_current_location">현재 위치를 찾는 중이에요</string>
+    <string name="title_comparison_hourly_forecast">시간별 예보 비교</string>
+    <string name="title_comparison_daily_forecast">일별 예보 비교</string>
+    <string name="comparison">비교</string>
 </resources>

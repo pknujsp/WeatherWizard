@@ -4,13 +4,16 @@ import androidx.annotation.DrawableRes
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import io.github.pknujsp.weatherwizard.core.model.UiModel
+import io.github.pknujsp.weatherwizard.core.model.weather.common.CurrentUnits
 import io.github.pknujsp.weatherwizard.core.model.weather.common.ProbabilityValueType
+import io.github.pknujsp.weatherwizard.core.model.weather.common.TemperatureValueType
 import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherConditionValueType
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 
-class DailyForecast(
+class SimpleDailyForecast(
     dailyForecastEntity: DailyForecastEntity,
+    units: CurrentUnits
 ) : UiModel {
     val items: List<Item>
     val displayPrecipitationProbability: Boolean
@@ -28,16 +31,26 @@ class DailyForecast(
     init {
         items = dailyForecastEntity.items.let { items ->
             val listMap = mutableMapOf<String, Item>()
+            var minTemp: TemperatureValueType
+            var maxTemp: TemperatureValueType
+
             items.forEachIndexed { i, item ->
                 ZonedDateTime.parse(item.dateTime.value).format(dateFormatter).let { date ->
                     if (!listMap.containsKey(date)) {
+                        minTemp =
+                            TemperatureValueType(item.minTemperature.convertUnit( units.temperatureUnit), units
+                                .temperatureUnit)
+                        maxTemp =
+                            TemperatureValueType(item.maxTemperature.convertUnit( units.temperatureUnit), units
+                                .temperatureUnit)
+
                         listMap[date] = Item(
                             id = i,
                             date = date,
-                            minTemperature = item.minTemperature.toString(),
-                            maxTemperature = item.maxTemperature.toString(),
-                            minTemperatureInt = item.minTemperature.value.toInt(),
-                            maxTemperatureInt = item.maxTemperature.value.toInt(),
+                            minTemperature = minTemp.toString(),
+                            maxTemperature = maxTemp.toString(),
+                            minTemperatureInt = minTemp.value.toInt(),
+                            maxTemperatureInt = maxTemp.value.toInt()
                         )
                     }
                     listMap[date]?.add(

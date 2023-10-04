@@ -16,7 +16,7 @@ val outlineTextStyle = TextStyle(
     drawStyle = Fill,
     shadow = Shadow(
         color = Color.Black,
-        blurRadius = 2f,
+        blurRadius = 2.5f,
         offset = Offset(0f,0f)
     )
 )

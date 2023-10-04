@@ -1,46 +1,32 @@
 package io.github.pknujsp.weatherwizard.feature.weather
 
 
-import androidx.annotation.StringRes
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Text
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.navigationBars
+import androidx.compose.foundation.layout.systemBars
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import androidx.navigation.navigation
 import io.github.pknujsp.weatherwizard.core.common.LocationPermissionManager
 import io.github.pknujsp.weatherwizard.core.common.OpenSettingsForLocationPermission
 import io.github.pknujsp.weatherwizard.core.common.UnavailableFeature
-import io.github.pknujsp.weatherwizard.core.ui.PrimaryButton
+import io.github.pknujsp.weatherwizard.core.ui.UnavailableFeatureScreen
 import io.github.pknujsp.weatherwizard.feature.weather.info.WeatherInfoScreen
 
 @Composable
-@Preview
-fun WeatherMainScreen() {
+fun WeatherMainScreen(navController: NavController) {
     val mainViewModel: WeatherMainViewModel = hiltViewModel()
-    val navController = rememberNavController()
 
     var permissionGranted by remember { mutableStateOf(false) }
     var openPermissionActivity by remember { mutableStateOf(false) }
@@ -62,12 +48,16 @@ fun WeatherMainScreen() {
     }
 
     if (permissionGranted) {
-        WeatherInfoScreen()
+        navController.navigate(WeatherRoutes.Info.route) {
+            launchSingleTop = true
+            popUpTo(WeatherRoutes.Main.route) { inclusive = true }
+        }
+        permissionGranted = false
     } else {
         LocationPermissionManager(onPermissionGranted = {
-            permissionGranted = true
             openPermissionActivity = false
             unavailable = false
+            permissionGranted = true
         }, onPermissionDenied = {
             unavailable = true
         }, onShouldShowRationale = {
@@ -81,41 +71,13 @@ fun WeatherMainScreen() {
 @Composable
 fun HostWeatherScreen() {
     val navController = rememberNavController()
-    NavHost(
-        navController = navController, route = WeatherRoutes.route,
-        startDestination = WeatherRoutes.Main.route) {
+    val navigationBarHeight = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
+    NavHost(navController = navController, route = WeatherRoutes.route, startDestination = WeatherRoutes.Main.route) {
         composable(WeatherRoutes.Main.route) {
-            WeatherMainScreen()
+            WeatherMainScreen(navController)
         }
-    }
-}
-
-@Composable
-fun UnavailableFeatureScreen(@StringRes title: Int, unavailableFeature: UnavailableFeature, onClick: () -> Unit) {
-    Column(modifier = Modifier
-        .fillMaxSize()
-        .padding(horizontal = 16.dp, vertical = 24.dp),
-        verticalArrangement = Arrangement.Center) {
-        Text(text = stringResource(title), style = TextStyle(fontSize = 24.sp, color = Color.Black))
-        Spacer(modifier = Modifier.height(16.dp))
-        Text(
-            text = stringResource(unavailableFeature.message),
-            style = TextStyle(fontSize = 16.sp, color = Color.DarkGray)
-        )
-        Spacer(modifier = Modifier.height(16.dp))
-        PrimaryButton(
-            text = stringResource(id = unavailableFeature.action),
-            onClick = onClick,
-            modifier = Modifier.align(Alignment.End)
-        )
-    }
-}
-
-
-fun NavGraphBuilder.mainWeatherGraph(navController: NavController) {
-    navigation(startDestination = WeatherRoutes.Main.route, route = WeatherRoutes.route) {
-        composable(WeatherRoutes.Main.route) {
-            WeatherMainScreen()
+        composable(WeatherRoutes.Info.route) {
+            WeatherInfoScreen(navController, navigationBarHeight)
         }
     }
 }

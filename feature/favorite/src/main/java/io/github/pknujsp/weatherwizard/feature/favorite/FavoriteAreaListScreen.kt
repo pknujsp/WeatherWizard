@@ -29,6 +29,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
@@ -97,8 +98,8 @@ private fun AreaItem(favoriteArea: FavoriteArea, checked: () -> Long, onClick: (
         Row(modifier = Modifier
             .fillMaxWidth()
             .wrapContentHeight()
-            .shadow(elevation = 2.dp, shape = RoundedCornerShape(8.dp))
-            .background(color = Color.White, shape = RoundedCornerShape(8.dp))
+            .shadow(elevation = 2.dp, shape = RectangleShape)
+            .background(color = Color.White, shape = RectangleShape)
             .padding(horizontal = 8.dp, vertical = 6.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween) {

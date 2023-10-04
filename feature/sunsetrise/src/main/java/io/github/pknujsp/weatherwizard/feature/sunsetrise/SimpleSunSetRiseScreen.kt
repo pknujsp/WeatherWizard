@@ -27,6 +27,7 @@ import androidx.core.graphics.drawable.toBitmap
 import io.github.pknujsp.weatherwizard.core.common.util.DayNightCalculator
 import io.github.pknujsp.weatherwizard.core.common.util.SunSetRise
 import io.github.pknujsp.weatherwizard.core.common.util.toCalendar
+import io.github.pknujsp.weatherwizard.core.model.weather.RequestWeatherDataArgs
 import io.github.pknujsp.weatherwizard.core.ui.weather.item.CardInfo
 import io.github.pknujsp.weatherwizard.core.ui.weather.item.SimpleWeatherScreenBackground
 import java.time.ZonedDateTime
@@ -34,14 +35,14 @@ import java.time.format.DateTimeFormatter
 
 
 @Composable
-fun SimpleSunSetRiseScreen(latitude: Double, longitude: Double, currentDayOrNight: (DayNightCalculator.DayNight) -> Unit) {
+fun SimpleSunSetRiseScreen(args: RequestWeatherDataArgs) {
     SimpleWeatherScreenBackground(cardInfo = CardInfo(title = stringResource(io.github.pknujsp.weatherwizard.core.common.R.string.sun_set_rise)) {
-        SunSetRiseContent(latitude, longitude, currentDayOrNight)
+        SunSetRiseContent(args.latitude, args.longitude)
     })
 }
 
 @Composable
-private fun SunSetRiseContent(latitude: Double, longitude: Double, currentDayOrNight: (DayNightCalculator.DayNight) -> Unit) {
+private fun SunSetRiseContent(latitude: Double, longitude: Double) {
     val boxHeight: Dp = 160.dp
 
     Box(modifier = Modifier
@@ -58,9 +59,7 @@ private fun SunSetRiseContent(latitude: Double, longitude: Double, currentDayOrN
             val broadcastReceiver = object : BroadcastReceiver() {
                 override fun onReceive(context: Context?, intent: Intent?) {
                     context?.run {
-                        times.value = TimeInfo(dayNightCalculator, this).apply {
-                            currentDayOrNight(if (this.times.first().first == SunSetRise.SUN_SET) DayNightCalculator.DayNight.NIGHT else DayNightCalculator.DayNight.DAY)
-                        }
+                        times.value = TimeInfo(dayNightCalculator, this)
                     }
                 }
             }
@@ -88,7 +87,6 @@ private fun SunSetRiseContent(latitude: Double, longitude: Double, currentDayOrN
         val currentIcon = ContextCompat.getDrawable(LocalContext.current, times.value.times[0].first.iconRes)!!.toBitmap(width =
         iconSize.toInt(), height = iconSize.toInt()).asImageBitmap()
 
-        val nowText = stringResource(id = io.github.pknujsp.weatherwizard.core.common.R.string.now)
         val textMeasurer = rememberTextMeasurer()
 
         Canvas(Modifier.fillMaxSize()) {

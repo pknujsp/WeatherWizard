@@ -40,10 +40,10 @@ import kotlinx.coroutines.flow.StateFlow
 
 @Composable
 fun FlickrImageItemScreen(
-    parameterFlow: () -> StateFlow<UiState<FlickrRequestParameters>>,
+    parameterFlow: StateFlow<UiState<FlickrRequestParameters>>,
     onLoadedImage: (String) -> Unit
 ) {
-    val requestParameter by parameterFlow().collectAsStateWithLifecycle()
+    val requestParameter by parameterFlow.collectAsStateWithLifecycle()
     requestParameter.onLoading {
 
     }.onSuccess { requestParameters ->

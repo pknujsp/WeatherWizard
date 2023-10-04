@@ -48,14 +48,10 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.res.ResourcesCompat
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import io.github.pknujsp.weatherwizard.core.model.UiState
-import io.github.pknujsp.weatherwizard.core.model.onLoading
 import io.github.pknujsp.weatherwizard.core.model.onSuccess
 import io.github.pknujsp.weatherwizard.core.model.weather.RequestWeatherDataArgs
 import io.github.pknujsp.weatherwizard.core.ui.weather.item.CardInfo
 import io.github.pknujsp.weatherwizard.core.ui.weather.item.SimpleWeatherScreenBackground
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter
@@ -147,12 +143,8 @@ private fun MapView.poiOnMap(latitude: Double, longitude: Double) {
 }
 
 @Composable
-fun SimpleMapScreen(requestWeatherDataArgs: () -> StateFlow<UiState<RequestWeatherDataArgs>>) {
-    val state by requestWeatherDataArgs().collectAsStateWithLifecycle()
-
-    state.onLoading {
-
-    }.onSuccess {
+fun SimpleMapScreen(requestWeatherDataArgs: RequestWeatherDataArgs) {
+    requestWeatherDataArgs.let {
         SimpleWeatherScreenBackground(CardInfo(title = "기상 레이더") {
             Column(modifier = Modifier
                 .fillMaxWidth()

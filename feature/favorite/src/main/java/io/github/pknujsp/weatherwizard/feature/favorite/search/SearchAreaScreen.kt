@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
@@ -22,7 +21,6 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -60,10 +58,8 @@ fun SearchAreaScreen(navController: NavController) {
         }
 
         var query by remember { mutableStateOf("" to 0L) }
-        val showSearchHistory by remember {
-            derivedStateOf {
-                mutableStateOf(true)
-            }
+        var showSearchHistory by remember {
+            mutableStateOf(true)
         }
 
         TitleTextWithNavigation(title = stringResource(id = io.github.pknujsp.weatherwizard.feature.favorite.R.string.add_new_area)) {
@@ -71,18 +67,18 @@ fun SearchAreaScreen(navController: NavController) {
         }
         SearchBar(Modifier.padding(horizontal = 16.dp), query, onChangeQuery = {
             if (it.isEmpty()) {
-                showSearchHistory.value = true
+                showSearchHistory = true
             }
         }) {
             searchAreaViewModel.search(it)
-            showSearchHistory.value = false
+            showSearchHistory = false
         }
 
-        if (showSearchHistory.value) {
+        if (showSearchHistory) {
             SearchHistoryScreen {
                 searchAreaViewModel.search(it)
                 query = it to System.currentTimeMillis()
-                showSearchHistory.value = false
+                showSearchHistory = false
             }
         } else {
             SearchResultScreen(navController, searchResult)

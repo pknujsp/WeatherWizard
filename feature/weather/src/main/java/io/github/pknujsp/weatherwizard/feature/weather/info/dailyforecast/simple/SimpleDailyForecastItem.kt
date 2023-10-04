@@ -1,4 +1,4 @@
-package io.github.pknujsp.weatherwizard.feature.weather.info.dailyforecast
+package io.github.pknujsp.weatherwizard.feature.weather.info.dailyforecast.simple
 
 import android.content.res.Resources
 import android.util.TypedValue
@@ -28,23 +28,23 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
-import io.github.pknujsp.weatherwizard.core.model.weather.dailyforecast.DailyForecast
+import io.github.pknujsp.weatherwizard.core.model.weather.dailyforecast.SimpleDailyForecast
 import io.github.pknujsp.weatherwizard.core.ui.DrawInfo
 import io.github.pknujsp.weatherwizard.core.ui.MultiGraph
 import io.github.pknujsp.weatherwizard.core.ui.NewGraph
 
 
 @Composable
-fun SimpleDailyForecastItem(dailyForecast: DailyForecast) {
+fun SimpleDailyForecastItem(simpleDailyForecast: SimpleDailyForecast) {
     val context = LocalContext.current
 
     val graphHeight = remember {
         TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,
-            DailyForecast.temperatureGraphHeight.value,
+            SimpleDailyForecast.temperatureGraphHeight.value,
             Resources.getSystem().displayMetrics)
     }
     val linePoints = remember {
-        NewGraph(listOf(dailyForecast.items.map { it.minTemperatureInt }, dailyForecast.items.map { it.maxTemperatureInt })).createNewGraph(
+        NewGraph(listOf(simpleDailyForecast.items.map { it.minTemperatureInt }, simpleDailyForecast.items.map { it.maxTemperatureInt })).createNewGraph(
             graphHeight)
     }
     val graphDrawInfos = remember { listOf(DrawInfo(pointColor = Color.Blue), DrawInfo(pointColor = Color.Red)) }
@@ -55,9 +55,9 @@ fun SimpleDailyForecastItem(dailyForecast: DailyForecast) {
             .wrapContentHeight(),
         state = rememberLazyListState(),
     ) {
-        items(count = dailyForecast.items.size,
-            key = { dailyForecast.items[it].id }) { i ->
-            Item(i, dailyForecast, linePoints, graphDrawInfos) { conditions ->
+        items(count = simpleDailyForecast.items.size,
+            key = { simpleDailyForecast.items[it].id }) { i ->
+            Item(i, simpleDailyForecast, linePoints, graphDrawInfos) { conditions ->
                 Toast.makeText(context, conditions.joinToString(",") { context.getString(it) }, Toast.LENGTH_SHORT).show()
             }
         }
@@ -68,16 +68,16 @@ fun SimpleDailyForecastItem(dailyForecast: DailyForecast) {
 @Composable
 private fun Item(
     index: Int,
-    dailyForecast: DailyForecast,
+    simpleDailyForecast: SimpleDailyForecast,
     linePoints: List<List<NewGraph.LinePoint>>,
     drawInfos: List<DrawInfo>,
     onClick: (List<Int>) -> Unit
 ) {
     // 날짜, 아이콘, 강수확률, 강수량
-    dailyForecast.items[index].run {
+    simpleDailyForecast.items[index].run {
         Column(
             modifier = Modifier
-                .width(DailyForecast.itemWidth)
+                .width(SimpleDailyForecast.itemWidth)
                 .clickable {
                     onClick(weatherConditions)
                 },
@@ -99,9 +99,9 @@ private fun Item(
                 }
             }
 
-            if (dailyForecast.displayPrecipitationProbability) {
+            if (simpleDailyForecast.displayPrecipitationProbability) {
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Center) {
-                    AsyncImage(model = ImageRequest.Builder(LocalContext.current).data(DailyForecast.probabilityIcon).crossfade(false)
+                    AsyncImage(model = ImageRequest.Builder(LocalContext.current).data(SimpleDailyForecast.probabilityIcon).crossfade(false)
                         .build(),
                         contentDescription = null,
                         modifier = Modifier
@@ -117,7 +117,7 @@ private fun Item(
                 listOf(minTemperature, maxTemperature),
                 modifier = Modifier
                     .padding(top = 8.dp)
-                    .size(DailyForecast.itemWidth, 95.dp))
+                    .size(SimpleDailyForecast.itemWidth, 95.dp))
         }
     }
 }

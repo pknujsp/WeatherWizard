@@ -73,7 +73,7 @@ fun CustomTopAppBar(
     windowInsets: WindowInsets = TopAppBarDefaults.windowInsets,
     colors: CustomTopAppBarColors,
     maxHeight: Dp = 150.dp,
-    pinnedHeight: Dp = 52.dp,
+    pinnedHeight: Dp = 56.dp,
     scrollBehavior: TopAppBarScrollBehavior
 ) {
     if (maxHeight <= pinnedHeight) {
@@ -90,23 +90,15 @@ fun CustomTopAppBar(
         titleBottomPaddingPx = titleBottomPadding.roundToPx()
     }
 
-// Sets the app bar's height offset limit to hide just the bottom title area and keep top title
-// visible when collapsed.
     SideEffect {
         if (scrollBehavior.state.heightOffsetLimit != pinnedHeightPx - maxHeightPx) {
             scrollBehavior.state.heightOffsetLimit = pinnedHeightPx - maxHeightPx
         }
     }
 
-// Obtain the container Color from the TopAppBarColors using the `collapsedFraction`, as the
-// bottom part of this TwoRowsTopAppBar changes color at the same rate the app bar expands or
-// collapse.
-// This will potentially animate or interpolate a transition between the container color and the
-// container's scrolled color according to the app bar's scroll state.
     val colorTransitionFraction = scrollBehavior.state.collapsedFraction
     val appBarContainerColor by rememberUpdatedState(colors.containerColor(colorTransitionFraction))
 
-// Wrap the given actions in a Row.
     val actionsRow = @Composable {
         Row(
             horizontalArrangement = Arrangement.Center,
@@ -116,12 +108,9 @@ fun CustomTopAppBar(
     }
     val topTitleAlpha = topTitleAlphaEasing.transform(colorTransitionFraction)
     val bottomTitleAlpha = 1f - colorTransitionFraction
-// Hide the top row title semantics when its alpha value goes below 0.5 threshold.
-// Hide the bottom row title semantics when the top title semantics are active.
     val hideTopRowSemantics = colorTransitionFraction < 0.5f
     val hideBottomRowSemantics = !hideTopRowSemantics
 
-// Set up support for resizing the top app bar when vertically dragging the bar itself.
     val appBarDragModifier = if (!scrollBehavior.isPinned) {
         Modifier.draggable(
             orientation = Orientation.Vertical,
@@ -163,10 +152,8 @@ fun CustomTopAppBar(
             )
             TopAppBarLayout(
                 modifier = Modifier
-                    // only apply the horizontal sides of the window insets padding, since the top
-                    // padding will always be applied by the layout above
                     .windowInsetsPadding(windowInsets.only(WindowInsetsSides.Horizontal)),
-                heightPx = maxHeightPx - pinnedHeightPx + scrollBehavior.state.heightOffset,
+                heightPx = (maxHeightPx ) + scrollBehavior.state.heightOffset,
                 navigationIconContentColor =
                 colors.navigationIconContentColor,
                 titleContentColor = colors.titleContentColor,
@@ -256,7 +243,6 @@ private fun TopAppBarLayout(
             measurables.first { it.layoutId == "title" }
                 .measure(constraints.copy(minWidth = 0, maxWidth = maxTitleWidth))
 
-        // Locate the title's baseline.
         val titleBaseline =
             if (titlePlaceable[LastBaseline] != AlignmentLine.Unspecified) {
                 titlePlaceable[LastBaseline]
@@ -267,39 +253,32 @@ private fun TopAppBarLayout(
         val layoutHeight = heightPx.roundToInt()
 
         layout(constraints.maxWidth, layoutHeight) {
-            // Navigation icon
             navigationIconPlaceable.placeRelative(
                 x = 0,
                 y = (layoutHeight - navigationIconPlaceable.height) / 2
             )
 
-            // Title
             titlePlaceable.placeRelative(
                 x = when (titleHorizontalArrangement) {
                     Arrangement.Center -> (constraints.maxWidth - titlePlaceable.width) / 2
                     Arrangement.End ->
                         constraints.maxWidth - titlePlaceable.width - actionIconsPlaceable.width
-                    // Arrangement.Start.
-                    // An TopAppBarTitleInset will make sure the title is offset in case the
-                    // navigation icon is missing.
+
                     else -> max(topAppBarTitleInset.roundToPx(), navigationIconPlaceable.width)
                 },
                 y = when (titleVerticalArrangement) {
                     Arrangement.Center -> (layoutHeight - titlePlaceable.height) / 2
-                    // Apply bottom padding from the title's baseline only when the Arrangement is
-                    // "Bottom".
                     Arrangement.Bottom ->
                         if (titleBottomPadding == 0) layoutHeight - titlePlaceable.height
                         else layoutHeight - titlePlaceable.height - max(
                             0,
                             titleBottomPadding - titlePlaceable.height + titleBaseline
                         )
-                    // Arrangement.Top
+
                     else -> 0
                 }
             )
 
-            // Action icons
             actionIconsPlaceable.placeRelative(
                 x = constraints.maxWidth - actionIconsPlaceable.width,
                 y = (layoutHeight - actionIconsPlaceable.height) / 2
@@ -308,10 +287,6 @@ private fun TopAppBarLayout(
     }
 }
 
-/**
- * Settles the app bar by flinging, in case the given velocity is greater than zero, and snapping
- * after the fling settles.
- */
 @OptIn(ExperimentalMaterial3Api::class)
 private suspend fun settleAppBar(
     state: TopAppBarState,
@@ -319,16 +294,10 @@ private suspend fun settleAppBar(
     flingAnimationSpec: DecayAnimationSpec<Float>?,
     snapAnimationSpec: AnimationSpec<Float>?
 ): Velocity {
-    // Check if the app bar is completely collapsed/expanded. If so, no need to settle the app bar,
-    // and just return Zero Velocity.
-    // Note that we don't check for 0f due to float precision with the collapsedFraction
-    // calculation.
     if (state.collapsedFraction < 0.01f || state.collapsedFraction == 1f) {
         return Velocity.Zero
     }
     var remainingVelocity = velocity
-    // In case there is an initial velocity that was left after a previous user fling, animate to
-    // continue the motion to expand or collapse the app bar.
     if (flingAnimationSpec != null && abs(velocity) > 1f) {
         var lastValue = 0f
         AnimationState(
@@ -342,11 +311,9 @@ private suspend fun settleAppBar(
                 val consumed = abs(initialHeightOffset - state.heightOffset)
                 lastValue = value
                 remainingVelocity = this.velocity
-                // avoid rounding errors and stop if anything is unconsumed
                 if (abs(delta - consumed) > 0.5f) this.cancelAnimation()
             }
     }
-    // Snap if animation specs were provided.
     if (snapAnimationSpec != null) {
         if (state.heightOffset < 0 &&
             state.heightOffset > state.heightOffsetLimit

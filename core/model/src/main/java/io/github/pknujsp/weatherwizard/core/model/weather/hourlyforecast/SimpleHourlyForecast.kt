@@ -22,7 +22,7 @@ import io.github.pknujsp.weatherwizard.core.model.weather.common.WindDirectionVa
 import io.github.pknujsp.weatherwizard.core.model.weather.common.WindSpeedValueType
 import java.time.ZonedDateTime
 
-class HourlyForecast(
+class SimpleHourlyForecast(
     val items: List<Item>, val date: Date
 ) : UiModel {
 
@@ -81,12 +81,12 @@ class HourlyForecast(
         }
 
         companion object {
-            @DrawableRes val probabilityIcon = io.github.pknujsp.weatherwizard.core.common.R.drawable.pop
+            @DrawableRes val probabilityIcon = io.github.pknujsp.weatherwizard.core.common.R.drawable.ic_umbrella
             @DrawableRes val rainfallIcon = io.github.pknujsp.weatherwizard.core.common.R.drawable.raindrop
             @DrawableRes val snowfallIcon = io.github.pknujsp.weatherwizard.core.common.R.drawable.snowparticle
             val imageModifier = Modifier
-                .size(14.dp)
-                .padding(end = 4.dp)
+                .size(16.dp)
+                .padding(end = 3.dp)
         }
 
     }

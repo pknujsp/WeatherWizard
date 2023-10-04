@@ -14,6 +14,8 @@ import io.github.pknujsp.weatherwizard.core.data.nominatim.NominatimRepository
 import io.github.pknujsp.weatherwizard.core.data.nominatim.NominatimRepositoryImpl
 import io.github.pknujsp.weatherwizard.core.data.rainviewer.RadarTilesRepository
 import io.github.pknujsp.weatherwizard.core.data.rainviewer.RadarTilesRepositoryImpl
+import io.github.pknujsp.weatherwizard.core.data.settings.SettingsRepository
+import io.github.pknujsp.weatherwizard.core.data.settings.SettingsRepositoryImpl
 import io.github.pknujsp.weatherwizard.core.data.weather.WeatherDataRepository
 import io.github.pknujsp.weatherwizard.core.data.weather.WeatherDataRepositoryImpl
 import io.github.pknujsp.weatherwizard.core.data.weather.mapper.WeatherResponseMapperManager
@@ -62,4 +64,9 @@ object RepositoryModule {
     @Provides
     fun providesTargetAreaRepository(appDataStore: AppDataStore): TargetAreaRepository =
         TargetAreaRepositoryImpl(appDataStore)
+
+    @Singleton
+    @Provides
+    fun providesSettingsRepository(appDataStore: AppDataStore): SettingsRepository =
+        SettingsRepositoryImpl(appDataStore)
 }

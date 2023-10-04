@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -75,7 +76,7 @@ fun MainScreen() {
 
     Column(modifier = Modifier
         .fillMaxSize()
-        .background(Color.Transparent)) {
+        .statusBarsPadding()) {
         TopNavBar(backStackEntry, rootNavController)
         NavHost(navController = rootNavController, route = MainRoutes.route, startDestination = MainRoutes.Weather.route) {
             composable(MainRoutes.Weather.route) {
@@ -98,7 +99,6 @@ private fun TopNavBar(
     Row(modifier = Modifier
         .background(Color.White)
         .padding(start = 12.dp)
-        .statusBarsPadding()
         .fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Start) {
@@ -113,11 +113,13 @@ private fun RowScope.TopNavBarItem(
     route: MainRoutes, backStackEntry: NavBackStackEntry?, navController: NavHostController
 ) {
     TextButton(onClick = {
-        navController.navigate(route.route) {
-            launchSingleTop = true
-            backStackEntry?.destination?.route?.let {
-                popUpTo(it) {
-                    inclusive = true
+        if (backStackEntry?.destination?.route != route.route) {
+            navController.navigate(route.route) {
+                launchSingleTop = true
+                backStackEntry?.destination?.route?.let {
+                    popUpTo(it) {
+                        inclusive = true
+                    }
                 }
             }
         }
@@ -135,7 +137,7 @@ private fun RowScope.TopNavBarItem(
         Text(text = stringResource(id = route.navTitle),
             fontSize = 19.sp,
             fontWeight = FontWeight(400),
-            letterSpacing = 0.sp,
+            letterSpacing = (-1).sp,
             lineHeight = 24.sp,
             textDecoration = if (backStackEntry?.destination?.route == route.route) TextDecoration.Underline else TextDecoration.None)
     }

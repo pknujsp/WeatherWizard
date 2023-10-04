@@ -1,11 +1,11 @@
 package io.github.pknujsp.weatherwizard.feature.weather.info.currentweather.simple
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.Text
@@ -52,21 +52,19 @@ fun CurrentWeatherScreen(weatherInfoViewModel: WeatherInfoViewModel, backgroundI
         Column {
             ConstraintLayout(modifier = Modifier
                 .fillMaxWidth()
-                .background(Color.White, RoundedCornerShape(12.dp))
-                .clip(RoundedCornerShape(12.dp))
             ) {
                 val (weatherIcon, background, condition, temperature, feelsLikeTemperature) = createRefs()
 
                 AsyncImage(
                     modifier = Modifier
-                        .wrapContentHeight()
                         .fillMaxWidth()
+                        .height(275.dp)
                         .constrainAs(background) {
                             bottom.linkTo(parent.bottom)
                         },
                     contentScale = ContentScale.Crop,
                     alignment = Alignment.Center,
-                    model = ImageRequest.Builder(LocalContext.current).data(backgroundImageUrl).crossfade(250).build(),
+                    model = ImageRequest.Builder(LocalContext.current).data(backgroundImageUrl).crossfade(200).build(),
                     contentDescription = stringResource(R.string.background_image),
                     filterQuality = FilterQuality.High,
                 )
@@ -74,27 +72,28 @@ fun CurrentWeatherScreen(weatherInfoViewModel: WeatherInfoViewModel, backgroundI
                 Text(text = listOf(
                     AStyle(
                         currentWeather.temperature.value.toInt().toString(),
-                        span = SpanStyle(fontSize = 80.sp, color = textColor, letterSpacing = (-3).sp, fontWeight = FontWeight.Light),
+                        span = SpanStyle(fontSize = 90.sp, color = textColor, letterSpacing = (-3).sp, fontWeight = FontWeight.Light),
                     ),
                     AStyle(currentWeather.temperature.unit.symbol,
-                        span = SpanStyle(fontSize = 35.sp, color = textColor, fontWeight = FontWeight.Light)),
+                        span = SpanStyle(fontSize = 38.sp, color = textColor, fontWeight = FontWeight.Light)),
                 ).toAnnotated(), modifier = Modifier.constrainAs(temperature) {
                     bottom.linkTo(parent.bottom, 12.dp)
                     absoluteLeft.linkTo(parent.absoluteLeft, 12.dp)
                 }, style = LocalTextStyle.current.merge(notIncludeTextPaddingStyle).merge(outlineTextStyle))
 
                 AsyncImage(
-                    model = ImageRequest.Builder(LocalContext.current).data(currentWeather.weatherIcon).crossfade(true).build(),
+                    model = ImageRequest.Builder(LocalContext.current).data(currentWeather.weatherIcon).crossfade(false).build(),
                     contentDescription = stringResource(
                         id = io.github.pknujsp.weatherwizard.core.model.R.string.weather_icon_description,
                     ),
                     modifier = Modifier
-                        .size(90.dp)
+                        .size(94.dp)
                         .constrainAs(weatherIcon) {
                             bottom.linkTo(condition.top)
                             start.linkTo(parent.start)
                             end.linkTo(parent.end)
                         },
+                    filterQuality = FilterQuality.High,
                 )
 
                 Text(
@@ -107,7 +106,7 @@ fun CurrentWeatherScreen(weatherInfoViewModel: WeatherInfoViewModel, backgroundI
                         },
                     style = TextStyle(fontSize = TextUnit(24f, TextUnitType.Sp), color = textColor, fontWeight = FontWeight.Medium,
                         textAlign = TextAlign.Center)
-                        .merge(outlineTextStyle),
+                        .merge(outlineTextStyle).merge(notIncludeTextPaddingStyle),
                 )
 
                 Text(text = listOf(

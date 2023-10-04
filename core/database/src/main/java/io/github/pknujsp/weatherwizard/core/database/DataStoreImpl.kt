@@ -19,6 +19,7 @@ class DataStoreImpl @Inject constructor(
     override suspend fun save(key: String, value: String) {
         context.dataStore.edit {
             it[stringPreferencesKey(key)] = value
+
         }
     }
 

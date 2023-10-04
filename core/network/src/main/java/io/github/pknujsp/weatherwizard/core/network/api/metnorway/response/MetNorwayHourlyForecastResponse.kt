@@ -26,6 +26,7 @@ class MetNorwayHourlyForecastResponse(
     weatherUtil: WeatherUtil,
     symbols: Map<String, WeatherConditionCategory>
 ) : HourlyForecastResponseModel {
+    val beginIndexWith3Hours = 0
     val items: List<Item> = metNorwayResponse.properties.timeseries.let { timeseries ->
         val zero = 0.0
         var precipitationVolume = 0.0
@@ -38,7 +39,7 @@ class MetNorwayHourlyForecastResponse(
         val night = "_night"
         val day = "_day"
 
-        timeseries.filter { it.data.next1Hours != null && it.data.next6Hours != null }.map { hourly ->
+        timeseries.filter { it.data.next1Hours != null || it.data.next6Hours != null }.map { hourly ->
             hourly.data.instant.details.let { instantDetails ->
                 windSpeed = WindSpeedValueType(
                     instantDetails.windSpeed,
@@ -60,7 +61,7 @@ class MetNorwayHourlyForecastResponse(
                         (0).withNano(0).toString()),
                     temperature = TemperatureValueType(instantDetails.airTemperature, TemperatureUnit.Celsius),
                     feelsLikeTemperature = TemperatureValueType(weatherUtil.calcFeelsLikeTemperature(instantDetails.airTemperature,
-                        windSpeed.convertUnit(windSpeed.value, WindSpeedUnit.KilometerPerHour),
+                        windSpeed.convertUnit( WindSpeedUnit.KilometerPerHour),
                         instantDetails.relativeHumidity), TemperatureUnit.Celsius),
                     humidity = HumidityValueType(instantDetails.relativeHumidity.toInt(), PercentageUnit),
                     windDirection = WindDirectionValueType(instantDetails.windFromDirection.toInt(), WindDirectionUnit.Degree),
