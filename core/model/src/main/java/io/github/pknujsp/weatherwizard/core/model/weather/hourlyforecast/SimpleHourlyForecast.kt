@@ -23,7 +23,7 @@ import io.github.pknujsp.weatherwizard.core.model.weather.common.WindSpeedValueT
 import java.time.ZonedDateTime
 
 class SimpleHourlyForecast(
-    val items: List<Item>, val date: Date
+    val items: List<Item>, val dateTimeInfo: DateTimeInfo
 ) : UiModel {
 
     val displayRainfallVolume = items.any { it.rainfallVolume.isNotEmpty() }
@@ -36,7 +36,7 @@ class SimpleHourlyForecast(
         val temperatureGraphHeight: Dp = 65.dp
     }
 
-    class Date(val items: List<Item>, val firstItemX: Int) : UiModel {
+    class DateTimeInfo(val items: List<Item>, val firstItemX: Int) : UiModel {
         class Item(val beginX: Int, val date: String) {
             var endX: Int = 0
             var displayX: Int = beginX

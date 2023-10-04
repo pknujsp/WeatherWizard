@@ -24,23 +24,23 @@ val space = 2.dp
 
 @Composable
 fun DynamicDateTime(
-    date: SimpleHourlyForecast.Date, lazyListState: LazyListState
+    dateTimeInfo: SimpleHourlyForecast.DateTimeInfo, lazyListState: LazyListState
 ) {
-    DateTime(date, lazyListState.firstVisibleItemScrollOffset, lazyListState.firstVisibleItemIndex)
+    DateTime(dateTimeInfo, lazyListState.firstVisibleItemScrollOffset, lazyListState.firstVisibleItemIndex)
 }
 
 @Composable
 fun DynamicDateTime(
-    date: SimpleHourlyForecast.Date,
+    dateTimeInfo: SimpleHourlyForecast.DateTimeInfo,
     offset: Int,
     index: Int
 ) {
-    DateTime(date, offset, index)
+    DateTime(dateTimeInfo, offset, index)
 }
 
 @Composable
 private fun DateTime(
-    date: SimpleHourlyForecast.Date,
+    dateTimeInfo: SimpleHourlyForecast.DateTimeInfo,
     offset: Int,
     index: Int
 ) {
@@ -49,7 +49,7 @@ private fun DateTime(
         TextStyle(fontSize = textSize, textAlign = androidx.compose.ui.text.style.TextAlign.Center)
     }
     val textLayoutResult = remember {
-        textMeasurer.measure(date.items.first().date, textStyle)
+        textMeasurer.measure(dateTimeInfo.items.first().date, textStyle)
     }
     val columnWidthPx = remember {
         TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, SimpleHourlyForecast.itemWidth.value, Resources.getSystem().displayMetrics)
@@ -66,9 +66,9 @@ private fun DateTime(
         val y = (size.height / 2) - (textLayoutResult.size.height / 2)
         val rightOnBoxInRow = leftOnBoxInRow + size.width
         var amountX: Int
-        val firstItemX = date.firstItemX
+        val firstItemX = dateTimeInfo.firstItemX
 
-        for (dateValue in date.items) {
+        for (dateValue in dateTimeInfo.items) {
             if (dateValue.beginX > rightOnBoxInRow || dateValue.endX < leftOnBoxInRow - columnWidthPx) continue
 
             dateValue.apply {

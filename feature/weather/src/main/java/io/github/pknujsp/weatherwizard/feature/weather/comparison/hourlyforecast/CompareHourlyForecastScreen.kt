@@ -3,15 +3,15 @@ package io.github.pknujsp.weatherwizard.feature.weather.comparison.hourlyforecas
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.FlingBehavior
-import androidx.compose.foundation.gestures.ScrollScope
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -25,18 +25,17 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Stable
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -48,7 +47,6 @@ import io.github.pknujsp.weatherwizard.core.model.onSuccess
 import io.github.pknujsp.weatherwizard.core.model.weather.RequestWeatherDataArgs
 import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherDataProvider
 import io.github.pknujsp.weatherwizard.core.model.weather.hourlyforecast.CompareHourlyForecast
-import io.github.pknujsp.weatherwizard.core.model.weather.hourlyforecast.SimpleHourlyForecast
 import io.github.pknujsp.weatherwizard.core.ui.DynamicDateTime
 import io.github.pknujsp.weatherwizard.core.ui.TitleTextWithNavigation
 import io.github.pknujsp.weatherwizard.core.ui.lottie.CancellableLoadingScreen
@@ -84,16 +82,11 @@ fun CompareHourlyForecastScreen(args: RequestWeatherDataArgs, popBackStack: () -
 
                 }
             }.onSuccess {
-                Column(verticalArrangement = Arrangement.spacedBy(12.dp), modifier = Modifier.padding(vertical = 12.dp)) {
-                    var onScrolling by remember { mutableStateOf(Triple(0, 0, 0)) }
+                Column(verticalArrangement = Arrangement.spacedBy(4.dp), modifier = Modifier.padding(vertical = 12.dp)) {
                     val mainLazyListState = rememberLazyListState()
 
-                    DynamicDateTime(it.date, onScrolling.second, onScrolling.third)
-                    for ((id, forecast) in it.items.withIndex()) {
-                        HourlyForecastItem(id, forecast.first, forecast.second, onScrolling) { offset, index ->
-                            onScrolling = Triple(id, offset, index)
-                        }
-                    }
+                    DynamicDateTime(it.dateTimeInfo, mainLazyListState)
+                    Content(it, mainLazyListState)
                 }
             }
         }
@@ -101,76 +94,89 @@ fun CompareHourlyForecastScreen(args: RequestWeatherDataArgs, popBackStack: () -
 }
 
 @Composable
-fun HourlyForecastItem(
-    listStateId: Int,
-    weatherDataProvider: WeatherDataProvider, forecast: CompareHourlyForecast, newScrollPosition:
-    Triple<Int, Int, Int>,
-    onScrolling: (Int, Int) -> Unit
-) {
-    val context = LocalContext.current
+fun Content(compareForecast: CompareForecast, lazyListState: LazyListState) {
+    val itemsCount = compareForecast.items.size
     val itemModifier = Modifier.width(CompareForecast.itemWidth)
-    val lazyListState = rememberLazyListState()
-
-    Row(horizontalArrangement = Arrangement.Start,
-        verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier.padding(start = 12.dp)) {
-        AsyncImage(
-            model = ImageRequest.Builder(LocalContext.current).data(weatherDataProvider.logo).crossfade(false).build(),
-            contentDescription = stringResource(id = R.string.weather_provider),
-            modifier = Modifier.size(16.dp),
-        )
-        Spacer(modifier = Modifier.width(4.dp))
-        Text(
-            text = stringResource(id = weatherDataProvider.name),
-            fontSize = 14.sp,
-            color = Color.White,
-        )
+    val context = LocalContext.current
+    val weatherDataProviderInfoHeight = 32.dp
+    val weatherDataProviderInfoHeightPx = with(LocalDensity.current) {
+        weatherDataProviderInfoHeight.toPx().toInt()
     }
 
-    val scrolling by remember {
-        derivedStateOf {
-            lazyListState.firstVisibleItemScrollOffset to lazyListState.firstVisibleItemIndex
-        }
-    }
-
-    LaunchedEffect(scrolling) {
-        onScrolling(scrolling.first, scrolling.second)
-        println("LaunchedEffect(scrolling)")
-    }
-
-    LaunchedEffect(newScrollPosition) {
-        if ((newScrollPosition.first != listStateId) && (newScrollPosition.second != lazyListState.firstVisibleItemScrollOffset ||
-                    newScrollPosition.third != lazyListState.firstVisibleItemIndex)) {
-            lazyListState.scrollToItem(newScrollPosition.third, newScrollPosition.second)
-            println("LaunchedEffect(newScrollPosition)")
-        }
-    }
-
-    LazyRow(
-        modifier = Modifier
-            .fillMaxWidth()
-            .wrapContentHeight(),
-        state = lazyListState,
-        flingBehavior = object : FlingBehavior {
-            override suspend fun ScrollScope.performFling(initialVelocity: Float): Float {
-                return 0f
+    Layout(
+        content = {
+            LazyRow(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(Color.Transparent)
+                    .wrapContentHeight(),
+                state = lazyListState,
+            ) {
+                items(count = itemsCount, key = { it }) { i ->
+                    Column(
+                        verticalArrangement = Arrangement.spacedBy(weatherDataProviderInfoHeight),
+                    ) {
+                        compareForecast.items[i].forEach {
+                            Item(it, itemModifier) { weatherCondition ->
+                                Toast.makeText(context, weatherCondition, Toast.LENGTH_SHORT).show()
+                            }
+                        }
+                    }
+                }
             }
-        }) {
-        items(count = forecast.items.size, key = { forecast.items[it].id }) { i ->
-            Item(i, forecast, itemModifier) {
-                Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
+            compareForecast.weatherDataProviders.forEach {
+                WeatherDataProviderInfo(it, weatherDataProviderInfoHeight)
+            }
+        },
+        modifier = Modifier.fillMaxWidth(),
+    ) { measurables, constraints ->
+        val placeables = measurables.map { it.measure(constraints) }
+        val providersCount = compareForecast.weatherDataProviders.size
+        val forecastRowHeight = (placeables[0].height - weatherDataProviderInfoHeightPx * (providersCount - 1)) / providersCount
+        val height = placeables.sumOf { it.height }
+
+        layout(constraints.maxWidth, height) {
+            placeables.first().run {
+                placeRelative(0, weatherDataProviderInfoHeightPx)
+            }
+            placeables.drop(1).forEachIndexed { index, placeable ->
+                placeable.run {
+                    placeRelative(0, (weatherDataProviderInfoHeightPx + forecastRowHeight) * index)
+                }
             }
         }
     }
+
 }
 
 
 @Composable
+private fun WeatherDataProviderInfo(weatherDataProvider: WeatherDataProvider, height: Dp) {
+    Row(horizontalArrangement = Arrangement.Start,
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier
+            .height(height)
+            .padding(start = 12.dp)) {
+        AsyncImage(
+            model = ImageRequest.Builder(LocalContext.current).data(weatherDataProvider.logo).crossfade(false).build(),
+            contentDescription = stringResource(id = R.string.weather_provider),
+            modifier = Modifier.size(18.dp),
+        )
+        Spacer(modifier = Modifier.width(4.dp))
+        Text(
+            text = stringResource(id = weatherDataProvider.name),
+            fontSize = 15.sp,
+            color = Color.White,
+        )
+    }
+}
+
+@Composable
 private fun Item(
-    index: Int, forecast: CompareHourlyForecast, modifier: Modifier, onClick: (String) -> Unit
+    forecast: CompareHourlyForecast.Item, modifier: Modifier, onClick: (String) -> Unit
 ) {
     // 시각, 아이콘, 강수확률, 강수량
-    forecast.items[index].run {
+    forecast.run {
         val weatherConditionText = stringResource(id = weatherCondition)
         Column(
             modifier = Modifier
@@ -186,57 +192,6 @@ private fun Item(
                 modifier = Modifier
                     .padding(4.dp)
                     .size(32.dp))
-
-            // 강수확률
-            if (forecast.displayPrecipitationProbability) {
-                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Center) {
-                    AsyncImage(model = ImageRequest.Builder(LocalContext.current).data(SimpleHourlyForecast.Item.probabilityIcon)
-                        .crossfade(false).build(), contentDescription = null, modifier = SimpleHourlyForecast.Item.imageModifier)
-                    Text(text = precipitationProbability, style = TextStyle(fontSize = 12.sp, color = Color.White))
-                }
-            }
-
-            // 강수량
-            if (forecast.displayPrecipitationVolume) {
-                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Center) {
-                    AsyncImage(model = ImageRequest.Builder(LocalContext.current).data(SimpleHourlyForecast.Item.rainfallIcon)
-                        .crossfade(false).build(),
-                        contentDescription = null,
-                        modifier = Modifier
-                            .alpha(if (precipitationVolume.isNotEmpty()) 1f else 0f)
-                            .then(SimpleHourlyForecast.Item.imageModifier))
-                    Text(text = precipitationVolume,
-                        style = TextStyle(fontSize = 12.sp,
-                            color = if (forecast.displayPrecipitationVolume and precipitationVolume.isNotEmpty()) Color.White else Color.Transparent))
-                }
-            }
-            // 강우량
-            if (forecast.displayRainfallVolume) {
-                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Center) {
-                    AsyncImage(model = ImageRequest.Builder(LocalContext.current).data(SimpleHourlyForecast.Item.rainfallIcon)
-                        .crossfade(false).build(),
-                        contentDescription = null,
-                        modifier = Modifier
-                            .alpha(if (rainfallVolume.isNotEmpty()) 1f else 0f)
-                            .then(SimpleHourlyForecast.Item.imageModifier))
-                    Text(text = rainfallVolume,
-                        style = TextStyle(fontSize = 12.sp, color = if (rainfallVolume.isNotEmpty()) Color.White else Color.Transparent))
-                }
-            }
-
-            // 강설량
-            if (forecast.displaySnowfallVolume) {
-                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Center) {
-                    AsyncImage(model = ImageRequest.Builder(LocalContext.current).data(SimpleHourlyForecast.Item.snowfallIcon)
-                        .crossfade(false).build(),
-                        contentDescription = null,
-                        modifier = Modifier
-                            .alpha(if (snowfallVolume.isNotEmpty()) 1f else 0f)
-                            .then(SimpleHourlyForecast.Item.imageModifier))
-                    Text(text = snowfallVolume,
-                        style = TextStyle(fontSize = 12.sp, color = if (snowfallVolume.isNotEmpty()) Color.White else Color.Transparent))
-                }
-            }
 
             Text(text = temperature, style = TextStyle(fontSize = 13.sp, color = Color.White))
         }

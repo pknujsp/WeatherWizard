@@ -1,6 +1,5 @@
 package io.github.pknujsp.weatherwizard.feature.weather.comparison.hourlyforecast
 
-import androidx.compose.runtime.Stable
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewModelScope
@@ -73,11 +72,11 @@ class CompareHourlyForecastViewModel @Inject constructor(
                                 isDay = dayOrNightPair.first)
                         })
                     }
-                    val date = DynamicDateTimeUiCreator(dayOrNightList.map {
+                    val dateTimeInfo = DynamicDateTimeUiCreator(dayOrNightList.map {
                         it.second.toString()
                     }, CompareForecast.itemWidth).invoke()
 
-                    _hourlyForecast.value = UiState.Success(CompareForecast(items, date))
+                    _hourlyForecast.value = UiState.Success(CompareForecast(items, dateTimeInfo))
                 }.onFailure {
                     _hourlyForecast.value = UiState.Error(it)
                 }
@@ -94,10 +93,17 @@ class CompareHourlyForecastViewModel @Inject constructor(
     }
 }
 
-@Stable
 class CompareForecast(
-    val items: List<Pair<WeatherDataProvider, CompareHourlyForecast>>, val date: SimpleHourlyForecast.Date
+    items: List<Pair<WeatherDataProvider, CompareHourlyForecast>>, val dateTimeInfo: SimpleHourlyForecast.DateTimeInfo
 ) {
+    val weatherDataProviders = items.map { it.first }.toTypedArray()
+    val items = items.run {
+        val counts = items.first().second.items.size
+        (0..<counts).map { i ->
+            items.map { it.second.items[i] }.toTypedArray()
+        }.toTypedArray()
+    }
+
     companion object {
         val itemWidth: Dp = 54.dp
     }
