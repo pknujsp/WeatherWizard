@@ -24,17 +24,36 @@ val space = 2.dp
 
 @Composable
 fun DynamicDateTime(
-    simpleHourlyForecast: SimpleHourlyForecast, lazyListState: LazyListState
+    date: SimpleHourlyForecast.Date, lazyListState: LazyListState
+) {
+    DateTime(date, lazyListState.firstVisibleItemScrollOffset, lazyListState.firstVisibleItemIndex)
+}
+
+@Composable
+fun DynamicDateTime(
+    date: SimpleHourlyForecast.Date,
+    offset: Int,
+    index: Int
+) {
+    DateTime(date, offset, index)
+}
+
+@Composable
+private fun DateTime(
+    date: SimpleHourlyForecast.Date,
+    offset: Int,
+    index: Int
 ) {
     val textMeasurer = rememberTextMeasurer()
     val textStyle = remember {
         TextStyle(fontSize = textSize, textAlign = androidx.compose.ui.text.style.TextAlign.Center)
     }
     val textLayoutResult = remember {
-        textMeasurer.measure(simpleHourlyForecast.date.items.first().date, textStyle)
+        textMeasurer.measure(date.items.first().date, textStyle)
     }
     val columnWidthPx = remember {
-        TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, SimpleHourlyForecast.itemWidth.value, Resources.getSystem().displayMetrics).toInt()
+        TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, SimpleHourlyForecast.itemWidth.value, Resources.getSystem().displayMetrics)
+            .toInt()
     }
     val height = remember { (textLayoutResult.size.height / Resources.getSystem().displayMetrics.density).dp + (space * 2) }
 
@@ -43,13 +62,13 @@ fun DynamicDateTime(
         .height(height)) {
         println("Recompositioning DynamicDateTime")
 
-        val leftOnBoxInRow = lazyListState.firstVisibleItemIndex * columnWidthPx + lazyListState.firstVisibleItemScrollOffset
+        val leftOnBoxInRow = index * columnWidthPx + offset
         val y = (size.height / 2) - (textLayoutResult.size.height / 2)
         val rightOnBoxInRow = leftOnBoxInRow + size.width
         var amountX: Int
-        val firstItemX = simpleHourlyForecast.date.firstItemX
+        val firstItemX = date.firstItemX
 
-        for (dateValue in simpleHourlyForecast.date.items) {
+        for (dateValue in date.items) {
             if (dateValue.beginX > rightOnBoxInRow || dateValue.endX < leftOnBoxInRow - columnWidthPx) continue
 
             dateValue.apply {

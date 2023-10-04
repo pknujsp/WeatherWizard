@@ -4,10 +4,11 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
+import io.github.pknujsp.weatherwizard.core.model.weather.RequestWeatherDataArgs
 import io.github.pknujsp.weatherwizard.core.ui.TitleTextWithNavigation
 
 @Composable
-fun CompareDailyForecastScreen(popBackStack: () -> Unit) {
+fun CompareDailyForecastScreen(args: RequestWeatherDataArgs,popBackStack: () -> Unit) {
     BackHandler {
         popBackStack()
     }

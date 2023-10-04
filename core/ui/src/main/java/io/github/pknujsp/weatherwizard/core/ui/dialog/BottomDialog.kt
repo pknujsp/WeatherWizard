@@ -1,5 +1,6 @@
 package io.github.pknujsp.weatherwizard.core.ui.dialog
 
+import android.app.Activity
 import android.content.Context
 import android.graphics.PixelFormat
 import android.view.Gravity
@@ -49,6 +50,7 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.isSpecified
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.AbstractComposeView
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.ViewRootForInspector
 import androidx.compose.ui.semantics.clearAndSetSemantics
@@ -56,6 +58,8 @@ import androidx.compose.ui.semantics.popup
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsControllerCompat
 import androidx.lifecycle.findViewTreeLifecycleOwner
 import androidx.lifecycle.findViewTreeViewModelStoreOwner
 import androidx.lifecycle.setViewTreeLifecycleOwner
@@ -72,7 +76,7 @@ import kotlin.math.roundToInt
 fun BottomSheet(
     consumedNavigationBar: Boolean = false,
     onDismissRequest: () -> Unit,
-    navigationBarHeight : Dp = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding(),
+    navigationBarHeight: Dp = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding(),
     modifier: Modifier = Modifier,
     sheetState: SheetState = rememberModalBottomSheetState(),
     shape: Shape = AppShapes.large,
@@ -133,6 +137,19 @@ fun BottomSheet(
     if (sheetState.hasExpandedState) {
         LaunchedEffect(sheetState) {
             sheetState.show()
+        }
+    }
+
+    val window = (LocalContext.current as Activity).window
+    DisposableEffect(Unit) {
+        var firstState = false
+        val windowInsetsController: WindowInsetsControllerCompat =
+            WindowCompat.getInsetsController(window, window.decorView).apply {
+                firstState = isAppearanceLightNavigationBars
+                isAppearanceLightNavigationBars = false
+            }
+        onDispose {
+            windowInsetsController.isAppearanceLightNavigationBars = firstState
         }
     }
 }

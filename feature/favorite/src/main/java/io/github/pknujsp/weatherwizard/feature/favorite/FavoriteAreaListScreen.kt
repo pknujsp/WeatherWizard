@@ -65,13 +65,13 @@ fun FavoriteAreaListScreen(navController: NavController) {
         LazyColumn(modifier = Modifier.weight(1f), state = lazyListState) {
             favoriteAreaList.onSuccess {
                 item {
-                    CurrentLocationItem(checked = { targetArea.id }) {
+                    CurrentLocationItem(checked = { targetArea.locationId }) {
                         viewModel.updateTargetArea(TargetAreaType.CurrentLocation)
                         rootNavControllerViewModel.navigate(MainRoutes.Weather)
                     }
                 }
                 items(it) { favoriteArea ->
-                    AreaItem(favoriteArea, checked = { targetArea.id }) {
+                    AreaItem(favoriteArea, checked = { targetArea.locationId }) {
                         viewModel.updateTargetArea(TargetAreaType.CustomLocation(favoriteArea.id))
                         rootNavControllerViewModel.navigate(MainRoutes.Weather)
                     }
@@ -141,7 +141,7 @@ private fun CurrentLocationItem(checked: () -> Long, onClick: () -> Unit) {
             Text(text = stringResource(id = io.github.pknujsp.weatherwizard.core.common.R.string.current_location),
                 style = TextStyle(fontSize = 16.sp, color = Color.Blue, textAlign = TextAlign.Left),
                 modifier = Modifier.weight(1f))
-            Checkbox(checked = checked() == TargetAreaType.CurrentLocation.id, onCheckedChange = {
+            Checkbox(checked = checked() == TargetAreaType.CurrentLocation.locationId, onCheckedChange = {
                 onClick()
             })
         }

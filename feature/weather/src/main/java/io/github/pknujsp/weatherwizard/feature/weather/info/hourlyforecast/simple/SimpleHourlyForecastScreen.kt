@@ -33,7 +33,7 @@ fun HourlyForecastScreen(weatherInfoViewModel: WeatherInfoViewModel, navigate: (
             content = {
                 val lazyListState = rememberLazyListState()
 
-                DynamicDateTime(it, lazyListState)
+                DynamicDateTime(it.date, lazyListState)
                 HourlyForecastItem(simpleHourlyForecast = it, lazyListState)
             }))
     }

@@ -1,24 +1,104 @@
 package io.github.pknujsp.weatherwizard.feature.weather.comparison.hourlyforecast
 
-import androidx.lifecycle.SavedStateHandle
-import androidx.lifecycle.ViewModel
+import androidx.compose.runtime.Stable
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewModelScope
-import dagger.assisted.Assisted
-import dagger.assisted.AssistedFactory
-import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
+import io.github.pknujsp.weatherwizard.core.common.util.DayNightCalculator
+import io.github.pknujsp.weatherwizard.core.common.util.toCalendar
+import io.github.pknujsp.weatherwizard.core.domain.weather.compare.GetHourlyForecastToCompareUseCase
+import io.github.pknujsp.weatherwizard.core.model.UiState
 import io.github.pknujsp.weatherwizard.core.model.weather.RequestWeatherDataArgs
+import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherDataProvider
+import io.github.pknujsp.weatherwizard.core.model.weather.hourlyforecast.CompareHourlyForecast
+import io.github.pknujsp.weatherwizard.core.model.weather.hourlyforecast.SimpleHourlyForecast
+import io.github.pknujsp.weatherwizard.core.ui.weather.item.DynamicDateTimeUiCreator
 import io.github.pknujsp.weatherwizard.feature.weather.comparison.common.CompareForecastViewModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import java.time.ZonedDateTime
 import javax.inject.Inject
 
 @HiltViewModel
 class CompareHourlyForecastViewModel @Inject constructor(
+    private val getHourlyForecastToCompareUseCase: GetHourlyForecastToCompareUseCase
 ) : CompareForecastViewModel() {
 
+    private val _hourlyForecast = MutableStateFlow<UiState<CompareForecast>>(UiState.Loading)
+    val hourlyForecast: StateFlow<UiState<CompareForecast>> = _hourlyForecast
+
     override fun load(args: RequestWeatherDataArgs) {
-        TODO("Not yet implemented")
+        viewModelScope.launch(Dispatchers.IO) {
+            args.run {
+                val requestId = System.currentTimeMillis()
+                getHourlyForecastToCompareUseCase(latitude, longitude, weatherDataProviders, requestId).onSuccess { entity ->
+                    val (firstTime, endTime) = entity.run {
+                        items.maxOf { ZonedDateTime.parse(it.second.first().dateTime.value) } to items.minOf {
+                            ZonedDateTime.parse(it.second
+                                .last().dateTime.value)
+                        }
+                    }
+                    val dayNightCalculator = DayNightCalculator(latitude, longitude)
+                    val dayOrNightList = mutableListOf<Pair<Boolean, ZonedDateTime>>()
+                    var time = firstTime
+                    while (time <= endTime) {
+                        dayOrNightList.add(
+                            calculateDayOrNight(dayNightCalculator, time) to time
+                        )
+                        time = time.plusHours(1)
+                    }
+
+                    val items = entity.items.map { (provider, items) ->
+                        val firstIndex = items.indexOfFirst { ZonedDateTime.parse(it.dateTime.value) == firstTime }
+                        val endIndex = items.indexOfFirst { ZonedDateTime.parse(it.dateTime.value) > endTime }.run {
+                            if (this == -1) items.size
+                            else this
+                        }
+
+                        provider to CompareHourlyForecast(items.subList(firstIndex, endIndex).mapIndexed { i, item ->
+                            val dayOrNightPair = dayOrNightList[i]
+                            CompareHourlyForecast.Item(id = i,
+                                weatherCondition = item.weatherCondition,
+                                hour = dayOrNightPair.second.hour.toString(),
+                                temperature = item.temperature,
+                                rainfallVolume = item.rainfallVolume,
+                                snowfallVolume = item.snowfallVolume,
+                                rainfallProbability = item.rainfallProbability,
+                                snowfallProbability = item.snowfallProbability,
+                                precipitationVolume = item.precipitationVolume,
+                                precipitationProbability = item.precipitationProbability,
+                                isDay = dayOrNightPair.first)
+                        })
+                    }
+                    val date = DynamicDateTimeUiCreator(dayOrNightList.map {
+                        it.second.toString()
+                    }, CompareForecast.itemWidth).invoke()
+
+                    _hourlyForecast.value = UiState.Success(CompareForecast(items, date))
+                }.onFailure {
+                    _hourlyForecast.value = UiState.Error(it)
+                }
+            }
+        }
     }
 
+    private fun calculateDayOrNight(dayNightCalculator: DayNightCalculator, dateTime: ZonedDateTime): Boolean {
+        return dateTime.run {
+            (dayNightCalculator.calculate(toCalendar()) == DayNightCalculator.DayNight.DAY)
 
+        }
+
+    }
+}
+
+@Stable
+class CompareForecast(
+    val items: List<Pair<WeatherDataProvider, CompareHourlyForecast>>, val date: SimpleHourlyForecast.Date
+) {
+    companion object {
+        val itemWidth: Dp = 54.dp
+    }
 }

@@ -42,6 +42,7 @@ import kotlinx.coroutines.launch
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import javax.inject.Inject
+import kotlin.properties.Delegates
 
 @HiltViewModel
 class WeatherInfoViewModel @Inject constructor(
@@ -52,14 +53,13 @@ class WeatherInfoViewModel @Inject constructor(
     private val settingsRepository: SettingsRepository
 ) : ViewModel() {
 
+    private var targetAreaType by Delegates.notNull<TargetAreaType>()
+
     private val _processState = MutableStateFlow<ProcessState>(ProcessState.Idle)
     val processState: StateFlow<ProcessState> = _processState
 
     private val _args = MutableStateFlow<RequestWeatherDataArgs?>(null)
     val args: StateFlow<RequestWeatherDataArgs?> = _args
-
-    private val _targetAreaType = MutableStateFlow<TargetAreaType?>(null)
-    val targetAreaType: StateFlow<TargetAreaType?> = _targetAreaType
 
     private val _reverseGeoCode = MutableStateFlow<UiState<ReverseGeoCode>>(UiState.Loading)
     val reverseGeoCode: StateFlow<UiState<ReverseGeoCode>> = _reverseGeoCode
@@ -88,11 +88,14 @@ class WeatherInfoViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             settingsRepository.init()
-            _targetAreaType.value = targetAreaRepository.getTargetArea()
         }
     }
 
-    fun waitForLoad(){
+    fun setLastTargetAreaType(targetAreaType: TargetAreaType) {
+        this.targetAreaType = targetAreaType
+    }
+
+    fun waitForLoad() {
         viewModelScope.launch {
             _processState.value = ProcessState.Idle
         }
@@ -101,23 +104,22 @@ class WeatherInfoViewModel @Inject constructor(
     fun setArgsAndLoad(location: Location? = null) {
         viewModelScope.launch {
             _processState.value = ProcessState.Running
-            targetAreaType.value?.let { target ->
-                val (lat, lon) = if (target is TargetAreaType.CurrentLocation) {
-                    location!!.latitude to location.longitude
-                } else {
-                    favoriteAreaListRepository.getById(target.id).getOrThrow().run {
-                        latitude to longitude
-                    }
+            val (lat, lon) = if (targetAreaType is TargetAreaType.CurrentLocation) {
+                location!!.latitude to location.longitude
+            } else {
+                favoriteAreaListRepository.getById(targetAreaType.locationId).getOrThrow().run {
+                    latitude to longitude
                 }
-
-                _args.value =
-                    RequestWeatherDataArgs(latitude = lat,
-                        longitude = lon,
-                        weatherDataProvider = settingsRepository.getWeatherDataProvider(),
-                        targetAreaType = target)
-
-                loadAllWeatherData()
             }
+
+            _args.value =
+                RequestWeatherDataArgs(latitude = lat,
+                    longitude = lon,
+                    weatherDataProvider = settingsRepository.getWeatherDataProvider(),
+                    targetAreaType = targetAreaType)
+
+            loadAllWeatherData()
+
         }
     }
 

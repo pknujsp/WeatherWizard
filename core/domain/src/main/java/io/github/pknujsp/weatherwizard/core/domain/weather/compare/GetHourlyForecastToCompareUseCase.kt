@@ -2,7 +2,9 @@ package io.github.pknujsp.weatherwizard.core.domain.weather.compare
 
 import io.github.pknujsp.weatherwizard.core.data.weather.WeatherDataRepository
 import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherDataProvider
+import io.github.pknujsp.weatherwizard.core.model.weather.hourlyforecast.HourlyForecastEntity
 import io.github.pknujsp.weatherwizard.core.model.weather.hourlyforecast.ToCompareHourlyForecastEntity
+import java.time.ZonedDateTime
 import javax.inject.Inject
 
 class GetHourlyForecastToCompareUseCase @Inject constructor(
@@ -14,13 +16,60 @@ class GetHourlyForecastToCompareUseCase @Inject constructor(
         weatherDataProviders: List<WeatherDataProvider>,
         requestId: Long
     ): Result<ToCompareHourlyForecastEntity> {
-        weatherDataProviders.mapIndexed { i, provider->
+        return weatherDataProviders.mapIndexed { i, provider ->
             weatherDataRepository.getHourlyForecast(latitude, longitude, provider, requestId + i)
         }.let { responses ->
-
+            val success = responses.all { it.isSuccess }
+            if (success) {
+                val entities = responses.mapIndexed { i, response ->
+                    weatherDataProviders[i] to response.getOrThrow().items.subList(weatherDataProviders[i]).map { item ->
+                        ToCompareHourlyForecastEntity.Item(dateTime = item.dateTime,
+                            weatherCondition = item.weatherCondition,
+                            temperature = item.temperature,
+                            feelsLikeTemperature = item.feelsLikeTemperature,
+                            humidity = item.humidity,
+                            windSpeed = item.windSpeed,
+                            windDirection = item.windDirection,
+                            rainfallVolume = item.rainfallVolume,
+                            snowfallVolume = item.snowfallVolume,
+                            rainfallProbability = item.rainfallProbability,
+                            snowfallProbability = item.snowfallProbability,
+                            precipitationVolume = item.precipitationVolume,
+                            precipitationProbability = item.precipitationProbability)
+                    }
+                }
+                Result.success(ToCompareHourlyForecastEntity(entities))
+            } else {
+                Result.failure(responses.first { it.isFailure }.exceptionOrNull()!!)
+            }
         }
-
-        TODO()
     }
+
+    private fun List<HourlyForecastEntity.Item>.subList(weatherDataProvider: WeatherDataProvider) =
+        if (weatherDataProvider == WeatherDataProvider.MetNorway) {
+            var lastIdx = 0
+            val map = mutableMapOf<String, Long>()
+
+            for (i in (size / 2)..<size) {
+                val diff = map.getOrPut(this[i].dateTime.value) {
+                    java.time.Duration.ofSeconds(
+                        ZonedDateTime.parse(this[i].dateTime.value).toEpochSecond()
+                    ).toHours()
+                } - map.getOrPut(this[i - 1].dateTime.value) {
+                    java.time.Duration.ofSeconds(
+                        ZonedDateTime.parse(this[i - 1].dateTime.value).toEpochSecond()
+                    ).toHours()
+                }
+
+                if (diff > 1) {
+                    lastIdx = i
+                    break
+                }
+            }
+
+            subList(0, lastIdx)
+        } else {
+            this
+        }
 
 }

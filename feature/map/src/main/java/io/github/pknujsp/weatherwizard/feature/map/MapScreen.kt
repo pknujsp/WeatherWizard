@@ -28,11 +28,11 @@ import androidx.compose.material3.IconToggleButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -48,6 +48,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.res.ResourcesCompat
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.pknujsp.weatherwizard.core.model.onSuccess
 import io.github.pknujsp.weatherwizard.core.model.weather.RequestWeatherDataArgs
 import io.github.pknujsp.weatherwizard.core.ui.weather.item.CardInfo
@@ -144,26 +145,24 @@ private fun MapView.poiOnMap(latitude: Double, longitude: Double) {
 
 @Composable
 fun SimpleMapScreen(requestWeatherDataArgs: RequestWeatherDataArgs) {
-    requestWeatherDataArgs.let {
-        SimpleWeatherScreenBackground(CardInfo(title = "기상 레이더") {
-            Column(modifier = Modifier
+    SimpleWeatherScreenBackground(CardInfo(title = "기상 레이더") {
+        Column(modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            val radarAdapter = remember { RadarAdapter() }
+
+            Box(modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                val radarAdapter = remember { RadarAdapter() }
+                .height(240.dp)) {
 
-                Box(modifier = Modifier
-                    .fillMaxWidth()
-                    .height(240.dp)) {
+                val simpleMapController = remember { SimpleMapController() }
 
-                    val simpleMapController = remember { SimpleMapController() }
-
-                    MapScreen(it.latitude, it.longitude, radarAdapter, simpleMapController)
-                    MapControllerScreen(simpleMapController, iconSize = 32.dp, bottomSpace = 24.dp)
-                }
-                RadarControllerScreen(radarAdapter)
+                MapScreen(requestWeatherDataArgs.latitude, requestWeatherDataArgs.longitude, radarAdapter, simpleMapController)
+                MapControllerScreen(simpleMapController, iconSize = 32.dp, bottomSpace = 24.dp)
             }
-        })
-    }
+            RadarControllerScreen(radarAdapter)
+        }
+    })
 }
 
 @Composable
@@ -173,17 +172,10 @@ private fun RadarControllerScreen(radarAdapter: RadarAdapter) {
         modifier = Modifier
             .fillMaxWidth()
             .wrapContentSize()) {
-        val time by remember { derivedStateOf { mutableStateOf("") } }
-        LaunchedEffect(Unit) {
-            radarAdapter.time.collect {
-                time.value = it
-            }
-        }
-
-
+        val time by radarAdapter.time.collectAsStateWithLifecycle()
 
         IconToggleButton(
-            modifier = Modifier.size(32.dp),
+            modifier = Modifier.size(36.dp),
             checked = false,
             colors = IconButtonDefaults.iconToggleButtonColors(checkedContainerColor = Color.Transparent,
                 containerColor = Color.Transparent,
@@ -193,22 +185,19 @@ private fun RadarControllerScreen(radarAdapter: RadarAdapter) {
                 radarAdapter.play()
             },
         ) {
-            val playIcon by remember {
-                derivedStateOf { mutableStateOf(io.github.pknujsp.weatherwizard.core.common.R.drawable.ic_baseline_play_arrow_24 to false) }
+            var playIcon by remember {
+                mutableStateOf(io.github.pknujsp.weatherwizard.core.common.R.drawable.ic_play to false)
             }
 
-            LaunchedEffect(Unit) {
-                radarAdapter.playing.collect {
-                    playIcon.value = if (it) {
-                        io.github.pknujsp.weatherwizard.core.common.R.drawable.ic_baseline_stop_24 to true
-                    } else {
-                        io.github.pknujsp.weatherwizard.core.common.R.drawable.ic_baseline_play_arrow_24 to false
-                    }
-                }
+            val playing by radarAdapter.playing.collectAsStateWithLifecycle()
+
+            LaunchedEffect(playing) {
+                playIcon = (if (playing) io.github.pknujsp.weatherwizard.core.common.R.drawable.ic_pause else
+                    io.github.pknujsp.weatherwizard.core.common.R.drawable.ic_play) to playing
             }
 
-            Icon(painter = painterResource(playIcon.value.first), contentDescription = stringResource(id = R.string.play_all_radars))
-            if (playIcon.value.second) {
+            Icon(painter = painterResource(playIcon.first), contentDescription = stringResource(id = R.string.play_all_radars))
+            if (playIcon.second) {
                 val infiniteTransition = rememberInfiniteTransition("PlayingButton")
                 val angle by infiniteTransition.animateFloat(initialValue = 0f,
                     targetValue = 360f,
@@ -225,31 +214,30 @@ private fun RadarControllerScreen(radarAdapter: RadarAdapter) {
             }
         }
 
-        Text(text = time.value, color = Color.White, fontSize = 13.sp, modifier = Modifier.weight(1f))
+        Text(text = time, color = Color.White, fontSize = 13.sp, modifier = Modifier.weight(1f))
 
         IconButton(
-            modifier = Modifier.size(32.dp),
             onClick = {
                 radarAdapter.beforeRadar()
             },
+            modifier = Modifier.size(30.dp),
             colors = IconButtonDefaults.iconButtonColors(containerColor = Color.Transparent, contentColor = Color.White),
         ) {
-            Icon(painter = painterResource(io.github.pknujsp.weatherwizard.core.common.R.drawable.round_arrow_left_24),
-                contentDescription = stringResource(id = io.github.pknujsp.weatherwizard.core.common.R.string.before),
-                modifier = Modifier.scale(1.5f))
+            Icon(painter = painterResource(io.github.pknujsp.weatherwizard.core.common.R.drawable.ic_previous),
+                contentDescription = stringResource(id = io.github.pknujsp.weatherwizard.core.common.R.string.before))
         }
         IconButton(
             onClick = {
                 radarAdapter.nextRadar()
             },
+            modifier = Modifier.size(30.dp),
             colors = IconButtonDefaults.iconButtonColors(
                 containerColor = Color.Transparent,
                 contentColor = Color.White,
             ),
         ) {
-            Icon(painter = painterResource(io.github.pknujsp.weatherwizard.core.common.R.drawable.round_arrow_right_24),
-                contentDescription = stringResource(id = io.github.pknujsp.weatherwizard.core.common.R.string.next),
-                modifier = Modifier.scale(1.5f))
+            Icon(painter = painterResource(io.github.pknujsp.weatherwizard.core.common.R.drawable.ic_next),
+                contentDescription = stringResource(id = io.github.pknujsp.weatherwizard.core.common.R.string.next))
         }
     }
 }

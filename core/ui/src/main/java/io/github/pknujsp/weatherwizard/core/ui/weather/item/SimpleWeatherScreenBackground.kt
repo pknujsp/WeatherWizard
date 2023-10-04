@@ -24,8 +24,9 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import io.github.pknujsp.weatherwizard.core.ui.PlaceHolder
+import io.github.pknujsp.weatherwizard.core.ui.theme.AppShapes
 
-private val backgroundColor = Color(158, 158, 158, 255)
+private val backgroundColor = Color(150, 147, 153, 217)
 
 @Composable
 private fun DefaultSurface(content: @Composable () -> Unit) {
@@ -33,7 +34,7 @@ private fun DefaultSurface(content: @Composable () -> Unit) {
         modifier = Modifier
             .fillMaxWidth()
             .wrapContentHeight(),
-        shape = RectangleShape,
+        shape = AppShapes.large,
         color = backgroundColor,
     ) {
         content()
