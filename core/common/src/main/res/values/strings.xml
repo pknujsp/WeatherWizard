@@ -48,7 +48,7 @@
     <string name="refresh">새로고침</string>
     <string name="current_location">현재 위치</string>
     <string name="location_permission_denied">위치 권한이 허용되어 있지 않아 진행이 불가능 합니다.</string>
-    <string name="network_unavailable">네트워크(Wifi, Mobile~)가 연결되어 있지 않습니다.</string>
+    <string name="network_unavailable">네트워크(Wifi, Mobile)가 연결되어 있지 않습니다.</string>
     <string name="location_service_disabled">위치 정보 기능이 꺼져있습니다.</string>
     <string name="open_settings_for_location_permission">권한 부여</string>
     <string name="okay">확인</string>
@@ -73,4 +73,5 @@
     <string name="title_comparison_hourly_forecast">시간별 예보 비교</string>
     <string name="title_comparison_daily_forecast">일별 예보 비교</string>
     <string name="comparison">비교</string>
+    <string name="storage_permission_denied">저장소 접근 권한이 필요합니다.</string>
 </resources>

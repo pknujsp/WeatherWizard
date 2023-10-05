@@ -2,7 +2,6 @@ package io.github.pknujsp.weatherwizard.core.ui.weather.item
 
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -73,27 +72,21 @@ fun SimpleWeatherBackgroundPlaceHolder() {
 
 @Composable
 fun SimpleWeatherFailedBox(title: String, description: String, onClick: () -> Unit) {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .wrapContentHeight()
-            .padding(horizontal = 12.dp, vertical = 8.dp),
-        contentAlignment = Alignment.Center,
-    ) {
+    DefaultSurface {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
+                .padding(vertical = 12.dp, horizontal = 12.dp)
                 .fillMaxWidth()
                 .wrapContentHeight(),
-            verticalArrangement = Arrangement.Center
+            verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             Text(text = title, style = TextStyle(fontSize = 18.sp, color = Color.White),
                 modifier = Modifier
-                    .padding(start = 32.dp, end = 32.dp, bottom = 8.dp, top = 12.dp)
+                    .padding(start = 32.dp, end = 32.dp)
             )
             Text(text = description, style = TextStyle(fontSize = 12.sp, color = Color.White))
-            SecondaryButton(onClick = onClick,
-                text = stringResource(id = io.github.pknujsp.weatherwizard.core.common.R.string.reload))
+            SecondaryButton(onClick = onClick, text = stringResource(id = io.github.pknujsp.weatherwizard.core.common.R.string.reload))
         }
     }
 }

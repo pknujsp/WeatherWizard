@@ -38,6 +38,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.Placeholder
 import androidx.compose.ui.text.PlaceholderVerticalAlign
+import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
@@ -214,14 +215,15 @@ private fun ReportScreen(hourlyForecastViewModel: CompareHourlyForecastViewModel
     report.onSuccess { model ->
         Column {
             TitleTextWithoutNavigation(title = stringResource(id = R.string.title_comparison_report))
-            val dot = "•"
+
             model.commonForecasts.forEach { entry ->
                 Column(
                     modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
+                    verticalArrangement = Arrangement.spacedBy(4.dp),
                 ) {
                     val aStyle = listOf(AStyle(
                         contentId = listOf("icon" to InlineTextContent(Placeholder(width = 26.sp,
-                            height = 22.sp,
+                            height = 24.sp,
                             placeholderVerticalAlign = PlaceholderVerticalAlign.TextCenter)) {
                             AsyncImage(model = ImageRequest.Builder(LocalContext.current)
                                 .data(entry.value.weatherConditionCategory.dayWeatherIcon)
@@ -232,23 +234,27 @@ private fun ReportScreen(hourlyForecastViewModel: CompareHourlyForecastViewModel
                             text = stringResource(id = entry.key.stringRes),
                         ))
 
+
                     Text(text = aStyle.toAnnotated(),
                         style = TextStyle(fontSize = 19.sp, color = Color.Black, fontWeight = FontWeight.Bold),
                         inlineContent = aStyle.first().inlineContents
                     )
-                    val times = entry.value.timesWithIcon.let { list ->
-                        val lastIndex = list.lastIndex
-                        StringBuilder().apply {
-                            list.forEachIndexed { index, pair ->
-                                append("$dot ${pair.first}")
-                                if (index != lastIndex) {
-                                    append("\n")
-                                }
-                            }
-                        }.toString()
-                    }
 
-                    Text(text = times, style = TextStyle(fontSize = 15.sp, color = Color.Gray), lineHeight = 22.sp)
+                    val times = entry.value.times.map {
+                        listOf(
+                            AStyle(
+                                text = "${it.first}\n",
+                                span = SpanStyle(fontSize = 16.sp, color = Color.Black, fontWeight = FontWeight.Normal),
+                            ),
+                        ) + it.second.map { time ->
+                            AStyle(
+                                text = " ${time}\n",
+                                span = SpanStyle(fontSize = 15.sp, color = Color.Gray, fontWeight = FontWeight.Normal),
+                            )
+                        }
+                    }.flatten().toAnnotated()
+
+                    Text(text = times)
                 }
             }
         }

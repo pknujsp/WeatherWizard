@@ -2,7 +2,6 @@ package io.github.pknujsp.weatherwizard.feature.map
 
 import android.content.Context
 import android.graphics.Color
-import android.util.Log
 import io.github.pknujsp.weatherwizard.core.model.rainviewer.RadarTiles
 import org.osmdroid.tileprovider.MapTileProviderBasic
 import org.osmdroid.tileprovider.modules.SqlTileWriter
@@ -57,9 +56,9 @@ class RadarTilesOverlay(
                         return "$host${it.path}/$optionTileSize/$z/$x/$y/$optionColorScheme/${optionSmoothData}_$optionSnowColors.png"
                     }
                 }, SqlTileWriter().apply {
-                    if(purgeCache(tileSourceName))
-                        Log.d("RadarTilesOverlay", "purgedCache: $tileSourceName")
+                    purgeCache(tileSourceName)
                 }).apply {
+
                 setOfflineFirst(false)
                 tileCache.setStressedMemory(true)
                 tileRequestCompleteHandlers.add(

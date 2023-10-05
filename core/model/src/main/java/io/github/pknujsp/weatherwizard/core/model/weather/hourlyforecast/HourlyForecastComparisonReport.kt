@@ -15,39 +15,84 @@ class HourlyForecastComparisonReport(
     init {
         items.run {
             val commons = mutableMapOf<Pair<Boolean, ZonedDateTime>, MutableSet<WeatherConditionCategory>>()
-            items.forEach { item->
+            items.forEach { item ->
                 item.second.forEachIndexed() { i, forecast ->
                     commons.getOrPut(times[i]) { mutableSetOf() }.add(forecast.weatherCondition.value)
                 }
             }
 
-            val commonsMap = commons.filter { it.value.size == 1 }.run {
+            val sameForecasts = commons.filter { it.value.size == 1 }.run {
                 if (isEmpty()) {
-                    emptyArray()
+                    emptyList()
                 } else {
                     map { (time, categories) ->
                         time to categories.first()
-                    }.toTypedArray()
+                    }
                 }
             }
-            val timeFormatter = java.time.format.DateTimeFormatter.ofPattern("M.d E HH:mm")
-            val categories = mutableMapOf<WeatherConditionCategory, MutableList<Pair<String, Boolean>>>()
-            commonsMap.map { (time, category) ->
-                categories.getOrPut(category) { mutableListOf() }.add(time.second.format(timeFormatter) to time.first)
+
+            val categories = mutableMapOf<WeatherConditionCategory, MutableList<ZonedDateTime>>()
+            sameForecasts.map { (time, category) ->
+                categories.getOrPut(category) { mutableListOf() }.add(time.second)
             }
 
+            val dateFormatter = java.time.format.DateTimeFormatter.ofPattern("M.d E")
             commonForecasts = categories.map { (category, times) ->
-                category to Item(times, category)
+                category to Item(times.parseDateTimeRanges(dateFormatter), category)
             }.toMap()
         }
     }
 
-    class Item(
-        times: List<Pair<String, Boolean>>,
-        val weatherConditionCategory: WeatherConditionCategory,
-    ) {
-        val timesWithIcon = times.map {
-            it.first to weatherConditionCategory.getWeatherIconByTimeOfDay(it.second)
+    private fun List<ZonedDateTime>.parseDateTimeRanges(dateFormatter: java.time.format.DateTimeFormatter): List<Pair<String, List<String>>> {
+        return groupBy { it.dayOfYear }.let { groups ->
+            val dot = "·"
+            groups.map { (dayOfYear, times) ->
+                val date = times.first().format(dateFormatter)
+
+                val ranges = times.let {
+                    var lastTime = times.first().hour + 1
+
+                    if (times.size == 1) {
+                        listOf("$dot ${lastTime - 1}")
+                    } else {
+                        var newTime: Int
+                        val hours = mutableListOf<MutableList<Int>>(mutableListOf())
+                        var diff: Int
+                        val lastIdx = times.size - 2
+
+                        times.drop(1).forEachIndexed { i, dateTime ->
+                            newTime = dateTime.hour + 1
+                            diff = newTime - lastTime
+                            hours.last().add(lastTime)
+
+                            if (diff != 1) {
+                                hours.add(mutableListOf())
+                            }
+
+                            if (i == lastIdx) {
+                                hours.last().add(newTime)
+                            }
+
+                            lastTime = newTime
+                        }
+
+                        hours.map {
+                            if (it.size == 1) {
+                                "$dot ${it.first() - 1}"
+                            } else {
+                                "$dot ${it.first() - 1} - ${it.last() - 1}"
+                            }
+                        }
+                    }
+                }
+
+                date to ranges
+            }
         }
     }
+
+    class Item(
+        val times: List<Pair<String, List<String>>>,
+        val weatherConditionCategory: WeatherConditionCategory,
+    )
 }
