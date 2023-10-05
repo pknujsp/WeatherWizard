@@ -145,7 +145,7 @@ private fun MapView.poiOnMap(latitude: Double, longitude: Double) {
 
 @Composable
 fun SimpleMapScreen(requestWeatherDataArgs: RequestWeatherDataArgs) {
-    SimpleWeatherScreenBackground(CardInfo(title = "기상 레이더") {
+    SimpleWeatherScreenBackground(CardInfo(title = stringResource(id = R.string.radar)) {
         Column(modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -153,7 +153,7 @@ fun SimpleMapScreen(requestWeatherDataArgs: RequestWeatherDataArgs) {
 
             Box(modifier = Modifier
                 .fillMaxWidth()
-                .height(240.dp)) {
+                .height(230.dp)) {
 
                 val simpleMapController = remember { SimpleMapController() }
 

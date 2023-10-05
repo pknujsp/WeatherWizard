@@ -75,13 +75,13 @@ private fun SunSetRiseContent(latitude: Double, longitude: Double) {
         val centerHorizontalLinePoint = Offset(0f, boxHeightPx * 0.6f)
 
         // 수직 분할선 높이, top
-        val verticalDividerHeight = boxHeightPx * 0.7f
-        val verticalDividerTop = (boxHeightPx - verticalDividerHeight) / 2f
+        val verticalDividerHeight =with(LocalDensity.current) { 60.dp.toPx() }
+        val verticalDividerTop = (centerHorizontalLinePoint.y - verticalDividerHeight / 2)
 
         val curveStartEndHeightFromCenterHorizontalLine = with(LocalDensity.current) {
             16.dp.toPx()
         }
-        val curveMaxHeight = (boxHeightPx - centerHorizontalLinePoint.y) * 0.9f
+        val curveMaxHeight = (boxHeightPx - centerHorizontalLinePoint.y)
         val iconSize = with(LocalDensity.current) { 30.dp.toPx() }
 
         val currentIcon = ContextCompat.getDrawable(LocalContext.current, times.value.times[0].first.iconRes)!!.toBitmap(width =

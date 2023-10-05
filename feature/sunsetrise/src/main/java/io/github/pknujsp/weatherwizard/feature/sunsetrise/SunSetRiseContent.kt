@@ -14,6 +14,7 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextMeasurer
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.drawText
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.sp
 import io.github.pknujsp.weatherwizard.core.common.util.AStyle
@@ -63,7 +64,7 @@ internal fun DrawScope.drawBaseLines(pointInfo: PointInfo, timeInfo: TimeInfo, l
         endCurve.point3.x,
         endCurve.point3.y)
 
-    drawPath(path, color = Color.White, style = Stroke(width = 2f))
+    drawPath(path, color = Color.White, style = Stroke(width = 4f))
 
     drawLine(Color.White,
         Offset(firstVerticalDividerX, verticalDividerTop),
@@ -109,7 +110,7 @@ internal fun DrawScope.drawTextAndImage(
         var xAmount: Float
         var yAmount: Float
         val nowTextResult =
-            textMeasurer.measure(text = timeInfo.nowText, style = TextStyle(fontSize = 12.sp, textAlign = TextAlign.Center)).apply {
+            textMeasurer.measure(text = timeInfo.nowText, style = TextStyle(fontSize = 13.sp, textAlign = TextAlign.Center)).apply {
                 xAmount = size.width / 2f
                 yAmount = size.height / 2f
             }
@@ -126,19 +127,19 @@ internal fun DrawScope.drawTextAndImage(
         drawText(textLayoutResult = textMeasurer.measure(text = createAnnotatedString(timeInfo.timeHeaders[0].title,
             timeInfo.timeHeaders[0].content), style = TextStyle(fontSize = 12.sp, textAlign = TextAlign.Center)).apply {
             xAmount = size.width / 2f
-            yAmount = size.height / 2f
+            yAmount = size.height.toFloat() + size.height / 4f
         }, topLeft = Offset(firstVerticalDividerX - xAmount, verticalDividerTop - yAmount), color = Color.White)
 
         drawText(textLayoutResult = textMeasurer.measure(text = createAnnotatedString(timeInfo.timeHeaders[1].title,
             timeInfo.timeHeaders[1].content), style = TextStyle(fontSize = 12.sp, textAlign = TextAlign.Center)).apply {
             xAmount = size.width / 2f
-            yAmount = size.height / 2f
+            yAmount = size.height.toFloat() + size.height / 4f
         }, topLeft = Offset(secondVerticalDividerX - xAmount, verticalDividerTop - yAmount), color = Color.White)
 
         drawText(textLayoutResult = textMeasurer.measure(text = createAnnotatedString(timeInfo.timeHeaders[2].title,
             timeInfo.timeHeaders[2].content), style = TextStyle(fontSize = 12.sp, textAlign = TextAlign.Center)).apply {
             xAmount = size.width / 2f
-            yAmount = size.height / 2f
+            yAmount = size.height.toFloat() + size.height / 4f
         }, topLeft = Offset(thirdVerticalDividerX - xAmount, verticalDividerTop - yAmount), color = Color.White)
     }
 
@@ -158,7 +159,8 @@ class TimeHeaderInfo(
 private fun createAnnotatedString(title: String, content: String): AnnotatedString = listOf(AStyle(text = "${title}\n",
     span = SpanStyle(
         color = Color.White,
-        fontSize = 11.sp,
+        fontSize = 12.sp,
+        fontWeight = FontWeight.Bold
     ),
     paragraph = ParagraphStyle(textAlign = TextAlign.Center)),
     AStyle(text = content,
