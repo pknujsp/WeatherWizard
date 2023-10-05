@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.github.pknujsp.weatherwizard.core.common.util.DayNightCalculator
 import io.github.pknujsp.weatherwizard.core.common.util.toCalendar
+import io.github.pknujsp.weatherwizard.core.data.settings.SettingsRepository
 import io.github.pknujsp.weatherwizard.core.domain.weather.compare.GetHourlyForecastToCompareUseCase
 import io.github.pknujsp.weatherwizard.core.model.UiState
 import io.github.pknujsp.weatherwizard.core.model.weather.RequestWeatherDataArgs
@@ -23,7 +24,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class CompareHourlyForecastViewModel @Inject constructor(
-    private val getHourlyForecastToCompareUseCase: GetHourlyForecastToCompareUseCase
+    private val getHourlyForecastToCompareUseCase: GetHourlyForecastToCompareUseCase,
+    private val settingsRepository: SettingsRepository
 ) : CompareForecastViewModel() {
 
     private val _hourlyForecast = MutableStateFlow<UiState<CompareForecast>>(UiState.Loading)
@@ -50,6 +52,8 @@ class CompareHourlyForecastViewModel @Inject constructor(
                         time = time.plusHours(1)
                     }
 
+                    val units = settingsRepository.currentUnits.value
+
                     val items = entity.items.map { (provider, items) ->
                         val firstIndex = items.indexOfFirst { ZonedDateTime.parse(it.dateTime.value) == firstTime }
                         val endIndex = items.indexOfFirst { ZonedDateTime.parse(it.dateTime.value) > endTime }.run {
@@ -62,12 +66,12 @@ class CompareHourlyForecastViewModel @Inject constructor(
                             CompareHourlyForecast.Item(id = i,
                                 weatherCondition = item.weatherCondition,
                                 hour = dayOrNightPair.second.hour.toString(),
-                                temperature = item.temperature,
-                                rainfallVolume = item.rainfallVolume,
-                                snowfallVolume = item.snowfallVolume,
+                                temperature = item.temperature.convertUnit(units.temperatureUnit),
+                                rainfallVolume = item.rainfallVolume.convertUnit(units.precipitationUnit),
+                                snowfallVolume = item.snowfallVolume.convertUnit(units.precipitationUnit),
                                 rainfallProbability = item.rainfallProbability,
                                 snowfallProbability = item.snowfallProbability,
-                                precipitationVolume = item.precipitationVolume,
+                                precipitationVolume = item.precipitationVolume.convertUnit(units.precipitationUnit),
                                 precipitationProbability = item.precipitationProbability,
                                 isDay = dayOrNightPair.first)
                         })
@@ -100,7 +104,7 @@ class CompareForecast(
     val items = items.run {
         val counts = items.first().second.items.size
         (0..<counts).map { i ->
-            items.map { it.second.items[i] }.toTypedArray()
+            map { it.second.items[i] }.toTypedArray()
         }.toTypedArray()
     }
 

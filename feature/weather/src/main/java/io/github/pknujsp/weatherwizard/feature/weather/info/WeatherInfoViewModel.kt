@@ -19,11 +19,9 @@ import io.github.pknujsp.weatherwizard.core.model.favorite.TargetAreaType
 import io.github.pknujsp.weatherwizard.core.model.flickr.FlickrRequestParameters
 import io.github.pknujsp.weatherwizard.core.model.nominatim.ReverseGeoCode
 import io.github.pknujsp.weatherwizard.core.model.weather.RequestWeatherDataArgs
-import io.github.pknujsp.weatherwizard.core.model.weather.common.PrecipitationValueType
 import io.github.pknujsp.weatherwizard.core.model.weather.common.TemperatureValueType
 import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherConditionCategory
 import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherDataProvider
-import io.github.pknujsp.weatherwizard.core.model.weather.common.WindSpeedValueType
 import io.github.pknujsp.weatherwizard.core.model.weather.current.CurrentWeather
 import io.github.pknujsp.weatherwizard.core.model.weather.current.CurrentWeatherEntity
 import io.github.pknujsp.weatherwizard.core.model.weather.dailyforecast.DailyForecastEntity
@@ -188,15 +186,12 @@ class WeatherInfoViewModel @Inject constructor(
             val currentWeather = currentWeatherEntity.run {
                 val unit = settingsRepository.currentUnits.value
                 CurrentWeather(weatherCondition = weatherCondition,
-                    temperature = TemperatureValueType(temperature.convertUnit(unit.temperatureUnit),
-                        unit.temperatureUnit),
-                    feelsLikeTemperature = TemperatureValueType(feelsLikeTemperature.convertUnit(unit.temperatureUnit),
-                        unit.temperatureUnit),
+                    temperature = temperature.convertUnit(unit.temperatureUnit),
+                    feelsLikeTemperature = feelsLikeTemperature.convertUnit(unit.temperatureUnit),
                     humidity = humidity,
-                    windSpeed = WindSpeedValueType(windSpeed.convertUnit(unit.windSpeedUnit), unit.windSpeedUnit),
+                    windSpeed = windSpeed.convertUnit(unit.windSpeedUnit),
                     windDirection = windDirection,
-                    precipitationVolume = PrecipitationValueType(precipitationVolume.convertUnit(
-                        unit.precipitationUnit),
+                    precipitationVolume = precipitationVolume.convertUnit(
                         unit.precipitationUnit),
                     dayNightCalculator = dayNightCalculator,
                     currentCalendar = currentCalendar)
@@ -217,16 +212,12 @@ class WeatherInfoViewModel @Inject constructor(
                     id = i,
                     dateTime = it.dateTime,
                     weatherCondition = it.weatherCondition,
-                    temperature = TemperatureValueType(it.temperature.convertUnit(unit.temperatureUnit),
-                        unit.temperatureUnit),
-                    feelsLikeTemperature = TemperatureValueType(it.feelsLikeTemperature.convertUnit(
-                        unit.temperatureUnit),
-                        unit.temperatureUnit),
+                    temperature = it.temperature.convertUnit(unit.temperatureUnit),
+                    feelsLikeTemperature = it.feelsLikeTemperature.convertUnit(unit.temperatureUnit),
                     humidity = it.humidity,
-                    windSpeed = WindSpeedValueType(it.windSpeed.convertUnit(unit.windSpeedUnit), unit.windSpeedUnit),
+                    windSpeed = it.windSpeed.convertUnit(unit.windSpeedUnit),
                     windDirection = it.windDirection,
-                    precipitationVolume = PrecipitationValueType(it.precipitationVolume.convertUnit(
-                        unit.precipitationUnit),
+                    precipitationVolume = it.precipitationVolume.convertUnit(
                         unit.precipitationUnit),
                     precipitationProbability = it.precipitationProbability,
                     dayNightCalculator = dayNightCalculator,
@@ -240,17 +231,12 @@ class WeatherInfoViewModel @Inject constructor(
                         id = i,
                         dateTime = item.dateTime,
                         weatherCondition = item.weatherCondition,
-                        temperature = TemperatureValueType(item.temperature.convertUnit(unit.temperatureUnit),
-                            unit.temperatureUnit),
-                        feelsLikeTemperature = TemperatureValueType(item.feelsLikeTemperature.convertUnit(
-                            unit.temperatureUnit),
-                            unit.temperatureUnit),
+                        temperature = item.temperature.convertUnit(unit.temperatureUnit),
+                        feelsLikeTemperature = item.feelsLikeTemperature.convertUnit(unit.temperatureUnit),
                         humidity = item.humidity,
-                        windSpeed = WindSpeedValueType(item.windSpeed.convertUnit(unit.windSpeedUnit), unit.windSpeedUnit),
+                        windSpeed = item.windSpeed.convertUnit(unit.windSpeedUnit),
                         windDirection = item.windDirection,
-                        precipitationVolume = PrecipitationValueType(item.precipitationVolume.convertUnit(
-                            unit.precipitationUnit),
-                            unit.precipitationUnit),
+                        precipitationVolume = item.precipitationVolume.convertUnit(unit.precipitationUnit),
                         precipitationProbability = item.precipitationProbability,
                         dayNightCalculator = dayNightCalculator,
                     )
@@ -279,8 +265,8 @@ class WeatherInfoViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.Default) {
             val temperatureUnit = settingsRepository.currentUnits.value.temperatureUnit
             _yesterdayWeather.value =
-                UiState.Success(YesterdayWeather(temperature = TemperatureValueType(yesterdayWeatherEntity.temperature.convertUnit(
-                    temperatureUnit), temperatureUnit)))
+                UiState.Success(YesterdayWeather(temperature = yesterdayWeatherEntity.temperature.convertUnit(
+                    temperatureUnit)))
         }
     }
 

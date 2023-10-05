@@ -1,6 +1,5 @@
 package io.github.pknujsp.weatherwizard.feature.weather.comparison.hourlyforecast
 
-import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
@@ -82,9 +81,8 @@ fun CompareHourlyForecastScreen(args: RequestWeatherDataArgs, popBackStack: () -
 
                 }
             }.onSuccess {
-                Column(verticalArrangement = Arrangement.spacedBy(4.dp), modifier = Modifier.padding(vertical = 12.dp)) {
+                Column(verticalArrangement = Arrangement.spacedBy(4.dp), modifier = Modifier.padding(vertical = 16.dp)) {
                     val mainLazyListState = rememberLazyListState()
-
                     DynamicDateTime(it.dateTimeInfo, mainLazyListState)
                     Content(it, mainLazyListState)
                 }
@@ -98,7 +96,7 @@ fun Content(compareForecast: CompareForecast, lazyListState: LazyListState) {
     val itemsCount = compareForecast.items.size
     val itemModifier = Modifier.width(CompareForecast.itemWidth)
     val context = LocalContext.current
-    val weatherDataProviderInfoHeight = 32.dp
+    val weatherDataProviderInfoHeight = 36.dp
     val weatherDataProviderInfoHeightPx = with(LocalDensity.current) {
         weatherDataProviderInfoHeight.toPx().toInt()
     }
@@ -133,7 +131,7 @@ fun Content(compareForecast: CompareForecast, lazyListState: LazyListState) {
         val placeables = measurables.map { it.measure(constraints) }
         val providersCount = compareForecast.weatherDataProviders.size
         val forecastRowHeight = (placeables[0].height - weatherDataProviderInfoHeightPx * (providersCount - 1)) / providersCount
-        val height = placeables.sumOf { it.height }
+        val height = placeables[0].height + weatherDataProviderInfoHeightPx
 
         layout(constraints.maxWidth, height) {
             placeables.first().run {
@@ -151,7 +149,7 @@ fun Content(compareForecast: CompareForecast, lazyListState: LazyListState) {
 
 
 @Composable
-private fun WeatherDataProviderInfo(weatherDataProvider: WeatherDataProvider, height: Dp) {
+internal fun WeatherDataProviderInfo(weatherDataProvider: WeatherDataProvider, height: Dp) {
     Row(horizontalArrangement = Arrangement.Start,
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
@@ -200,7 +198,6 @@ private fun Item(
 
 @Stable
 class CompareForecastCard {
-
     private val surfaceModifier = Modifier
         .fillMaxWidth()
         .wrapContentHeight()
@@ -216,12 +213,5 @@ class CompareForecastCard {
         ) {
             content()
         }
-    }
-}
-
-@Composable
-private fun SynchronizedScrolling(lazyListStates: List<LazyListState>) {
-    LaunchedEffect(lazyListStates.toTypedArray()) {
-        Log.d("SynchronizedScrolling", "SynchronizedScrolling")
     }
 }

@@ -15,7 +15,7 @@ interface WeatherValueType<out T : Any> {
 
 interface WeatherValueUnitType<T : Any, U : WeatherDataUnit> : WeatherValueType<T> {
     val unit: U
-    fun convertUnit(to: U): T
+    fun convertUnit(to: U): WeatherValueUnitType<T, U>
 
     fun isNone(): Boolean
 
@@ -51,11 +51,13 @@ data class TemperatureValueType(
         override val none: TemperatureValueType = TemperatureValueType(Double.MIN_VALUE, TemperatureUnit.Celsius)
     }
 
-    override fun convertUnit(to: TemperatureUnit): Double {
+    override fun convertUnit(to: TemperatureUnit): TemperatureValueType {
         return when (unit to to) {
             TemperatureUnit.Celsius to TemperatureUnit.Fahrenheit -> value * 9 / 5 + 32
             TemperatureUnit.Fahrenheit to TemperatureUnit.Celsius -> (value - 32) * 5 / 9
             else -> value
+        }.run {
+            TemperatureValueType(this, to)
         }
     }
 
@@ -81,7 +83,7 @@ data class WindSpeedValueType(
     companion object : NoneValue<WindSpeedValueType> {
         override val none: WindSpeedValueType = WindSpeedValueType(Double.MIN_VALUE, WindSpeedUnit.KilometerPerHour)
 
-        private val beaufortScale = listOf(
+        private val beaufortScale = arrayOf(
             0.0 to R.string.wind_strength_0,
             1.0 to R.string.wind_strength_1,
             5.0 to R.string.wind_strength_2,
@@ -102,16 +104,18 @@ data class WindSpeedValueType(
      * https://en.wikipedia.org/wiki/Beaufort_scale
      */
     fun strength(context: Context): String {
-        val kmh = convertUnit(WindSpeedUnit.KilometerPerHour)
+        val kmh = convertUnit(WindSpeedUnit.KilometerPerHour).value
         val id = beaufortScale.find { (speed, _) -> kmh < speed }!!.second
         return context.getString(id)
     }
 
-    override fun convertUnit(to: WindSpeedUnit): Double {
+    override fun convertUnit(to: WindSpeedUnit): WindSpeedValueType {
         return when (unit to to) {
             WindSpeedUnit.KilometerPerHour to WindSpeedUnit.MeterPerSecond -> value / 3.6
             WindSpeedUnit.MeterPerSecond to WindSpeedUnit.KilometerPerHour -> value * 3.6
             else -> value
+        }.run {
+            WindSpeedValueType(this, to)
         }
     }
 
@@ -139,8 +143,8 @@ data class WindDirectionValueType(
 
     }
 
-    override fun convertUnit(to: WindDirectionUnit): Int {
-        return value
+    override fun convertUnit(to: WindDirectionUnit): WindDirectionValueType {
+        return WindDirectionValueType(value, to)
     }
 
 
@@ -166,8 +170,8 @@ data class HumidityValueType(
         override val none: HumidityValueType = HumidityValueType(Int.MIN_VALUE, PercentageUnit)
     }
 
-    override fun convertUnit(to: PercentageUnit): Int {
-        return value
+    override fun convertUnit(to: PercentageUnit): HumidityValueType {
+        return HumidityValueType(value, to)
     }
 
     override fun toString(): String {
@@ -193,7 +197,7 @@ data class PressureValueType(
         override val none: PressureValueType = PressureValueType(Int.MIN_VALUE, PressureUnit.Hectopascal)
 
 
-        private val pressureScale = listOf(
+        private val pressureScale = arrayOf(
             980 to R.string.pressure_very_low,
             1000 to R.string.pressure_low,
             1020 to R.string.pressure_normal,
@@ -208,8 +212,8 @@ data class PressureValueType(
         return context.getString(id)
     }
 
-    override fun convertUnit(to: PressureUnit): Int {
-        return value
+    override fun convertUnit(to: PressureUnit): PressureValueType {
+        return PressureValueType(value, to)
     }
 
 
@@ -250,8 +254,8 @@ data class VisibilityValueType(
         return context.getString(id)
     }
 
-    override fun convertUnit(to: VisibilityUnit): Double {
-        return value
+    override fun convertUnit(to: VisibilityUnit): VisibilityValueType {
+        return VisibilityValueType(value, to)
     }
 
     override fun toString(): String {
@@ -280,11 +284,13 @@ data class PrecipitationValueType(
         val snowDrop = PrecipitationValueType(drop, PrecipitationUnit.Millimeter)
     }
 
-    override fun convertUnit(to: PrecipitationUnit): Double {
+    override fun convertUnit(to: PrecipitationUnit): PrecipitationValueType {
         return when (unit to to) {
             PrecipitationUnit.Millimeter to PrecipitationUnit.Centimeter -> value / 10
             PrecipitationUnit.Centimeter to PrecipitationUnit.Millimeter -> value * 10
             else -> value
+        }.run {
+            PrecipitationValueType(this, to)
         }
     }
 
@@ -318,16 +324,18 @@ data class SnowfallValueType(
     }
 
     fun strength(context: Context): String {
-        val cm = convertUnit(PrecipitationUnit.Centimeter)
+        val cm = convertUnit(PrecipitationUnit.Centimeter).value
         val id = snowfallScale.find { (snowfall, _) -> cm < snowfall }!!.second
         return context.getString(id)
     }
 
-    override fun convertUnit(to: PrecipitationUnit): Double {
+    override fun convertUnit(to: PrecipitationUnit): SnowfallValueType {
         return when (unit to to) {
             PrecipitationUnit.Millimeter to PrecipitationUnit.Centimeter -> value / 10
             PrecipitationUnit.Centimeter to PrecipitationUnit.Millimeter -> value * 10
             else -> value
+        }.run {
+            SnowfallValueType(this, to)
         }
     }
 
@@ -364,16 +372,18 @@ data class RainfallValueType(
     }
 
     fun strength(context: Context): String {
-        val mm = convertUnit(PrecipitationUnit.Millimeter)
+        val mm = convertUnit(PrecipitationUnit.Millimeter).value
         val id = rainfallScale.find { (rainfall, _) -> mm < rainfall }!!.second
         return context.getString(id)
     }
 
-    override fun convertUnit(to: PrecipitationUnit): Double {
+    override fun convertUnit(to: PrecipitationUnit): RainfallValueType {
         return when (unit to to) {
             PrecipitationUnit.Millimeter to PrecipitationUnit.Centimeter -> value / 10
             PrecipitationUnit.Centimeter to PrecipitationUnit.Millimeter -> value * 10
             else -> value
+        }.run {
+            RainfallValueType(this, to)
         }
     }
 
@@ -401,8 +411,8 @@ data class ProbabilityValueType(
         override val none: ProbabilityValueType = ProbabilityValueType(Int.MIN_VALUE, PercentageUnit)
     }
 
-    override fun convertUnit(to: PercentageUnit): Int {
-        return value
+    override fun convertUnit(to: PercentageUnit): ProbabilityValueType {
+        return ProbabilityValueType(value, to)
     }
 
     override fun toString(): String {

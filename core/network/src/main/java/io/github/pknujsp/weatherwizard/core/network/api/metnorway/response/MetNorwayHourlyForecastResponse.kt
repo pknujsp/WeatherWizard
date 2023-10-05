@@ -61,7 +61,7 @@ class MetNorwayHourlyForecastResponse(
                         (0).withNano(0).toString()),
                     temperature = TemperatureValueType(instantDetails.airTemperature, TemperatureUnit.Celsius),
                     feelsLikeTemperature = TemperatureValueType(weatherUtil.calcFeelsLikeTemperature(instantDetails.airTemperature,
-                        windSpeed.convertUnit( WindSpeedUnit.KilometerPerHour),
+                        windSpeed.convertUnit( WindSpeedUnit.KilometerPerHour).value,
                         instantDetails.relativeHumidity), TemperatureUnit.Celsius),
                     humidity = HumidityValueType(instantDetails.relativeHumidity.toInt(), PercentageUnit),
                     windDirection = WindDirectionValueType(instantDetails.windFromDirection.toInt(), WindDirectionUnit.Degree),
