@@ -31,6 +31,7 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -40,9 +41,12 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.FilterQuality
+import androidx.compose.ui.graphics.TileMode
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -267,7 +271,7 @@ fun WeatherInfoScreen(navController: NavController, navigationBarHeight: Dp, tar
                                     navigationIconContentColor = Color.White,
                                     actionIconContentColor = Color.White,
                                 ),
-                                modifier = Modifier.background(color = Color.Transparent),
+                                modifier = Modifier.background(brush = shardowBox()),
                                 windowInsets = WindowInsets(0.dp, 0.dp, 0.dp, 0.dp))
                         }) { innerPadding ->
 
@@ -425,3 +429,13 @@ private suspend fun load(
         weatherInfoViewModel.setArgsAndLoad()
     }
 }
+
+@Stable
+private fun shardowBox(
+): Brush = Brush.linearGradient(
+    0.0f to Color.Black.copy(alpha = 0.4f),
+    1.0f to Color.Transparent,
+    start = Offset(0.0f, 0f),
+    end = Offset(0.0f, Float.POSITIVE_INFINITY),
+    tileMode = TileMode.Clamp
+)

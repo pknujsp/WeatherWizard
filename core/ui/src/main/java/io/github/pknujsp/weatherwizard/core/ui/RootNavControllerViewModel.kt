@@ -12,18 +12,12 @@ import javax.inject.Inject
 class RootNavControllerViewModel @Inject constructor(
 ) : ViewModel() {
 
-    private val _requestedRoute = MutableSharedFlow<NewRoute>(replay = 0, extraBufferCapacity = 1)
-    val requestedRoute: SharedFlow<NewRoute> = _requestedRoute
+    private val _requestedRoute = MutableSharedFlow<MainRoutes>(replay = 0, extraBufferCapacity = 1)
+    val requestedRoute: SharedFlow<MainRoutes> = _requestedRoute
 
     fun navigate(route: MainRoutes) {
         viewModelScope.launch {
-            _requestedRoute.emit(NewRoute.Requested(route))
+            _requestedRoute.emit(route)
         }
     }
-}
-
-sealed interface NewRoute {
-    data object Initial : NewRoute
-
-    data class Requested(val route: MainRoutes) : NewRoute
 }

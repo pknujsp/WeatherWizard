@@ -34,7 +34,8 @@ class NominatimRepositoryImpl @Inject constructor(
                     state = feature.properties.address.state,
                     suburb = feature.properties.address.suburb,
                     placeId = feature.properties.placeId.toLong(),
-                    category = feature.properties.category
+                    category = feature.properties.category,
+                    osmType = feature.properties.osmType,
                 )
             }
             geoCodeCacheMap[query] = mapped

@@ -31,27 +31,23 @@ class SearchAreaViewModel @Inject constructor(
     private val _searchResult = MutableStateFlow<UiState<List<GeoCode>>>(UiState.Loading)
     val searchResult: StateFlow<UiState<List<GeoCode>>> = _searchResult
 
-    private val lastFavoriteAreaIdList = MutableStateFlow<List<Long>>(emptyList())
 
     private val _uiAction = MutableStateFlow<Action>(Action.Default)
     val uiAction: StateFlow<Action> = _uiAction
 
-    private val filters = arrayOf("place")
+    private val osmTypeFilters = arrayOf("node", "way", "relation")
+    private val countryCodeFilters = arrayOf("kr")
 
-    init {
-        viewModelScope.launch(Dispatchers.IO) {
-            lastFavoriteAreaIdList.value = favoriteAreaRepository.getAll().map {
-                it.placeId
-            }
-        }
-    }
 
     fun search(query: String) {
         viewModelScope.launch(Dispatchers.IO) {
+            _searchResult.value = UiState.Loading
             searchHistoryRepository.insert(query)
+            val addedIds = favoriteAreaRepository.getAll().map {
+                it.placeId
+            }
             nominatimRepository.geoCode(query).map { geoCodeEntities ->
-                val addedIds = lastFavoriteAreaIdList.value
-                geoCodeEntities.filterPlace().map { item ->
+                geoCodeEntities.filterTypes().map { item ->
                     GeoCode(placeId = item.placeId, displayName = item.simpleDisplayName, countryCode =
                     item.countryCode, country = item.country, latitude = item.latitude, longitude = item.longitude, isAdded = addedIds
                         .contains(item.placeId)
@@ -82,8 +78,8 @@ class SearchAreaViewModel @Inject constructor(
         }
     }
 
-    private fun List<GeoCodeEntity>.filterPlace(): List<GeoCodeEntity> = filter { it.category in filters }
-
+    private fun List<GeoCodeEntity>.filterTypes(): List<GeoCodeEntity> =
+        filter { it.osmType in osmTypeFilters }.filter { it.countryCode in countryCodeFilters }
 }
 
 @KBindFunc

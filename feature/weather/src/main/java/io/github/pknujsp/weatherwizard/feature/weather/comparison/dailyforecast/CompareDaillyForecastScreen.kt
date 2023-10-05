@@ -81,8 +81,8 @@ fun CompareDailyForecastScreen(args: RequestWeatherDataArgs, popBackStack: () ->
 }
 
 @Composable
-fun Content(compareDailyForecast: CompareDailyForecast) {
-    val itemModifier = Modifier.width(CompareDailyForecast.itemWidth)
+fun Content(compareDailyForecastInfo: CompareDailyForecastInfo) {
+    val itemModifier = Modifier.width(CompareDailyForecastInfo.itemWidth)
     val context = LocalContext.current
     val weatherDataProviderInfoHeight = 36.dp
     val weatherDataProviderInfoHeightPx = with(LocalDensity.current) {
@@ -103,15 +103,15 @@ fun Content(compareDailyForecast: CompareDailyForecast) {
                     .wrapContentHeight(),
                 state = rememberLazyListState(),
             ) {
-                items(count = compareDailyForecast.items.size, key = { it }) { i ->
+                items(count = compareDailyForecastInfo.items.size, key = { it }) { i ->
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.spacedBy(weatherDataProviderInfoHeight)
                     ) {
-                        Text(text = compareDailyForecast.dates[i],
+                        Text(text = compareDailyForecastInfo.dates[i],
                             style = TextStyle(fontSize = 13.sp, color = Color.White, textAlign = TextAlign.Center),
                             modifier = Modifier.height(dateTextHeight))
-                        compareDailyForecast.items[i].forEachIndexed { c, item ->
+                        compareDailyForecastInfo.items[i].forEachIndexed { c, item ->
                             Item(item, itemModifier) { conditions ->
                                 Toast.makeText(context, conditions.joinToString(",") { context.getString(it) }, Toast.LENGTH_SHORT).show()
                             }
@@ -119,14 +119,14 @@ fun Content(compareDailyForecast: CompareDailyForecast) {
                     }
                 }
             }
-            compareDailyForecast.weatherDataProviders.forEach {
+            compareDailyForecastInfo.weatherDataProviders.forEach {
                 WeatherDataProviderInfo(it, weatherDataProviderInfoHeight)
             }
         },
         modifier = Modifier.fillMaxWidth(),
     ) { measurables, constraints ->
         val placeables = measurables.map { it.measure(constraints) }
-        val providersCount = compareDailyForecast.weatherDataProviders.size
+        val providersCount = compareDailyForecastInfo.weatherDataProviders.size
         val height = placeables[0].height
 
         val forecastRowHeight =
@@ -155,7 +155,7 @@ private fun Item(
     item.run {
         Column(
             modifier = Modifier
-                .width(CompareDailyForecast.itemWidth)
+                .width(CompareDailyForecastInfo.itemWidth)
                 .clickable {
                     onClick(weatherConditions)
                 },

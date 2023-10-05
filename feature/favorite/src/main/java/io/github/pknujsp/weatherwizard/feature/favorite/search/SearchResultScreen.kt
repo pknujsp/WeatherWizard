@@ -1,5 +1,6 @@
 package io.github.pknujsp.weatherwizard.feature.favorite.search
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -17,23 +18,32 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation.NavController
 import io.github.pknujsp.weatherwizard.core.model.UiState
 import io.github.pknujsp.weatherwizard.core.model.nominatim.GeoCode
 import io.github.pknujsp.weatherwizard.core.model.onLoading
 import io.github.pknujsp.weatherwizard.core.model.onSuccess
+import io.github.pknujsp.weatherwizard.core.ui.list.EmptyListScreen
+import io.github.pknujsp.weatherwizard.core.ui.theme.CircularIndicatorColor
+import io.github.pknujsp.weatherwizard.core.ui.theme.CircularIndicatorTrackColor
 import io.github.pknujsp.weatherwizard.feature.favorite.R
 
 
 @Composable
-fun SearchResultScreen(navController: NavController, searchResult: UiState<List<GeoCode>>) {
+fun SearchResultScreen(searchResult: UiState<List<GeoCode>>, popBackStack: () -> Unit) {
+    BackHandler {
+        popBackStack()
+    }
     Box(modifier = Modifier.fillMaxSize()) {
         searchResult.onSuccess {
             Column(modifier = Modifier
                 .fillMaxWidth()
                 .verticalScroll(rememberScrollState())) {
-                it.forEach { geoCode ->
-                    SearchResultItem(geoCode)
+                if (it.isEmpty()) {
+                    EmptyListScreen(R.string.empty_search_result)
+                } else {
+                    it.forEach { geoCode ->
+                        SearchResultItem(geoCode)
+                    }
                 }
             }
         }.onLoading {
@@ -41,8 +51,8 @@ fun SearchResultScreen(navController: NavController, searchResult: UiState<List<
                 modifier = Modifier
                     .align(Alignment.Center)
                     .padding(24.dp),
-                color = Color.Black,
-                trackColor = Color(0xFFD9D9D9),
+                color = CircularIndicatorColor,
+                trackColor = CircularIndicatorTrackColor,
             )
         }
     }

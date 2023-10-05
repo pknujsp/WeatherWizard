@@ -24,10 +24,10 @@ class CompareDailyForecastViewModel @Inject constructor(
 ) : CompareForecastViewModel() {
 
     private val _dailyForecast =
-        MutableStateFlow<UiState<io.github.pknujsp.weatherwizard.feature.weather.comparison.dailyforecast.CompareDailyForecast>>(UiState
+        MutableStateFlow<UiState<io.github.pknujsp.weatherwizard.feature.weather.comparison.dailyforecast.CompareDailyForecastInfo>>(UiState
             .Loading)
 
-    val dailyForecast: StateFlow<UiState<io.github.pknujsp.weatherwizard.feature.weather.comparison.dailyforecast.CompareDailyForecast>> =
+    val dailyForecast: StateFlow<UiState<io.github.pknujsp.weatherwizard.feature.weather.comparison.dailyforecast.CompareDailyForecastInfo>> =
         _dailyForecast
 
     override fun load(args: RequestWeatherDataArgs) {
@@ -62,16 +62,17 @@ class CompareDailyForecastViewModel @Inject constructor(
 
                         provider to CompareDailyForecast(entity.items.subList(firstIndex, endIndex), units)
                     }
-                    _dailyForecast.value = UiState.Success(CompareDailyForecast(items, dates))
+                    _dailyForecast.value = UiState.Success(CompareDailyForecastInfo(items, dates))
                 }.onFailure {
                     _dailyForecast.value = UiState.Error(it)
                 }
             }
         }
     }
+
 }
 
-class CompareDailyForecast(
+class CompareDailyForecastInfo(
     items: List<Pair<WeatherDataProvider, CompareDailyForecast>>, val dates: Array<String>
 ) {
     val weatherDataProviders = items.map { it.first }.toTypedArray()

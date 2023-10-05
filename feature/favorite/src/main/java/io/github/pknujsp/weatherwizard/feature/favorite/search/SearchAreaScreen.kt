@@ -58,20 +58,22 @@ fun SearchAreaScreen(navController: NavController) {
         }
 
         var query by remember { mutableStateOf("" to 0L) }
-        var showSearchHistory by remember {
-            mutableStateOf(true)
-        }
+        var showSearchHistory by remember { mutableStateOf(true) }
 
         TitleTextWithNavigation(title = stringResource(id = io.github.pknujsp.weatherwizard.feature.favorite.R.string.add_new_area)) {
-            navController.popBackStack()
+            if (showSearchHistory) {
+                navController.popBackStack()
+            } else {
+                showSearchHistory = false
+            }
         }
         SearchBar(Modifier.padding(horizontal = 16.dp), query, onChangeQuery = {
             if (it.isEmpty()) {
                 showSearchHistory = true
             }
         }) {
-            searchAreaViewModel.search(it)
             showSearchHistory = false
+            searchAreaViewModel.search(it)
         }
 
         if (showSearchHistory) {
@@ -81,7 +83,9 @@ fun SearchAreaScreen(navController: NavController) {
                 showSearchHistory = false
             }
         } else {
-            SearchResultScreen(navController, searchResult)
+            SearchResultScreen(searchResult) {
+                showSearchHistory = true
+            }
         }
     }
 }

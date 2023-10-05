@@ -19,6 +19,9 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.InlineTextContent
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -33,7 +36,10 @@ import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.Placeholder
+import androidx.compose.ui.text.PlaceholderVerticalAlign
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -41,6 +47,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
+import io.github.pknujsp.weatherwizard.core.common.util.AStyle
+import io.github.pknujsp.weatherwizard.core.common.util.toAnnotated
 import io.github.pknujsp.weatherwizard.core.model.onLoading
 import io.github.pknujsp.weatherwizard.core.model.onSuccess
 import io.github.pknujsp.weatherwizard.core.model.weather.RequestWeatherDataArgs
@@ -48,6 +56,7 @@ import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherDataProv
 import io.github.pknujsp.weatherwizard.core.model.weather.hourlyforecast.CompareHourlyForecast
 import io.github.pknujsp.weatherwizard.core.ui.DynamicDateTime
 import io.github.pknujsp.weatherwizard.core.ui.TitleTextWithNavigation
+import io.github.pknujsp.weatherwizard.core.ui.TitleTextWithoutNavigation
 import io.github.pknujsp.weatherwizard.core.ui.lottie.CancellableLoadingScreen
 import io.github.pknujsp.weatherwizard.core.ui.theme.AppShapes
 import io.github.pknujsp.weatherwizard.feature.weather.R
@@ -66,7 +75,8 @@ fun CompareHourlyForecastScreen(args: RequestWeatherDataArgs, popBackStack: () -
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .navigationBarsPadding(),
+            .navigationBarsPadding()
+            .verticalScroll(rememberScrollState()),
     ) {
         TitleTextWithNavigation(title = stringResource(id = io.github.pknujsp.weatherwizard.core.common.R.string.title_comparison_hourly_forecast)) {
             popBackStack()
@@ -88,13 +98,15 @@ fun CompareHourlyForecastScreen(args: RequestWeatherDataArgs, popBackStack: () -
                 }
             }
         }
+        Spacer(modifier = Modifier.height(16.dp))
+        ReportScreen(viewModel)
     }
 }
 
 @Composable
-fun Content(compareForecast: CompareForecast, lazyListState: LazyListState) {
-    val itemsCount = compareForecast.items.size
-    val itemModifier = Modifier.width(CompareForecast.itemWidth)
+fun Content(compareHourlyForecastInfo: CompareHourlyForecastInfo, lazyListState: LazyListState) {
+    val itemsCount = compareHourlyForecastInfo.items.size
+    val itemModifier = Modifier.width(CompareHourlyForecastInfo.itemWidth)
     val context = LocalContext.current
     val weatherDataProviderInfoHeight = 36.dp
     val weatherDataProviderInfoHeightPx = with(LocalDensity.current) {
@@ -114,7 +126,7 @@ fun Content(compareForecast: CompareForecast, lazyListState: LazyListState) {
                     Column(
                         verticalArrangement = Arrangement.spacedBy(weatherDataProviderInfoHeight),
                     ) {
-                        compareForecast.items[i].forEach {
+                        compareHourlyForecastInfo.items[i].forEach {
                             Item(it, itemModifier) { weatherCondition ->
                                 Toast.makeText(context, weatherCondition, Toast.LENGTH_SHORT).show()
                             }
@@ -122,14 +134,14 @@ fun Content(compareForecast: CompareForecast, lazyListState: LazyListState) {
                     }
                 }
             }
-            compareForecast.weatherDataProviders.forEach {
+            compareHourlyForecastInfo.weatherDataProviders.forEach {
                 WeatherDataProviderInfo(it, weatherDataProviderInfoHeight)
             }
         },
         modifier = Modifier.fillMaxWidth(),
     ) { measurables, constraints ->
         val placeables = measurables.map { it.measure(constraints) }
-        val providersCount = compareForecast.weatherDataProviders.size
+        val providersCount = compareHourlyForecastInfo.weatherDataProviders.size
         val forecastRowHeight = (placeables[0].height - weatherDataProviderInfoHeightPx * (providersCount - 1)) / providersCount
         val height = placeables[0].height + weatherDataProviderInfoHeightPx
 
@@ -192,6 +204,53 @@ private fun Item(
                     .size(32.dp))
 
             Text(text = temperature, style = TextStyle(fontSize = 13.sp, color = Color.White))
+        }
+    }
+}
+
+@Composable
+private fun ReportScreen(hourlyForecastViewModel: CompareHourlyForecastViewModel) {
+    val report by hourlyForecastViewModel.report.collectAsStateWithLifecycle()
+    report.onSuccess { model ->
+        Column {
+            TitleTextWithoutNavigation(title = stringResource(id = R.string.title_comparison_report))
+            val dot = "•"
+            model.commonForecasts.forEach { entry ->
+                Column(
+                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
+                ) {
+                    val aStyle = listOf(AStyle(
+                        contentId = listOf("icon" to InlineTextContent(Placeholder(width = 26.sp,
+                            height = 22.sp,
+                            placeholderVerticalAlign = PlaceholderVerticalAlign.TextCenter)) {
+                            AsyncImage(model = ImageRequest.Builder(LocalContext.current)
+                                .data(entry.value.weatherConditionCategory.dayWeatherIcon)
+                                .crossfade(false).build(), contentDescription = null)
+                        }),
+                    ),
+                        AStyle(
+                            text = stringResource(id = entry.key.stringRes),
+                        ))
+
+                    Text(text = aStyle.toAnnotated(),
+                        style = TextStyle(fontSize = 19.sp, color = Color.Black, fontWeight = FontWeight.Bold),
+                        inlineContent = aStyle.first().inlineContents
+                    )
+                    val times = entry.value.timesWithIcon.let { list ->
+                        val lastIndex = list.lastIndex
+                        StringBuilder().apply {
+                            list.forEachIndexed { index, pair ->
+                                append("$dot ${pair.first}")
+                                if (index != lastIndex) {
+                                    append("\n")
+                                }
+                            }
+                        }.toString()
+                    }
+
+                    Text(text = times, style = TextStyle(fontSize = 15.sp, color = Color.Gray), lineHeight = 22.sp)
+                }
+            }
         }
     }
 }

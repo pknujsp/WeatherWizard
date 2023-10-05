@@ -1,6 +1,8 @@
 package io.github.pknujsp.weatherwizard.feature.airquality
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
@@ -11,6 +13,7 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
@@ -30,13 +33,15 @@ import io.github.pknujsp.weatherwizard.core.model.onError
 import io.github.pknujsp.weatherwizard.core.model.onLoading
 import io.github.pknujsp.weatherwizard.core.model.onSuccess
 import io.github.pknujsp.weatherwizard.core.model.weather.RequestWeatherDataArgs
+import io.github.pknujsp.weatherwizard.core.ui.theme.AppShapes
+import io.github.pknujsp.weatherwizard.core.ui.theme.outlineTextStyle
 import io.github.pknujsp.weatherwizard.core.ui.weather.item.CardInfo
 import io.github.pknujsp.weatherwizard.core.ui.weather.item.SimpleWeatherFailedBox
 import io.github.pknujsp.weatherwizard.core.ui.weather.item.SimpleWeatherScreenBackground
 
 
 @Composable
-fun AirQualityScreen(requestWeatherDataArgs : RequestWeatherDataArgs) {
+fun AirQualityScreen(requestWeatherDataArgs: RequestWeatherDataArgs) {
     val viewModel = hiltViewModel<AirQualityViewModel>()
     val airQuality by viewModel.airQuality.collectAsStateWithLifecycle()
 
@@ -48,7 +53,7 @@ fun AirQualityScreen(requestWeatherDataArgs : RequestWeatherDataArgs) {
         SimpleWeatherScreenBackground(CardInfo(title = stringResource(io.github.pknujsp.weatherwizard.core.model.R.string.air_quality_index),
             content = {
                 Column(
-                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalArrangement = Arrangement.spacedBy(16.dp),
                     modifier = Modifier
                         .fillMaxWidth()
                         .wrapContentHeight()
@@ -94,18 +99,37 @@ private fun ColumnScope.SimpleCurrent(simpleAirQuality: SimpleAirQuality) {
     FlowRow(maxItemsInEachRow = 3, verticalArrangement = Arrangement.Center, horizontalArrangement = Arrangement.Center,
         modifier = Modifier.fillMaxWidth()) {
         grids.forEach { (pollutant, value) ->
-            Text(
-                text = listOf(AStyle(text = "${pollutant}\n", span = SpanStyle(color = Color.White, fontSize = 13.sp)),
-                    AStyle(text = stringResource(value.airQualityDescription.descriptionStringId),
-                        span = SpanStyle(color = value.airQualityDescription.color,
-                            fontSize = 16.sp,
-                            fontWeight = FontWeight.Bold))).toAnnotated(),
+
+            Column(
                 modifier = Modifier
                     .weight(1f)
                     .padding(6.dp, 4.dp),
-                lineHeight = 24.sp,
-                textAlign = TextAlign.Center
-            )
+                verticalArrangement = Arrangement.spacedBy(6.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
+                Text(
+                    text = pollutant,
+                    fontSize = 13.sp,
+                    color = Color.White,
+                    textAlign = TextAlign.Center,
+                )
+                Box(
+                    modifier = Modifier
+                        .background(value.airQualityDescription.color, AppShapes.medium)
+                        .padding(4.dp),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Text(
+                        text = stringResource(value.airQualityDescription.descriptionStringId),
+                        fontSize = 15.sp,
+                        color = Color.White,
+                        textAlign = TextAlign.Center,
+                        style = outlineTextStyle
+                    )
+                }
+            }
+
+
         }
     }
 }

@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.LocationOn
 import androidx.compose.material.icons.rounded.MoreVert
@@ -29,7 +28,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
@@ -46,6 +44,7 @@ import io.github.pknujsp.weatherwizard.core.ui.MainRoutes
 import io.github.pknujsp.weatherwizard.core.ui.RootNavControllerViewModel
 import io.github.pknujsp.weatherwizard.core.ui.SecondaryButton
 import io.github.pknujsp.weatherwizard.core.ui.TitleTextWithoutNavigation
+import io.github.pknujsp.weatherwizard.core.ui.theme.AppShapes
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -98,8 +97,8 @@ private fun AreaItem(favoriteArea: FavoriteArea, checked: () -> Long, onClick: (
         Row(modifier = Modifier
             .fillMaxWidth()
             .wrapContentHeight()
-            .shadow(elevation = 2.dp, shape = RectangleShape)
-            .background(color = Color.White, shape = RectangleShape)
+            .shadow(elevation = 4.dp, shape = AppShapes.medium)
+            .background(color = Color.White, shape = AppShapes.medium)
             .padding(horizontal = 8.dp, vertical = 6.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween) {
@@ -129,8 +128,8 @@ private fun CurrentLocationItem(checked: () -> Long, onClick: () -> Unit) {
         Row(modifier = Modifier
             .fillMaxWidth()
             .wrapContentHeight()
-            .shadow(elevation = 2.dp, shape = RoundedCornerShape(8.dp))
-            .background(color = Color.White, shape = RoundedCornerShape(8.dp))
+            .shadow(elevation = 4.dp, shape = AppShapes.large)
+            .background(color = Color.White, shape = AppShapes.large)
             .padding(horizontal = 8.dp, vertical = 6.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween) {
