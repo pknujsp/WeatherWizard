@@ -43,18 +43,12 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.pknujsp.weatherwizard.core.model.onError
 import io.github.pknujsp.weatherwizard.core.model.onSuccess
 import io.github.pknujsp.weatherwizard.core.model.weather.RequestWeatherDataArgs
-import io.github.pknujsp.weatherwizard.core.ui.card.AnimatedBorderCard
-import io.github.pknujsp.weatherwizard.core.ui.theme.AppShapes
 import io.github.pknujsp.weatherwizard.core.ui.weather.item.CardInfo
 import io.github.pknujsp.weatherwizard.core.ui.weather.item.SimpleWeatherFailedBox
 import io.github.pknujsp.weatherwizard.core.ui.weather.item.SimpleWeatherScreenBackground
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory
-import org.osmdroid.tileprovider.tilesource.TileSourceFactory.DEFAULT_TILE_SOURCE
-import org.osmdroid.tileprovider.tilesource.TileSourceFactory.MAPNIK
 import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.Marker
@@ -62,14 +56,15 @@ import org.osmdroid.views.overlay.Marker
 private const val POI_MARKER_ID = "poi"
 
 @SuppressLint("ClickableViewAccessibility")
-@OptIn(ExperimentalComposeUiApi::class)
 @Composable
-private fun MapScreen(latitude: Double, longitude: Double, viewModel: RainViewerViewModel, simpleMapController: SimpleMapController) {
+private fun MapScreen(
+    latitude: Double, longitude: Double, tiles: RadarTilesOverlay, viewModel: RainViewerViewModel, simpleMapController:
+    SimpleMapController
+) {
     val radarScope = rememberCoroutineScope()
     AndroidView(modifier = Modifier.fillMaxSize(), factory = { context ->
+        MapInitializer(context)
         MapView(context).apply {
-            MapInitializer(context)
-
             clipToOutline = true
             setBackgroundResource(R.drawable.map_background)
             setTileSource(TileSourceFactory.MAPNIK)
@@ -98,21 +93,17 @@ private fun MapScreen(latitude: Double, longitude: Double, viewModel: RainViewer
     }, update = { mapView ->
         mapView.onResume()
         radarScope.launch {
-            viewModel.timePosition.combine(viewModel.radarTiles) { time, tiles -> time to tiles }.distinctUntilChanged()
-                .filter { (time, tiles) -> time != -1 }.collect { (time, tiles) ->
-                    tiles.onSuccess { radarTilesOverlay ->
-                        if (!(mapView.overlays.isNotEmpty() and mapView.overlays.contains(radarTilesOverlay.overlays[time].first))) {
-                            mapView.overlays.removeIf { it !is Marker }
-                            mapView.overlays.add(radarTilesOverlay.overlays[time].let {
-                                if (it.second.mView == null) it.second.mView = mapView
-                                it.first
-                            })
-                            mapView.invalidate()
-                        }
-                    }
+            viewModel.timePosition.filter { time -> time != -1 }.collect { time ->
+                if (!(mapView.overlays.isNotEmpty() and mapView.overlays.contains(tiles.overlays[time].first))) {
+                    mapView.overlays.removeIf { it !is Marker }
+                    mapView.overlays.add(tiles.overlays[time].let {
+                        if (it.second.mView == null) it.second.mView = mapView
+                        it.first
+                    })
+                    mapView.invalidate()
                 }
+            }
         }
-
     })
 
 }
@@ -131,45 +122,46 @@ private fun MapView.poiOnMap(latitude: Double, longitude: Double) {
 
 @Composable
 fun SimpleMapScreen(requestWeatherDataArgs: RequestWeatherDataArgs) {
-    SimpleWeatherScreenBackground(CardInfo(title = stringResource(id = R.string.radar)) {
-        Column(modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            val viewModel = hiltViewModel<RainViewerViewModel>()
-            val context = LocalContext.current
-            val tiles by viewModel.radarTiles.collectAsStateWithLifecycle()
+    val viewModel = hiltViewModel<RainViewerViewModel>()
+    val context = LocalContext.current
+    val tiles by viewModel.radarTiles.collectAsStateWithLifecycle()
 
-            LaunchedEffect(Unit) {
-                viewModel.load(context)
-            }
+    LaunchedEffect(Unit) {
+        viewModel.load(context)
+    }
 
-            tiles.onSuccess {
-                val radarAdapter = remember { RadarAdapter() }
+    tiles.onSuccess { tiles ->
+        SimpleWeatherScreenBackground(CardInfo(title = stringResource(id = R.string.radar)) {
+            Column(modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 val adapterScope = rememberCoroutineScope()
-                radarAdapter.setRadarController(adapterScope, viewModel)
-                var playing by remember { mutableStateOf(false) }
-
-                AnimatedBorderCard(animation = { playing }, shape = AppShapes.medium) {
-                    Box(modifier = Modifier
-                        .fillMaxWidth()
-                        .height(240.dp)) {
-                        val simpleMapController = remember { SimpleMapController() }
-
-                        MapScreen(requestWeatherDataArgs.latitude, requestWeatherDataArgs.longitude, viewModel, simpleMapController)
-                        MapControllerScreen(simpleMapController, iconSize = 32.dp, bottomSpace = 20.dp)
+                val radarAdapter = remember {
+                    RadarAdapter().apply {
+                        setRadarController(adapterScope, viewModel)
                     }
                 }
-                RadarControllerScreen(radarAdapter) {
-                    playing = it
+
+                Box(modifier = Modifier
+                    .fillMaxWidth()
+                    .height(240.dp)) {
+                    val simpleMapController = remember { SimpleMapController() }
+                    MapScreen(requestWeatherDataArgs.latitude, requestWeatherDataArgs.longitude, tiles, viewModel, simpleMapController)
+                    MapControllerScreen(simpleMapController, iconSize = 32.dp, bottomSpace = 20.dp)
                 }
-            }.onError {
-                SimpleWeatherFailedBox(title = stringResource(id = R.string.radar), description =
-                stringResource(id = R.string.failed_to_load_radar)) {
-                    viewModel.load(context)
+
+                RadarControllerScreen(radarAdapter) {
+
                 }
             }
+        })
+    }.onError {
+        SimpleWeatherFailedBox(title = stringResource(id = R.string.radar), description =
+        stringResource(id = R.string.failed_to_load_radar)) {
+            viewModel.load(context)
         }
-    })
+    }
+
 }
 
 @Composable

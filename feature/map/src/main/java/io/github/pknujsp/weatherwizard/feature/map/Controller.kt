@@ -1,5 +1,6 @@
 package io.github.pknujsp.weatherwizard.feature.map
 
+import androidx.compose.runtime.Stable
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -7,6 +8,7 @@ import kotlinx.coroutines.launch
 import org.osmdroid.api.IMapController
 import org.osmdroid.views.MapView
 
+@Stable
 class SimpleMapController {
     private var iMapController: IMapController? = null
     private val _time: MutableStateFlow<String> = MutableStateFlow("")
@@ -42,6 +44,7 @@ interface RadarController {
     fun currentRadar()
 }
 
+@Stable
 class RadarAdapter {
     private var radarController: RadarController? = null
 
@@ -53,7 +56,7 @@ class RadarAdapter {
 
     fun setRadarController(scope: CoroutineScope, radarController: RadarController) {
         this.radarController = radarController
-        scope.launch {
+        scope.apply {
             launch {
                 radarController.playing.collect {
                     _playing.value = it

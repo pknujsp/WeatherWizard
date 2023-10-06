@@ -46,6 +46,8 @@ class RainViewerViewModel @Inject constructor(
 
     fun load(context: Context) {
         viewModelScope.launch(Dispatchers.IO) {
+            _raderTiles.value = UiState.Loading
+
             radarTilesRepository.getTiles().onSuccess {
                 val radarTilesOverlay = RadarTilesOverlay(context = context,
                     radarTiles = it,
@@ -123,5 +125,12 @@ class RainViewerViewModel @Inject constructor(
             stop()
             _timePosition.emit((radarTiles.value as UiState.Success).data.currentIndex)
         }
+    }
+
+    override fun onCleared() {
+        radarTiles.value.onSuccess { radarTilesOverlay ->
+            radarTilesOverlay.overlays.forEach { it.second.destroy() }
+        }
+        super.onCleared()
     }
 }

@@ -46,6 +46,7 @@ class RadarTilesOverlay(
         radar.mapIndexed { index, it ->
             val handler = OverlayHandler()
             val tileSourceName = "RadarTiles_$index"
+
             val tileProvider = MapTileProviderBasic(context,
                 object : OnlineTileSourceBase(tileSourceName, minZoomLevel.toInt(), maxZoomLevel.toInt(), optionTileSize, "",
                     emptyArray()) {

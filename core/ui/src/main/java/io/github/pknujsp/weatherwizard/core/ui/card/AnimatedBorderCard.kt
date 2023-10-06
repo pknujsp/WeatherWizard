@@ -6,6 +6,7 @@ import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
@@ -43,18 +44,11 @@ fun AnimatedBorderCard(
         ),
         label = "Fastly Animating Infinite Colors"
     )
-    val slowDegrees by infiniteTransition.animateFloat(
-        initialValue = 0f,
-        targetValue = 360f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(durationMillis = 20000, easing = LinearEasing),
-            repeatMode = RepeatMode.Restart
-        ),
-        label = "Slowly Animating Infinite Colors"
-    )
+
 
     Surface(
         modifier = modifier
+            .background(color = Color.LightGray)
             .clip(shape),
         shape = shape
     ) {
@@ -63,12 +57,14 @@ fun AnimatedBorderCard(
                 .fillMaxWidth()
                 .padding(borderWidth)
                 .drawWithContent {
-                    rotate(degrees = if (animation()) fastDegrees else slowDegrees) {
-                        drawCircle(
-                            brush = gradient,
-                            radius = size.width,
-                            blendMode = BlendMode.SrcIn,
-                        )
+                    if (animation()) {
+                        rotate(degrees = fastDegrees) {
+                            drawCircle(
+                                brush = gradient,
+                                radius = size.width,
+                                blendMode = BlendMode.SrcIn,
+                            )
+                        }
                     }
                     drawContent()
                 },

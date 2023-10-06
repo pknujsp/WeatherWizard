@@ -63,6 +63,7 @@ import androidx.compose.ui.unit.sp
 import androidx.core.view.WindowCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
@@ -100,7 +101,8 @@ import io.github.pknujsp.weatherwizard.feature.weather.info.hourlyforecast.simpl
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun WeatherInfoScreen(navController: NavController, navigationBarHeight: Dp, targetAreaType: TargetAreaType) {
-    val weatherInfoViewModel: WeatherInfoViewModel = hiltViewModel()
+    val viewModelStoreOwner = checkNotNull(LocalViewModelStoreOwner.current)
+    val weatherInfoViewModel: WeatherInfoViewModel = hiltViewModel(viewModelStoreOwner)
     var nestedRoutes by rememberSaveable(saver = Saver(save = { it.value.route },
         restore = { mutableStateOf(NestedWeatherRoutes.getRoute(it)) })) {
         mutableStateOf(NestedWeatherRoutes.startDestination)
@@ -360,7 +362,7 @@ fun WeatherInfoScreen(navController: NavController, navigationBarHeight: Dp, tar
         is NestedWeatherRoutes.ComparisonHourlyForecast -> {
             args?.let {
                 windowInsetsController.isAppearanceLightNavigationBars = true
-                CompareHourlyForecastScreen(it) {
+                CompareHourlyForecastScreen(it, viewModelStoreOwner) {
                     nestedRoutes = NestedWeatherRoutes.Main
                 }
             }

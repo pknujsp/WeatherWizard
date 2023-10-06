@@ -4,6 +4,7 @@ import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -45,6 +46,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
@@ -64,11 +66,14 @@ import io.github.pknujsp.weatherwizard.feature.weather.R
 
 
 @Composable
-fun CompareHourlyForecastScreen(args: RequestWeatherDataArgs, popBackStack: () -> Unit) {
+fun CompareHourlyForecastScreen(
+    args: RequestWeatherDataArgs, viewModelStoreOwner: ViewModelStoreOwner, popBackStack: () -> Unit
+) {
     BackHandler {
         popBackStack()
     }
-    val viewModel: CompareHourlyForecastViewModel = hiltViewModel()
+    val viewModel: CompareHourlyForecastViewModel = hiltViewModel(viewModelStoreOwner)
+
     LaunchedEffect(Unit) {
         viewModel.load(args)
     }
@@ -215,46 +220,50 @@ private fun ReportScreen(hourlyForecastViewModel: CompareHourlyForecastViewModel
     report.onSuccess { model ->
         Column {
             TitleTextWithoutNavigation(title = stringResource(id = R.string.title_comparison_report))
-
-            model.commonForecasts.forEach { entry ->
-                Column(
-                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
-                    verticalArrangement = Arrangement.spacedBy(4.dp),
-                ) {
-                    val aStyle = listOf(AStyle(
-                        contentId = listOf("icon" to InlineTextContent(Placeholder(width = 26.sp,
-                            height = 24.sp,
-                            placeholderVerticalAlign = PlaceholderVerticalAlign.TextCenter)) {
-                            AsyncImage(model = ImageRequest.Builder(LocalContext.current)
-                                .data(entry.value.weatherConditionCategory.dayWeatherIcon)
-                                .crossfade(false).build(), contentDescription = null)
-                        }),
-                    ),
-                        AStyle(
-                            text = stringResource(id = entry.key.stringRes),
-                        ))
-
-
-                    Text(text = aStyle.toAnnotated(),
-                        style = TextStyle(fontSize = 19.sp, color = Color.Black, fontWeight = FontWeight.Bold),
-                        inlineContent = aStyle.first().inlineContents
-                    )
-
-                    val times = entry.value.times.map {
-                        listOf(
+            Row(
+                verticalAlignment = Alignment.Top,
+                horizontalArrangement = Arrangement.Start,
+                modifier = Modifier.horizontalScroll(rememberScrollState())
+            ) {
+                model.commonForecasts.forEach { entry ->
+                    Column(
+                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
+                        verticalArrangement = Arrangement.spacedBy(4.dp),
+                    ) {
+                        val aStyle = listOf(AStyle(
+                            contentId = listOf("icon" to InlineTextContent(Placeholder(width = 30.sp,
+                                height = 28.sp,
+                                placeholderVerticalAlign = PlaceholderVerticalAlign.Center)) {
+                                AsyncImage(model = ImageRequest.Builder(LocalContext.current)
+                                    .data(entry.value.weatherConditionCategory.dayWeatherIcon).crossfade(false).build(),
+                                    contentDescription = null)
+                            }),
+                        ),
                             AStyle(
-                                text = "${it.first}\n",
-                                span = SpanStyle(fontSize = 16.sp, color = Color.Black, fontWeight = FontWeight.Normal),
-                            ),
-                        ) + it.second.map { time ->
-                            AStyle(
-                                text = " ${time}\n",
-                                span = SpanStyle(fontSize = 15.sp, color = Color.Gray, fontWeight = FontWeight.Normal),
-                            )
-                        }
-                    }.flatten().toAnnotated()
+                                text = stringResource(id = entry.key.stringRes),
+                            ))
 
-                    Text(text = times)
+
+                        Text(text = aStyle.toAnnotated(),
+                            style = TextStyle(fontSize = 20.sp, color = Color.Black, fontWeight = FontWeight.Bold),
+                            inlineContent = aStyle.first().inlineContents)
+
+                        val times = entry.value.times.map {
+                            listOf(
+                                AStyle(
+                                    text = "${it.first}\n",
+                                    span = SpanStyle(fontSize = 16.sp, color = Color.Black, fontWeight = FontWeight.Normal),
+                                ),
+                            ) + it.second.map { time ->
+                                AStyle(
+                                    text = " ${time}\n",
+                                    span = SpanStyle(fontSize = 15.sp, color = Color.Gray, fontWeight = FontWeight.Normal),
+                                )
+                            }
+                        }.flatten().toAnnotated()
+
+                        Text(text = times)
+                    }
                 }
             }
         }

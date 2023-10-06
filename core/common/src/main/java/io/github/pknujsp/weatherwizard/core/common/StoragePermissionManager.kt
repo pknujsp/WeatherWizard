@@ -39,7 +39,6 @@ fun StoragePermissionManager(
 
     val permissions = remember {
         arrayOf(
-            Manifest.permission.WRITE_EXTERNAL_STORAGE,
             Manifest.permission.READ_EXTERNAL_STORAGE
         )
     }
@@ -51,7 +50,7 @@ fun StoragePermissionManager(
         if (result.all { it.value }) {
             permissionState[0]()
         } else {
-            if (ActivityCompat.shouldShowRequestPermissionRationale(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+            if (ActivityCompat.shouldShowRequestPermissionRationale(activity, Manifest.permission.READ_EXTERNAL_STORAGE)) {
                 permissionState[2]()
             } else {
                 if (requestPermission) {
@@ -68,7 +67,7 @@ fun StoragePermissionManager(
             if (any { it != PackageManager.PERMISSION_GRANTED }) {
                 if (ActivityCompat.shouldShowRequestPermissionRationale(
                         activity,
-                        Manifest.permission.WRITE_EXTERNAL_STORAGE
+                        Manifest.permission.READ_EXTERNAL_STORAGE,
                     )
                 ) {
                     permissionState[2]()
