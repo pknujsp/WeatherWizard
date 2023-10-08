@@ -100,7 +100,7 @@ import io.github.pknujsp.weatherwizard.feature.weather.info.hourlyforecast.simpl
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun WeatherInfoScreen(navController: NavController, navigationBarHeight: Dp, targetAreaType: TargetAreaType) {
+fun WeatherInfoScreen(navController: NavController, targetAreaType: TargetAreaType) {
     val viewModelStoreOwner = checkNotNull(LocalViewModelStoreOwner.current)
     val weatherInfoViewModel: WeatherInfoViewModel = hiltViewModel(viewModelStoreOwner)
     var nestedRoutes by rememberSaveable(saver = Saver(save = { it.value.route },
@@ -122,8 +122,8 @@ fun WeatherInfoScreen(navController: NavController, navigationBarHeight: Dp, tar
     var openLocationSettings by remember { mutableStateOf(false) }
     var onClickedWeatherProviderButton by remember { mutableStateOf(false) }
     var showLocationLoadingDialog by remember { mutableStateOf(false) }
-    val window = (LocalContext.current as Activity).window
 
+    val window = (LocalContext.current as Activity).window
     val windowInsetsController = remember { WindowCompat.getInsetsController(window, window.decorView) }
 
     DisposableEffect(Unit) {
@@ -142,198 +142,7 @@ fun WeatherInfoScreen(navController: NavController, navigationBarHeight: Dp, tar
     when (nestedRoutes) {
         is NestedWeatherRoutes.Main -> {
             windowInsetsController.isAppearanceLightNavigationBars = false
-
-            Box {
-                AsyncImage(
-                    modifier = Modifier.fillMaxSize(),
-                    contentScale = ContentScale.Crop,
-                    alignment = Alignment.Center,
-                    model = ImageRequest.Builder(LocalContext.current).run {
-                        crossfade(200)
-                        if (backgroundImageUrl.isEmpty()) data(io.github.pknujsp.weatherwizard.core.common.R.drawable.bg_grad)
-                        else data(backgroundImageUrl)
-                        build()
-                    },
-                    contentDescription = stringResource(R.string.background_image),
-                    filterQuality = FilterQuality.High,
-                )
-
-                processState.onRunning {
-                    NonCancellableLoadingScreen(stringResource(id = io.github.pknujsp.weatherwizard.core.common.R.string.loading_weather_data)) {
-
-                    }
-                }.onSucceed {
-                    Scaffold(modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
-                        containerColor = Color.Black.copy(alpha = 0.17f),
-                        topBar = {
-                            CustomTopAppBar(smallTitle = {
-                                Column(horizontalAlignment = Alignment.Start, verticalArrangement = Arrangement.Center) {
-                                    headInfo.onSuccess {
-                                        Row(verticalAlignment = Alignment.CenterVertically) {
-                                            Icon(imageVector = Icons.Rounded.Place,
-                                                contentDescription = null,
-                                                tint = Color.White,
-                                                modifier = Modifier
-                                                    .size(14.dp)
-                                                    .padding(end = 4.dp))
-                                            Text(
-                                                text = it.displayName,
-                                                color = Color.White,
-                                                fontSize = 14.sp,
-                                                style = LocalTextStyle.current.merge(notIncludeTextPaddingStyle).merge(outlineTextStyle),
-                                            )
-                                        }
-                                        Text(
-                                            text = it.requestDateTime,
-                                            fontSize = TextUnit(11f, TextUnitType.Sp),
-                                            color = Color.White,
-                                            style = LocalTextStyle.current.merge(notIncludeTextPaddingStyle).merge(outlineTextStyle),
-                                        )
-                                    }
-                                }
-                            },
-                                bigTitle = {
-                                    Column(
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .padding(end = 60.dp),
-                                    ) {
-                                        headInfo.onSuccess { it ->
-                                            Text(
-                                                text = listOf(
-                                                    AStyle(
-                                                        "${it.country}\n",
-                                                        span = SpanStyle(
-                                                            fontSize = TextUnit(18f, TextUnitType.Sp),
-                                                        ),
-                                                    ),
-                                                    AStyle(it.displayName, span = SpanStyle(fontSize = TextUnit(24f, TextUnitType.Sp))),
-                                                ).toAnnotated(),
-                                                textAlign = TextAlign.Start,
-                                                fontWeight = FontWeight.Bold,
-                                                color = Color.White,
-                                                lineHeight = 28.sp,
-                                                style = LocalTextStyle.current.merge(outlineTextStyle),
-                                            )
-                                            Spacer(modifier = Modifier.height(4.dp))
-                                            Row(
-                                                horizontalArrangement = Arrangement.Start,
-                                                verticalAlignment = Alignment.CenterVertically,
-                                            ) {
-                                                AsyncImage(
-                                                    model = ImageRequest.Builder(LocalContext.current)
-                                                        .data(io.github.pknujsp.weatherwizard.core.common.R.drawable.ic_time)
-                                                        .crossfade(false).build(),
-                                                    contentDescription = stringResource(id = io.github.pknujsp.weatherwizard.core.model.R.string.weather_info_head_info_update_time),
-                                                    colorFilter = ColorFilter.tint(Color.White),
-                                                    modifier = Modifier.size(16.dp),
-                                                )
-                                                Spacer(modifier = Modifier.width(4.dp))
-                                                Text(
-                                                    text = it.requestDateTime,
-                                                    fontSize = 14.sp,
-                                                    color = Color.White, style = LocalTextStyle.current.merge(outlineTextStyle),
-                                                )
-                                            }
-                                            Row(horizontalArrangement = Arrangement.Start,
-                                                verticalAlignment = Alignment.CenterVertically,
-                                                modifier = Modifier.clickable {
-                                                    onClickedWeatherProviderButton = true
-                                                }) {
-                                                args?.let { args ->
-                                                    AsyncImage(
-                                                        model = ImageRequest.Builder(LocalContext.current)
-                                                            .data(args.weatherDataProvider.logo).crossfade(false).build(),
-                                                        contentDescription = stringResource(id = R.string.weather_provider),
-                                                        modifier = Modifier.size(16.dp),
-                                                    )
-                                                    Spacer(modifier = Modifier.width(4.dp))
-                                                    Text(
-                                                        text = stringResource(id = args.weatherDataProvider.name),
-                                                        fontSize = 14.sp,
-                                                        color = Color.White,
-                                                        style = LocalTextStyle.current.merge(outlineTextStyle),
-                                                    )
-                                                }
-                                            }
-                                        }
-                                    }
-                                },
-                                actions = {
-                                    IconButton(onClick = { reload++ }) {
-                                        Icon(painter = painterResource(id = io.github.pknujsp.weatherwizard.core.common.R.drawable.ic_refresh),
-                                            contentDescription = null)
-                                    }
-                                },
-                                scrollBehavior = scrollBehavior,
-                                colors = CustomTopAppBarColors(
-                                    containerColor = Color.Transparent,
-                                    scrolledContainerColor = Color.Transparent,
-                                    titleContentColor = Color.White,
-                                    navigationIconContentColor = Color.White,
-                                    actionIconContentColor = Color.White,
-                                ),
-                                modifier = Modifier.background(brush = shardowBox()),
-                                windowInsets = WindowInsets(0.dp, 0.dp, 0.dp, 0.dp))
-                        }) { innerPadding ->
-
-                        Column(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .padding(horizontal = 12.dp)
-                                .verticalScroll(scrollState),
-                            verticalArrangement = Arrangement.spacedBy(20.dp),
-                        ) {
-                            args?.let { args ->
-                                Spacer(modifier = Modifier.height(innerPadding.calculateTopPadding()))
-                                CurrentWeatherScreen(weatherInfoViewModel)
-                                HourlyForecastScreen(weatherInfoViewModel) {
-                                    nestedRoutes = it
-                                }
-                                SimpleDailyForecastScreen(weatherInfoViewModel, navigate = {
-                                    nestedRoutes = it
-                                })
-                                SimpleMapScreen(args)
-                                AirQualityScreen(args)
-                                SimpleSunSetRiseScreen(args)
-                                FlickrImageItemScreen(weatherInfoViewModel.flickrRequestParameter) {
-                                    backgroundImageUrl = it
-                                }
-                                Spacer(modifier = Modifier.height(innerPadding.calculateBottomPadding()))
-                            }
-
-                        }
-                    }
-                }
-
-            }
-
-            if (!enabledLocation) {
-                UnavailableFeatureScreen(title = io.github.pknujsp.weatherwizard.core.common.R.string.title_location_is_disabled,
-                    unavailableFeature = UnavailableFeature.LOCATION_SERVICE_DISABLED) {
-                    openLocationSettings = true
-                }
-                if (openLocationSettings) {
-                    gpsLocationManager.OpenSettingsForLocation {
-                        reload++
-                        openLocationSettings = false
-                    }
-                }
-            }
-
-            if (onClickedWeatherProviderButton) {
-                args?.run {
-                    WeatherProviderDialog(navigationBarHeight, weatherDataProvider) {
-                        onClickedWeatherProviderButton = false
-                        it?.let {
-                            if (weatherDataProvider != it) {
-                                weatherInfoViewModel.updateWeatherDataProvider(it)
-                                reload++
-                            }
-                        }
-                    }
-                }
-            }
+            WeatherContentScreen()
         }
 
         is NestedWeatherRoutes.DetailHourlyForecast -> {
@@ -372,7 +181,7 @@ fun WeatherInfoScreen(navController: NavController, navigationBarHeight: Dp, tar
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun WeatherProviderDialog(navigationBarHeight: Dp, currentProvider: WeatherDataProvider, onClick: (WeatherDataProvider?) -> Unit) {
+private fun WeatherProviderDialog(currentProvider: WeatherDataProvider, onClick: (WeatherDataProvider?) -> Unit) {
     BottomSheet(
         onDismissRequest = {
             onClick(null)
@@ -435,7 +244,7 @@ private suspend fun load(
 @Stable
 private fun shardowBox(
 ): Brush = Brush.linearGradient(
-    0.0f to Color.Black.copy(alpha = 0.4f),
+    0.0f to Color.Black.copy(alpha = 0.5f),
     1.0f to Color.Transparent,
     start = Offset(0.0f, 0f),
     end = Offset(0.0f, Float.POSITIVE_INFINITY),

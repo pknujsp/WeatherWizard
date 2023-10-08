@@ -2,11 +2,14 @@ package io.github.pknujsp.weatherwizard
 
 import android.app.Application
 import dagger.hilt.android.HiltAndroidApp
+import io.github.pknujsp.weatherwizard.feature.map.MapInitializer
 
 @HiltAndroidApp
 class Application : Application() {
     override fun onCreate() {
         super.onCreate()
+        MapInitializer.initialize(applicationContext)
+
         /*
         SoLoader.init(this, false)
 

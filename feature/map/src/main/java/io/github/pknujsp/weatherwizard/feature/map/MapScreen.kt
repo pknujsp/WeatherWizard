@@ -63,7 +63,6 @@ private fun MapScreen(
 ) {
     val radarScope = rememberCoroutineScope()
     AndroidView(modifier = Modifier.fillMaxSize(), factory = { context ->
-        MapInitializer(context)
         MapView(context).apply {
             clipToOutline = true
             setBackgroundResource(R.drawable.map_background)

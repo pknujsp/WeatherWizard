@@ -1,31 +1,28 @@
 package io.github.pknujsp.weatherwizard.feature.map
 
 import android.content.Context
-import android.os.Environment
-import android.os.StrictMode
+import androidx.preference.PreferenceManager
 import org.osmdroid.config.Configuration
-import java.io.File
 
 
-class MapInitializer(context: Context) {
+class MapInitializer {
 
-    private companion object {
-        var initialized = false
-    }
+    companion object {
+        private var initialized = false
 
-    init {
-        if (!initialized) {
-            initialized = true
-            Configuration.getInstance().run {
-                userAgentValue = context.packageName
-                animationSpeedShort = 200
-                animationSpeedDefault = 200
-                cacheMapTileOvershoot = (12).toShort()
-                cacheMapTileCount = (12).toShort()
-
-                val policy = StrictMode.ThreadPolicy.Builder().permitAll().build()
-                StrictMode.setThreadPolicy(policy)
+        fun initialize(context: Context) {
+            if (!initialized) {
+                initialized = true
+                Configuration.getInstance().load(context, PreferenceManager.getDefaultSharedPreferences(context))
+                Configuration.getInstance().apply {
+                    animationSpeedShort = 200
+                    animationSpeedDefault = 200
+                    cacheMapTileOvershoot = (12).toShort()
+                    cacheMapTileCount = (12).toShort()
+                    isMapViewHardwareAccelerated = true
+                }
             }
         }
     }
+
 }
