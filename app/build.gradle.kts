@@ -51,6 +51,7 @@ dependencies {
     implementation(project(":core:ui"))
     implementation(project(":core:common"))
     implementation(project(":core:model"))
+    implementation(project(":core:data"))
     implementation(project(":feature:main"))
     implementation(project(":feature:map"))
     implementation(libs.androidx.activity.compose)

@@ -273,6 +273,7 @@ test-local = ["junit", "mockito-core", "mockito-kotlin", "kotlinx-coroutines-tes
 test-android = ["androidx-test-espresso-core", "androidx-test-runner", "androidx-test-rules", "androidx-test-ext-truth",
     "androidx-test-core", "androidx-test-core-ktx", "androidx-test-ext-junit", "androidx-test-ext-junit-ktx", "androidx-test-arch-core", "google-dagger-hilt-testing"]
 
+workmanager = ["androidx-work-ktx"]
 
 # ------------------------------------------------------------------------------------------------------------------------
 [plugins]
