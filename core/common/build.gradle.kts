@@ -13,6 +13,7 @@ dependencies {
     implementation(libs.androidx.appcompat)
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.compose.ui)
+    implementation(libs.androidx.compose.foundation)
     implementation(libs.sunrisesunsetcalculator)
     implementation(libs.android.gms.play.services.location)
 }

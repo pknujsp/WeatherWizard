@@ -2,5 +2,6 @@
 <resources>
     <string name="background_image">배경 사진</string>
     <string name="weather_provider">날씨 제공사</string>
+    <string name="title_comparison_report">공통되는 예보</string>
 
 </resources>

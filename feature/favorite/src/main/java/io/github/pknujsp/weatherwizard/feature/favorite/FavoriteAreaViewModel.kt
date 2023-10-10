@@ -9,6 +9,7 @@ import io.github.pknujsp.weatherwizard.core.model.UiState
 import io.github.pknujsp.weatherwizard.core.model.favorite.FavoriteArea
 import io.github.pknujsp.weatherwizard.core.model.favorite.TargetAreaType
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -44,6 +45,12 @@ class FavoriteAreaViewModel @Inject constructor(
     fun updateTargetArea(targetAreaType: TargetAreaType) {
         viewModelScope.launch(Dispatchers.IO) {
             targetAreaRepository.updateTargetArea(targetAreaType)
+            val previousTargetArea = targetArea.value
+
+            while (true) {
+                delay(50)
+                if (targetAreaRepository.getTargetArea() == targetAreaType) break
+            }
             _targetArea.value = targetAreaType
         }
     }

@@ -14,4 +14,5 @@ dependencies {
     implementation(project(":core:network"))
     implementation(project(":core:common"))
     implementation(project(":core:model"))
+    implementation(libs.bundles.workmanager)
 }

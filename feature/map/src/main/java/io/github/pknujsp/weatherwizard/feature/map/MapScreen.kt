@@ -1,15 +1,7 @@
 package io.github.pknujsp.weatherwizard.feature.map
 
 import android.annotation.SuppressLint
-import android.content.res.ColorStateList
-import androidx.compose.animation.core.LinearEasing
-import androidx.compose.animation.core.RepeatMode
-import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.rememberInfiniteTransition
-import androidx.compose.animation.core.tween
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
+import android.graphics.drawable.BitmapDrawable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
@@ -34,12 +26,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.rotate
-import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
@@ -47,18 +36,19 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.res.ResourcesCompat
+import androidx.core.graphics.drawable.toBitmap
+import androidx.core.graphics.scale
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import io.github.pknujsp.weatherwizard.core.model.onError
 import io.github.pknujsp.weatherwizard.core.model.onSuccess
 import io.github.pknujsp.weatherwizard.core.model.weather.RequestWeatherDataArgs
 import io.github.pknujsp.weatherwizard.core.ui.weather.item.CardInfo
+import io.github.pknujsp.weatherwizard.core.ui.weather.item.SimpleWeatherFailedBox
 import io.github.pknujsp.weatherwizard.core.ui.weather.item.SimpleWeatherScreenBackground
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
-import org.osmdroid.config.Configuration
-import org.osmdroid.tileprovider.tilesource.TileSourceFactory.MAPNIK
+import org.osmdroid.tileprovider.tilesource.TileSourceFactory
 import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.Marker
@@ -66,26 +56,17 @@ import org.osmdroid.views.overlay.Marker
 private const val POI_MARKER_ID = "poi"
 
 @SuppressLint("ClickableViewAccessibility")
-@OptIn(ExperimentalComposeUiApi::class)
 @Composable
-private fun MapScreen(latitude: Double, longitude: Double, radarAdapter: RadarAdapter, simpleMapController: SimpleMapController) {
-    val viewModel = hiltViewModel<RainViewerViewModel>()
+private fun MapScreen(
+    latitude: Double, longitude: Double, tiles: RadarTilesOverlay, viewModel: RainViewerViewModel, simpleMapController:
+    SimpleMapController
+) {
     val radarScope = rememberCoroutineScope()
-    val adapterScope = rememberCoroutineScope()
-
     AndroidView(modifier = Modifier.fillMaxSize(), factory = { context ->
-        Configuration.getInstance().run {
-            userAgentValue = context.packageName
-            animationSpeedShort = 200
-            animationSpeedDefault = 200
-            cacheMapTileOvershoot = (12).toShort()
-            cacheMapTileCount = (12).toShort()
-        }
-
         MapView(context).apply {
             clipToOutline = true
             setBackgroundResource(R.drawable.map_background)
-            setTileSource(MAPNIK)
+            setTileSource(TileSourceFactory.MAPNIK)
 
             tileProvider.tileCache.setStressedMemory(true)
             tileProvider.tileCache.ensureCapacity(100)
@@ -104,69 +85,87 @@ private fun MapScreen(latitude: Double, longitude: Double, radarAdapter: RadarAd
                 false
             }
 
-            radarAdapter.setRadarController(adapterScope, viewModel)
-            poiOnMap(latitude, longitude)
+            poiOnMap(latitude, longitude,18.dp)
             controller.animateTo(GeoPoint(latitude, longitude), 6.0, 0)
             simpleMapController.init(this)
         }
     }, update = { mapView ->
         mapView.onResume()
         radarScope.launch {
-            viewModel.timePosition.combine(viewModel.radarTiles) { time, tiles -> time to tiles }.distinctUntilChanged()
-                .filter { (time, tiles) -> time != -1 }.collect { (time, tiles) ->
-                    tiles.onSuccess { radarTilesOverlay ->
-                        if (!(mapView.overlays.isNotEmpty() and mapView.overlays.contains(radarTilesOverlay.overlays[time].first))) {
-                            mapView.overlays.removeIf { it !is Marker }
-                            mapView.overlays.add(radarTilesOverlay.overlays[time].let {
-                                if (it.second.mView == null) it.second.mView = mapView
-                                it.first
-                            })
-                            mapView.invalidate()
-                        }
-                    }
+            viewModel.timePosition.filter { time -> time != -1 }.collect { time ->
+                if (!(mapView.overlays.isNotEmpty() and mapView.overlays.contains(tiles.overlays[time].first))) {
+                    mapView.overlays.removeIf { it !is Marker }
+                    mapView.overlays.add(tiles.overlays[time].let {
+                        if (it.second.mView == null) it.second.mView = mapView
+                        it.first
+                    })
+                    mapView.invalidate()
                 }
+            }
         }
-
     })
 
 }
 
-private fun MapView.poiOnMap(latitude: Double, longitude: Double) {
+private fun MapView.poiOnMap(latitude: Double, longitude: Double, iconSize: Dp) {
     Marker(this).apply {
         id = POI_MARKER_ID
         position = GeoPoint(latitude, longitude)
-        setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
-        icon = ResourcesCompat.getDrawable(resources, io.github.pknujsp.weatherwizard.core.common.R.drawable.poi_on_map, null)!!.also {
-            it.setTintList(ColorStateList.valueOf(Color.Blue.toArgb()))
-        }
+        setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_CENTER)
+        icon = ResourcesCompat.getDrawable(resources, io.github.pknujsp.weatherwizard.core.common.R.drawable.ic_my_location, null)!!
+            .toBitmap().scale(iconSize.value.toInt(), iconSize.value.toInt(), true).run {
+                BitmapDrawable(resources, this)
+            }
         overlays.add(this)
     }
 }
 
 @Composable
 fun SimpleMapScreen(requestWeatherDataArgs: RequestWeatherDataArgs) {
-    SimpleWeatherScreenBackground(CardInfo(title = "기상 레이더") {
-        Column(modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            val radarAdapter = remember { RadarAdapter() }
+    val viewModel = hiltViewModel<RainViewerViewModel>()
+    val context = LocalContext.current
+    val tiles by viewModel.radarTiles.collectAsStateWithLifecycle()
 
-            Box(modifier = Modifier
+    LaunchedEffect(Unit) {
+        viewModel.load(context)
+    }
+
+    tiles.onSuccess { tiles ->
+        SimpleWeatherScreenBackground(CardInfo(title = stringResource(id = R.string.radar)) {
+            Column(modifier = Modifier
                 .fillMaxWidth()
-                .height(240.dp)) {
+                .padding(horizontal = 12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                val adapterScope = rememberCoroutineScope()
+                val radarAdapter = remember {
+                    RadarAdapter().apply {
+                        setRadarController(adapterScope, viewModel)
+                    }
+                }
 
-                val simpleMapController = remember { SimpleMapController() }
+                Box(modifier = Modifier
+                    .fillMaxWidth()
+                    .height(240.dp)) {
+                    val simpleMapController = remember { SimpleMapController() }
+                    MapScreen(requestWeatherDataArgs.latitude, requestWeatherDataArgs.longitude, tiles, viewModel, simpleMapController)
+                    MapControllerScreen(simpleMapController, iconSize = 32.dp, bottomSpace = 20.dp)
+                }
 
-                MapScreen(requestWeatherDataArgs.latitude, requestWeatherDataArgs.longitude, radarAdapter, simpleMapController)
-                MapControllerScreen(simpleMapController, iconSize = 32.dp, bottomSpace = 24.dp)
+                RadarControllerScreen(radarAdapter) {
+
+                }
             }
-            RadarControllerScreen(radarAdapter)
+        })
+    }.onError {
+        SimpleWeatherFailedBox(title = stringResource(id = R.string.radar), description =
+        stringResource(id = R.string.failed_to_load_radar)) {
+            viewModel.load(context)
         }
-    })
+    }
+
 }
 
 @Composable
-private fun RadarControllerScreen(radarAdapter: RadarAdapter) {
+private fun RadarControllerScreen(radarAdapter: RadarAdapter, onChangedPlay: (Boolean) -> Unit) {
     Row(horizontalArrangement = Arrangement.spacedBy(8.dp),
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
@@ -192,26 +191,12 @@ private fun RadarControllerScreen(radarAdapter: RadarAdapter) {
             val playing by radarAdapter.playing.collectAsStateWithLifecycle()
 
             LaunchedEffect(playing) {
-                playIcon = (if (playing) io.github.pknujsp.weatherwizard.core.common.R.drawable.ic_pause else
-                    io.github.pknujsp.weatherwizard.core.common.R.drawable.ic_play) to playing
+                onChangedPlay(playing)
+                playIcon =
+                    (if (playing) io.github.pknujsp.weatherwizard.core.common.R.drawable.ic_pause else io.github.pknujsp.weatherwizard.core.common.R.drawable.ic_play) to playing
             }
 
             Icon(painter = painterResource(playIcon.first), contentDescription = stringResource(id = R.string.play_all_radars))
-            if (playIcon.second) {
-                val infiniteTransition = rememberInfiniteTransition("PlayingButton")
-                val angle by infiniteTransition.animateFloat(initialValue = 0f,
-                    targetValue = 360f,
-                    animationSpec = infiniteRepeatable(animation = tween(2000, easing = LinearEasing), repeatMode = RepeatMode.Restart),
-                    label = "PlayingButton")
-
-                Image(painter = painterResource(R.drawable.round_loading_circle_orange),
-                    contentDescription = stringResource(id = R.string.play_all_radars),
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .rotate(angle)
-                        .scale(1.5f)
-                        .background(Color.Transparent))
-            }
         }
 
         Text(text = time, color = Color.White, fontSize = 13.sp, modifier = Modifier.weight(1f))

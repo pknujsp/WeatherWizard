@@ -390,15 +390,9 @@ class KmaHtmlParser @Inject constructor() {
         val firstDateTimeOfDaily = ZonedDateTime.parse(dailyForecasts[0].date)
         val krZoneId = firstDateTimeOfDaily.zone
 
-        var criteriaDateTime = ZonedDateTime.now(krZoneId)
-        criteriaDateTime = criteriaDateTime.withHour(23)
-        criteriaDateTime = criteriaDateTime.withMinute(59)
-        var beginIdx = 0
+        val criteriaDateTime = ZonedDateTime.now(krZoneId).withHour(23).withMinute(59)
+        var beginIdx = hourlyForecasts.indexOfFirst { criteriaDateTime.isBefore(ZonedDateTime.parse(it.dateTime)) }
 
-        while (beginIdx < hourlyForecasts.size) {
-            if (criteriaDateTime.isBefore(ZonedDateTime.parse(hourlyForecasts[beginIdx].dateTime))) break
-            beginIdx++
-        }
         var minTemp = Double.MAX_VALUE
         var maxTemp = Double.MIN_VALUE
         var hours: Int
@@ -418,6 +412,7 @@ class KmaHtmlParser @Inject constructor() {
                     break
                 }
             }
+
             hours = hourlyForecastItemDateTime.hour
             if (hours == 0 && minTemp != Double.MAX_VALUE) {
                 dateTime = ZonedDateTime.of(

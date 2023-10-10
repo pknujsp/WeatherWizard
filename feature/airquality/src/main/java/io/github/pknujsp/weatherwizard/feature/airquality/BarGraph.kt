@@ -1,8 +1,7 @@
 package io.github.pknujsp.weatherwizard.feature.airquality
 
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.gestures.Orientation
-import androidx.compose.foundation.gestures.scrollable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -24,6 +23,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.drawText
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import io.github.pknujsp.weatherwizard.core.model.airquality.SimpleAirQuality
@@ -38,7 +38,7 @@ fun BarGraph(forecast: List<SimpleAirQuality.DailyItem>) {
             .fillMaxWidth()
             .graphicsLayer(clip = false)
             .wrapContentHeight()
-            .scrollable(rememberScrollState(), orientation = Orientation.Horizontal),
+            .horizontalScroll(rememberScrollState()),
     ) {
         val dateTimeFormatter = DateTimeFormatter.ofPattern("M.d\nE")
         val today = LocalDate.now()
@@ -91,14 +91,15 @@ private fun Bar(
                 color = barGraphTheme.indexTextStyle.color)
         }
 
-        Text(text = if (item.dateTime.isEqual(today)) stringResource(id = io.github.pknujsp.weatherwizard.core.common.R.string.today)
+        val isToday = item.dateTime.isEqual(today)
+        Text(text = if (isToday) stringResource(id = io.github.pknujsp.weatherwizard.core.common.R.string.today)
         else item.dateTime.format(dateTimeFormatter),
             fontSize = barGraphTheme.dateTextStyle.fontSize,
             color = barGraphTheme.dateTextStyle.color,
             lineHeight = barGraphTheme.dateTextStyle.fontSize,
             maxLines = 2,
             overflow = TextOverflow.Visible,
-            softWrap = true,
+            textDecoration = if (isToday)  TextDecoration.Underline else null,
             textAlign = TextAlign.Center)
     }
 

@@ -31,6 +31,7 @@ import androidx.compose.material3.SheetValue.Expanded
 import androidx.compose.material3.SheetValue.Hidden
 import androidx.compose.material3.Surface
 import androidx.compose.material3.contentColorFor
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionContext
 import androidx.compose.runtime.DisposableEffect
@@ -102,7 +103,7 @@ fun BottomSheet(
         onDismissRequest = {
             if (sheetState.currentValue == Expanded && sheetState.hasPartiallyExpandedState) {
                 scope.launch { sheetState.partialExpand() }
-            } else { // Is expanded without collapsed state or is collapsed.
+            } else {
                 scope.launch { sheetState.hide() }.invokeOnCompletion { onDismissRequest() }
             }
         },
@@ -114,6 +115,7 @@ fun BottomSheet(
                 color = scrimColor,
                 onDismissRequest = animateToDismiss,
             )
+
             Surface(
                 modifier = modifier
                     .padding(
@@ -134,11 +136,6 @@ fun BottomSheet(
             }
         }
     }
-    if (sheetState.hasExpandedState) {
-        LaunchedEffect(sheetState) {
-            sheetState.show()
-        }
-    }
 
     val window = (LocalContext.current as Activity).window
     DisposableEffect(Unit) {
@@ -150,6 +147,12 @@ fun BottomSheet(
             }
         onDispose {
             windowInsetsController.isAppearanceLightNavigationBars = firstState
+        }
+    }
+
+    if (sheetState.hasExpandedState) {
+        LaunchedEffect(sheetState) {
+            sheetState.show()
         }
     }
 }

@@ -12,4 +12,5 @@ dependencies {
     implementation(project(":feature:weather"))
     implementation(project(":feature:settings"))
     implementation(project(":feature:favorite"))
+    implementation(project(":feature:notification"))
 }

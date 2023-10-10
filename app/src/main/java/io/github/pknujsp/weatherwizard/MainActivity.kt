@@ -44,6 +44,7 @@ class MainActivity : ComponentActivity() {
                 Surface(modifier = Modifier.fillMaxSize(), color = AppColorScheme.background) {
                     var networkAvailable by remember { mutableStateOf(networkManager.isNetworkAvailable()) }
                     var openNetworkSettings by remember { mutableStateOf(false) }
+
                     DisposableEffect(networkManager) {
                         networkManager.registerNetworkCallback(object : ConnectivityManager.NetworkCallback() {
                             override fun onAvailable(network: Network) {
@@ -53,9 +54,10 @@ class MainActivity : ComponentActivity() {
 
                             override fun onLost(network: Network) {
                                 super.onLost(network)
-                                networkAvailable = false
+                                networkAvailable = networkManager.isNetworkAvailable()
                             }
                         })
+
                         onDispose {
                             networkManager.unregisterNetworkCallback()
                         }

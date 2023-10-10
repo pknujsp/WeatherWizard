@@ -38,11 +38,9 @@ class SimpleDailyForecast(
                 ZonedDateTime.parse(item.dateTime.value).format(dateFormatter).let { date ->
                     if (!listMap.containsKey(date)) {
                         minTemp =
-                            TemperatureValueType(item.minTemperature.convertUnit( units.temperatureUnit), units
-                                .temperatureUnit)
+                            item.minTemperature.convertUnit( units.temperatureUnit)
                         maxTemp =
-                            TemperatureValueType(item.maxTemperature.convertUnit( units.temperatureUnit), units
-                                .temperatureUnit)
+                            item.maxTemperature.convertUnit( units.temperatureUnit)
 
                         listMap[date] = Item(
                             id = i,

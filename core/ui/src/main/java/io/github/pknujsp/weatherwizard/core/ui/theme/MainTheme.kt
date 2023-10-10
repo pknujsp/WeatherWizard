@@ -24,6 +24,9 @@ val AppShapes = Shapes(extraSmall = RoundedCornerShape(4.dp),
     extraLarge = RoundedCornerShape(8.dp)
 )
 
+val CircularIndicatorTrackColor = Color(0xFFD9D9D9)
+val CircularIndicatorColor = Color.Black
+
 @Composable
 fun MainTheme(content: @Composable () -> Unit) {
     MaterialTheme(colorScheme = AppColorScheme,

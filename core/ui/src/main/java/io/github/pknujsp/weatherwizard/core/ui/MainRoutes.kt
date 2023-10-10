@@ -20,6 +20,12 @@ sealed interface MainRoutes : ParentRoutes {
         override val navTitle: Int = io.github.pknujsp.weatherwizard.core.common.R.string.nav_favorite_areas
     }
 
+    data object Notification : MainRoutes {
+        override val route: String = "Notification"
+        override val navIcon: Int = io.github.pknujsp.weatherwizard.core.common.R.drawable.round_notifications_24
+        override val navTitle: Int = io.github.pknujsp.weatherwizard.core.common.R.string.nav_notification
+    }
+
     data object Settings : MainRoutes {
         override val route: String = "Settings"
         override val navIcon: Int = io.github.pknujsp.weatherwizard.core.common.R.drawable.baseline_settings_24

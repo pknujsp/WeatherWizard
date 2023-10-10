@@ -17,6 +17,7 @@ fun HostFavoriteScreen() {
     val navController = rememberNavController()
     val window = (LocalContext.current as Activity).window
     WindowCompat.getInsetsController(window, window.decorView).isAppearanceLightNavigationBars = true
+
     NavHost(modifier = Modifier.navigationBarsPadding(), navController = navController, route = FavoriteRoutes.route, startDestination =
     FavoriteRoutes
         .FavoriteAreaList.route) {

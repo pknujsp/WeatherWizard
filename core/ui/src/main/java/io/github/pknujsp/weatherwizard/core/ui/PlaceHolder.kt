@@ -17,12 +17,13 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import io.github.pknujsp.weatherwizard.core.ui.theme.AppShapes
 
 @Composable
 fun PlaceHolder(modifier: Modifier, contentAlignment: Alignment = Alignment.TopStart, content: @Composable (BoxScope.() -> Unit)? = null) {
     Box(
         modifier = modifier
-            .clip(RoundedCornerShape(8.dp))
+            .clip(AppShapes.large)
             .background(shimmerBrush(show = true)),
     ) {
         content?.invoke(this)

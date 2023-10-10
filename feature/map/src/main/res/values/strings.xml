@@ -7,4 +7,6 @@
     <string name="search">검색</string>
     <string name="search_area">추가할 지역명을 입력해주세요</string>
     <string name="clear_query">검색어 초기화</string>
+    <string name="radar">기상 레이더</string>
+    <string name="failed_to_load_radar">레이더 정보 다운로드에 실패했어요</string>
 </resources>

@@ -3,7 +3,7 @@ package io.github.pknujsp.weatherwizard.feature.settings
 import android.app.Activity
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.navigationBarsPadding
-import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -11,8 +11,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
 import androidx.core.view.WindowCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -31,8 +31,10 @@ fun SettingsScreen(navController: NavController, viewModel: SettingsViewModel) {
     Column {
         TitleTextWithoutNavigation(title = stringResource(id = io.github.pknujsp.weatherwizard.core.common.R.string.nav_settings))
         ButtonSettingItem(title = stringResource(id = R.string.title_value_unit),
-            description = stringResource(id = R.string.description_value_unit)) {
-            navController.navigate(SettingsRoutes.ValueUnit.route)
+            description = stringResource(id = R.string.description_value_unit), onClick = {
+                navController.navigate(SettingsRoutes.ValueUnit.route)
+            }) {
+            Icon(painterResource(id = io.github.pknujsp.weatherwizard.core.common.R.drawable.ic_forward), contentDescription = "navigate")
         }
 
         TextValueSettingItem(title = stringResource(id = R.string.title_weather_data_provider), value = {

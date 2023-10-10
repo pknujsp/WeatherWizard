@@ -2,13 +2,15 @@ package io.github.pknujsp.weatherwizard.feature.weather.info.hourlyforecast.deta
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -31,6 +33,7 @@ import coil.request.ImageRequest
 import io.github.pknujsp.weatherwizard.core.model.onSuccess
 import io.github.pknujsp.weatherwizard.core.model.weather.hourlyforecast.DetailHourlyForecast
 import io.github.pknujsp.weatherwizard.core.ui.TitleTextWithNavigation
+import io.github.pknujsp.weatherwizard.core.ui.theme.AppShapes
 import io.github.pknujsp.weatherwizard.feature.weather.info.WeatherInfoViewModel
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -47,14 +50,22 @@ fun DetailHourlyForecastScreen(viewModel: WeatherInfoViewModel, popBackStack: ()
 
         LazyColumn(
             state = rememberLazyListState(),
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .navigationBarsPadding(),
         ) {
             hourlyForecast.onSuccess {
-                it.items.forEachIndexed { i, pair ->
+                it.items.forEach { pair ->
                     stickyHeader(key = pair.first) {
-                        Text(text = pair.first,
-                            style = TextStyle(fontSize = 14.sp, color = Color.Gray),
-                            modifier = Modifier.padding(start = 16.dp))
+                        Box(
+                            contentAlignment = Alignment.CenterStart,
+                            modifier = Modifier.background(Color.LightGray.copy(alpha = 0.8f), AppShapes.small).padding(horizontal = 16.dp,
+                                vertical
+                            = 2.dp)
+                        ) {
+                            Text(text = pair.first,
+                                style = TextStyle(fontSize = 14.sp, color = Color.White),)
+                        }
                     }
                     itemsIndexed(pair.second) { _, item ->
                         Item(item = item,
@@ -88,11 +99,22 @@ private fun Item(
                 .clickable {
                     onClick()
                 }) {
-            Text(text = time, style = TextStyle(fontSize = 15.sp, color = Color.Gray), modifier = Modifier
-                .weight(0.1f)
-                .padding(start =
-                16.dp))
-            Row(modifier = Modifier.weight(0.3f),
+            Text(text = time, style = TextStyle(fontSize = 16.sp, color = Color.Gray), modifier = Modifier
+                .weight(0.1f, true)
+                .padding(start = 16.dp))
+
+            Row(modifier = Modifier
+                .weight(0.3f, true)
+                .padding(end = 16.dp), horizontalArrangement = Arrangement.spacedBy(4.dp), verticalAlignment =
+            Alignment
+                .CenterVertically) {
+                AsyncImage(model = ImageRequest.Builder(context = LocalContext.current).data(weatherIcon).build(),
+                    modifier = Modifier.size(44.dp),
+                    contentDescription = null)
+                Text(text = temperature, style = TextStyle(fontSize = 17.sp, color = Color.Black))
+            }
+
+            Row(modifier = Modifier.weight(0.3f, true),
                 horizontalArrangement = Arrangement.spacedBy(4.dp),
                 verticalAlignment = Alignment.CenterVertically) {
                 if (displayPrecipitationProbability) {
@@ -104,16 +126,16 @@ private fun Item(
                 }
             }
 
-            Column(modifier = Modifier.weight(0.3f),
+            Column(modifier = Modifier.weight(0.3f, true),
                 verticalArrangement = Arrangement.spacedBy(4.dp),
                 horizontalAlignment = Alignment.Start) {
                 if (displayPrecipitationVolume) {
                     Row(horizontalArrangement = Arrangement.spacedBy(4.dp), verticalAlignment = Alignment.CenterVertically) {
                         AsyncImage(model = ImageRequest.Builder(context = LocalContext.current)
                             .data(io.github.pknujsp.weatherwizard.core.common.R.drawable.raindrop).build(),
-                            modifier = Modifier.size(14.dp),
+                            modifier = Modifier.size(16.dp),
                             contentDescription = null)
-                        Text(text = item.precipitationVolume, style = TextStyle(fontSize = 13.sp, color = Color.Black))
+                        Text(text = item.precipitationVolume, style = TextStyle(fontSize = 14.sp, color = Color.Black))
                     }
                 }
                 if (displayRainfallVolume) {
@@ -134,17 +156,6 @@ private fun Item(
                         Text(text = item.snowfallVolume, style = TextStyle(fontSize = 13.sp, color = Color.Black))
                     }
                 }
-            }
-
-            Row(modifier = Modifier
-                .weight(0.3f)
-                .padding(end = 16.dp), horizontalArrangement = Arrangement.spacedBy(4.dp), verticalAlignment =
-            Alignment
-                .CenterVertically) {
-                AsyncImage(model = ImageRequest.Builder(context = LocalContext.current).data(weatherIcon).build(),
-                    modifier = Modifier.size(42.dp),
-                    contentDescription = null)
-                Text(text = temperature, style = TextStyle(fontSize = 16.sp, color = Color.Black))
             }
         }
     }

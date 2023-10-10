@@ -1,11 +1,11 @@
-package io.github.pknujsp.weatherwizard.core.common
-
+package io.github.pknujsp.weatherwizard.core.common.permission
 
 import android.Manifest
 import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
+import android.os.Build
 import android.provider.Settings
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -20,6 +20,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 
+
 /**
  * @param onPermissionGranted 권한이 허용되었을 때 실행되는 람다
  * @param onPermissionDenied 권한이 거부되었을 때 실행되는 람다
@@ -27,7 +28,8 @@ import androidx.core.content.ContextCompat
  * @param onNeverAskAgain 권한 요청이 다시 묻지 않음으로 되었을때 실행되는 람다
  */
 @Composable
-fun LocationPermissionManager(
+fun PermissionManager(
+    permissionType: PermissionType,
     onPermissionGranted: () -> Unit, onPermissionDenied: () -> Unit, onShouldShowRationale: () -> Unit,
     onNeverAskAgain: () -> Unit, refreshKey: Int
 ) {
@@ -37,12 +39,7 @@ fun LocationPermissionManager(
         arrayOf(onPermissionGranted, onPermissionDenied, onShouldShowRationale, onNeverAskAgain)
     )
 
-    val permissions = remember {
-        arrayOf(
-            Manifest.permission.ACCESS_FINE_LOCATION,
-            Manifest.permission.ACCESS_COARSE_LOCATION
-        )
-    }
+    val permissions = remember { permissionType.permissions }
     var requestPermission by remember { mutableStateOf(true) }
 
     val permissionLauncher = rememberLauncherForActivityResult(
@@ -51,7 +48,7 @@ fun LocationPermissionManager(
         if (result.all { it.value }) {
             permissionState[0]()
         } else {
-            if (ActivityCompat.shouldShowRequestPermissionRationale(activity, Manifest.permission.ACCESS_FINE_LOCATION)) {
+            if (activity.shouldShowRequestPermissionRationale(permissions)) {
                 permissionState[2]()
             } else {
                 if (requestPermission) {
@@ -66,11 +63,7 @@ fun LocationPermissionManager(
     LaunchedEffect(refreshKey) {
         permissions.map { permission -> ContextCompat.checkSelfPermission(context, permission) }.run {
             if (any { it != PackageManager.PERMISSION_GRANTED }) {
-                if (ActivityCompat.shouldShowRequestPermissionRationale(
-                        activity,
-                        Manifest.permission.ACCESS_FINE_LOCATION
-                    )
-                ) {
+                if (activity.shouldShowRequestPermissionRationale(permissions)) {
                     permissionState[2]()
                 } else {
                     requestPermission = false
@@ -83,8 +76,9 @@ fun LocationPermissionManager(
     }
 }
 
+
 @Composable
-fun OpenSettingsForLocationPermission(onReturnedFromSettings: () -> Unit) {
+fun OpenSettingsActivityForPermission(onReturnedFromSettings: () -> Unit) {
     val context = LocalContext.current
     val onReturnedFromSettingsState by rememberUpdatedState(onReturnedFromSettings)
 
@@ -102,3 +96,29 @@ fun OpenSettingsForLocationPermission(onReturnedFromSettings: () -> Unit) {
         settingsLauncher.launch(intent)
     }
 }
+
+enum class PermissionType(val permissions: Array<String>) {
+    LOCATION(arrayOf(
+        Manifest.permission.ACCESS_FINE_LOCATION,
+        Manifest.permission.ACCESS_COARSE_LOCATION
+    )),
+    STORAGE(
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            arrayOf(
+                Manifest.permission.READ_MEDIA_IMAGES,
+            )
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            arrayOf(
+                Manifest.permission.READ_EXTERNAL_STORAGE,
+            )
+        } else {
+            arrayOf(
+                Manifest.permission.READ_EXTERNAL_STORAGE,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE,
+            )
+        }
+    )
+}
+
+internal fun Activity.shouldShowRequestPermissionRationale(permissions: Array<String>): Boolean =
+    permissions.all { ActivityCompat.shouldShowRequestPermissionRationale(this, it) }

@@ -9,8 +9,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -18,12 +16,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import io.github.pknujsp.weatherwizard.core.ui.PlaceHolder
+import io.github.pknujsp.weatherwizard.core.ui.SecondaryButton
 import io.github.pknujsp.weatherwizard.core.ui.theme.AppShapes
 
 private val backgroundColor = Color(150, 147, 153, 217)
@@ -74,31 +72,21 @@ fun SimpleWeatherBackgroundPlaceHolder() {
 
 @Composable
 fun SimpleWeatherFailedBox(title: String, description: String, onClick: () -> Unit) {
-    PlaceHolder(
-        modifier = Modifier
-            .fillMaxWidth()
-            .wrapContentHeight()
-            .padding(horizontal = 12.dp, vertical = 8.dp),
-        contentAlignment = Alignment.Center,
-    ) {
+    DefaultSurface {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
+                .padding(vertical = 12.dp, horizontal = 12.dp)
                 .fillMaxWidth()
                 .wrapContentHeight(),
-            verticalArrangement = Arrangement.Center
+            verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             Text(text = title, style = TextStyle(fontSize = 18.sp, color = Color.White),
                 modifier = Modifier
-                    .padding(start = 32.dp, end = 32.dp, bottom = 8.dp, top = 12.dp)
+                    .padding(start = 32.dp, end = 32.dp)
             )
             Text(text = description, style = TextStyle(fontSize = 12.sp, color = Color.White))
-            Button(onClick = { onClick() }, colors = ButtonDefaults.buttonColors(), modifier = Modifier
-                .padding(start = 32.dp, end = 32.dp,
-                    top = 6.dp, bottom = 12.dp)
-            ) {
-                Text(text = stringResource(id = io.github.pknujsp.weatherwizard.core.common.R.string.reload))
-            }
+            SecondaryButton(onClick = onClick, text = stringResource(id = io.github.pknujsp.weatherwizard.core.common.R.string.reload))
         }
     }
 }
