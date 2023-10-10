@@ -36,9 +36,9 @@ class RainViewerViewModel @Inject constructor(
     private val _timePosition = MutableStateFlow(-1)
     val timePosition: StateFlow<Int> = _timePosition
 
-    private val optionTileSize = 256 // can be 256 or 512.
+    private val optionTileSize = 512 // can be 256 or 512.
     private val optionColorScheme = 3 // from 0 to 8. Check the https://rainviewer.com/api/color-schemes.html for additional information
-    private val optionSmoothData = 0 // 0 - not smooth, 1 - smooth
+    private val optionSmoothData = 1 // 0 - not smooth, 1 - smooth
     private val optionSnowColors = 1 // 0 - do not show snow colors, 1 - show snow colors
 
     val minZoomLevel: Float = 2f

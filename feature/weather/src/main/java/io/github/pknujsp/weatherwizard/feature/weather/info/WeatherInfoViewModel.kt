@@ -46,7 +46,6 @@ import kotlin.properties.Delegates
 class WeatherInfoViewModel @Inject constructor(
     private val getAllWeatherDataUseCase: GetAllWeatherDataUseCase,
     private val nominatimRepository: NominatimRepository,
-    private val targetAreaRepository: TargetAreaRepository,
     private val favoriteAreaListRepository: FavoriteAreaListRepository,
     private val settingsRepository: SettingsRepository
 ) : ViewModel() {

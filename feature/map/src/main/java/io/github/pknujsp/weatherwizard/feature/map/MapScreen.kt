@@ -1,7 +1,7 @@
 package io.github.pknujsp.weatherwizard.feature.map
 
 import android.annotation.SuppressLint
-import android.content.res.ColorStateList
+import android.graphics.drawable.BitmapDrawable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
@@ -26,10 +26,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -38,6 +36,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.res.ResourcesCompat
+import androidx.core.graphics.drawable.toBitmap
+import androidx.core.graphics.scale
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.pknujsp.weatherwizard.core.model.onError
@@ -85,7 +85,7 @@ private fun MapScreen(
                 false
             }
 
-            poiOnMap(latitude, longitude)
+            poiOnMap(latitude, longitude,18.dp)
             controller.animateTo(GeoPoint(latitude, longitude), 6.0, 0)
             simpleMapController.init(this)
         }
@@ -107,14 +107,15 @@ private fun MapScreen(
 
 }
 
-private fun MapView.poiOnMap(latitude: Double, longitude: Double) {
+private fun MapView.poiOnMap(latitude: Double, longitude: Double, iconSize: Dp) {
     Marker(this).apply {
         id = POI_MARKER_ID
         position = GeoPoint(latitude, longitude)
-        setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
-        icon = ResourcesCompat.getDrawable(resources, io.github.pknujsp.weatherwizard.core.common.R.drawable.poi_on_map, null)!!.also {
-            it.setTintList(ColorStateList.valueOf(Color.Blue.toArgb()))
-        }
+        setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_CENTER)
+        icon = ResourcesCompat.getDrawable(resources, io.github.pknujsp.weatherwizard.core.common.R.drawable.ic_my_location, null)!!
+            .toBitmap().scale(iconSize.value.toInt(), iconSize.value.toInt(), true).run {
+                BitmapDrawable(resources, this)
+            }
         overlays.add(this)
     }
 }

@@ -77,8 +77,11 @@ internal fun CheckBoxSettingItem(title: String, description: String? = null, che
 }
 
 @Composable
-internal fun ButtonSettingItem(title: String, description: String? = null, onClick: () -> Unit) {
-    SettingItem(title = title, description = description, onClick = onClick)
+internal fun ButtonSettingItem(
+    title: String, description: String? = null, onClick: () -> Unit, icon: (@Composable () -> Unit)? =
+        null
+) {
+    SettingItem(title = title, description = description, onClick = onClick, content = icon)
 }
 
 @Composable

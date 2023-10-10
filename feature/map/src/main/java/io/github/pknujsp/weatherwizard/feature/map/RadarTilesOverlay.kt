@@ -2,6 +2,7 @@ package io.github.pknujsp.weatherwizard.feature.map
 
 import android.content.Context
 import android.graphics.Color
+import android.graphics.ColorFilter
 import io.github.pknujsp.weatherwizard.core.model.rainviewer.RadarTiles
 import org.osmdroid.tileprovider.MapTileProviderBasic
 import org.osmdroid.tileprovider.modules.SqlTileWriter
@@ -59,7 +60,6 @@ class RadarTilesOverlay(
                 }, SqlTileWriter().apply {
                     purgeCache(tileSourceName)
                 }).apply {
-
                 setOfflineFirst(false)
                 tileCache.setStressedMemory(true)
                 tileRequestCompleteHandlers.add(

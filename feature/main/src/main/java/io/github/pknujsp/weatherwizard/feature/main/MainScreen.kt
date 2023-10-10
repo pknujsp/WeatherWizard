@@ -36,6 +36,7 @@ import androidx.navigation.compose.rememberNavController
 import io.github.pknujsp.weatherwizard.core.ui.MainRoutes
 import io.github.pknujsp.weatherwizard.core.ui.RootNavControllerViewModel
 import io.github.pknujsp.weatherwizard.feature.favorite.HostFavoriteScreen
+import io.github.pknujsp.weatherwizard.feature.notification.HostNotificationScreen
 import io.github.pknujsp.weatherwizard.feature.settings.HostSettingsScreen
 import io.github.pknujsp.weatherwizard.feature.weather.HostWeatherScreen
 
@@ -71,6 +72,9 @@ fun MainScreen() {
             composable(MainRoutes.Favorite.route) {
                 HostFavoriteScreen()
             }
+            composable(MainRoutes.Notification.route) {
+                HostNotificationScreen()
+            }
             composable(MainRoutes.Settings.route) {
                 HostSettingsScreen()
             }
@@ -90,6 +94,7 @@ private fun TopNavBar(
         horizontalArrangement = Arrangement.Start) {
         TopNavBarItem(MainRoutes.Weather, backStackEntry, navController)
         TopNavBarItem(MainRoutes.Favorite, backStackEntry, navController)
+        TopNavBarItem(MainRoutes.Notification, backStackEntry, navController)
         TopNavBarItem(MainRoutes.Settings, backStackEntry, navController)
     }
 }

@@ -74,4 +74,7 @@
     <string name="title_comparison_daily_forecast">일별 예보 비교</string>
     <string name="comparison">비교</string>
     <string name="storage_permission_denied">저장소 접근 권한이 필요합니다.</string>
+    <string name="nav_notification">알림</string>
+    <string name="title_ongoing_notification">항상 표시되는 알림</string>
+    <string name="title_daily_notification">매일 알림</string>
 </resources>
