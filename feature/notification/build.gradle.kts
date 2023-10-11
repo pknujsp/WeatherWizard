@@ -1,5 +1,6 @@
 plugins {
     id("plugin.android.feature")
+    alias(libs.plugins.kotlin.android)
 }
 
 android {
@@ -11,5 +12,5 @@ dependencies {
     implementation(project(":core:data"))
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
-
+    implementation(libs.bundles.workmanager)
 }

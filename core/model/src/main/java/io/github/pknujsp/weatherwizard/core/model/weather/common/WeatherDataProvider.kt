@@ -6,12 +6,16 @@ import androidx.annotation.StringRes
 sealed interface WeatherDataProvider {
     val name: Int
     val logo: Int
-    val key :String
+    val key: String
 
     companion object {
         val providers: Array<WeatherDataProvider> get() = arrayOf(Kma, MetNorway)
-        const val key :String = "weather_data_provider"
+        const val key: String = "weather_data_provider"
         val default: WeatherDataProvider get() = Kma
+
+        fun fromKey(key: String): WeatherDataProvider {
+            return providers.firstOrNull { it.key == key } ?: default
+        }
     }
 
     data object Kma : WeatherDataProvider {

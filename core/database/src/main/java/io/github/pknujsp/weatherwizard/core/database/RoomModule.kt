@@ -62,4 +62,8 @@ object DBDataSourceModule {
     @Singleton
     fun providesSearchHistoryDataSource(searchHistoryDao: SearchHistoryDao): SearchHistoryLocalDataSource =
         SearchHistoryLocalDataSourceImpl(searchHistoryDao)
+
+    @Provides
+    @Singleton
+    fun providesNotificationDataSource(notPretainedRoomDb: NotPretainedRoomDb) = notPretainedRoomDb.notificationDao()
 }
