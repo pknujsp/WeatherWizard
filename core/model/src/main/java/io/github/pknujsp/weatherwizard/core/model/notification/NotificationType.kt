@@ -1,13 +1,13 @@
-package io.github.pknujsp.weatherwizard.feature.notification.common
+package io.github.pknujsp.weatherwizard.core.model.notification
 
 import android.app.NotificationManager
 
 enum class NotificationType(
-    val notificationId:Int,
-    val channelId:String,
-    val channelName:String,
-    val channelDescription:String,
-    val importance:Int,
+    val notificationId: Int,
+    val channelId: String,
+    val channelName: String,
+    val channelDescription: String,
+    val importance: Int,
 ) {
     ONGOING(
         notificationId = 1,

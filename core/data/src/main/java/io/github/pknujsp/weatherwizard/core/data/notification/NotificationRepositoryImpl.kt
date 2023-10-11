@@ -1,96 +1,36 @@
 package io.github.pknujsp.weatherwizard.core.data.notification
 
-import io.github.pknujsp.weatherwizard.core.data.settings.SettingsRepository
-import io.github.pknujsp.weatherwizard.core.database.AppDataStore
-import io.github.pknujsp.weatherwizard.core.model.DBEntityState
-import io.github.pknujsp.weatherwizard.core.model.weather.common.CurrentUnits
-import io.github.pknujsp.weatherwizard.core.model.weather.common.PrecipitationUnit
-import io.github.pknujsp.weatherwizard.core.model.weather.common.TemperatureUnit
-import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherDataProvider
-import io.github.pknujsp.weatherwizard.core.model.weather.common.WindSpeedUnit
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.update
+import io.github.pknujsp.weatherwizard.core.common.module.KtJson
+import io.github.pknujsp.weatherwizard.core.database.notification.NotificationDto
+import io.github.pknujsp.weatherwizard.core.database.notification.NotificationLocalDataSource
+import io.github.pknujsp.weatherwizard.core.model.notification.NotificationInfoEntityParser
+import io.github.pknujsp.weatherwizard.core.model.notification.NotificationType
+import io.github.pknujsp.weatherwizard.core.model.notification.OngoingNotificationInfoEntity
+import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.serialization.json.Json
 import javax.inject.Inject
 
 class NotificationRepositoryImpl @Inject constructor(
-    private val appDataStore: AppDataStore
-) : SettingsRepository {
+    private val notificationLocalDataSource: NotificationLocalDataSource,
+    @KtJson json: Json,
+) : NotificationRepository {
 
-    private var _currentUnits = MutableStateFlow(CurrentUnits())
+    private val entityParser: NotificationInfoEntityParser = NotificationInfoEntityParser(json)
 
-    override val currentUnits: StateFlow<CurrentUnits> = _currentUnits
+    override suspend fun getOngoingNotificationInfo(): Result<OngoingNotificationInfoEntity> {
+        return notificationLocalDataSource.getAll(NotificationType.ONGOING.notificationId).firstOrNull()?.let {
+            val dto = it[0]
+            val entity = entityParser.parse<OngoingNotificationInfoEntity>(dto.content)
+            Result.success(entity)
+        } ?: Result.failure(Exception("No ongoing notification info"))
+    }
 
-    override suspend fun init() {
-        _currentUnits.value = CurrentUnits(
-            temperatureUnit = getTemperatureUnit(),
-            windSpeedUnit = getWindSpeedUnit(),
-            precipitationUnit = getPrecipitationUnit()
+    override suspend fun setOngoingNotificationInfo(ongoingNotificationInfoEntity: OngoingNotificationInfoEntity): Long {
+        return notificationLocalDataSource.insert(
+            NotificationDto(
+                notificationTypeId = NotificationType.ONGOING.notificationId,
+                content = entityParser.parse(ongoingNotificationInfoEntity),
+            )
         )
-    }
-
-    override suspend fun getTemperatureUnit(): TemperatureUnit {
-        return when (val unit = appDataStore.readAsString(TemperatureUnit.key)) {
-            is DBEntityState.Exists -> TemperatureUnit.getUnit(unit.data)
-            is DBEntityState.NotExists -> TemperatureUnit.Celsius
-        }.apply {
-            _currentUnits.update {
-                it.copy(temperatureUnit = this)
-            }
-        }
-    }
-
-    override suspend fun setTemperatureUnit(unit: TemperatureUnit) {
-        appDataStore.save(TemperatureUnit.key, unit.symbol)
-        _currentUnits.update {
-            it.copy(temperatureUnit = unit)
-        }
-    }
-
-    override suspend fun getWindSpeedUnit(): WindSpeedUnit {
-        return when (val unit = appDataStore.readAsString(WindSpeedUnit.key)) {
-            is DBEntityState.Exists -> WindSpeedUnit.getUnit(unit.data)
-            is DBEntityState.NotExists -> WindSpeedUnit.KilometerPerHour
-        }.apply {
-            _currentUnits.update {
-                it.copy(windSpeedUnit = this)
-            }
-        }
-    }
-
-    override suspend fun setWindSpeedUnit(unit: WindSpeedUnit) {
-        appDataStore.save(WindSpeedUnit.key, unit.symbol)
-        _currentUnits.update {
-            it.copy(windSpeedUnit = unit)
-        }
-    }
-
-    override suspend fun getPrecipitationUnit(): PrecipitationUnit {
-        return when (val unit = appDataStore.readAsString(PrecipitationUnit.key)) {
-            is DBEntityState.Exists -> PrecipitationUnit.getUnit(unit.data)
-            is DBEntityState.NotExists -> PrecipitationUnit.Millimeter
-        }.apply {
-            _currentUnits.update {
-                it.copy(precipitationUnit = this)
-            }
-        }
-    }
-
-    override suspend fun setPrecipitationUnit(unit: PrecipitationUnit) {
-        appDataStore.save(PrecipitationUnit.key, unit.symbol)
-        _currentUnits.update {
-            it.copy(precipitationUnit = unit)
-        }
-    }
-
-    override suspend fun getWeatherDataProvider(): WeatherDataProvider {
-        return when (val provider = appDataStore.readAsString(WeatherDataProvider.key)) {
-            is DBEntityState.Exists -> WeatherDataProvider.providers.first { it.key == provider.data }
-            is DBEntityState.NotExists -> WeatherDataProvider.default
-        }
-    }
-
-    override suspend fun setWeatherDataProvider(provider: WeatherDataProvider) {
-        appDataStore.save(WeatherDataProvider.key, provider.key)
     }
 }

@@ -5,6 +5,7 @@ import android.app.NotificationChannel
 import android.app.NotificationManager.IMPORTANCE_HIGH
 import android.content.Context
 import androidx.core.app.NotificationCompat
+import io.github.pknujsp.weatherwizard.core.model.notification.NotificationType
 
 
 class AppNotificationManager(context: Context) {
