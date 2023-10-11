@@ -10,6 +10,9 @@ import dagger.hilt.components.SingletonComponent
 import io.github.pknujsp.weatherwizard.core.database.favoritearea.FavoriteAreaListDao
 import io.github.pknujsp.weatherwizard.core.database.favoritearea.FavoriteAreaListDataSource
 import io.github.pknujsp.weatherwizard.core.database.favoritearea.FavoriteAreaListDataSourceImpl
+import io.github.pknujsp.weatherwizard.core.database.notification.NotificationDao
+import io.github.pknujsp.weatherwizard.core.database.notification.NotificationLocalDataSource
+import io.github.pknujsp.weatherwizard.core.database.notification.NotificationLocalDataSourceImpl
 import io.github.pknujsp.weatherwizard.core.database.roomdb.NotPretainedRoomDb
 import io.github.pknujsp.weatherwizard.core.database.roomdb.PretainedRoomDb
 import io.github.pknujsp.weatherwizard.core.database.searchhistory.SearchHistoryDao
@@ -48,6 +51,9 @@ object DaoModule {
 
     @Provides
     fun providesSearchHistoryDao(notPretainedRoomDb: NotPretainedRoomDb) = notPretainedRoomDb.searchHistoryDao()
+
+    @Provides
+    fun providesNotificationDao(notPretainedRoomDb: NotPretainedRoomDb) = notPretainedRoomDb.notificationDao()
 }
 
 @Module
@@ -65,5 +71,6 @@ object DBDataSourceModule {
 
     @Provides
     @Singleton
-    fun providesNotificationDataSource(notPretainedRoomDb: NotPretainedRoomDb) = notPretainedRoomDb.notificationDao()
+    fun providesNotificationDataSource(notificationDao: NotificationDao): NotificationLocalDataSource =
+        NotificationLocalDataSourceImpl(notificationDao)
 }

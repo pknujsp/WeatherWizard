@@ -3,6 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="48dp"
+    android:layout_gravity="center"
     tools:layout_height="48dp">
 
     <FrameLayout
@@ -129,7 +130,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:layout_marginVertical="8dp"
         android:indeterminate="true"
         android:visibility="visible" />
 

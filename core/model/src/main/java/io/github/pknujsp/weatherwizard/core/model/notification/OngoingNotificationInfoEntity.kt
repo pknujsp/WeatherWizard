@@ -9,12 +9,13 @@ import java.time.ZonedDateTime
 
 @Serializable
 class OngoingNotificationInfoEntity(
-    val latitude: Double,
-    val longitude: Double,
-    val autoRefreshInterval: Long,
-    private val weatherProvider: String,
-    private val notificationIconType: String,
-    private val createdDateTimeISO8601: String,
+    val latitude: Double = 0.0,
+    val longitude: Double = 0.0,
+    val addressName: String = "address",
+    private val autoRefreshInterval: Long = 0,
+    private val weatherProvider: String = WeatherDataProvider.default.key,
+    private val notificationIconType: String = NotificationIconType.TEMPERATURE.name,
+    private val createdDateTimeISO8601: String = ZonedDateTime.now().toString(),
 ) : NotificationEntityModel {
     fun getCreatedDateTime() = ZonedDateTime.parse(createdDateTimeISO8601)
 
@@ -22,6 +23,7 @@ class OngoingNotificationInfoEntity(
 
     fun getNotificationIconType(): NotificationIconType = NotificationIconType.valueOf(notificationIconType)
 
+    fun getAutoRefreshInterval(): RefreshInterval = RefreshInterval.entries.first { it.interval == autoRefreshInterval }
 }
 
 class NotificationInfoEntityParser(
