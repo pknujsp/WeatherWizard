@@ -3,9 +3,12 @@ package io.github.pknujsp.weatherwizard.feature.notification.common
 import android.app.Notification.VISIBILITY_PUBLIC
 import android.app.NotificationChannel
 import android.app.NotificationManager.IMPORTANCE_HIGH
+import android.app.PendingIntent
 import android.content.Context
+import android.content.Intent
 import androidx.core.app.NotificationCompat
 import io.github.pknujsp.weatherwizard.core.model.notification.NotificationType
+import io.github.pknujsp.weatherwizard.feature.notification.ongoing.OngoingNotificationReceiver
 
 
 class AppNotificationManager(context: Context) {
@@ -64,4 +67,10 @@ class AppNotificationManager(context: Context) {
         return false
     }
 
+    fun createRefreshPendingIntent(context: Context, notificationType: NotificationType): PendingIntent {
+        return PendingIntent.getBroadcast(context, notificationType.notificationId, Intent(context, OngoingNotificationReceiver::class.java)
+            .apply {
+            action = ""
+        }, PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT)
+    }
 }
