@@ -17,12 +17,12 @@ import io.github.pknujsp.weatherwizard.core.common.UnavailableFeature
 import io.github.pknujsp.weatherwizard.core.common.permission.OpenSettingsActivityForPermission
 import io.github.pknujsp.weatherwizard.core.common.permission.PermissionManager
 import io.github.pknujsp.weatherwizard.core.common.permission.PermissionType
-import io.github.pknujsp.weatherwizard.core.model.favorite.TargetAreaType
+import io.github.pknujsp.weatherwizard.core.model.favorite.LocationType
 import io.github.pknujsp.weatherwizard.core.ui.UnavailableFeatureScreen
 import io.github.pknujsp.weatherwizard.feature.weather.info.WeatherInfoScreen
 
 @Composable
-fun PermissionCheckingScreen(navController: NavController, targetAreaType: TargetAreaType) {
+fun PermissionCheckingScreen(navController: NavController, locationType: LocationType) {
     var permissionGranted by remember { mutableStateOf(false) }
 
     var storagePermissionGranted by remember { mutableStateOf(false) }
@@ -36,7 +36,7 @@ fun PermissionCheckingScreen(navController: NavController, targetAreaType: Targe
     } else {
 
         if (storagePermissionGranted) {
-            permissionGranted = targetAreaType is TargetAreaType.CustomLocation
+            permissionGranted = locationType is LocationType.CustomLocation
 
             if (!permissionGranted) {
                 var locationPermissionGranted by remember { mutableStateOf(false) }
@@ -112,7 +112,7 @@ private fun navigateToInfo(navController: NavController) {
 fun HostWeatherScreen() {
     val navController = rememberNavController()
     val mainViewModel: WeatherMainViewModel = hiltViewModel()
-    val targetAreaType by mainViewModel.targetAreaType.collectAsStateWithLifecycle()
+    val targetAreaType by mainViewModel.locationType.collectAsStateWithLifecycle()
 
     targetAreaType?.let { type ->
         NavHost(navController = navController, route = WeatherRoutes.route, startDestination = WeatherRoutes.Main.route) {

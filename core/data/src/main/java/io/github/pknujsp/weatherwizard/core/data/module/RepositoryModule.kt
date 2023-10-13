@@ -4,6 +4,7 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import io.github.pknujsp.weatherwizard.core.common.module.KtJson
 import io.github.pknujsp.weatherwizard.core.data.aqicn.AirQualityRepository
 import io.github.pknujsp.weatherwizard.core.data.aqicn.AirQualityRepositoryImpl
 import io.github.pknujsp.weatherwizard.core.data.favorite.FavoriteAreaListRepository
@@ -12,6 +13,8 @@ import io.github.pknujsp.weatherwizard.core.data.favorite.TargetAreaRepository
 import io.github.pknujsp.weatherwizard.core.data.favorite.TargetAreaRepositoryImpl
 import io.github.pknujsp.weatherwizard.core.data.nominatim.NominatimRepository
 import io.github.pknujsp.weatherwizard.core.data.nominatim.NominatimRepositoryImpl
+import io.github.pknujsp.weatherwizard.core.data.notification.NotificationRepository
+import io.github.pknujsp.weatherwizard.core.data.notification.NotificationRepositoryImpl
 import io.github.pknujsp.weatherwizard.core.data.rainviewer.RadarTilesRepository
 import io.github.pknujsp.weatherwizard.core.data.rainviewer.RadarTilesRepositoryImpl
 import io.github.pknujsp.weatherwizard.core.data.settings.SettingsRepository
@@ -22,9 +25,11 @@ import io.github.pknujsp.weatherwizard.core.data.weather.mapper.WeatherResponseM
 import io.github.pknujsp.weatherwizard.core.data.weather.request.WeatherApiRequestManager
 import io.github.pknujsp.weatherwizard.core.database.AppDataStore
 import io.github.pknujsp.weatherwizard.core.database.favoritearea.FavoriteAreaListDataSource
+import io.github.pknujsp.weatherwizard.core.database.notification.NotificationLocalDataSource
 import io.github.pknujsp.weatherwizard.core.network.api.aqicn.AqiCnDataSource
 import io.github.pknujsp.weatherwizard.core.network.api.nominatim.NominatimDataSource
 import io.github.pknujsp.weatherwizard.core.network.api.rainviewer.RainViewerDataSource
+import kotlinx.serialization.json.Json
 import javax.inject.Singleton
 
 @InstallIn(SingletonComponent::class)
@@ -69,4 +74,12 @@ object RepositoryModule {
     @Provides
     fun providesSettingsRepository(appDataStore: AppDataStore): SettingsRepository =
         SettingsRepositoryImpl(appDataStore)
+
+    @Singleton
+    @Provides
+    fun providesNotificationRepository(
+        notificationLocalDataSource: NotificationLocalDataSource,
+        @KtJson json: Json
+    ): NotificationRepository =
+        NotificationRepositoryImpl(notificationLocalDataSource, json)
 }

@@ -4,7 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.github.pknujsp.weatherwizard.core.data.favorite.TargetAreaRepository
-import io.github.pknujsp.weatherwizard.core.model.favorite.TargetAreaType
+import io.github.pknujsp.weatherwizard.core.model.favorite.LocationType
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -15,12 +15,12 @@ class WeatherMainViewModel @Inject constructor(
     private val targetAreaRepository: TargetAreaRepository,
 ) : ViewModel() {
 
-    private val _targetAreaType = MutableStateFlow<TargetAreaType?>(null)
-    val targetAreaType : StateFlow<TargetAreaType?> = _targetAreaType
+    private val _locationType = MutableStateFlow<LocationType?>(null)
+    val locationType : StateFlow<LocationType?> = _locationType
 
     init {
         viewModelScope.launch {
-            _targetAreaType.value = targetAreaRepository.getTargetArea()
+            _locationType.value = targetAreaRepository.getTargetArea()
         }
     }
 }

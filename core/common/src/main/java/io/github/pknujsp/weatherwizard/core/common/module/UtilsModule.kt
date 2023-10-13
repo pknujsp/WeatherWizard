@@ -19,6 +19,7 @@ object UtilsModule {
         ignoreUnknownKeys = true
         isLenient = true
         coerceInputValues = true
+        encodeDefaults = true
     }
 
 }

@@ -54,8 +54,8 @@ dependencies {
     implementation(project(":core:data"))
     implementation(project(":feature:main"))
     implementation(project(":feature:map"))
+    implementation(project(":feature:notification"))
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.activity)
     implementation(libs.androidx.appcompat)
-    implementation(libs.material)
 }

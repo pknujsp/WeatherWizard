@@ -7,7 +7,7 @@ import io.github.pknujsp.weatherwizard.core.data.favorite.FavoriteAreaListReposi
 import io.github.pknujsp.weatherwizard.core.data.favorite.TargetAreaRepository
 import io.github.pknujsp.weatherwizard.core.model.UiState
 import io.github.pknujsp.weatherwizard.core.model.favorite.FavoriteArea
-import io.github.pknujsp.weatherwizard.core.model.favorite.TargetAreaType
+import io.github.pknujsp.weatherwizard.core.model.favorite.LocationType
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -21,8 +21,8 @@ class FavoriteAreaViewModel @Inject constructor(
     private val targetAreaRepository: TargetAreaRepository
 ) : ViewModel() {
 
-    private val _targetArea = MutableStateFlow<TargetAreaType>(TargetAreaType.CurrentLocation)
-    val targetArea: StateFlow<TargetAreaType> = _targetArea
+    private val _targetArea = MutableStateFlow<LocationType>(LocationType.CurrentLocation)
+    val targetArea: StateFlow<LocationType> = _targetArea
 
     private val _favoriteAreaList = MutableStateFlow<UiState<List<FavoriteArea>>>(UiState.Loading)
     val favoriteAreaList: StateFlow<UiState<List<FavoriteArea>>> = _favoriteAreaList
@@ -42,16 +42,16 @@ class FavoriteAreaViewModel @Inject constructor(
         }
     }
 
-    fun updateTargetArea(targetAreaType: TargetAreaType) {
+    fun updateTargetArea(locationType: LocationType) {
         viewModelScope.launch(Dispatchers.IO) {
-            targetAreaRepository.updateTargetArea(targetAreaType)
+            targetAreaRepository.updateTargetArea(locationType)
             val previousTargetArea = targetArea.value
 
             while (true) {
                 delay(50)
-                if (targetAreaRepository.getTargetArea() == targetAreaType) break
+                if (targetAreaRepository.getTargetArea() == locationType) break
             }
-            _targetArea.value = targetAreaType
+            _targetArea.value = locationType
         }
     }
 }

@@ -77,4 +77,18 @@
     <string name="nav_notification">알림</string>
     <string name="title_ongoing_notification">항상 표시되는 알림</string>
     <string name="title_daily_notification">매일 알림</string>
+    <string name="location">위치</string>
+    <string name="custom_location">선택 주소</string>
+    <string name="min_15">15분</string>
+    <string name="hour_6">6시간</string>
+    <string name="hour_3">3시간</string>
+    <string name="hour_2">2시간</string>
+    <string name="hour_1">1시간</string>
+    <string name="min_30">30분</string>
+    <string name="refresh_interval">업데이트 주기</string>
+    <string name="save">저장</string>
+    <string name="temperature_icon">기온 아이콘</string>
+    <string name="weather_condition_icon">날씨 아이콘</string>
+    <string name="notification_icon_type">알림 아이콘 유형</string>
+    <string name="manual">수동</string>
 </resources>

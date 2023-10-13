@@ -13,8 +13,8 @@ class HiltConventionPlugin : Plugin<Project> {
 
             dependencies {
                 "implementation"(libs.findBundle("hilt").get())
-                //"kapt"(libs.findLibrary("androidx.hilt.work.compilerKapt").get())
-                "ksp"(libs.findLibrary("androidx.hilt.compilerKapt").get())
+                "kapt"(libs.findLibrary("androidx.hilt.work.compilerKapt").get())
+                "kapt"(libs.findLibrary("androidx.hilt.compilerKapt").get())
                 "androidTestImplementation"(libs.findLibrary("androidx.hilt.android.testandroid").get())
             }
         }

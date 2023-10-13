@@ -9,17 +9,15 @@ import io.github.pknujsp.weatherwizard.core.common.util.DayNightCalculator
 import io.github.pknujsp.weatherwizard.core.common.util.toCalendar
 import io.github.pknujsp.weatherwizard.core.common.util.toTimeZone
 import io.github.pknujsp.weatherwizard.core.data.favorite.FavoriteAreaListRepository
-import io.github.pknujsp.weatherwizard.core.data.favorite.TargetAreaRepository
 import io.github.pknujsp.weatherwizard.core.data.nominatim.NominatimRepository
 import io.github.pknujsp.weatherwizard.core.data.settings.SettingsRepository
 import io.github.pknujsp.weatherwizard.core.domain.weather.GetAllWeatherDataUseCase
 import io.github.pknujsp.weatherwizard.core.model.ProcessState
 import io.github.pknujsp.weatherwizard.core.model.UiState
-import io.github.pknujsp.weatherwizard.core.model.favorite.TargetAreaType
+import io.github.pknujsp.weatherwizard.core.model.favorite.LocationType
 import io.github.pknujsp.weatherwizard.core.model.flickr.FlickrRequestParameters
 import io.github.pknujsp.weatherwizard.core.model.nominatim.ReverseGeoCode
 import io.github.pknujsp.weatherwizard.core.model.weather.RequestWeatherDataArgs
-import io.github.pknujsp.weatherwizard.core.model.weather.common.TemperatureValueType
 import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherConditionCategory
 import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherDataProvider
 import io.github.pknujsp.weatherwizard.core.model.weather.current.CurrentWeather
@@ -50,7 +48,7 @@ class WeatherInfoViewModel @Inject constructor(
     private val settingsRepository: SettingsRepository
 ) : ViewModel() {
 
-    private var targetAreaType by Delegates.notNull<TargetAreaType>()
+    private var locationType by Delegates.notNull<LocationType>()
 
     private val _processState = MutableStateFlow<ProcessState>(ProcessState.Idle)
     val processState: StateFlow<ProcessState> = _processState
@@ -88,8 +86,8 @@ class WeatherInfoViewModel @Inject constructor(
         }
     }
 
-    fun setLastTargetAreaType(targetAreaType: TargetAreaType) {
-        this.targetAreaType = targetAreaType
+    fun setLastTargetAreaType(locationType: LocationType) {
+        this.locationType = locationType
     }
 
     fun waitForLoad() {
@@ -101,10 +99,10 @@ class WeatherInfoViewModel @Inject constructor(
     fun setArgsAndLoad(location: Location? = null) {
         viewModelScope.launch {
             _processState.value = ProcessState.Running
-            val (lat, lon) = if (targetAreaType is TargetAreaType.CurrentLocation) {
-                location!!.latitude to location.longitude
-            } else {
-                favoriteAreaListRepository.getById(targetAreaType.locationId).getOrThrow().run {
+            val (lat, lon) = when (locationType) {
+                is LocationType.CurrentLocation -> location!!.latitude to location.longitude
+                is LocationType.CustomLocation -> favoriteAreaListRepository.getById((locationType as LocationType.CustomLocation)
+                    .locationId).getOrThrow().run {
                     latitude to longitude
                 }
             }
@@ -113,7 +111,7 @@ class WeatherInfoViewModel @Inject constructor(
                 RequestWeatherDataArgs(latitude = lat,
                     longitude = lon,
                     weatherDataProvider = settingsRepository.getWeatherDataProvider(),
-                    targetAreaType = targetAreaType)
+                    locationType = locationType)
 
             loadAllWeatherData()
 

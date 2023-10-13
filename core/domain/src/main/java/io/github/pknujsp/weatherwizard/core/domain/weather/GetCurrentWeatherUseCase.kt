@@ -10,8 +10,13 @@ import javax.inject.Singleton
 class GetCurrentWeatherUseCase @Inject constructor(
     private val weatherDataRepository: WeatherDataRepository
 ) : BaseGetWeatherDataUseCase<CurrentWeatherEntity> {
-    override suspend fun invoke(latitude: Double, longitude: Double, weatherDataProvider: WeatherDataProvider, requestId: Long): Result<CurrentWeatherEntity> {
-        TODO("Not yet implemented")
+    override suspend fun invoke(
+        latitude: Double,
+        longitude: Double,
+        weatherDataProvider: WeatherDataProvider,
+        requestId: Long
+    ): Result<CurrentWeatherEntity> {
+        return weatherDataRepository.getCurrentWeather(latitude, longitude, weatherDataProvider, requestId)
     }
 
 }

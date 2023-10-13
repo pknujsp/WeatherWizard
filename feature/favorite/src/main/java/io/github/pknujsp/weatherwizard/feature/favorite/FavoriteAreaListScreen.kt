@@ -39,7 +39,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import io.github.pknujsp.weatherwizard.core.model.favorite.FavoriteArea
-import io.github.pknujsp.weatherwizard.core.model.favorite.TargetAreaType
+import io.github.pknujsp.weatherwizard.core.model.favorite.LocationType
 import io.github.pknujsp.weatherwizard.core.model.onSuccess
 import io.github.pknujsp.weatherwizard.core.ui.MainRoutes
 import io.github.pknujsp.weatherwizard.core.ui.RootNavControllerViewModel
@@ -54,7 +54,7 @@ fun FavoriteAreaListScreen(navController: NavController) {
     val lazyListState = rememberLazyListState()
     val viewModel: FavoriteAreaViewModel = hiltViewModel()
     val favoriteAreaList by viewModel.favoriteAreaList.collectAsStateWithLifecycle()
-    val targetArea by viewModel.targetArea.collectAsStateWithLifecycle()
+    val targetLocation by viewModel.targetArea.collectAsStateWithLifecycle()
     val rootNavControllerViewModel: RootNavControllerViewModel = hiltViewModel(viewModelStoreOwner =
     (LocalContext.current as ComponentActivity))
 
@@ -65,14 +65,14 @@ fun FavoriteAreaListScreen(navController: NavController) {
         LazyColumn(modifier = Modifier.weight(1f), state = lazyListState) {
             favoriteAreaList.onSuccess {
                 item {
-                    CurrentLocationItem(checked = { targetArea.locationId }) {
-                        viewModel.updateTargetArea(TargetAreaType.CurrentLocation)
+                    CurrentLocationItem(checked = { targetLocation }) {
+                        viewModel.updateTargetArea(LocationType.CurrentLocation)
                         rootNavControllerViewModel.navigate(MainRoutes.Weather)
                     }
                 }
                 items(it) { favoriteArea ->
-                    AreaItem(favoriteArea, checked = { targetArea.locationId }) {
-                        viewModel.updateTargetArea(TargetAreaType.CustomLocation(favoriteArea.id))
+                    AreaItem(favoriteArea, checked = { targetLocation }) {
+                        viewModel.updateTargetArea(LocationType.CustomLocation(favoriteArea.id))
                         rootNavControllerViewModel.navigate(MainRoutes.Weather)
                     }
                 }
@@ -90,7 +90,7 @@ fun FavoriteAreaListScreen(navController: NavController) {
 
 
 @Composable
-private fun AreaItem(favoriteArea: FavoriteArea, checked: () -> Long, onClick: () -> Unit) {
+private fun AreaItem(favoriteArea: FavoriteArea, checked: () -> LocationType, onClick: () -> Unit) {
     Box(modifier = Modifier
         .fillMaxWidth()
         .wrapContentHeight()
@@ -109,14 +109,18 @@ private fun AreaItem(favoriteArea: FavoriteArea, checked: () -> Long, onClick: (
             Column(modifier = Modifier
                 .weight(1f)
                 .clickable {
-                    if (checked() == favoriteArea.id) {
-                        onClick()
+                    with(checked()) {
+                        if ((this is LocationType.CustomLocation) && (locationId == favoriteArea.id)) {
+                            onClick()
+                        }
                     }
                 }, verticalArrangement = Arrangement.Center) {
                 Text(text = favoriteArea.countryName, style = TextStyle(fontSize = 12.sp, color = Color.Gray))
                 Text(text = favoriteArea.areaName, style = TextStyle(fontSize = 15.sp, color = Color.Black))
             }
-            Checkbox(checked = checked() == favoriteArea.id, onCheckedChange = { checked ->
+            Checkbox(checked = with(checked()) {
+                ((this is LocationType.CustomLocation) && (locationId == favoriteArea.id))
+            }, onCheckedChange = { checked ->
                 if (checked) {
                     onClick()
                 }
@@ -127,7 +131,7 @@ private fun AreaItem(favoriteArea: FavoriteArea, checked: () -> Long, onClick: (
 
 
 @Composable
-private fun CurrentLocationItem(checked: () -> Long, onClick: () -> Unit) {
+private fun CurrentLocationItem(checked: () -> LocationType, onClick: () -> Unit) {
     Box(modifier = Modifier
         .fillMaxWidth()
         .wrapContentHeight()
@@ -136,7 +140,7 @@ private fun CurrentLocationItem(checked: () -> Long, onClick: () -> Unit) {
             .fillMaxWidth()
             .wrapContentHeight()
             .clickable {
-                if (checked() == TargetAreaType.CurrentLocation.locationId) {
+                if (checked() is LocationType.CurrentLocation) {
                     onClick()
                 }
             }
@@ -152,7 +156,7 @@ private fun CurrentLocationItem(checked: () -> Long, onClick: () -> Unit) {
             Text(text = stringResource(id = io.github.pknujsp.weatherwizard.core.common.R.string.current_location),
                 style = TextStyle(fontSize = 16.sp, color = Color.Blue, textAlign = TextAlign.Left),
                 modifier = Modifier.weight(1f))
-            Checkbox(checked = checked() == TargetAreaType.CurrentLocation.locationId, onCheckedChange = {
+            Checkbox(checked = checked() is LocationType.CurrentLocation, onCheckedChange = {
                 onClick()
             })
         }

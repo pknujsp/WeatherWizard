@@ -22,12 +22,14 @@ class ApplicationConventionPlugin : Plugin<Project> {
             dependencies {
                 "implementation"(libs.findBundle("navigation").get())
                 "implementation"(libs.findBundle("lifecycle").get())
+                "implementation"(libs.findBundle("workmanager").get())
                 "implementation"(platform(libs.findLibrary("androidx.compose.bom").get()))
                 "implementation"(libs.findBundle("compose.bom").get())
                 "debugImplementation"(libs.findBundle("compose.debug").get())
                 "implementation"(libs.findBundle("ktx").get())
                 "kapt"(libs.findLibrary("androidx.lifecycle.compilerKapt").get())
                 "implementation"(libs.findLibrary("material").get())
+                "implementation"(libs.findLibrary("androidx.startup").get())
 
                 "testImplementation"(libs.findBundle("test.local").get())
                 "androidTestImplementation"(libs.findBundle("test.android").get())

@@ -40,7 +40,7 @@ import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import io.github.pknujsp.weatherwizard.core.common.GpsLocationManager
-import io.github.pknujsp.weatherwizard.core.model.favorite.TargetAreaType
+import io.github.pknujsp.weatherwizard.core.model.favorite.LocationType
 import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherDataProvider
 import io.github.pknujsp.weatherwizard.core.ui.TitleTextWithoutNavigation
 import io.github.pknujsp.weatherwizard.core.ui.dialog.BottomSheet
@@ -53,7 +53,7 @@ import io.github.pknujsp.weatherwizard.feature.weather.info.hourlyforecast.detai
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun WeatherInfoScreen(navController: NavController, targetAreaType: TargetAreaType) {
+fun WeatherInfoScreen(navController: NavController, locationType: LocationType) {
     val viewModelStoreOwner = checkNotNull(LocalViewModelStoreOwner.current)
     val weatherInfoViewModel: WeatherInfoViewModel = hiltViewModel(viewModelStoreOwner)
 
@@ -78,12 +78,12 @@ fun WeatherInfoScreen(navController: NavController, targetAreaType: TargetAreaTy
     val windowInsetsController = remember { WindowCompat.getInsetsController(window, window.decorView) }
 
     DisposableEffect(Unit) {
-        weatherInfoViewModel.setLastTargetAreaType(targetAreaType)
+        weatherInfoViewModel.setLastTargetAreaType(locationType)
         onDispose { }
     }
 
-    LaunchedEffect(targetAreaType, reload) {
-        load(targetAreaType, gpsLocationManager, weatherInfoViewModel, enabledLocation = {
+    LaunchedEffect(locationType, reload) {
+        load(locationType, gpsLocationManager, weatherInfoViewModel, enabledLocation = {
             enabledLocation = it
         }, showLocationLoadingDialog = {
             showLocationLoadingDialog = it
@@ -160,7 +160,7 @@ fun WeatherProviderDialog(currentProvider: WeatherDataProvider, onClick: (Weathe
     ) {
         Column(modifier = Modifier.padding(vertical = 16.dp)) {
             TitleTextWithoutNavigation(title = stringResource(id = R.string.weather_provider))
-            WeatherDataProvider.providers.forEach { weatherDataProvider ->
+            WeatherDataProvider.enums.forEach { weatherDataProvider ->
                 Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier
                     .clickable {
                         onClick(weatherDataProvider)
@@ -188,14 +188,14 @@ fun WeatherProviderDialog(currentProvider: WeatherDataProvider, onClick: (Weathe
 }
 
 private suspend fun load(
-    targetAreaType: TargetAreaType,
+    locationType: LocationType,
     gpsLocationManager: GpsLocationManager,
     weatherInfoViewModel: WeatherInfoViewModel,
     enabledLocation: (Boolean) -> Unit,
     showLocationLoadingDialog: (Boolean) -> Unit
 ) {
     weatherInfoViewModel.waitForLoad()
-    if (targetAreaType is TargetAreaType.CurrentLocation) {
+    if (locationType is LocationType.CurrentLocation) {
         if (gpsLocationManager.isGpsProviderEnabled()) {
             enabledLocation(true)
             showLocationLoadingDialog(true)

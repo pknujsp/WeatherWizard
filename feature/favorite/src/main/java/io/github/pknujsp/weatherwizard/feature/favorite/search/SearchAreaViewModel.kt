@@ -11,7 +11,7 @@ import io.github.pknujsp.weatherwizard.core.data.searchhistory.SearchHistoryRepo
 import io.github.pknujsp.weatherwizard.core.model.UiAction
 import io.github.pknujsp.weatherwizard.core.model.UiState
 import io.github.pknujsp.weatherwizard.core.model.favorite.FavoriteAreaListEntity
-import io.github.pknujsp.weatherwizard.core.model.favorite.TargetAreaType
+import io.github.pknujsp.weatherwizard.core.model.favorite.LocationType
 import io.github.pknujsp.weatherwizard.core.model.nominatim.GeoCode
 import io.github.pknujsp.weatherwizard.core.model.nominatim.GeoCodeEntity
 import kotlinx.coroutines.Dispatchers
@@ -73,7 +73,7 @@ class SearchAreaViewModel @Inject constructor(
                     longitude = geoCode.longitude,
                     placeId = geoCode.placeId)
             )
-            targetAreaRepository.updateTargetArea(TargetAreaType.CustomLocation(newId))
+            targetAreaRepository.updateTargetArea(LocationType.CustomLocation(newId))
             _uiAction.value = Action.OnSelectedArea
         }
     }
