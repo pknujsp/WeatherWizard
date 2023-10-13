@@ -83,13 +83,13 @@ class SettingsRepositoryImpl @Inject constructor(
     }
 
     override suspend fun getWeatherDataProvider(): WeatherDataProvider {
-        return when (val provider = appDataStore.readAsString(WeatherDataProvider.key)) {
-            is DBEntityState.Exists -> WeatherDataProvider.providers.first { it.key == provider.data }
+        return when (val provider = appDataStore.readAsLong(WeatherDataProvider.key)) {
+            is DBEntityState.Exists -> WeatherDataProvider.fromKey(provider.data.toInt())
             is DBEntityState.NotExists -> WeatherDataProvider.default
         }
     }
 
     override suspend fun setWeatherDataProvider(provider: WeatherDataProvider) {
-        appDataStore.save(WeatherDataProvider.key, provider.key)
+        appDataStore.save(WeatherDataProvider.key, provider.key.toLong())
     }
 }

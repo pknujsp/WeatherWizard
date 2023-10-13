@@ -2,7 +2,7 @@ package io.github.pknujsp.weatherwizard.core.data.favorite
 
 import io.github.pknujsp.weatherwizard.core.database.AppDataStore
 import io.github.pknujsp.weatherwizard.core.model.DBEntityState
-import io.github.pknujsp.weatherwizard.core.model.favorite.TargetAreaType
+import io.github.pknujsp.weatherwizard.core.model.favorite.LocationType
 import javax.inject.Inject
 
 class TargetAreaRepositoryImpl @Inject constructor(
@@ -11,22 +11,22 @@ class TargetAreaRepositoryImpl @Inject constructor(
 
     private val targetAreaKey = "TargetAreaId"
 
-    override suspend fun getTargetArea(): TargetAreaType {
+    override suspend fun getTargetArea(): LocationType {
         return appDataStore.readAsLong(targetAreaKey).run {
             if (this is DBEntityState.Exists) {
-                if (data == TargetAreaType.CurrentLocation.locationId) {
-                    TargetAreaType.CurrentLocation
+                if (data == LocationType.CurrentLocation.key.toLong()) {
+                    LocationType.CurrentLocation
                 } else {
-                    TargetAreaType.CustomLocation(data)
+                    LocationType.CustomLocation(data)
                 }
             } else {
-                TargetAreaType.CurrentLocation
+                LocationType.CurrentLocation
             }
         }
     }
 
-    override suspend fun updateTargetArea(target: TargetAreaType) {
-        appDataStore.save(targetAreaKey, target.locationId)
+    override suspend fun updateTargetArea(target: LocationType) {
+        appDataStore.save(targetAreaKey, target.key.toLong())
     }
 
 }

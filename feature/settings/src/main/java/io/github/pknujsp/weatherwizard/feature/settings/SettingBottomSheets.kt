@@ -80,7 +80,7 @@ internal fun WeatherDataProviderBottomSheet(currentProvider: WeatherDataProvider
             .padding(vertical = 16.dp)
         ) {
             TitleTextWithoutNavigation(title = stringResource(id = R.string.title_weather_data_provider))
-            WeatherDataProvider.providers.forEach { weatherDataProvider ->
+            WeatherDataProvider.enums.forEach { weatherDataProvider ->
                 Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier
                     .clickable {
                         onClick(weatherDataProvider)

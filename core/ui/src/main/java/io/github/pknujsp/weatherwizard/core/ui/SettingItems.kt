@@ -32,7 +32,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import io.github.pknujsp.weatherwizard.core.common.IEnum
-import io.github.pknujsp.weatherwizard.core.common.IRadioButton
 import io.github.pknujsp.weatherwizard.core.ui.dialog.BottomSheet
 
 
@@ -155,7 +154,7 @@ fun <E : IEnum> BottomSheetSettingItem(
 }
 
 @Composable
-fun <E : IRadioButton> RadioButtons(
+fun <E : IEnum> RadioButtons(
     radioOptions: Array<E>, selectedOption: E, onOptionSelected:
         (E) -> Unit
 ) {

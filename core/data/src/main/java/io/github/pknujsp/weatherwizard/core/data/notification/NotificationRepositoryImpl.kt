@@ -3,7 +3,8 @@ package io.github.pknujsp.weatherwizard.core.data.notification
 import io.github.pknujsp.weatherwizard.core.common.module.KtJson
 import io.github.pknujsp.weatherwizard.core.database.notification.NotificationDto
 import io.github.pknujsp.weatherwizard.core.database.notification.NotificationLocalDataSource
-import io.github.pknujsp.weatherwizard.core.model.notification.NotificationInfoEntityParser
+import io.github.pknujsp.weatherwizard.core.model.JsonParser
+import io.github.pknujsp.weatherwizard.core.model.notification.NotificationEntity
 import io.github.pknujsp.weatherwizard.core.model.notification.NotificationType
 import io.github.pknujsp.weatherwizard.core.model.notification.OngoingNotificationInfoEntity
 import kotlinx.coroutines.flow.first
@@ -15,25 +16,27 @@ class NotificationRepositoryImpl @Inject constructor(
     @KtJson json: Json,
 ) : NotificationRepository {
 
-    private val entityParser: NotificationInfoEntityParser = NotificationInfoEntityParser(json)
+    private val jsonParser: JsonParser = JsonParser(json)
 
-    override suspend fun getOngoingNotificationInfo(): Result<OngoingNotificationInfoEntity> {
-        return notificationLocalDataSource.getAll(NotificationType.ONGOING.notificationId).first().let {
+    override suspend fun getOngoingNotificationInfo() =
+        notificationLocalDataSource.getAll(NotificationType.ONGOING.notificationId).first().let {
             if (it.isEmpty()) {
-                Result.failure(Exception("No ongoing notification info"))
+                NotificationEntity(-1L, false, OngoingNotificationInfoEntity())
             } else {
                 val dto = it[0]
-                val entity = entityParser.parse<OngoingNotificationInfoEntity>(dto.content)
-                Result.success(entity)
+                val entity = jsonParser.parse<OngoingNotificationInfoEntity>(dto.content)
+                NotificationEntity(dto.id, dto.enabled, entity)
             }
         }
-    }
 
-    override suspend fun setOngoingNotificationInfo(ongoingNotificationInfoEntity: OngoingNotificationInfoEntity): Long {
+
+    override suspend fun setOngoingNotificationInfo(ongoingNotificationInfoEntity: NotificationEntity<OngoingNotificationInfoEntity>): Long {
         return notificationLocalDataSource.insert(
             NotificationDto(
-                notificationTypeId = NotificationType.ONGOING.notificationId,
-                content = entityParser.parse(ongoingNotificationInfoEntity),
+                id = ongoingNotificationInfoEntity.idInDb,
+                notificationType = NotificationType.ONGOING.notificationId,
+                enabled = ongoingNotificationInfoEntity.enabled,
+                content = jsonParser.parse(ongoingNotificationInfoEntity.data),
             )
         )
     }

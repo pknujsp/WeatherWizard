@@ -86,4 +86,9 @@
     <string name="hour_1">1시간</string>
     <string name="min_30">30분</string>
     <string name="refresh_interval">업데이트 주기</string>
+    <string name="save">저장</string>
+    <string name="temperature_icon">기온 아이콘</string>
+    <string name="weather_condition_icon">날씨 아이콘</string>
+    <string name="notification_icon_type">알림 아이콘 유형</string>
+    <string name="manual">수동</string>
 </resources>

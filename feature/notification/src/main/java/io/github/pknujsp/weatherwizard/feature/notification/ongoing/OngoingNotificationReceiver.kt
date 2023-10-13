@@ -12,10 +12,10 @@ import androidx.work.WorkManager
 class OngoingNotificationReceiver : BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent) {
-        intent.action?.run {
+        if (intent.action != null) {
+            println("OngoingNotificationReceiver: ${intent.action}")
             val request = OneTimeWorkRequest.Builder(OngoingNotificationWorker::class.java)
                 .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
-                .setId(OngoingNotificationWorker.id)
                 .addTag(OngoingNotificationWorker.name)
                 .build()
             val workManager = WorkManager.getInstance(context)

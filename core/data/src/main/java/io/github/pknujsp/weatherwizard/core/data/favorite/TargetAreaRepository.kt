@@ -1,10 +1,10 @@
 package io.github.pknujsp.weatherwizard.core.data.favorite
 
-import io.github.pknujsp.weatherwizard.core.model.favorite.TargetAreaType
+import io.github.pknujsp.weatherwizard.core.model.favorite.LocationType
 
 interface TargetAreaRepository {
 
-    suspend fun updateTargetArea(target: TargetAreaType)
+    suspend fun updateTargetArea(target: LocationType)
 
-    suspend fun getTargetArea(): TargetAreaType
+    suspend fun getTargetArea(): LocationType
 }

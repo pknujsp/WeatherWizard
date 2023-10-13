@@ -8,8 +8,7 @@ import io.github.pknujsp.weatherwizard.core.model.DBEntityModel
 data class NotificationDto(
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0,
-    val notificationTypeId: Int,
+    val enabled: Boolean,
+    val notificationType: Int,
     val content: String
-) : DBEntityModel {
-
-}
+) : DBEntityModel

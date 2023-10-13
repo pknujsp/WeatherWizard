@@ -50,7 +50,6 @@ class OngoingNotificationRemoteViews(private val units: CurrentUnits) : IRemoteV
 
             notificationOngoingSmall.yesterdayTemperature.isVisible = false
             notificationOngoingSmall.progressbar.isVisible = false
-            progressbar.isVisible = false
             hourlyForecast.isVisible = false
             root
         }
