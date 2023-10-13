@@ -1,5 +1,6 @@
 package io.github.pknujsp.weatherwizard.feature.notification.common
 
+import android.annotation.SuppressLint
 import android.app.Notification.VISIBILITY_PUBLIC
 import android.app.NotificationChannel
 import android.app.NotificationManager.IMPORTANCE_HIGH
@@ -7,7 +8,10 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
+import androidx.work.ForegroundInfo
 import io.github.pknujsp.weatherwizard.core.model.notification.NotificationType
+import io.github.pknujsp.weatherwizard.core.model.remoteviews.RemoteViewsEntity
 import io.github.pknujsp.weatherwizard.feature.notification.ongoing.OngoingNotificationReceiver
 
 
@@ -18,10 +22,10 @@ class AppNotificationManager(context: Context) {
     private fun createNotificationChannel(notificationType: NotificationType) {
         notificationType.run {
             if (notificationManager.getNotificationChannel(channelId) == null) {
-                val channel = NotificationChannel(channelId, channelName, IMPORTANCE_HIGH).apply {
-                    description = channelDescription
-                    lockscreenVisibility = VISIBILITY_PUBLIC
-                    importance = importance
+                val channel = NotificationChannel(channelId, channelName, IMPORTANCE_HIGH).also {
+                    it.description = channelDescription
+                    it.lockscreenVisibility = VISIBILITY_PUBLIC
+                    it.importance = importance
                 }
 
                 notificationManager.createNotificationChannel(channel)
@@ -70,7 +74,37 @@ class AppNotificationManager(context: Context) {
     fun createRefreshPendingIntent(context: Context, notificationType: NotificationType): PendingIntent {
         return PendingIntent.getBroadcast(context, notificationType.notificationId, Intent(context, OngoingNotificationReceiver::class.java)
             .apply {
-            action = ""
-        }, PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT)
+                action = ""
+            }, PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT)
     }
+
+    fun createForegroundNotification(context: Context, notificationType: NotificationType): ForegroundInfo {
+        val notification = createNotification(notificationType,
+            context).setSmallIcon(io.github.pknujsp.weatherwizard.core.common.R.mipmap.ic_launcher)
+            .setContentText(context.getString(notificationType.contentText))
+            .setContentTitle(context.getString(notificationType.contentTitle))
+            .setPriority(notificationType.importance)
+            .setSilent(true)
+            .build()
+
+        return ForegroundInfo(notificationType.notificationId, notification)
+    }
+
+    @SuppressLint("MissingPermission")
+    fun notifyNotification(notificationType: NotificationType, context: Context, entity: RemoteViewsEntity) {
+        val notificationBulder = createNotification(notificationType, context)
+
+        notificationBulder.setSmallIcon(entity.smallIcon)
+            .setSubText(entity.subText)
+            .setCustomContentView(entity.smallContentRemoteViews)
+            .setCustomBigContentView(entity.bigContentRemoteViews)
+            .setOnlyAlertOnce(true).setWhen(0)
+
+        if (notificationType == NotificationType.ONGOING) {
+            notificationBulder.setOngoing(true)
+        }
+
+        NotificationManagerCompat.from(context).notify(notificationType.notificationId, notificationBulder.build())
+    }
+
 }
