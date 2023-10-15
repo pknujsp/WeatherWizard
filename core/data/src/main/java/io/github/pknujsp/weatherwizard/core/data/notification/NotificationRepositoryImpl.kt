@@ -7,6 +7,8 @@ import io.github.pknujsp.weatherwizard.core.model.JsonParser
 import io.github.pknujsp.weatherwizard.core.model.notification.NotificationEntity
 import io.github.pknujsp.weatherwizard.core.model.notification.NotificationType
 import io.github.pknujsp.weatherwizard.core.model.notification.OngoingNotificationInfoEntity
+import io.github.pknujsp.weatherwizard.core.model.notification.daily.DailyNotificationInfoEntity
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.serialization.json.Json
 import javax.inject.Inject
@@ -39,5 +41,9 @@ class NotificationRepositoryImpl @Inject constructor(
                 content = jsonParser.parse(ongoingNotificationInfoEntity.data),
             )
         )
+    }
+
+    override fun getDailyNotificationInfo(): Flow<List<NotificationEntity<DailyNotificationInfoEntity>>> {
+        TODO("Not yet implemented")
     }
 }

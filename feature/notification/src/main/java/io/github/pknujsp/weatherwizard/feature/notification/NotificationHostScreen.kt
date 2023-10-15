@@ -1,6 +1,7 @@
 package io.github.pknujsp.weatherwizard.feature.notification
 
 import android.app.Activity
+import android.os.Build
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -18,8 +19,14 @@ fun HostNotificationScreen() {
     val window = (LocalContext.current as Activity).window
     WindowCompat.getInsetsController(window, window.decorView).isAppearanceLightNavigationBars = true
 
-    NavHost(navController = navController, route = NotificationRoutes.route, startDestination = NotificationRoutes.Main.route,
+    NavHost(navController = navController, route = NotificationRoutes.route, startDestination = if (Build.VERSION.SDK_INT >= Build
+            .VERSION_CODES.TIRAMISU) NotificationRoutes.Permission.route else NotificationRoutes.Main.route,
         modifier = Modifier.navigationBarsPadding()) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            composable(NotificationRoutes.Permission.route) {
+                PermissionCheckingScreen(navController = navController)
+            }
+        }
         composable(NotificationRoutes.Main.route) {
             NotificationMainScreen(navController = navController)
         }

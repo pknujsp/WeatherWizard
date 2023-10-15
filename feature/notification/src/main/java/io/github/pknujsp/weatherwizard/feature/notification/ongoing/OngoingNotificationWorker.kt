@@ -1,12 +1,15 @@
 package io.github.pknujsp.weatherwizard.feature.notification.ongoing
 
 import android.content.Context
+import android.os.Build
 import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.ForegroundInfo
 import androidx.work.WorkerParameters
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
+import io.github.pknujsp.weatherwizard.core.common.permission.PermissionType
+import io.github.pknujsp.weatherwizard.core.common.permission.checkSelfPermission
 import io.github.pknujsp.weatherwizard.core.model.notification.NotificationType
 import io.github.pknujsp.weatherwizard.core.model.onSuccess
 import io.github.pknujsp.weatherwizard.core.model.remoteviews.RemoteViewsEntity
@@ -31,6 +34,11 @@ class OngoingNotificationWorker @AssistedInject constructor(
 
     override suspend fun doWork(): Result {
         return withContext(Dispatchers.IO) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && !context.checkSelfPermission(PermissionType.NOTIFICATION)) {
+                Result.success()
+            }
+
+            appNotificationManager.notifyLoadingNotification(NotificationType.ONGOING, context)
             val result = remoteViewsModel.load()
             result.onSuccess {
                 it.refreshPendingIntent = appNotificationManager.createRefreshPendingIntent(context, NotificationType.ONGOING)
@@ -40,7 +48,7 @@ class OngoingNotificationWorker @AssistedInject constructor(
                 val bigContentRemoteViews = remoteViewsCreator.createBigContentView(it, context)
 
                 val entity = RemoteViewsEntity(true,
-                    smallContentRemoteViews, bigContentRemoteViews, it.address, it.currentWeather.weatherIcon)
+                    smallContentRemoteViews, bigContentRemoteViews, "${it.address} • ${it.time}", it.currentWeather.weatherIcon)
                 appNotificationManager.notifyNotification(NotificationType.ONGOING, context, entity)
             }
             Result.success()

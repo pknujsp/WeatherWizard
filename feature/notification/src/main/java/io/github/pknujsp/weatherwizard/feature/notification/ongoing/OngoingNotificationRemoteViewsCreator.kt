@@ -15,7 +15,6 @@ class OngoingNotificationRemoteViewsCreator : NotificationRemoteViewsCreator<Ong
                 setTextViewText(R.id.temperature, currentWeather.temperature)
                 setTextViewText(R.id.feels_like_temperature, currentWeather.feelsLikeTemperature)
                 setTextViewText(R.id.address, address)
-                setViewVisibility(R.id.progressbar, android.view.View.GONE)
                 setOnClickPendingIntent(R.id.refresh_button, refreshPendingIntent)
             }
         }
@@ -28,7 +27,6 @@ class OngoingNotificationRemoteViewsCreator : NotificationRemoteViewsCreator<Ong
                 setTextViewText(R.id.temperature, currentWeather.temperature)
                 setTextViewText(R.id.feels_like_temperature, currentWeather.feelsLikeTemperature)
                 setTextViewText(R.id.address, address)
-                setViewVisibility(R.id.progressbar, android.view.View.GONE)
                 setOnClickPendingIntent(R.id.refresh_button, refreshPendingIntent)
                 createHourlyForecastView(model, context)
             }

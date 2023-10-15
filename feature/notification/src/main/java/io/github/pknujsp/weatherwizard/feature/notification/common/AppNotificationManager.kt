@@ -7,11 +7,13 @@ import android.app.NotificationManager.IMPORTANCE_HIGH
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.widget.RemoteViews
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.work.ForegroundInfo
 import io.github.pknujsp.weatherwizard.core.model.notification.NotificationType
 import io.github.pknujsp.weatherwizard.core.model.remoteviews.RemoteViewsEntity
+import io.github.pknujsp.weatherwizard.feature.notification.R
 import io.github.pknujsp.weatherwizard.feature.notification.ongoing.OngoingNotificationReceiver
 
 
@@ -52,24 +54,14 @@ class AppNotificationManager(context: Context) {
     }
 
     fun cancelNotification(notificationType: NotificationType) {
-        val activeNotifications = notificationManager.activeNotifications
-        for (activeNotification in activeNotifications) {
-            if (activeNotification.id == notificationType.notificationId) {
-                notificationManager.cancel(activeNotification.id)
-                break
-            }
+        if (notificationManager.activeNotifications.any { it.id == notificationType.notificationId }) {
+            notificationManager.cancel(notificationType.notificationId)
         }
     }
 
-    fun isActiveNotification(notificationType: NotificationType): Boolean {
-        val activeNotifications = notificationManager.activeNotifications
-        for (activeNotification in activeNotifications) {
-            if (activeNotification.id == notificationType.notificationId) {
-                return true
-            }
-        }
-        return false
-    }
+    fun isActiveNotification(notificationType: NotificationType): Boolean =
+        notificationManager.activeNotifications.any { it.id == notificationType.notificationId }
+
 
     fun createRefreshPendingIntent(context: Context, notificationType: NotificationType): PendingIntent {
         return PendingIntent.getBroadcast(context, notificationType.notificationId, Intent(context, OngoingNotificationReceiver::class.java)
@@ -94,17 +86,36 @@ class AppNotificationManager(context: Context) {
     fun notifyNotification(notificationType: NotificationType, context: Context, entity: RemoteViewsEntity) {
         val notificationBulder = createNotification(notificationType, context)
 
-        notificationBulder.setSmallIcon(entity.smallIcon)
-            .setSubText(entity.subText)
-            .setCustomContentView(entity.smallContentRemoteViews)
-            .setCustomBigContentView(entity.bigContentRemoteViews)
-            .setOnlyAlertOnce(true).setWhen(0)
+        notificationBulder.apply {
+            setSmallIcon(entity.smallIcon)
+            setSubText(entity.subText)
+            setCustomBigContentView(entity.bigContentRemoteViews)
+            setOnlyAlertOnce(true)
+            setWhen(0)
 
-        if (notificationType == NotificationType.ONGOING) {
-            notificationBulder.setOngoing(true)
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) {
+                setContent(entity.smallContentRemoteViews)
+                setCustomContentView(entity.smallContentRemoteViews)
+            } else {
+                setCustomContentView(entity.bigContentRemoteViews)
+            }
+
+            if (notificationType == NotificationType.ONGOING) {
+                setOngoing(true)
+            }
         }
 
         NotificationManagerCompat.from(context).notify(notificationType.notificationId, notificationBulder.build())
     }
 
+    @SuppressLint("MissingPermission")
+    fun notifyLoadingNotification(notificationType: NotificationType, context: Context) {
+        val notificationBulder = createNotification(notificationType, context)
+
+        notificationBulder.setSmallIcon(io.github.pknujsp.weatherwizard.core.common.R.drawable.ic_refresh)
+            .setContent(RemoteViews(context.packageName, R.layout.view_loading))
+            .setOnlyAlertOnce(true).setWhen(0).setSilent(true)
+
+        NotificationManagerCompat.from(context).notify(notificationType.notificationId, notificationBulder.build())
+    }
 }

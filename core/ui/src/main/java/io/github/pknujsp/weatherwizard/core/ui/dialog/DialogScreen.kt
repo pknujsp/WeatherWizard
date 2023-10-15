@@ -1,0 +1,40 @@
+package io.github.pknujsp.weatherwizard.core.ui.dialog
+
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import io.github.pknujsp.weatherwizard.core.ui.PrimaryButton
+import io.github.pknujsp.weatherwizard.core.ui.SecondaryButton
+
+
+@Composable
+fun DialogScreen(
+    title: String, message: String, negative: String, positive: String, onClickNegative: () ->
+    Unit, onClickPositive: () -> Unit
+) {
+    Column(modifier = Modifier
+        .fillMaxSize()
+        .padding(horizontal = 16.dp, vertical = 24.dp), verticalArrangement = Arrangement.Center) {
+        Text(text = title, style = TextStyle(fontSize = 24.sp, color = Color.Black))
+        Spacer(modifier = Modifier.height(16.dp))
+        Text(text = message, style = TextStyle(fontSize = 16.sp, color = Color.DarkGray))
+        Spacer(modifier = Modifier.height(16.dp))
+        Row(modifier = Modifier.align(Alignment.End), verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            SecondaryButton(text = negative, onClick = onClickNegative)
+            PrimaryButton(text = positive, onClick = onClickPositive)
+        }
+    }
+}

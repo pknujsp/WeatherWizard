@@ -18,6 +18,11 @@ sealed interface NotificationRoutes : Routes {
         override val route: String = "Notification/Main"
     }
 
+    data object Permission : NotificationRoutes {
+        override val route: String = "Notification/Permission"
+    }
+
+
     data object Ongoing : NotificationRoutes {
         override val route: String = "Notification/Ongoing"
     }

@@ -50,7 +50,7 @@
     <string name="location_permission_denied">위치 권한이 허용되어 있지 않아 진행이 불가능 합니다.</string>
     <string name="network_unavailable">네트워크(Wifi, Mobile)가 연결되어 있지 않습니다.</string>
     <string name="location_service_disabled">위치 정보 기능이 꺼져있습니다.</string>
-    <string name="open_settings_for_location_permission">권한 부여</string>
+    <string name="open_settings_for_permission">권한 부여</string>
     <string name="okay">확인</string>
     <string name="open_settings_for_location_service">위치 활성화</string>
     <string name="title_why_you_need_permissions">권한이 필요합니다</string>
@@ -91,4 +91,7 @@
     <string name="weather_condition_icon">날씨 아이콘</string>
     <string name="notification_icon_type">알림 아이콘 유형</string>
     <string name="manual">수동</string>
+    <string name="post_notification_permission_denied">알림 표시 권한이 허용되어 있지 않아 진행이 불가능 합니다.</string>
+    <string name="current_weather">현재 날씨</string>
+    <string name="setting">설정</string>
 </resources>

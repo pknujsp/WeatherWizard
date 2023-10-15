@@ -2,12 +2,15 @@ package io.github.pknujsp.weatherwizard.core.model.notification.ongoing
 
 import android.app.PendingIntent
 import io.github.pknujsp.weatherwizard.core.common.util.DayNightCalculator
+import io.github.pknujsp.weatherwizard.core.common.util.toCalendar
 import io.github.pknujsp.weatherwizard.core.model.UiModel
 import io.github.pknujsp.weatherwizard.core.model.weather.common.CurrentUnits
 import io.github.pknujsp.weatherwizard.core.model.weather.current.CurrentWeatherEntity
 import io.github.pknujsp.weatherwizard.core.model.weather.hourlyforecast.HourlyForecastEntity
+import java.text.SimpleDateFormat
 import java.time.ZonedDateTime
 import java.util.Calendar
+import java.util.Locale
 import kotlin.properties.Delegates
 
 class OngoingNotificationUiModel(
@@ -18,6 +21,9 @@ class OngoingNotificationUiModel(
     currentCalendar: Calendar,
     units: CurrentUnits
 ) : UiModel {
+    val time: String =
+        SimpleDateFormat("HH:mm", Locale.getDefault()).format(currentCalendar.time)
+
     var refreshPendingIntent: PendingIntent by Delegates.notNull()
 
     val currentWeather = currentWeather.run {
@@ -29,10 +35,13 @@ class OngoingNotificationUiModel(
     }
 
     val hourlyForecast = hourlyForecast.run {
-        items.subList(0, 9).map {
+        items.subList(0, 8).map {
+            val calendar = ZonedDateTime.parse(it.dateTime.value).toCalendar()
+
             HourlyForecast(
                 temperature = it.temperature.convertUnit(units.temperatureUnit).toString(),
-                weatherIcon = it.weatherCondition.value.dayWeatherIcon,
+                weatherIcon = it.weatherCondition.value.getWeatherIconByTimeOfDay(dayNightCalculator.calculate(calendar) ==
+                        DayNightCalculator.DayNight.DAY),
                 dateTime = ZonedDateTime.parse(it.dateTime.value).hour.toString()
             )
         }

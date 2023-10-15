@@ -41,7 +41,7 @@ import io.github.pknujsp.weatherwizard.core.ui.SecondaryButton
 import io.github.pknujsp.weatherwizard.core.ui.TitleTextWithNavigation
 import io.github.pknujsp.weatherwizard.feature.notification.R
 import io.github.pknujsp.weatherwizard.feature.notification.common.AppNotificationManager
-import io.github.pknujsp.weatherwizard.feature.notification.common.OngoingNotificationRemoteViews
+import io.github.pknujsp.weatherwizard.feature.notification.common.OngoingNotificationSampleRemoteViews
 import io.github.pknujsp.weatherwizard.feature.notification.common.RemoteViewsScreen
 import io.github.pknujsp.weatherwizard.feature.notification.search.SearchLocationScreen
 
@@ -91,7 +91,7 @@ fun OngoingNotificationScreen(navController: NavController) {
                 .padding(horizontal = 16.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                RemoteViewsScreen(iRemoteViews = OngoingNotificationRemoteViews(units))
+                RemoteViewsScreen(sampleRemoteViews = OngoingNotificationSampleRemoteViews(units))
 
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(text = stringResource(id = R.string.switch_ongoing_notification), modifier = Modifier.weight(1f))

@@ -2,6 +2,7 @@ package io.github.pknujsp.weatherwizard.core.common.permission
 
 import android.Manifest
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
@@ -9,6 +10,7 @@ import android.os.Build
 import android.provider.Settings
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -117,8 +119,17 @@ enum class PermissionType(val permissions: Array<String>) {
                 Manifest.permission.WRITE_EXTERNAL_STORAGE,
             )
         }
-    )
+    ),
+
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+    NOTIFICATION(arrayOf(
+        Manifest.permission.POST_NOTIFICATIONS
+    ))
 }
 
 internal fun Activity.shouldShowRequestPermissionRationale(permissions: Array<String>): Boolean =
     permissions.all { ActivityCompat.shouldShowRequestPermissionRationale(this, it) }
+
+
+fun Context.checkSelfPermission(permissionType: PermissionType): Boolean =
+    permissionType.permissions.all { ContextCompat.checkSelfPermission(this, it) == PackageManager.PERMISSION_GRANTED }
