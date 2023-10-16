@@ -60,8 +60,6 @@ fun FavoriteAreaListScreen(navController: NavController) {
 
     Column(modifier = Modifier
         .fillMaxSize()) {
-        TitleTextWithoutNavigation(title = stringResource(id = R.string.favorite_area_list))
-
         LazyColumn(modifier = Modifier.weight(1f), state = lazyListState) {
             favoriteAreaList.onSuccess {
                 item {

@@ -2,6 +2,7 @@ package io.github.pknujsp.weatherwizard.feature.notification.daily
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -38,10 +39,12 @@ import coil.request.ImageRequest
 import io.github.pknujsp.weatherwizard.core.common.R
 import io.github.pknujsp.weatherwizard.core.model.favorite.LocationType
 import io.github.pknujsp.weatherwizard.core.model.notification.daily.DailyNotificationSimpleInfo
+import io.github.pknujsp.weatherwizard.core.ui.SecondaryButton
 import io.github.pknujsp.weatherwizard.core.ui.TitleTextWithNavigation
 import io.github.pknujsp.weatherwizard.core.ui.dialog.BottomSheet
 import io.github.pknujsp.weatherwizard.core.ui.dialog.DialogScreen
 import io.github.pknujsp.weatherwizard.core.ui.theme.AppShapes
+import io.github.pknujsp.weatherwizard.feature.notification.NotificationRoutes
 
 @Composable
 fun DailyNotificationListScreen(navController: NavController) {
@@ -54,13 +57,22 @@ fun DailyNotificationListScreen(navController: NavController) {
         }
         Column(modifier = Modifier
             .verticalScroll(rememberScrollState())
+            .weight(1f)
             .padding(horizontal = 16.dp),
             verticalArrangement = Arrangement.SpaceAround
         ) {
             for (notification in notifications) {
                 Item(info = notification) {
-
+                    navController.navigate(NotificationRoutes.AddOrEditDaily.routeWithArguments(notification.id))
                 }
+            }
+        }
+        Box(modifier = Modifier.padding(12.dp)) {
+            SecondaryButton(text = stringResource(id = io.github.pknujsp.weatherwizard.feature.notification.R.string.add_daily_notification),
+                modifier =
+                Modifier
+                    .fillMaxWidth()) {
+                navController.navigate(NotificationRoutes.AddOrEditDaily.routeWithArguments())
             }
         }
     }
@@ -74,7 +86,7 @@ private fun Item(info: DailyNotificationSimpleInfo, onClick: () -> Unit) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .clickable { }
+                .clickable { onClick() }
                 .padding(16.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(16.dp)

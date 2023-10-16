@@ -18,7 +18,7 @@ enum class DailyNotificationType : IEnum {
     };
 
     companion object : BaseEnum<DailyNotificationType> {
-        override val default: DailyNotificationType = CURRENT_WEATHER
+        override val default: DailyNotificationType = HOURLY_FORECAST
         override val key: String = "DailyNotificationType"
         override val enums: Array<DailyNotificationType> = values()
     }

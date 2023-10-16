@@ -10,6 +10,7 @@ import io.github.pknujsp.weatherwizard.core.model.notification.OngoingNotificati
 import io.github.pknujsp.weatherwizard.core.model.notification.daily.DailyNotificationInfoEntity
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
 import kotlinx.serialization.json.Json
 import javax.inject.Inject
 
@@ -20,8 +21,8 @@ class NotificationRepositoryImpl @Inject constructor(
 
     private val jsonParser: JsonParser = JsonParser(json)
 
-    override suspend fun getOngoingNotificationInfo() =
-        notificationLocalDataSource.getAll(NotificationType.ONGOING.notificationId).first().let {
+    override suspend fun getOngoingNotification() =
+        notificationLocalDataSource.getAll(NotificationType.ONGOING).first().let {
             if (it.isEmpty()) {
                 NotificationEntity(-1L, false, OngoingNotificationInfoEntity())
             } else {
@@ -31,9 +32,13 @@ class NotificationRepositoryImpl @Inject constructor(
             }
         }
 
+    override suspend fun switch(id: Long, enabled: Boolean) {
+        notificationLocalDataSource.switch(id, enabled)
+    }
+
 
     override suspend fun setOngoingNotificationInfo(ongoingNotificationInfoEntity: NotificationEntity<OngoingNotificationInfoEntity>): Long {
-        return notificationLocalDataSource.insert(
+        return notificationLocalDataSource.updateNotification(
             NotificationDto(
                 id = ongoingNotificationInfoEntity.idInDb,
                 notificationType = NotificationType.ONGOING.notificationId,
@@ -43,7 +48,33 @@ class NotificationRepositoryImpl @Inject constructor(
         )
     }
 
-    override fun getDailyNotificationInfo(): Flow<List<NotificationEntity<DailyNotificationInfoEntity>>> {
-        TODO("Not yet implemented")
+    override fun getDailyNotifications(): Flow<List<NotificationEntity<DailyNotificationInfoEntity>>> =
+        notificationLocalDataSource.getAll(NotificationType.DAILY).map { list ->
+            list.map {
+                NotificationEntity(it.id, it.enabled, jsonParser.parse(it.content))
+            }
+        }
+
+    override suspend fun getDailyNotification(id: Long): NotificationEntity<DailyNotificationInfoEntity> =
+        if(id == -1L){
+            NotificationEntity(-1L, false, DailyNotificationInfoEntity())
+        }else{
+            notificationLocalDataSource.getById(id).let {
+                NotificationEntity(it.id, it.enabled, jsonParser.parse(it.content))
+            }
+        }
+    override suspend fun setDailyNotificationInfo(entity: NotificationEntity<DailyNotificationInfoEntity>): Long {
+        return notificationLocalDataSource.updateNotification(
+            NotificationDto(
+                id = entity.idInDb,
+                notificationType = NotificationType.DAILY.notificationId,
+                enabled = entity.enabled,
+                content = jsonParser.parse(entity.data),
+            )
+        )
+    }
+
+    override suspend fun deleteDailyNotification(id: Long) {
+        notificationLocalDataSource.deleteById(id)
     }
 }

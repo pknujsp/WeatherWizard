@@ -94,4 +94,5 @@
     <string name="post_notification_permission_denied">알림 표시 권한이 허용되어 있지 않아 진행이 불가능 합니다.</string>
     <string name="current_weather">현재 날씨</string>
     <string name="setting">설정</string>
+    <string name="data_type">데이터 유형</string>
 </resources>

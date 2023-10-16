@@ -10,6 +10,8 @@ class DailyNotificationSimpleInfo(
     val id: Long,
     val type: DailyNotificationType,
     val locationType: LocationType,
+    private val switch: (DailyNotificationSimpleInfo) -> Unit,
+    private val delete: (DailyNotificationSimpleInfo) -> Unit,
     hour: Int,
     minute: Int,
 ) : UiModel {
@@ -17,10 +19,10 @@ class DailyNotificationSimpleInfo(
 
     fun switch(checked: Boolean) {
         enabled = checked
-
+        switch(this)
     }
 
     fun delete() {
-        TODO("Not yet implemented")
+        delete(this)
     }
 }

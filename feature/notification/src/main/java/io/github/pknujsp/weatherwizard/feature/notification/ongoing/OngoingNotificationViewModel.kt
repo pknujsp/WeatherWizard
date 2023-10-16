@@ -32,7 +32,7 @@ class OngoingNotificationViewModel @Inject constructor(
     private var originalNotificationInfo: OngoingNotificationInfo by Delegates.notNull()
 
     val notificationState = flow {
-        val savedEntity = notificationRepository.getOngoingNotificationInfo()
+        val savedEntity = notificationRepository.getOngoingNotification()
         emit(NotificationState(savedEntity.idInDb, savedEntity.data.run {
             val info = OngoingNotificationInfo(latitude, longitude, addressName, getLocationType(), getRefreshInterval(),
                 getWeatherProvider(), getNotificationIconType())

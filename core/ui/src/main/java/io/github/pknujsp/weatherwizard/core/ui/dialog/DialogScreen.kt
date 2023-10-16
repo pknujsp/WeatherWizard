@@ -2,9 +2,10 @@ package io.github.pknujsp.weatherwizard.core.ui.dialog
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
@@ -22,19 +23,21 @@ import io.github.pknujsp.weatherwizard.core.ui.SecondaryButton
 @Composable
 fun DialogScreen(
     title: String, message: String, negative: String, positive: String, onClickNegative: () ->
-    Unit, onClickPositive: () -> Unit
+    Unit, onClickPositive: () -> Unit, content: (@Composable () -> Unit)? = null
 ) {
     Column(modifier = Modifier
-        .fillMaxSize()
-        .padding(horizontal = 16.dp, vertical = 24.dp), verticalArrangement = Arrangement.Center) {
+        .padding(16.dp)
+        .fillMaxWidth(), verticalArrangement = Arrangement.Center) {
         Text(text = title, style = TextStyle(fontSize = 24.sp, color = Color.Black))
         Spacer(modifier = Modifier.height(16.dp))
         Text(text = message, style = TextStyle(fontSize = 16.sp, color = Color.DarkGray))
         Spacer(modifier = Modifier.height(16.dp))
+        content?.invoke()
         Row(modifier = Modifier.align(Alignment.End), verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            SecondaryButton(text = negative, onClick = onClickNegative)
-            PrimaryButton(text = positive, onClick = onClickPositive)
+            horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            SecondaryButton(text = negative, onClick = onClickNegative, contentPadding = PaddingValues(horizontal = 24.dp, vertical = 12
+                .dp))
+            PrimaryButton(text = positive, onClick = onClickPositive, contentPadding = PaddingValues(horizontal = 24.dp, vertical = 12.dp))
         }
     }
 }

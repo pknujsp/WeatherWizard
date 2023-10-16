@@ -32,7 +32,6 @@ fun SettingsScreen(navController: NavController, viewModel: SettingsViewModel) {
     val context = LocalContext.current
 
     Column {
-        TitleTextWithoutNavigation(title = stringResource(id = io.github.pknujsp.weatherwizard.core.common.R.string.nav_settings))
         ButtonSettingItem(title = stringResource(id = R.string.title_value_unit),
             description = stringResource(id = R.string.description_value_unit), onClick = {
                 navController.navigate(SettingsRoutes.ValueUnit.route)

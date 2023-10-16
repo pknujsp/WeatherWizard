@@ -10,6 +10,8 @@ import androidx.core.view.WindowCompat
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import io.github.pknujsp.weatherwizard.feature.notification.daily.AddOrEditDailyNotificationScreen
+import io.github.pknujsp.weatherwizard.feature.notification.daily.DailyNotificationListScreen
 import io.github.pknujsp.weatherwizard.feature.notification.ongoing.OngoingNotificationScreen
 
 
@@ -32,6 +34,12 @@ fun HostNotificationScreen() {
         }
         composable(NotificationRoutes.Ongoing.route) {
             OngoingNotificationScreen(navController = navController)
+        }
+        composable(NotificationRoutes.Daily.route) {
+            DailyNotificationListScreen(navController = navController)
+        }
+        composable(NotificationRoutes.AddOrEditDaily.route, arguments = NotificationRoutes.AddOrEditDaily.arguments.values.toList()) {
+            AddOrEditDailyNotificationScreen(navController, it.arguments!!.getLong("id"))
         }
     }
 }

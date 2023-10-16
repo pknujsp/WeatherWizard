@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
@@ -17,7 +18,7 @@ class DailyNotificationListViewModel @Inject constructor(
     private val notificationRepository: NotificationRepository
 ) : ViewModel() {
 
-    val notifications = notificationRepository.getDailyNotificationInfo().map { entities ->
+    val notifications = notificationRepository.getDailyNotifications().map { entities ->
         entities.map { entity ->
             DailyNotificationSimpleInfo(
                 id = entity.idInDb,
@@ -25,9 +26,23 @@ class DailyNotificationListViewModel @Inject constructor(
                 locationType = entity.data.getLocationType(),
                 type = entity.data.getType(),
                 hour = entity.data.hour,
-                minute = entity.data.minute
+                minute = entity.data.minute,
+                switch = ::switch,
+                delete = ::delete,
             )
         }
     }.flowOn(Dispatchers.IO)
         .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
+
+    private fun switch(notification: DailyNotificationSimpleInfo) {
+        viewModelScope.launch {
+            notificationRepository.switch(notification.id, notification.enabled)
+        }
+    }
+
+    private fun delete(notification: DailyNotificationSimpleInfo) {
+        viewModelScope.launch {
+            notificationRepository.deleteDailyNotification(notification.id)
+        }
+    }
 }

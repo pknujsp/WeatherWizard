@@ -50,7 +50,6 @@ private fun NotificationItem(
 
 @Composable
 fun NotificationMainScreen(navController: NavController) {
-    val viewModel = hiltViewModel<NotificationMainViewModel>()
     Column {
         NotificationItem(title = stringResource(id = io.github.pknujsp.weatherwizard.core.common.R.string.title_ongoing_notification),
             description = null, onClick = {

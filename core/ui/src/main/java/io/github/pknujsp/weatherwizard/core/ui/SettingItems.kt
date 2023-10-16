@@ -37,15 +37,13 @@ import io.github.pknujsp.weatherwizard.core.ui.dialog.BottomSheet
 
 @Composable
 private fun SettingItem(
-    title: String, description: String? = null, onClick: (() -> Unit)? = null, content: (@Composable () -> Unit)? =
-        null
+    title: String, description: String? = null, onClick: (() -> Unit)? = null, content: (@Composable () -> Unit)? = null
 ) {
     Row(verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(16.dp),
         modifier = Modifier.clickable(enabled = onClick != null) {
             onClick?.invoke()
-        }
-    ) {
+        }) {
         Column(modifier = Modifier
             .weight(1f)
             .padding(top = 12.dp, bottom = 12.dp, start = 16.dp)) {
@@ -78,8 +76,7 @@ fun CheckBoxSettingItem(title: String, description: String? = null, checked: Boo
 
 @Composable
 fun ButtonSettingItem(
-    title: String, description: String? = null, onClick: () -> Unit, icon: (@Composable () -> Unit)? =
-        null
+    title: String, description: String? = null, onClick: () -> Unit, icon: (@Composable () -> Unit)? = null
 ) {
     SettingItem(title = title, description = description, onClick = onClick, content = icon)
 }
@@ -94,8 +91,7 @@ fun TextValueSettingItem(title: String, description: String? = null, value: () -
 
 @Composable
 fun <E : IEnum> DropDownMenuSettingItem(
-    title: String, description: String? = null, value: String, onClick: () -> Unit,
-    onSelectedItem: (E) -> Unit, enums: Array<E>
+    title: String, description: String? = null, value: String, onClick: () -> Unit, onSelectedItem: (E) -> Unit, enums: Array<E>
 ) {
     SettingItem(title = title, description = description, onClick = onClick) {
         Text(text = value,
@@ -106,8 +102,7 @@ fun <E : IEnum> DropDownMenuSettingItem(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun <E : IEnum> BottomSheetSettingItem(
-    title: String, description: String? = null, selectedItem: E,
-    onSelectedItem: (E?) -> Unit, enums: Array<E>
+    title: String, description: String? = null, selectedItem: E, onSelectedItem: (E?) -> Unit, enums: Array<E>
 ) {
     var expanded by remember { mutableStateOf(false) }
     SettingItem(title = title, description = description, onClick = { expanded = true }) {
@@ -122,9 +117,7 @@ fun <E : IEnum> BottomSheetSettingItem(
                 onSelectedItem(null)
             },
         ) {
-            Column(modifier = Modifier
-                .padding(vertical = 16.dp)
-            ) {
+            Column(modifier = Modifier.padding(vertical = 16.dp)) {
                 TitleTextWithoutNavigation(title = title)
                 enums.forEach { enum ->
                     Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier
@@ -133,14 +126,12 @@ fun <E : IEnum> BottomSheetSettingItem(
                             onSelectedItem(enum)
                         }
                         .fillMaxWidth()) {
-                        Text(
-                            text = stringResource(id = enum.title),
+                        Text(text = stringResource(id = enum.title),
                             fontSize = 14.sp,
                             color = Color.Black,
                             modifier = Modifier
                                 .weight(1f)
-                                .padding(start = 12.dp)
-                        )
+                                .padding(start = 12.dp))
                         RadioButton(selected = selectedItem == enum, onClick = {
                             expanded = false
                             onSelectedItem(enum)
@@ -155,33 +146,48 @@ fun <E : IEnum> BottomSheetSettingItem(
 
 @Composable
 fun <E : IEnum> RadioButtons(
-    radioOptions: Array<E>, selectedOption: E, onOptionSelected:
-        (E) -> Unit
+    radioOptions: Array<E>, selectedOption: E, onOptionSelected: (E) -> Unit
 ) {
     Column(Modifier.selectableGroup()) {
         radioOptions.forEach { option ->
-            Row(
-                Modifier
-                    .fillMaxWidth()
-                    .height(48.dp)
-                    .selectable(
-                        selected = (option == selectedOption),
-                        onClick = { onOptionSelected(option) },
-                        role = Role.RadioButton
-                    )
-                    .padding(horizontal = 16.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
+            Row(Modifier
+                .fillMaxWidth()
+                .height(48.dp)
+                .selectable(selected = (option == selectedOption), onClick = { onOptionSelected(option) }, role = Role.RadioButton)
+                .padding(horizontal = 16.dp), verticalAlignment = Alignment.CenterVertically) {
                 RadioButton(
                     selected = (option == selectedOption),
                     onClick = { onOptionSelected(option) },
                 )
-                Text(
-                    text = stringResource(option.title),
+                Text(text = stringResource(option.title),
                     style = MaterialTheme.typography.bodyLarge,
-                    modifier = Modifier.padding(start = 12.dp)
-                )
+                    modifier = Modifier.padding(start = 12.dp))
             }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun BottomSheetSettingItem(
+    title: String,
+    description: String? = null,
+    currentData: String,
+    isBottomSheetExpanded: Boolean,
+    onDismissRequest: () -> Unit,
+    onClick: () -> Unit,
+    content: @Composable () -> Unit
+) {
+    SettingItem(title = title, description = description, onClick = onClick) {
+        Text(text = currentData,
+            style = TextStyle(fontSize = 15.sp, color = Color.Black, fontWeight = FontWeight.Light, textAlign = TextAlign.Right))
+    }
+
+    if (isBottomSheetExpanded) {
+        BottomSheet(
+            onDismissRequest = onDismissRequest,
+        ) {
+            content()
         }
     }
 }

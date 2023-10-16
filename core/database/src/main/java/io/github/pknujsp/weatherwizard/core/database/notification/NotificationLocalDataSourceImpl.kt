@@ -1,12 +1,17 @@
 package io.github.pknujsp.weatherwizard.core.database.notification
 
+import io.github.pknujsp.weatherwizard.core.model.notification.NotificationType
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
 class NotificationLocalDataSourceImpl @Inject constructor(
     private val notificationDao: NotificationDao
 ) : NotificationLocalDataSource {
-    override suspend fun insert(searchHistoryDto: NotificationDto): Long {
+    override suspend fun switch(id: Long, enabled: Boolean) {
+        notificationDao.switchState(id, enabled)
+    }
+
+    override suspend fun updateNotification(searchHistoryDto: NotificationDto): Long {
         return notificationDao.insert(searchHistoryDto)
     }
 
@@ -14,8 +19,8 @@ class NotificationLocalDataSourceImpl @Inject constructor(
         return notificationDao.getAll()
     }
 
-    override fun getAll(notificationTypeId: Int): Flow<List<NotificationDto>> {
-        return notificationDao.getAll(notificationTypeId)
+    override fun getAll(notificationType: NotificationType): Flow<List<NotificationDto>> {
+        return notificationDao.getAll(notificationType.notificationId)
     }
 
     override suspend fun getById(id: Long): NotificationDto {
@@ -30,8 +35,8 @@ class NotificationLocalDataSourceImpl @Inject constructor(
         return notificationDao.containsId(id)
     }
 
-    override suspend fun containsNotificationTypeId(notificationTypeId: Int): Boolean {
-        return notificationDao.containsNotificationTypeId(notificationTypeId)
+    override suspend fun containsNotificationType(notificationType: NotificationType): Boolean {
+        return notificationDao.containsNotificationTypeId(notificationType.notificationId)
     }
 
 }
