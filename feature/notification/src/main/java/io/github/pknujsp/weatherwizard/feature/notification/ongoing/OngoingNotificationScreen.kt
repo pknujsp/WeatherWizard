@@ -163,12 +163,15 @@ private fun switchNotification(
             .FLAG_NO_CREATE)
     if (enabled) {
         pendingIntent.send()
+        if (refreshInterval != RefreshInterval.MANUAL) {
+            appAlarmManager.scheduleRepeat(refreshInterval.interval, pendingIntent)
+        }
     } else {
         appNotificationManager.cancelNotification(NotificationType.ONGOING)
-        pendingIntent.cancel()
-    }
-
-    if (refreshInterval != RefreshInterval.MANUAL && enabled) {
-        appAlarmManager.scheduleRepeat(refreshInterval.interval, pendingIntent)
+        if (refreshInterval != RefreshInterval.MANUAL) {
+            appAlarmManager.unScheduleRepeat(pendingIntent)
+        }else{
+            pendingIntent.cancel()
+        }
     }
 }

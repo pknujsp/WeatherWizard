@@ -12,7 +12,7 @@ import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.work.ForegroundInfo
 import io.github.pknujsp.weatherwizard.core.model.notification.NotificationType
-import io.github.pknujsp.weatherwizard.core.model.remoteviews.RemoteViewsEntity
+import io.github.pknujsp.weatherwizard.core.model.remoteviews.RemoteViewUiModel
 import io.github.pknujsp.weatherwizard.feature.notification.R
 import io.github.pknujsp.weatherwizard.feature.notification.ongoing.OngoingNotificationReceiver
 
@@ -83,15 +83,20 @@ class AppNotificationManager(context: Context) {
     }
 
     @SuppressLint("MissingPermission")
-    fun notifyNotification(notificationType: NotificationType, context: Context, entity: RemoteViewsEntity) {
+    fun notifyNotification(notificationType: NotificationType, context: Context, entity: RemoteViewUiModel) {
         val notificationBulder = createNotification(notificationType, context)
 
         notificationBulder.apply {
-            setSmallIcon(entity.smallIcon)
             setSubText(entity.subText)
             setCustomBigContentView(entity.bigContentRemoteViews)
             setOnlyAlertOnce(true)
             setWhen(0)
+
+            entity.smallIcon?.let {
+                setSmallIcon(it)
+            } ?: run {
+                setSmallIcon(entity.smallIconId)
+            }
 
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) {
                 setContent(entity.smallContentRemoteViews)

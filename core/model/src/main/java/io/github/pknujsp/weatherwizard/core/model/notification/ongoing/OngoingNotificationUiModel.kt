@@ -4,6 +4,7 @@ import android.app.PendingIntent
 import io.github.pknujsp.weatherwizard.core.common.util.DayNightCalculator
 import io.github.pknujsp.weatherwizard.core.common.util.toCalendar
 import io.github.pknujsp.weatherwizard.core.model.UiModel
+import io.github.pknujsp.weatherwizard.core.model.notification.NotificationIconType
 import io.github.pknujsp.weatherwizard.core.model.weather.common.CurrentUnits
 import io.github.pknujsp.weatherwizard.core.model.weather.current.CurrentWeatherEntity
 import io.github.pknujsp.weatherwizard.core.model.weather.hourlyforecast.HourlyForecastEntity
@@ -15,6 +16,7 @@ import kotlin.properties.Delegates
 
 class OngoingNotificationUiModel(
     val address: String,
+    val iconType: NotificationIconType,
     currentWeather: CurrentWeatherEntity,
     hourlyForecast: HourlyForecastEntity,
     dayNightCalculator: DayNightCalculator,
@@ -23,6 +25,7 @@ class OngoingNotificationUiModel(
 ) : UiModel {
     val time: String =
         SimpleDateFormat("HH:mm", Locale.getDefault()).format(currentCalendar.time)
+    val currentTemperature: String = currentWeather.temperature.toStringWithOnlyDegree()
 
     var refreshPendingIntent: PendingIntent by Delegates.notNull()
 
