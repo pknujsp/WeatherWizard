@@ -124,10 +124,15 @@ enum class PermissionType(val permissions: Array<String>) {
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     NOTIFICATION(arrayOf(
         Manifest.permission.POST_NOTIFICATIONS
-    ))
+    )),
+
+    @RequiresApi(Build.VERSION_CODES.S)
+    EXACT_ALARM(arrayOf(
+        Manifest.permission.SCHEDULE_EXACT_ALARM
+    )),
 }
 
-internal fun Activity.shouldShowRequestPermissionRationale(permissions: Array<String>): Boolean =
+private fun Activity.shouldShowRequestPermissionRationale(permissions: Array<String>): Boolean =
     permissions.all { ActivityCompat.shouldShowRequestPermissionRationale(this, it) }
 
 
