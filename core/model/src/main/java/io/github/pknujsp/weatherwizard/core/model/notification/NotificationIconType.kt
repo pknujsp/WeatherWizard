@@ -15,7 +15,7 @@ enum class NotificationIconType : IEnum {
 
     companion object : BaseEnum<NotificationIconType> {
         override val default: NotificationIconType = TEMPERATURE
-        override val key:String get() = "NotificationIconType"
-        override val enums: Array<NotificationIconType> = values()
+        override val key: String get() = "NotificationIconType"
+        override val enums: Array<NotificationIconType> get() = entries.toTypedArray()
     }
 }

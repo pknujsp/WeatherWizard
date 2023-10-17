@@ -1,5 +1,6 @@
 package io.github.pknujsp.weatherwizard.feature.notification.ongoing
 
+import android.app.PendingIntent
 import android.content.Context
 import android.os.Build
 import androidx.hilt.work.HiltWorker
@@ -41,7 +42,9 @@ class OngoingNotificationWorker @AssistedInject constructor(
             appNotificationManager.notifyLoadingNotification(NotificationType.ONGOING, context)
             val result = remoteViewsModel.load()
             result.onSuccess {
-                it.refreshPendingIntent = appNotificationManager.getRefreshPendingIntent(context, NotificationType.ONGOING)
+                it.refreshPendingIntent = appNotificationManager.getRefreshPendingIntent(context,
+                    NotificationType.ONGOING,
+                    PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
 
                 val remoteViewsCreator = OngoingNotificationRemoteViewsCreator()
                 val smallContentRemoteViews = remoteViewsCreator.createSmallContentView(it, context)
