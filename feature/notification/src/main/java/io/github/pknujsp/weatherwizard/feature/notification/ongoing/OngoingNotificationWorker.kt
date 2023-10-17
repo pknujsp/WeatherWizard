@@ -41,7 +41,7 @@ class OngoingNotificationWorker @AssistedInject constructor(
             appNotificationManager.notifyLoadingNotification(NotificationType.ONGOING, context)
             val result = remoteViewsModel.load()
             result.onSuccess {
-                it.refreshPendingIntent = appNotificationManager.createRefreshPendingIntent(context, NotificationType.ONGOING)
+                it.refreshPendingIntent = appNotificationManager.getRefreshPendingIntent(context, NotificationType.ONGOING)
 
                 val remoteViewsCreator = OngoingNotificationRemoteViewsCreator()
                 val smallContentRemoteViews = remoteViewsCreator.createSmallContentView(it, context)

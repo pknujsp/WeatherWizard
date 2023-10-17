@@ -1,13 +1,12 @@
 package io.github.pknujsp.weatherwizard.feature.notification.ongoing
 
+import android.app.PendingIntent
 import android.content.Context
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -34,6 +33,7 @@ import io.github.pknujsp.weatherwizard.core.model.notification.RefreshInterval
 import io.github.pknujsp.weatherwizard.core.ui.BottomSheetSettingItem
 import io.github.pknujsp.weatherwizard.core.ui.SecondaryButton
 import io.github.pknujsp.weatherwizard.core.ui.TitleTextWithNavigation
+import io.github.pknujsp.weatherwizard.feature.alarm.AppAlarmManager
 import io.github.pknujsp.weatherwizard.feature.notification.R
 import io.github.pknujsp.weatherwizard.feature.notification.common.AppNotificationManager
 import io.github.pknujsp.weatherwizard.feature.notification.common.LocationScreen
@@ -50,17 +50,15 @@ fun OngoingNotificationScreen(navController: NavController) {
     var showSearch by remember { mutableStateOf(false) }
     val context = LocalContext.current
     val appNotificationManager = remember { AppNotificationManager(context) }
+    val appAlarmManager = remember { AppAlarmManager(context) }
 
     if (notificationState.onChangedAction != NotificationState.NotificationAction.NONE) {
         println("notificationState.onChangedAction: ${notificationState.onChangedAction}")
-        if (notificationState.onChangedAction == NotificationState.NotificationAction.NOTIFY) {
-            notifyNotification(context, appNotificationManager)
-        } else if (notificationState.onChangedAction == NotificationState.NotificationAction.CANCEL) {
-            cancelNotification(context, appNotificationManager)
-        }
+
+        switchNotification(notificationState.onChangedAction == NotificationState.NotificationAction.NOTIFY, context,
+            appNotificationManager, appAlarmManager, notificationState.info.refreshInterval)
         notificationState.onChangedAction = NotificationState.NotificationAction.NONE
     }
-
 
     if (showSearch) {
         SearchLocationScreen(onSelectedLocation = {
@@ -155,11 +153,21 @@ fun NotificationIconScreen(viewModel: OngoingNotificationViewModel, entity: Ongo
         enums = icons)
 }
 
-private fun notifyNotification(context: Context, appNotificationManager: AppNotificationManager) {
-    val pendingIntent = appNotificationManager.createRefreshPendingIntent(context, NotificationType.ONGOING)
-    pendingIntent.send()
-}
+private fun switchNotification(
+    enabled: Boolean, context: Context, appNotificationManager: AppNotificationManager, appAlarmManager:
+    AppAlarmManager, refreshInterval: RefreshInterval
+) {
+    val pendingIntent = appNotificationManager.getRefreshPendingIntent(context, NotificationType.ONGOING,
+        PendingIntent.FLAG_IMMUTABLE or if (enabled) PendingIntent.FLAG_UPDATE_CURRENT else PendingIntent
+            .FLAG_NO_CREATE)
+    if (enabled) {
+        pendingIntent.send()
+    } else {
+        appNotificationManager.cancelNotification(NotificationType.ONGOING)
+        pendingIntent.cancel()
+    }
 
-private fun cancelNotification(context: Context, appNotificationManager: AppNotificationManager) {
-    appNotificationManager.cancelNotification(NotificationType.ONGOING)
+    if (refreshInterval != RefreshInterval.MANUAL && enabled) {
+        appAlarmManager.scheduleRepeat(refreshInterval.interval, pendingIntent)
+    }
 }

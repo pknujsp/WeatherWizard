@@ -5,9 +5,6 @@ import android.content.Context
 import android.content.Intent
 import io.github.pknujsp.weatherwizard.core.model.notification.NotificationType
 import io.github.pknujsp.weatherwizard.feature.alarm.AppAlarmManager
-import io.github.pknujsp.weatherwizard.feature.notification.ongoing.OngoingNotificationReceiver
-import java.time.LocalDateTime
-import java.time.LocalTime
 import java.time.ZonedDateTime
 
 class NotificationAlarmManager(context: Context) {
@@ -22,17 +19,14 @@ class NotificationAlarmManager(context: Context) {
             }
         }
         val timeInMillis = now.toInstant().toEpochMilli()
-        val pendingIntent = getPendingIntent(notificationId, context, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
-
-        if (pendingIntent != null) {
-            appAlarmManager.schedule(timeInMillis, pendingIntent)
+        getPendingIntent(notificationId, context, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)?.run {
+            appAlarmManager.schedule(timeInMillis, this)
         }
     }
 
     fun unSchedule(context: Context, notificationId: Long) {
-        val pendingIntent = getPendingIntent(notificationId, context, PendingIntent.FLAG_NO_CREATE or PendingIntent.FLAG_IMMUTABLE)
-        if (pendingIntent != null) {
-            appAlarmManager.unSchedule(pendingIntent)
+        getPendingIntent(notificationId, context, PendingIntent.FLAG_NO_CREATE or PendingIntent.FLAG_IMMUTABLE)?.run {
+            appAlarmManager.unSchedule(this)
         }
     }
 

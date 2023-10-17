@@ -63,11 +63,11 @@ class AppNotificationManager(context: Context) {
         notificationManager.activeNotifications.any { it.id == notificationType.notificationId }
 
 
-    fun createRefreshPendingIntent(context: Context, notificationType: NotificationType): PendingIntent {
+    fun getRefreshPendingIntent(context: Context, notificationType: NotificationType, flags: Int): PendingIntent {
         return PendingIntent.getBroadcast(context, notificationType.notificationId, Intent(context, OngoingNotificationReceiver::class.java)
             .apply {
                 action = ""
-            }, PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT)
+            }, flags)
     }
 
     fun createForegroundNotification(context: Context, notificationType: NotificationType): ForegroundInfo {
