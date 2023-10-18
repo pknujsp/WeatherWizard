@@ -1,11 +1,10 @@
 package io.github.pknujsp.weatherwizard.feature.notification.daily
 
+import android.content.Context
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -13,12 +12,12 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.TimePicker
 import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -27,6 +26,7 @@ import androidx.navigation.NavController
 import io.github.pknujsp.weatherwizard.core.model.favorite.LocationType
 import io.github.pknujsp.weatherwizard.core.model.notification.daily.DailyNotificationInfo
 import io.github.pknujsp.weatherwizard.core.model.notification.daily.DailyNotificationType
+import io.github.pknujsp.weatherwizard.core.model.onSuccess
 import io.github.pknujsp.weatherwizard.core.ui.BottomSheetSettingItem
 import io.github.pknujsp.weatherwizard.core.ui.SecondaryButton
 import io.github.pknujsp.weatherwizard.core.ui.TitleTextWithNavigation
@@ -40,22 +40,19 @@ import io.github.pknujsp.weatherwizard.feature.notification.search.SearchLocatio
 
 
 @Composable
-fun AddOrEditDailyNotificationScreen(navController: NavController, id: Long) {
+fun AddOrEditDailyNotificationScreen(navController: NavController) {
     val viewModel: AddOrEditDailyNotificationViewModel = hiltViewModel()
     val notification by viewModel.notification.collectAsStateWithLifecycle()
-    val savedId by viewModel.savedId.collectAsStateWithLifecycle()
+    val onSaved by viewModel.onSaved.collectAsStateWithLifecycle()
     val units by viewModel.units.collectAsStateWithLifecycle()
     var showSearch by remember { mutableStateOf(false) }
 
-    LaunchedEffect(Unit) {
-        viewModel.load(id)
-    }
+    notification.onSuccess { info ->
+        if (onSaved) {
+            scheduleAlarm(LocalContext.current, info)
+            navController.popBackStack()
+        }
 
-    if (savedId != null) {
-        navController.popBackStack()
-    }
-
-    notification?.let { info ->
         if (showSearch) {
             SearchLocationScreen(onSelectedLocation = {
                 it?.let { newLocation ->
@@ -98,7 +95,7 @@ fun AddOrEditDailyNotificationScreen(navController: NavController, id: Long) {
                 Box(modifier = Modifier.padding(12.dp)) {
                     SecondaryButton(text = stringResource(id = io.github.pknujsp.weatherwizard.core.common.R.string.save),
                         modifier = Modifier.fillMaxWidth()) {
-                        //viewModel.save()
+                        viewModel.save()
                     }
                 }
             }
@@ -152,4 +149,8 @@ fun NotificationTypeItem(selectedOption: DailyNotificationType, onSelectedItem: 
             }
         },
         enums = types)
+}
+
+private fun scheduleAlarm(context: Context, info: DailyNotificationInfo) {
+    NotificationAlarmManager(context).schedule(context, info.id, info.hour, info.minute)
 }

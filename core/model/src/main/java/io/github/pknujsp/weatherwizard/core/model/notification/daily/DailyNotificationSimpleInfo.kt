@@ -12,8 +12,8 @@ class DailyNotificationSimpleInfo(
     val locationType: LocationType,
     private val switch: (DailyNotificationSimpleInfo) -> Unit,
     private val delete: (DailyNotificationSimpleInfo) -> Unit,
-    hour: Int,
-    minute: Int,
+    val hour: Int,
+    val minute: Int,
 ) : UiModel {
     val time: String = String.format("%02d:%02d", hour, minute)
 

@@ -26,7 +26,10 @@ fun PermissionCheckingScreen(navController: NavController) {
     var refreshKey by remember { mutableIntStateOf(0) }
 
     if (permissionGranted) {
-        navController.navigate(NotificationRoutes.Main.route)
+        navController.navigate(NotificationRoutes.Main.route) {
+            launchSingleTop = true
+            popUpTo(NotificationRoutes.Permission.route) { inclusive = true }
+        }
     } else {
         PermissionManager(PermissionType.NOTIFICATION, onPermissionGranted = {
             openPermissionActivity = false

@@ -128,7 +128,8 @@ enum class PermissionType(val permissions: Array<String>) {
 
     @RequiresApi(Build.VERSION_CODES.S)
     EXACT_ALARM(arrayOf(
-        Manifest.permission.SCHEDULE_EXACT_ALARM
+        Manifest.permission.SCHEDULE_EXACT_ALARM,
+        Manifest.permission.USE_EXACT_ALARM,
     )),
 }
 

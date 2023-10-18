@@ -17,10 +17,10 @@ class NotificationAlarmManager(context: Context) {
             } else {
                 it
             }
-        }
-        val timeInMillis = now.toInstant().toEpochMilli()
+        }.withHour(hour).withMinute(minute)
+
         getPendingIntent(notificationId, context, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)?.run {
-            appAlarmManager.schedule(timeInMillis, this)
+            appAlarmManager.schedule(now.toInstant().toEpochMilli(), this)
         }
     }
 

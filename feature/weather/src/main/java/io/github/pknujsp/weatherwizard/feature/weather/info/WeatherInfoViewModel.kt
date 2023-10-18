@@ -2,6 +2,7 @@ package io.github.pknujsp.weatherwizard.feature.weather.info
 
 
 import android.location.Location
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -9,6 +10,7 @@ import io.github.pknujsp.weatherwizard.core.common.util.DayNightCalculator
 import io.github.pknujsp.weatherwizard.core.common.util.toCalendar
 import io.github.pknujsp.weatherwizard.core.common.util.toTimeZone
 import io.github.pknujsp.weatherwizard.core.data.favorite.FavoriteAreaListRepository
+import io.github.pknujsp.weatherwizard.core.data.favorite.TargetAreaRepository
 import io.github.pknujsp.weatherwizard.core.data.nominatim.NominatimRepository
 import io.github.pknujsp.weatherwizard.core.data.settings.SettingsRepository
 import io.github.pknujsp.weatherwizard.core.domain.weather.GetAllWeatherDataUseCase
@@ -45,10 +47,12 @@ class WeatherInfoViewModel @Inject constructor(
     private val getAllWeatherDataUseCase: GetAllWeatherDataUseCase,
     private val nominatimRepository: NominatimRepository,
     private val favoriteAreaListRepository: FavoriteAreaListRepository,
-    private val settingsRepository: SettingsRepository
+    private val settingsRepository: SettingsRepository,
+    targetAreaRepository: TargetAreaRepository,
 ) : ViewModel() {
 
-    private var locationType by Delegates.notNull<LocationType>()
+    var locationType: LocationType by Delegates.notNull()
+        private set
 
     private val _processState = MutableStateFlow<ProcessState>(ProcessState.Idle)
     val processState: StateFlow<ProcessState> = _processState
@@ -83,12 +87,10 @@ class WeatherInfoViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             settingsRepository.init()
+            locationType = targetAreaRepository.getTargetArea()
         }
     }
 
-    fun setLastTargetAreaType(locationType: LocationType) {
-        this.locationType = locationType
-    }
 
     fun waitForLoad() {
         viewModelScope.launch {
@@ -101,10 +103,10 @@ class WeatherInfoViewModel @Inject constructor(
             _processState.value = ProcessState.Running
             val (lat, lon) = when (locationType) {
                 is LocationType.CurrentLocation -> location!!.latitude to location.longitude
-                is LocationType.CustomLocation -> favoriteAreaListRepository.getById((locationType as LocationType.CustomLocation)
-                    .locationId).getOrThrow().run {
-                    latitude to longitude
-                }
+                is LocationType.CustomLocation -> favoriteAreaListRepository.getById((locationType as LocationType.CustomLocation).locationId)
+                    .getOrThrow().run {
+                        latitude to longitude
+                    }
             }
 
             _args.value =
