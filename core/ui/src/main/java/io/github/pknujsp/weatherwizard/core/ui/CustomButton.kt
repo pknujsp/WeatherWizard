@@ -18,29 +18,33 @@ import androidx.compose.ui.unit.sp
 
 @Composable
 fun PrimaryButton(
-    modifier: Modifier = Modifier,
+    modifier: Modifier = Modifier, contentPadding: PaddingValues? = null,
     colors: ButtonColors = AppButtons.primary(), text: String, onClick: () -> Unit
 ) {
-    BaseButton(modifier, colors, Color.White, text, onClick)
+    BaseButton(modifier, contentPadding, colors, Color.White, text, onClick)
 }
 
 @Composable
 fun SecondaryButton(
-    modifier: Modifier = Modifier,
+    modifier: Modifier = Modifier, contentPadding: PaddingValues? = null,
     colors: ButtonColors = AppButtons.secondary(), text: String, onClick: () -> Unit
 ) {
-    BaseButton(modifier, colors, Color.Black, text, onClick)
+    BaseButton(modifier, contentPadding, colors, Color.Black, text, onClick)
 }
 
 @Composable
-private fun BaseButton(modifier: Modifier, colors: ButtonColors, textColor: Color, text: String, onClick: () -> Unit) {
+private fun BaseButton(
+    modifier: Modifier, contentPadding: PaddingValues?, colors: ButtonColors, textColor: Color, text: String,
+    onClick:
+        () -> Unit
+) {
     Button(
         onClick = onClick,
         modifier = modifier,
         shape = RectangleShape,
         colors = colors,
         border = BorderStroke(1.dp, Color.Black),
-        contentPadding = PaddingValues(horizontal = 32.dp, vertical = 16.dp)
+        contentPadding = contentPadding ?: PaddingValues(horizontal = 32.dp, vertical = 16.dp)
     ) {
         Text(text = text, minLines = 1, maxLines = 1, style = TextStyle(
             fontSize = 16.sp,

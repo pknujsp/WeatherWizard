@@ -16,7 +16,6 @@ import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -53,9 +52,9 @@ import io.github.pknujsp.weatherwizard.feature.weather.info.hourlyforecast.detai
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun WeatherInfoScreen(navController: NavController, locationType: LocationType) {
+fun WeatherInfoScreen(navController: NavController) {
     val viewModelStoreOwner = checkNotNull(LocalViewModelStoreOwner.current)
-    val weatherInfoViewModel: WeatherInfoViewModel = hiltViewModel(viewModelStoreOwner)
+    val viewModel: WeatherInfoViewModel = hiltViewModel(viewModelStoreOwner)
 
     var nestedRoutes by rememberSaveable(saver = Saver(save = { it.value.route },
         restore = { mutableStateOf(NestedWeatherRoutes.getRoute(it)) })) {
@@ -65,8 +64,8 @@ fun WeatherInfoScreen(navController: NavController, locationType: LocationType) 
     val scrollState = rememberScrollState()
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
 
-    val arguments by weatherInfoViewModel.args.collectAsStateWithLifecycle()
-    val processState by weatherInfoViewModel.processState.collectAsStateWithLifecycle()
+    val arguments by viewModel.args.collectAsStateWithLifecycle()
+    val processState by viewModel.processState.collectAsStateWithLifecycle()
     var backgroundImageUrl by remember { mutableStateOf("") }
     var reload by remember { mutableIntStateOf(0) }
 
@@ -77,13 +76,8 @@ fun WeatherInfoScreen(navController: NavController, locationType: LocationType) 
     val window = (LocalContext.current as Activity).window
     val windowInsetsController = remember { WindowCompat.getInsetsController(window, window.decorView) }
 
-    DisposableEffect(Unit) {
-        weatherInfoViewModel.setLastTargetAreaType(locationType)
-        onDispose { }
-    }
-
-    LaunchedEffect(locationType, reload) {
-        load(locationType, gpsLocationManager, weatherInfoViewModel, enabledLocation = {
+    LaunchedEffect(reload) {
+        load(viewModel.locationType, gpsLocationManager, viewModel, enabledLocation = {
             enabledLocation = it
         }, showLocationLoadingDialog = {
             showLocationLoadingDialog = it
@@ -112,20 +106,20 @@ fun WeatherInfoScreen(navController: NavController, locationType: LocationType) 
                             backgroundImageUrl = it
                         }
                     )
-                WeatherContentScreen(contentArguments, weatherInfoViewModel)
+                WeatherContentScreen(contentArguments, viewModel)
             }
         }
 
         is NestedWeatherRoutes.DetailHourlyForecast -> {
             windowInsetsController.isAppearanceLightNavigationBars = true
-            DetailHourlyForecastScreen(weatherInfoViewModel) {
+            DetailHourlyForecastScreen(viewModel) {
                 nestedRoutes = NestedWeatherRoutes.Main
             }
         }
 
         is NestedWeatherRoutes.DetailDailyForecast -> {
             windowInsetsController.isAppearanceLightNavigationBars = true
-            DetailDailyForecastScreen(weatherInfoViewModel) {
+            DetailDailyForecastScreen(viewModel) {
                 nestedRoutes = NestedWeatherRoutes.Main
             }
         }

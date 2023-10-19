@@ -3,6 +3,9 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM"
+        android:maxSdkVersion="32"/>
+    <uses-permission android:name="android.permission.USE_EXACT_ALARM" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -38,7 +41,7 @@
         </activity>
 
         <receiver
-            android:name=".feature.notification.ongoing.OngoingNotificationReceiver"
+            android:name=".feature.notification.ongoing.worker.OngoingNotificationReceiver"
             android:enabled="true"
             android:exported="true">
             <intent-filter>

@@ -13,11 +13,13 @@ import io.github.pknujsp.weatherwizard.core.model.notification.OngoingNotificati
 import io.github.pknujsp.weatherwizard.core.model.notification.OngoingNotificationInfoEntity
 import io.github.pknujsp.weatherwizard.core.model.weather.common.CurrentUnits
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import kotlin.properties.Delegates
@@ -31,8 +33,8 @@ class OngoingNotificationViewModel @Inject constructor(
 
     private var originalNotificationInfo: OngoingNotificationInfo by Delegates.notNull()
 
-    val notificationState = flow {
-        val savedEntity = notificationRepository.getOngoingNotificationInfo()
+    val notification = flow {
+        val savedEntity = notificationRepository.getOngoingNotification()
         emit(NotificationState(savedEntity.idInDb, savedEntity.data.run {
             val info = OngoingNotificationInfo(latitude, longitude, addressName, getLocationType(), getRefreshInterval(),
                 getWeatherProvider(), getNotificationIconType())
@@ -40,14 +42,14 @@ class OngoingNotificationViewModel @Inject constructor(
 
             info
         }, savedEntity.enabled))
-    }.flowOn(Dispatchers.IO).stateIn(viewModelScope,
-        started = SharingStarted.Eagerly,
-        initialValue = NotificationState(-1L, OngoingNotificationInfo(), false))
+    }.flowOn(Dispatchers.IO)
+        .stateIn(viewModelScope, SharingStarted.Eagerly, null)
 
-    fun switch() {
+    fun switch(enabled: Boolean) {
         viewModelScope.launch {
-            with(notificationState.value) {
-                if (hasHistory) {
+            notification.value?.let {
+                it.enabled = enabled
+                if (it.hasHistory) {
                     updateNotificationInfo()
                 }
             }
@@ -56,7 +58,7 @@ class OngoingNotificationViewModel @Inject constructor(
 
     fun updateNotificationInfo() {
         viewModelScope.launch {
-            val state = notificationState.value
+            val state = notification.value!!
             val newEntity = (if (state.enabled) state.info else originalNotificationInfo).run {
                 NotificationEntity(state.idInDb.coerceAtLeast(0L), state.enabled,
                     OngoingNotificationInfoEntity(latitude, longitude, addressName, locationType
@@ -64,6 +66,7 @@ class OngoingNotificationViewModel @Inject constructor(
             }
 
             notificationRepository.setOngoingNotificationInfo(newEntity)
+
             state.hasHistory = true
             state.onChangedAction = if (state.enabled) NotificationState.NotificationAction.NOTIFY
             else NotificationState.NotificationAction.CANCEL
@@ -74,10 +77,11 @@ class OngoingNotificationViewModel @Inject constructor(
 class NotificationState(
     val idInDb: Long,
     val info: OngoingNotificationInfo,
-    enabled: Boolean
+    enabled: Boolean,
 ) {
-    var hasHistory: Boolean = idInDb != 1L
-    var enabled by mutableStateOf(enabled)
+    var enabled: Boolean by mutableStateOf(enabled)
+
+    var hasHistory = idInDb != -1L
     var onChangedAction by mutableStateOf(NotificationAction.NONE)
 
     enum class NotificationAction {

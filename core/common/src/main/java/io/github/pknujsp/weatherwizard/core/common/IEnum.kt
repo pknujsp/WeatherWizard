@@ -1,7 +1,9 @@
 package io.github.pknujsp.weatherwizard.core.common
 
+import androidx.annotation.StringRes
+
 interface IEnum {
-    val title: Int
+    @get:StringRes val title: Int
     val key: Int
 }
 

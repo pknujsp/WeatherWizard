@@ -1,14 +1,13 @@
 package io.github.pknujsp.weatherwizard.feature.notification.ongoing
 
+import android.app.PendingIntent
 import android.content.Context
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Switch
@@ -22,9 +21,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
@@ -33,143 +30,102 @@ import io.github.pknujsp.weatherwizard.core.model.notification.NotificationIconT
 import io.github.pknujsp.weatherwizard.core.model.notification.NotificationType
 import io.github.pknujsp.weatherwizard.core.model.notification.OngoingNotificationInfo
 import io.github.pknujsp.weatherwizard.core.model.notification.RefreshInterval
-import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherDataProvider
 import io.github.pknujsp.weatherwizard.core.ui.BottomSheetSettingItem
-import io.github.pknujsp.weatherwizard.core.ui.MediumTitleTextWithoutNavigation
-import io.github.pknujsp.weatherwizard.core.ui.RadioButtons
 import io.github.pknujsp.weatherwizard.core.ui.SecondaryButton
 import io.github.pknujsp.weatherwizard.core.ui.TitleTextWithNavigation
+import io.github.pknujsp.weatherwizard.feature.alarm.AppAlarmManager
 import io.github.pknujsp.weatherwizard.feature.notification.R
 import io.github.pknujsp.weatherwizard.feature.notification.common.AppNotificationManager
-import io.github.pknujsp.weatherwizard.feature.notification.common.OngoingNotificationRemoteViews
+import io.github.pknujsp.weatherwizard.feature.notification.common.LocationScreen
 import io.github.pknujsp.weatherwizard.feature.notification.common.RemoteViewsScreen
+import io.github.pknujsp.weatherwizard.feature.notification.common.WeatherProvidersScreen
+import io.github.pknujsp.weatherwizard.feature.notification.ongoing.worker.OngoingNotificationRemoteViewsCreator
 import io.github.pknujsp.weatherwizard.feature.notification.search.SearchLocationScreen
 
 
 @Composable
 fun OngoingNotificationScreen(navController: NavController) {
     val viewModel = hiltViewModel<OngoingNotificationViewModel>()
-    val notificationState by viewModel.notificationState.collectAsStateWithLifecycle()
-    val units by viewModel.units.collectAsStateWithLifecycle()
+    val notificationState by viewModel.notification.collectAsStateWithLifecycle()
     var showSearch by remember { mutableStateOf(false) }
     val context = LocalContext.current
     val appNotificationManager = remember { AppNotificationManager(context) }
+    val appAlarmManager = remember { AppAlarmManager(context) }
 
-    if (notificationState.onChangedAction != NotificationState.NotificationAction.NONE) {
-        println("notificationState.onChangedAction: ${notificationState.onChangedAction}")
-        if (notificationState.onChangedAction == NotificationState.NotificationAction.NOTIFY) {
-            notifyNotification(context, appNotificationManager)
-        } else if (notificationState.onChangedAction == NotificationState.NotificationAction.CANCEL) {
-            cancelNotification(context, appNotificationManager)
+    notificationState?.let { notification ->
+        if (notification.onChangedAction != NotificationState.NotificationAction.NONE) {
+            println("notificationState.onChangedAction: ${notification.onChangedAction}")
+
+            switchNotification(notification.onChangedAction == NotificationState.NotificationAction.NOTIFY, context,
+                appNotificationManager, appAlarmManager, notification.info.refreshInterval)
+            notification.onChangedAction = NotificationState.NotificationAction.NONE
         }
-        notificationState.onChangedAction = NotificationState.NotificationAction.NONE
-    }
 
-
-    if (showSearch) {
-        SearchLocationScreen(onSelectedLocation = {
-            it?.let { newLocation ->
-                notificationState.info.apply {
-                    locationType = LocationType.CustomLocation()
-                    latitude = newLocation.latitude
-                    longitude = newLocation.longitude
-                    addressName = newLocation.areaName
-                }
-            }
-            showSearch = false
-        }, popBackStack = {
-            showSearch = false
-        })
-    } else {
-        Column {
-            TitleTextWithNavigation(title = stringResource(id = io.github.pknujsp.weatherwizard.core.common.R.string.title_ongoing_notification)) {
-                navController.popBackStack()
-            }
-            Column(modifier = Modifier
-                .verticalScroll(rememberScrollState())
-                .weight(1f)
-                .padding(horizontal = 16.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                RemoteViewsScreen(iRemoteViews = OngoingNotificationRemoteViews(units))
-
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(text = stringResource(id = R.string.switch_ongoing_notification), modifier = Modifier.weight(1f))
-                    Switch(
-                        checked = notificationState.enabled,
-                        onCheckedChange = {
-                            notificationState.enabled = it
-                            viewModel.switch()
-                        },
-                    )
-                }
-
-                if (notificationState.enabled) {
-                    LocationScreen(viewModel, notificationState.info) {
-                        showSearch = true
-                    }
-                    WeatherProvidersScreen(viewModel, notificationState.info)
-                    RefreshIntervalScreen(viewModel, notificationState.info)
-                    NotificationIconScreen(viewModel, notificationState.info)
-                }
-
-            }
-            if (notificationState.enabled) {
-                Box(modifier = Modifier.padding(12.dp)) {
-                    SecondaryButton(text = stringResource(id = io.github.pknujsp.weatherwizard.core.common.R.string.save),
-                        modifier = Modifier.fillMaxWidth()) {
-                        viewModel.updateNotificationInfo()
+        if (showSearch) {
+            SearchLocationScreen(onSelectedLocation = {
+                it?.let { newLocation ->
+                    notification.info.apply {
+                        locationType = LocationType.CustomLocation()
+                        latitude = newLocation.latitude
+                        longitude = newLocation.longitude
+                        addressName = newLocation.addressName
                     }
                 }
-            }
-        }
+                showSearch = false
+            }, popBackStack = {
+                showSearch = false
+            })
+        } else {
+            Column {
+                TitleTextWithNavigation(title = stringResource(id = io.github.pknujsp.weatherwizard.core.common.R.string.title_ongoing_notification)) {
+                    navController.popBackStack()
+                }
+                val units by viewModel.units.collectAsStateWithLifecycle()
+                RemoteViewsScreen(OngoingNotificationRemoteViewsCreator(), units)
 
+                Column(modifier = Modifier
+                    .verticalScroll(rememberScrollState())
+                    .weight(1f)
+                    .padding(horizontal = 16.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(text = stringResource(id = R.string.switch_ongoing_notification), modifier = Modifier.weight(1f))
+                        Switch(
+                            checked = notification.enabled,
+                            onCheckedChange = {
+                                viewModel.switch(it)
+                            },
+                        )
+                    }
+
+                    if (notification.enabled) {
+                        LocationScreen(notification.info) {
+                            showSearch = true
+                        }
+                        WeatherProvidersScreen(notification.info)
+                        RefreshIntervalScreen(notification.info)
+                        NotificationIconScreen(notification.info)
+                    }
+
+                }
+                if (notification.enabled) {
+                    Box(modifier = Modifier.padding(12.dp)) {
+                        SecondaryButton(text = stringResource(id = io.github.pknujsp.weatherwizard.core.common.R.string.save),
+                            modifier = Modifier.fillMaxWidth()) {
+                            viewModel.updateNotificationInfo()
+                        }
+                    }
+                }
+            }
+
+        }
     }
 }
 
-
 @Composable
-fun ColumnScope.LocationScreen(viewModel: OngoingNotificationViewModel, entity: OngoingNotificationInfo, onClick: () -> Unit) {
-    MediumTitleTextWithoutNavigation(title = stringResource(id = io.github.pknujsp.weatherwizard.core.common.R.string.location))
-    val radioOptions = remember { LocationType.enums }
-    var selectedOption by remember { mutableStateOf(entity.locationType) }
-
-    RadioButtons(radioOptions = radioOptions, selectedOption = selectedOption, onOptionSelected = {
-        entity.locationType = it
-        selectedOption = it
-    })
-
-    if (selectedOption is LocationType.CustomLocation) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(20.dp),
-            modifier = Modifier.align(Alignment.End)
-        ) {
-            Text(text = entity.addressName, style = TextStyle(fontSize = 16.sp))
-            SecondaryButton(text = stringResource(id = R.string.select_location), modifier = Modifier.wrapContentSize()) {
-                onClick()
-            }
-        }
-    }
-}
-
-@Composable
-fun WeatherProvidersScreen(viewModel: OngoingNotificationViewModel, entity: OngoingNotificationInfo) {
-    MediumTitleTextWithoutNavigation(title = stringResource(id = R.string.weather_provider))
-
-    val radioOptions = remember { WeatherDataProvider.enums }
-    var selectedOption by remember { mutableStateOf(entity.weatherProvider) }
-
-    RadioButtons(radioOptions = radioOptions, selectedOption = selectedOption, onOptionSelected = {
-        entity.weatherProvider = it
-        selectedOption = it
-    })
-}
-
-
-@Composable
-fun RefreshIntervalScreen(viewModel: OngoingNotificationViewModel, entity: OngoingNotificationInfo) {
-    val intervals = remember { RefreshInterval.values() }
+fun RefreshIntervalScreen(entity: OngoingNotificationInfo) {
+    val intervals = remember { RefreshInterval.enums }
     var selectedOption by remember { mutableStateOf(entity.refreshInterval) }
 
     BottomSheetSettingItem(title = stringResource(id = io.github.pknujsp.weatherwizard.core.common.R.string.refresh_interval),
@@ -184,8 +140,8 @@ fun RefreshIntervalScreen(viewModel: OngoingNotificationViewModel, entity: Ongoi
 }
 
 @Composable
-fun NotificationIconScreen(viewModel: OngoingNotificationViewModel, entity: OngoingNotificationInfo) {
-    val icons = remember { NotificationIconType.values() }
+fun NotificationIconScreen(entity: OngoingNotificationInfo) {
+    val icons = remember { NotificationIconType.enums }
     var selectedOption by remember { mutableStateOf(entity.notificationIconType) }
 
     BottomSheetSettingItem(title = stringResource(id = io.github.pknujsp.weatherwizard.core.common.R.string.notification_icon_type),
@@ -199,11 +155,24 @@ fun NotificationIconScreen(viewModel: OngoingNotificationViewModel, entity: Ongo
         enums = icons)
 }
 
-private fun notifyNotification(context: Context, appNotificationManager: AppNotificationManager) {
-    val pendingIntent = appNotificationManager.createRefreshPendingIntent(context, NotificationType.ONGOING)
-    pendingIntent.send()
-}
-
-private fun cancelNotification(context: Context, appNotificationManager: AppNotificationManager) {
-    appNotificationManager.cancelNotification(NotificationType.ONGOING)
+private fun switchNotification(
+    enabled: Boolean, context: Context, appNotificationManager: AppNotificationManager, appAlarmManager:
+    AppAlarmManager, refreshInterval: RefreshInterval
+) {
+    val pendingIntent = appNotificationManager.getRefreshPendingIntent(context, NotificationType.ONGOING,
+        PendingIntent.FLAG_IMMUTABLE or if (enabled) PendingIntent.FLAG_UPDATE_CURRENT else PendingIntent
+            .FLAG_NO_CREATE)
+    if (enabled) {
+        pendingIntent.send()
+        if (refreshInterval != RefreshInterval.MANUAL) {
+            appAlarmManager.scheduleRepeat(refreshInterval.interval, pendingIntent)
+        }
+    } else {
+        appNotificationManager.cancelNotification(NotificationType.ONGOING)
+        if (refreshInterval != RefreshInterval.MANUAL) {
+            appAlarmManager.unScheduleRepeat(pendingIntent)
+        }else{
+            pendingIntent.cancel()
+        }
+    }
 }

@@ -22,7 +22,9 @@ import io.github.pknujsp.weatherwizard.core.ui.UnavailableFeatureScreen
 import io.github.pknujsp.weatherwizard.feature.weather.info.WeatherInfoScreen
 
 @Composable
-fun PermissionCheckingScreen(navController: NavController, locationType: LocationType) {
+fun PermissionCheckingScreen(navController: NavController) {
+    val mainViewModel: WeatherMainViewModel = hiltViewModel()
+    val locationType by mainViewModel.locationType.collectAsStateWithLifecycle()
     var permissionGranted by remember { mutableStateOf(false) }
 
     var storagePermissionGranted by remember { mutableStateOf(false) }
@@ -31,70 +33,72 @@ fun PermissionCheckingScreen(navController: NavController, locationType: Locatio
     var unavailable by remember { mutableStateOf(false) }
     var refreshKey by remember { mutableIntStateOf(0) }
 
-    if (permissionGranted) {
-        navigateToInfo(navController)
-    } else {
-
-        if (storagePermissionGranted) {
-            permissionGranted = locationType is LocationType.CustomLocation
-
-            if (!permissionGranted) {
-                var locationPermissionGranted by remember { mutableStateOf(false) }
-                var openLocationPermissionActivity by remember { mutableStateOf(false) }
-
-                if (locationPermissionGranted) {
-                    permissionGranted = true
-                } else {
-                    PermissionManager(PermissionType.LOCATION, onPermissionGranted = {
-                        openLocationPermissionActivity = false
-                        unavailable = false
-                        locationPermissionGranted = true
-                    }, onPermissionDenied = {
-                        unavailable = true
-                    }, onShouldShowRationale = {
-                        unavailable = true
-                    }, onNeverAskAgain = {
-                        unavailable = true
-                    }, refreshKey)
-
-                    if (unavailable) {
-                        UnavailableFeatureScreen(title = io.github.pknujsp.weatherwizard.core.common.R.string.title_why_you_need_permissions,
-                            unavailableFeature = UnavailableFeature.LOCATION_PERMISSION_DENIED) {
-                            openLocationPermissionActivity = true
-                        }
-                    }
-                    if (openLocationPermissionActivity) {
-                        OpenSettingsActivityForPermission {
-                            openLocationPermissionActivity = false
-                            refreshKey++
-                        }
-                    }
-
-                }
-            }
+    locationType?.apply {
+        if (permissionGranted) {
+            navigateToInfo(navController)
         } else {
-            PermissionManager(PermissionType.STORAGE, onPermissionGranted = {
-                openStoragePermissionActivity = false
-                unavailable = false
-                storagePermissionGranted = true
-            }, onPermissionDenied = {
-                unavailable = true
-            }, onShouldShowRationale = {
-                unavailable = true
-            }, onNeverAskAgain = {
-                unavailable = true
-            }, refreshKey)
 
-            if (unavailable) {
-                UnavailableFeatureScreen(title = io.github.pknujsp.weatherwizard.core.common.R.string.title_why_you_need_permissions,
-                    unavailableFeature = UnavailableFeature.STORAGE_PERMISSION_DENIED) {
-                    openStoragePermissionActivity = true
+            if (storagePermissionGranted) {
+                permissionGranted = locationType is LocationType.CustomLocation
+
+                if (!permissionGranted) {
+                    var locationPermissionGranted by remember { mutableStateOf(false) }
+                    var openLocationPermissionActivity by remember { mutableStateOf(false) }
+
+                    if (locationPermissionGranted) {
+                        permissionGranted = true
+                    } else {
+                        PermissionManager(PermissionType.LOCATION, onPermissionGranted = {
+                            openLocationPermissionActivity = false
+                            unavailable = false
+                            locationPermissionGranted = true
+                        }, onPermissionDenied = {
+                            unavailable = true
+                        }, onShouldShowRationale = {
+                            unavailable = true
+                        }, onNeverAskAgain = {
+                            unavailable = true
+                        }, refreshKey)
+
+                        if (unavailable) {
+                            UnavailableFeatureScreen(title = io.github.pknujsp.weatherwizard.core.common.R.string.title_why_you_need_permissions,
+                                unavailableFeature = UnavailableFeature.LOCATION_PERMISSION_DENIED) {
+                                openLocationPermissionActivity = true
+                            }
+                        }
+                        if (openLocationPermissionActivity) {
+                            OpenSettingsActivityForPermission {
+                                openLocationPermissionActivity = false
+                                refreshKey++
+                            }
+                        }
+
+                    }
                 }
-            }
-            if (openStoragePermissionActivity) {
-                OpenSettingsActivityForPermission {
+            } else {
+                PermissionManager(PermissionType.STORAGE, onPermissionGranted = {
                     openStoragePermissionActivity = false
-                    refreshKey++
+                    unavailable = false
+                    storagePermissionGranted = true
+                }, onPermissionDenied = {
+                    unavailable = true
+                }, onShouldShowRationale = {
+                    unavailable = true
+                }, onNeverAskAgain = {
+                    unavailable = true
+                }, refreshKey)
+
+                if (unavailable) {
+                    UnavailableFeatureScreen(title = io.github.pknujsp.weatherwizard.core.common.R.string.title_why_you_need_permissions,
+                        unavailableFeature = UnavailableFeature.STORAGE_PERMISSION_DENIED) {
+                        openStoragePermissionActivity = true
+                    }
+                }
+                if (openStoragePermissionActivity) {
+                    OpenSettingsActivityForPermission {
+                        openStoragePermissionActivity = false
+                        refreshKey++
+                    }
                 }
             }
         }
@@ -111,17 +115,14 @@ private fun navigateToInfo(navController: NavController) {
 @Composable
 fun HostWeatherScreen() {
     val navController = rememberNavController()
-    val mainViewModel: WeatherMainViewModel = hiltViewModel()
-    val targetAreaType by mainViewModel.locationType.collectAsStateWithLifecycle()
 
-    targetAreaType?.let { type ->
-        NavHost(navController = navController, route = WeatherRoutes.route, startDestination = WeatherRoutes.Main.route) {
-            composable(WeatherRoutes.Main.route) {
-                PermissionCheckingScreen(navController, type)
-            }
-            composable(WeatherRoutes.Info.route) {
-                WeatherInfoScreen(navController, type)
-            }
+    NavHost(navController = navController, route = WeatherRoutes.route, startDestination = WeatherRoutes.Main.route) {
+        composable(WeatherRoutes.Main.route) {
+            PermissionCheckingScreen(navController)
+        }
+        composable(WeatherRoutes.Info.route) {
+            WeatherInfoScreen(navController)
         }
     }
+
 }

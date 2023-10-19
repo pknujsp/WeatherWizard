@@ -36,12 +36,11 @@
                     android:id="@+id/temperature"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:fontFamily="sans-serif-condensed"
                     android:gravity="center_vertical"
                     android:includeFontPadding="false"
                     android:text="12"
                     android:textColor="@android:color/black"
-                    android:textSize="24sp" />
+                    android:textSize="25sp" />
 
                 <TextView
                     android:id="@+id/feels_like_temperature"
@@ -50,11 +49,10 @@
                     android:layout_alignBaseline="@id/temperature"
                     android:layout_marginLeft="4dp"
                     android:layout_toRightOf="@id/temperature"
-                    android:fontFamily="sans-serif-condensed"
                     android:includeFontPadding="false"
                     android:text="12"
                     android:textColor="@android:color/black"
-                    android:textSize="16sp" />
+                    android:textSize="17sp" />
 
 
                 <TextView
@@ -84,7 +82,6 @@
                 android:layout_width="48dp"
                 android:layout_height="0dp"
                 android:layout_weight="1"
-                android:background="@drawable/clickable_background"
                 android:clickable="true"
                 android:contentDescription="@string/refresh"
                 android:scaleType="fitCenter"
@@ -94,6 +91,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:gravity="center_vertical"
+                android:visibility="gone"
                 android:orientation="horizontal">
 
                 <ImageView
@@ -122,13 +120,5 @@
 
 
     </FrameLayout>
-
-    <ProgressBar
-        android:id="@+id/progressbar"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:indeterminate="true"
-        android:visibility="visible" />
 
 </FrameLayout>

@@ -61,6 +61,9 @@ data class TemperatureValueType(
         }
     }
 
+    fun toStringWithOnlyDegree(): String {
+        return "${value.toInt()}°"
+    }
 
     override fun isNone(): Boolean {
         return value == Double.MIN_VALUE

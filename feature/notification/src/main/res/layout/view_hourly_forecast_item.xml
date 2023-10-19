@@ -4,23 +4,23 @@
     android:layout_height="wrap_content"
     android:layout_weight="1"
     android:gravity="center"
-    android:paddingVertical="8dp"
+    android:orientation="vertical"
     android:paddingHorizontal="4dp"
-    android:orientation="vertical">
+    android:paddingVertical="8dp">
 
     <TextView
         android:id="@+id/time"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="12"
         android:gravity="center"
+        android:text="12"
         android:textColor="@android:color/black"
         android:textSize="14sp" />
 
     <ImageView
         android:id="@+id/weather_icon"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="48dp"
         android:contentDescription="@string/weather_icon"
         android:scaleType="centerInside"
         android:src="@drawable/ic_sun" />
@@ -32,6 +32,6 @@
         android:gravity="center"
         android:text="12"
         android:textColor="@android:color/black"
-        android:textSize="16sp" />
+        android:textSize="15sp" />
 
 </LinearLayout>

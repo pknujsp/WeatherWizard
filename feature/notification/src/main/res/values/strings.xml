@@ -3,4 +3,10 @@
     <string name="weather_provider">날씨 제공사</string>
     <string name="select_location">위치 선택</string>
     <string name="switch_ongoing_notification">알림 사용</string>
+    <string name="settings_notification">알림 설정</string>
+    <string name="delete_daily_notification_message">알림을 삭제하시겠습니까?</string>
+    <string name="add_daily_notification">알림 추가</string>
+    <string name="add_or_edit_daily_notification">알림 추가, 수정</string>
+    <string name="notification_time">알림 시각</string>
+    <string name="message_notification_time">알림이 울릴 시각을 설정해주세요</string>
 </resources>
