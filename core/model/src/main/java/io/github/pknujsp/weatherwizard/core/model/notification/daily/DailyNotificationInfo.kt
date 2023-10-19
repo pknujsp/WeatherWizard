@@ -1,6 +1,9 @@
 package io.github.pknujsp.weatherwizard.core.model.notification.daily
 
 import androidx.compose.runtime.Stable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import io.github.pknujsp.weatherwizard.core.model.favorite.LocationType
 import io.github.pknujsp.weatherwizard.core.model.notification.NotificationUiModel
 import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherDataProvider
@@ -18,5 +21,7 @@ data class DailyNotificationInfo(
     var hour: Int,
     var minute: Int,
 ) : NotificationUiModel {
+
+    var onSaved: Boolean by mutableStateOf(false)
     val time: String get() = String.format("%02d:%02d", hour, minute)
 }

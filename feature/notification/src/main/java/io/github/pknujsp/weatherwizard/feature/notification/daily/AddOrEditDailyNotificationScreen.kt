@@ -43,12 +43,11 @@ import io.github.pknujsp.weatherwizard.feature.notification.search.SearchLocatio
 fun AddOrEditDailyNotificationScreen(navController: NavController) {
     val viewModel: AddOrEditDailyNotificationViewModel = hiltViewModel()
     val notification by viewModel.notification.collectAsStateWithLifecycle()
-    val onSaved by viewModel.onSaved.collectAsStateWithLifecycle()
     val units by viewModel.units.collectAsStateWithLifecycle()
     var showSearch by remember { mutableStateOf(false) }
 
     notification.onSuccess { info ->
-        if (onSaved) {
+        if (info.onSaved) {
             scheduleAlarm(LocalContext.current, info)
             navController.popBackStack()
         }

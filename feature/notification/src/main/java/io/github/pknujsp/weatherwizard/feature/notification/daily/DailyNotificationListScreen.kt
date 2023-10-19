@@ -1,6 +1,7 @@
 package io.github.pknujsp.weatherwizard.feature.notification.daily
 
 import android.content.Context
+import android.os.Build
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -37,6 +38,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
+import androidx.navigation.compose.composable
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import io.github.pknujsp.weatherwizard.core.common.R
@@ -48,6 +50,7 @@ import io.github.pknujsp.weatherwizard.core.ui.TitleTextWithNavigation
 import io.github.pknujsp.weatherwizard.core.ui.dialog.BottomSheet
 import io.github.pknujsp.weatherwizard.core.ui.dialog.DialogScreen
 import io.github.pknujsp.weatherwizard.core.ui.theme.AppShapes
+import io.github.pknujsp.weatherwizard.feature.alarm.AlarmPermissionCheckingScreen
 import io.github.pknujsp.weatherwizard.feature.notification.NotificationRoutes
 
 @Composable
@@ -88,6 +91,7 @@ fun DailyNotificationListScreen(navController: NavController) {
             }
         }
     }
+
 }
 
 
@@ -120,9 +124,7 @@ private fun Item(info: DailyNotificationSimpleInfo, onClick: () -> Unit) {
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                var isChecked by remember { mutableStateOf(info.enabled) }
-                Switch(checked = isChecked, onCheckedChange = {
-                    isChecked = it
+                Switch(checked = info.isEnabled, onCheckedChange = {
                     info.switch(it)
                 })
 
@@ -160,7 +162,7 @@ private fun Item(info: DailyNotificationSimpleInfo, onClick: () -> Unit) {
 }
 
 private fun changeAlarmSchedule(alarmManager: NotificationAlarmManager, context: Context, info: DailyNotificationSimpleInfo) {
-    if (info.enabled) {
+    if (info.isEnabled) {
         alarmManager.schedule(context, info.id, info.hour, info.minute)
     } else {
         alarmManager.unSchedule(context, info.id)

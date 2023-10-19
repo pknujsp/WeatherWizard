@@ -9,4 +9,5 @@ enum class UnavailableFeature(@StringRes val message: Int, @StringRes val action
     LOCATION_SERVICE_DISABLED(R.string.location_service_disabled, R.string.open_settings_for_location_service),
     POST_NOTIFICATION_PERMISSION_DENIED(R.string.post_notification_permission_denied, R.string
         .open_settings_for_permission),
+    EXACT_ALARM_PERMISSION_DENIED(R.string.exact_alarm_permission_denied, R.string.open_settings_for_permission),
 }

@@ -1,12 +1,15 @@
 package io.github.pknujsp.weatherwizard.core.model.notification.daily
 
 import androidx.compose.runtime.Stable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import io.github.pknujsp.weatherwizard.core.model.UiModel
 import io.github.pknujsp.weatherwizard.core.model.favorite.LocationType
 
 @Stable
 class DailyNotificationSimpleInfo(
-    var enabled: Boolean,
+    enabled: Boolean,
     val id: Long,
     val type: DailyNotificationType,
     val locationType: LocationType,
@@ -15,10 +18,12 @@ class DailyNotificationSimpleInfo(
     val hour: Int,
     val minute: Int,
 ) : UiModel {
+    var isEnabled: Boolean by mutableStateOf(enabled)
+        private set
     val time: String = String.format("%02d:%02d", hour, minute)
 
     fun switch(checked: Boolean) {
-        enabled = checked
+        isEnabled = checked
         switch(this)
     }
 

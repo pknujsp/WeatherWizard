@@ -125,12 +125,14 @@ enum class PermissionType(val permissions: Array<String>) {
     NOTIFICATION(arrayOf(
         Manifest.permission.POST_NOTIFICATIONS
     )),
-
     @RequiresApi(Build.VERSION_CODES.S)
-    EXACT_ALARM(arrayOf(
+    EXACT_ALARM_ON_SDK_31_AND_ABOVE(arrayOf(
         Manifest.permission.SCHEDULE_EXACT_ALARM,
-        Manifest.permission.USE_EXACT_ALARM,
     )),
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+    EXACT_ALARM_ON_SDK_33_AND_ABOVE(arrayOf(
+        Manifest.permission.USE_EXACT_ALARM,
+    ));
 }
 
 private fun Activity.shouldShowRequestPermissionRationale(permissions: Array<String>): Boolean =

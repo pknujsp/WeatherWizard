@@ -18,7 +18,7 @@ import io.github.pknujsp.weatherwizard.core.ui.UnavailableFeatureScreen
 
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
 @Composable
-fun PermissionCheckingScreen(navController: NavController) {
+fun NotificationPermissionCheckingScreen(navController: NavController) {
     var permissionGranted by remember { mutableStateOf(false) }
     var openPermissionActivity by remember { mutableStateOf(false) }
 
@@ -28,7 +28,9 @@ fun PermissionCheckingScreen(navController: NavController) {
     if (permissionGranted) {
         navController.navigate(NotificationRoutes.Main.route) {
             launchSingleTop = true
-            popUpTo(NotificationRoutes.Permission.route) { inclusive = true }
+            popUpTo(NotificationRoutes.NotificationPermission.route) {
+                inclusive = true
+            }
         }
     } else {
         PermissionManager(PermissionType.NOTIFICATION, onPermissionGranted = {

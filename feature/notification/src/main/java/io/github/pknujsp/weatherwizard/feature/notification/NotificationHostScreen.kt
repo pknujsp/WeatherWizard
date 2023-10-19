@@ -11,6 +11,7 @@ import androidx.core.view.WindowCompat
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import io.github.pknujsp.weatherwizard.feature.alarm.AlarmPermissionCheckingScreen
 import io.github.pknujsp.weatherwizard.feature.notification.daily.AddOrEditDailyNotificationScreen
 import io.github.pknujsp.weatherwizard.feature.notification.daily.DailyNotificationListScreen
 import io.github.pknujsp.weatherwizard.feature.notification.ongoing.OngoingNotificationScreen
@@ -23,14 +24,14 @@ fun HostNotificationScreen() {
     WindowCompat.getInsetsController(window, window.decorView).isAppearanceLightNavigationBars = true
     val startDestination = remember {
         if (Build.VERSION.SDK_INT >= Build
-                .VERSION_CODES.TIRAMISU) NotificationRoutes.Permission.route else NotificationRoutes.Main.route
+                .VERSION_CODES.TIRAMISU) NotificationRoutes.NotificationPermission.route else NotificationRoutes.Main.route
     }
 
     NavHost(navController = navController, route = NotificationRoutes.route, startDestination = startDestination,
         modifier = Modifier.navigationBarsPadding()) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            composable(NotificationRoutes.Permission.route) {
-                PermissionCheckingScreen(navController = navController)
+            composable(NotificationRoutes.NotificationPermission.route) {
+                NotificationPermissionCheckingScreen(navController = navController)
             }
         }
         composable(NotificationRoutes.Main.route) {
@@ -45,5 +46,6 @@ fun HostNotificationScreen() {
         composable(NotificationRoutes.AddOrEditDaily.route, arguments = NotificationRoutes.AddOrEditDaily.arguments) {
             AddOrEditDailyNotificationScreen(navController)
         }
+
     }
 }

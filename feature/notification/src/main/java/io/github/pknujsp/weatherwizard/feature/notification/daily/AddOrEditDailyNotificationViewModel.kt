@@ -29,11 +29,8 @@ class AddOrEditDailyNotificationViewModel @Inject constructor(
     private val _notification = MutableStateFlow<UiState<DailyNotificationInfo>>(UiState.Loading)
     val notification: StateFlow<UiState<DailyNotificationInfo>> = _notification
 
-    private val _onSaved = MutableStateFlow(false)
-    val onSaved: StateFlow<Boolean> = _onSaved
-
     init {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch {
             val id = savedStateHandle.get<Long>("id")!!
             val info = notificationRepository.getDailyNotification(id).let {
                 DailyNotificationInfo(
@@ -73,7 +70,7 @@ class AddOrEditDailyNotificationViewModel @Inject constructor(
                     )
                 val id = notificationRepository.setDailyNotificationInfo(entity)
                 info.id = id
-                _onSaved.value = true
+                info.onSaved = true
             }
 
         }

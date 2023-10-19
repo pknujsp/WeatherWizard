@@ -1,6 +1,8 @@
 package io.github.pknujsp.weatherwizard.feature.notification
 
+import android.os.Build
 import androidx.annotation.DrawableRes
+import androidx.annotation.RequiresApi
 import androidx.annotation.StringRes
 import androidx.navigation.NamedNavArgument
 import androidx.navigation.NavType
@@ -22,10 +24,10 @@ sealed interface NotificationRoutes : Routes {
         override val route: String = "Notification/Main"
     }
 
-    data object Permission : NotificationRoutes {
-        override val route: String = "Notification/Permission"
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+    data object NotificationPermission : NotificationRoutes {
+        override val route: String = "Notification/NotificationPermission"
     }
-
 
     data object Ongoing : NotificationRoutes {
         override val route: String = "Notification/Ongoing"

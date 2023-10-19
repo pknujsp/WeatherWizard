@@ -44,7 +44,7 @@ class DailyNotificationListViewModel @Inject constructor(
 
     private fun switch(notification: DailyNotificationSimpleInfo) {
         viewModelScope.launch {
-            notificationRepository.switch(notification.id, notification.enabled)
+            notificationRepository.switch(notification.id, notification.isEnabled)
             _onChangedStateNotification.emit(notification)
         }
     }
