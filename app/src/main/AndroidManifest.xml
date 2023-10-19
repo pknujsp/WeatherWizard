@@ -41,7 +41,7 @@
         </activity>
 
         <receiver
-            android:name=".feature.notification.ongoing.OngoingNotificationReceiver"
+            android:name=".feature.notification.ongoing.worker.OngoingNotificationReceiver"
             android:enabled="true"
             android:exported="true">
             <intent-filter>

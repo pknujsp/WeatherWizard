@@ -39,6 +39,7 @@ import io.github.pknujsp.weatherwizard.feature.notification.common.AppNotificati
 import io.github.pknujsp.weatherwizard.feature.notification.common.LocationScreen
 import io.github.pknujsp.weatherwizard.feature.notification.common.RemoteViewsScreen
 import io.github.pknujsp.weatherwizard.feature.notification.common.WeatherProvidersScreen
+import io.github.pknujsp.weatherwizard.feature.notification.ongoing.worker.OngoingNotificationRemoteViewsCreator
 import io.github.pknujsp.weatherwizard.feature.notification.search.SearchLocationScreen
 
 

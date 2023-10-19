@@ -14,7 +14,7 @@ import androidx.work.ForegroundInfo
 import io.github.pknujsp.weatherwizard.core.model.notification.NotificationType
 import io.github.pknujsp.weatherwizard.core.model.remoteviews.RemoteViewUiModel
 import io.github.pknujsp.weatherwizard.feature.notification.R
-import io.github.pknujsp.weatherwizard.feature.notification.ongoing.OngoingNotificationReceiver
+import io.github.pknujsp.weatherwizard.feature.notification.ongoing.worker.OngoingNotificationReceiver
 
 
 class AppNotificationManager(context: Context) {

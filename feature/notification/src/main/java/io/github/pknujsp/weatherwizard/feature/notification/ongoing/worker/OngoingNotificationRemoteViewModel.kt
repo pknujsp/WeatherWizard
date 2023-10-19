@@ -1,4 +1,4 @@
-package io.github.pknujsp.weatherwizard.feature.notification.ongoing
+package io.github.pknujsp.weatherwizard.feature.notification.ongoing.worker
 
 import io.github.pknujsp.weatherwizard.core.common.UnavailableFeature
 import io.github.pknujsp.weatherwizard.core.common.util.DayNightCalculator
@@ -23,7 +23,7 @@ class OngoingNotificationRemoteViewModel @Inject constructor(
     private val nominatimRepository: NominatimRepository,
 ) : RemoteViewModel() {
 
-    override suspend fun load(): UiState<OngoingNotificationUiModel> {
+    suspend fun load(): UiState<OngoingNotificationUiModel> {
         appSettingsRepository.init()
         val units = appSettingsRepository.currentUnits.value
         val notificationInfo = notificationRepository.getOngoingNotification()

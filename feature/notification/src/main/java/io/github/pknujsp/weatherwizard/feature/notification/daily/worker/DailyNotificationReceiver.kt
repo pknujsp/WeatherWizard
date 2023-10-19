@@ -1,15 +1,16 @@
-package io.github.pknujsp.weatherwizard.feature.notification.daily
+package io.github.pknujsp.weatherwizard.feature.notification.daily.worker
 
+import android.annotation.SuppressLint
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import androidx.core.os.bundleOf
+import androidx.work.Data
 import androidx.work.ExistingWorkPolicy
 import androidx.work.OneTimeWorkRequest
 import androidx.work.OutOfQuotaPolicy
 import androidx.work.WorkManager
-import io.github.pknujsp.weatherwizard.feature.notification.ongoing.OngoingNotificationWorker
 
 
 class DailyNotificationReceiver : BroadcastReceiver() {
@@ -18,14 +19,17 @@ class DailyNotificationReceiver : BroadcastReceiver() {
         fun bundleOf(notificationId: Long): Bundle = bundleOf("notificationId" to notificationId)
     }
 
+    @SuppressLint("RestrictedApi")
     override fun onReceive(context: Context, intent: Intent) {
         if (intent.action != null) {
-            val request = OneTimeWorkRequest.Builder(OngoingNotificationWorker::class.java)
+            val data = Data(mapOf("notificationId" to intent.extras?.getLong("notificationId")))
+            val request = OneTimeWorkRequest.Builder(DailyNotificationWorker::class.java)
                 .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
-                .addTag(OngoingNotificationWorker.name)
+                .addTag(DailyNotificationWorker.name)
+                .setInputData(data)
                 .build()
             val workManager = WorkManager.getInstance(context)
-            workManager.enqueueUniqueWork(OngoingNotificationWorker.name, ExistingWorkPolicy.KEEP, request)
+            workManager.enqueueUniqueWork(DailyNotificationWorker.name, ExistingWorkPolicy.APPEND, request)
         }
     }
 }

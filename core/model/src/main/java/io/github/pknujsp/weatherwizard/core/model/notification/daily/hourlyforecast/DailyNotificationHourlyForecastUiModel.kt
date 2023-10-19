@@ -18,10 +18,9 @@ class DailyNotificationHourlyForecastUiModel(
     dayNightCalculator: DayNightCalculator,
     units: CurrentUnits
 ) : UiModel {
-    var refreshPendingIntent: PendingIntent by Delegates.notNull()
 
     companion object {
-        private val itemRange = 0..<8
+        private val itemRange get() = 0..<8
 
         fun createSample(units: CurrentUnits): List<HourlyForecast> {
             var temperture = 10.0

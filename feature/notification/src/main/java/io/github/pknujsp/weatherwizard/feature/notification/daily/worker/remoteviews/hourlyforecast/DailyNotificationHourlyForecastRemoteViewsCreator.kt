@@ -1,4 +1,4 @@
-package io.github.pknujsp.weatherwizard.feature.notification.daily.remoteviews.hourlyforecast
+package io.github.pknujsp.weatherwizard.feature.notification.daily.worker.remoteviews.hourlyforecast
 
 import android.content.Context
 import android.widget.RemoteViews

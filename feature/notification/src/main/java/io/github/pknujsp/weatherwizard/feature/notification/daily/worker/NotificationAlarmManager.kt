@@ -1,4 +1,4 @@
-package io.github.pknujsp.weatherwizard.feature.notification.daily
+package io.github.pknujsp.weatherwizard.feature.notification.daily.worker
 
 import android.app.PendingIntent
 import android.content.Context
