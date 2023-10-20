@@ -12,7 +12,7 @@ class RemoteViewsCreatorManager {
             DailyNotificationType
         ): C =
             when (notificationType) {
-                DailyNotificationType.HOURLY_FORECAST -> DailyNotificationHourlyForecastRemoteViewsCreator() as C
+                DailyNotificationType.FORECAST -> DailyNotificationHourlyForecastRemoteViewsCreator() as C
                 else -> throw IllegalArgumentException("Unknown notification type: $notificationType")
             }
     }

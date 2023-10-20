@@ -6,7 +6,7 @@ import io.github.pknujsp.weatherwizard.core.database.notification.NotificationLo
 import io.github.pknujsp.weatherwizard.core.model.JsonParser
 import io.github.pknujsp.weatherwizard.core.model.notification.NotificationEntity
 import io.github.pknujsp.weatherwizard.core.model.notification.NotificationType
-import io.github.pknujsp.weatherwizard.core.model.notification.OngoingNotificationInfoEntity
+import io.github.pknujsp.weatherwizard.core.model.notification.ongoing.OngoingNotificationInfoEntity
 import io.github.pknujsp.weatherwizard.core.model.notification.daily.DailyNotificationInfoEntity
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first

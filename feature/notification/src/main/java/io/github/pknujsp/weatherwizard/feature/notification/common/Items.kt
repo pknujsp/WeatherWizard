@@ -19,12 +19,10 @@ import androidx.compose.ui.unit.sp
 import io.github.pknujsp.weatherwizard.core.common.R
 import io.github.pknujsp.weatherwizard.core.model.favorite.LocationType
 import io.github.pknujsp.weatherwizard.core.model.notification.NotificationUiModel
-import io.github.pknujsp.weatherwizard.core.model.notification.OngoingNotificationInfo
 import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherDataProvider
 import io.github.pknujsp.weatherwizard.core.ui.MediumTitleTextWithoutNavigation
 import io.github.pknujsp.weatherwizard.core.ui.RadioButtons
 import io.github.pknujsp.weatherwizard.core.ui.SecondaryButton
-import io.github.pknujsp.weatherwizard.feature.notification.ongoing.OngoingNotificationViewModel
 
 @Composable
 fun ColumnScope.LocationScreen(entity: NotificationUiModel, onClick: () -> Unit) {

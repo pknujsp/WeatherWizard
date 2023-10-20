@@ -1,6 +1,5 @@
-package io.github.pknujsp.weatherwizard.core.model.notification.daily.hourlyforecast
+package io.github.pknujsp.weatherwizard.core.model.notification.daily.forecast
 
-import android.app.PendingIntent
 import io.github.pknujsp.weatherwizard.core.common.util.DayNightCalculator
 import io.github.pknujsp.weatherwizard.core.common.util.toCalendar
 import io.github.pknujsp.weatherwizard.core.model.UiModel
@@ -8,38 +7,26 @@ import io.github.pknujsp.weatherwizard.core.model.weather.common.CurrentUnits
 import io.github.pknujsp.weatherwizard.core.model.weather.common.TemperatureUnit
 import io.github.pknujsp.weatherwizard.core.model.weather.common.TemperatureValueType
 import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherConditionCategory
+import io.github.pknujsp.weatherwizard.core.model.weather.dailyforecast.DailyForecastEntity
 import io.github.pknujsp.weatherwizard.core.model.weather.hourlyforecast.HourlyForecastEntity
 import java.time.ZonedDateTime
-import kotlin.properties.Delegates
+import java.time.format.DateTimeFormatter
 
-class DailyNotificationHourlyForecastUiModel(
+class DailyNotificationForecastUiModel(
     val address: String,
     hourlyForecast: HourlyForecastEntity,
+    dailyForecast: DailyForecastEntity,
     dayNightCalculator: DayNightCalculator,
     units: CurrentUnits
 ) : UiModel {
 
-    companion object {
-        private val itemRange get() = 0..<8
-
-        fun createSample(units: CurrentUnits): List<HourlyForecast> {
-            var temperture = 10.0
-            var dateTime = 9
-            val weatherIcon = WeatherConditionCategory.Clear.dayWeatherIcon
-
-            return itemRange.map {
-                HourlyForecast(
-                    temperature = TemperatureValueType(temperture++, TemperatureUnit.default).convertUnit(units.temperatureUnit).toString(),
-                    weatherIcon = weatherIcon,
-                    dateTime = dateTime++.toString()
-                )
-            }
-        }
-    }
+    private val dateFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("d E")
+    private val hourRange get() = 0..8
+    private val dateRange get() = 0..6
 
 
-    val hourlyForecast = hourlyForecast.run {
-        items.subList(itemRange.first, itemRange.last).map {
+    val hourlyForecast =
+        hourlyForecast.items.subList(hourRange.first, hourRange.last).map {
             val calendar = ZonedDateTime.parse(it.dateTime.value).toCalendar()
 
             HourlyForecast(
@@ -49,12 +36,28 @@ class DailyNotificationHourlyForecastUiModel(
                 dateTime = ZonedDateTime.parse(it.dateTime.value).hour.toString()
             )
         }
-    }
+
+
+    val dailyForecast =
+        dailyForecast.dayItems.subList(dateRange.first, dateRange.last).map {
+            DailyForecast(
+                temperature = "${it.minTemperature.convertUnit(units.temperatureUnit)} / ${
+                    it.maxTemperature.convertUnit(units
+                        .temperatureUnit)
+                }", weatherIcons = it.items.map { item -> item.weatherCondition.value.dayWeatherIcon },
+                date = dateFormatter.format(ZonedDateTime.parse(it.dateTime.value)))
+        }
 
 
     data class HourlyForecast(
         val temperature: String,
         val weatherIcon: Int,
         val dateTime: String
+    )
+
+    data class DailyForecast(
+        val temperature: String,
+        val weatherIcons: List<Int>,
+        val date: String
     )
 }

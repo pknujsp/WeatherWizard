@@ -36,8 +36,8 @@ class CompareDailyForecastViewModel @Inject constructor(
                 val requestId = System.currentTimeMillis()
                 getDailyForecastToCompareUseCase(latitude, longitude, weatherDataProviders, requestId).onSuccess { entity ->
                     val (firstDate, endDate) = entity.run {
-                        items.maxOf { ZonedDateTime.parse(it.second.items.first().dateTime.value).toLocalDate() } to items.minOf {
-                            ZonedDateTime.parse(it.second.items.last().dateTime.value).toLocalDate()
+                        items.maxOf { ZonedDateTime.parse(it.second.dayItems.first().dateTime.value).toLocalDate() } to items.minOf {
+                            ZonedDateTime.parse(it.second.dayItems.last().dateTime.value).toLocalDate()
                         }
                     }
 
@@ -54,13 +54,13 @@ class CompareDailyForecastViewModel @Inject constructor(
                     val units = settingsRepository.currentUnits.value
 
                     val items = entity.items.map { (provider, entity) ->
-                        val firstIndex = entity.items.indexOfFirst { ZonedDateTime.parse(it.dateTime.value).toLocalDate() == firstDate }
-                        val endIndex = entity.items.indexOfFirst { ZonedDateTime.parse(it.dateTime.value).toLocalDate() > endDate }.run {
-                            if (this == -1) entity.items.size
+                        val firstIndex = entity.dayItems.indexOfFirst { ZonedDateTime.parse(it.dateTime.value).toLocalDate() == firstDate }
+                        val endIndex = entity.dayItems.indexOfFirst { ZonedDateTime.parse(it.dateTime.value).toLocalDate() > endDate }.run {
+                            if (this == -1) entity.dayItems.size
                             else this
                         }
 
-                        provider to CompareDailyForecast(entity.items.subList(firstIndex, endIndex), units)
+                        provider to CompareDailyForecast(entity.dayItems.subList(firstIndex, endIndex), units)
                     }
                     _dailyForecast.value = UiState.Success(CompareDailyForecastInfo(items, dates))
                 }.onFailure {

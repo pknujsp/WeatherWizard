@@ -28,7 +28,7 @@ import androidx.navigation.NavController
 import io.github.pknujsp.weatherwizard.core.model.favorite.LocationType
 import io.github.pknujsp.weatherwizard.core.model.notification.NotificationIconType
 import io.github.pknujsp.weatherwizard.core.model.notification.NotificationType
-import io.github.pknujsp.weatherwizard.core.model.notification.OngoingNotificationInfo
+import io.github.pknujsp.weatherwizard.core.model.notification.ongoing.OngoingNotificationInfo
 import io.github.pknujsp.weatherwizard.core.model.notification.RefreshInterval
 import io.github.pknujsp.weatherwizard.core.ui.BottomSheetSettingItem
 import io.github.pknujsp.weatherwizard.core.ui.SecondaryButton

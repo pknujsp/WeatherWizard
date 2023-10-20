@@ -1,11 +1,9 @@
 package io.github.pknujsp.weatherwizard.core.data.notification
 
 import io.github.pknujsp.weatherwizard.core.model.notification.NotificationEntity
-import io.github.pknujsp.weatherwizard.core.model.notification.NotificationType
-import io.github.pknujsp.weatherwizard.core.model.notification.OngoingNotificationInfoEntity
+import io.github.pknujsp.weatherwizard.core.model.notification.ongoing.OngoingNotificationInfoEntity
 import io.github.pknujsp.weatherwizard.core.model.notification.daily.DailyNotificationInfoEntity
 import kotlinx.coroutines.flow.Flow
-import kotlin.reflect.jvm.internal.impl.types.checker.TypeRefinementSupport.Enabled
 
 interface NotificationRepository {
     suspend fun switch(id: Long, enabled: Boolean)
