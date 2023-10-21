@@ -19,12 +19,12 @@ import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import io.github.pknujsp.weatherwizard.core.common.permission.PermissionType
 import io.github.pknujsp.weatherwizard.core.common.permission.checkSelfPermission
-import io.github.pknujsp.weatherwizard.core.model.notification.NotificationIconType
-import io.github.pknujsp.weatherwizard.core.model.notification.NotificationType
+import io.github.pknujsp.weatherwizard.core.model.notification.enums.NotificationIconType
+import io.github.pknujsp.weatherwizard.core.model.notification.enums.NotificationType
 import io.github.pknujsp.weatherwizard.core.model.onSuccess
 import io.github.pknujsp.weatherwizard.core.model.remoteviews.RemoteViewUiModel
-import io.github.pknujsp.weatherwizard.feature.notification.common.AppNotificationManager
-import io.github.pknujsp.weatherwizard.feature.notification.common.INotificationWorker
+import io.github.pknujsp.weatherwizard.feature.notification.manager.AppNotificationManager
+import io.github.pknujsp.weatherwizard.feature.notification.worker.INotificationWorker
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.util.UUID
@@ -45,7 +45,7 @@ class OngoingNotificationWorker @AssistedInject constructor(
 
     override suspend fun doWork(): Result {
         return withContext(Dispatchers.IO) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && !context.checkSelfPermission(PermissionType.NOTIFICATION)) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && !context.checkSelfPermission(PermissionType.POST_NOTIFICATIONS)) {
                 Result.success()
             }
 

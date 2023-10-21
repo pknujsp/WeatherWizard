@@ -1,4 +1,4 @@
-package io.github.pknujsp.weatherwizard.feature.notification.common
+package io.github.pknujsp.weatherwizard.feature.notification.remoteview
 
 import android.widget.FrameLayout
 import androidx.compose.foundation.layout.fillMaxWidth

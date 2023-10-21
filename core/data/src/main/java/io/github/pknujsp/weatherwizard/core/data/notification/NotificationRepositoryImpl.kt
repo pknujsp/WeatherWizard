@@ -5,7 +5,7 @@ import io.github.pknujsp.weatherwizard.core.database.notification.NotificationDt
 import io.github.pknujsp.weatherwizard.core.database.notification.NotificationLocalDataSource
 import io.github.pknujsp.weatherwizard.core.model.JsonParser
 import io.github.pknujsp.weatherwizard.core.model.notification.NotificationEntity
-import io.github.pknujsp.weatherwizard.core.model.notification.NotificationType
+import io.github.pknujsp.weatherwizard.core.model.notification.enums.NotificationType
 import io.github.pknujsp.weatherwizard.core.model.notification.ongoing.OngoingNotificationInfoEntity
 import io.github.pknujsp.weatherwizard.core.model.notification.daily.DailyNotificationInfoEntity
 import kotlinx.coroutines.flow.Flow
@@ -57,7 +57,7 @@ class NotificationRepositoryImpl @Inject constructor(
 
     override suspend fun getDailyNotification(id: Long): NotificationEntity<DailyNotificationInfoEntity> =
         if(id == -1L){
-            NotificationEntity(-1L, false, DailyNotificationInfoEntity())
+            NotificationEntity(-1L, true, DailyNotificationInfoEntity())
         }else{
             notificationLocalDataSource.getById(id).let {
                 NotificationEntity(it.id, it.enabled, jsonParser.parse(it.content))

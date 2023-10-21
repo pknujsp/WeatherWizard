@@ -1,4 +1,4 @@
-package io.github.pknujsp.weatherwizard.feature.alarm
+package io.github.pknujsp.weatherwizard.feature.alarm.manager
 
 import android.annotation.SuppressLint
 import android.app.AlarmManager
@@ -16,7 +16,6 @@ class AppAlarmManager(context: Context) {
 
     fun unSchedule(pendingIntent: PendingIntent) {
         alarmManager.cancel(pendingIntent)
-        pendingIntent.cancel()
     }
 
     fun scheduleRepeat(intervalInMillis: Long, pendingIntent: PendingIntent) {
@@ -26,6 +25,5 @@ class AppAlarmManager(context: Context) {
 
     fun unScheduleRepeat(pendingIntent: PendingIntent) {
         alarmManager.cancel(pendingIntent)
-        pendingIntent.cancel()
     }
 }

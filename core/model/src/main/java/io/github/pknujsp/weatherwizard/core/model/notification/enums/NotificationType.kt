@@ -1,4 +1,4 @@
-package io.github.pknujsp.weatherwizard.core.model.notification
+package io.github.pknujsp.weatherwizard.core.model.notification.enums
 
 import android.app.NotificationManager
 import androidx.annotation.StringRes

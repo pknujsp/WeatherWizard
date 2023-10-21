@@ -1,4 +1,4 @@
-package io.github.pknujsp.weatherwizard.core.model.notification
+package io.github.pknujsp.weatherwizard.core.model.notification.enums
 
 import io.github.pknujsp.weatherwizard.core.common.BaseEnum
 import io.github.pknujsp.weatherwizard.core.common.IEnum

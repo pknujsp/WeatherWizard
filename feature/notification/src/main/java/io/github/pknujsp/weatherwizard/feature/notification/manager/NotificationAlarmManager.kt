@@ -1,10 +1,11 @@
-package io.github.pknujsp.weatherwizard.feature.notification.daily.worker
+package io.github.pknujsp.weatherwizard.feature.notification.manager
 
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
-import io.github.pknujsp.weatherwizard.core.model.notification.NotificationType
-import io.github.pknujsp.weatherwizard.feature.alarm.AppAlarmManager
+import io.github.pknujsp.weatherwizard.core.model.notification.enums.NotificationType
+import io.github.pknujsp.weatherwizard.feature.alarm.manager.AppAlarmManager
+import io.github.pknujsp.weatherwizard.feature.notification.daily.worker.DailyNotificationReceiver
 import java.time.ZonedDateTime
 
 class NotificationAlarmManager(context: Context) {
@@ -27,6 +28,7 @@ class NotificationAlarmManager(context: Context) {
     fun unSchedule(context: Context, notificationId: Long) {
         getPendingIntent(notificationId, context, PendingIntent.FLAG_NO_CREATE or PendingIntent.FLAG_IMMUTABLE)?.run {
             appAlarmManager.unSchedule(this)
+            cancel()
         }
     }
 

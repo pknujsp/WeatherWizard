@@ -31,6 +31,7 @@ class AddOrEditDailyNotificationViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
+            println("id: ${savedStateHandle.get<Long>("id")}")
             val id = savedStateHandle.get<Long>("id")!!
             val info = notificationRepository.getDailyNotification(id).let {
                 DailyNotificationInfo(
@@ -72,7 +73,6 @@ class AddOrEditDailyNotificationViewModel @Inject constructor(
                 info.id = id
                 info.onSaved = true
             }
-
         }
     }
 }

@@ -1,4 +1,4 @@
-package io.github.pknujsp.weatherwizard.feature.notification.common
+package io.github.pknujsp.weatherwizard.feature.notification.worker
 
 import java.util.UUID
 

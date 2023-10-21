@@ -48,7 +48,7 @@ import io.github.pknujsp.weatherwizard.core.ui.dialog.BottomSheet
 import io.github.pknujsp.weatherwizard.core.ui.dialog.DialogScreen
 import io.github.pknujsp.weatherwizard.core.ui.theme.AppShapes
 import io.github.pknujsp.weatherwizard.feature.notification.NotificationRoutes
-import io.github.pknujsp.weatherwizard.feature.notification.daily.worker.NotificationAlarmManager
+import io.github.pknujsp.weatherwizard.feature.notification.manager.NotificationAlarmManager
 
 @Composable
 fun DailyNotificationListScreen(navController: NavController) {

@@ -26,19 +26,19 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import io.github.pknujsp.weatherwizard.core.model.favorite.LocationType
-import io.github.pknujsp.weatherwizard.core.model.notification.NotificationIconType
-import io.github.pknujsp.weatherwizard.core.model.notification.NotificationType
+import io.github.pknujsp.weatherwizard.core.model.notification.enums.NotificationIconType
+import io.github.pknujsp.weatherwizard.core.model.notification.enums.NotificationType
 import io.github.pknujsp.weatherwizard.core.model.notification.ongoing.OngoingNotificationInfo
-import io.github.pknujsp.weatherwizard.core.model.notification.RefreshInterval
+import io.github.pknujsp.weatherwizard.core.model.notification.enums.RefreshInterval
 import io.github.pknujsp.weatherwizard.core.ui.BottomSheetSettingItem
 import io.github.pknujsp.weatherwizard.core.ui.SecondaryButton
 import io.github.pknujsp.weatherwizard.core.ui.TitleTextWithNavigation
-import io.github.pknujsp.weatherwizard.feature.alarm.AppAlarmManager
+import io.github.pknujsp.weatherwizard.feature.alarm.manager.AppAlarmManager
 import io.github.pknujsp.weatherwizard.feature.notification.R
-import io.github.pknujsp.weatherwizard.feature.notification.common.AppNotificationManager
-import io.github.pknujsp.weatherwizard.feature.notification.common.LocationScreen
-import io.github.pknujsp.weatherwizard.feature.notification.common.RemoteViewsScreen
-import io.github.pknujsp.weatherwizard.feature.notification.common.WeatherProvidersScreen
+import io.github.pknujsp.weatherwizard.feature.notification.manager.AppNotificationManager
+import io.github.pknujsp.weatherwizard.feature.notification.ui.LocationScreen
+import io.github.pknujsp.weatherwizard.feature.notification.remoteview.RemoteViewsScreen
+import io.github.pknujsp.weatherwizard.feature.notification.ui.WeatherProvidersScreen
 import io.github.pknujsp.weatherwizard.feature.notification.ongoing.worker.OngoingNotificationRemoteViewsCreator
 import io.github.pknujsp.weatherwizard.feature.notification.search.SearchLocationScreen
 
@@ -171,8 +171,7 @@ private fun switchNotification(
         appNotificationManager.cancelNotification(NotificationType.ONGOING)
         if (refreshInterval != RefreshInterval.MANUAL) {
             appAlarmManager.unScheduleRepeat(pendingIntent)
-        }else{
-            pendingIntent.cancel()
         }
+        pendingIntent.cancel()
     }
 }

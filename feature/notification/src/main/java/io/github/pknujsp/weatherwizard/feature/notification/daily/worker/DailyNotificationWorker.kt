@@ -11,16 +11,16 @@ import dagger.assisted.AssistedInject
 import io.github.pknujsp.weatherwizard.core.common.permission.PermissionType
 import io.github.pknujsp.weatherwizard.core.common.permission.checkSelfPermission
 import io.github.pknujsp.weatherwizard.core.model.UiState
-import io.github.pknujsp.weatherwizard.core.model.notification.NotificationType
-import io.github.pknujsp.weatherwizard.core.model.notification.daily.DailyNotificationType
+import io.github.pknujsp.weatherwizard.core.model.notification.enums.NotificationType
+import io.github.pknujsp.weatherwizard.core.model.notification.enums.DailyNotificationType
 import io.github.pknujsp.weatherwizard.core.model.notification.daily.forecast.DailyNotificationForecastUiModel
 import io.github.pknujsp.weatherwizard.core.model.onFailure
 import io.github.pknujsp.weatherwizard.core.model.onSuccess
 import io.github.pknujsp.weatherwizard.core.model.remoteviews.RemoteViewUiModel
-import io.github.pknujsp.weatherwizard.feature.notification.common.AppNotificationManager
-import io.github.pknujsp.weatherwizard.feature.notification.common.INotificationWorker
-import io.github.pknujsp.weatherwizard.feature.notification.common.NotificationRemoteViewsCreator
-import io.github.pknujsp.weatherwizard.feature.notification.daily.worker.remoteviews.RemoteViewsCreatorManager
+import io.github.pknujsp.weatherwizard.feature.notification.manager.AppNotificationManager
+import io.github.pknujsp.weatherwizard.feature.notification.worker.INotificationWorker
+import io.github.pknujsp.weatherwizard.feature.notification.remoteview.NotificationRemoteViewsCreator
+import io.github.pknujsp.weatherwizard.feature.notification.manager.RemoteViewsCreatorManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.util.UUID
@@ -40,7 +40,7 @@ class DailyNotificationWorker @AssistedInject constructor(
 
     override suspend fun doWork(): Result {
         return withContext(Dispatchers.IO) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && !context.checkSelfPermission(PermissionType.NOTIFICATION)) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && !context.checkSelfPermission(PermissionType.POST_NOTIFICATIONS)) {
                 Result.success()
             }
             viewModel.init(notificationId)

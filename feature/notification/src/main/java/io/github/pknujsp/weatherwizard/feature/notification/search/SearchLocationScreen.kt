@@ -36,7 +36,7 @@ fun SearchLocationScreen(onSelectedLocation: (CustomLocation?) -> Unit, popBackS
             popBackStack()
         }
 
-        var query by remember { mutableStateOf("" to 0L) }
+        val query by remember { mutableStateOf("" to 0L) }
         var showSearchHistory by remember { mutableStateOf(true) }
 
         TitleTextWithNavigation(title = stringResource(id = R.string.add_new_area)) {

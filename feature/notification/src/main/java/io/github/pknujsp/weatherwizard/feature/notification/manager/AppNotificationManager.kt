@@ -1,4 +1,4 @@
-package io.github.pknujsp.weatherwizard.feature.notification.common
+package io.github.pknujsp.weatherwizard.feature.notification.manager
 
 import android.annotation.SuppressLint
 import android.app.Notification.VISIBILITY_PUBLIC
@@ -11,7 +11,7 @@ import android.widget.RemoteViews
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.work.ForegroundInfo
-import io.github.pknujsp.weatherwizard.core.model.notification.NotificationType
+import io.github.pknujsp.weatherwizard.core.model.notification.enums.NotificationType
 import io.github.pknujsp.weatherwizard.core.model.remoteviews.RemoteViewUiModel
 import io.github.pknujsp.weatherwizard.feature.notification.R
 import io.github.pknujsp.weatherwizard.feature.notification.ongoing.worker.OngoingNotificationReceiver

@@ -1,4 +1,4 @@
-package io.github.pknujsp.weatherwizard.feature.notification.common
+package io.github.pknujsp.weatherwizard.feature.notification.ui
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.ColumnScope

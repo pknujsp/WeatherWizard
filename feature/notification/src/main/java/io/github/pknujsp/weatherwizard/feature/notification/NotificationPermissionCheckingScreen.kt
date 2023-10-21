@@ -8,7 +8,6 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.navigation.NavController
 import io.github.pknujsp.weatherwizard.core.common.R
 import io.github.pknujsp.weatherwizard.core.common.UnavailableFeature
 import io.github.pknujsp.weatherwizard.core.common.permission.OpenSettingsActivityForPermission
@@ -18,7 +17,7 @@ import io.github.pknujsp.weatherwizard.core.ui.UnavailableFeatureScreen
 
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
 @Composable
-fun NotificationPermissionCheckingScreen(navController: NavController) {
+fun NotificationPermissionCheckingScreen(onPermissionGranted: () -> Unit) {
     var permissionGranted by remember { mutableStateOf(false) }
     var openPermissionActivity by remember { mutableStateOf(false) }
 
@@ -26,14 +25,9 @@ fun NotificationPermissionCheckingScreen(navController: NavController) {
     var refreshKey by remember { mutableIntStateOf(0) }
 
     if (permissionGranted) {
-        navController.navigate(NotificationRoutes.Main.route) {
-            launchSingleTop = true
-            popUpTo(NotificationRoutes.NotificationPermission.route) {
-                inclusive = true
-            }
-        }
+        onPermissionGranted()
     } else {
-        PermissionManager(PermissionType.NOTIFICATION, onPermissionGranted = {
+        PermissionManager(PermissionType.POST_NOTIFICATIONS, onPermissionGranted = {
             openPermissionActivity = false
             unavailable = false
             permissionGranted = true
