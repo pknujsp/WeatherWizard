@@ -2,6 +2,7 @@ package io.github.pknujsp.weatherwizard.feature.notification.daily.worker
 
 import android.content.Context
 import android.os.Build
+import android.util.Log
 import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.ForegroundInfo
@@ -29,7 +30,6 @@ import java.util.UUID
 class DailyNotificationWorker @AssistedInject constructor(
     @Assisted val context: Context, @Assisted params: WorkerParameters, private val viewModel: DailyNotificationRemoteViewModel
 ) : CoroutineWorker(context, params) {
-    private val notificationId: Long = inputData.getLong("notificationId", 0L)
     private val appNotificationManager = AppNotificationManager(context)
 
     companion object : INotificationWorker {
@@ -39,10 +39,12 @@ class DailyNotificationWorker @AssistedInject constructor(
     }
 
     override suspend fun doWork(): Result {
+        val notificationId = inputData.getLong("notificationId", 0L)
         return withContext(Dispatchers.IO) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && !context.checkSelfPermission(PermissionType.POST_NOTIFICATIONS)) {
                 Result.success()
             }
+
             viewModel.init(notificationId)
             appNotificationManager.notifyNotification(NotificationType.DAILY, context, load())
             Result.success()

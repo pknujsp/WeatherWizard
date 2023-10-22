@@ -15,16 +15,14 @@
         android:gravity="center"
         android:text="12"
         android:textColor="@android:color/black"
-        android:textSize="14sp" />
+        android:textSize="13sp" />
 
     <LinearLayout
         android:id="@+id/weather_icons"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:gravity="center">
-
-    </LinearLayout>
+        android:gravity="center"/>
 
     <TextView
         android:id="@+id/temperature"

@@ -28,7 +28,7 @@ class DailyNotificationRemoteViewModel @Inject constructor(
     private val nominatimRepository: NominatimRepository,
 ) : RemoteViewModel() {
 
-    private var units: CurrentUnits by Delegates.notNull()
+    private val units: CurrentUnits = appSettingsRepository.currentUnits.value
     var notificationInfo: NotificationEntity<DailyNotificationInfoEntity> by Delegates.notNull()
         private set
 
@@ -38,8 +38,6 @@ class DailyNotificationRemoteViewModel @Inject constructor(
     private var address: String by Delegates.notNull()
 
     suspend fun init(notificationId: Long) {
-        appSettingsRepository.init()
-        units = appSettingsRepository.currentUnits.value
         notificationInfo = notificationRepository.getDailyNotification(notificationId)
         notificationInfo.data.run {
             address = if (getLocationType() is LocationType.CurrentLocation) nominatimRepository.reverseGeoCode(

@@ -22,7 +22,7 @@ class DailyNotificationForecastUiModel(
 
     private val dateFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("d E")
     private val hourRange get() = 0..8
-    private val dateRange get() = 0..6
+    private val dateRange get() = 0..4
 
 
     val hourlyForecast =
