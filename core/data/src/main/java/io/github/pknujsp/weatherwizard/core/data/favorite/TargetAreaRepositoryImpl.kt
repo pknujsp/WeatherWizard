@@ -26,7 +26,7 @@ class TargetAreaRepositoryImpl @Inject constructor(
     }
 
     override suspend fun updateTargetArea(target: LocationType) {
-        appDataStore.save(targetAreaKey, target.key.toLong())
+        appDataStore.save(targetAreaKey, if (target is LocationType.CustomLocation) target.locationId else target.key.toLong())
     }
 
 }

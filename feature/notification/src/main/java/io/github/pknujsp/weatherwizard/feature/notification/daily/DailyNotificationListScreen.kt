@@ -46,6 +46,7 @@ import io.github.pknujsp.weatherwizard.core.ui.SecondaryButton
 import io.github.pknujsp.weatherwizard.core.ui.TitleTextWithNavigation
 import io.github.pknujsp.weatherwizard.core.ui.dialog.BottomSheet
 import io.github.pknujsp.weatherwizard.core.ui.dialog.DialogScreen
+import io.github.pknujsp.weatherwizard.core.ui.list.EmptyListScreen
 import io.github.pknujsp.weatherwizard.core.ui.theme.AppShapes
 import io.github.pknujsp.weatherwizard.feature.notification.NotificationRoutes
 import io.github.pknujsp.weatherwizard.feature.notification.manager.NotificationAlarmManager
@@ -63,8 +64,7 @@ fun DailyNotificationListScreen(navController: NavController) {
         }
     }
 
-    Column(modifier = Modifier
-        .fillMaxSize()) {
+    Column(modifier = Modifier.fillMaxSize()) {
         TitleTextWithNavigation(title = stringResource(id = R.string.title_daily_notification)) {
             navController.popBackStack()
         }
@@ -73,17 +73,19 @@ fun DailyNotificationListScreen(navController: NavController) {
                 .verticalScroll(rememberScrollState())
                 .weight(1f),
         ) {
-            for (notification in notifications) {
-                Item(info = notification) {
-                    navController.navigate(NotificationRoutes.AddOrEditDaily.routeWithArguments(notification.id))
+            if (notifications.isEmpty()) {
+                EmptyListScreen(message = io.github.pknujsp.weatherwizard.feature.notification.R.string.empty_daily_notification)
+            } else {
+                for (notification in notifications) {
+                    Item(info = notification) {
+                        navController.navigate(NotificationRoutes.AddOrEditDaily.routeWithArguments(notification.id))
+                    }
                 }
             }
         }
         Box(modifier = Modifier.padding(12.dp)) {
             SecondaryButton(text = stringResource(id = io.github.pknujsp.weatherwizard.feature.notification.R.string.add_daily_notification),
-                modifier =
-                Modifier
-                    .fillMaxWidth()) {
+                modifier = Modifier.fillMaxWidth()) {
                 navController.navigate(NotificationRoutes.AddOrEditDaily.routeWithArguments(-1L))
             }
         }
@@ -95,32 +97,25 @@ fun DailyNotificationListScreen(navController: NavController) {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun Item(info: DailyNotificationSimpleInfo, onClick: () -> Unit) {
-    Surface(shape = AppShapes.large, shadowElevation = 4.dp, modifier = Modifier.padding(16.dp, 12.dp)) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .clickable { onClick() }
-                .padding(16.dp),
+    Surface(shape = AppShapes.large, shadowElevation = 4.dp, modifier = Modifier.padding(16.dp, 8.dp)) {
+        Row(modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onClick() }
+            .padding(16.dp, 12.dp),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-            Column(
-                modifier = Modifier.weight(1f),
-                verticalArrangement = Arrangement.spacedBy(4.dp)
-            ) {
-                Text(text = info.time, style = TextStyle(fontSize = 28.sp, color = Color.DarkGray, letterSpacing = 0.15.sp))
-                Row(verticalAlignment = Alignment.CenterVertically) {
+            horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+            Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                Text(text = info.time, style = TextStyle(fontSize = 30.sp, color = Color.DarkGray, letterSpacing = 0.1.sp))
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                     AsyncImage(model = ImageRequest.Builder(LocalContext.current).data(LocationType.icon).build(),
-                        contentDescription = stringResource(
-                            id = info.locationType.title),
+                        contentDescription = stringResource(id = info.locationType.title),
                         modifier = Modifier.size(16.dp))
-                    Text(text = stringResource(id = info.locationType.title), style = TextStyle(fontSize = 16.sp, color = Color.Gray))
+                    Text(text = if (info.locationType is LocationType.CustomLocation) info.address else stringResource(id = info.locationType.title),
+                        style = TextStyle(fontSize = 16.sp, color = Color.Gray))
                 }
                 Text(text = stringResource(id = info.type.title), style = TextStyle(fontSize = 14.sp, color = Color.Blue))
             }
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Switch(checked = info.isEnabled, onCheckedChange = {
                     info.switch(it)
                 })
@@ -139,12 +134,13 @@ private fun Item(info: DailyNotificationSimpleInfo, onClick: () -> Unit) {
                             isClickedDelete = false
                         },
                     ) {
-                        val message = stringResource(id = io.github.pknujsp.weatherwizard.feature.notification.R.string
-                            .delete_daily_notification_message).let {
-                            "${info.time} $it"
-                        }
+                        val message =
+                            stringResource(id = io.github.pknujsp.weatherwizard.feature.notification.R.string.delete_daily_notification_message).let {
+                                "${info.time} $it"
+                            }
                         DialogScreen(title = stringResource(id = R.string.delete),
-                            message = message, negative = stringResource(id = R.string.cancel),
+                            message = message,
+                            negative = stringResource(id = R.string.cancel),
                             positive = stringResource(id = R.string.delete),
                             onClickNegative = { isClickedDelete = false },
                             onClickPositive = {

@@ -24,7 +24,6 @@ class OngoingNotificationRemoteViewModel @Inject constructor(
 ) : RemoteViewModel() {
 
     suspend fun load(): UiState<OngoingNotificationUiModel> {
-        appSettingsRepository.init()
         val units = appSettingsRepository.currentUnits.value
         val notificationInfo = notificationRepository.getOngoingNotification()
 

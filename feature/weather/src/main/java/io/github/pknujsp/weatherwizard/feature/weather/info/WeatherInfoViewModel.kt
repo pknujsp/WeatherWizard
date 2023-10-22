@@ -86,7 +86,6 @@ class WeatherInfoViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            settingsRepository.init()
             locationType = targetAreaRepository.getTargetArea()
         }
     }

@@ -14,6 +14,7 @@ class DailyNotificationSimpleInfo(
     val id: Long,
     val type: DailyNotificationType,
     val locationType: LocationType,
+    val address: String = "",
     private val switch: (DailyNotificationSimpleInfo) -> Unit,
     private val delete: (DailyNotificationSimpleInfo) -> Unit,
     val hour: Int,

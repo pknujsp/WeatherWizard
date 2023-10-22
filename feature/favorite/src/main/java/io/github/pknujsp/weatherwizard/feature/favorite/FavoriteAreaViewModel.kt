@@ -11,47 +11,48 @@ import io.github.pknujsp.weatherwizard.core.model.favorite.LocationType
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class FavoriteAreaViewModel @Inject constructor(
-    private val favoriteAreaRepository: FavoriteAreaListRepository,
+    favoriteAreaRepository: FavoriteAreaListRepository,
     private val targetAreaRepository: TargetAreaRepository
 ) : ViewModel() {
 
-    private val _targetArea = MutableStateFlow<LocationType>(LocationType.CurrentLocation)
-    val targetArea: StateFlow<LocationType> = _targetArea
+    private val _targetLocation = MutableStateFlow<LocationType>(LocationType.CurrentLocation)
+    val targetLocation: StateFlow<LocationType> = _targetLocation
 
-    private val _favoriteAreaList = MutableStateFlow<UiState<List<FavoriteArea>>>(UiState.Loading)
-    val favoriteAreaList: StateFlow<UiState<List<FavoriteArea>>> = _favoriteAreaList
+    val favoriteLocationList = flow {
+        emit(favoriteAreaRepository.getAll())
+    }.map { entities ->
+        entities.map {
+            FavoriteArea(it.id, it.placeId, it.areaName, it.countryName)
+        }
+    }.stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
+
+    private val _onChanged = MutableStateFlow(false)
+    val onChanged: StateFlow<Boolean> = _onChanged
 
     init {
-        viewModelScope.launch(Dispatchers.IO) {
-            _targetArea.value = targetAreaRepository.getTargetArea()
-            _favoriteAreaList.value = favoriteAreaRepository.getAll().run {
-                UiState.Success(
-                    map {
-                        FavoriteArea(id = it.id, areaName = it.areaName, countryName = it.countryName,
-                            placeId = it.placeId
-                        )
-                    }
-                )
-            }
+        viewModelScope.launch {
+            _targetLocation.value = targetAreaRepository.getTargetArea()
         }
     }
 
     fun updateTargetArea(locationType: LocationType) {
         viewModelScope.launch(Dispatchers.IO) {
             targetAreaRepository.updateTargetArea(locationType)
-            val previousTargetArea = targetArea.value
-
             while (true) {
                 delay(50)
                 if (targetAreaRepository.getTargetArea() == locationType) break
             }
-            _targetArea.value = locationType
+            _onChanged.value = true
         }
     }
 }

@@ -19,12 +19,13 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.LocationOn
 import androidx.compose.material.icons.rounded.MoreVert
 import androidx.compose.material3.Checkbox
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
@@ -40,39 +41,46 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import io.github.pknujsp.weatherwizard.core.model.favorite.FavoriteArea
 import io.github.pknujsp.weatherwizard.core.model.favorite.LocationType
-import io.github.pknujsp.weatherwizard.core.model.onSuccess
 import io.github.pknujsp.weatherwizard.core.ui.MainRoutes
 import io.github.pknujsp.weatherwizard.core.ui.RootNavControllerViewModel
 import io.github.pknujsp.weatherwizard.core.ui.SecondaryButton
-import io.github.pknujsp.weatherwizard.core.ui.TitleTextWithoutNavigation
+import io.github.pknujsp.weatherwizard.core.ui.list.EmptyListScreen
 import io.github.pknujsp.weatherwizard.core.ui.theme.AppShapes
+import kotlinx.coroutines.flow.filter
 
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FavoriteAreaListScreen(navController: NavController) {
-    val lazyListState = rememberLazyListState()
     val viewModel: FavoriteAreaViewModel = hiltViewModel()
-    val favoriteAreaList by viewModel.favoriteAreaList.collectAsStateWithLifecycle()
-    val targetLocation by viewModel.targetArea.collectAsStateWithLifecycle()
-    val rootNavControllerViewModel: RootNavControllerViewModel = hiltViewModel(viewModelStoreOwner =
-    (LocalContext.current as ComponentActivity))
+    val favoriteAreaList by viewModel.favoriteLocationList.collectAsStateWithLifecycle()
+    val targetLocation by viewModel.targetLocation.collectAsStateWithLifecycle()
+    val rootNavControllerViewModel: RootNavControllerViewModel =
+        hiltViewModel(viewModelStoreOwner = (LocalContext.current as ComponentActivity))
 
-    Column(modifier = Modifier
-        .fillMaxSize()) {
-        LazyColumn(modifier = Modifier.weight(1f), state = lazyListState) {
-            favoriteAreaList.onSuccess {
-                item {
-                    CurrentLocationItem(checked = { targetLocation }) {
-                        viewModel.updateTargetArea(LocationType.CurrentLocation)
-                        rootNavControllerViewModel.navigate(MainRoutes.Weather)
-                    }
+    LaunchedEffect(Unit) {
+        viewModel.onChanged.filter { it }.collect {
+            rootNavControllerViewModel.navigate(MainRoutes.Weather)
+        }
+    }
+
+    Column(modifier = Modifier.fillMaxSize()) {
+        LazyColumn(modifier = Modifier.weight(1f), state = rememberLazyListState()) {
+            item {
+                CurrentLocationItem(targetLocation) {
+                    viewModel.updateTargetArea(LocationType.CurrentLocation)
                 }
-                items(it) { favoriteArea ->
-                    AreaItem(favoriteArea, checked = { targetLocation }) {
-                        viewModel.updateTargetArea(LocationType.CustomLocation(favoriteArea.id))
-                        rootNavControllerViewModel.navigate(MainRoutes.Weather)
-                    }
+            }
+            if (favoriteAreaList.isEmpty()) {
+                item {
+                    EmptyListScreen(message = R.string.no_favorite_location)
+                }
+            } else {
+                items(favoriteAreaList) { favoriteLocation ->
+                    FavoriteLocationItem(favoriteLocation, targetLocation, onClick = {
+                        viewModel.updateTargetArea(LocationType.CustomLocation(favoriteLocation.id))
+                    }, onClickMore = {
+
+                    })
                 }
             }
         }
@@ -88,7 +96,16 @@ fun FavoriteAreaListScreen(navController: NavController) {
 
 
 @Composable
-private fun AreaItem(favoriteArea: FavoriteArea, checked: () -> LocationType, onClick: () -> Unit) {
+private fun FavoriteLocationItem(
+    favoriteLocation: FavoriteArea, currentLocationType: LocationType, onClick: () -> Unit, onClickMore: () -> Unit
+) {
+    val isCurrentLocation = remember {
+        if (currentLocationType is LocationType.CustomLocation) {
+            currentLocationType.locationId == favoriteLocation.id
+        } else {
+            false
+        }
+    }
     Box(modifier = Modifier
         .fillMaxWidth()
         .wrapContentHeight()
@@ -101,25 +118,21 @@ private fun AreaItem(favoriteArea: FavoriteArea, checked: () -> LocationType, on
             .padding(horizontal = 8.dp, vertical = 6.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween) {
-            IconButton(onClick = { /*TODO*/ }) {
+            IconButton(onClick = onClickMore) {
                 Icon(imageVector = Icons.Rounded.MoreVert, contentDescription = null)
             }
             Column(modifier = Modifier
                 .weight(1f)
                 .clickable {
-                    with(checked()) {
-                        if ((this is LocationType.CustomLocation) && (locationId == favoriteArea.id)) {
-                            onClick()
-                        }
+                    if (!isCurrentLocation) {
+                        onClick()
                     }
                 }, verticalArrangement = Arrangement.Center) {
-                Text(text = favoriteArea.countryName, style = TextStyle(fontSize = 12.sp, color = Color.Gray))
-                Text(text = favoriteArea.areaName, style = TextStyle(fontSize = 15.sp, color = Color.Black))
+                Text(text = favoriteLocation.countryName, style = TextStyle(fontSize = 12.sp, color = Color.Gray))
+                Text(text = favoriteLocation.areaName, style = TextStyle(fontSize = 15.sp, color = Color.Black))
             }
-            Checkbox(checked = with(checked()) {
-                ((this is LocationType.CustomLocation) && (locationId == favoriteArea.id))
-            }, onCheckedChange = { checked ->
-                if (checked) {
+            Checkbox(checked = isCurrentLocation, onCheckedChange = {
+                if (!isCurrentLocation) {
                     onClick()
                 }
             })
@@ -129,7 +142,7 @@ private fun AreaItem(favoriteArea: FavoriteArea, checked: () -> LocationType, on
 
 
 @Composable
-private fun CurrentLocationItem(checked: () -> LocationType, onClick: () -> Unit) {
+private fun CurrentLocationItem(currentLocationType: LocationType, onClick: () -> Unit) {
     Box(modifier = Modifier
         .fillMaxWidth()
         .wrapContentHeight()
@@ -138,7 +151,7 @@ private fun CurrentLocationItem(checked: () -> LocationType, onClick: () -> Unit
             .fillMaxWidth()
             .wrapContentHeight()
             .clickable {
-                if (checked() is LocationType.CurrentLocation) {
+                if (currentLocationType !is LocationType.CurrentLocation) {
                     onClick()
                 }
             }
@@ -154,8 +167,10 @@ private fun CurrentLocationItem(checked: () -> LocationType, onClick: () -> Unit
             Text(text = stringResource(id = io.github.pknujsp.weatherwizard.core.common.R.string.current_location),
                 style = TextStyle(fontSize = 16.sp, color = Color.Blue, textAlign = TextAlign.Left),
                 modifier = Modifier.weight(1f))
-            Checkbox(checked = checked() is LocationType.CurrentLocation, onCheckedChange = {
-                onClick()
+            Checkbox(checked = currentLocationType is LocationType.CurrentLocation, onCheckedChange = {
+                if (currentLocationType !is LocationType.CurrentLocation) {
+                    onClick()
+                }
             })
         }
     }

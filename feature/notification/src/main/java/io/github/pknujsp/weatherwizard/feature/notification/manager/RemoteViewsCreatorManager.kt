@@ -3,7 +3,7 @@ package io.github.pknujsp.weatherwizard.feature.notification.manager
 import io.github.pknujsp.weatherwizard.core.model.UiModel
 import io.github.pknujsp.weatherwizard.core.model.notification.enums.DailyNotificationType
 import io.github.pknujsp.weatherwizard.feature.notification.remoteview.NotificationRemoteViewsCreator
-import io.github.pknujsp.weatherwizard.feature.notification.daily.worker.remoteviews.hourlyforecast.DailyNotificationHourlyForecastRemoteViewsCreator
+import io.github.pknujsp.weatherwizard.feature.notification.daily.worker.remoteviews.DailyNotificationHourlyForecastRemoteViewsCreator
 
 class RemoteViewsCreatorManager {
     companion object {
