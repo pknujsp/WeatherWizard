@@ -6,7 +6,7 @@
     <string name="temperature">기온</string>
     <string name="min_temperature">최저 기온</string>
     <string name="max_temperature">최고 기온</string>
-    <string name="feels_like_temperature">체감온도</string>
+    <string name="feels_like_temperature">체감</string>
     <string name="wind_speed">풍속</string>
     <string name="max_wind_speed">최대 풍속</string>
     <string name="wind_direction">풍향</string>
