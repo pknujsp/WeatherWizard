@@ -1,6 +1,7 @@
 package io.github.pknujsp.weatherwizard.feature.widget
 
 import io.github.pknujsp.weatherwizard.core.model.UiModel
+import io.github.pknujsp.weatherwizard.core.model.widget.WidgetType
 import io.github.pknujsp.weatherwizard.feature.widget.remoteview.RemoteViewCreator
 import io.github.pknujsp.weatherwizard.feature.widget.summary.SummaryRemoteViewCreator
 

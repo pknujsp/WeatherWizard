@@ -1,20 +1,18 @@
 package io.github.pknujsp.weatherwizard.core.data.widget
 
+import io.github.pknujsp.weatherwizard.core.model.EntityModel
 import io.github.pknujsp.weatherwizard.core.model.notification.NotificationEntity
 import io.github.pknujsp.weatherwizard.core.model.notification.ongoing.OngoingNotificationInfoEntity
 import io.github.pknujsp.weatherwizard.core.model.notification.daily.DailyNotificationInfoEntity
+import io.github.pknujsp.weatherwizard.core.model.widget.WidgetEntity
 import kotlinx.coroutines.flow.Flow
 
 interface WidgetRepository {
-    suspend fun switch(id: Long, enabled: Boolean)
 
-    suspend fun getOngoingNotification(): NotificationEntity<OngoingNotificationInfoEntity>
-    suspend fun setOngoingNotificationInfo(ongoingNotificationInfoEntity: NotificationEntity<OngoingNotificationInfoEntity>): Long
+    fun getAll(): Flow<List<WidgetEntity>>
+    suspend fun get(id: Long): WidgetEntity
 
-    fun getDailyNotifications(): Flow<List<NotificationEntity<DailyNotificationInfoEntity>>>
-    suspend fun getDailyNotification(id:Long): NotificationEntity<DailyNotificationInfoEntity>
+    suspend fun add(entity: WidgetEntity): Long
 
-    suspend fun setDailyNotificationInfo(entity: NotificationEntity<DailyNotificationInfoEntity>): Long
-
-    suspend fun deleteDailyNotification(id: Long)
+    suspend fun delete(id: Long)
 }

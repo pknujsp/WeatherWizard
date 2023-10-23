@@ -1,7 +1,6 @@
 package io.github.pknujsp.weatherwizard.feature.widget.activity.configure
 
 import android.appwidget.AppWidgetManager
-import android.content.Context
 import android.content.Intent
 import androidx.activity.ComponentActivity
 import androidx.compose.foundation.layout.Arrangement
@@ -11,9 +10,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.TimePicker
-import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -26,18 +22,13 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.navigation.NavController
 import io.github.pknujsp.weatherwizard.core.model.favorite.LocationType
-import io.github.pknujsp.weatherwizard.core.model.notification.daily.DailyNotificationInfo
-import io.github.pknujsp.weatherwizard.core.model.notification.enums.DailyNotificationType
 import io.github.pknujsp.weatherwizard.core.model.onSuccess
-import io.github.pknujsp.weatherwizard.core.ui.BottomSheetSettingItem
 import io.github.pknujsp.weatherwizard.core.ui.SecondaryButton
 import io.github.pknujsp.weatherwizard.core.ui.TitleTextWithNavigation
-import io.github.pknujsp.weatherwizard.core.ui.dialog.DialogScreen
 import io.github.pknujsp.weatherwizard.feature.notification.R
 import io.github.pknujsp.weatherwizard.feature.searchlocation.SearchLocationScreen
-import io.github.pknujsp.weatherwizard.feature.widget.WidgetType
+import io.github.pknujsp.weatherwizard.core.model.widget.WidgetType
 import io.github.pknujsp.weatherwizard.feature.widget.summary.updateAppWidget
 
 

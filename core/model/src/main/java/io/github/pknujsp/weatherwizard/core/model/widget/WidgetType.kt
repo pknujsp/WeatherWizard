@@ -1,4 +1,4 @@
-package io.github.pknujsp.weatherwizard.feature.widget
+package io.github.pknujsp.weatherwizard.core.model.widget
 
 enum class WidgetType {
     SUMMARY;

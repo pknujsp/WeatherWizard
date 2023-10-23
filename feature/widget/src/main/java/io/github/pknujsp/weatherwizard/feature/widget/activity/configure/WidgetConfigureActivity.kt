@@ -7,7 +7,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import dagger.hilt.android.AndroidEntryPoint
 import io.github.pknujsp.weatherwizard.feature.widget.WidgetManager
-import io.github.pknujsp.weatherwizard.feature.widget.WidgetType
+import io.github.pknujsp.weatherwizard.core.model.widget.WidgetType
 
 @AndroidEntryPoint
 class SummaryWeatherWidgetConfigureActivity : ComponentActivity() {
