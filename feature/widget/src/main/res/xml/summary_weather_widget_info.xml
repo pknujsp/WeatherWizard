@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
-    android:configure="io.github.pknujsp.weatherwizard.feature.widget.SummaryWeatherWidgetConfigureActivity"
+    android:configure="io.github.pknujsp.weatherwizard.feature.widget.activity.configure.SummaryWeatherWidgetConfigureActivity"
     android:description="@string/summary_weather_widget_description"
     android:initialKeyguardLayout="@layout/summary_weather_widget"
     android:initialLayout="@layout/summary_weather_widget"

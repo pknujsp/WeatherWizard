@@ -18,6 +18,9 @@ import io.github.pknujsp.weatherwizard.core.database.roomdb.PretainedRoomDb
 import io.github.pknujsp.weatherwizard.core.database.searchhistory.SearchHistoryDao
 import io.github.pknujsp.weatherwizard.core.database.searchhistory.SearchHistoryLocalDataSource
 import io.github.pknujsp.weatherwizard.core.database.searchhistory.SearchHistoryLocalDataSourceImpl
+import io.github.pknujsp.weatherwizard.core.database.widget.WidgetDao
+import io.github.pknujsp.weatherwizard.core.database.widget.WidgetLocalDataSource
+import io.github.pknujsp.weatherwizard.core.database.widget.WidgetLocalDataSourceImpl
 import javax.inject.Singleton
 
 @Module
@@ -54,6 +57,9 @@ object DaoModule {
 
     @Provides
     fun providesNotificationDao(notPretainedRoomDb: NotPretainedRoomDb) = notPretainedRoomDb.notificationDao()
+
+    @Provides
+    fun providesWidgetDao(notPretainedRoomDb: NotPretainedRoomDb) = notPretainedRoomDb.widgetDao()
 }
 
 @Module
@@ -73,4 +79,8 @@ object DBDataSourceModule {
     @Singleton
     fun providesNotificationDataSource(notificationDao: NotificationDao): NotificationLocalDataSource =
         NotificationLocalDataSourceImpl(notificationDao)
+
+    @Provides
+    @Singleton
+    fun providesWidgetDataSource(widgetDao: WidgetDao): WidgetLocalDataSource = WidgetLocalDataSourceImpl(widgetDao)
 }

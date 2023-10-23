@@ -1,4 +1,4 @@
-package io.github.pknujsp.weatherwizard.feature.notification.search
+package io.github.pknujsp.weatherwizard.feature.searchlocation
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Column

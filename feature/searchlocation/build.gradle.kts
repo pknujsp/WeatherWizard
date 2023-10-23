@@ -4,23 +4,15 @@ plugins {
 }
 
 android {
-    namespace = "io.github.pknujsp.weatherwizard.feature.widget"
-    buildFeatures {
-        viewBinding = true
-    }
+    namespace = "io.github.pknujsp.weatherwizard.feature.searchlocation"
 }
 
 dependencies {
     implementation(project(":core:domain"))
     implementation(project(":core:data"))
-    implementation(project(":feature:searchlocation"))
-    implementation(project(":feature:main"))
+    implementation(project(":feature:favorite"))
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
-    implementation(libs.bundles.workmanager)
-    implementation(libs.material)
-    implementation(libs.constraintlayout)
-
     ksp(libs.ksealedbinding.compiler)
     implementation(libs.ksealedbinding.annotation)
 }

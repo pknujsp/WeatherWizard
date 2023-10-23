@@ -1,4 +1,4 @@
-package io.github.pknujsp.weatherwizard.feature.notification.search
+package io.github.pknujsp.weatherwizard.feature.searchlocation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope

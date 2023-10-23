@@ -25,7 +25,7 @@
         </receiver>
 
         <activity
-            android:name=".SummaryWeatherWidgetConfigureActivity"
+            android:name=".activity.configure.SummaryWeatherWidgetConfigureActivity"
             android:exported="false"
             android:screenOrientation="portrait">
             <intent-filter>

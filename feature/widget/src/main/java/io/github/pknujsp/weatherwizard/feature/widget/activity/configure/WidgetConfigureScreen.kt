@@ -1,6 +1,9 @@
-package io.github.pknujsp.weatherwizard.feature.notification.daily
+package io.github.pknujsp.weatherwizard.feature.widget.activity.configure
 
+import android.appwidget.AppWidgetManager
 import android.content.Context
+import android.content.Intent
+import androidx.activity.ComponentActivity
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -33,17 +36,15 @@ import io.github.pknujsp.weatherwizard.core.ui.SecondaryButton
 import io.github.pknujsp.weatherwizard.core.ui.TitleTextWithNavigation
 import io.github.pknujsp.weatherwizard.core.ui.dialog.DialogScreen
 import io.github.pknujsp.weatherwizard.feature.notification.R
-import io.github.pknujsp.weatherwizard.feature.notification.ui.LocationScreen
-import io.github.pknujsp.weatherwizard.feature.notification.remoteview.RemoteViewsScreen
-import io.github.pknujsp.weatherwizard.feature.notification.ui.WeatherProvidersScreen
-import io.github.pknujsp.weatherwizard.feature.notification.manager.RemoteViewsCreatorManager
-import io.github.pknujsp.weatherwizard.feature.notification.manager.NotificationAlarmManager
 import io.github.pknujsp.weatherwizard.feature.searchlocation.SearchLocationScreen
+import io.github.pknujsp.weatherwizard.feature.widget.WidgetType
+import io.github.pknujsp.weatherwizard.feature.widget.summary.updateAppWidget
 
 
 @Composable
-fun AddOrEditDailyNotificationScreen(navController: NavController) {
-    val viewModel: AddOrEditDailyNotificationViewModel = hiltViewModel()
+fun WidgetConfigureScreen(widgetId: Int, widgetType: WidgetType) {
+    val activity = androidx.compose.ui.platform.LocalContext.current as ComponentActivity
+    val viewModel: WidgetConfigureViewModel = hiltViewModel()
     val notification by viewModel.notification.collectAsStateWithLifecycle()
 
     notification.onSuccess { info ->
@@ -108,61 +109,14 @@ fun AddOrEditDailyNotificationScreen(navController: NavController) {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun TimeItem(entity: DailyNotificationInfo) {
-    var time by remember { mutableStateOf(entity.hour to entity.minute) }
-    var expanded by remember { mutableStateOf(false) }
 
-    BottomSheetSettingItem(title = stringResource(id = R.string.notification_time), isBottomSheetExpanded = expanded, onClick = {
-        expanded = true
-    }, onDismissRequest = {
-        expanded = false
-    }, currentData = entity.time) {
-        val timePickerState = rememberTimePickerState(
-            initialHour = time.first,
-            initialMinute = time.second,
-            is24Hour = false
-        )
+fun createWidget(activity: ComponentActivity, widgetId: Int) {
+    val appWidgetManager = AppWidgetManager.getInstance(activity)
+    updateAppWidget(activity, appWidgetManager, widgetId)
 
-        DialogScreen(title = stringResource(id = R.string.notification_time),
-            message = stringResource(id = R.string.message_notification_time),
-            negative = stringResource(id = io.github.pknujsp.weatherwizard.core.common.R.string.cancel),
-            positive = stringResource(id = io.github.pknujsp.weatherwizard.core.common.R.string.okay),
-            onClickNegative = { expanded = false },
-            onClickPositive = {
-                expanded = false
-                entity.hour = timePickerState.hour
-                entity.minute = timePickerState.minute
-                time = timePickerState.hour to timePickerState.minute
-            }) {
+    val resultValue = Intent()
+    resultValue.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, widgetId)
 
-            TimePicker(state = timePickerState, modifier = Modifier.fillMaxWidth())
-        }
-    }
-}
-
-@Composable
-fun NotificationTypeItem(selectedOption: DailyNotificationType, onSelectedItem: (DailyNotificationType) -> Unit) {
-    val types = remember { DailyNotificationType.enums }
-
-    BottomSheetSettingItem(title = stringResource(id = io.github.pknujsp.weatherwizard.core.common.R.string.data_type),
-        selectedItem = selectedOption,
-        onSelectedItem = {
-            if (it != null) {
-                onSelectedItem(it)
-            }
-        },
-        enums = types)
-}
-
-private fun scheduleAlarm(context: Context, info: DailyNotificationInfo) {
-    NotificationAlarmManager(context).run {
-        if (info.enabled) {
-            if (info.id != -1L) {
-                unSchedule(context, info.id)
-            }
-            schedule(context, info.id, info.hour, info.minute)
-        }
-    }
+    activity.setResult(ComponentActivity.RESULT_OK, resultValue)
+    activity.finish()
 }

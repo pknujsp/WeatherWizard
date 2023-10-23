@@ -40,7 +40,7 @@ import io.github.pknujsp.weatherwizard.feature.notification.ui.LocationScreen
 import io.github.pknujsp.weatherwizard.feature.notification.remoteview.RemoteViewsScreen
 import io.github.pknujsp.weatherwizard.feature.notification.ui.WeatherProvidersScreen
 import io.github.pknujsp.weatherwizard.feature.notification.ongoing.worker.OngoingNotificationRemoteViewsCreator
-import io.github.pknujsp.weatherwizard.feature.notification.search.SearchLocationScreen
+import io.github.pknujsp.weatherwizard.feature.searchlocation.SearchLocationScreen
 
 
 @Composable
