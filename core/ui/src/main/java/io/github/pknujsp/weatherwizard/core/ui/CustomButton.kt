@@ -33,6 +33,14 @@ fun SecondaryButton(
 }
 
 @Composable
+fun ThirdButton(
+    modifier: Modifier = Modifier, contentPadding: PaddingValues? = null,
+    colors: ButtonColors = AppButtons.third(), text: String, onClick: () -> Unit
+) {
+    BaseButton(modifier, contentPadding, colors, Color.White, text, onClick)
+}
+
+@Composable
 private fun BaseButton(
     modifier: Modifier, contentPadding: PaddingValues?, colors: ButtonColors, textColor: Color, text: String,
     onClick:
@@ -66,4 +74,9 @@ object AppButtons {
     fun secondary(
     ) = ButtonDefaults.buttonColors(containerColor =
     Color.White, contentColor = Color.Black)
+
+    @Composable
+    fun third(
+    ) = ButtonDefaults.buttonColors(containerColor =
+    Color.Gray, contentColor = Color.White)
 }

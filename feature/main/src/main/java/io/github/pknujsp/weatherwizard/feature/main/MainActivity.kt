@@ -1,4 +1,4 @@
-package io.github.pknujsp.weatherwizard
+package io.github.pknujsp.weatherwizard.feature.main
 
 import android.net.ConnectivityManager
 import android.net.Network
@@ -22,7 +22,6 @@ import io.github.pknujsp.weatherwizard.core.common.UnavailableFeature
 import io.github.pknujsp.weatherwizard.core.ui.UnavailableFeatureScreen
 import io.github.pknujsp.weatherwizard.core.ui.theme.AppColorScheme
 import io.github.pknujsp.weatherwizard.core.ui.theme.MainTheme
-import io.github.pknujsp.weatherwizard.feature.main.MainScreen
 
 
 @AndroidEntryPoint

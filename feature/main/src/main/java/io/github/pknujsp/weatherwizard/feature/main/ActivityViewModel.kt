@@ -1,4 +1,4 @@
-package io.github.pknujsp.weatherwizard
+package io.github.pknujsp.weatherwizard.feature.main
 
 import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel

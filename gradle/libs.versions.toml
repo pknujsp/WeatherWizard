@@ -84,6 +84,7 @@ sunrisesunsetcalculator = "1.2"
 osmdroid = "6.1.17"
 uiautomator = "2.2.0"
 benchmark-macro-junit4 = "1.1.1"
+constraintlayout = "2.1.4"
 
 
 # 라이브러리 의존성------------------------------------------------------------------------------------------------------------------------
@@ -228,6 +229,7 @@ detekt-formatting = { module = "io.gitlab.arturbosch.detekt:detekt-formatting", 
 ksp = { module = "com.google.devtools.ksp:symbol-processing-api", version.ref = "ksp" }
 uiautomator = { group = "androidx.test.uiautomator", name = "uiautomator", version.ref = "uiautomator" }
 benchmark-macro-junit4 = { group = "androidx.benchmark", name = "benchmark-macro-junit4", version.ref = "benchmark-macro-junit4" }
+constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayout" }
 
 [bundles]
 compose-debug = ["androidx-compose-ui-test-manifest", "androidx-compose-ui-tooling"]

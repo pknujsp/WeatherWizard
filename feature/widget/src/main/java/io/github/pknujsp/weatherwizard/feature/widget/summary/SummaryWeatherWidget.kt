@@ -1,9 +1,12 @@
-package io.github.pknujsp.weatherwizard.feature.widget
+package io.github.pknujsp.weatherwizard.feature.widget.summary
 
 import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProvider
 import android.content.Context
 import android.widget.RemoteViews
+import io.github.pknujsp.weatherwizard.feature.widget.R
+import io.github.pknujsp.weatherwizard.feature.widget.deleteTitlePref
+import io.github.pknujsp.weatherwizard.feature.widget.loadTitlePref
 
 /**
  * Implementation of App Widget functionality.

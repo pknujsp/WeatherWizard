@@ -8,6 +8,7 @@ import android.os.Bundle
 import android.view.View
 import android.widget.EditText
 import io.github.pknujsp.weatherwizard.feature.widget.databinding.SummaryWeatherWidgetConfigureBinding
+import io.github.pknujsp.weatherwizard.feature.widget.summary.updateAppWidget
 
 /**
  * The configuration screen for the [SummaryWeatherWidget] AppWidget.
