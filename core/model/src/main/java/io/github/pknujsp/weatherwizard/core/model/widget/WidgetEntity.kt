@@ -8,6 +8,7 @@ import kotlinx.serialization.Serializable
 
 
 class WidgetEntity(
+    val id: Int,
     val content: Content,
     val widgetType: WidgetType
 ) : EntityModel {

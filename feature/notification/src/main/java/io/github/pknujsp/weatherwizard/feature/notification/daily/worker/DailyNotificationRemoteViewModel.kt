@@ -14,7 +14,7 @@ import io.github.pknujsp.weatherwizard.core.model.notification.NotificationEntit
 import io.github.pknujsp.weatherwizard.core.model.notification.daily.DailyNotificationInfoEntity
 import io.github.pknujsp.weatherwizard.core.model.notification.daily.forecast.DailyNotificationForecastUiModel
 import io.github.pknujsp.weatherwizard.core.model.weather.common.CurrentUnits
-import io.github.pknujsp.weatherwizard.feature.notification.remoteview.RemoteViewModel
+import io.github.pknujsp.weatherwizard.core.ui.remoteview.RemoteViewModel
 import java.time.ZonedDateTime
 import javax.inject.Inject
 import kotlin.properties.Delegates

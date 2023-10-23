@@ -4,8 +4,8 @@ import android.content.Context
 import android.widget.RemoteViews
 import io.github.pknujsp.weatherwizard.core.model.UiModel
 import io.github.pknujsp.weatherwizard.core.model.weather.common.CurrentUnits
+import io.github.pknujsp.weatherwizard.core.ui.remoteview.SampleViewCreator
 
-interface RemoteViewCreator<T : UiModel> {
+interface RemoteViewCreator<T : UiModel> : SampleViewCreator {
     fun createContentView(model: T, context: Context): RemoteViews
-    fun createSampleView(context: Context, units: CurrentUnits): RemoteViews
 }

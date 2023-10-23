@@ -17,4 +17,9 @@ class WidgetManager {
             WidgetType.SUMMARY -> SummaryRemoteViewCreator() as C
             else -> throw IllegalArgumentException("Unknown widget type: $widgetType")
         }
+
+
+    enum class Action {
+        UPDATE, DELETE
+    }
 }

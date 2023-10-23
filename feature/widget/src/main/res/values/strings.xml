@@ -7,4 +7,5 @@
     <string name="summary_weather_widget_description">종합예보</string>
     <string name="updated_time">업데이트 시각</string>
     <string name="launch_app">앱 실행</string>
+    <string name="configure_widget">위젯 추가</string>
 </resources>

@@ -11,7 +11,7 @@ import io.github.pknujsp.weatherwizard.core.domain.weather.GetHourlyForecastUseC
 import io.github.pknujsp.weatherwizard.core.model.UiState
 import io.github.pknujsp.weatherwizard.core.model.favorite.LocationType
 import io.github.pknujsp.weatherwizard.core.model.notification.ongoing.OngoingNotificationUiModel
-import io.github.pknujsp.weatherwizard.feature.notification.remoteview.RemoteViewModel
+import io.github.pknujsp.weatherwizard.core.ui.remoteview.RemoteViewModel
 import java.time.ZonedDateTime
 import javax.inject.Inject
 

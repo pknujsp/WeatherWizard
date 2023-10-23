@@ -1,4 +1,4 @@
-package io.github.pknujsp.weatherwizard.feature.notification.remoteview
+package io.github.pknujsp.weatherwizard.core.ui.remoteview
 
 import android.widget.FrameLayout
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -13,7 +13,7 @@ import io.github.pknujsp.weatherwizard.core.ui.theme.AppShapes
 
 
 @Composable
-fun RemoteViewsScreen(sampleRemoteViews: NotificationRemoteViewsCreator<*>, units: CurrentUnits, modifier: Modifier = Modifier) {
+fun RemoteViewsScreen(sampleRemoteViews: SampleViewCreator, units: CurrentUnits, modifier: Modifier = Modifier) {
     Surface(shape = AppShapes.large, modifier = modifier.padding(16.dp, 12.dp),
         shadowElevation = 4.dp) {
         AndroidView(modifier = Modifier.fillMaxWidth(), factory = { context ->

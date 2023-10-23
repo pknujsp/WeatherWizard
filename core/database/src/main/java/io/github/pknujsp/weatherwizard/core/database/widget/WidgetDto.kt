@@ -6,8 +6,8 @@ import io.github.pknujsp.weatherwizard.core.model.DBEntityModel
 
 @Entity(tableName = "widgets")
 data class WidgetDto(
-    @PrimaryKey(autoGenerate = true)
-    val id: Long = 0,
+    @PrimaryKey(autoGenerate = false)
+    val id: Int,
     val widgetType: Int,
     val content: String
 ) : DBEntityModel

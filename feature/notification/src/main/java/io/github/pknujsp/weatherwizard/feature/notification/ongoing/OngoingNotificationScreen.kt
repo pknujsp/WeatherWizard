@@ -28,17 +28,17 @@ import androidx.navigation.NavController
 import io.github.pknujsp.weatherwizard.core.model.favorite.LocationType
 import io.github.pknujsp.weatherwizard.core.model.notification.enums.NotificationIconType
 import io.github.pknujsp.weatherwizard.core.model.notification.enums.NotificationType
-import io.github.pknujsp.weatherwizard.core.model.notification.ongoing.OngoingNotificationInfo
 import io.github.pknujsp.weatherwizard.core.model.notification.enums.RefreshInterval
+import io.github.pknujsp.weatherwizard.core.model.notification.ongoing.OngoingNotificationInfo
 import io.github.pknujsp.weatherwizard.core.ui.BottomSheetSettingItem
+import io.github.pknujsp.weatherwizard.core.ui.LocationScreen
 import io.github.pknujsp.weatherwizard.core.ui.SecondaryButton
 import io.github.pknujsp.weatherwizard.core.ui.TitleTextWithNavigation
+import io.github.pknujsp.weatherwizard.core.ui.WeatherProvidersScreen
+import io.github.pknujsp.weatherwizard.core.ui.remoteview.RemoteViewsScreen
 import io.github.pknujsp.weatherwizard.feature.alarm.manager.AppAlarmManager
 import io.github.pknujsp.weatherwizard.feature.notification.R
 import io.github.pknujsp.weatherwizard.feature.notification.manager.AppNotificationManager
-import io.github.pknujsp.weatherwizard.feature.notification.ui.LocationScreen
-import io.github.pknujsp.weatherwizard.feature.notification.remoteview.RemoteViewsScreen
-import io.github.pknujsp.weatherwizard.feature.notification.ui.WeatherProvidersScreen
 import io.github.pknujsp.weatherwizard.feature.notification.ongoing.worker.OngoingNotificationRemoteViewsCreator
 import io.github.pknujsp.weatherwizard.feature.searchlocation.SearchLocationScreen
 
@@ -56,8 +56,11 @@ fun OngoingNotificationScreen(navController: NavController) {
         if (notification.onChangedAction != NotificationState.NotificationAction.NONE) {
             println("notificationState.onChangedAction: ${notification.onChangedAction}")
 
-            switchNotification(notification.onChangedAction == NotificationState.NotificationAction.NOTIFY, context,
-                appNotificationManager, appAlarmManager, notification.info.refreshInterval)
+            switchNotification(notification.onChangedAction == NotificationState.NotificationAction.NOTIFY,
+                context,
+                appNotificationManager,
+                appAlarmManager,
+                notification.info.refreshInterval)
             notification.onChangedAction = NotificationState.NotificationAction.NONE
         }
 
@@ -87,8 +90,7 @@ fun OngoingNotificationScreen(navController: NavController) {
                     .verticalScroll(rememberScrollState())
                     .weight(1f)
                     .padding(horizontal = 16.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
+                    verticalArrangement = Arrangement.spacedBy(12.dp)) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Text(text = stringResource(id = R.string.switch_ongoing_notification), modifier = Modifier.weight(1f))
                         Switch(
@@ -100,10 +102,14 @@ fun OngoingNotificationScreen(navController: NavController) {
                     }
 
                     if (notification.enabled) {
-                        LocationScreen(notification.info) {
+                        LocationScreen(notification.info.locationType, onSelectedItem = {
+                            notification.info.locationType = it
+                        }) {
                             showSearch = true
                         }
-                        WeatherProvidersScreen(notification.info)
+                        WeatherProvidersScreen(notification.info.weatherProvider) {
+                            notification.info.weatherProvider = it
+                        }
                         RefreshIntervalScreen(notification.info)
                         NotificationIconScreen(notification.info)
                     }
@@ -156,12 +162,15 @@ fun NotificationIconScreen(entity: OngoingNotificationInfo) {
 }
 
 private fun switchNotification(
-    enabled: Boolean, context: Context, appNotificationManager: AppNotificationManager, appAlarmManager:
-    AppAlarmManager, refreshInterval: RefreshInterval
+    enabled: Boolean,
+    context: Context,
+    appNotificationManager: AppNotificationManager,
+    appAlarmManager: AppAlarmManager,
+    refreshInterval: RefreshInterval
 ) {
-    val pendingIntent = appNotificationManager.getRefreshPendingIntent(context, NotificationType.ONGOING,
-        PendingIntent.FLAG_IMMUTABLE or if (enabled) PendingIntent.FLAG_UPDATE_CURRENT else PendingIntent
-            .FLAG_NO_CREATE)
+    val pendingIntent = appNotificationManager.getRefreshPendingIntent(context,
+        NotificationType.ONGOING,
+        PendingIntent.FLAG_IMMUTABLE or if (enabled) PendingIntent.FLAG_UPDATE_CURRENT else PendingIntent.FLAG_NO_CREATE)
     if (enabled) {
         pendingIntent.send()
         if (refreshInterval != RefreshInterval.MANUAL) {

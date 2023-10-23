@@ -2,6 +2,7 @@ package io.github.pknujsp.weatherwizard.feature.widget.activity.configure
 
 import android.appwidget.AppWidgetManager
 import android.content.Intent
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -22,86 +23,91 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavController
+import io.github.pknujsp.weatherwizard.core.model.ActionState
 import io.github.pknujsp.weatherwizard.core.model.favorite.LocationType
-import io.github.pknujsp.weatherwizard.core.model.onSuccess
+import io.github.pknujsp.weatherwizard.core.ui.LocationScreen
 import io.github.pknujsp.weatherwizard.core.ui.SecondaryButton
 import io.github.pknujsp.weatherwizard.core.ui.TitleTextWithNavigation
+import io.github.pknujsp.weatherwizard.core.ui.WeatherProvidersScreen
+import io.github.pknujsp.weatherwizard.core.ui.remoteview.RemoteViewsScreen
 import io.github.pknujsp.weatherwizard.feature.notification.R
 import io.github.pknujsp.weatherwizard.feature.searchlocation.SearchLocationScreen
-import io.github.pknujsp.weatherwizard.core.model.widget.WidgetType
+import io.github.pknujsp.weatherwizard.feature.widget.WidgetManager
 import io.github.pknujsp.weatherwizard.feature.widget.summary.updateAppWidget
 
 
 @Composable
-fun WidgetConfigureScreen(widgetId: Int, widgetType: WidgetType) {
-    val activity = androidx.compose.ui.platform.LocalContext.current as ComponentActivity
+fun WidgetConfigureScreen(navController: NavController) {
+    val context = LocalContext.current
+    val activity = remember { context as ComponentActivity }
     val viewModel: WidgetConfigureViewModel = hiltViewModel()
-    val notification by viewModel.notification.collectAsStateWithLifecycle()
 
-    notification.onSuccess { info ->
-        val units by viewModel.units.collectAsStateWithLifecycle()
-        var showSearch by remember { mutableStateOf(false) }
-        val context = LocalContext.current
+    val units by viewModel.units.collectAsStateWithLifecycle()
+    val widget = remember { viewModel.widget }
+    var showSearch by remember { mutableStateOf(false) }
+    val widgetManager = remember { WidgetManager() }
+    val actionState by viewModel.action.collectAsStateWithLifecycle()
 
-        if (info.onSaved) {
-            LaunchedEffect(Unit) {
-                scheduleAlarm(context, info)
+    if (widget.onSaved) {
+        LaunchedEffect(Unit) {
+            createWidgetAndFinish(activity, widget.id)
+        }
+    }
+
+    actionState?.let {
+        Toast.makeText(context, stringResource(id = it.message), Toast.LENGTH_SHORT).show()
+    }
+
+    if (showSearch) {
+        SearchLocationScreen(onSelectedLocation = {
+            it?.let { newLocation ->
+                widget.apply {
+                    locationType = LocationType.CustomLocation()
+                    latitude = newLocation.latitude
+                    longitude = newLocation.longitude
+                    addressName = newLocation.addressName
+                }
+            }
+            showSearch = false
+        }, popBackStack = {
+            showSearch = false
+        })
+    } else {
+        Column {
+            TitleTextWithNavigation(title = stringResource(id = io.github.pknujsp.weatherwizard.feature.widget.R.string.configure_widget)) {
                 navController.popBackStack()
             }
-        }
+            RemoteViewsScreen(widgetManager.remoteViewCreator(widget.widgetType), units)
 
-        if (showSearch) {
-            SearchLocationScreen(onSelectedLocation = {
-                it?.let { newLocation ->
-                    info.apply {
-                        locationType = LocationType.CustomLocation()
-                        latitude = newLocation.latitude
-                        longitude = newLocation.longitude
-                        addressName = newLocation.addressName
-                    }
+            Column(modifier = Modifier
+                .verticalScroll(rememberScrollState())
+                .weight(1f)
+                .padding(horizontal = 16.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                LocationScreen(widget.locationType, onSelectedItem = {
+                    widget.locationType = it
+                }) {
+                    showSearch = true
                 }
-                showSearch = false
-            }, popBackStack = {
-                showSearch = false
-            })
-        } else {
-            Column {
-                TitleTextWithNavigation(title = stringResource(id = R.string.add_or_edit_daily_notification)) {
-                    navController.popBackStack()
+                WeatherProvidersScreen(widget.weatherProvider) {
+                    widget.weatherProvider = it
                 }
-                var selectedType by remember { mutableStateOf(info.type) }
-                RemoteViewsScreen(RemoteViewsCreatorManager.createRemoteViewsCreator(selectedType), units)
+            }
 
-                Column(modifier = Modifier
-                    .verticalScroll(rememberScrollState())
-                    .weight(1f)
-                    .padding(horizontal = 16.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    NotificationTypeItem(selectedType) {
-                        selectedType = it
-                        info.type = it
-                    }
-                    TimeItem(info)
-                    LocationScreen(info) {
-                        showSearch = true
-                    }
-                    WeatherProvidersScreen(info)
-                }
-
-                Box(modifier = Modifier.padding(12.dp)) {
-                    SecondaryButton(text = stringResource(id = io.github.pknujsp.weatherwizard.core.common.R.string.save),
-                        modifier = Modifier.fillMaxWidth()) {
-                        viewModel.save()
-                    }
+            Box(modifier = Modifier.padding(12.dp)) {
+                SecondaryButton(text = stringResource(id = io.github.pknujsp.weatherwizard.core.common.R.string.save),
+                    modifier = Modifier.fillMaxWidth()) {
+                    widget.save()
                 }
             }
         }
     }
+
 }
 
 
-fun createWidget(activity: ComponentActivity, widgetId: Int) {
+fun createWidgetAndFinish(activity: ComponentActivity, widgetId: Int) {
     val appWidgetManager = AppWidgetManager.getInstance(activity)
     updateAppWidget(activity, appWidgetManager, widgetId)
 
@@ -110,4 +116,11 @@ fun createWidget(activity: ComponentActivity, widgetId: Int) {
 
     activity.setResult(ComponentActivity.RESULT_OK, resultValue)
     activity.finish()
+}
+
+enum class ConfigureActionState : ActionState {
+    NO_LOCATION_IS_SELECTED {
+        override val message: Int
+            get() = io.github.pknujsp.weatherwizard.core.common.R.string.no_location_is_selected
+    },
 }

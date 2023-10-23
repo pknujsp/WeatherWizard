@@ -1,4 +1,4 @@
-package io.github.pknujsp.weatherwizard.feature.notification.remoteview
+package io.github.pknujsp.weatherwizard.core.ui.remoteview
 
 import io.github.pknujsp.weatherwizard.core.model.UiModel
 import io.github.pknujsp.weatherwizard.core.model.UiState

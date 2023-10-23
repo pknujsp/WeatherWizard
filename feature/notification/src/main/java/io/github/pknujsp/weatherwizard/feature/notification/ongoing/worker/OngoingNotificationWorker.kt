@@ -23,8 +23,8 @@ import io.github.pknujsp.weatherwizard.core.model.notification.enums.Notificatio
 import io.github.pknujsp.weatherwizard.core.model.notification.enums.NotificationType
 import io.github.pknujsp.weatherwizard.core.model.onSuccess
 import io.github.pknujsp.weatherwizard.core.model.remoteviews.RemoteViewUiModel
+import io.github.pknujsp.weatherwizard.core.model.worker.IWorker
 import io.github.pknujsp.weatherwizard.feature.notification.manager.AppNotificationManager
-import io.github.pknujsp.weatherwizard.feature.notification.worker.INotificationWorker
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.util.UUID
@@ -38,7 +38,7 @@ class OngoingNotificationWorker @AssistedInject constructor(
 ) : CoroutineWorker(context, params) {
     private val appNotificationManager = AppNotificationManager(context)
 
-    companion object : INotificationWorker {
+    companion object : IWorker {
         override val name: String get() = "OngoingNotificationWorker"
         override val id: UUID get() = UUID.fromString(name)
     }

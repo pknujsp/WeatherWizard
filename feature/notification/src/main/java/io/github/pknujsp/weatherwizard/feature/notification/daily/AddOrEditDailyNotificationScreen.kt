@@ -29,15 +29,15 @@ import io.github.pknujsp.weatherwizard.core.model.notification.daily.DailyNotifi
 import io.github.pknujsp.weatherwizard.core.model.notification.enums.DailyNotificationType
 import io.github.pknujsp.weatherwizard.core.model.onSuccess
 import io.github.pknujsp.weatherwizard.core.ui.BottomSheetSettingItem
+import io.github.pknujsp.weatherwizard.core.ui.LocationScreen
 import io.github.pknujsp.weatherwizard.core.ui.SecondaryButton
 import io.github.pknujsp.weatherwizard.core.ui.TitleTextWithNavigation
+import io.github.pknujsp.weatherwizard.core.ui.WeatherProvidersScreen
 import io.github.pknujsp.weatherwizard.core.ui.dialog.DialogScreen
+import io.github.pknujsp.weatherwizard.core.ui.remoteview.RemoteViewsScreen
 import io.github.pknujsp.weatherwizard.feature.notification.R
-import io.github.pknujsp.weatherwizard.feature.notification.ui.LocationScreen
-import io.github.pknujsp.weatherwizard.feature.notification.remoteview.RemoteViewsScreen
-import io.github.pknujsp.weatherwizard.feature.notification.ui.WeatherProvidersScreen
-import io.github.pknujsp.weatherwizard.feature.notification.manager.RemoteViewsCreatorManager
 import io.github.pknujsp.weatherwizard.feature.notification.manager.NotificationAlarmManager
+import io.github.pknujsp.weatherwizard.feature.notification.manager.RemoteViewsCreatorManager
 import io.github.pknujsp.weatherwizard.feature.searchlocation.SearchLocationScreen
 
 
@@ -91,10 +91,14 @@ fun AddOrEditDailyNotificationScreen(navController: NavController) {
                         info.type = it
                     }
                     TimeItem(info)
-                    LocationScreen(info) {
+                    LocationScreen(info.locationType, onSelectedItem = {
+                        info.locationType = it
+                    }) {
                         showSearch = true
                     }
-                    WeatherProvidersScreen(info)
+                    WeatherProvidersScreen(info.weatherProvider) {
+                        info.weatherProvider = it
+                    }
                 }
 
                 Box(modifier = Modifier.padding(12.dp)) {

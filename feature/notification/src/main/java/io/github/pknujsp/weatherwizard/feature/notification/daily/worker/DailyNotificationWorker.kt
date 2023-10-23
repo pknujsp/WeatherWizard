@@ -2,7 +2,6 @@ package io.github.pknujsp.weatherwizard.feature.notification.daily.worker
 
 import android.content.Context
 import android.os.Build
-import android.util.Log
 import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.ForegroundInfo
@@ -12,16 +11,16 @@ import dagger.assisted.AssistedInject
 import io.github.pknujsp.weatherwizard.core.common.permission.PermissionType
 import io.github.pknujsp.weatherwizard.core.common.permission.checkSelfPermission
 import io.github.pknujsp.weatherwizard.core.model.UiState
-import io.github.pknujsp.weatherwizard.core.model.notification.enums.NotificationType
-import io.github.pknujsp.weatherwizard.core.model.notification.enums.DailyNotificationType
 import io.github.pknujsp.weatherwizard.core.model.notification.daily.forecast.DailyNotificationForecastUiModel
+import io.github.pknujsp.weatherwizard.core.model.notification.enums.DailyNotificationType
+import io.github.pknujsp.weatherwizard.core.model.notification.enums.NotificationType
 import io.github.pknujsp.weatherwizard.core.model.onFailure
 import io.github.pknujsp.weatherwizard.core.model.onSuccess
 import io.github.pknujsp.weatherwizard.core.model.remoteviews.RemoteViewUiModel
+import io.github.pknujsp.weatherwizard.core.model.worker.IWorker
 import io.github.pknujsp.weatherwizard.feature.notification.manager.AppNotificationManager
-import io.github.pknujsp.weatherwizard.feature.notification.worker.INotificationWorker
-import io.github.pknujsp.weatherwizard.feature.notification.remoteview.NotificationRemoteViewsCreator
 import io.github.pknujsp.weatherwizard.feature.notification.manager.RemoteViewsCreatorManager
+import io.github.pknujsp.weatherwizard.feature.notification.remoteview.NotificationRemoteViewsCreator
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.util.UUID
@@ -32,7 +31,7 @@ class DailyNotificationWorker @AssistedInject constructor(
 ) : CoroutineWorker(context, params) {
     private val appNotificationManager = AppNotificationManager(context)
 
-    companion object : INotificationWorker {
+    companion object : IWorker {
         override val name: String = "DailyNotificationWorker"
         override val id: UUID
             get() = UUID.fromString(name)

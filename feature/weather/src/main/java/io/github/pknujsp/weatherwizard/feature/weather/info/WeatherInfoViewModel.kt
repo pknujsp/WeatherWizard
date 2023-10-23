@@ -2,7 +2,6 @@ package io.github.pknujsp.weatherwizard.feature.weather.info
 
 
 import android.location.Location
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel

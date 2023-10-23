@@ -5,6 +5,9 @@ import android.os.Bundle
 import android.os.PersistableBundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import dagger.hilt.android.AndroidEntryPoint
 import io.github.pknujsp.weatherwizard.feature.widget.WidgetManager
 import io.github.pknujsp.weatherwizard.core.model.widget.WidgetType
@@ -22,10 +25,14 @@ class SummaryWeatherWidgetConfigureActivity : ComponentActivity() {
                 return
             }
 
-            val widgetType = WidgetType.fromOrdinal(getInt(WidgetManager.WIDGET_TYPE))
-
             setContent {
-                WidgetConfigureScreen(widgetId, widgetType)
+                val navController = rememberNavController()
+                val startDestination = WidgetRoutes.Configure.routeWithArguments(widgetId, getInt(WidgetManager.WIDGET_TYPE))
+                NavHost(navController = navController, route = WidgetRoutes.route, startDestination = startDestination) {
+                    composable(WidgetRoutes.Configure.route, arguments = WidgetRoutes.Configure.arguments) {
+                        WidgetConfigureScreen(navController)
+                    }
+                }
             }
         } ?: run {
             finish()

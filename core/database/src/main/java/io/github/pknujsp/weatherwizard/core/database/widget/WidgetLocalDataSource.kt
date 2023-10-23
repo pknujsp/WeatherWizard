@@ -6,14 +6,14 @@ import kotlinx.coroutines.flow.Flow
 
 interface WidgetLocalDataSource {
 
-    suspend fun add(widgetDto: WidgetDto): Long
+    suspend fun add(widgetDto: WidgetDto): Int
 
     fun getAll(): Flow<List<WidgetDto>>
 
-    suspend fun getById(id: Long): WidgetDto
+    suspend fun getById(id: Int): WidgetDto
 
-    suspend fun deleteById(id: Long)
+    suspend fun deleteById(id: Int)
 
-    suspend fun containsId(id: Long): Boolean
+    suspend fun containsId(id: Int): Boolean
 
 }
