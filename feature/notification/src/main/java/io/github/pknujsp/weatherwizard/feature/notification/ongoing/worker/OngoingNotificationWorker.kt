@@ -24,7 +24,7 @@ import io.github.pknujsp.weatherwizard.core.model.notification.enums.Notificatio
 import io.github.pknujsp.weatherwizard.core.model.onSuccess
 import io.github.pknujsp.weatherwizard.core.model.remoteviews.RemoteViewUiModel
 import io.github.pknujsp.weatherwizard.core.model.worker.IWorker
-import io.github.pknujsp.weatherwizard.feature.notification.manager.AppNotificationManager
+import io.github.pknujsp.weatherwizard.core.ui.notification.AppNotificationManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.util.UUID
@@ -32,9 +32,7 @@ import java.util.UUID
 
 @HiltWorker
 class OngoingNotificationWorker @AssistedInject constructor(
-    @Assisted val context: Context,
-    @Assisted params: WorkerParameters,
-    private val remoteViewsModel: OngoingNotificationRemoteViewModel
+    @Assisted val context: Context, @Assisted params: WorkerParameters, private val remoteViewsModel: OngoingNotificationRemoteViewModel
 ) : CoroutineWorker(context, params) {
     private val appNotificationManager = AppNotificationManager(context)
 
@@ -53,7 +51,9 @@ class OngoingNotificationWorker @AssistedInject constructor(
             val result = remoteViewsModel.load()
             result.onSuccess {
                 it.refreshPendingIntent = appNotificationManager.getRefreshPendingIntent(context,
-                    NotificationType.ONGOING, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
+                    NotificationType.ONGOING,
+                    PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
+                    OngoingNotificationReceiver::class)
 
                 val remoteViewsCreator = OngoingNotificationRemoteViewsCreator()
                 val smallContentRemoteViews = remoteViewsCreator.createSmallContentView(it, context)
@@ -76,8 +76,7 @@ class OngoingNotificationWorker @AssistedInject constructor(
     }
 
     private fun createTemperatureIcon(temperature: String): IconCompat {
-        val textSize = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 19f,
-            context.resources.displayMetrics)
+        val textSize = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 19f, context.resources.displayMetrics)
         val textRect = Rect()
 
         val textPaint = TextPaint().apply {
@@ -91,8 +90,7 @@ class OngoingNotificationWorker @AssistedInject constructor(
             style = Paint.Style.FILL
         }
 
-        val iconSize = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 24f,
-            context.resources.displayMetrics).toInt()
+        val iconSize = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 24f, context.resources.displayMetrics).toInt()
         val iconBitmap = Bitmap.createBitmap(iconSize, iconSize, Bitmap.Config.ARGB_8888)
         val canvas = Canvas(iconBitmap)
 

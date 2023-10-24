@@ -24,7 +24,7 @@ class WidgetRepositoryImpl @Inject constructor(
     }
 
     override suspend fun add(entity: WidgetEntity): Int {
-        return dataSource.add(WidgetDto(id = entity.id, widgetType = entity.widgetType.ordinal, content = jsonParser.parse(entity)))
+        return dataSource.add(WidgetDto(id = entity.id, widgetType = entity.widgetType.ordinal, content = jsonParser.parse(entity.content)))
     }
 
     override suspend fun get(id: Int): WidgetEntity {

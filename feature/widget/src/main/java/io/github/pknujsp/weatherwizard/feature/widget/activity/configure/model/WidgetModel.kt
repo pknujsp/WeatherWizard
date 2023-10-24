@@ -13,8 +13,8 @@ import kotlinx.coroutines.flow.StateFlow
 
 @Stable
 data class WidgetModel(
-    val id: Int,
-    val widgetType: WidgetType,
+    var id: Int = 0,
+    var widgetType: WidgetType = WidgetType.SUMMARY,
     val save: () -> Unit,
     var addressName: String = "",
     var latitude: Double = 0.0,

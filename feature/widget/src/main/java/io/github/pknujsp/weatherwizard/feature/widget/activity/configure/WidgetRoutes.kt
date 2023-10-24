@@ -18,11 +18,7 @@ sealed interface WidgetRoutes : Routes {
         @StringRes override val navTitle: Int = 0
     }
 
-    data object Configure : RoutesWithArgument("WidgetConfigure/Configure") {
-        override val arguments: List<NamedNavArgument>
-            get() = listOf(
-                navArgument("widgetId") { type = NavType.IntType },
-                navArgument("widgetType") { type = NavType.IntType },
-            )
+    data object Configure : WidgetRoutes {
+        override val route: String = "WidgetConfigure/Configure"
     }
 }

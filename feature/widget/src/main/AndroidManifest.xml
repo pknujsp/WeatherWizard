@@ -8,11 +8,13 @@
             android:exported="false"
             android:noHistory="true"
             android:screenOrientation="portrait"
-            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
+            android:theme="@style/WidgetActivity" />
 
         <receiver
-            android:name=".summary.SummaryWeatherWidget"
-            android:exported="false">
+            android:name=".summary.SummaryWeatherWidgetProvider"
+            android:enabled="true"
+            android:exported="true"
+            android:label="@string/summary_weather_widget_description">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
                 <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
@@ -25,7 +27,7 @@
         </receiver>
 
         <activity
-            android:name=".activity.configure.SummaryWeatherWidgetConfigureActivity"
+            android:name=".activity.configure.WidgetConfigureActivity"
             android:exported="false"
             android:screenOrientation="portrait">
             <intent-filter>

@@ -1,8 +1,9 @@
-package io.github.pknujsp.weatherwizard.feature.notification.manager
+package io.github.pknujsp.weatherwizard.core.ui.notification
 
 import android.annotation.SuppressLint
 import android.app.Notification.VISIBILITY_PUBLIC
 import android.app.NotificationChannel
+import android.app.NotificationManager
 import android.app.NotificationManager.IMPORTANCE_HIGH
 import android.app.PendingIntent
 import android.content.Context
@@ -13,8 +14,8 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.work.ForegroundInfo
 import io.github.pknujsp.weatherwizard.core.model.notification.enums.NotificationType
 import io.github.pknujsp.weatherwizard.core.model.remoteviews.RemoteViewUiModel
-import io.github.pknujsp.weatherwizard.feature.notification.R
-import io.github.pknujsp.weatherwizard.feature.notification.ongoing.worker.OngoingNotificationReceiver
+import io.github.pknujsp.weatherwizard.core.ui.R
+import kotlin.reflect.KClass
 
 
 class AppNotificationManager(context: Context) {
@@ -24,10 +25,9 @@ class AppNotificationManager(context: Context) {
     private fun createNotificationChannel(notificationType: NotificationType) {
         notificationType.run {
             if (notificationManager.getNotificationChannel(channelId) == null) {
-                val channel = NotificationChannel(channelId, channelName, IMPORTANCE_HIGH).also {
+                val channel = NotificationChannel(channelId, channelName, importance).also {
                     it.description = channelDescription
                     it.lockscreenVisibility = VISIBILITY_PUBLIC
-                    it.importance = importance
                 }
 
                 notificationManager.createNotificationChannel(channel)
@@ -36,7 +36,7 @@ class AppNotificationManager(context: Context) {
 
     }
 
-    fun createNotification(notificationType: NotificationType, context: Context): NotificationCompat.Builder {
+    private fun createNotification(notificationType: NotificationType, context: Context): NotificationCompat.Builder {
         createNotificationChannel(notificationType)
 
         /**
@@ -63,21 +63,18 @@ class AppNotificationManager(context: Context) {
         notificationManager.activeNotifications.any { it.id == notificationType.notificationId }
 
 
-    fun getRefreshPendingIntent(context: Context, notificationType: NotificationType, flags: Int): PendingIntent {
-        return PendingIntent.getBroadcast(context, notificationType.notificationId, Intent(context, OngoingNotificationReceiver::class.java)
-            .apply {
-                action = ""
-            }, flags)
+    fun getRefreshPendingIntent(context: Context, notificationType: NotificationType, flags: Int, cls: KClass<*>): PendingIntent {
+        return PendingIntent.getBroadcast(context, notificationType.notificationId, Intent(context, cls.java).apply {
+            action = ""
+        }, flags)
     }
 
     fun createForegroundNotification(context: Context, notificationType: NotificationType): ForegroundInfo {
-        val notification = createNotification(notificationType,
-            context).setSmallIcon(io.github.pknujsp.weatherwizard.core.common.R.mipmap.ic_launcher)
-            .setContentText(context.getString(notificationType.contentText))
-            .setContentTitle(context.getString(notificationType.contentTitle))
-            .setPriority(notificationType.importance)
-            .setSilent(true)
-            .build()
+        val notification =
+            createNotification(notificationType, context).setSmallIcon(io.github.pknujsp.weatherwizard.core.common.R.mipmap.ic_launcher)
+                .setContentText(context.getString(notificationType.contentText))
+                .setContentTitle(context.getString(notificationType.contentTitle)).setPriority(notificationType.importance).setSilent(true)
+                .build()
 
         return ForegroundInfo(notificationType.notificationId, notification)
     }
@@ -118,8 +115,7 @@ class AppNotificationManager(context: Context) {
         val notificationBulder = createNotification(notificationType, context)
 
         notificationBulder.setSmallIcon(io.github.pknujsp.weatherwizard.core.common.R.drawable.ic_refresh)
-            .setContent(RemoteViews(context.packageName, R.layout.view_loading))
-            .setOnlyAlertOnce(true).setWhen(0).setSilent(true)
+            .setContent(RemoteViews(context.packageName, R.layout.view_loading)).setOnlyAlertOnce(true).setWhen(0).setSilent(true)
 
         NotificationManagerCompat.from(context).notify(notificationType.notificationId, notificationBulder.build())
     }

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <resources>
+    <string name="app_name">WeatherWizard</string>
     <string name="clear">맑음</string>
     <string name="partly_cloudy">구름 조금</string>
     <string name="mostly_cloudy">구름 많음</string>

@@ -1,23 +1,21 @@
 package io.github.pknujsp.weatherwizard.feature.widget.worker
 
-import androidx.compose.ui.tooling.data.EmptyGroup.data
 import io.github.pknujsp.weatherwizard.core.data.nominatim.NominatimRepository
-import io.github.pknujsp.weatherwizard.core.data.notification.NotificationRepository
 import io.github.pknujsp.weatherwizard.core.data.settings.SettingsRepository
 import io.github.pknujsp.weatherwizard.core.data.widget.WidgetRepository
 import io.github.pknujsp.weatherwizard.core.domain.weather.GetCurrentWeatherUseCase
 import io.github.pknujsp.weatherwizard.core.domain.weather.GetDailyForecastUseCase
 import io.github.pknujsp.weatherwizard.core.domain.weather.GetHourlyForecastUseCase
+import io.github.pknujsp.weatherwizard.core.model.EntityModel
 import io.github.pknujsp.weatherwizard.core.model.favorite.LocationType
-import io.github.pknujsp.weatherwizard.core.model.nominatim.GeoCode
 import io.github.pknujsp.weatherwizard.core.model.nominatim.ReverseGeoCodeEntity
 import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherDataMajorCategory
 import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherDataProvider
 import io.github.pknujsp.weatherwizard.core.model.widget.WidgetEntity
 import io.github.pknujsp.weatherwizard.core.ui.remoteview.RemoteViewModel
-import io.github.pknujsp.weatherwizard.feature.widget.WidgetManager
+import io.github.pknujsp.weatherwizard.feature.widget.worker.model.RequestEntity
+import io.github.pknujsp.weatherwizard.feature.widget.worker.model.ResponseEntity
 import kotlinx.coroutines.flow.first
-import java.time.ZonedDateTime
 import javax.inject.Inject
 import kotlin.properties.Delegates
 
@@ -30,15 +28,19 @@ class WidgetRemoteViewModel @Inject constructor(
     private val nominatimRepository: NominatimRepository,
 ) : RemoteViewModel() {
 
-    private val request = Request()
+    private val requestEntity = RequestEntity()
+    private val responseEntity = ResponseEntity()
 
-    var widgetEntities: List<WidgetEntity> by Delegates.notNull()
-        private set
-
-    private var reverseGeoCode: ReverseGeoCodeEntity? = null
+    private var widgetEntities: List<WidgetEntity> by Delegates.notNull()
+    private var reverseGeoCode: Result<ReverseGeoCodeEntity>? = null
 
     var currentLocation: Pair<Float, Float>? = null
 
+    fun hasCurrentLocationType(): Boolean {
+        return widgetEntities.any { it.content.getLocationType() is LocationType.CurrentLocation }
+    }
+
+    fun isInitializng(appWidgetIds: IntArray): Boolean = widgetEntities.isEmpty() or !widgetEntities.any { it.id in appWidgetIds }
 
     suspend fun load() {
         widgetEntities = widgetRepository.getAll().first()
@@ -53,33 +55,43 @@ class WidgetRemoteViewModel @Inject constructor(
             if (isNotEmpty()) {
                 val (latitude, longitude) = currentLocation!!
                 forEach { entity ->
-                    request.addRequest(latitude, longitude, entity.content.getWeatherProvider(), entity.widgetType.categories)
+                    requestEntity.addRequest(entity.id,
+                        latitude,
+                        longitude,
+                        "",
+                        entity.content.getWeatherProvider(),
+                        entity.widgetType.categories)
                 }
             }
         }
         widgetEntities.filter { it.content.getLocationType() is LocationType.CustomLocation }.forEach { entity ->
-            request.addRequest(entity.content.latitude.toFloat(),
-                entity.content.longitude.toFloat(),
-                entity.content.getWeatherProvider(),
-                entity.widgetType.categories,
-                entity.content.addressName)
-            entity.widgetType
+            entity.run {
+                requestEntity.addRequest(
+                    id,
+                    content.latitude.toFloat(),
+                    content.longitude.toFloat(),
+                    content.addressName,
+                    content.getWeatherProvider(),
+                    widgetType.categories,
+                )
+            }
         }
 
         currentLocation?.let {
-            reverseGeoCode = nominatimRepository.reverseGeoCode(it.first.toDouble(), it.second.toDouble()).getOrNull()
+            reverseGeoCode = nominatimRepository.reverseGeoCode(it.first.toDouble(), it.second.toDouble())
         }
 
-        var requestId = 0L
-        request.requests.forEach { entry ->
-            val latitude = entry.value.latitude.toDouble()
-            val longitude = entry.value.longitude.toDouble()
+        requestEntity.requests.forEach { entry ->
+            val latitude = entry.key.first.toDouble()
+            val longitude = entry.key.second.toDouble()
 
-            entry.value.weatherProviders.forEach { weatherDataProvider ->
-                entry.value.categories.forEach { category ->
-                    category.request(latitude, longitude, weatherDataProvider, requestId)
+            entry.value.providerMap.forEach { providerEntry ->
+                val weatherProvider = providerEntry.key
+                val provider = providerEntry.value
+
+                provider.categories.forEach { category ->
+                    category.request(latitude, longitude, weatherProvider, provider.requestId)
                 }
-                requestId++
             }
         }
     }
@@ -93,54 +105,15 @@ class WidgetRemoteViewModel @Inject constructor(
     private suspend fun WeatherDataMajorCategory.request(
         latitude: Double, longitude: Double, weatherProvider: WeatherDataProvider, requestId: Long
     ) {
-        when (this) {
-            WeatherDataMajorCategory.CURRENT_CONDITION -> {
-                getCurrentWeatherUseCase(latitude, longitude, weatherProvider, requestId)
-            }
-
-            WeatherDataMajorCategory.HOURLY_FORECAST -> {
-                getHourlyForecastUseCase(latitude, longitude, weatherProvider, requestId)
-            }
-
-            WeatherDataMajorCategory.DAILY_FORECAST -> {
-                getDailyForecastUseCase(latitude, longitude, weatherProvider, requestId)
-            }
-
-            else -> {}
-        }
-    }
-
-    private class Request(
-        val now: ZonedDateTime = ZonedDateTime.now(),
-    ) {
-        private val _requests: MutableMap<Pair<Float, Float>, Item> = mutableMapOf()
-        val requests: Map<Pair<Float, Float>, Item> = _requests
-
-        fun addRequest(
-            latitude: Float,
-            longitude: Float,
-            weatherProvider: WeatherDataProvider,
-            categories: Array<WeatherDataMajorCategory>,
-            address: String = "",
-        ) {
-            _requests.getOrPut(latitude to longitude) {
-                Item(latitude = latitude, longitude = longitude, address = address)
-            }.run {
-                if (weatherProvider !in weatherProviders) {
-                    weatherProviders = weatherProviders.plusElement(weatherProvider)
-                }
-                categories.filter { it !in this.categories }.forEach { category ->
-                    this.categories = this.categories.plusElement(category)
-                }
-            }
+        val response: Result<EntityModel> = when (this) {
+            WeatherDataMajorCategory.CURRENT_CONDITION -> getCurrentWeatherUseCase(latitude, longitude, weatherProvider, requestId)
+            WeatherDataMajorCategory.HOURLY_FORECAST -> getHourlyForecastUseCase(latitude, longitude, weatherProvider, requestId)
+            WeatherDataMajorCategory.DAILY_FORECAST -> getDailyForecastUseCase(latitude, longitude, weatherProvider, requestId)
+            else -> TODO()
         }
 
-        data class Item(
-            var address: String,
-            val latitude: Float,
-            val longitude: Float,
-            var weatherProviders: Set<WeatherDataProvider> = emptySet(),
-            var categories: Set<WeatherDataMajorCategory> = emptySet(),
-        )
+        responseEntity.addResponse(requestId, this, response)
     }
+
+
 }

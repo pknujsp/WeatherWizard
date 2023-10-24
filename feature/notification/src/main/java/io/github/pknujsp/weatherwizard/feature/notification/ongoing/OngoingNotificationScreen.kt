@@ -38,7 +38,8 @@ import io.github.pknujsp.weatherwizard.core.ui.WeatherProvidersScreen
 import io.github.pknujsp.weatherwizard.core.ui.remoteview.RemoteViewsScreen
 import io.github.pknujsp.weatherwizard.feature.alarm.manager.AppAlarmManager
 import io.github.pknujsp.weatherwizard.feature.notification.R
-import io.github.pknujsp.weatherwizard.feature.notification.manager.AppNotificationManager
+import io.github.pknujsp.weatherwizard.core.ui.notification.AppNotificationManager
+import io.github.pknujsp.weatherwizard.feature.notification.ongoing.worker.OngoingNotificationReceiver
 import io.github.pknujsp.weatherwizard.feature.notification.ongoing.worker.OngoingNotificationRemoteViewsCreator
 import io.github.pknujsp.weatherwizard.feature.searchlocation.SearchLocationScreen
 
@@ -170,7 +171,8 @@ private fun switchNotification(
 ) {
     val pendingIntent = appNotificationManager.getRefreshPendingIntent(context,
         NotificationType.ONGOING,
-        PendingIntent.FLAG_IMMUTABLE or if (enabled) PendingIntent.FLAG_UPDATE_CURRENT else PendingIntent.FLAG_NO_CREATE)
+        PendingIntent.FLAG_IMMUTABLE or if (enabled) PendingIntent.FLAG_UPDATE_CURRENT else PendingIntent.FLAG_NO_CREATE,
+        OngoingNotificationReceiver::class)
     if (enabled) {
         pendingIntent.send()
         if (refreshInterval != RefreshInterval.MANUAL) {

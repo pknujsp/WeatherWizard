@@ -18,7 +18,7 @@ import io.github.pknujsp.weatherwizard.core.model.onFailure
 import io.github.pknujsp.weatherwizard.core.model.onSuccess
 import io.github.pknujsp.weatherwizard.core.model.remoteviews.RemoteViewUiModel
 import io.github.pknujsp.weatherwizard.core.model.worker.IWorker
-import io.github.pknujsp.weatherwizard.feature.notification.manager.AppNotificationManager
+import io.github.pknujsp.weatherwizard.core.ui.notification.AppNotificationManager
 import io.github.pknujsp.weatherwizard.feature.notification.manager.RemoteViewsCreatorManager
 import io.github.pknujsp.weatherwizard.feature.notification.remoteview.NotificationRemoteViewsCreator
 import kotlinx.coroutines.Dispatchers

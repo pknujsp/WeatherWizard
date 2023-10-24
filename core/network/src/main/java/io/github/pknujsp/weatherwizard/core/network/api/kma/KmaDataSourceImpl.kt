@@ -24,41 +24,41 @@ class KmaDataSourceImpl @Inject constructor(
 ) : KmaDataSource {
 
     private val zoneId = ZoneId.of("Asia/Seoul")
-    private val forecastRequestStateMap = LruCache<Long, MutableStateFlow<ForecastRequestState>>(3)
+    private val requestStateMap = LruCache<Long, MutableStateFlow<ForecastRequestState>>(5)
     private val mutex = Mutex()
 
     override suspend fun getCurrentWeather(parameter: KmaCurrentWeatherRequestParameter): Result<KmaCurrentWeatherResponse> {
         request(parameter.code, parameter.requestId)
-        return mutex.withLock { forecastRequestStateMap[parameter.requestId]!! }.filter { it !is ForecastRequestState.Waiting }.first()
+        return mutex.withLock { requestStateMap[parameter.requestId]!! }.filter { it !is ForecastRequestState.Waiting }.first()
             .onResponse().map { it.currentWeather }
     }
 
     override suspend fun getHourlyForecast(parameter: KmaHourlyForecastRequestParameter): Result<KmaHourlyForecastResponse> {
         request(parameter.code, parameter.requestId)
-        return mutex.withLock { forecastRequestStateMap[parameter.requestId]!! }.filter { it !is ForecastRequestState.Waiting }.first()
+        return mutex.withLock { requestStateMap[parameter.requestId]!! }.filter { it !is ForecastRequestState.Waiting }.first()
             .onResponse().map { it.hourlyForecasts }
     }
 
     override suspend fun getDailyForecast(parameter: KmaDailyForecastRequestParameter): Result<KmaDailyForecastResponse> {
         request(parameter.code, parameter.requestId)
-        return mutex.withLock { forecastRequestStateMap[parameter.requestId]!! }.filter { it !is ForecastRequestState.Waiting }.first()
+        return mutex.withLock { requestStateMap[parameter.requestId]!! }.filter { it !is ForecastRequestState.Waiting }.first()
             .onResponse().map { it.dailyForecasts }
     }
 
     override suspend fun getYesterdayWeather(parameter: KmaYesterdayWeatherRequestParameter): Result<KmaYesterdayWeatherResponse> {
         request(parameter.code, parameter.requestId)
-        return mutex.withLock { forecastRequestStateMap[parameter.requestId]!! }.filter { it !is ForecastRequestState.Waiting }.first()
+        return mutex.withLock { requestStateMap[parameter.requestId]!! }.filter { it !is ForecastRequestState.Waiting }.first()
             .onResponse().map { it.yesterdayWeather }
     }
 
 
     private suspend fun request(code: String, requestId: Long) {
         mutex.withLock {
-            if (forecastRequestStateMap.get(requestId) != null) {
-                forecastRequestStateMap[requestId]!!.value.registerWaiting()
+            if (requestStateMap.get(requestId) != null) {
+                requestStateMap[requestId]!!.value.registerWaiting()
                 return
             }
-            forecastRequestStateMap.put(requestId, MutableStateFlow(ForecastRequestState.Waiting(requestId)))
+            requestStateMap.put(requestId, MutableStateFlow(ForecastRequestState.Waiting(requestId)))
         }
 
         // 현재날씨
@@ -95,7 +95,7 @@ class KmaDataSourceImpl @Inject constructor(
         )
 
         mutex.withLock {
-            forecastRequestStateMap[requestId]!!.value = if (currentResponse.isSuccess && forecastResponse.isSuccess) {
+            requestStateMap[requestId]!!.value = if (currentResponse.isSuccess && forecastResponse.isSuccess) {
                 val current = currentResponse.getOrThrow()
                 val hourly = forecastResponse.getOrThrow().first
                 val daily = forecastResponse.getOrThrow().second

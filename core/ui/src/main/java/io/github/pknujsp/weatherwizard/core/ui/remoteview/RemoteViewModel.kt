@@ -12,25 +12,4 @@ import kotlin.coroutines.CoroutineContext
 
 abstract class RemoteViewModel {
 
-    val viewModelScope: CoroutineScope
-        get() {
-            val scope: CoroutineScope? = this.getTag(JOB_KEY)
-            if (scope != null) {
-                return scope
-            }
-            return setTagIfAbsent(
-                JOB_KEY,
-                CloseableCoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
-            )
-        }
-
-    internal class CloseableCoroutineScope(context: CoroutineContext) : Closeable, CoroutineScope {
-        override val coroutineContext: CoroutineContext = context
-
-        override fun close() {
-            coroutineContext.cancel()
-        }
-    }
 }
-
-private const val JOB_KEY = "RemoteViewModelCoroutineScope.JOB_KEY"

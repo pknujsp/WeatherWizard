@@ -6,23 +6,23 @@ import javax.inject.Inject
 class WidgetLocalDataSourceImpl @Inject constructor(
     private val widgetDao: WidgetDao
 ) : WidgetLocalDataSource {
-    override suspend fun add(widgetDto: WidgetDto): Long {
-        return widgetDao.insert(widgetDto)
+    override suspend fun add(widgetDto: WidgetDto): Int {
+        return widgetDao.insert(widgetDto).toInt()
     }
 
     override fun getAll(): Flow<List<WidgetDto>> {
         return widgetDao.getAll()
     }
 
-    override suspend fun getById(id: Long): WidgetDto {
+    override suspend fun getById(id: Int): WidgetDto {
         return widgetDao.getById(id)
     }
 
-    override suspend fun deleteById(id: Long) {
+    override suspend fun deleteById(id: Int) {
         return widgetDao.deleteById(id)
     }
 
-    override suspend fun containsId(id: Long): Boolean {
+    override suspend fun containsId(id: Int): Boolean {
         return widgetDao.containsId(id)
     }
 }

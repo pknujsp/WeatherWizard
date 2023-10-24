@@ -16,12 +16,12 @@ interface WidgetDao {
     fun getAll(): Flow<List<WidgetDto>>
 
     @Query("SELECT * FROM widgets WHERE id = :id")
-    suspend fun getById(id: Long): WidgetDto
+    suspend fun getById(id: Int): WidgetDto
 
     @Query("DELETE FROM widgets WHERE id = :id")
-    suspend fun deleteById(id: Long)
+    suspend fun deleteById(id: Int)
 
     @Query("SELECT EXISTS(SELECT * FROM widgets WHERE id = :id)")
-    suspend fun containsId(id: Long): Boolean
+    suspend fun containsId(id: Int): Boolean
 
 }

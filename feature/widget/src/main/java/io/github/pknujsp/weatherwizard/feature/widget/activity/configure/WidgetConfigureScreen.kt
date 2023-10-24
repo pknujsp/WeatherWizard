@@ -1,9 +1,11 @@
 package io.github.pknujsp.weatherwizard.feature.widget.activity.configure
 
+import android.app.Activity
+import android.app.PendingIntent
 import android.appwidget.AppWidgetManager
 import android.content.Intent
+import android.widget.RemoteViews
 import android.widget.Toast
-import androidx.activity.ComponentActivity
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -26,32 +28,36 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import io.github.pknujsp.weatherwizard.core.model.ActionState
 import io.github.pknujsp.weatherwizard.core.model.favorite.LocationType
+import io.github.pknujsp.weatherwizard.core.model.widget.WidgetType
 import io.github.pknujsp.weatherwizard.core.ui.LocationScreen
 import io.github.pknujsp.weatherwizard.core.ui.SecondaryButton
 import io.github.pknujsp.weatherwizard.core.ui.TitleTextWithNavigation
 import io.github.pknujsp.weatherwizard.core.ui.WeatherProvidersScreen
 import io.github.pknujsp.weatherwizard.core.ui.remoteview.RemoteViewsScreen
-import io.github.pknujsp.weatherwizard.feature.notification.R
 import io.github.pknujsp.weatherwizard.feature.searchlocation.SearchLocationScreen
 import io.github.pknujsp.weatherwizard.feature.widget.WidgetManager
-import io.github.pknujsp.weatherwizard.feature.widget.summary.updateAppWidget
+import io.github.pknujsp.weatherwizard.feature.widget.summary.SummaryWeatherWidgetProvider
 
 
 @Composable
-fun WidgetConfigureScreen(navController: NavController) {
+fun WidgetConfigureScreen(navController: NavController, widgetId: Int, widgetType: WidgetType) {
     val context = LocalContext.current
-    val activity = remember { context as ComponentActivity }
+    val activity = remember { context as Activity }
     val viewModel: WidgetConfigureViewModel = hiltViewModel()
+
+    LaunchedEffect(Unit) {
+        viewModel.load(widgetId, widgetType)
+    }
 
     val units by viewModel.units.collectAsStateWithLifecycle()
     val widget = remember { viewModel.widget }
     var showSearch by remember { mutableStateOf(false) }
-    val widgetManager = remember { WidgetManager() }
+    val widgetManager = remember { WidgetManager(context) }
     val actionState by viewModel.action.collectAsStateWithLifecycle()
 
     if (widget.onSaved) {
         LaunchedEffect(Unit) {
-            createWidgetAndFinish(activity, widget.id)
+            createWidgetAndFinish(activity, widget.id, widgetManager)
         }
     }
 
@@ -78,7 +84,7 @@ fun WidgetConfigureScreen(navController: NavController) {
             TitleTextWithNavigation(title = stringResource(id = io.github.pknujsp.weatherwizard.feature.widget.R.string.configure_widget)) {
                 navController.popBackStack()
             }
-            RemoteViewsScreen(widgetManager.remoteViewCreator(widget.widgetType), units)
+            RemoteViewsScreen(widgetManager.remoteViewCreator(widgetType), units)
 
             Column(modifier = Modifier
                 .verticalScroll(rememberScrollState())
@@ -107,14 +113,20 @@ fun WidgetConfigureScreen(navController: NavController) {
 }
 
 
-fun createWidgetAndFinish(activity: ComponentActivity, widgetId: Int) {
-    val appWidgetManager = AppWidgetManager.getInstance(activity)
-    updateAppWidget(activity, appWidgetManager, widgetId)
+fun createWidgetAndFinish(activity: Activity, widgetId: Int, widgetManager: WidgetManager) {
+    widgetManager.updateWidget(widgetId,
+        RemoteViews(activity.packageName, io.github.pknujsp.weatherwizard.feature.widget.R.layout.summary_weather_widget),
+        activity)
+
+    PendingIntent.getBroadcast(activity,
+        System.currentTimeMillis().toInt(),
+        Intent(activity, SummaryWeatherWidgetProvider::class.java),
+        PendingIntent.FLAG_ONE_SHOT or PendingIntent.FLAG_IMMUTABLE).send()
 
     val resultValue = Intent()
     resultValue.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, widgetId)
 
-    activity.setResult(ComponentActivity.RESULT_OK, resultValue)
+    activity.setResult(Activity.RESULT_OK, resultValue)
     activity.finish()
 }
 
