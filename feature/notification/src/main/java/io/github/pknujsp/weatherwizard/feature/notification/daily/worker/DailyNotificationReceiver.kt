@@ -5,6 +5,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import androidx.core.os.bundleOf
 import androidx.work.Data
 import androidx.work.ExistingWorkPolicy
@@ -29,7 +30,7 @@ class DailyNotificationReceiver : BroadcastReceiver() {
                 .setInputData(data)
                 .build()
             val workManager = WorkManager.getInstance(context)
-            workManager.enqueueUniqueWork(DailyNotificationWorker.name, ExistingWorkPolicy.APPEND, request)
+            workManager.enqueueUniqueWork(DailyNotificationWorker.name, ExistingWorkPolicy.APPEND_OR_REPLACE, request)
         }
     }
 }

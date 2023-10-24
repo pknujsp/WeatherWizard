@@ -2,7 +2,7 @@ package io.github.pknujsp.weatherwizard.core.model.notification.daily
 
 import io.github.pknujsp.weatherwizard.core.model.EntityModel
 import io.github.pknujsp.weatherwizard.core.model.favorite.LocationType
-import io.github.pknujsp.weatherwizard.core.model.notification.RefreshInterval
+import io.github.pknujsp.weatherwizard.core.model.notification.enums.DailyNotificationType
 import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherDataProvider
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable

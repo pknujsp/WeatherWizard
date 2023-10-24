@@ -67,22 +67,22 @@ class MetNorwayResponseMapper @Inject constructor() :
     }
 
     override fun mapDailyForecast(response: MetNorwayDailyForecastResponse): DailyForecastEntity {
-        return DailyForecastEntity(response.items.map { item ->
-            DailyForecastEntity.Item(
-                dateTime = item.dateTime,
-                weatherCondition = item.weatherCondition,
-                minTemperature = item.minTemperature,
-                maxTemperature = item.maxTemperature,
-                rainfallVolume = RainfallValueType.none,
-                snowfallVolume = SnowfallValueType.none,
-                rainfallProbability = ProbabilityValueType.none,
-                snowfallProbability = ProbabilityValueType.none,
-                precipitationVolume = item.precipitationVolume,
-                precipitationProbability = ProbabilityValueType.none,
-                windMinSpeed = item.windMinSpeed,
-                windMaxSpeed = item.windMaxSpeed,
+        val dayItems = response.items.groupBy { it.dateTime }.map { (day, dayItems) ->
+            DailyForecastEntity.DayItem(
+                dateTime = day,
+                minTemperature = dayItems[0].minTemperature,
+                maxTemperature = dayItems[0].maxTemperature,
+                windMinSpeed = dayItems[0].windMinSpeed,
+                windMaxSpeed = dayItems[0].windMaxSpeed,
+                items = dayItems.map { item ->
+                    DailyForecastEntity.DayItem.Item(
+                        weatherCondition = item.weatherCondition,
+                        precipitationVolume = item.precipitationVolume,
+                    )
+                }
             )
-        })
+        }
+        return DailyForecastEntity(dayItems)
     }
 
     override fun mapYesterdayWeather(response: KmaYesterdayWeatherResponse): YesterdayWeatherEntity {

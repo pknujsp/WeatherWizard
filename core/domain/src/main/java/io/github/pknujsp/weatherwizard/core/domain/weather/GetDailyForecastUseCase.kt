@@ -7,12 +7,16 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-
 class GetDailyForecastUseCase @Inject constructor(
     private val weatherDataRepository: WeatherDataRepository
 ) : BaseGetWeatherDataUseCase<DailyForecastEntity> {
-    override suspend fun invoke(latitude: Double, longitude: Double, weatherDataProvider: WeatherDataProvider, requestId: Long): Result<DailyForecastEntity> {
-        TODO("Not yet implemented")
+    override suspend fun invoke(
+        latitude: Double,
+        longitude: Double,
+        weatherDataProvider: WeatherDataProvider,
+        requestId: Long
+    ): Result<DailyForecastEntity> {
+        return weatherDataRepository.getDailyForecast(latitude, longitude, weatherDataProvider, requestId)
     }
 
 }

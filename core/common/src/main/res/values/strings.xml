@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <resources>
+    <string name="app_name">WeatherWizard</string>
     <string name="clear">맑음</string>
     <string name="partly_cloudy">구름 조금</string>
     <string name="mostly_cloudy">구름 많음</string>
@@ -66,6 +67,7 @@
     <string name="met_norway">노르웨이 기상청</string>
     <string name="hourly_forecast">시간별 예보</string>
     <string name="daily_forecast">일별 예보</string>
+    <string name="hourly_and_daily_forecast">시간+일별 예보</string>
     <string name="title_network_is_unavailable">네트워크 연결 필요</string>
     <string name="open_settings_for_network">연결하기</string>
     <string name="title_location_is_disabled">위치 사용이 비활성화됨</string>
@@ -96,4 +98,5 @@
     <string name="setting">설정</string>
     <string name="data_type">데이터 유형</string>
     <string name="exact_alarm_permission_denied">정확한 알람 사용 권한이 필요합니다.</string>
+    <string name="no_location_is_selected">위치를 선택해주세요</string>
 </resources>

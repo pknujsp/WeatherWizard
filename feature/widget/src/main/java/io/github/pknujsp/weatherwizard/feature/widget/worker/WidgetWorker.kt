@@ -1,0 +1,79 @@
+package io.github.pknujsp.weatherwizard.feature.widget.worker
+
+import android.content.Context
+import androidx.hilt.work.HiltWorker
+import androidx.work.CoroutineWorker
+import androidx.work.ForegroundInfo
+import androidx.work.WorkerParameters
+import androidx.work.impl.utils.taskexecutor.TaskExecutor
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedInject
+import io.github.pknujsp.weatherwizard.core.common.GpsLocationManager
+import io.github.pknujsp.weatherwizard.core.model.favorite.LocationType
+import io.github.pknujsp.weatherwizard.core.model.notification.enums.NotificationType
+import io.github.pknujsp.weatherwizard.core.model.worker.IWorker
+import io.github.pknujsp.weatherwizard.core.ui.notification.AppNotificationManager
+import io.github.pknujsp.weatherwizard.feature.widget.WidgetManager
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import java.util.UUID
+
+
+@HiltWorker
+class WidgetWorker @AssistedInject constructor(
+    @Assisted val context: Context, @Assisted params: WorkerParameters, private val widgetRemoteViewModel: WidgetRemoteViewModel
+) : CoroutineWorker(context, params) {
+
+    private val gpsLocationManager: GpsLocationManager by lazy {
+        GpsLocationManager(context)
+    }
+    private val widgetManager: WidgetManager by lazy {
+        WidgetManager(context)
+    }
+
+    companion object : IWorker {
+        override val name: String get() = "WidgetWorker"
+        override val id: UUID get() = UUID.fromString(name)
+    }
+
+    override suspend fun doWork(): Result {
+        println("WidgetWorker.doWork")
+        val action = WidgetManager.Action.valueOf(inputData.getString("action")!!)
+        val appWidgetIds = inputData.getIntArray("appWidgetIds")!!
+
+        when (action) {
+            WidgetManager.Action.UPDATE -> {
+                widgetRemoteViewModel.load()
+
+                if (appWidgetIds.isNotEmpty() and widgetRemoteViewModel.isInitializng(appWidgetIds)) {
+                    return Result.success()
+                }
+
+                if (widgetRemoteViewModel.hasCurrentLocationType()) {
+                    when (val currentLocation = gpsLocationManager.getCurrentLocation()) {
+                        is GpsLocationManager.CurrentLocationResult.Success -> {
+                            widgetRemoteViewModel.currentLocation =
+                                currentLocation.location.latitude.toFloat() to currentLocation.location.longitude.toFloat()
+                        }
+
+                        is GpsLocationManager.CurrentLocationResult.Failure -> {
+                            println("WidgetWorker.doWork: 위치 사용 불가")
+                            return Result.success()
+                        }
+                    }
+                }
+                widgetRemoteViewModel.updateWidgets()
+            }
+
+            WidgetManager.Action.DELETE -> {
+                widgetRemoteViewModel.deleteWidgets(appWidgetIds)
+            }
+        }
+
+        return Result.success()
+    }
+
+    override suspend fun getForegroundInfo(): ForegroundInfo {
+        return AppNotificationManager(context).createForegroundNotification(context, NotificationType.WORKING)
+    }
+}

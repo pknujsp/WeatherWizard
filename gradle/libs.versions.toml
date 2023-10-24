@@ -1,27 +1,24 @@
 [versions]
 # kotlin
-flipper = "0.216.0"
-flipperLeakcanary2Plugin = "0.216.0"
-flipperLithoPlugin = "0.216.0"
-flipperNetworkPlugin = "0.216.0"
+
 kotlin = "1.9.10"
 kotlin_compiler_extension = "1.5.3"
 kotlinx_coroutines = "1.7.3"
 kotlinx_serialization_json = "1.6.0"
 ksp = "1.9.10-1.0.13"
 
-android_gradle_plugin = "8.1.2"
+android_gradle_plugin = "8.2.0-rc01"
 android_desugar_jdk_libs = "2.0.3"
 
 androidx_collection = "1.3.0"
 androidx_core = "1.12.0"
 androidx_activity = "1.8.0"
 androidx_navigation = "2.7.4"
-androidx_compose_bom = "2023.10.00"
+androidx_compose_bom = "2023.10.01"
 androidx_lifecycle = "2.6.2"
 androidx_datastore = "1.0.0"
 androidx_workmanager = "2.8.1"
-androidx_room = "2.5.2"
+androidx_room = "2.6.0"
 androidx_appcompat = "1.6.1"
 androidx_preference_ktx = "1.2.1"
 androidx_compose_constraintlayout = "1.0.1"
@@ -67,7 +64,6 @@ retrofit2_kotlinx_serialization_json = "1.0.0"
 okhttp3 = "4.11.0"
 
 compile_sdk = "34"
-soloader = "0.10.5"
 target_sdk = "34"
 min_sdk = "26"
 
@@ -88,6 +84,7 @@ sunrisesunsetcalculator = "1.2"
 osmdroid = "6.1.17"
 uiautomator = "2.2.0"
 benchmark-macro-junit4 = "1.1.1"
+constraintlayout = "2.1.4"
 
 
 # 라이브러리 의존성------------------------------------------------------------------------------------------------------------------------
@@ -159,13 +156,6 @@ androidx-test-ext-junit-ktx = { module = "androidx.test.ext:junit-ktx", version.
 androidx-test-ext-truth = { module = "androidx.test.ext:truth", version.ref = "androidx_test_truth" }
 androidx-test-arch-core = { module = "androidx.arch.core:core-testing", version.ref = "androidx_test_arch" }
 
-# debugImplementation------------------------------------------------------------------------------------------------------------------------
-flipper = { module = "com.facebook.flipper:flipper", version.ref = "flipper" }
-flipper-leakcanary2-plugin = { module = "com.facebook.flipper:flipper-leakcanary2-plugin", version.ref = "flipperLeakcanary2Plugin" }
-flipper-litho-plugin = { module = "com.facebook.flipper:flipper-litho-plugin", version.ref = "flipperLithoPlugin" }
-flipper-network-plugin = { module = "com.facebook.flipper:flipper-network-plugin", version.ref = "flipperNetworkPlugin" }
-leakcanary-android = { module = "com.squareup.leakcanary:leakcanary-android", version.ref = "leakcanaryAndroid" }
-litho-annotations = { module = "com.facebook.litho:litho-annotations", version.ref = "lithoAnnotations" }
 
 
 # testImplementation------------------------------------------------------------------------------------------------------------------------
@@ -183,6 +173,9 @@ firebase-analytics = { group = "com.google.firebase", name = "firebase-analytics
 androidx-hilt-android = { group = "com.google.dagger", name = "hilt-android", version.ref = "androidx_hilt" }
 androidx-hilt-android-testandroid = { group = "com.google.dagger", name = "hilt-android-testing", version.ref = "androidx_hilt" }
 androidx-hilt-compilerKapt = { group = "com.google.dagger", name = "hilt-android-compiler", version.ref = "androidx_hilt" }
+
+dagger-compiler = { module = "com.google.dagger:dagger-compiler", version.ref = "androidx_hilt" }
+hilt-compiler = { module = "com.google.dagger:hilt-compiler", version.ref = "androidx_hilt" }
 
 # with WorkManager----------------------------------
 androidx-hilt-work = { group = "androidx.hilt", name = "hilt-work", version.ref = "androidx_hilt_work" }
@@ -215,7 +208,6 @@ lottie = { module = "com.airbnb.android:lottie-compose", version.ref = "lottie" 
 # material--------------------------------------------------------------------------------------------------------------
 material = { module = "com.google.android.material:material", version.ref = "material" }
 
-soloader = { module = "com.facebook.soloader:soloader", version.ref = "soloader" }
 sunrisesunsetcalculator = { module = "com.luckycatlabs:SunriseSunsetCalculator", version.ref = "sunrisesunsetcalculator" }
 
 android-gradle-plugin = { group = "com.android.tools.build", name = "gradle", version.ref = "android_gradle_plugin" }
@@ -237,6 +229,7 @@ detekt-formatting = { module = "io.gitlab.arturbosch.detekt:detekt-formatting", 
 ksp = { module = "com.google.devtools.ksp:symbol-processing-api", version.ref = "ksp" }
 uiautomator = { group = "androidx.test.uiautomator", name = "uiautomator", version.ref = "uiautomator" }
 benchmark-macro-junit4 = { group = "androidx.benchmark", name = "benchmark-macro-junit4", version.ref = "benchmark-macro-junit4" }
+constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayout" }
 
 [bundles]
 compose-debug = ["androidx-compose-ui-test-manifest", "androidx-compose-ui-tooling"]

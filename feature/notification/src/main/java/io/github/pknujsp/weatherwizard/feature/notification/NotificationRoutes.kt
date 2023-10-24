@@ -24,11 +24,6 @@ sealed interface NotificationRoutes : Routes {
         override val route: String = "Notification/Main"
     }
 
-    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
-    data object NotificationPermission : NotificationRoutes {
-        override val route: String = "Notification/NotificationPermission"
-    }
-
     data object Ongoing : NotificationRoutes {
         override val route: String = "Notification/Ongoing"
     }

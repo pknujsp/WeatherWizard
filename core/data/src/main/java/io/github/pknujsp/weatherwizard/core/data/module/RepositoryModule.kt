@@ -23,9 +23,12 @@ import io.github.pknujsp.weatherwizard.core.data.weather.WeatherDataRepository
 import io.github.pknujsp.weatherwizard.core.data.weather.WeatherDataRepositoryImpl
 import io.github.pknujsp.weatherwizard.core.data.weather.mapper.WeatherResponseMapperManager
 import io.github.pknujsp.weatherwizard.core.data.weather.request.WeatherApiRequestManager
+import io.github.pknujsp.weatherwizard.core.data.widget.WidgetRepository
+import io.github.pknujsp.weatherwizard.core.data.widget.WidgetRepositoryImpl
 import io.github.pknujsp.weatherwizard.core.database.AppDataStore
 import io.github.pknujsp.weatherwizard.core.database.favoritearea.FavoriteAreaListDataSource
 import io.github.pknujsp.weatherwizard.core.database.notification.NotificationLocalDataSource
+import io.github.pknujsp.weatherwizard.core.database.widget.WidgetLocalDataSource
 import io.github.pknujsp.weatherwizard.core.network.api.aqicn.AqiCnDataSource
 import io.github.pknujsp.weatherwizard.core.network.api.nominatim.NominatimDataSource
 import io.github.pknujsp.weatherwizard.core.network.api.rainviewer.RainViewerDataSource
@@ -39,10 +42,8 @@ object RepositoryModule {
     @Provides
     @Singleton
     fun providesWeatherRepository(
-        weatherResponseMapperManager: WeatherResponseMapperManager,
-        weatherApiRequestManager: WeatherApiRequestManager
-    ): WeatherDataRepository =
-        WeatherDataRepositoryImpl(weatherResponseMapperManager, weatherApiRequestManager)
+        weatherResponseMapperManager: WeatherResponseMapperManager, weatherApiRequestManager: WeatherApiRequestManager
+    ): WeatherDataRepository = WeatherDataRepositoryImpl(weatherResponseMapperManager, weatherApiRequestManager)
 
 
     @Provides
@@ -57,8 +58,7 @@ object RepositoryModule {
 
     @Provides
     @Singleton
-    fun providesAirQualityRepository(aqiCnDataSource: AqiCnDataSource): AirQualityRepository =
-        AirQualityRepositoryImpl(aqiCnDataSource)
+    fun providesAirQualityRepository(aqiCnDataSource: AqiCnDataSource): AirQualityRepository = AirQualityRepositoryImpl(aqiCnDataSource)
 
     @Provides
     @Singleton
@@ -67,19 +67,21 @@ object RepositoryModule {
 
     @Singleton
     @Provides
-    fun providesTargetAreaRepository(appDataStore: AppDataStore): TargetAreaRepository =
-        TargetAreaRepositoryImpl(appDataStore)
+    fun providesTargetAreaRepository(appDataStore: AppDataStore): TargetAreaRepository = TargetAreaRepositoryImpl(appDataStore)
 
     @Singleton
     @Provides
-    fun providesSettingsRepository(appDataStore: AppDataStore): SettingsRepository =
-        SettingsRepositoryImpl(appDataStore)
+    fun providesSettingsRepository(appDataStore: AppDataStore): SettingsRepository = SettingsRepositoryImpl(appDataStore)
 
     @Singleton
     @Provides
     fun providesNotificationRepository(
-        notificationLocalDataSource: NotificationLocalDataSource,
-        @KtJson json: Json
-    ): NotificationRepository =
-        NotificationRepositoryImpl(notificationLocalDataSource, json)
+        notificationLocalDataSource: NotificationLocalDataSource, @KtJson json: Json
+    ): NotificationRepository = NotificationRepositoryImpl(notificationLocalDataSource, json)
+
+    @Singleton
+    @Provides
+    fun providesWidgetRepository(
+        widgetLocalDataSource: WidgetLocalDataSource, @KtJson json: Json
+    ): WidgetRepository = WidgetRepositoryImpl(widgetLocalDataSource, json)
 }

@@ -6,6 +6,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import io.github.pknujsp.weatherwizard.core.model.UiModel
 import io.github.pknujsp.weatherwizard.core.model.favorite.LocationType
+import io.github.pknujsp.weatherwizard.core.model.notification.enums.DailyNotificationType
 
 @Stable
 class DailyNotificationSimpleInfo(
@@ -13,6 +14,7 @@ class DailyNotificationSimpleInfo(
     val id: Long,
     val type: DailyNotificationType,
     val locationType: LocationType,
+    val address: String = "",
     private val switch: (DailyNotificationSimpleInfo) -> Unit,
     private val delete: (DailyNotificationSimpleInfo) -> Unit,
     val hour: Int,

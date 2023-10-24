@@ -19,12 +19,12 @@ import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import io.github.pknujsp.weatherwizard.core.common.permission.PermissionType
 import io.github.pknujsp.weatherwizard.core.common.permission.checkSelfPermission
-import io.github.pknujsp.weatherwizard.core.model.notification.NotificationIconType
-import io.github.pknujsp.weatherwizard.core.model.notification.NotificationType
+import io.github.pknujsp.weatherwizard.core.model.notification.enums.NotificationIconType
+import io.github.pknujsp.weatherwizard.core.model.notification.enums.NotificationType
 import io.github.pknujsp.weatherwizard.core.model.onSuccess
 import io.github.pknujsp.weatherwizard.core.model.remoteviews.RemoteViewUiModel
-import io.github.pknujsp.weatherwizard.feature.notification.common.AppNotificationManager
-import io.github.pknujsp.weatherwizard.feature.notification.common.INotificationWorker
+import io.github.pknujsp.weatherwizard.core.model.worker.IWorker
+import io.github.pknujsp.weatherwizard.core.ui.notification.AppNotificationManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.util.UUID
@@ -32,20 +32,18 @@ import java.util.UUID
 
 @HiltWorker
 class OngoingNotificationWorker @AssistedInject constructor(
-    @Assisted val context: Context,
-    @Assisted params: WorkerParameters,
-    private val remoteViewsModel: OngoingNotificationRemoteViewModel
+    @Assisted val context: Context, @Assisted params: WorkerParameters, private val remoteViewsModel: OngoingNotificationRemoteViewModel
 ) : CoroutineWorker(context, params) {
     private val appNotificationManager = AppNotificationManager(context)
 
-    companion object : INotificationWorker {
+    companion object : IWorker {
         override val name: String get() = "OngoingNotificationWorker"
         override val id: UUID get() = UUID.fromString(name)
     }
 
     override suspend fun doWork(): Result {
         return withContext(Dispatchers.IO) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && !context.checkSelfPermission(PermissionType.NOTIFICATION)) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && !context.checkSelfPermission(PermissionType.POST_NOTIFICATIONS)) {
                 Result.success()
             }
 
@@ -53,7 +51,9 @@ class OngoingNotificationWorker @AssistedInject constructor(
             val result = remoteViewsModel.load()
             result.onSuccess {
                 it.refreshPendingIntent = appNotificationManager.getRefreshPendingIntent(context,
-                    NotificationType.ONGOING, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
+                    NotificationType.ONGOING,
+                    PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
+                    OngoingNotificationReceiver::class)
 
                 val remoteViewsCreator = OngoingNotificationRemoteViewsCreator()
                 val smallContentRemoteViews = remoteViewsCreator.createSmallContentView(it, context)
@@ -76,8 +76,7 @@ class OngoingNotificationWorker @AssistedInject constructor(
     }
 
     private fun createTemperatureIcon(temperature: String): IconCompat {
-        val textSize = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 19f,
-            context.resources.displayMetrics)
+        val textSize = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 19f, context.resources.displayMetrics)
         val textRect = Rect()
 
         val textPaint = TextPaint().apply {
@@ -91,8 +90,7 @@ class OngoingNotificationWorker @AssistedInject constructor(
             style = Paint.Style.FILL
         }
 
-        val iconSize = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 24f,
-            context.resources.displayMetrics).toInt()
+        val iconSize = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 24f, context.resources.displayMetrics).toInt()
         val iconBitmap = Bitmap.createBitmap(iconSize, iconSize, Bitmap.Config.ARGB_8888)
         val canvas = Canvas(iconBitmap)
 

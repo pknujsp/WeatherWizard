@@ -11,21 +11,26 @@ import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherConditio
 import io.github.pknujsp.weatherwizard.core.model.weather.common.WindSpeedValueType
 
 data class DailyForecastEntity(
-    val items: List<Item>,
+    val dayItems: List<DayItem>,
 ) : EntityModel {
 
-    data class Item(
+    data class DayItem(
         val dateTime: DateTimeValueType,
-        val weatherCondition: WeatherConditionValueType,
         val minTemperature: TemperatureValueType,
         val maxTemperature: TemperatureValueType,
-        val rainfallVolume: RainfallValueType = RainfallValueType.none,
-        val snowfallVolume: SnowfallValueType = SnowfallValueType.none,
-        val rainfallProbability: ProbabilityValueType = ProbabilityValueType.none,
-        val snowfallProbability: ProbabilityValueType = ProbabilityValueType.none,
-        val precipitationVolume: PrecipitationValueType = PrecipitationValueType.none,
-        val precipitationProbability: ProbabilityValueType,
         val windMinSpeed: WindSpeedValueType = WindSpeedValueType.none,
         val windMaxSpeed: WindSpeedValueType = WindSpeedValueType.none,
-    )
+        val items: List<Item>,
+    ) {
+
+        data class Item(
+            val weatherCondition: WeatherConditionValueType,
+            val rainfallVolume: RainfallValueType = RainfallValueType.none,
+            val snowfallVolume: SnowfallValueType = SnowfallValueType.none,
+            val rainfallProbability: ProbabilityValueType = ProbabilityValueType.none,
+            val snowfallProbability: ProbabilityValueType = ProbabilityValueType.none,
+            val precipitationVolume: PrecipitationValueType = PrecipitationValueType.none,
+            val precipitationProbability: ProbabilityValueType = ProbabilityValueType.none,
+        )
+    }
 }

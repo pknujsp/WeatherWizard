@@ -7,6 +7,10 @@
             android:name=".ongoing.worker.OngoingNotificationReceiver"
             android:enabled="true"
             android:exported="true"/>
+        <receiver
+            android:name=".daily.worker.DailyNotificationReceiver"
+            android:enabled="true"
+            android:exported="true"/>
     </application>
 
 </manifest>

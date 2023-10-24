@@ -72,7 +72,6 @@ class AddOrEditDailyNotificationViewModel @Inject constructor(
                 info.id = id
                 info.onSaved = true
             }
-
         }
     }
 }

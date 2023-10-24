@@ -122,7 +122,7 @@ enum class PermissionType(val permissions: Array<String>) {
     ),
 
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
-    NOTIFICATION(arrayOf(
+    POST_NOTIFICATIONS(arrayOf(
         Manifest.permission.POST_NOTIFICATIONS
     )),
     @RequiresApi(Build.VERSION_CODES.S)

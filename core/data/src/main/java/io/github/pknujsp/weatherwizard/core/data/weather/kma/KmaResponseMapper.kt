@@ -103,23 +103,21 @@ class KmaResponseMapper @Inject constructor() :
     }
 
     override fun mapDailyForecast(response: KmaDailyForecastResponse): DailyForecastEntity {
-        val items: List<List<DailyForecastEntity.Item>> = response.items.map { item ->
-            val dateTime = item.date
-            val minTemp = item.minTemp
-            val maxTemp = item.maxTemp
-
-            listOfNotNull(item.amValues, item.pmValues, item.singleValues).map { item ->
-                DailyForecastEntity.Item(
-                    dateTime = DateTimeValueType(dateTime),
-                    weatherCondition = WeatherConditionValueType(mapWeatherCondition(item.weatherDescription)),
-                    minTemperature = TemperatureValueType(minTemp, DEFAULT_TEMPERATURE_UNIT),
-                    maxTemperature = TemperatureValueType(maxTemp, DEFAULT_TEMPERATURE_UNIT),
-                    precipitationProbability = ProbabilityValueType(item.pop, PercentageUnit),
-                )
-            }
+        val dayItems: List<DailyForecastEntity.DayItem> = response.items.map { dayItem ->
+            DailyForecastEntity.DayItem(
+                dateTime = DateTimeValueType(dayItem.date),
+                minTemperature = TemperatureValueType(dayItem.minTemp, DEFAULT_TEMPERATURE_UNIT),
+                maxTemperature = TemperatureValueType(dayItem.maxTemp, DEFAULT_TEMPERATURE_UNIT),
+                items = listOfNotNull(dayItem.amValues, dayItem.pmValues, dayItem.singleValues).map { item ->
+                    DailyForecastEntity.DayItem.Item(
+                        weatherCondition = WeatherConditionValueType(mapWeatherCondition(item.weatherDescription)),
+                        precipitationProbability = ProbabilityValueType(item.pop, PercentageUnit),
+                    )
+                }
+            )
         }
 
-        return DailyForecastEntity(items = items.flatten())
+        return DailyForecastEntity(dayItems)
     }
 
     override fun mapYesterdayWeather(response: KmaYesterdayWeatherResponse): YesterdayWeatherEntity {

@@ -22,18 +22,9 @@ fun HostNotificationScreen() {
     val navController = rememberNavController()
     val window = (LocalContext.current as Activity).window
     WindowCompat.getInsetsController(window, window.decorView).isAppearanceLightNavigationBars = true
-    val startDestination = remember {
-        if (Build.VERSION.SDK_INT >= Build
-                .VERSION_CODES.TIRAMISU) NotificationRoutes.NotificationPermission.route else NotificationRoutes.Main.route
-    }
 
-    NavHost(navController = navController, route = NotificationRoutes.route, startDestination = startDestination,
+    NavHost(navController = navController, route = NotificationRoutes.route, startDestination = NotificationRoutes.Main.route,
         modifier = Modifier.navigationBarsPadding()) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            composable(NotificationRoutes.NotificationPermission.route) {
-                NotificationPermissionCheckingScreen(navController = navController)
-            }
-        }
         composable(NotificationRoutes.Main.route) {
             NotificationMainScreen(navController = navController)
         }

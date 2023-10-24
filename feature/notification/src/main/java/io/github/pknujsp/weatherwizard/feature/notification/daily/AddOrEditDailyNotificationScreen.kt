@@ -12,6 +12,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.TimePicker
 import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -25,32 +26,36 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import io.github.pknujsp.weatherwizard.core.model.favorite.LocationType
 import io.github.pknujsp.weatherwizard.core.model.notification.daily.DailyNotificationInfo
-import io.github.pknujsp.weatherwizard.core.model.notification.daily.DailyNotificationType
+import io.github.pknujsp.weatherwizard.core.model.notification.enums.DailyNotificationType
 import io.github.pknujsp.weatherwizard.core.model.onSuccess
 import io.github.pknujsp.weatherwizard.core.ui.BottomSheetSettingItem
+import io.github.pknujsp.weatherwizard.core.ui.LocationScreen
 import io.github.pknujsp.weatherwizard.core.ui.SecondaryButton
 import io.github.pknujsp.weatherwizard.core.ui.TitleTextWithNavigation
+import io.github.pknujsp.weatherwizard.core.ui.WeatherProvidersScreen
 import io.github.pknujsp.weatherwizard.core.ui.dialog.DialogScreen
+import io.github.pknujsp.weatherwizard.core.ui.remoteview.RemoteViewsScreen
 import io.github.pknujsp.weatherwizard.feature.notification.R
-import io.github.pknujsp.weatherwizard.feature.notification.common.LocationScreen
-import io.github.pknujsp.weatherwizard.feature.notification.common.RemoteViewsScreen
-import io.github.pknujsp.weatherwizard.feature.notification.common.WeatherProvidersScreen
-import io.github.pknujsp.weatherwizard.feature.notification.daily.worker.remoteviews.RemoteViewsCreatorManager
-import io.github.pknujsp.weatherwizard.feature.notification.daily.worker.NotificationAlarmManager
-import io.github.pknujsp.weatherwizard.feature.notification.search.SearchLocationScreen
+import io.github.pknujsp.weatherwizard.feature.notification.manager.NotificationAlarmManager
+import io.github.pknujsp.weatherwizard.feature.notification.manager.RemoteViewsCreatorManager
+import io.github.pknujsp.weatherwizard.feature.searchlocation.SearchLocationScreen
 
 
 @Composable
 fun AddOrEditDailyNotificationScreen(navController: NavController) {
     val viewModel: AddOrEditDailyNotificationViewModel = hiltViewModel()
     val notification by viewModel.notification.collectAsStateWithLifecycle()
-    val units by viewModel.units.collectAsStateWithLifecycle()
-    var showSearch by remember { mutableStateOf(false) }
 
     notification.onSuccess { info ->
+        val units by viewModel.units.collectAsStateWithLifecycle()
+        var showSearch by remember { mutableStateOf(false) }
+        val context = LocalContext.current
+
         if (info.onSaved) {
-            scheduleAlarm(LocalContext.current, info)
-            navController.popBackStack()
+            LaunchedEffect(Unit) {
+                scheduleAlarm(context, info)
+                navController.popBackStack()
+            }
         }
 
         if (showSearch) {
@@ -86,10 +91,14 @@ fun AddOrEditDailyNotificationScreen(navController: NavController) {
                         info.type = it
                     }
                     TimeItem(info)
-                    LocationScreen(info) {
+                    LocationScreen(info.locationType, onSelectedItem = {
+                        info.locationType = it
+                    }) {
                         showSearch = true
                     }
-                    WeatherProvidersScreen(info)
+                    WeatherProvidersScreen(info.weatherProvider) {
+                        info.weatherProvider = it
+                    }
                 }
 
                 Box(modifier = Modifier.padding(12.dp)) {
@@ -152,5 +161,12 @@ fun NotificationTypeItem(selectedOption: DailyNotificationType, onSelectedItem: 
 }
 
 private fun scheduleAlarm(context: Context, info: DailyNotificationInfo) {
-    NotificationAlarmManager(context).schedule(context, info.id, info.hour, info.minute)
+    NotificationAlarmManager(context).run {
+        if (info.enabled) {
+            if (info.id != -1L) {
+                unSchedule(context, info.id)
+            }
+            schedule(context, info.id, info.hour, info.minute)
+        }
+    }
 }

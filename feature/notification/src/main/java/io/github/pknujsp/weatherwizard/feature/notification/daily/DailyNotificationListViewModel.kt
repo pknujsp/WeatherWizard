@@ -35,6 +35,7 @@ class DailyNotificationListViewModel @Inject constructor(
                 type = entity.data.getType(),
                 hour = entity.data.hour,
                 minute = entity.data.minute,
+                address = entity.data.addressName,
                 switch = ::switch,
                 delete = ::delete,
             )

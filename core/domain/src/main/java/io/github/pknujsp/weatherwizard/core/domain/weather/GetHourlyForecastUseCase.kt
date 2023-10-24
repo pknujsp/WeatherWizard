@@ -7,7 +7,6 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-
 class GetHourlyForecastUseCase @Inject constructor(
     private val weatherDataRepository: WeatherDataRepository
 ) : BaseGetWeatherDataUseCase<HourlyForecastEntity> {
