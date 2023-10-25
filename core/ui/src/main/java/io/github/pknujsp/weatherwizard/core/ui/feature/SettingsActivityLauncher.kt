@@ -22,23 +22,6 @@ fun OpenAppSettingsActivity(featureType: FeatureType, onReturnedFromSettings: ()
     }
 
     LaunchedEffect(Unit) {
-        val intent = Intent(featureType.settingsAction).apply {
-            val uri = Uri.fromParts("package", context.packageName, null)
-            data = uri
-        }
-        settingsLauncher.launch(intent)
-    }
-}
-
-@Composable
-fun OpenSettingsActivity(featureType: FeatureType, onReturnedFromSettings: () -> Unit) {
-    val onReturnedFromSettingsState by rememberUpdatedState(onReturnedFromSettings)
-
-    val settingsLauncher = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) {
-        onReturnedFromSettingsState()
-    }
-
-    LaunchedEffect(Unit) {
-        settingsLauncher.launch(Intent(featureType.settingsAction))
+        settingsLauncher.launch(featureType.getIntent(context))
     }
 }

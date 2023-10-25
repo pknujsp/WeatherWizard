@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/widget_container"
     style="@style/Widget.WeatherWizard.AppWidget.Container"
+    android:theme="@style/Theme.WeatherWizard.AppWidgetContainer"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical"
-    android:theme="@style/Theme.WeatherWizard.AppWidgetContainer">
+    android:orientation="vertical">
 
     <include
         android:id="@+id/header"

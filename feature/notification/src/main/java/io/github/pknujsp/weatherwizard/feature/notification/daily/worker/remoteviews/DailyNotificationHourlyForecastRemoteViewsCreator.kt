@@ -12,7 +12,7 @@ class DailyNotificationHourlyForecastRemoteViewsCreator : NotificationRemoteView
         return createBigContentView(model, context)
     }
 
-    override fun createSampleView(context: Context, units: CurrentUnits): RemoteViews {
+    override fun createDefaultView(context: Context, units: CurrentUnits): RemoteViews {
         return RemoteViews(context.packageName, R.layout.notification_daily_forecast_big)
     }
 

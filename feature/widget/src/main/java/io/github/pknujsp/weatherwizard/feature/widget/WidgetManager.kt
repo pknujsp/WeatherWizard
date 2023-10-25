@@ -42,7 +42,6 @@ class WidgetManager private constructor(context: Context) {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK
         }, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
 
-
     enum class Action {
         UPDATE, DELETE
     }

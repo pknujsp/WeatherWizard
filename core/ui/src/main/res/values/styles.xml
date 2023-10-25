@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="Button.Default" parent="">
+        <item name="android:background">@drawable/background_button</item>
+        <item name="android:clickable">true</item>
+        <item name="android:textColor">@android:color/white</item>
+    </style>
+
+    <style name="Button.Stroke" parent="">
+        <item name="android:background">@drawable/background_stroke_button</item>
+        <item name="android:clickable">true</item>
+        <item name="android:textColor">@android:color/black</item>
+    </style>
+
+    <style name="Widget.WeatherWizard.AppWidget.Container" parent="">
+        <item name="android:id">@android:id/background</item>
+        <item name="android:background">@color/widget_background</item>
+    </style>
+
+
+
+</resources>

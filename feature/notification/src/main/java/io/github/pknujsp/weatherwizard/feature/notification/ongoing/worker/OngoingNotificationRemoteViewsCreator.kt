@@ -12,7 +12,7 @@ import io.github.pknujsp.weatherwizard.feature.notification.remoteview.Notificat
 class OngoingNotificationRemoteViewsCreator : NotificationRemoteViewsCreator<OngoingNotificationUiModel> {
 
 
-    override fun createSampleView(context: Context, units: CurrentUnits): RemoteViews {
+    override fun createDefaultView(context: Context, units: CurrentUnits): RemoteViews {
         return RemoteViews(context.packageName, R.layout.notification_ongoing_small).apply {
             setImageViewResource(R.id.weather_icon, io.github.pknujsp.weatherwizard.core.common.R.drawable.ic_sun)
             setTextViewText(R.id.temperature,
