@@ -10,12 +10,19 @@ import io.github.pknujsp.weatherwizard.feature.widget.activity.WidgetActivity
 import io.github.pknujsp.weatherwizard.feature.widget.remoteview.RemoteViewCreator
 import io.github.pknujsp.weatherwizard.feature.widget.summary.SummaryRemoteViewCreator
 
-class WidgetManager(context: Context) {
+class WidgetManager private constructor(context: Context) {
     private val appWidgetManager = android.appwidget.AppWidgetManager.getInstance(context)
 
     companion object {
-        const val WIDGET_TYPE = "widget_type"
         const val UPDATE_ALL_WIDGETS = "widget_type"
+        private var instance: WidgetManager? = null
+
+        fun getInstance(context: Context): WidgetManager {
+            if (instance == null) {
+                instance = WidgetManager(context)
+            }
+            return instance!!
+        }
     }
 
     inline fun <reified C : RemoteViewCreator<out UiModel>> remoteViewCreator(

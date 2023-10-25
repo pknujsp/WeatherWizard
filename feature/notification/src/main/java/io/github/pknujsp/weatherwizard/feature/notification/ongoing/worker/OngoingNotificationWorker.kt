@@ -17,8 +17,8 @@ import androidx.work.ForegroundInfo
 import androidx.work.WorkerParameters
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
-import io.github.pknujsp.weatherwizard.core.common.permission.PermissionType
-import io.github.pknujsp.weatherwizard.core.common.permission.checkSelfPermission
+import io.github.pknujsp.weatherwizard.core.common.manager.PermissionType
+import io.github.pknujsp.weatherwizard.core.common.manager.checkSelfPermission
 import io.github.pknujsp.weatherwizard.core.model.notification.enums.NotificationIconType
 import io.github.pknujsp.weatherwizard.core.model.notification.enums.NotificationType
 import io.github.pknujsp.weatherwizard.core.model.onSuccess

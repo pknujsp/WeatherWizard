@@ -38,7 +38,7 @@ import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
-import io.github.pknujsp.weatherwizard.core.common.GpsLocationManager
+import io.github.pknujsp.weatherwizard.core.common.manager.AppLocationManager
 import io.github.pknujsp.weatherwizard.core.model.favorite.LocationType
 import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherDataProvider
 import io.github.pknujsp.weatherwizard.core.ui.TitleTextWithoutNavigation
@@ -61,6 +61,7 @@ fun WeatherInfoScreen(navController: NavController) {
         mutableStateOf(NestedWeatherRoutes.startDestination)
     }
 
+    val context = LocalContext.current
     val scrollState = rememberScrollState()
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
 
@@ -69,7 +70,7 @@ fun WeatherInfoScreen(navController: NavController) {
     var backgroundImageUrl by remember { mutableStateOf("") }
     var reload by remember { mutableIntStateOf(0) }
 
-    val gpsLocationManager = GpsLocationManager(LocalContext.current)
+    val gpsLocationManager = remember { AppLocationManager.getInstance(context) }
     var enabledLocation by remember { mutableStateOf(gpsLocationManager.isGpsProviderEnabled()) }
     var showLocationLoadingDialog by remember { mutableStateOf(false) }
 
@@ -183,7 +184,7 @@ fun WeatherProviderDialog(currentProvider: WeatherDataProvider, onClick: (Weathe
 
 private suspend fun load(
     locationType: LocationType,
-    gpsLocationManager: GpsLocationManager,
+    gpsLocationManager: AppLocationManager,
     weatherInfoViewModel: WeatherInfoViewModel,
     enabledLocation: (Boolean) -> Unit,
     showLocationLoadingDialog: (Boolean) -> Unit
@@ -194,7 +195,7 @@ private suspend fun load(
             enabledLocation(true)
             showLocationLoadingDialog(true)
             val result = gpsLocationManager.getCurrentLocation()
-            if (result is GpsLocationManager.CurrentLocationResult.Success) {
+            if (result is AppLocationManager.CurrentLocationResult.Success) {
                 weatherInfoViewModel.setArgsAndLoad(result.location)
             }
             showLocationLoadingDialog(false)

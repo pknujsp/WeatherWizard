@@ -1,4 +1,4 @@
-package io.github.pknujsp.weatherwizard.feature.alarm.manager
+package io.github.pknujsp.weatherwizard.core.common.manager
 
 import android.annotation.SuppressLint
 import android.app.AlarmManager

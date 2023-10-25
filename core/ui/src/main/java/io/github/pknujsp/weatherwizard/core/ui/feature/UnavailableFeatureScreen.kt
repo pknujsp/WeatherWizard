@@ -1,4 +1,4 @@
-package io.github.pknujsp.weatherwizard.core.ui
+package io.github.pknujsp.weatherwizard.core.ui.feature
 
 import android.app.Activity
 import androidx.annotation.StringRes
@@ -20,19 +20,20 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.view.WindowCompat
 import io.github.pknujsp.weatherwizard.core.common.FeatureType
+import io.github.pknujsp.weatherwizard.core.ui.PrimaryButton
 
 @Composable
-fun UnavailableFeatureScreen(@StringRes title: Int, featureType: FeatureType, onClick: () -> Unit) {
+fun UnavailableFeatureScreen(featureType: FeatureType, onClick: () -> Unit) {
     val window = (LocalContext.current as Activity).window
     WindowCompat.getInsetsController(window, window.decorView).isAppearanceLightNavigationBars = true
 
     Column(modifier = Modifier
         .fillMaxSize()
         .padding(horizontal = 16.dp, vertical = 24.dp), verticalArrangement = Arrangement.Center) {
-        Text(text = stringResource(title), style = TextStyle(fontSize = 24.sp, color = Color.Black))
+        Text(text = stringResource(featureType.title), style = TextStyle(fontSize = 24.sp, color = Color.Black))
         Spacer(modifier = Modifier.height(16.dp))
         Text(text = stringResource(featureType.alertMessage), style = TextStyle(fontSize = 16.sp, color = Color.DarkGray))
         Spacer(modifier = Modifier.height(16.dp))
-        PrimaryButton(text = stringResource(id = featureType.action), onClick = onClick, modifier = Modifier.align(Alignment.End))
+        PrimaryButton(text = stringResource(id = featureType.actionMessage), onClick = onClick, modifier = Modifier.align(Alignment.End))
     }
 }

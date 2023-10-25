@@ -52,7 +52,7 @@ fun WidgetConfigureScreen(navController: NavController, widgetId: Int, widgetTyp
     val units by viewModel.units.collectAsStateWithLifecycle()
     val widget = remember { viewModel.widget }
     var showSearch by remember { mutableStateOf(false) }
-    val widgetManager = remember { WidgetManager(context) }
+    val widgetManager = remember { WidgetManager.getInstance(context) }
     val actionState by viewModel.action.collectAsStateWithLifecycle()
 
     if (widget.onSaved) {

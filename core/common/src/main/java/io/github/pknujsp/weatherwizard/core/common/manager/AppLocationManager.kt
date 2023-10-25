@@ -1,4 +1,4 @@
-package io.github.pknujsp.weatherwizard.core.common
+package io.github.pknujsp.weatherwizard.core.common.manager
 
 import android.annotation.SuppressLint
 import android.content.Context
@@ -23,29 +23,29 @@ import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
-class GpsLocationManager(context: Context) {
-    private companion object {
-        var fusedLocationProvider: FusedLocationProviderClient? = null
-        var locationManager: LocationManager? = null
-        val requestingLocationUpdates = AtomicBoolean(false)
-        var callback: LocationCallback? = null
+class AppLocationManager private constructor(context: Context) {
+    private val fusedLocationProvider: FusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(context)
+    private val locationManager: LocationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
+    private val requestingLocationUpdates = AtomicBoolean(false)
+    private var callback: LocationCallback? = null
+
+    companion object {
+        private var instance: AppLocationManager? = null
+
+        fun getInstance(context: Context): AppLocationManager {
+            if (instance == null) {
+                instance = AppLocationManager(context)
+            }
+            return instance!!
+        }
     }
 
-    init {
-        if (fusedLocationProvider == null) {
-            fusedLocationProvider = LocationServices.getFusedLocationProviderClient(context)
-        }
-        if (locationManager == null) {
-            locationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
-        }
-    }
-
-    fun isGpsProviderEnabled(): Boolean = locationManager?.isProviderEnabled(LocationManager.GPS_PROVIDER) ?: false
+    fun isGpsProviderEnabled(): Boolean = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
 
     @SuppressLint("MissingPermission")
     suspend fun getCurrentLocation(): CurrentLocationResult {
         var result = suspendCoroutine { continuation ->
-            fusedLocationProvider?.lastLocation?.addOnCompleteListener { task ->
+            fusedLocationProvider.lastLocation.addOnCompleteListener { task ->
                 val result = if (task.isSuccessful) {
                     task.result?.run {
                         Result.success(this)
@@ -73,7 +73,7 @@ class GpsLocationManager(context: Context) {
     private suspend fun findCurrentLocation(): Location? = suspendCoroutine { continuation ->
         if (requestingLocationUpdates.get()) {
             callback?.run {
-                fusedLocationProvider?.removeLocationUpdates(this)
+                fusedLocationProvider.removeLocationUpdates(this)
             }
         } else {
             requestingLocationUpdates.set(true)
@@ -84,25 +84,24 @@ class GpsLocationManager(context: Context) {
 
             override fun onLocationResult(p: LocationResult) {
                 if (!resumed.get()) {
-                    fusedLocationProvider?.removeLocationUpdates(this)
-                    requestingLocationUpdates.set(false)
                     resumed.set(true)
+                    requestingLocationUpdates.set(false)
+                    fusedLocationProvider.removeLocationUpdates(this)
                     continuation.resume(p.lastLocation)
                 }
             }
         }
 
-        fusedLocationProvider?.requestLocationUpdates(LocationRequest.Builder(Priority.PRIORITY_BALANCED_POWER_ACCURACY, 100L).build(),
-            callback!!, Looper.getMainLooper())
+        fusedLocationProvider.requestLocationUpdates(LocationRequest.Builder(Priority.PRIORITY_BALANCED_POWER_ACCURACY, 200L).build(),
+            callback!!,
+            Looper.getMainLooper())
     }
 
     @Composable
     fun OpenSettingsForLocation(onReturnedFromSettings: () -> Unit) {
         val onReturnedFromSettingsState by rememberUpdatedState(onReturnedFromSettings)
 
-        val settingsLauncher = rememberLauncherForActivityResult(
-            ActivityResultContracts.StartActivityForResult()
-        ) {
+        val settingsLauncher = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) {
             onReturnedFromSettingsState()
         }
 

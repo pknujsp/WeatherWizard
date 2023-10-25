@@ -7,7 +7,7 @@ import androidx.work.ForegroundInfo
 import androidx.work.WorkerParameters
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
-import io.github.pknujsp.weatherwizard.core.common.GpsLocationManager
+import io.github.pknujsp.weatherwizard.core.common.manager.AppLocationManager
 import io.github.pknujsp.weatherwizard.core.model.notification.enums.NotificationType
 import io.github.pknujsp.weatherwizard.core.model.worker.IWorker
 import io.github.pknujsp.weatherwizard.core.ui.notification.AppNotificationManager
@@ -19,11 +19,11 @@ class WidgetWorker @AssistedInject constructor(
     @Assisted val context: Context, @Assisted params: WorkerParameters, private val widgetRemoteViewModel: WidgetRemoteViewModel
 ) : CoroutineWorker(context, params) {
 
-    private val gpsLocationManager: GpsLocationManager by lazy {
-        GpsLocationManager(context)
+    private val gpsLocationManager: AppLocationManager by lazy {
+        AppLocationManager.getInstance(context)
     }
     private val widgetManager: WidgetManager by lazy {
-        WidgetManager(context)
+        WidgetManager.getInstance(context)
     }
 
     companion object : IWorker {
@@ -45,12 +45,12 @@ class WidgetWorker @AssistedInject constructor(
 
                 if (widgetRemoteViewModel.hasCurrentLocationType()) {
                     when (val currentLocation = gpsLocationManager.getCurrentLocation()) {
-                        is GpsLocationManager.CurrentLocationResult.Success -> {
+                        is AppLocationManager.CurrentLocationResult.Success -> {
                             widgetRemoteViewModel.currentLocation =
                                 currentLocation.location.latitude.toFloat() to currentLocation.location.longitude.toFloat()
                         }
 
-                        is GpsLocationManager.CurrentLocationResult.Failure -> {
+                        is AppLocationManager.CurrentLocationResult.Failure -> {
                             return Result.success()
                         }
                     }

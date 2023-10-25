@@ -14,11 +14,11 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import io.github.pknujsp.weatherwizard.core.common.FeatureType
-import io.github.pknujsp.weatherwizard.core.common.permission.OpenSettingsActivityForPermission
-import io.github.pknujsp.weatherwizard.core.common.permission.PermissionManager
-import io.github.pknujsp.weatherwizard.core.common.permission.PermissionType
+import io.github.pknujsp.weatherwizard.core.common.manager.PermissionManager
+import io.github.pknujsp.weatherwizard.core.common.manager.PermissionType
 import io.github.pknujsp.weatherwizard.core.model.favorite.LocationType
-import io.github.pknujsp.weatherwizard.core.ui.UnavailableFeatureScreen
+import io.github.pknujsp.weatherwizard.core.ui.feature.UnavailableFeatureScreen
+import io.github.pknujsp.weatherwizard.core.ui.feature.OpenAppSettingsActivity
 import io.github.pknujsp.weatherwizard.feature.weather.info.WeatherInfoScreen
 
 @Composable
@@ -61,13 +61,13 @@ fun PermissionCheckingScreen(navController: NavController) {
                         }, refreshKey)
 
                         if (unavailable) {
-                            UnavailableFeatureScreen(title = io.github.pknujsp.weatherwizard.core.common.R.string.title_why_you_need_permissions,
+                            UnavailableFeatureScreen(
                                 featureType = FeatureType.LOCATION_PERMISSION) {
                                 openLocationPermissionActivity = true
                             }
                         }
                         if (openLocationPermissionActivity) {
-                            OpenSettingsActivityForPermission {
+                            OpenAppSettingsActivity(FeatureType.LOCATION_PERMISSION) {
                                 openLocationPermissionActivity = false
                                 refreshKey++
                             }
@@ -89,13 +89,13 @@ fun PermissionCheckingScreen(navController: NavController) {
                 }, refreshKey)
 
                 if (unavailable) {
-                    UnavailableFeatureScreen(title = io.github.pknujsp.weatherwizard.core.common.R.string.title_why_you_need_permissions,
+                    UnavailableFeatureScreen(
                         featureType = FeatureType.STORAGE_PERMISSION) {
                         openStoragePermissionActivity = true
                     }
                 }
                 if (openStoragePermissionActivity) {
-                    OpenSettingsActivityForPermission {
+                    OpenAppSettingsActivity(FeatureType.STORAGE_PERMISSION) {
                         openStoragePermissionActivity = false
                         refreshKey++
                     }
