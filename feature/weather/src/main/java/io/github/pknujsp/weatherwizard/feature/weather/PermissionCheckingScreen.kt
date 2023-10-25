@@ -13,7 +13,7 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import io.github.pknujsp.weatherwizard.core.common.UnavailableFeature
+import io.github.pknujsp.weatherwizard.core.common.FeatureType
 import io.github.pknujsp.weatherwizard.core.common.permission.OpenSettingsActivityForPermission
 import io.github.pknujsp.weatherwizard.core.common.permission.PermissionManager
 import io.github.pknujsp.weatherwizard.core.common.permission.PermissionType
@@ -62,7 +62,7 @@ fun PermissionCheckingScreen(navController: NavController) {
 
                         if (unavailable) {
                             UnavailableFeatureScreen(title = io.github.pknujsp.weatherwizard.core.common.R.string.title_why_you_need_permissions,
-                                unavailableFeature = UnavailableFeature.LOCATION_PERMISSION_DENIED) {
+                                featureType = FeatureType.LOCATION_PERMISSION) {
                                 openLocationPermissionActivity = true
                             }
                         }
@@ -90,7 +90,7 @@ fun PermissionCheckingScreen(navController: NavController) {
 
                 if (unavailable) {
                     UnavailableFeatureScreen(title = io.github.pknujsp.weatherwizard.core.common.R.string.title_why_you_need_permissions,
-                        unavailableFeature = UnavailableFeature.STORAGE_PERMISSION_DENIED) {
+                        featureType = FeatureType.STORAGE_PERMISSION) {
                         openStoragePermissionActivity = true
                     }
                 }

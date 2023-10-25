@@ -14,7 +14,6 @@ import io.github.pknujsp.weatherwizard.feature.widget.worker.WidgetWorker
 
 open class BaseWidgetProvider : AppWidgetProvider() {
     override fun onUpdate(context: Context, appWidgetManager: AppWidgetManager, appWidgetIds: IntArray) {
-        println("updateWidget호출 in onUpdate")
         updateWidget(context, appWidgetIds, WidgetManager.Action.UPDATE)
     }
 
@@ -30,13 +29,16 @@ open class BaseWidgetProvider : AppWidgetProvider() {
 
     override fun onReceive(context: Context, intent: Intent) {
         super.onReceive(context, intent)
-        if (intent.action == null) {
-            updateWidget(context, intArrayOf(), WidgetManager.Action.UPDATE)
+        intent.action?.run {
+            if (this == WidgetManager.UPDATE_ALL_WIDGETS) {
+                updateWidget(context, intArrayOf(), WidgetManager.Action.UPDATE)
+            }
         }
     }
 
     @SuppressLint("RestrictedApi")
     fun updateWidget(context: Context, appWidgetIds: IntArray, action: WidgetManager.Action) {
+        println("BaseWidgetProvider.updateWidget: $action")
         val inputData = Data(mapOf("appWidgetIds" to appWidgetIds, "action" to action.name))
         val request = OneTimeWorkRequest.Builder(WidgetWorker::class.java).setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
             .addTag(WidgetWorker.name).setInputData(inputData).build()

@@ -23,7 +23,6 @@ import io.github.pknujsp.weatherwizard.feature.notification.manager.RemoteViewsC
 import io.github.pknujsp.weatherwizard.feature.notification.remoteview.NotificationRemoteViewsCreator
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import java.util.UUID
 
 @HiltWorker
 class DailyNotificationWorker @AssistedInject constructor(
@@ -33,8 +32,6 @@ class DailyNotificationWorker @AssistedInject constructor(
 
     companion object : IWorker {
         override val name: String = "DailyNotificationWorker"
-        override val id: UUID
-            get() = UUID.fromString(name)
     }
 
     override suspend fun doWork(): Result {

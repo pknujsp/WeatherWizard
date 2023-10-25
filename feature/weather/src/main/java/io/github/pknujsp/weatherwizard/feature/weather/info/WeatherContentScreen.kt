@@ -56,7 +56,7 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import io.github.pknujsp.weatherwizard.core.common.GpsLocationManager
 import io.github.pknujsp.weatherwizard.core.common.R
-import io.github.pknujsp.weatherwizard.core.common.UnavailableFeature
+import io.github.pknujsp.weatherwizard.core.common.FeatureType
 import io.github.pknujsp.weatherwizard.core.common.util.AStyle
 import io.github.pknujsp.weatherwizard.core.common.util.toAnnotated
 import io.github.pknujsp.weatherwizard.core.model.ProcessState
@@ -249,7 +249,7 @@ fun WeatherContentScreen(arguments: ContentArguments,weatherInfoViewModel: Weath
 
     if (!arguments.enabledLocation) {
         UnavailableFeatureScreen(title = R.string.title_location_is_disabled,
-            unavailableFeature = UnavailableFeature.LOCATION_SERVICE_DISABLED) {
+            featureType = FeatureType.LOCATION_SERVICE) {
             openLocationSettings = true
         }
         if (openLocationSettings) {

@@ -1,6 +1,6 @@
 package io.github.pknujsp.weatherwizard.feature.notification.ongoing.worker
 
-import io.github.pknujsp.weatherwizard.core.common.UnavailableFeature
+import io.github.pknujsp.weatherwizard.core.common.FeatureType
 import io.github.pknujsp.weatherwizard.core.common.util.DayNightCalculator
 import io.github.pknujsp.weatherwizard.core.common.util.toCalendar
 import io.github.pknujsp.weatherwizard.core.data.nominatim.NominatimRepository
@@ -57,7 +57,7 @@ class OngoingNotificationRemoteViewModel @Inject constructor(
                 iconType = notificationInfo.data.getNotificationIconType()
             ))
         } else {
-            UiState.Failure(UnavailableFeature.NETWORK_UNAVAILABLE)
+            UiState.Failure(FeatureType.NETWORK)
         }
     }
 }

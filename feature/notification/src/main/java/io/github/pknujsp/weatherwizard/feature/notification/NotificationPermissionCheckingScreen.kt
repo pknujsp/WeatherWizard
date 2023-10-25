@@ -9,7 +9,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import io.github.pknujsp.weatherwizard.core.common.R
-import io.github.pknujsp.weatherwizard.core.common.UnavailableFeature
+import io.github.pknujsp.weatherwizard.core.common.FeatureType
 import io.github.pknujsp.weatherwizard.core.common.permission.OpenSettingsActivityForPermission
 import io.github.pknujsp.weatherwizard.core.common.permission.PermissionManager
 import io.github.pknujsp.weatherwizard.core.common.permission.PermissionType
@@ -41,7 +41,7 @@ fun NotificationPermissionCheckingScreen(onPermissionGranted: () -> Unit) {
 
         if (unavailable) {
             UnavailableFeatureScreen(title = R.string.title_why_you_need_permissions,
-                unavailableFeature = UnavailableFeature.POST_NOTIFICATION_PERMISSION_DENIED) {
+                featureType = FeatureType.POST_NOTIFICATION_PERMISSION) {
                 openPermissionActivity = true
             }
         }

@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -20,10 +19,10 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.view.WindowCompat
-import io.github.pknujsp.weatherwizard.core.common.UnavailableFeature
+import io.github.pknujsp.weatherwizard.core.common.FeatureType
 
 @Composable
-fun UnavailableFeatureScreen(@StringRes title: Int, unavailableFeature: UnavailableFeature, onClick: () -> Unit) {
+fun UnavailableFeatureScreen(@StringRes title: Int, featureType: FeatureType, onClick: () -> Unit) {
     val window = (LocalContext.current as Activity).window
     WindowCompat.getInsetsController(window, window.decorView).isAppearanceLightNavigationBars = true
 
@@ -32,8 +31,8 @@ fun UnavailableFeatureScreen(@StringRes title: Int, unavailableFeature: Unavaila
         .padding(horizontal = 16.dp, vertical = 24.dp), verticalArrangement = Arrangement.Center) {
         Text(text = stringResource(title), style = TextStyle(fontSize = 24.sp, color = Color.Black))
         Spacer(modifier = Modifier.height(16.dp))
-        Text(text = stringResource(unavailableFeature.message), style = TextStyle(fontSize = 16.sp, color = Color.DarkGray))
+        Text(text = stringResource(featureType.alertMessage), style = TextStyle(fontSize = 16.sp, color = Color.DarkGray))
         Spacer(modifier = Modifier.height(16.dp))
-        PrimaryButton(text = stringResource(id = unavailableFeature.action), onClick = onClick, modifier = Modifier.align(Alignment.End))
+        PrimaryButton(text = stringResource(id = featureType.action), onClick = onClick, modifier = Modifier.align(Alignment.End))
     }
 }

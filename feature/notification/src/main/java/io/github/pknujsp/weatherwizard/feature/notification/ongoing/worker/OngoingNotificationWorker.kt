@@ -27,7 +27,6 @@ import io.github.pknujsp.weatherwizard.core.model.worker.IWorker
 import io.github.pknujsp.weatherwizard.core.ui.notification.AppNotificationManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import java.util.UUID
 
 
 @HiltWorker
@@ -38,7 +37,6 @@ class OngoingNotificationWorker @AssistedInject constructor(
 
     companion object : IWorker {
         override val name: String get() = "OngoingNotificationWorker"
-        override val id: UUID get() = UUID.fromString(name)
     }
 
     override suspend fun doWork(): Result {

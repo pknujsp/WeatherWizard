@@ -1,6 +1,6 @@
 package io.github.pknujsp.weatherwizard.feature.notification.daily.worker
 
-import io.github.pknujsp.weatherwizard.core.common.UnavailableFeature
+import io.github.pknujsp.weatherwizard.core.common.FeatureType
 import io.github.pknujsp.weatherwizard.core.common.util.DayNightCalculator
 import io.github.pknujsp.weatherwizard.core.data.nominatim.NominatimRepository
 import io.github.pknujsp.weatherwizard.core.data.notification.NotificationRepository
@@ -68,7 +68,7 @@ class DailyNotificationRemoteViewModel @Inject constructor(
                 units,
             ))
         } else {
-            UiState.Failure(UnavailableFeature.NETWORK_UNAVAILABLE)
+            UiState.Failure(FeatureType.NETWORK)
         }
     }
 }

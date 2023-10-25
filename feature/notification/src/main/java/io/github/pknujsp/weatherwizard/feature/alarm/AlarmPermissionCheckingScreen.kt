@@ -10,12 +10,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.navigation.NavController
 import io.github.pknujsp.weatherwizard.core.common.R
-import io.github.pknujsp.weatherwizard.core.common.UnavailableFeature
+import io.github.pknujsp.weatherwizard.core.common.FeatureType
 import io.github.pknujsp.weatherwizard.core.common.permission.OpenSettingsActivityForPermission
 import io.github.pknujsp.weatherwizard.core.common.permission.PermissionManager
 import io.github.pknujsp.weatherwizard.core.common.permission.PermissionType
 import io.github.pknujsp.weatherwizard.core.ui.UnavailableFeatureScreen
-import io.github.pknujsp.weatherwizard.feature.notification.NotificationRoutes
 
 @RequiresApi(Build.VERSION_CODES.S)
 @Composable
@@ -35,7 +34,7 @@ fun AlarmPermissionCheckingScreen(navController: NavController, onPermissionGran
     } else {
         if (unavailable) {
             UnavailableFeatureScreen(title = R.string.title_why_you_need_permissions,
-                unavailableFeature = UnavailableFeature.EXACT_ALARM_PERMISSION_DENIED) {
+                featureType = FeatureType.EXACT_ALARM_PERMISSION) {
                 openPermissionActivity = true
             }
         }

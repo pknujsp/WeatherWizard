@@ -18,7 +18,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import io.github.pknujsp.weatherwizard.core.common.NetworkManager
 import io.github.pknujsp.weatherwizard.core.common.R
 import io.github.pknujsp.weatherwizard.core.common.SystemBarStyler
-import io.github.pknujsp.weatherwizard.core.common.UnavailableFeature
+import io.github.pknujsp.weatherwizard.core.common.FeatureType
 import io.github.pknujsp.weatherwizard.core.ui.UnavailableFeatureScreen
 import io.github.pknujsp.weatherwizard.core.ui.theme.AppColorScheme
 import io.github.pknujsp.weatherwizard.core.ui.theme.MainTheme
@@ -65,8 +65,8 @@ class MainActivity : ComponentActivity() {
                     if (networkAvailable) {
                         MainScreen()
                     } else {
-                        UnavailableFeatureScreen(title = R.string.title_network_is_unavailable, unavailableFeature =
-                        UnavailableFeature.NETWORK_UNAVAILABLE
+                        UnavailableFeatureScreen(title = R.string.title_network_is_unavailable, featureType =
+                        FeatureType.NETWORK
                         ) {
                             openNetworkSettings = true
                         }

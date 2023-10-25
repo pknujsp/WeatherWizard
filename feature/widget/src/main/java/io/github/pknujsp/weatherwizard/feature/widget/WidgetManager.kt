@@ -15,6 +15,7 @@ class WidgetManager(context: Context) {
 
     companion object {
         const val WIDGET_TYPE = "widget_type"
+        const val UPDATE_ALL_WIDGETS = "widget_type"
     }
 
     inline fun <reified C : RemoteViewCreator<out UiModel>> remoteViewCreator(

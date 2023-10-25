@@ -5,18 +5,13 @@ import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.ForegroundInfo
 import androidx.work.WorkerParameters
-import androidx.work.impl.utils.taskexecutor.TaskExecutor
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import io.github.pknujsp.weatherwizard.core.common.GpsLocationManager
-import io.github.pknujsp.weatherwizard.core.model.favorite.LocationType
 import io.github.pknujsp.weatherwizard.core.model.notification.enums.NotificationType
 import io.github.pknujsp.weatherwizard.core.model.worker.IWorker
 import io.github.pknujsp.weatherwizard.core.ui.notification.AppNotificationManager
 import io.github.pknujsp.weatherwizard.feature.widget.WidgetManager
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
-import java.util.UUID
 
 
 @HiltWorker
@@ -33,11 +28,10 @@ class WidgetWorker @AssistedInject constructor(
 
     companion object : IWorker {
         override val name: String get() = "WidgetWorker"
-        override val id: UUID get() = UUID.fromString(name)
     }
 
     override suspend fun doWork(): Result {
-        println("WidgetWorker.doWork")
+        println("WidgetWorker.doWork-----------------------")
         val action = WidgetManager.Action.valueOf(inputData.getString("action")!!)
         val appWidgetIds = inputData.getIntArray("appWidgetIds")!!
 
@@ -57,7 +51,6 @@ class WidgetWorker @AssistedInject constructor(
                         }
 
                         is GpsLocationManager.CurrentLocationResult.Failure -> {
-                            println("WidgetWorker.doWork: 위치 사용 불가")
                             return Result.success()
                         }
                     }
