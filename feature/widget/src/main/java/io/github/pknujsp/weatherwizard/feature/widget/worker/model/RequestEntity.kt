@@ -2,6 +2,7 @@ package io.github.pknujsp.weatherwizard.feature.widget.worker.model
 
 import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherDataMajorCategory
 import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherDataProvider
+import io.github.pknujsp.weatherwizard.core.model.widget.WidgetType
 import java.time.ZonedDateTime
 
 class RequestEntity(
@@ -14,6 +15,7 @@ class RequestEntity(
 
     fun addRequest(
         appWidgetId: Int,
+        widgetType: WidgetType,
         latitude: Float,
         longitude: Float,
         address: String = "",
@@ -23,7 +25,7 @@ class RequestEntity(
         _requests.getOrPut(latitude to longitude) {
             Parameter(address, latitude, longitude)
         }.apply {
-            addProvider(weatherProvider, appWidgetId, categories, requestId++)
+            addProvider(weatherProvider, appWidgetId, widgetType, categories, requestId++)
         }
     }
 
@@ -38,6 +40,7 @@ class RequestEntity(
         fun addProvider(
             weatherProvider: WeatherDataProvider,
             appWidgetId: Int,
+            widgetType: WidgetType,
             categories: Array<WeatherDataMajorCategory>,
             requestId: Long
         ) {
@@ -46,13 +49,13 @@ class RequestEntity(
                     requestId = requestId
                 )
             }.apply {
-                appWidgetIds = appWidgetIds + appWidgetId
+                appWidgetIds = appWidgetIds + (widgetType to appWidgetId)
                 this.categories = this.categories + categories
             }
         }
 
         data class Provider(
-            var appWidgetIds: List<Int> = emptyList(),
+            var appWidgetIds: List<Pair<WidgetType, Int>> = emptyList(),
             var categories: Set<WeatherDataMajorCategory> = emptySet(),
             val requestId: Long
         )

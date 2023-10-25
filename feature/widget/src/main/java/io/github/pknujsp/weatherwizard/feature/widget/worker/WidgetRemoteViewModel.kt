@@ -12,6 +12,7 @@ import io.github.pknujsp.weatherwizard.core.model.nominatim.ReverseGeoCodeEntity
 import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherDataMajorCategory
 import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherDataProvider
 import io.github.pknujsp.weatherwizard.core.model.widget.WidgetEntity
+import io.github.pknujsp.weatherwizard.core.model.widget.WidgetType
 import io.github.pknujsp.weatherwizard.core.ui.remoteview.RemoteViewModel
 import io.github.pknujsp.weatherwizard.feature.widget.worker.model.RequestEntity
 import io.github.pknujsp.weatherwizard.feature.widget.worker.model.ResponseEntity
@@ -54,12 +55,13 @@ class WidgetRemoteViewModel @Inject constructor(
         loadWeatherData()
     }
 
-    private suspend fun loadWeatherData() {
+    private suspend fun loadWeatherData(): ResponseEntity {
         widgetEntities.filter { it.content.getLocationType() is LocationType.CurrentLocation }.run {
             if (isNotEmpty()) {
                 val (latitude, longitude) = currentLocation!!
                 forEach { entity ->
                     requestEntity.addRequest(entity.id,
+                        entity.widgetType,
                         latitude,
                         longitude,
                         "",
@@ -72,6 +74,7 @@ class WidgetRemoteViewModel @Inject constructor(
             entity.run {
                 requestEntity.addRequest(
                     id,
+                    widgetType,
                     content.latitude.toFloat(),
                     content.longitude.toFloat(),
                     content.addressName,
@@ -94,10 +97,12 @@ class WidgetRemoteViewModel @Inject constructor(
                 val provider = providerEntry.value
 
                 provider.categories.forEach { category ->
-                    category.request(latitude, longitude, weatherProvider, provider.requestId)
+                    category.request(latitude, longitude, weatherProvider, provider.requestId, provider.appWidgetIds)
                 }
             }
         }
+
+        return responseEntity
     }
 
     suspend fun deleteWidgets(appWidgetIds: IntArray) {
@@ -107,7 +112,7 @@ class WidgetRemoteViewModel @Inject constructor(
     }
 
     private suspend fun WeatherDataMajorCategory.request(
-        latitude: Double, longitude: Double, weatherProvider: WeatherDataProvider, requestId: Long
+        latitude: Double, longitude: Double, weatherProvider: WeatherDataProvider, requestId: Long,appWidgetIds: List<Pair<WidgetType, Int>>
     ) {
         val response: Result<EntityModel> = when (this) {
             WeatherDataMajorCategory.CURRENT_CONDITION -> getCurrentWeatherUseCase(latitude, longitude, weatherProvider, requestId)
@@ -116,7 +121,7 @@ class WidgetRemoteViewModel @Inject constructor(
             else -> TODO()
         }
 
-        responseEntity.addResponse(requestId, this, response)
+        responseEntity.addResponse(requestId, this, response,appWidgetIds)
     }
 
 
