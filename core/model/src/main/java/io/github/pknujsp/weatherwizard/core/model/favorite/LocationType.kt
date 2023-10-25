@@ -11,7 +11,7 @@ sealed interface LocationType : IEnum {
         override val key: Int = 0
     }
 
-    data class CustomLocation(val locationId: Long = 0) : LocationType {
+    class CustomLocation(val locationId: Long = 0) : LocationType {
 
         var latitude: Double = 0.0
         var longitude: Double = 0.0

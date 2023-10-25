@@ -105,4 +105,5 @@
     <string name="location_service">위치 정보</string>
     <string name="post_notification_permission">알림 표시 권한</string>
     <string name="exact_alarm_permission">정확한 알람 권한</string>
+    <string name="again">다시 시도</string>
 </resources>

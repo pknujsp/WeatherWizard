@@ -8,18 +8,16 @@ import io.github.pknujsp.weatherwizard.core.ui.remoteview.RemoteViewCreator
 
 class FeatureStateRemoteViewCreator : RemoteViewCreator {
 
-    companion object {
-        const val NOTIFICATION = 0
-        const val WIDGET = 1
-    }
-
     fun createView(context: Context, featureType: FeatureType, containerType: Int): RemoteViews {
-        return RemoteViews(context.packageName,
-            if (containerType == WIDGET) R.layout.view_feature_state_widget else R.layout.view_feature_state).apply {
-            setTextViewText(R.id.title, context.getString(featureType.title))
-            setTextViewText(R.id.alert_message, context.getString(featureType.alertMessage))
-            setTextViewText(R.id.action_button, context.getString(featureType.actionMessage))
-            setOnClickPendingIntent(R.id.action_button, featureType.getPendintIntent(context))
+        return RemoteViews(context.packageName, R.layout.view_feature_state).let {
+            it.setTextViewText(R.id.title, context.getString(featureType.title))
+            it.setTextViewText(R.id.alert_message, context.getString(featureType.alertMessage))
+            it.setTextViewText(R.id.action_button, context.getString(featureType.actionMessage))
+            it.setOnClickPendingIntent(R.id.action_button, featureType.getPendintIntent(context))
+
+            RemoteViewCreator.createBaseView(context, containerType).apply {
+                addView(R.id.remote_views_root_container, it)
+            }
         }
     }
 }

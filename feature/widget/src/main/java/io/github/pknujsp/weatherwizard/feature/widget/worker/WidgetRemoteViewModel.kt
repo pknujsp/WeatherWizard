@@ -31,13 +31,14 @@ class WidgetRemoteViewModel @Inject constructor(
     private val requestEntity = RequestEntity()
     private val responseEntity = ResponseEntity()
 
-    private var widgetEntities: List<WidgetEntity> by Delegates.notNull()
+    var widgetEntities: List<WidgetEntity> = emptyList()
+        private set
     private var reverseGeoCode: Result<ReverseGeoCodeEntity>? = null
 
     var currentLocation: Pair<Float, Float>? = null
 
-    fun hasCurrentLocationType(): Boolean {
-        return widgetEntities.any { it.content.getLocationType() is LocationType.CurrentLocation }
+    inline fun <reified T : LocationType> widgetIdsByLocationType(): IntArray {
+        return widgetEntities.filter { it.content.getLocationType() is T }.map { it.id }.toIntArray()
     }
 
     fun isInitializng(appWidgetIds: IntArray): Boolean = widgetEntities.isEmpty() or !widgetEntities.any { it.id in appWidgetIds }
@@ -46,7 +47,10 @@ class WidgetRemoteViewModel @Inject constructor(
         widgetEntities = widgetRepository.getAll().first()
     }
 
-    suspend fun updateWidgets() {
+    suspend fun updateWidgets(excludeAppWidgetIds: IntArray? = null) {
+        excludeAppWidgetIds?.let {
+            widgetEntities = widgetEntities.filter { entity -> entity.id !in it }
+        }
         loadWeatherData()
     }
 

@@ -13,11 +13,16 @@
         <item name="android:textColor">@android:color/black</item>
     </style>
 
-    <style name="Widget.WeatherWizard.AppWidget.Container" parent="">
-        <item name="android:id">@android:id/background</item>
-        <item name="android:background">@color/widget_background</item>
+    <style name="Widget.WeatherWizard.RemoteViews.RootContainer" parent="">
+        <item name="android:id">@id/remote_views_root_container</item>
     </style>
 
+    <style name="Widget.WeatherWizard.Widget.Container" parent="Widget.WeatherWizard.RemoteViews.RootContainer">
+        <item name="android:background">@color/widget_background</item>
+        <item name="android:padding">16dp</item>
+    </style>
+
+    <style name="Widget.WeatherWizard.Notification.Container" parent="Widget.WeatherWizard.RemoteViews.RootContainer"/>
 
 
 </resources>

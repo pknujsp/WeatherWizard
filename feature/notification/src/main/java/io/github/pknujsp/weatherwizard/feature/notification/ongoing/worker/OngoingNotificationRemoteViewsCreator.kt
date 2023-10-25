@@ -10,9 +10,7 @@ import io.github.pknujsp.weatherwizard.feature.notification.R
 import io.github.pknujsp.weatherwizard.feature.notification.remoteview.NotificationRemoteViewsCreator
 
 class OngoingNotificationRemoteViewsCreator : NotificationRemoteViewsCreator<OngoingNotificationUiModel> {
-
-
-    override fun createDefaultView(context: Context, units: CurrentUnits): RemoteViews {
+    override fun createSampleView(context: Context, units: CurrentUnits): RemoteViews {
         return RemoteViews(context.packageName, R.layout.notification_ongoing_small).apply {
             setImageViewResource(R.id.weather_icon, io.github.pknujsp.weatherwizard.core.common.R.drawable.ic_sun)
             setTextViewText(R.id.temperature,
@@ -46,7 +44,6 @@ class OngoingNotificationRemoteViewsCreator : NotificationRemoteViewsCreator<Ong
             }
         }
     }
-
 
     private fun RemoteViews.createHourlyForecastView(model: OngoingNotificationUiModel, context: Context) {
         model.hourlyForecast.forEach {
