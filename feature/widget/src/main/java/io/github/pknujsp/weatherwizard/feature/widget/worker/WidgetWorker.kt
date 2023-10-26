@@ -14,6 +14,7 @@ import io.github.pknujsp.weatherwizard.core.common.manager.FeatureState
 import io.github.pknujsp.weatherwizard.core.common.manager.checkFeatureStateAndUpdateWidgets
 import io.github.pknujsp.weatherwizard.core.model.favorite.LocationType
 import io.github.pknujsp.weatherwizard.core.model.notification.enums.NotificationType
+import io.github.pknujsp.weatherwizard.core.model.widget.WidgetType
 import io.github.pknujsp.weatherwizard.core.model.worker.IWorker
 import io.github.pknujsp.weatherwizard.core.ui.feature.FeatureStateRemoteViewCreator
 import io.github.pknujsp.weatherwizard.core.ui.notification.AppNotificationManager
@@ -53,39 +54,55 @@ class WidgetWorker @AssistedInject constructor(
         val appWidgetIds = inputData.getIntArray("appWidgetIds")!!
 
         when (action) {
-            WidgetManager.Action.UPDATE -> {
+            WidgetManager.Action.UPDATE, WidgetManager.Action.UPDATE_ONLY_BASED_CURRENT_LOCATION -> {
                 widgetRemoteViewModel.init()
 
                 if (appWidgetIds.isNotEmpty() and widgetRemoteViewModel.isInitializng(appWidgetIds)) {
+                    println("WidgetWorker.doWork: isInitializng")
                     return Result.success()
                 }
                 if (!checkFeatureStateAndUpdateWidgets(requiredFeatures, appWidgetIds)) {
+                    println("WidgetWorker.doWork: checkFeatureStateAndUpdateWidgets")
                     return Result.success()
                 }
 
-                var excludeAppWidgetIds: IntArray? = null
+                val excludeAppWidgetIds = mutableListOf<Int>()
+                var excludeAppWidgetType: WidgetType? = null
+                var excludeLocationType: LocationType? = null
 
                 widgetRemoteViewModel.widgetIdsByLocationType<LocationType.CurrentLocation>().let {
+                    if (action == WidgetManager.Action.UPDATE_ONLY_BASED_CURRENT_LOCATION) {
+                        excludeLocationType = LocationType.CurrentLocation
+                    }
+
                     if (!checkFeatureStateAndUpdateWidgets(arrayOf(FeatureType.LOCATION_PERMISSION, FeatureType.LOCATION_SERVICE), it)) {
                         when (val currentLocation = gpsLocationManager.getCurrentLocation()) {
                             is AppLocationManager.CurrentLocationResult.Success -> {
-                                widgetRemoteViewModel.currentLocation =
-                                    currentLocation.location.latitude.toFloat() to currentLocation.location.longitude.toFloat()
+                                widgetRemoteViewModel.currentLocation = io.github.pknujsp.weatherwizard.core.model.coordinate.Coordinate(
+                                    currentLocation.location.latitude,
+                                    currentLocation.location.longitude)
                             }
 
                             is AppLocationManager.CurrentLocationResult.Failure -> {
-                                excludeAppWidgetIds = it
+                                excludeAppWidgetIds.addAll(it.toList())
                                 updateRetryWidgets(it, widgetManager.getUpdatePendingIntent(context, it))
                             }
                         }
                     }
                 }
 
-                widgetRemoteViewModel.load(excludeAppWidgetIds)
+                val widgetStates = widgetRemoteViewModel.load(excludeAppWidgetIds, excludeLocationType)
+                widgetStates.forEach { widgetState ->
+
+                }
             }
 
             WidgetManager.Action.DELETE -> {
                 widgetRemoteViewModel.deleteWidgets(appWidgetIds)
+            }
+
+            else -> {
+
             }
         }
 

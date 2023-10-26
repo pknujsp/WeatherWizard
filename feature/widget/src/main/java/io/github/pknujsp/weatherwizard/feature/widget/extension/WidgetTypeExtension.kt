@@ -8,9 +8,3 @@ fun WidgetType.Companion.fromProvider(componentName: ComponentName) = when (comp
     SummaryWeatherWidgetProvider::class.java.name -> WidgetType.SUMMARY
     else -> WidgetType.SUMMARY
 }
-
-private val widgetProviders = listOf(
-    ComponentName(SummaryWeatherWidgetProvider::class.java.`package`!!.name, SummaryWeatherWidgetProvider::class.java.name),
-)
-
-fun WidgetType.Companion.widgetProviders() = widgetProviders

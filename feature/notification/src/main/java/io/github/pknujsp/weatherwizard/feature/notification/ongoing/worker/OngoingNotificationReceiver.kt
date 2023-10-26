@@ -13,7 +13,6 @@ class OngoingNotificationReceiver : BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent) {
         if (intent.action != null) {
-            println("OngoingNotificationReceiver: ${intent.action}")
             val request = OneTimeWorkRequest.Builder(OngoingNotificationWorker::class.java)
                 .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
                 .addTag(OngoingNotificationWorker.name)

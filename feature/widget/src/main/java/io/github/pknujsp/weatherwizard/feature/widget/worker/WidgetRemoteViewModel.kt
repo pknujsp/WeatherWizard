@@ -13,6 +13,7 @@ import io.github.pknujsp.weatherwizard.core.model.nominatim.ReverseGeoCodeEntity
 import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherDataMajorCategory
 import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherDataProvider
 import io.github.pknujsp.weatherwizard.core.model.widget.WidgetEntity
+import io.github.pknujsp.weatherwizard.core.model.widget.WidgetType
 import io.github.pknujsp.weatherwizard.core.ui.remoteview.RemoteViewModel
 import io.github.pknujsp.weatherwizard.feature.widget.worker.model.EntityMapper
 import io.github.pknujsp.weatherwizard.feature.widget.worker.model.RequestEntity
@@ -37,7 +38,7 @@ class WidgetRemoteViewModel @Inject constructor(
         private set
     private var reverseGeoCode: Result<ReverseGeoCodeEntity>? = null
 
-    var currentLocation: Pair<Double, Double>? = null
+    var currentLocation: Coordinate? = null
 
     inline fun <reified T : LocationType> widgetIdsByLocationType(): IntArray {
         return widgetEntities.filter { it.content.getLocationType() is T }.map { it.id }.toIntArray()
@@ -49,16 +50,17 @@ class WidgetRemoteViewModel @Inject constructor(
         widgetEntities = widgetRepository.getAll().first()
     }
 
-    suspend fun load(excludeAppWidgetIds: IntArray? = null) {
-        excludeAppWidgetIds?.let {
-            widgetEntities = widgetEntities.filter { entity -> entity.id !in it }
-        }
-        loadWeatherData()
+    suspend fun load(
+        excludeAppWidgetIds: List<Int>, excludeLocationType: LocationType? = null
+    ): List<WidgetUiModel<WidgetUiState>> {
+        widgetEntities = widgetEntities.filter { entity -> entity.id !in excludeAppWidgetIds }
+        excludeLocationType?.let { widgetEntities = widgetEntities.filter { entity -> entity.content.getLocationType() != it } }
+        return loadWeatherData()
     }
 
     private suspend fun loadWeatherData(): List<WidgetUiModel<WidgetUiState>> {
         currentLocation?.let {
-            reverseGeoCode = nominatimRepository.reverseGeoCode(it.first, it.second)
+            reverseGeoCode = nominatimRepository.reverseGeoCode(it.latitude, it.longitude)
         }
 
         widgetEntities.filter { it.content.getLocationType() is LocationType.CurrentLocation }.run {

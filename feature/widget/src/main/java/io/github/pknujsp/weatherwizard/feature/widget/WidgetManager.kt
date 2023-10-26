@@ -8,20 +8,17 @@ import android.widget.RemoteViews
 import io.github.pknujsp.weatherwizard.core.model.UiModel
 import io.github.pknujsp.weatherwizard.core.model.widget.WidgetType
 import io.github.pknujsp.weatherwizard.feature.widget.activity.WidgetActivity
-import io.github.pknujsp.weatherwizard.feature.widget.extension.widgetProviders
 import io.github.pknujsp.weatherwizard.feature.widget.remoteview.WidgetRemoteViewsCreator
 import io.github.pknujsp.weatherwizard.feature.widget.summary.SummaryRemoteViewCreator
 import io.github.pknujsp.weatherwizard.feature.widget.summary.SummaryWeatherWidgetProvider
 
 class WidgetManager private constructor(context: Context) {
     private val appWidgetManager = AppWidgetManager.getInstance(context)
-
-    val widgetIds = WidgetType.widgetProviders().map {
-        appWidgetManager.getAppWidgetIds(it).toList()
-    }.flatten()
+    val widgetIds get() = appWidgetManager.installedProviders.flatMap { appWidgetManager.getAppWidgetIds(it.provider).toList() }
 
     companion object {
-        const val UPDATE_ALL_WIDGETS = "widget_type"
+        const val UPDATE_ALL_WIDGETS = "UPDATE_ALL_WIDGETS"
+        const val UPDATE_WIDGETS_BASE_CURRENT_LOCATION = "UPDATE_WIDGETS_BASE_CURRENT_LOCATION"
         private var instance: WidgetManager? = null
 
         fun getInstance(context: Context): WidgetManager {
@@ -50,16 +47,20 @@ class WidgetManager private constructor(context: Context) {
         }, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
 
     fun getUpdatePendingIntent(context: Context, appWidgetIds: IntArray? = null): PendingIntent {
-        return PendingIntent.getBroadcast(context, 10000 + if (appWidgetIds == null) 10 else 0, Intent(context,
-            SummaryWeatherWidgetProvider::class.java)
-            .apply {
+        return PendingIntent.getBroadcast(context,
+            10000 + if (appWidgetIds == null) 10 else 0,
+            Intent(context, SummaryWeatherWidgetProvider::class.java).apply {
                 if (appWidgetIds != null) {
+                    action = UPDATE_WIDGETS_BASE_CURRENT_LOCATION
                     putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, appWidgetIds)
+                } else {
+                    action = UPDATE_ALL_WIDGETS
                 }
-            }, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
+            },
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
     }
 
     enum class Action {
-        UPDATE, DELETE
+        UPDATE, DELETE, UPDATE_ONLY_BASED_CURRENT_LOCATION
     }
 }
