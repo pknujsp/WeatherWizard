@@ -1,63 +1,107 @@
 package io.github.pknujsp.weatherwizard.feature.widget.worker.model
 
+import io.github.pknujsp.weatherwizard.core.model.EntityModel
+import io.github.pknujsp.weatherwizard.core.model.coordinate.Coordinate
 import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherDataMajorCategory
 import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherDataProvider
+import io.github.pknujsp.weatherwizard.core.model.weather.current.CurrentWeatherEntity
+import io.github.pknujsp.weatherwizard.core.model.weather.dailyforecast.DailyForecastEntity
+import io.github.pknujsp.weatherwizard.core.model.weather.hourlyforecast.HourlyForecastEntity
 import io.github.pknujsp.weatherwizard.core.model.widget.WidgetType
 import java.time.ZonedDateTime
 
 class RequestEntity(
     val now: ZonedDateTime = ZonedDateTime.now(),
 ) {
-    private val _requests: MutableMap<Pair<Float, Float>, Parameter> = mutableMapOf()
-    val requests: Map<Pair<Float, Float>, Parameter> get() = _requests
+    private val _requests: MutableMap<Coordinate, Request> = mutableMapOf()
+    val requests: Map<Coordinate, Request> get() = _requests
 
     private var requestId: Long = now.toEpochSecond()
 
     fun addRequest(
         appWidgetId: Int,
         widgetType: WidgetType,
-        latitude: Float,
-        longitude: Float,
-        address: String = "",
+        coordinate: Coordinate,
         weatherProvider: WeatherDataProvider,
-        categories: Array<WeatherDataMajorCategory>,
+        address: String = "",
     ) {
-        _requests.getOrPut(latitude to longitude) {
-            Parameter(address, latitude, longitude)
+        _requests.getOrPut(coordinate) {
+            Request(address, coordinate)
         }.apply {
-            addProvider(weatherProvider, appWidgetId, widgetType, categories, requestId++)
+            addHeader(weatherProvider, appWidgetId, widgetType, requestId++)
         }
     }
 
-    data class Parameter(
-        var address: String,
-        val latitude: Float,
-        val longitude: Float,
+    data class Request(
+        val address: String, val coordinate: Coordinate
     ) {
-        private val _providerMap: MutableMap<WeatherDataProvider, Provider> = mutableMapOf()
-        val providerMap: Map<WeatherDataProvider, Provider> get() = _providerMap
+        private val _headerMap: MutableMap<WeatherDataProvider, Header> = mutableMapOf()
+        val headerMap: Map<WeatherDataProvider, Header> get() = _headerMap
 
-        fun addProvider(
-            weatherProvider: WeatherDataProvider,
-            appWidgetId: Int,
-            widgetType: WidgetType,
-            categories: Array<WeatherDataMajorCategory>,
-            requestId: Long
+        fun addHeader(
+            weatherProvider: WeatherDataProvider, appWidgetId: Int, widgetType: WidgetType, requestId: Long
         ) {
-            _providerMap.getOrPut(weatherProvider) {
-                Provider(
-                    requestId = requestId
-                )
-            }.apply {
-                appWidgetIds = appWidgetIds + (widgetType to appWidgetId)
-                this.categories = this.categories + categories
+            _headerMap.getOrPut(weatherProvider) {
+                Header(requestId)
+            }.addHeader(appWidgetId, widgetType)
+        }
+
+        fun toResponseEntity() = headerMap.flatMap { (weatherDataProvider, header) ->
+            header.appWidgetIds.map { (widgetType, appWidgetId) ->
+                ResponseEntity(address, coordinate, appWidgetId, widgetType, weatherDataProvider, header.getResponses(widgetType))
             }
         }
 
-        data class Provider(
-            var appWidgetIds: List<Pair<WidgetType, Int>> = emptyList(),
-            var categories: Set<WeatherDataMajorCategory> = emptySet(),
-            val requestId: Long
-        )
+        data class Header(
+            val requestId: Long,
+        ) {
+            var appWidgetIds: List<Pair<WidgetType, Int>> = emptyList()
+                private set
+            var categories: Set<WeatherDataMajorCategory> = emptySet()
+                private set
+
+            private var responses: List<Result<EntityModel>> = emptyList()
+            private var zip: List<Pair<WeatherDataMajorCategory, EntityModel>> = emptyList()
+            private var isCompleted: Boolean = false
+
+            fun addHeader(
+                appWidgetId: Int, widgetType: WidgetType
+            ) {
+                appWidgetIds = appWidgetIds + (widgetType to appWidgetId)
+                this.categories = this.categories + widgetType.categories
+            }
+
+            fun addResponse(response: Result<EntityModel>) {
+                responses = responses + response
+            }
+
+            fun getResponses(widgetType: WidgetType): List<EntityModel> {
+                val list = if (isCompleted) {
+                    zip
+                } else {
+                    isCompleted = true
+                    if (responses.all { it.isSuccess }) {
+                        zip = categories.map { category ->
+                            when (category) {
+                                WeatherDataMajorCategory.CURRENT_CONDITION -> category to responses.first {
+                                    it.getOrThrow() is CurrentWeatherEntity
+                                }.getOrThrow()
+
+                                WeatherDataMajorCategory.HOURLY_FORECAST -> category to responses.first { it.getOrThrow() is HourlyForecastEntity }
+                                    .getOrThrow()
+
+                                WeatherDataMajorCategory.DAILY_FORECAST -> category to responses.first { it.getOrThrow() is DailyForecastEntity }
+                                    .getOrThrow()
+
+                                else -> throw IllegalArgumentException("Unknown category: $category")
+                            }
+                        }
+                    }
+                    zip
+                }
+
+                return list.filter { it.first in widgetType.categories }.map { it.second }
+            }
+        }
     }
 }

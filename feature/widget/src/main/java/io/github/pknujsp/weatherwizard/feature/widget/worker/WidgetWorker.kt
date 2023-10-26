@@ -19,7 +19,6 @@ import io.github.pknujsp.weatherwizard.core.ui.feature.FeatureStateRemoteViewCre
 import io.github.pknujsp.weatherwizard.core.ui.notification.AppNotificationManager
 import io.github.pknujsp.weatherwizard.core.ui.remoteview.RemoteViewCreator
 import io.github.pknujsp.weatherwizard.core.ui.remoteview.RetryRemoteViewCreator
-import io.github.pknujsp.weatherwizard.feature.widget.R
 import io.github.pknujsp.weatherwizard.feature.widget.WidgetManager
 
 
@@ -55,7 +54,7 @@ class WidgetWorker @AssistedInject constructor(
 
         when (action) {
             WidgetManager.Action.UPDATE -> {
-                widgetRemoteViewModel.load()
+                widgetRemoteViewModel.init()
 
                 if (appWidgetIds.isNotEmpty() and widgetRemoteViewModel.isInitializng(appWidgetIds)) {
                     return Result.success()
@@ -82,7 +81,7 @@ class WidgetWorker @AssistedInject constructor(
                     }
                 }
 
-                widgetRemoteViewModel.updateWidgets(excludeAppWidgetIds)
+                widgetRemoteViewModel.load(excludeAppWidgetIds)
             }
 
             WidgetManager.Action.DELETE -> {
