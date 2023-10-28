@@ -1,17 +1,14 @@
 package io.github.pknujsp.weatherwizard.feature.notification
 
 import android.app.Activity
-import android.os.Build
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.view.WindowCompat
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import io.github.pknujsp.weatherwizard.feature.alarm.AlarmPermissionCheckingScreen
 import io.github.pknujsp.weatherwizard.feature.notification.daily.AddOrEditDailyNotificationScreen
 import io.github.pknujsp.weatherwizard.feature.notification.daily.DailyNotificationListScreen
 import io.github.pknujsp.weatherwizard.feature.notification.ongoing.OngoingNotificationScreen

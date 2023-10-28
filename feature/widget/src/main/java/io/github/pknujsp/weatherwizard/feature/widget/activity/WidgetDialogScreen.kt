@@ -21,6 +21,7 @@ import io.github.pknujsp.weatherwizard.core.ui.PrimaryButton
 import io.github.pknujsp.weatherwizard.core.ui.SecondaryButton
 import io.github.pknujsp.weatherwizard.core.ui.ThirdButton
 import io.github.pknujsp.weatherwizard.feature.widget.R
+import io.github.pknujsp.weatherwizard.feature.widget.WidgetManager
 import io.github.pknujsp.weatherwizard.feature.widget.summary.SummaryWeatherWidgetProvider
 
 
@@ -40,10 +41,7 @@ fun WidgetDialogScreen() {
                 startActivity(context, intent, null)
                 activity.finish()
             }, onClickRefresh = {
-                PendingIntent.getBroadcast(context,
-                    System.currentTimeMillis().toInt(),
-                    Intent(context, SummaryWeatherWidgetProvider::class.java),
-                    PendingIntent.FLAG_ONE_SHOT or PendingIntent.FLAG_IMMUTABLE).send()
+                WidgetManager.getInstance(context).getUpdatePendingIntent(context).send()
             }, onClickCancel = {
                 activity.finish()
             })

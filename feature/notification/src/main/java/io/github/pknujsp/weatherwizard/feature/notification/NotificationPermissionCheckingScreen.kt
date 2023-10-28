@@ -8,12 +8,11 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import io.github.pknujsp.weatherwizard.core.common.R
-import io.github.pknujsp.weatherwizard.core.common.UnavailableFeature
-import io.github.pknujsp.weatherwizard.core.common.permission.OpenSettingsActivityForPermission
-import io.github.pknujsp.weatherwizard.core.common.permission.PermissionManager
-import io.github.pknujsp.weatherwizard.core.common.permission.PermissionType
-import io.github.pknujsp.weatherwizard.core.ui.UnavailableFeatureScreen
+import io.github.pknujsp.weatherwizard.core.common.FeatureType
+import io.github.pknujsp.weatherwizard.core.common.manager.PermissionManager
+import io.github.pknujsp.weatherwizard.core.common.manager.PermissionType
+import io.github.pknujsp.weatherwizard.core.ui.feature.UnavailableFeatureScreen
+import io.github.pknujsp.weatherwizard.core.ui.feature.OpenAppSettingsActivity
 
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
 @Composable
@@ -40,13 +39,13 @@ fun NotificationPermissionCheckingScreen(onPermissionGranted: () -> Unit) {
         }, refreshKey)
 
         if (unavailable) {
-            UnavailableFeatureScreen(title = R.string.title_why_you_need_permissions,
-                unavailableFeature = UnavailableFeature.POST_NOTIFICATION_PERMISSION_DENIED) {
+            UnavailableFeatureScreen(
+                featureType = FeatureType.POST_NOTIFICATION_PERMISSION) {
                 openPermissionActivity = true
             }
         }
         if (openPermissionActivity) {
-            OpenSettingsActivityForPermission {
+            OpenAppSettingsActivity(FeatureType.POST_NOTIFICATION_PERMISSION) {
                 openPermissionActivity = false
                 refreshKey++
             }

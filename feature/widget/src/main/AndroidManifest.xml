@@ -13,7 +13,7 @@
         <receiver
             android:name=".summary.SummaryWeatherWidgetProvider"
             android:enabled="true"
-            android:exported="true"
+            android:exported="false"
             android:label="@string/summary_weather_widget_description">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />

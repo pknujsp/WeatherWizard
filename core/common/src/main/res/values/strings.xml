@@ -99,4 +99,11 @@
     <string name="data_type">데이터 유형</string>
     <string name="exact_alarm_permission_denied">정확한 알람 사용 권한이 필요합니다.</string>
     <string name="no_location_is_selected">위치를 선택해주세요</string>
+    <string name="location_permission">위치 권한</string>
+    <string name="storage_permission">저장소 권한</string>
+    <string name="network">네트워크</string>
+    <string name="location_service">위치 정보</string>
+    <string name="post_notification_permission">알림 표시 권한</string>
+    <string name="exact_alarm_permission">정확한 알람 권한</string>
+    <string name="again">다시 시도</string>
 </resources>

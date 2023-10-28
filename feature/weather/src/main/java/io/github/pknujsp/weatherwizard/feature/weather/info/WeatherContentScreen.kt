@@ -54,9 +54,8 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
-import io.github.pknujsp.weatherwizard.core.common.GpsLocationManager
+import io.github.pknujsp.weatherwizard.core.common.FeatureType
 import io.github.pknujsp.weatherwizard.core.common.R
-import io.github.pknujsp.weatherwizard.core.common.UnavailableFeature
 import io.github.pknujsp.weatherwizard.core.common.util.AStyle
 import io.github.pknujsp.weatherwizard.core.common.util.toAnnotated
 import io.github.pknujsp.weatherwizard.core.model.ProcessState
@@ -64,7 +63,8 @@ import io.github.pknujsp.weatherwizard.core.model.onRunning
 import io.github.pknujsp.weatherwizard.core.model.onSucceed
 import io.github.pknujsp.weatherwizard.core.model.onSuccess
 import io.github.pknujsp.weatherwizard.core.model.weather.RequestWeatherDataArgs
-import io.github.pknujsp.weatherwizard.core.ui.UnavailableFeatureScreen
+import io.github.pknujsp.weatherwizard.core.ui.feature.UnavailableFeatureScreen
+import io.github.pknujsp.weatherwizard.core.ui.feature.OpenAppSettingsActivity
 import io.github.pknujsp.weatherwizard.core.ui.lottie.NonCancellableLoadingScreen
 import io.github.pknujsp.weatherwizard.core.ui.theme.notIncludeTextPaddingStyle
 import io.github.pknujsp.weatherwizard.core.ui.theme.outlineTextStyle
@@ -81,8 +81,7 @@ import io.github.pknujsp.weatherwizard.feature.weather.info.hourlyforecast.simpl
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun WeatherContentScreen(arguments: ContentArguments,weatherInfoViewModel: WeatherInfoViewModel) {
-    val gpsLocationManager = GpsLocationManager(LocalContext.current)
+fun WeatherContentScreen(arguments: ContentArguments, weatherInfoViewModel: WeatherInfoViewModel) {
     var openLocationSettings by remember { mutableStateOf(false) }
     var onClickedWeatherProviderButton by remember { mutableStateOf(false) }
     val headInfo by weatherInfoViewModel.reverseGeoCode.collectAsStateWithLifecycle()
@@ -248,12 +247,12 @@ fun WeatherContentScreen(arguments: ContentArguments,weatherInfoViewModel: Weath
     }
 
     if (!arguments.enabledLocation) {
-        UnavailableFeatureScreen(title = R.string.title_location_is_disabled,
-            unavailableFeature = UnavailableFeature.LOCATION_SERVICE_DISABLED) {
+        UnavailableFeatureScreen(
+            featureType = FeatureType.LOCATION_SERVICE) {
             openLocationSettings = true
         }
         if (openLocationSettings) {
-            gpsLocationManager.OpenSettingsForLocation {
+            OpenAppSettingsActivity(featureType = FeatureType.LOCATION_SERVICE) {
                 arguments.reload()
                 openLocationSettings = false
             }

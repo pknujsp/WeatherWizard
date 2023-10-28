@@ -17,8 +17,9 @@ import androidx.work.ForegroundInfo
 import androidx.work.WorkerParameters
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
-import io.github.pknujsp.weatherwizard.core.common.permission.PermissionType
-import io.github.pknujsp.weatherwizard.core.common.permission.checkSelfPermission
+import io.github.pknujsp.weatherwizard.core.common.FeatureType
+import io.github.pknujsp.weatherwizard.core.common.manager.PermissionType
+import io.github.pknujsp.weatherwizard.core.common.manager.checkSelfPermission
 import io.github.pknujsp.weatherwizard.core.model.notification.enums.NotificationIconType
 import io.github.pknujsp.weatherwizard.core.model.notification.enums.NotificationType
 import io.github.pknujsp.weatherwizard.core.model.onSuccess
@@ -27,7 +28,6 @@ import io.github.pknujsp.weatherwizard.core.model.worker.IWorker
 import io.github.pknujsp.weatherwizard.core.ui.notification.AppNotificationManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import java.util.UUID
 
 
 @HiltWorker
@@ -38,7 +38,8 @@ class OngoingNotificationWorker @AssistedInject constructor(
 
     companion object : IWorker {
         override val name: String get() = "OngoingNotificationWorker"
-        override val id: UUID get() = UUID.fromString(name)
+        override val requiredFeatures: Array<FeatureType>
+            get() = arrayOf(FeatureType.NETWORK)
     }
 
     override suspend fun doWork(): Result {

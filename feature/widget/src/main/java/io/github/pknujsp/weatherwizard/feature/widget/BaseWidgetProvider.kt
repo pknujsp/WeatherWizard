@@ -10,11 +10,11 @@ import androidx.work.ExistingWorkPolicy
 import androidx.work.OneTimeWorkRequest
 import androidx.work.OutOfQuotaPolicy
 import androidx.work.WorkManager
+import io.github.pknujsp.weatherwizard.feature.widget.worker.WidgetDeleteWorker
 import io.github.pknujsp.weatherwizard.feature.widget.worker.WidgetWorker
 
-open class BaseWidgetProvider : AppWidgetProvider() {
+abstract class BaseWidgetProvider : AppWidgetProvider() {
     override fun onUpdate(context: Context, appWidgetManager: AppWidgetManager, appWidgetIds: IntArray) {
-        println("updateWidget호출 in onUpdate")
         updateWidget(context, appWidgetIds, WidgetManager.Action.UPDATE)
     }
 
@@ -26,22 +26,38 @@ open class BaseWidgetProvider : AppWidgetProvider() {
     }
 
     override fun onDisabled(context: Context) {
+        WorkManager.getInstance(context).cancelUniqueWork(WidgetWorker::class.java.name)
     }
+
 
     override fun onReceive(context: Context, intent: Intent) {
         super.onReceive(context, intent)
-        if (intent.action == null) {
-            updateWidget(context, intArrayOf(), WidgetManager.Action.UPDATE)
+        intent.action?.let { action ->
+            if (action == WidgetManager.UPDATE_ALL_WIDGETS) {
+                updateWidget(context, intArrayOf(), WidgetManager.Action.UPDATE)
+            } else if (action == WidgetManager.UPDATE_WIDGETS_BASE_CURRENT_LOCATION) {
+                updateWidget(context,
+                    intent.getIntArrayExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS)!!,
+                    WidgetManager.Action.UPDATE_ONLY_BASED_CURRENT_LOCATION)
+            }
         }
     }
 
     @SuppressLint("RestrictedApi")
     fun updateWidget(context: Context, appWidgetIds: IntArray, action: WidgetManager.Action) {
+        println("BaseWidgetProvider.updateWidget: $action - ${appWidgetIds.contentToString()}")
         val inputData = Data(mapOf("appWidgetIds" to appWidgetIds, "action" to action.name))
-        val request = OneTimeWorkRequest.Builder(WidgetWorker::class.java).setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
-            .addTag(WidgetWorker.name).setInputData(inputData).build()
+        val workerClass = getWorkerClass(action)
+
+        val request = OneTimeWorkRequest.Builder(workerClass).setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
+            .addTag(workerClass.name).setInputData(inputData).build()
 
         val workManager = WorkManager.getInstance(context)
-        workManager.enqueueUniqueWork(WidgetWorker.name, ExistingWorkPolicy.APPEND, request)
+        workManager.enqueue(request)
+    }
+
+    private fun getWorkerClass(action: WidgetManager.Action) = when (action) {
+        WidgetManager.Action.UPDATE, WidgetManager.Action.UPDATE_ONLY_BASED_CURRENT_LOCATION -> WidgetWorker::class.java
+        WidgetManager.Action.DELETE -> WidgetDeleteWorker::class.java
     }
 }

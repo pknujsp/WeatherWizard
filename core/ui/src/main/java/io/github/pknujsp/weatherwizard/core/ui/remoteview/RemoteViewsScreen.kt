@@ -13,7 +13,7 @@ import io.github.pknujsp.weatherwizard.core.ui.theme.AppShapes
 
 
 @Composable
-fun RemoteViewsScreen(sampleRemoteViews: SampleViewCreator, units: CurrentUnits, modifier: Modifier = Modifier) {
+fun RemoteViewsScreen(sampleRemoteViews: DefaultRemoteViewCreator, units: CurrentUnits, modifier: Modifier = Modifier) {
     Surface(shape = AppShapes.large, modifier = modifier.padding(16.dp, 12.dp),
         shadowElevation = 4.dp) {
         AndroidView(modifier = Modifier.fillMaxWidth(), factory = { context ->

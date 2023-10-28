@@ -10,6 +10,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import dagger.hilt.android.AndroidEntryPoint
 import io.github.pknujsp.weatherwizard.core.model.widget.WidgetType
+import io.github.pknujsp.weatherwizard.feature.widget.extension.fromProvider
 import io.github.pknujsp.weatherwizard.feature.widget.summary.SummaryWeatherWidgetProvider
 
 @AndroidEntryPoint
@@ -34,9 +35,4 @@ class WidgetConfigureActivity : ComponentActivity() {
             }
         }
     }
-}
-
-fun WidgetType.Companion.fromProvider(componentName: ComponentName) = when (componentName.className) {
-    SummaryWeatherWidgetProvider::class.java.name -> WidgetType.SUMMARY
-    else -> WidgetType.CURRENT_CONDITION
 }

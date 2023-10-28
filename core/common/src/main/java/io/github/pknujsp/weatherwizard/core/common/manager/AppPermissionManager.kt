@@ -1,13 +1,10 @@
-package io.github.pknujsp.weatherwizard.core.common.permission
+package io.github.pknujsp.weatherwizard.core.common.manager
 
 import android.Manifest
 import android.app.Activity
 import android.content.Context
-import android.content.Intent
 import android.content.pm.PackageManager
-import android.net.Uri
 import android.os.Build
-import android.provider.Settings
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
@@ -32,25 +29,23 @@ import androidx.core.content.ContextCompat
 @Composable
 fun PermissionManager(
     permissionType: PermissionType,
-    onPermissionGranted: () -> Unit, onPermissionDenied: () -> Unit, onShouldShowRationale: () -> Unit,
-    onNeverAskAgain: () -> Unit, refreshKey: Int
+    onPermissionGranted: () -> Unit,
+    onPermissionDenied: () -> Unit,
+    onShouldShowRationale: () -> Unit,
+    onNeverAskAgain: () -> Unit,
+    refreshKey: Int
 ) {
     val context = LocalContext.current
     val activity = context as Activity
-    val permissionState by rememberUpdatedState(
-        arrayOf(onPermissionGranted, onPermissionDenied, onShouldShowRationale, onNeverAskAgain)
-    )
+    val permissionState by rememberUpdatedState(arrayOf(onPermissionGranted, onPermissionDenied, onShouldShowRationale, onNeverAskAgain))
 
-    val permissions = remember { permissionType.permissions }
     var requestPermission by remember { mutableStateOf(true) }
 
-    val permissionLauncher = rememberLauncherForActivityResult(
-        ActivityResultContracts.RequestMultiplePermissions()
-    ) { result ->
+    val permissionLauncher = rememberLauncherForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { result ->
         if (result.all { it.value }) {
             permissionState[0]()
         } else {
-            if (activity.shouldShowRequestPermissionRationale(permissions)) {
+            if (activity.shouldShowRequestPermissionRationale(permissionType)) {
                 permissionState[2]()
             } else {
                 if (requestPermission) {
@@ -63,13 +58,13 @@ fun PermissionManager(
     }
 
     LaunchedEffect(refreshKey) {
-        permissions.map { permission -> ContextCompat.checkSelfPermission(context, permission) }.run {
+        permissionType.permissions.map { permission -> ContextCompat.checkSelfPermission(context, permission) }.run {
             if (any { it != PackageManager.PERMISSION_GRANTED }) {
-                if (activity.shouldShowRequestPermissionRationale(permissions)) {
+                if (activity.shouldShowRequestPermissionRationale(permissionType)) {
                     permissionState[2]()
                 } else {
                     requestPermission = false
-                    permissionLauncher.launch(permissions)
+                    permissionLauncher.launch(permissionType.permissions)
                 }
             } else {
                 permissionState[0]()
@@ -79,31 +74,10 @@ fun PermissionManager(
 }
 
 
-@Composable
-fun OpenSettingsActivityForPermission(onReturnedFromSettings: () -> Unit) {
-    val context = LocalContext.current
-    val onReturnedFromSettingsState by rememberUpdatedState(onReturnedFromSettings)
-
-    val settingsLauncher = rememberLauncherForActivityResult(
-        ActivityResultContracts.StartActivityForResult()
-    ) {
-        onReturnedFromSettingsState()
-    }
-
-    LaunchedEffect(Unit) {
-        val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
-            val uri = Uri.fromParts("package", context.packageName, null)
-            data = uri
-        }
-        settingsLauncher.launch(intent)
-    }
-}
-
 enum class PermissionType(val permissions: Array<String>) {
-    LOCATION(arrayOf(
-        Manifest.permission.ACCESS_FINE_LOCATION,
-        Manifest.permission.ACCESS_COARSE_LOCATION
-    )),
+    LOCATION(
+        arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION),
+    ),
     STORAGE(
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             arrayOf(
@@ -118,25 +92,29 @@ enum class PermissionType(val permissions: Array<String>) {
                 Manifest.permission.READ_EXTERNAL_STORAGE,
                 Manifest.permission.WRITE_EXTERNAL_STORAGE,
             )
-        }
+        },
     ),
 
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
-    POST_NOTIFICATIONS(arrayOf(
-        Manifest.permission.POST_NOTIFICATIONS
-    )),
+    POST_NOTIFICATIONS(arrayOf(Manifest.permission.POST_NOTIFICATIONS)),
+
     @RequiresApi(Build.VERSION_CODES.S)
-    EXACT_ALARM_ON_SDK_31_AND_ABOVE(arrayOf(
-        Manifest.permission.SCHEDULE_EXACT_ALARM,
-    )),
+    EXACT_ALARM_ON_SDK_31_AND_ABOVE(
+        arrayOf(
+            Manifest.permission.SCHEDULE_EXACT_ALARM,
+        ),
+    ),
+
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
-    EXACT_ALARM_ON_SDK_33_AND_ABOVE(arrayOf(
-        Manifest.permission.USE_EXACT_ALARM,
-    ));
+    EXACT_ALARM_ON_SDK_33_AND_ABOVE(
+        arrayOf(
+            Manifest.permission.USE_EXACT_ALARM,
+        ),
+    );
 }
 
-private fun Activity.shouldShowRequestPermissionRationale(permissions: Array<String>): Boolean =
-    permissions.all { ActivityCompat.shouldShowRequestPermissionRationale(this, it) }
+fun Activity.shouldShowRequestPermissionRationale(permissionType: PermissionType): Boolean =
+    permissionType.permissions.all { ActivityCompat.shouldShowRequestPermissionRationale(this, it) }
 
 
 fun Context.checkSelfPermission(permissionType: PermissionType): Boolean =
