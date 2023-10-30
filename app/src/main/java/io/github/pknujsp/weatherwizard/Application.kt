@@ -13,6 +13,9 @@ class Application : Application(), Configuration.Provider {
     @Inject lateinit var workerFactory: HiltWorkerFactory
     @Inject lateinit var appSettingsRepository: SettingsRepository
 
+    override val workManagerConfiguration: Configuration
+        get() = Configuration.Builder().setWorkerFactory(workerFactory).build()
+
     override fun onCreate() {
         super.onCreate()
         MapInitializer.initialize(applicationContext)
@@ -21,10 +24,4 @@ class Application : Application(), Configuration.Provider {
         }
     }
 
-
-    override fun getWorkManagerConfiguration(): Configuration {
-        return Configuration.Builder()
-            .setWorkerFactory(workerFactory)
-            .build()
-    }
 }

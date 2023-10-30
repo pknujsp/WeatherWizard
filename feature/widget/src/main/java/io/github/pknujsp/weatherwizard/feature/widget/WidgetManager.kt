@@ -17,8 +17,6 @@ class WidgetManager private constructor(context: Context) {
     val widgetIds get() = appWidgetManager.installedProviders.flatMap { appWidgetManager.getAppWidgetIds(it.provider).toList() }
 
     companion object {
-        const val UPDATE_ALL_WIDGETS = "UPDATE_ALL_WIDGETS"
-        const val UPDATE_WIDGETS_BASE_CURRENT_LOCATION = "UPDATE_WIDGETS_BASE_CURRENT_LOCATION"
         private var instance: WidgetManager? = null
 
         fun getInstance(context: Context): WidgetManager {
@@ -37,6 +35,7 @@ class WidgetManager private constructor(context: Context) {
     }
 
     fun updateWidget(appWidgetId: Int, remoteView: RemoteViews, context: Context) {
+        println("WidgetManager.updateWidget: $appWidgetId")
         remoteView.setOnClickPendingIntent(remoteView.layoutId, getDialogPendingIntent(context))
         appWidgetManager.updateAppWidget(appWidgetId, remoteView)
     }
@@ -47,20 +46,21 @@ class WidgetManager private constructor(context: Context) {
         }, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
 
     fun getUpdatePendingIntent(context: Context, appWidgetIds: IntArray? = null): PendingIntent {
+        println("WidgetManager.getUpdatePendingIntent: ${appWidgetIds?.contentToString()}")
         return PendingIntent.getBroadcast(context,
             10000 + if (appWidgetIds == null) 10 else 0,
             Intent(context, SummaryWeatherWidgetProvider::class.java).apply {
                 if (appWidgetIds != null) {
-                    action = UPDATE_WIDGETS_BASE_CURRENT_LOCATION
+                    action = Action.UPDATE_WIDGETS_BASE_CURRENT_LOCATION.name
                     putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, appWidgetIds)
                 } else {
-                    action = UPDATE_ALL_WIDGETS
+                    action = Action.UPDATE_ALL_WIDGETS.name
                 }
             },
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
     }
 
     enum class Action {
-        UPDATE, DELETE, UPDATE_ONLY_BASED_CURRENT_LOCATION
+        UPDATE, DELETE, UPDATE_ONLY_BASED_CURRENT_LOCATION, UPDATE_ALL_WIDGETS, UPDATE_WIDGETS_BASE_CURRENT_LOCATION
     }
 }

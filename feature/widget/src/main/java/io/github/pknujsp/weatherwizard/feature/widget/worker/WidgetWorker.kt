@@ -92,9 +92,7 @@ class WidgetWorker @AssistedInject constructor(
                 }
 
                 val widgetStates = widgetRemoteViewModel.load(excludeAppWidgetIds, excludeLocationType)
-                widgetStates.forEach { widgetState ->
 
-                }
             }
 
             WidgetManager.Action.DELETE -> {
@@ -136,4 +134,5 @@ class WidgetWorker @AssistedInject constructor(
             widgetManager.updateWidget(it, remoteViews, context)
         }
     }
+
 }

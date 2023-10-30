@@ -57,6 +57,7 @@ fun WidgetConfigureScreen(navController: NavController, widgetId: Int, widgetTyp
 
     if (widget.onSaved) {
         LaunchedEffect(Unit) {
+            println("WidgetConfigureScreen: widget.onSaved")
             createWidgetAndFinish(activity, widget.id, widgetManager)
         }
     }
