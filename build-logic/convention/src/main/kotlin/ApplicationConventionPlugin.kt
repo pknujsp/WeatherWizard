@@ -27,7 +27,7 @@ class ApplicationConventionPlugin : Plugin<Project> {
                 "implementation"(libs.findBundle("compose.bom").get())
                 "debugImplementation"(libs.findBundle("compose.debug").get())
                 "implementation"(libs.findBundle("ktx").get())
-                "kapt"(libs.findLibrary("androidx.lifecycle.compilerKapt").get())
+                "kapt"(libs.findLibrary("androidx.lifecycle.compiler").get())
                 "implementation"(libs.findLibrary("material").get())
                 "implementation"(libs.findLibrary("androidx.startup").get())
 

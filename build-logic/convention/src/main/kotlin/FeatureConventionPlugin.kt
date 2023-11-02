@@ -28,7 +28,7 @@ class FeatureConventionPlugin : Plugin<Project> {
                 "implementation"(libs.findBundle("ktx").get())
                 "implementation"(libs.findLibrary("material").get())
                 "implementation"(libs.findLibrary("coil").get())
-                "kapt"(libs.findLibrary("androidx.lifecycle.compilerKapt").get())
+                "kapt"(libs.findLibrary("androidx.lifecycle.compiler").get())
 
                 "implementation"(project(":core:common"))
                 "implementation"(project(":core:model"))

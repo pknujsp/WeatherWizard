@@ -11,7 +11,6 @@ android {
     namespace = "io.github.pknujsp.weatherwizard.core.model"
     applyCompose(this)
 
-    @Suppress("UnstableApiUsage")
     buildFeatures {
         buildConfig = true
     }

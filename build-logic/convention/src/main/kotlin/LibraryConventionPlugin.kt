@@ -20,8 +20,8 @@ class LibraryConventionPlugin : Plugin<Project> {
             }
 
             dependencies {
-                "testImplementation"(libs.findBundle("test.local").get())
-                "androidTestImplementation"(libs.findBundle("test.android").get())
+                TEST_IMPLEMENTATION(libs.findBundle("test.local").get())
+                ANDROID_TEST_IMPLEMENTATION(libs.findBundle("test.android").get())
             }
         }
     }

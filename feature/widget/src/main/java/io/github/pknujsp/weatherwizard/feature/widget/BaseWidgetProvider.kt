@@ -12,9 +12,6 @@ import androidx.work.OutOfQuotaPolicy
 import androidx.work.WorkManager
 import io.github.pknujsp.weatherwizard.feature.widget.worker.WidgetDeleteWorker
 import io.github.pknujsp.weatherwizard.feature.widget.worker.WidgetWorker
-import kotlinx.coroutines.DelicateCoroutinesApi
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
 
 abstract class BaseWidgetProvider : AppWidgetProvider() {
 
@@ -55,7 +52,7 @@ abstract class BaseWidgetProvider : AppWidgetProvider() {
             OneTimeWorkRequest.Builder(workerClass).setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST).setInputData(inputData)
                 .build()
 
-        WorkManager.getInstance(context).enqueueUniqueWork(action.name, ExistingWorkPolicy.KEEP, request)
+        WorkManager.getInstance(context).enqueue(request)
     }
 
     private fun getWorkerClass(action: WidgetManager.Action) = when (action) {
