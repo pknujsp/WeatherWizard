@@ -1,5 +1,6 @@
 package io.github.pknujsp.weatherwizard.feature.widget.worker.model
 
+import io.github.pknujsp.core.annotation.KBindFunc
 import io.github.pknujsp.weatherwizard.core.common.util.DayNightCalculator
 import io.github.pknujsp.weatherwizard.core.model.UiModel
 import io.github.pknujsp.weatherwizard.core.model.coordinate.Coordinate
@@ -35,6 +36,7 @@ class EntityMapper(
     }
 }
 
+@KBindFunc
 sealed interface WidgetUiState {
     data object Failure : WidgetUiState
     data class Success(val uiModel: UiModel) : WidgetUiState

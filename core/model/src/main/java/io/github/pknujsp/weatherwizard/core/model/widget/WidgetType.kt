@@ -2,6 +2,7 @@ package io.github.pknujsp.weatherwizard.core.model.widget
 
 import android.content.ComponentName
 import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherDataMajorCategory
+import kotlin.reflect.KClass
 
 enum class WidgetType(val categories: Array<WeatherDataMajorCategory>) {
     CURRENT_CONDITION(arrayOf(WeatherDataMajorCategory.CURRENT_CONDITION)),

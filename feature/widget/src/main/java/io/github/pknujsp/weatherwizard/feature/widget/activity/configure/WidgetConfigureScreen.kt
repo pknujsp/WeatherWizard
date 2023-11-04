@@ -115,14 +115,7 @@ fun WidgetConfigureScreen(navController: NavController, widgetId: Int, widgetTyp
 
 
 fun createWidgetAndFinish(activity: Activity, widgetId: Int, widgetManager: WidgetManager) {
-    widgetManager.updateWidget(widgetId,
-        RemoteViews(activity.packageName, io.github.pknujsp.weatherwizard.feature.widget.R.layout.summary_weather_widget),
-        activity)
-
-    PendingIntent.getBroadcast(activity,
-        System.currentTimeMillis().toInt(),
-        Intent(activity, SummaryWeatherWidgetProvider::class.java),
-        PendingIntent.FLAG_ONE_SHOT or PendingIntent.FLAG_IMMUTABLE).send()
+    widgetManager.getInitPendingIntent(activity, intArrayOf(widgetId)).send()
 
     val resultValue = Intent()
     resultValue.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, widgetId)

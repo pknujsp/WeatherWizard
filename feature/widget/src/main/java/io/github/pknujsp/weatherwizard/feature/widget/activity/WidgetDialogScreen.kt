@@ -41,7 +41,7 @@ fun WidgetDialogScreen() {
                 startActivity(context, intent, null)
                 activity.finish()
             }, onClickRefresh = {
-                WidgetManager.getInstance(context).getUpdatePendingIntent(context).send()
+                WidgetManager.getInstance(context).getUpdatePendingIntent(context, WidgetManager.Action.UPDATE_ALL_WIDGETS).send()
             }, onClickCancel = {
                 activity.finish()
             })

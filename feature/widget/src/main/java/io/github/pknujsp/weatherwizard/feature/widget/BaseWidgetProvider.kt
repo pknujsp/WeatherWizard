@@ -6,7 +6,6 @@ import android.appwidget.AppWidgetProvider
 import android.content.Context
 import android.content.Intent
 import androidx.work.Data
-import androidx.work.ExistingWorkPolicy
 import androidx.work.OneTimeWorkRequest
 import androidx.work.OutOfQuotaPolicy
 import androidx.work.WorkManager
@@ -16,14 +15,15 @@ import io.github.pknujsp.weatherwizard.feature.widget.worker.WidgetWorker
 abstract class BaseWidgetProvider : AppWidgetProvider() {
 
     override fun onUpdate(context: Context, appWidgetManager: AppWidgetManager, appWidgetIds: IntArray) {
-        updateWidget(context, appWidgetIds, WidgetManager.Action.UPDATE)
+
     }
 
     override fun onDeleted(context: Context, appWidgetIds: IntArray) {
-        updateWidget(context, appWidgetIds, WidgetManager.Action.DELETE)
+        enqueueWork(context, WidgetManager.Action.DELETE, appWidgetIds)
     }
 
     override fun onEnabled(context: Context) {
+
     }
 
     override fun onDisabled(context: Context) {
@@ -33,19 +33,21 @@ abstract class BaseWidgetProvider : AppWidgetProvider() {
 
     override fun onReceive(context: Context, intent: Intent) {
         super.onReceive(context, intent)
-        intent.action?.let { action ->
-            if (action == WidgetManager.Action.UPDATE_ALL_WIDGETS.name) {
-                updateWidget(context, intArrayOf(), WidgetManager.Action.valueOf(action))
-            } else if (action == WidgetManager.Action.UPDATE_WIDGETS_BASE_CURRENT_LOCATION.name) {
-                updateWidget(context, intent.getIntArrayExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS)!!, WidgetManager.Action.valueOf(action))
+        println("BaseWidgetProvider.onReceive: ${intent.action}")
+
+        if (intent.action != null) {
+            val appWidgetIds = intent.extras?.getIntArray(AppWidgetManager.EXTRA_APPWIDGET_IDS)
+            WidgetManager.Action.entries.find { it.name == intent.action }?.let {
+                enqueueWork(context, it, appWidgetIds)
             }
         }
     }
 
     @SuppressLint("RestrictedApi")
-    fun updateWidget(context: Context, appWidgetIds: IntArray, action: WidgetManager.Action) {
-        println("BaseWidgetProvider.updateWidget: $action - ${appWidgetIds.contentToString()}")
-        val inputData = Data(mapOf("appWidgetIds" to appWidgetIds, "action" to action.name))
+    fun enqueueWork(context: Context, action: WidgetManager.Action, appWidgetIds: IntArray?) {
+        println("BaseWidgetProvider.updateWidget: $action")
+
+        val inputData = Data(mapOf("appWidgetIds" to (appWidgetIds ?: intArrayOf()), "action" to action.name))
         val workerClass = getWorkerClass(action)
 
         val request =
@@ -56,7 +58,8 @@ abstract class BaseWidgetProvider : AppWidgetProvider() {
     }
 
     private fun getWorkerClass(action: WidgetManager.Action) = when (action) {
-        WidgetManager.Action.UPDATE, WidgetManager.Action.UPDATE_ONLY_BASED_CURRENT_LOCATION, WidgetManager.Action.UPDATE_ALL_WIDGETS, WidgetManager.Action.UPDATE_WIDGETS_BASE_CURRENT_LOCATION -> WidgetWorker::class.java
+        WidgetManager.Action.UPDATE_ONLY_WITH_WIDGETS, WidgetManager.Action.INIT_NEW_WIDGET, WidgetManager.Action.UPDATE_ONLY_BASED_CURRENT_LOCATION, WidgetManager.Action.UPDATE_ALL_WIDGETS -> WidgetWorker::class.java
+
         WidgetManager.Action.DELETE -> WidgetDeleteWorker::class.java
     }
 }

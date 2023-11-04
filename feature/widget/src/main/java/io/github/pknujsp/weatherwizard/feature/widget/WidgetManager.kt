@@ -40,27 +40,34 @@ class WidgetManager private constructor(context: Context) {
         appWidgetManager.updateAppWidget(appWidgetId, remoteView)
     }
 
+    fun isBind(appWidgetId: Int) = appWidgetManager.getAppWidgetInfo(appWidgetId) != null
+
     private fun getDialogPendingIntent(context: Context) =
-        PendingIntent.getActivity(context, System.currentTimeMillis().toInt(), Intent(context, WidgetActivity::class.java).apply {
+        PendingIntent.getActivity(context, 10000, Intent(context, WidgetActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK
         }, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
 
-    fun getUpdatePendingIntent(context: Context, appWidgetIds: IntArray? = null): PendingIntent {
-        println("WidgetManager.getUpdatePendingIntent: ${appWidgetIds?.contentToString()}")
+    fun getUpdatePendingIntent(context: Context, action: Action, appWidgetIds: IntArray = intArrayOf()): PendingIntent {
         return PendingIntent.getBroadcast(context,
-            10000 + if (appWidgetIds == null) 10 else 0,
+            11000,
             Intent(context, SummaryWeatherWidgetProvider::class.java).apply {
-                if (appWidgetIds != null) {
-                    action = Action.UPDATE_WIDGETS_BASE_CURRENT_LOCATION.name
-                    putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, appWidgetIds)
-                } else {
-                    action = Action.UPDATE_ALL_WIDGETS.name
-                }
+                this.action = action.name
+                putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, appWidgetIds)
             },
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
     }
 
+    fun getInitPendingIntent(context: Context, appWidgetIds: IntArray): PendingIntent {
+        return PendingIntent.getBroadcast(context,
+            12000,
+            Intent(context, SummaryWeatherWidgetProvider::class.java).apply {
+                action = Action.INIT_NEW_WIDGET.name
+                putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, appWidgetIds)
+            },
+            PendingIntent.FLAG_ONE_SHOT or PendingIntent.FLAG_IMMUTABLE)
+    }
+
     enum class Action {
-        UPDATE, DELETE, UPDATE_ONLY_BASED_CURRENT_LOCATION, UPDATE_ALL_WIDGETS, UPDATE_WIDGETS_BASE_CURRENT_LOCATION
+        INIT_NEW_WIDGET, DELETE, UPDATE_ONLY_BASED_CURRENT_LOCATION, UPDATE_ALL_WIDGETS, UPDATE_ONLY_WITH_WIDGETS
     }
 }
