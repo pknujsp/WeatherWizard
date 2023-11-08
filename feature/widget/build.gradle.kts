@@ -15,6 +15,7 @@ dependencies {
     implementation(project(":core:data"))
     implementation(project(":feature:searchlocation"))
     implementation(project(":feature:main"))
+
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.bundles.workmanager)

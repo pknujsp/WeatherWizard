@@ -2,6 +2,7 @@ plugins {
     id("plugin.android.application")
     alias(libs.plugins.gms)
     alias(libs.plugins.firebase.crashlytics)
+    alias(libs.plugins.kotlin.android)
 }
 
 android {

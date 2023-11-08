@@ -1,19 +1,19 @@
 [versions]
 # kotlin
 
-kotlin = "1.9.10"
-kotlin_compiler_extension = "1.5.3"
+kotlin = "1.9.20"
+kotlin_compiler_extension = "1.5.4"
 kotlinx_coroutines = "1.7.3"
 kotlinx_serialization_json = "1.6.0"
-ksp = "1.9.10-1.0.13"
+ksp = "1.9.20-1.0.14"
 
-android_gradle_plugin = "8.2.0-rc01"
+android_gradle_plugin = "8.2.0-rc02"
 android_desugar_jdk_libs = "2.0.3"
 
 androidx_collection = "1.3.0"
 androidx_core = "1.12.0"
 androidx_activity = "1.8.0"
-androidx_navigation = "2.7.4"
+androidx_navigation = "2.7.5"
 androidx_compose_bom = "2023.10.01"
 androidx_lifecycle = "2.6.2"
 androidx_datastore = "1.0.0"
@@ -22,12 +22,11 @@ androidx_room = "2.6.0"
 androidx_appcompat = "1.6.1"
 androidx_preference_ktx = "1.2.1"
 androidx_compose_constraintlayout = "1.0.1"
-androidx_hilt = "2.48"
-androidx_hilt_compose_navigation = "1.0.0"
-androidx_hilt_work = "1.0.0"
+androidx_hilt = "1.1.0"
 androidx_windowmanager = "1.0.0"
 androidx_paging = "3.2.1"
 accompanist = "0.32.0"
+dagger = "2.48.1"
 
 androidx_test_espresso = "3.5.1"
 androidx_test_runner = "1.5.2"
@@ -38,7 +37,7 @@ androidx_test_junit = "1.1.5"
 androidx_test_truth = "1.5.0"
 androidx_test_orchestra = "1.4.2"
 androidx_test_arch = "2.2.0"
-androidx_test_hilt = "2.48"
+androidx_test_hilt = "2.48.1"
 androidx_start_up = "1.1.1"
 
 androidx_splashscreen = "1.0.1"
@@ -96,7 +95,7 @@ androidx-activity-compose = { group = "androidx.activity", name = "activity-comp
 androidx-lifecycle-viewmodel-compose = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-compose", version.ref = "androidx_lifecycle" }
 androidx-navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "androidx_navigation" }
 androidx-lifecycle-runtime-compose = { group = "androidx.lifecycle", name = "lifecycle-runtime-compose", version.ref = "androidx_lifecycle" }
-androidx-hilt-navigation-compose = { group = "androidx.hilt", name = "hilt-navigation-compose", version.ref = "androidx_hilt_compose_navigation" }
+androidx-hilt-navigation-compose = { module = "androidx.hilt:hilt-navigation-compose", version.ref = "androidx_hilt" }
 androidx-constraintlayout-compose = { module = "androidx.constraintlayout:constraintlayout-compose", version.ref = "androidx_compose_constraintlayout" }
 
 accompanist-permissions = { module = "com.google.accompanist:accompanist-permissions", version.ref = "accompanist" }
@@ -130,7 +129,7 @@ androidx-datastore = { module = "androidx.datastore:datastore", version.ref = "a
 androidx-lifecycle-runtime-ktx = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "androidx_lifecycle" }
 androidx-lifecycle-viewmodel-ktx = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-ktx", version.ref = "androidx_lifecycle" }
 androidx-lifecycle-viewmodel-savedstate = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-savedstate", version.ref = "androidx_lifecycle" }
-androidx-lifecycle-compilerKapt = { group = "androidx.lifecycle", name = "lifecycle-compiler", version.ref = "androidx_lifecycle" }
+androidx-lifecycle-compiler = { group = "androidx.lifecycle", name = "lifecycle-compiler", version.ref = "androidx_lifecycle" }
 
 androidx-navigation-testandroid = { group = "androidx.navigation", name = "navigation-testing", version.ref = "androidx_navigation" }
 androidx-navigation-fragment-ktx = { group = "androidx.navigation", name = "navigation-fragment-ktx", version.ref = "androidx_navigation" }
@@ -156,8 +155,6 @@ androidx-test-ext-junit-ktx = { module = "androidx.test.ext:junit-ktx", version.
 androidx-test-ext-truth = { module = "androidx.test.ext:truth", version.ref = "androidx_test_truth" }
 androidx-test-arch-core = { module = "androidx.arch.core:core-testing", version.ref = "androidx_test_arch" }
 
-
-
 # testImplementation------------------------------------------------------------------------------------------------------------------------
 mockito-core = { module = "org.mockito:mockito-core", version.ref = "mockit" }
 mockito-kotlin = { module = "org.mockito.kotlin:mockito-kotlin", version.ref = "mockitKotlin" }
@@ -169,17 +166,15 @@ google-dagger-hilt-testing = { module = "com.google.dagger:hilt-android-testing"
 firebase-crashlytics = { group = "com.google.firebase", name = "firebase-crashlytics-ktx", version.ref = "firebase_crashlytics" }
 firebase-analytics = { group = "com.google.firebase", name = "firebase-analytics-ktx", version.ref = "firebase_analytics" }
 
-# hilt------------------------------------------------------------------------------------------------------------------------
-androidx-hilt-android = { group = "com.google.dagger", name = "hilt-android", version.ref = "androidx_hilt" }
-androidx-hilt-android-testandroid = { group = "com.google.dagger", name = "hilt-android-testing", version.ref = "androidx_hilt" }
-androidx-hilt-compilerKapt = { group = "com.google.dagger", name = "hilt-android-compiler", version.ref = "androidx_hilt" }
+# dagger hilt------------------------------------------------------------------------------------------------------------------------
+dagger-hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "dagger" }
+dagger-hilt-android-testing = { module = "com.google.dagger:hilt-android-testing", version.ref = "dagger" }
+dagger-hilt-compiler = { module = "com.google.dagger:hilt-android-compiler", version.ref = "dagger" }
 
-dagger-compiler = { module = "com.google.dagger:dagger-compiler", version.ref = "androidx_hilt" }
-hilt-compiler = { module = "com.google.dagger:hilt-compiler", version.ref = "androidx_hilt" }
-
-# with WorkManager----------------------------------
-androidx-hilt-work = { group = "androidx.hilt", name = "hilt-work", version.ref = "androidx_hilt_work" }
-androidx-hilt-work-compilerKapt = { group = "androidx.hilt", name = "hilt-compiler", version.ref = "androidx_hilt_work" }
+# hilt --------------------------------------------------------------------------------------------------------------------------------
+androidx-hilt-common = { module = "androidx.hilt:hilt-common", version.ref = "androidx_hilt" }
+androidx-hilt-work = { module = "androidx.hilt:hilt-work", version.ref = "androidx_hilt" }
+androidx-hilt-work-compiler = { module = "androidx.hilt:hilt-compiler", version.ref = "androidx_hilt" }
 
 # kotlin--------------------------------------------------------------------------------------------------------------
 kotlin-stdlib-root = { group = "org.jetbrains.kotlin", name = "kotlin-stdlib", version.ref = "kotlin" }
@@ -256,7 +251,7 @@ navigation = ["androidx-navigation-ui-ktx", "androidx-navigation-dynamic", "andr
 
 kotlin = ["kotlin-stdlib-root", "kotlinx-coroutines-android", "kotlinx-serialization-json", "kotlin-reflection"]
 
-hilt = ["androidx-hilt-android", "androidx-hilt-work", "androidx-hilt-navigation-compose"]
+daggerhilt = ["dagger-hilt-android", "androidx-hilt-work", "androidx-hilt-navigation-compose", "androidx-hilt-common"]
 
 room = ["androidx-room-ktx", "androidx-room-runtime", "androidx-room-paging"]
 
@@ -277,7 +272,7 @@ android-library = { id = "com.android.library", version.ref = "android_gradle_pl
 
 firebase-crashlytics = { id = "com.google.firebase.crashlytics", version.ref = "firebase_crashlytics_gradle_plugin" }
 gms = { id = "com.google.gms.google-services", version.ref = "gms" }
-hilt = { id = "com.google.dagger.hilt.android", version.ref = "androidx_hilt" }
+daggerhilt = { id = "com.google.dagger.hilt.android", version.ref = "dagger" }
 
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }

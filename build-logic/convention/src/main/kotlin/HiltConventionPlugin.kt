@@ -12,12 +12,10 @@ class HiltConventionPlugin : Plugin<Project> {
             }
 
             dependencies {
-                "implementation"(libs.findBundle("hilt").get())
-                "kapt"(libs.findLibrary("androidx.hilt.work.compilerKapt").get())
-                "kapt"(libs.findLibrary("androidx.hilt.compilerKapt").get())
-                //"ksp"(libs.findLibrary("dagger.compiler").get())
-                //"ksp"(libs.findLibrary("hilt.compiler").get())
-                "androidTestImplementation"(libs.findLibrary("androidx.hilt.android.testandroid").get())
+                IMPLEMENTATION(libs.findBundle("daggerhilt").get())
+                KSP(libs.findLibrary("dagger.hilt.compiler").get())
+                KSP(libs.findLibrary("androidx.hilt.work.compiler").get())
+                ANDROID_TEST_IMPLEMENTATION(libs.findLibrary("dagger.hilt.android.testing").get())
             }
         }
     }

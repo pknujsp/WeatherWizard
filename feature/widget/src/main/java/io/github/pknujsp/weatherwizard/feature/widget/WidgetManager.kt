@@ -17,8 +17,6 @@ class WidgetManager private constructor(context: Context) {
     val widgetIds get() = appWidgetManager.installedProviders.flatMap { appWidgetManager.getAppWidgetIds(it.provider).toList() }
 
     companion object {
-        const val UPDATE_ALL_WIDGETS = "UPDATE_ALL_WIDGETS"
-        const val UPDATE_WIDGETS_BASE_CURRENT_LOCATION = "UPDATE_WIDGETS_BASE_CURRENT_LOCATION"
         private var instance: WidgetManager? = null
 
         fun getInstance(context: Context): WidgetManager {
@@ -37,30 +35,39 @@ class WidgetManager private constructor(context: Context) {
     }
 
     fun updateWidget(appWidgetId: Int, remoteView: RemoteViews, context: Context) {
+        println("WidgetManager.updateWidget: $appWidgetId")
         remoteView.setOnClickPendingIntent(remoteView.layoutId, getDialogPendingIntent(context))
         appWidgetManager.updateAppWidget(appWidgetId, remoteView)
     }
 
+    fun isBind(appWidgetId: Int) = appWidgetManager.getAppWidgetInfo(appWidgetId) != null
+
     private fun getDialogPendingIntent(context: Context) =
-        PendingIntent.getActivity(context, System.currentTimeMillis().toInt(), Intent(context, WidgetActivity::class.java).apply {
+        PendingIntent.getActivity(context, 10000, Intent(context, WidgetActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK
         }, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
 
-    fun getUpdatePendingIntent(context: Context, appWidgetIds: IntArray? = null): PendingIntent {
+    fun getUpdatePendingIntent(context: Context, action: Action, appWidgetIds: IntArray = intArrayOf()): PendingIntent {
         return PendingIntent.getBroadcast(context,
-            10000 + if (appWidgetIds == null) 10 else 0,
+            11000,
             Intent(context, SummaryWeatherWidgetProvider::class.java).apply {
-                if (appWidgetIds != null) {
-                    action = UPDATE_WIDGETS_BASE_CURRENT_LOCATION
-                    putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, appWidgetIds)
-                } else {
-                    action = UPDATE_ALL_WIDGETS
-                }
+                this.action = action.name
+                putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, appWidgetIds)
             },
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
     }
 
+    fun getInitPendingIntent(context: Context, appWidgetIds: IntArray): PendingIntent {
+        return PendingIntent.getBroadcast(context,
+            12000,
+            Intent(context, SummaryWeatherWidgetProvider::class.java).apply {
+                action = Action.INIT_NEW_WIDGET.name
+                putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, appWidgetIds)
+            },
+            PendingIntent.FLAG_ONE_SHOT or PendingIntent.FLAG_IMMUTABLE)
+    }
+
     enum class Action {
-        UPDATE, DELETE, UPDATE_ONLY_BASED_CURRENT_LOCATION
+        INIT_NEW_WIDGET, DELETE, UPDATE_ONLY_BASED_CURRENT_LOCATION, UPDATE_ALL_WIDGETS, UPDATE_ONLY_WITH_WIDGETS
     }
 }

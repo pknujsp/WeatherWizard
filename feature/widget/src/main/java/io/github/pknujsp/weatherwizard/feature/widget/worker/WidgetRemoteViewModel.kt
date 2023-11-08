@@ -40,11 +40,9 @@ class WidgetRemoteViewModel @Inject constructor(
 
     var currentLocation: Coordinate? = null
 
-    inline fun <reified T : LocationType> widgetIdsByLocationType(): IntArray {
-        return widgetEntities.filter { it.content.getLocationType() is T }.map { it.id }.toIntArray()
+    inline fun <reified T : LocationType> widgetIdsByLocationType(): List<Int> {
+        return widgetEntities.filter { it.content.getLocationType() is T }.map { it.id }
     }
-
-    fun isInitializng(appWidgetIds: IntArray): Boolean = widgetEntities.isEmpty() or !widgetEntities.any { it.id in appWidgetIds }
 
     suspend fun init() {
         widgetEntities = widgetRepository.getAll().first()
@@ -53,8 +51,12 @@ class WidgetRemoteViewModel @Inject constructor(
     suspend fun load(
         excludeAppWidgetIds: List<Int>, excludeLocationType: LocationType? = null
     ): List<WidgetUiModel<WidgetUiState>> {
-        widgetEntities = widgetEntities.filter { entity -> entity.id !in excludeAppWidgetIds }
         excludeLocationType?.let { widgetEntities = widgetEntities.filter { entity -> entity.content.getLocationType() != it } }
+        if (excludeAppWidgetIds.isNotEmpty()) {
+            widgetEntities = widgetEntities.filter { entity -> entity.id !in excludeAppWidgetIds }
+            deleteWidgets(excludeAppWidgetIds.toIntArray())
+        }
+
         return loadWeatherData()
     }
 
@@ -108,8 +110,8 @@ class WidgetRemoteViewModel @Inject constructor(
             val requestHeader = request.headerMap[info.third]!!
             val address = request.address
 
-            requestHeader.appWidgetIds.map { (_, appWidgetId) ->
-                WidgetUiModel(appWidgetId, address, updatedTime, widgetUiState)
+            requestHeader.appWidgetIds.map { (widgetType, appWidgetId) ->
+                WidgetUiModel(widgetType, appWidgetId, address, updatedTime, widgetUiState)
             }
         }
     }

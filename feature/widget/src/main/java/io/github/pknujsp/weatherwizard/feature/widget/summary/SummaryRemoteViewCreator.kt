@@ -8,13 +8,51 @@ import io.github.pknujsp.weatherwizard.feature.widget.R
 import io.github.pknujsp.weatherwizard.feature.widget.remoteview.WidgetRemoteViewsCreator
 
 class SummaryRemoteViewCreator : WidgetRemoteViewsCreator<SummaryUiModel> {
-    override fun createContentView(model: SummaryUiModel, context: Context): RemoteViews {
-        TODO("Not yet implemented")
+    override fun createContentView(
+        model: SummaryUiModel, context: Context
+    ): RemoteViews {
+        return RemoteViews(context.packageName, R.layout.summary_weather_widget).let { content ->
+            model.currentWeather.let { currentWeather ->
+                content.setTextViewText(R.id.temperature, currentWeather.temperature)
+                content.setTextViewText(R.id.feels_like_temperature, currentWeather.feelsLikeTemperature)
+                content.setImageViewResource(R.id.weather_icon, currentWeather.weatherIcon)
+            }
+            model.hourlyForecast.map {
+                RemoteViews(context.packageName, R.layout.view_hourly_forecast_item).apply {
+                    setTextViewText(R.id.time, it.dateTime)
+                    setImageViewResource(R.id.weather_icon, it.weatherIcon)
+                    setTextViewText(R.id.temperature, it.temperature)
+                }
+            }.let { remoteViews ->
+                remoteViews.subList(0, 6).forEach {
+                    content.addView(R.id.hourly_forecast_row_1, it)
+                }
+                remoteViews.subList(6, 12).forEach {
+                    content.addView(R.id.hourly_forecast_row_2, it)
+                }
+            }
+
+            model.dailyForecast.forEach {
+                content.addView(R.id.daily_forecast, RemoteViews(context.packageName, R.layout.view_daily_forecast_item).apply {
+                    setTextViewText(R.id.date, it.date)
+                    it.weatherIcons.forEach { icon ->
+                        addView(R.id.weather_icons, RemoteViews(context.packageName, R.layout.view_weather_icon_item).apply {
+                            setImageViewResource(R.id.weather_icon, icon)
+                        })
+                    }
+                    setTextViewText(R.id.temperature, it.temperature)
+                })
+            }
+
+            RemoteViewCreator.createBaseView(context, RemoteViewCreator.WIDGET).apply {
+                addView(io.github.pknujsp.weatherwizard.core.ui.R.id.remote_views_root_container, content)
+            }
+        }
     }
+
 
     override fun createSampleView(context: Context, units: CurrentUnits): RemoteViews {
         return RemoteViews(context.packageName, R.layout.summary_weather_widget).let {
-
             RemoteViewCreator.createBaseView(context, RemoteViewCreator.WIDGET).apply {
                 addView(io.github.pknujsp.weatherwizard.core.ui.R.id.remote_views_root_container, it)
             }

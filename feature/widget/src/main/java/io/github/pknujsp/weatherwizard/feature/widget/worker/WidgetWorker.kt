@@ -2,6 +2,7 @@ package io.github.pknujsp.weatherwizard.feature.widget.worker
 
 import android.app.PendingIntent
 import android.content.Context
+import android.widget.RemoteViews
 import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.ForegroundInfo
@@ -12,6 +13,7 @@ import io.github.pknujsp.weatherwizard.core.common.FeatureType
 import io.github.pknujsp.weatherwizard.core.common.manager.AppLocationManager
 import io.github.pknujsp.weatherwizard.core.common.manager.FeatureState
 import io.github.pknujsp.weatherwizard.core.common.manager.checkFeatureStateAndUpdateWidgets
+import io.github.pknujsp.weatherwizard.core.model.UiModel
 import io.github.pknujsp.weatherwizard.core.model.favorite.LocationType
 import io.github.pknujsp.weatherwizard.core.model.notification.enums.NotificationType
 import io.github.pknujsp.weatherwizard.core.model.widget.WidgetType
@@ -20,7 +22,13 @@ import io.github.pknujsp.weatherwizard.core.ui.feature.FeatureStateRemoteViewCre
 import io.github.pknujsp.weatherwizard.core.ui.notification.AppNotificationManager
 import io.github.pknujsp.weatherwizard.core.ui.remoteview.RemoteViewCreator
 import io.github.pknujsp.weatherwizard.core.ui.remoteview.RetryRemoteViewCreator
+import io.github.pknujsp.weatherwizard.feature.widget.R
 import io.github.pknujsp.weatherwizard.feature.widget.WidgetManager
+import io.github.pknujsp.weatherwizard.feature.widget.remoteview.WidgetRemoteViewsCreator
+import io.github.pknujsp.weatherwizard.feature.widget.worker.model.WidgetUiState
+import io.github.pknujsp.weatherwizard.feature.widget.worker.model.onFailure
+import io.github.pknujsp.weatherwizard.feature.widget.worker.model.onSuccess
+import kotlin.properties.Delegates
 
 
 @HiltWorker
@@ -48,62 +56,69 @@ class WidgetWorker @AssistedInject constructor(
     }
 
     override suspend fun doWork(): Result {
-        println("WidgetWorker.doWork-----------------------")
+        println("WidgetWorker.doWork----------------------- ${inputData.keyValueMap}")
 
         val action = WidgetManager.Action.valueOf(inputData.getString("action")!!)
         val appWidgetIds = inputData.getIntArray("appWidgetIds")!!
 
-        when (action) {
-            WidgetManager.Action.UPDATE, WidgetManager.Action.UPDATE_ONLY_BASED_CURRENT_LOCATION -> {
-                widgetRemoteViewModel.init()
+        widgetRemoteViewModel.init()
 
-                if (appWidgetIds.isNotEmpty() and widgetRemoteViewModel.isInitializng(appWidgetIds)) {
-                    println("WidgetWorker.doWork: isInitializng")
-                    return Result.success()
-                }
-                if (!checkFeatureStateAndUpdateWidgets(requiredFeatures, appWidgetIds)) {
-                    println("WidgetWorker.doWork: checkFeatureStateAndUpdateWidgets")
-                    return Result.success()
-                }
+        if (!checkFeatureStateAndUpdateWidgets(requiredFeatures, appWidgetIds)) {
+            println("WidgetWorker: checkFeatureStateAndUpdateWidgets")
+            return Result.success()
+        }
 
-                val excludeAppWidgetIds = mutableListOf<Int>()
-                var excludeAppWidgetType: WidgetType? = null
-                var excludeLocationType: LocationType? = null
+        val excludeAppWidgetIds = mutableListOf<Int>()
+        var excludeLocationType: LocationType? = null
 
-                widgetRemoteViewModel.widgetIdsByLocationType<LocationType.CurrentLocation>().let {
-                    if (action == WidgetManager.Action.UPDATE_ONLY_BASED_CURRENT_LOCATION) {
-                        excludeLocationType = LocationType.CurrentLocation
+        if (action == WidgetManager.Action.UPDATE_ONLY_BASED_CURRENT_LOCATION) {
+            excludeLocationType = LocationType.CustomLocation()
+        }
+
+        widgetRemoteViewModel.widgetEntities.forEach {
+            if (!widgetManager.isBind(it.id)) {
+                excludeAppWidgetIds.add(it.id)
+            }
+        }
+
+        widgetRemoteViewModel.widgetIdsByLocationType<LocationType.CurrentLocation>().let {
+            if (it.isNotEmpty() and !checkFeatureStateAndUpdateWidgets(arrayOf(FeatureType.LOCATION_PERMISSION,
+                    FeatureType.LOCATION_SERVICE), it.toIntArray())) {
+                when (val currentLocation = gpsLocationManager.getCurrentLocation()) {
+                    is AppLocationManager.CurrentLocationResult.Success -> {
+                        widgetRemoteViewModel.currentLocation = io.github.pknujsp.weatherwizard.core.model.coordinate.Coordinate(
+                            currentLocation.location.latitude,
+                            currentLocation.location.longitude)
                     }
 
-                    if (!checkFeatureStateAndUpdateWidgets(arrayOf(FeatureType.LOCATION_PERMISSION, FeatureType.LOCATION_SERVICE), it)) {
-                        when (val currentLocation = gpsLocationManager.getCurrentLocation()) {
-                            is AppLocationManager.CurrentLocationResult.Success -> {
-                                widgetRemoteViewModel.currentLocation = io.github.pknujsp.weatherwizard.core.model.coordinate.Coordinate(
-                                    currentLocation.location.latitude,
-                                    currentLocation.location.longitude)
-                            }
-
-                            is AppLocationManager.CurrentLocationResult.Failure -> {
-                                excludeAppWidgetIds.addAll(it.toList())
-                                updateRetryWidgets(it, widgetManager.getUpdatePendingIntent(context, it))
-                            }
-                        }
+                    is AppLocationManager.CurrentLocationResult.Failure -> {
+                        excludeAppWidgetIds.addAll(it.toList())
+                        updateRetryWidgets(it,
+                            widgetManager.getUpdatePendingIntent(context, WidgetManager.Action.UPDATE_ONLY_BASED_CURRENT_LOCATION))
                     }
                 }
+            }
+        }
 
-                val widgetStates = widgetRemoteViewModel.load(excludeAppWidgetIds, excludeLocationType)
-                widgetStates.forEach { widgetState ->
+        val widgetStates = widgetRemoteViewModel.load(excludeAppWidgetIds, excludeLocationType)
+        val failedWidgetIds = widgetStates.filter { it.state is WidgetUiState.Failure }.map { it.appWidgetId }.toIntArray()
+        val retryPendingIntent =
+            widgetManager.getUpdatePendingIntent(context, WidgetManager.Action.UPDATE_ONLY_WITH_WIDGETS, failedWidgetIds)
 
-                }
+        var remoteView: RemoteViews by Delegates.notNull()
+
+        widgetStates.forEach { model ->
+            model.state.onSuccess {
+                val creator: WidgetRemoteViewsCreator<UiModel> = widgetManager.remoteViewCreator(model.widgetType)
+                remoteView = creator.createContentView(it, context)
+            }.onFailure {
+                remoteView = retryRemoteViewCreator.createView(context,
+                    context.getString(io.github.pknujsp.weatherwizard.core.common.R.string.refresh),
+                    retryPendingIntent,
+                    RemoteViewCreator.WIDGET)
             }
 
-            WidgetManager.Action.DELETE -> {
-                widgetRemoteViewModel.deleteWidgets(appWidgetIds)
-            }
-
-            else -> {
-
-            }
+            widgetManager.updateWidget(model.appWidgetId, remoteView, context)
         }
 
         return Result.success()
@@ -127,7 +142,7 @@ class WidgetWorker @AssistedInject constructor(
         }
     }
 
-    private fun updateRetryWidgets(widgetIds: IntArray, pendingIntent: PendingIntent) {
+    private fun updateRetryWidgets(widgetIds: List<Int>, pendingIntent: PendingIntent) {
         val remoteViews = retryRemoteViewCreator.createView(context,
             context.getString(io.github.pknujsp.weatherwizard.core.common.R.string.again),
             pendingIntent,
@@ -136,4 +151,5 @@ class WidgetWorker @AssistedInject constructor(
             widgetManager.updateWidget(it, remoteViews, context)
         }
     }
+
 }
