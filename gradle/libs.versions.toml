@@ -1,11 +1,11 @@
 [versions]
 # kotlin
 
-kotlin = "1.9.10"
-kotlin_compiler_extension = "1.5.3"
+kotlin = "1.9.20"
+kotlin_compiler_extension = "1.5.4"
 kotlinx_coroutines = "1.7.3"
 kotlinx_serialization_json = "1.6.0"
-ksp = "1.9.10-1.0.13"
+ksp = "1.9.20-1.0.14"
 
 android_gradle_plugin = "8.2.0-rc02"
 android_desugar_jdk_libs = "2.0.3"
