@@ -40,7 +40,7 @@ class SummaryUiModel(
     }
 
     val dailyForecast = dailyForecastEntity.dayItems.subList(0, 4).map {
-        io.github.pknujsp.weatherwizard.core.model.notification.daily.forecast.DailyNotificationForecastUiModel.DailyForecast(temperature = "${
+        DailyForecast(temperature = "${
             it.minTemperature.convertUnit(units.temperatureUnit)
         } / ${
             it.maxTemperature.convertUnit(units.temperatureUnit)
@@ -61,22 +61,4 @@ class SummaryUiModel(
     data class DailyForecast(
         val temperature: String, val weatherIcons: List<Int>, val date: String
     )
-}
-
-fun ResponseEntity.toSummaryUiModel(units: CurrentUnits, dayNightCalculator: DayNightCalculator, now: ZonedDateTime): ResponseState {
-    return if (isSuccessful) {
-        val currentWeatherEntity = toEntity<CurrentWeatherEntity>()
-        val hourlyForecastEntity = toEntity<HourlyForecastEntity>()
-        val dailyForecastEntity = toEntity<DailyForecastEntity>()
-
-        io.github.pknujsp.weatherwizard.core.domain.weather.ResponseState.Success(SummaryUiModel(currentWeatherEntity,
-            hourlyForecastEntity,
-            dailyForecastEntity,
-            units,
-            dayNightCalculator,
-            now))
-    } else {
-        io.github.pknujsp.weatherwizard.core.domain.weather.ResponseState.Failure
-    }
-
 }

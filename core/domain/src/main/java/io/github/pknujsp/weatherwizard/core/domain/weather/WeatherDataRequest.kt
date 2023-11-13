@@ -6,7 +6,7 @@ import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherDataProv
 import java.time.ZonedDateTime
 import java.util.concurrent.atomic.AtomicLong
 
-class RequestEntity(
+class WeatherDataRequest(
     val requestedTime: ZonedDateTime = ZonedDateTime.now(),
 ) {
     private val sameCoordinateMap: MutableMap<Coordinate, SameCoordinate> = mutableMapOf()

@@ -58,8 +58,7 @@ class WidgetWorker @AssistedInject constructor(
 
         val action = WidgetManager.Action.valueOf(inputData.getString("action")!!)
         val appWidgetIds = inputData.getIntArray("appWidgetIds")!!
-
-        widgetRemoteViewModel.init()
+        val widgets = widgetRemoteViewModel.loadWidgets()
 
         if (!checkFeatureStateAndUpdateWidgets(requiredFeatures, appWidgetIds)) {
             println("WidgetWorker: checkFeatureStateAndUpdateWidgets")
@@ -73,13 +72,13 @@ class WidgetWorker @AssistedInject constructor(
             excludeLocationType = LocationType.CustomLocation()
         }
 
-        widgetRemoteViewModel.widgetEntities.forEach {
+        widgets.forEach {
             if (!widgetManager.isBind(it.id)) {
                 excludeAppWidgetIds.add(it.id)
             }
         }
 
-        widgetRemoteViewModel.widgetIdsByLocationType<LocationType.CurrentLocation>().let {
+        widgetRemoteViewModel.widgetIdsByLocationType(LocationType.CurrentLocation).let {
             if (it.isNotEmpty() and !checkFeatureStateAndUpdateWidgets(arrayOf(FeatureType.LOCATION_PERMISSION,
                     FeatureType.LOCATION_SERVICE), it.toIntArray())) {
                 when (val currentLocation = gpsLocationManager.getCurrentLocation()) {
@@ -108,7 +107,9 @@ class WidgetWorker @AssistedInject constructor(
         widgetStates.forEach { model ->
             model.state.onSuccess {
                 val creator: WidgetRemoteViewsCreator<UiModel> = widgetManager.remoteViewCreator(model.widgetType)
-                remoteView = creator.createContentView(it, context)
+                val uiModel: UiModel = model.map(widgetRemoteViewModel.units)
+
+                remoteView = creator.createContentView(uiModel, context)
             }.onFailure {
                 remoteView = retryRemoteViewCreator.createView(context,
                     context.getString(io.github.pknujsp.weatherwizard.core.common.R.string.refresh),
