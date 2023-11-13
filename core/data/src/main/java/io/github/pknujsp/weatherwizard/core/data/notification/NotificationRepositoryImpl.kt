@@ -56,13 +56,14 @@ class NotificationRepositoryImpl @Inject constructor(
         }
 
     override suspend fun getDailyNotification(id: Long): NotificationEntity<DailyNotificationInfoEntity> =
-        if(id == -1L){
+        if (id == -1L) {
             NotificationEntity(-1L, true, DailyNotificationInfoEntity())
-        }else{
+        } else {
             notificationLocalDataSource.getById(id).let {
                 NotificationEntity(it.id, it.enabled, jsonParser.parse(it.content))
             }
         }
+
     override suspend fun setDailyNotificationInfo(entity: NotificationEntity<DailyNotificationInfoEntity>): Long {
         return notificationLocalDataSource.updateNotification(
             NotificationDto(

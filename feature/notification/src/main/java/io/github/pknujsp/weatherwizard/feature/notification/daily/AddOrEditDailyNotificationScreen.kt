@@ -25,7 +25,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import io.github.pknujsp.weatherwizard.core.model.favorite.LocationType
-import io.github.pknujsp.weatherwizard.core.model.notification.daily.DailyNotificationInfo
+import io.github.pknujsp.weatherwizard.core.model.notification.daily.DailySavedNotificationInfo
 import io.github.pknujsp.weatherwizard.core.model.notification.enums.DailyNotificationType
 import io.github.pknujsp.weatherwizard.core.model.onSuccess
 import io.github.pknujsp.weatherwizard.core.ui.BottomSheetSettingItem
@@ -114,7 +114,7 @@ fun AddOrEditDailyNotificationScreen(navController: NavController) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TimeItem(entity: DailyNotificationInfo) {
+fun TimeItem(entity: DailySavedNotificationInfo) {
     var time by remember { mutableStateOf(entity.hour to entity.minute) }
     var expanded by remember { mutableStateOf(false) }
 
@@ -160,7 +160,7 @@ fun NotificationTypeItem(selectedOption: DailyNotificationType, onSelectedItem: 
         enums = types)
 }
 
-private fun scheduleAlarm(context: Context, info: DailyNotificationInfo) {
+private fun scheduleAlarm(context: Context, info: DailySavedNotificationInfo) {
     NotificationAlarmManager(context).run {
         if (info.enabled) {
             if (info.id != -1L) {

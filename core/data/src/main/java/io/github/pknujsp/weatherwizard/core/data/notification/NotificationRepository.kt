@@ -12,7 +12,7 @@ interface NotificationRepository {
     suspend fun setOngoingNotificationInfo(ongoingNotificationInfoEntity: NotificationEntity<OngoingNotificationInfoEntity>): Long
 
     fun getDailyNotifications(): Flow<List<NotificationEntity<DailyNotificationInfoEntity>>>
-    suspend fun getDailyNotification(id:Long): NotificationEntity<DailyNotificationInfoEntity>
+    suspend fun getDailyNotification(id: Long): NotificationEntity<DailyNotificationInfoEntity>
 
     suspend fun setDailyNotificationInfo(entity: NotificationEntity<DailyNotificationInfoEntity>): Long
 

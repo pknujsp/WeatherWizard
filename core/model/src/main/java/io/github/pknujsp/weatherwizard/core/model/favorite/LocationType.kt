@@ -11,11 +11,10 @@ sealed interface LocationType : IEnum {
         override val key: Int = 0
     }
 
-    data class CustomLocation(val locationId: Long = 0) : LocationType {
+    data class CustomLocation(
+        val locationId: Long = 0, val latitude: Double = 0.0, val longitude: Double = 0.0, val address: String = ""
+    ) : LocationType {
 
-        var latitude: Double = 0.0
-        var longitude: Double = 0.0
-        var address: String = ""
         override val title: Int get() = io.github.pknujsp.weatherwizard.core.common.R.string.custom_location
         override val key: Int = 1
     }

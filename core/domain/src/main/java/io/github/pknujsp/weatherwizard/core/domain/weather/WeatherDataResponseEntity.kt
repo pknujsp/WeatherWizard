@@ -1,5 +1,6 @@
 package io.github.pknujsp.weatherwizard.core.domain.weather
 
+import io.github.pknujsp.core.annotation.KBindFunc
 import io.github.pknujsp.weatherwizard.core.model.EntityModel
 import io.github.pknujsp.weatherwizard.core.model.coordinate.Coordinate
 import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherDataMajorCategory
@@ -10,6 +11,7 @@ data class ResponseEntity(
 ) : EntityModel {
     inline fun <reified T : EntityModel> toEntity(): T = responses.first { it is T } as T
 }
+
 
 sealed interface ResponseState {
     val requestId: Long

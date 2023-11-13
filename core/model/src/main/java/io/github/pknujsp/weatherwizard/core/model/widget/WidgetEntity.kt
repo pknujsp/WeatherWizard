@@ -17,11 +17,11 @@ class WidgetEntity(
         @SerialName("latitude") val latitude: Double = 0.0,
         @SerialName("longitude") val longitude: Double = 0.0,
         @SerialName("addressName") val addressName: String = "",
-        @SerialName("locationType") private val locationTypeKey: Int = LocationType.CurrentLocation.key,
-        @SerialName("weatherProvider") private val weatherProviderKey: Int = WeatherDataProvider.default.key,
+        @SerialName("locationTypeKey") private val locationTypeKey: Int = LocationType.CurrentLocation.key,
+        @SerialName("weatherProviderKey") private val weatherProviderKey: Int = WeatherDataProvider.default.key,
     ) : EntityModel {
         val locationType = LocationType.fromKey(locationTypeKey)
         val weatherProvider = WeatherDataProvider.fromKey(weatherProviderKey)
-        val coordinate = Coordinate(latitude, longitude)
+        val coordinate get() = Coordinate(latitude, longitude)
     }
 }

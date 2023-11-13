@@ -8,10 +8,9 @@ import io.github.pknujsp.weatherwizard.core.data.notification.NotificationReposi
 import io.github.pknujsp.weatherwizard.core.data.settings.SettingsRepository
 import io.github.pknujsp.weatherwizard.core.model.UiState
 import io.github.pknujsp.weatherwizard.core.model.notification.NotificationEntity
-import io.github.pknujsp.weatherwizard.core.model.notification.daily.DailyNotificationInfo
+import io.github.pknujsp.weatherwizard.core.model.notification.daily.DailySavedNotificationInfo
 import io.github.pknujsp.weatherwizard.core.model.notification.daily.DailyNotificationInfoEntity
 import io.github.pknujsp.weatherwizard.core.model.onSuccess
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -26,14 +25,14 @@ class AddOrEditDailyNotificationViewModel @Inject constructor(
 
     val units = appSettingsRepository.currentUnits
 
-    private val _notification = MutableStateFlow<UiState<DailyNotificationInfo>>(UiState.Loading)
-    val notification: StateFlow<UiState<DailyNotificationInfo>> = _notification
+    private val _notification = MutableStateFlow<UiState<DailySavedNotificationInfo>>(UiState.Loading)
+    val notification: StateFlow<UiState<DailySavedNotificationInfo>> = _notification
 
     init {
         viewModelScope.launch {
             val id = savedStateHandle.get<Long>("id")!!
             val info = notificationRepository.getDailyNotification(id).let {
-                DailyNotificationInfo(
+                DailySavedNotificationInfo(
                     latitude = it.data.latitude,
                     longitude = it.data.longitude,
                     hour = it.data.hour,

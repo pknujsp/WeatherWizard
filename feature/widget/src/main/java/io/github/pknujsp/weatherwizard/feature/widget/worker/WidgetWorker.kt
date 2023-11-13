@@ -24,8 +24,6 @@ import io.github.pknujsp.weatherwizard.core.ui.remoteview.RetryRemoteViewCreator
 import io.github.pknujsp.weatherwizard.feature.widget.WidgetManager
 import io.github.pknujsp.weatherwizard.feature.widget.remoteview.WidgetRemoteViewsCreator
 import io.github.pknujsp.weatherwizard.core.domain.weather.ResponseState
-import io.github.pknujsp.weatherwizard.feature.widget.worker.model.onFailure
-import io.github.pknujsp.weatherwizard.feature.widget.worker.model.onSuccess
 import kotlin.properties.Delegates
 
 
@@ -105,16 +103,24 @@ class WidgetWorker @AssistedInject constructor(
         var remoteView: RemoteViews by Delegates.notNull()
 
         widgetStates.forEach { model ->
-            model.state.onSuccess {
-                val creator: WidgetRemoteViewsCreator<UiModel> = widgetManager.remoteViewCreator(model.widgetType)
-                val uiModel: UiModel = model.map(widgetRemoteViewModel.units)
+            when (model.state) {
+                is ResponseState.Success -> {
+                    val creator: WidgetRemoteViewsCreator<UiModel> = widgetManager.remoteViewCreator(model.widgetType)
+                    val uiModel: UiModel = model.map(widgetRemoteViewModel.units)
 
-                remoteView = creator.createContentView(uiModel, context)
-            }.onFailure {
-                remoteView = retryRemoteViewCreator.createView(context,
-                    context.getString(io.github.pknujsp.weatherwizard.core.common.R.string.refresh),
-                    retryPendingIntent,
-                    RemoteViewCreator.WIDGET)
+                    remoteView = creator.createContentView(uiModel, context)
+                }
+
+                is ResponseState.Failure -> {
+                    remoteView = retryRemoteViewCreator.createView(context,
+                        context.getString(io.github.pknujsp.weatherwizard.core.common.R.string.refresh),
+                        retryPendingIntent,
+                        RemoteViewCreator.WIDGET)
+                }
+
+                is ResponseState.PartiallySuccess -> {
+
+                }
             }
 
             widgetManager.updateWidget(model.appWidgetId, remoteView, context)

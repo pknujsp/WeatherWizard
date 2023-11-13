@@ -5,12 +5,12 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import io.github.pknujsp.weatherwizard.core.model.favorite.LocationType
-import io.github.pknujsp.weatherwizard.core.model.notification.NotificationUiModel
+import io.github.pknujsp.weatherwizard.core.model.notification.SavedNotificationValuesEntity
 import io.github.pknujsp.weatherwizard.core.model.notification.enums.DailyNotificationType
 import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherDataProvider
 
 @Stable
-data class DailyNotificationInfo(
+data class DailySavedNotificationInfo(
     override var latitude: Double,
     override var longitude: Double,
     override var addressName: String,
@@ -21,7 +21,7 @@ data class DailyNotificationInfo(
     var type: DailyNotificationType,
     var hour: Int,
     var minute: Int,
-) : NotificationUiModel {
+) : SavedNotificationValuesEntity {
 
     var onSaved: Boolean by mutableStateOf(false)
     val time: String get() = String.format("%02d:%02d", hour, minute)
