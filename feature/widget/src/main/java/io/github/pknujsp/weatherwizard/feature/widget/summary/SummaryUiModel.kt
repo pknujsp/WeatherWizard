@@ -4,13 +4,11 @@ import io.github.pknujsp.weatherwizard.core.common.util.DayNightCalculator
 import io.github.pknujsp.weatherwizard.core.common.util.toCalendar
 import io.github.pknujsp.weatherwizard.core.model.UiModel
 import io.github.pknujsp.weatherwizard.core.model.weather.common.CurrentUnits
-import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherDataMajorCategory
-import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherDataProvider
 import io.github.pknujsp.weatherwizard.core.model.weather.current.CurrentWeatherEntity
 import io.github.pknujsp.weatherwizard.core.model.weather.dailyforecast.DailyForecastEntity
 import io.github.pknujsp.weatherwizard.core.model.weather.hourlyforecast.HourlyForecastEntity
-import io.github.pknujsp.weatherwizard.feature.widget.worker.model.ResponseEntity
-import io.github.pknujsp.weatherwizard.feature.widget.worker.model.WidgetUiState
+import io.github.pknujsp.weatherwizard.core.domain.weather.ResponseEntity
+import io.github.pknujsp.weatherwizard.core.domain.weather.ResponseState
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import java.util.Locale
@@ -65,20 +63,20 @@ class SummaryUiModel(
     )
 }
 
-fun ResponseEntity.toSummaryUiModel(units: CurrentUnits, dayNightCalculator: DayNightCalculator, now: ZonedDateTime): WidgetUiState {
+fun ResponseEntity.toSummaryUiModel(units: CurrentUnits, dayNightCalculator: DayNightCalculator, now: ZonedDateTime): ResponseState {
     return if (isSuccessful) {
         val currentWeatherEntity = toEntity<CurrentWeatherEntity>()
         val hourlyForecastEntity = toEntity<HourlyForecastEntity>()
         val dailyForecastEntity = toEntity<DailyForecastEntity>()
 
-        WidgetUiState.Success(SummaryUiModel(currentWeatherEntity,
+        io.github.pknujsp.weatherwizard.core.domain.weather.ResponseState.Success(SummaryUiModel(currentWeatherEntity,
             hourlyForecastEntity,
             dailyForecastEntity,
             units,
             dayNightCalculator,
             now))
     } else {
-        WidgetUiState.Failure
+        io.github.pknujsp.weatherwizard.core.domain.weather.ResponseState.Failure
     }
 
 }

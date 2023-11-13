@@ -13,12 +13,10 @@ import io.github.pknujsp.weatherwizard.core.model.nominatim.ReverseGeoCodeEntity
 import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherDataMajorCategory
 import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherDataProvider
 import io.github.pknujsp.weatherwizard.core.model.widget.WidgetEntity
-import io.github.pknujsp.weatherwizard.core.model.widget.WidgetType
 import io.github.pknujsp.weatherwizard.core.ui.remoteview.RemoteViewModel
-import io.github.pknujsp.weatherwizard.feature.widget.worker.model.EntityMapper
-import io.github.pknujsp.weatherwizard.feature.widget.worker.model.RequestEntity
+import io.github.pknujsp.weatherwizard.core.domain.weather.RequestEntity
 import io.github.pknujsp.weatherwizard.feature.widget.worker.model.WidgetUiModel
-import io.github.pknujsp.weatherwizard.feature.widget.worker.model.WidgetUiState
+import io.github.pknujsp.weatherwizard.core.domain.weather.ResponseState
 import kotlinx.coroutines.flow.first
 import java.time.format.DateTimeFormatter
 import javax.inject.Inject
@@ -50,7 +48,7 @@ class WidgetRemoteViewModel @Inject constructor(
 
     suspend fun load(
         excludeAppWidgetIds: List<Int>, excludeLocationType: LocationType? = null
-    ): List<WidgetUiModel<WidgetUiState>> {
+    ): List<WidgetUiModel<ResponseState>> {
         excludeLocationType?.let { widgetEntities = widgetEntities.filter { entity -> entity.content.getLocationType() != it } }
         if (excludeAppWidgetIds.isNotEmpty()) {
             widgetEntities = widgetEntities.filter { entity -> entity.id !in excludeAppWidgetIds }
@@ -60,7 +58,7 @@ class WidgetRemoteViewModel @Inject constructor(
         return loadWeatherData()
     }
 
-    private suspend fun loadWeatherData(): List<WidgetUiModel<WidgetUiState>> {
+    private suspend fun loadWeatherData(): List<WidgetUiModel<ResponseState>> {
         currentLocation?.let {
             reverseGeoCode = nominatimRepository.reverseGeoCode(it.latitude, it.longitude)
         }
@@ -101,10 +99,10 @@ class WidgetRemoteViewModel @Inject constructor(
         val widgetUiStateMap = requestEntity.requests.values.flatMap { request ->
             request.toResponseEntity()
         }.run {
-            EntityMapper(this, appSettingsRepository.currentUnits.value, requestEntity.now).invoke()
+            EntityMapper(this, appSettingsRepository.currentUnits.value, requestEntity.requestedTime).invoke()
         }
 
-        val updatedTime = DateTimeFormatter.ofPattern("M.d EEE HH:mm").format(requestEntity.now)
+        val updatedTime = DateTimeFormatter.ofPattern("M.d EEE HH:mm").format(requestEntity.requestedTime)
         return widgetUiStateMap.flatMap { (info, widgetUiState) ->
             val request = requestEntity.requests[info.second]!!
             val requestHeader = request.headerMap[info.third]!!

@@ -16,16 +16,14 @@ import io.github.pknujsp.weatherwizard.core.common.manager.checkFeatureStateAndU
 import io.github.pknujsp.weatherwizard.core.model.UiModel
 import io.github.pknujsp.weatherwizard.core.model.favorite.LocationType
 import io.github.pknujsp.weatherwizard.core.model.notification.enums.NotificationType
-import io.github.pknujsp.weatherwizard.core.model.widget.WidgetType
 import io.github.pknujsp.weatherwizard.core.model.worker.IWorker
 import io.github.pknujsp.weatherwizard.core.ui.feature.FeatureStateRemoteViewCreator
 import io.github.pknujsp.weatherwizard.core.ui.notification.AppNotificationManager
 import io.github.pknujsp.weatherwizard.core.ui.remoteview.RemoteViewCreator
 import io.github.pknujsp.weatherwizard.core.ui.remoteview.RetryRemoteViewCreator
-import io.github.pknujsp.weatherwizard.feature.widget.R
 import io.github.pknujsp.weatherwizard.feature.widget.WidgetManager
 import io.github.pknujsp.weatherwizard.feature.widget.remoteview.WidgetRemoteViewsCreator
-import io.github.pknujsp.weatherwizard.feature.widget.worker.model.WidgetUiState
+import io.github.pknujsp.weatherwizard.core.domain.weather.ResponseState
 import io.github.pknujsp.weatherwizard.feature.widget.worker.model.onFailure
 import io.github.pknujsp.weatherwizard.feature.widget.worker.model.onSuccess
 import kotlin.properties.Delegates
@@ -101,7 +99,7 @@ class WidgetWorker @AssistedInject constructor(
         }
 
         val widgetStates = widgetRemoteViewModel.load(excludeAppWidgetIds, excludeLocationType)
-        val failedWidgetIds = widgetStates.filter { it.state is WidgetUiState.Failure }.map { it.appWidgetId }.toIntArray()
+        val failedWidgetIds = widgetStates.filter { it.state is ResponseState.Failure }.map { it.appWidgetId }.toIntArray()
         val retryPendingIntent =
             widgetManager.getUpdatePendingIntent(context, WidgetManager.Action.UPDATE_ONLY_WITH_WIDGETS, failedWidgetIds)
 

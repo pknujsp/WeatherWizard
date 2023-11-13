@@ -1,8 +1,8 @@
-package io.github.pknujsp.weatherwizard.feature.widget.worker.model
+package io.github.pknujsp.weatherwizard.feature.widget.worker
 
-import io.github.pknujsp.core.annotation.KBindFunc
 import io.github.pknujsp.weatherwizard.core.common.util.DayNightCalculator
-import io.github.pknujsp.weatherwizard.core.model.UiModel
+import io.github.pknujsp.weatherwizard.core.domain.weather.ResponseEntity
+import io.github.pknujsp.weatherwizard.core.domain.weather.ResponseState
 import io.github.pknujsp.weatherwizard.core.model.coordinate.Coordinate
 import io.github.pknujsp.weatherwizard.core.model.weather.common.CurrentUnits
 import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherDataProvider
@@ -17,9 +17,9 @@ class EntityMapper(
         DayNightCalculator(it.key.latitude, it.key.longitude)
     }
 
-    private val mappingCache = mutableMapOf<Triple<WidgetType, Coordinate, WeatherDataProvider>, WidgetUiState>()
+    private val mappingCache = mutableMapOf<Triple<WidgetType, Coordinate, WeatherDataProvider>, ResponseState>()
 
-    operator fun invoke(): Map<Triple<WidgetType, Coordinate, WeatherDataProvider>, WidgetUiState> {
+    operator fun invoke(): Map<Triple<WidgetType, Coordinate, WeatherDataProvider>, ResponseState> {
         entities.forEach { entity ->
             val coordinate = entity.coordinate
             val dayNightCalculator = dayNightCalculatorMap[coordinate]!!
@@ -34,10 +34,4 @@ class EntityMapper(
 
         return mappingCache
     }
-}
-
-@KBindFunc
-sealed interface WidgetUiState {
-    data object Failure : WidgetUiState
-    data class Success(val uiModel: UiModel) : WidgetUiState
 }
