@@ -21,11 +21,11 @@ class DailyNotificationInfoEntity(
     @SerialName("type") private val type: Int = DailyNotificationType.default.key,
     @SerialName("createdDateTime") private val createdDateTimeISO8601: String = ZonedDateTime.now().toString(),
 ) : EntityModel {
-    fun getLocationType(): LocationType = LocationType.fromKey(locationType).also {
+    fun getLocationType(): LocationType = LocationType.fromKey(locationType).let {
         if (it is LocationType.CustomLocation) {
-            it.latitude = latitude
-            it.longitude = longitude
-            it.address = addressName
+            LocationType.CustomLocation(latitude = latitude, longitude = longitude, address = addressName)
+        } else {
+            it
         }
     }
 

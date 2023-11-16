@@ -8,6 +8,8 @@ android {
 }
 
 dependencies {
+    ksp(libs.ksealedbinding.compiler)
+    implementation(libs.ksealedbinding.annotation)
     implementation(libs.bundles.ktx)
     implementation(libs.androidx.appcompat)
     implementation(project(":core:common"))

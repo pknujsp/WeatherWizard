@@ -4,13 +4,11 @@ import io.github.pknujsp.weatherwizard.core.common.util.DayNightCalculator
 import io.github.pknujsp.weatherwizard.core.common.util.toCalendar
 import io.github.pknujsp.weatherwizard.core.model.UiModel
 import io.github.pknujsp.weatherwizard.core.model.weather.common.CurrentUnits
-import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherDataMajorCategory
-import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherDataProvider
 import io.github.pknujsp.weatherwizard.core.model.weather.current.CurrentWeatherEntity
 import io.github.pknujsp.weatherwizard.core.model.weather.dailyforecast.DailyForecastEntity
 import io.github.pknujsp.weatherwizard.core.model.weather.hourlyforecast.HourlyForecastEntity
-import io.github.pknujsp.weatherwizard.feature.widget.worker.model.ResponseEntity
-import io.github.pknujsp.weatherwizard.feature.widget.worker.model.WidgetUiState
+import io.github.pknujsp.weatherwizard.core.domain.weather.ResponseEntity
+import io.github.pknujsp.weatherwizard.core.domain.weather.ResponseState
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import java.util.Locale
@@ -42,7 +40,7 @@ class SummaryUiModel(
     }
 
     val dailyForecast = dailyForecastEntity.dayItems.subList(0, 4).map {
-        io.github.pknujsp.weatherwizard.core.model.notification.daily.forecast.DailyNotificationForecastUiModel.DailyForecast(temperature = "${
+        DailyForecast(temperature = "${
             it.minTemperature.convertUnit(units.temperatureUnit)
         } / ${
             it.maxTemperature.convertUnit(units.temperatureUnit)
@@ -63,22 +61,4 @@ class SummaryUiModel(
     data class DailyForecast(
         val temperature: String, val weatherIcons: List<Int>, val date: String
     )
-}
-
-fun ResponseEntity.toSummaryUiModel(units: CurrentUnits, dayNightCalculator: DayNightCalculator, now: ZonedDateTime): WidgetUiState {
-    return if (isSuccessful) {
-        val currentWeatherEntity = toEntity<CurrentWeatherEntity>()
-        val hourlyForecastEntity = toEntity<HourlyForecastEntity>()
-        val dailyForecastEntity = toEntity<DailyForecastEntity>()
-
-        WidgetUiState.Success(SummaryUiModel(currentWeatherEntity,
-            hourlyForecastEntity,
-            dailyForecastEntity,
-            units,
-            dayNightCalculator,
-            now))
-    } else {
-        WidgetUiState.Failure
-    }
-
 }

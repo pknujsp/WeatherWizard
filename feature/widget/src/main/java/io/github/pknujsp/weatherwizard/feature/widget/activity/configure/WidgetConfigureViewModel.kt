@@ -21,7 +21,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class WidgetConfigureViewModel @Inject constructor(
-    appSettingsRepository: SettingsRepository, savedStateHandle: SavedStateHandle, private val widgetRepository: WidgetRepository
+    appSettingsRepository: SettingsRepository, private val widgetRepository: WidgetRepository
 ) : ViewModel() {
     val units = appSettingsRepository.currentUnits
     val widget = WidgetModel(save = ::save)
@@ -48,8 +48,8 @@ class WidgetConfigureViewModel @Inject constructor(
                     latitude = widget.latitude,
                     longitude = widget.longitude,
                     addressName = widget.addressName,
-                    locationType = widget.locationType.key,
-                    weatherProvider = widget.weatherProvider.key,
+                    locationTypeKey = widget.locationType.key,
+                    weatherProviderKey = widget.weatherProvider.key,
                 ),
                 widgetType = widget.widgetType))
             delay(50L)

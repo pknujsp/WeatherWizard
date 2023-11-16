@@ -29,7 +29,7 @@ import io.github.pknujsp.weatherwizard.core.model.favorite.LocationType
 import io.github.pknujsp.weatherwizard.core.model.notification.enums.NotificationIconType
 import io.github.pknujsp.weatherwizard.core.model.notification.enums.NotificationType
 import io.github.pknujsp.weatherwizard.core.model.notification.enums.RefreshInterval
-import io.github.pknujsp.weatherwizard.core.model.notification.ongoing.OngoingNotificationInfo
+import io.github.pknujsp.weatherwizard.core.model.notification.ongoing.OngoingSavedNotificationValuesEntity
 import io.github.pknujsp.weatherwizard.core.ui.BottomSheetSettingItem
 import io.github.pknujsp.weatherwizard.core.ui.LocationScreen
 import io.github.pknujsp.weatherwizard.core.ui.SecondaryButton
@@ -69,10 +69,8 @@ fun OngoingNotificationScreen(navController: NavController) {
             SearchLocationScreen(onSelectedLocation = {
                 it?.let { newLocation ->
                     notification.info.apply {
-                        locationType = LocationType.CustomLocation()
-                        latitude = newLocation.latitude
-                        longitude = newLocation.longitude
-                        addressName = newLocation.addressName
+                        locationType = LocationType.CustomLocation(latitude = newLocation.latitude,
+                            longitude = newLocation.longitude, address = newLocation.addressName)
                     }
                 }
                 showSearch = false
@@ -131,7 +129,7 @@ fun OngoingNotificationScreen(navController: NavController) {
 }
 
 @Composable
-fun RefreshIntervalScreen(entity: OngoingNotificationInfo) {
+fun RefreshIntervalScreen(entity: OngoingSavedNotificationValuesEntity) {
     val intervals = remember { RefreshInterval.enums }
     var selectedOption by remember { mutableStateOf(entity.refreshInterval) }
 
@@ -147,7 +145,7 @@ fun RefreshIntervalScreen(entity: OngoingNotificationInfo) {
 }
 
 @Composable
-fun NotificationIconScreen(entity: OngoingNotificationInfo) {
+fun NotificationIconScreen(entity: OngoingSavedNotificationValuesEntity) {
     val icons = remember { NotificationIconType.enums }
     var selectedOption by remember { mutableStateOf(entity.notificationIconType) }
 
