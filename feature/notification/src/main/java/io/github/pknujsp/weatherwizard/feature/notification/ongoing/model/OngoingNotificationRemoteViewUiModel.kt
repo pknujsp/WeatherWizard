@@ -1,4 +1,4 @@
-package io.github.pknujsp.weatherwizard.core.model.notification.ongoing
+package io.github.pknujsp.weatherwizard.feature.notification.ongoing.model
 
 import android.app.PendingIntent
 import io.github.pknujsp.weatherwizard.core.common.util.DayNightCalculator
@@ -14,7 +14,7 @@ import java.util.Calendar
 import java.util.Locale
 import kotlin.properties.Delegates
 
-class OngoingNotificationUiModel(
+class OngoingNotificationRemoteViewUiModel(
     val address: String,
     val iconType: NotificationIconType,
     currentWeather: CurrentWeatherEntity,

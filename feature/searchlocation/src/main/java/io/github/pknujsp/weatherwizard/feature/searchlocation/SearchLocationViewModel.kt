@@ -9,7 +9,6 @@ import io.github.pknujsp.weatherwizard.core.model.UiAction
 import io.github.pknujsp.weatherwizard.core.model.UiState
 import io.github.pknujsp.weatherwizard.core.model.nominatim.GeoCode
 import io.github.pknujsp.weatherwizard.core.model.nominatim.GeoCodeEntity
-import io.github.pknujsp.weatherwizard.core.model.notification.CustomLocation
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow

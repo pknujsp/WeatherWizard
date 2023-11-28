@@ -4,12 +4,13 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Upsert
 import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface NotificationDao {
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Upsert(entity = NotificationDto::class)
     suspend fun insert(notificationDto: NotificationDto): Long
 
     @Query("SELECT * FROM notifications ORDER BY id DESC")

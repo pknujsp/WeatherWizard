@@ -2,14 +2,14 @@ package io.github.pknujsp.weatherwizard.feature.notification.ongoing.worker
 
 import android.content.Context
 import android.widget.RemoteViews
-import io.github.pknujsp.weatherwizard.core.model.notification.ongoing.OngoingNotificationUiModel
+import io.github.pknujsp.weatherwizard.feature.notification.ongoing.model.OngoingNotificationRemoteViewUiModel
 import io.github.pknujsp.weatherwizard.core.model.weather.common.CurrentUnits
 import io.github.pknujsp.weatherwizard.core.model.weather.common.TemperatureUnit
 import io.github.pknujsp.weatherwizard.core.model.weather.common.TemperatureValueType
 import io.github.pknujsp.weatherwizard.feature.notification.R
 import io.github.pknujsp.weatherwizard.feature.notification.remoteview.NotificationRemoteViewsCreator
 
-class OngoingNotificationRemoteViewsCreator : NotificationRemoteViewsCreator<OngoingNotificationUiModel> {
+class OngoingNotificationRemoteViewsCreator : NotificationRemoteViewsCreator<OngoingNotificationRemoteViewUiModel> {
     override fun createSampleView(context: Context, units: CurrentUnits): RemoteViews {
         return RemoteViews(context.packageName, R.layout.notification_ongoing_small).apply {
             setImageViewResource(R.id.weather_icon, io.github.pknujsp.weatherwizard.core.common.R.drawable.ic_sun)
@@ -20,7 +20,7 @@ class OngoingNotificationRemoteViewsCreator : NotificationRemoteViewsCreator<Ong
         }
     }
 
-    override fun createSmallContentView(model: OngoingNotificationUiModel, context: Context): RemoteViews {
+    override fun createSmallContentView(model: OngoingNotificationRemoteViewUiModel, context: Context): RemoteViews {
         return RemoteViews(context.packageName, R.layout.notification_ongoing_small).apply {
             model.apply {
                 setImageViewResource(R.id.weather_icon, currentWeather.weatherIcon)
@@ -32,7 +32,7 @@ class OngoingNotificationRemoteViewsCreator : NotificationRemoteViewsCreator<Ong
         }
     }
 
-    override fun createBigContentView(model: OngoingNotificationUiModel, context: Context): RemoteViews {
+    override fun createBigContentView(model: OngoingNotificationRemoteViewUiModel, context: Context): RemoteViews {
         return RemoteViews(context.packageName, R.layout.notification_ongoing_big).apply {
             model.apply {
                 setImageViewResource(R.id.weather_icon, currentWeather.weatherIcon)
@@ -45,7 +45,7 @@ class OngoingNotificationRemoteViewsCreator : NotificationRemoteViewsCreator<Ong
         }
     }
 
-    private fun RemoteViews.createHourlyForecastView(model: OngoingNotificationUiModel, context: Context) {
+    private fun RemoteViews.createHourlyForecastView(model: OngoingNotificationRemoteViewUiModel, context: Context) {
         model.hourlyForecast.forEach {
             RemoteViews(context.packageName, R.layout.view_hourly_forecast_item).apply {
                 setTextViewText(R.id.time, it.dateTime)

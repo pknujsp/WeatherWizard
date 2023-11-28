@@ -1,4 +1,4 @@
-package io.github.pknujsp.weatherwizard.core.model.notification
+package io.github.pknujsp.weatherwizard.feature.searchlocation
 
 import io.github.pknujsp.weatherwizard.core.model.UiModel
 

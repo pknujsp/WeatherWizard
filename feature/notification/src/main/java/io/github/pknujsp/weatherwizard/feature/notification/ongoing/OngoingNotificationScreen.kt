@@ -29,7 +29,7 @@ import io.github.pknujsp.weatherwizard.core.model.favorite.LocationType
 import io.github.pknujsp.weatherwizard.core.model.notification.enums.NotificationIconType
 import io.github.pknujsp.weatherwizard.core.model.notification.enums.NotificationType
 import io.github.pknujsp.weatherwizard.core.model.notification.enums.RefreshInterval
-import io.github.pknujsp.weatherwizard.core.model.notification.ongoing.OngoingSavedNotificationValuesEntity
+import io.github.pknujsp.weatherwizard.core.data.notification.ongoing.model.OngoingNotificationSettingsEntity
 import io.github.pknujsp.weatherwizard.core.ui.BottomSheetSettingItem
 import io.github.pknujsp.weatherwizard.core.ui.LocationScreen
 import io.github.pknujsp.weatherwizard.core.ui.SecondaryButton
@@ -129,7 +129,7 @@ fun OngoingNotificationScreen(navController: NavController) {
 }
 
 @Composable
-fun RefreshIntervalScreen(entity: OngoingSavedNotificationValuesEntity) {
+fun RefreshIntervalScreen(entity: OngoingNotificationSettingsEntity) {
     val intervals = remember { RefreshInterval.enums }
     var selectedOption by remember { mutableStateOf(entity.refreshInterval) }
 
@@ -145,7 +145,7 @@ fun RefreshIntervalScreen(entity: OngoingSavedNotificationValuesEntity) {
 }
 
 @Composable
-fun NotificationIconScreen(entity: OngoingSavedNotificationValuesEntity) {
+fun NotificationIconScreen(entity: OngoingNotificationSettingsEntity) {
     val icons = remember { NotificationIconType.enums }
     var selectedOption by remember { mutableStateOf(entity.notificationIconType) }
 

@@ -3,15 +3,12 @@ package io.github.pknujsp.weatherwizard.feature.notification.daily
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import io.github.pknujsp.weatherwizard.core.data.notification.NotificationRepository
+import io.github.pknujsp.weatherwizard.core.data.notification.daily.DailyNotificationRepository
 import io.github.pknujsp.weatherwizard.core.model.notification.daily.DailyNotificationSimpleInfo
-import io.github.pknujsp.weatherwizard.feature.notification.ongoing.NotificationState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
@@ -20,16 +17,16 @@ import javax.inject.Inject
 
 @HiltViewModel
 class DailyNotificationListViewModel @Inject constructor(
-    private val notificationRepository: NotificationRepository
+    private val dailyNotificationRepository: DailyNotificationRepository
 ) : ViewModel() {
 
     private val _onChangedStateNotification = MutableSharedFlow<DailyNotificationSimpleInfo>()
     val onChangedStateNotification: SharedFlow<DailyNotificationSimpleInfo> = _onChangedStateNotification
 
-    val notifications = notificationRepository.getDailyNotifications().map { entities ->
+    val notifications = dailyNotificationRepository.getDailyNotifications().map { entities ->
         entities.map { entity ->
             DailyNotificationSimpleInfo(
-                id = entity.idInDb,
+                id = entity.id,
                 enabled = entity.enabled,
                 locationType = entity.data.getLocationType(),
                 type = entity.data.getType(),
@@ -45,14 +42,14 @@ class DailyNotificationListViewModel @Inject constructor(
 
     private fun switch(notification: DailyNotificationSimpleInfo) {
         viewModelScope.launch {
-            notificationRepository.switch(notification.id, notification.isEnabled)
+            dailyNotificationRepository.switch(notification.id, notification.isEnabled)
             _onChangedStateNotification.emit(notification)
         }
     }
 
     private fun delete(notification: DailyNotificationSimpleInfo) {
         viewModelScope.launch {
-            notificationRepository.deleteDailyNotification(notification.id)
+            dailyNotificationRepository.deleteDailyNotification(notification.id)
             _onChangedStateNotification.emit(notification)
         }
     }

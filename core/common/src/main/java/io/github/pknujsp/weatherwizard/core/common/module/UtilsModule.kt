@@ -8,9 +8,8 @@ import kotlinx.serialization.json.Json
 import javax.inject.Qualifier
 import javax.inject.Singleton
 
-@InstallIn(SingletonComponent::class)
 @Module
-object UtilsModule {
+class UtilsModule {
 
     @Provides
     @Singleton
