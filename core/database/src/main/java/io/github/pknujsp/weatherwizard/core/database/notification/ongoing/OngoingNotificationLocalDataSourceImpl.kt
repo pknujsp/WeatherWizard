@@ -15,4 +15,7 @@ class OngoingNotificationLocalDataSourceImpl @Inject constructor(
 
     override suspend fun updateOngoingNotification(notificationDto: NotificationDto): Boolean = notificationDao.insert(notificationDto) >= 0
 
+    override suspend fun switch(enabled: Boolean) {
+        notificationDao.switchOngointNotificationState(enabled = enabled)
+    }
 }

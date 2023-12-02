@@ -25,18 +25,9 @@ class OngoingNotificationRepositoryImpl @Inject constructor(
             val jsonEntity = jsonParser.parse<OngoingNotificationSettingsJsonEntity>(content)
 
             val locationType = jsonEntity.getLocationType()
-            val (latitude, longitude, addressName) = if (locationType is LocationType.CustomLocation) {
-                Triple(locationType.latitude, locationType.longitude, locationType.address)
-            } else {
-                Triple(0.0, 0.0, "")
-            }
-
             OngoingNotificationSettingsEntity(notificationIconType = jsonEntity.getNotificationIconType(),
                 refreshInterval = jsonEntity.getRefreshInterval(),
                 weatherProvider = jsonEntity.getWeatherProvider(),
-                latitude = latitude,
-                longitude = longitude,
-                addressName = addressName,
                 locationType = locationType)
         } ?: OngoingNotificationSettingsEntity()
 
@@ -68,5 +59,9 @@ class OngoingNotificationRepositoryImpl @Inject constructor(
             enabled = notificationSettingsEntity.enabled,
             content = jsonParser.parse(jsonEntity),
         ))
+    }
+
+    override suspend fun switch(enabled: Boolean) {
+        ongoingNotificationLocalDataSource.switch(enabled)
     }
 }

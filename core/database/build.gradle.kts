@@ -8,6 +8,10 @@ android {
     namespace = "io.github.pknujsp.weatherwizard.core.database"
 }
 
+ksp {
+    arg("room.generateKotlin", "true")
+}
+
 dependencies {
     implementation(project(":core:model"))
     implementation(project(":core:common"))

@@ -25,7 +25,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import io.github.pknujsp.weatherwizard.core.model.favorite.LocationType
-import io.github.pknujsp.weatherwizard.core.model.notification.daily.DailySavedNotificationInfo
 import io.github.pknujsp.weatherwizard.core.model.notification.enums.DailyNotificationType
 import io.github.pknujsp.weatherwizard.core.model.onSuccess
 import io.github.pknujsp.weatherwizard.core.ui.BottomSheetSettingItem
@@ -42,8 +41,7 @@ import io.github.pknujsp.weatherwizard.feature.searchlocation.SearchLocationScre
 
 
 @Composable
-fun AddOrEditDailyNotificationScreen(navController: NavController) {
-    val viewModel: AddOrEditDailyNotificationViewModel = hiltViewModel()
+fun AddOrEditDailyNotificationScreen(navController: NavController,viewModel: AddOrEditDailyNotificationViewModel = hiltViewModel()) {
     val notification by viewModel.notification.collectAsStateWithLifecycle()
 
     notification.onSuccess { info ->

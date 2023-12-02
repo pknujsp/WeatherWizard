@@ -5,6 +5,7 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Upsert
+import io.github.pknujsp.weatherwizard.core.model.notification.enums.NotificationType
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -33,4 +34,7 @@ interface NotificationDao {
 
     @Query("UPDATE notifications SET enabled = :enabled WHERE `id` = :id")
     suspend fun switchState(id: Long, enabled: Boolean)
+
+    @Query("UPDATE notifications SET enabled = :enabled WHERE `notificationType` = :type")
+    suspend fun switchOngointNotificationState(type: Int = NotificationType.ONGOING.notificationId, enabled: Boolean)
 }

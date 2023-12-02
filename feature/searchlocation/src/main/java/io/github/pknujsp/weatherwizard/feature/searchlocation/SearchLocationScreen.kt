@@ -30,10 +30,7 @@ fun SearchLocationScreen(onSelectedLocation: (CustomLocation?) -> Unit, popBackS
         val searchResult by searchAreaViewModel.searchResult.collectAsStateWithLifecycle()
         val uiAction by searchAreaViewModel.uiAction.collectAsStateWithLifecycle()
 
-        uiAction.onOnSelectedArea {
-            onSelectedLocation(it)
-            popBackStack()
-        }
+
 
         val query by remember { mutableStateOf("" to 0L) }
         var showSearchHistory by remember { mutableStateOf(true) }

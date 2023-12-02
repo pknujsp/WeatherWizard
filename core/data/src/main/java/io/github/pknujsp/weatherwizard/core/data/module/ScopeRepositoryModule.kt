@@ -12,7 +12,6 @@ import io.github.pknujsp.weatherwizard.core.database.searchhistory.SearchHistory
 @Module
 @InstallIn(ViewModelComponent::class)
 class ScopeRepositoryModule {
-
     @Provides
     @ViewModelScoped
     fun providesSearchHistoryRepository(searchHistoryLocalDataSource: SearchHistoryLocalDataSource): SearchHistoryRepository =

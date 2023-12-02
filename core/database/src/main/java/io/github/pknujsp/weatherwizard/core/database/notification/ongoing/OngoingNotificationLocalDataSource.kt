@@ -5,4 +5,6 @@ import io.github.pknujsp.weatherwizard.core.database.notification.NotificationDt
 interface OngoingNotificationLocalDataSource {
     suspend fun getOngoingNotification(): NotificationDto?
     suspend fun updateOngoingNotification(notificationDto: NotificationDto): Boolean
+
+    suspend fun switch(enabled: Boolean)
 }

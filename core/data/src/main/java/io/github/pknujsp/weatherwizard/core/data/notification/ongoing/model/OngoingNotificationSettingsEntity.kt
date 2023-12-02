@@ -11,8 +11,5 @@ data class OngoingNotificationSettingsEntity(
     val notificationIconType: NotificationIconType = NotificationIconType.default,
     val refreshInterval: RefreshInterval = RefreshInterval.default,
     val weatherProvider: WeatherDataProvider = WeatherDataProvider.default,
-    val latitude: Double = 0.0,
-    val longitude: Double = 0.0,
-    val addressName: String = "",
     val locationType: LocationType = LocationType.default,
 ) : EntityModel

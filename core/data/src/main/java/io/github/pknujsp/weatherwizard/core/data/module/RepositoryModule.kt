@@ -15,6 +15,8 @@ import io.github.pknujsp.weatherwizard.core.data.nominatim.NominatimRepository
 import io.github.pknujsp.weatherwizard.core.data.nominatim.NominatimRepositoryImpl
 import io.github.pknujsp.weatherwizard.core.data.notification.daily.DailyNotificationRepository
 import io.github.pknujsp.weatherwizard.core.data.notification.daily.DailyNotificationRepositoryImpl
+import io.github.pknujsp.weatherwizard.core.data.notification.ongoing.OngoingNotificationRepository
+import io.github.pknujsp.weatherwizard.core.data.notification.ongoing.OngoingNotificationRepositoryImpl
 import io.github.pknujsp.weatherwizard.core.data.rainviewer.RadarTilesRepository
 import io.github.pknujsp.weatherwizard.core.data.rainviewer.RadarTilesRepositoryImpl
 import io.github.pknujsp.weatherwizard.core.data.settings.SettingsRepository
@@ -27,6 +29,7 @@ import io.github.pknujsp.weatherwizard.core.data.widget.WidgetRepository
 import io.github.pknujsp.weatherwizard.core.data.widget.WidgetRepositoryImpl
 import io.github.pknujsp.weatherwizard.core.database.AppDataStore
 import io.github.pknujsp.weatherwizard.core.database.favoritearea.FavoriteAreaListDataSource
+import io.github.pknujsp.weatherwizard.core.database.notification.daily.DailyNotificationLocalDataSource
 import io.github.pknujsp.weatherwizard.core.database.notification.ongoing.OngoingNotificationLocalDataSource
 import io.github.pknujsp.weatherwizard.core.database.widget.WidgetLocalDataSource
 import io.github.pknujsp.weatherwizard.core.network.api.aqicn.AqiCnDataSource
@@ -75,9 +78,15 @@ object RepositoryModule {
 
     @Singleton
     @Provides
-    fun providesNotificationRepository(
-        ongoingNotificationLocalDataSource: OngoingNotificationLocalDataSource, @KtJson json: Json
-    ): DailyNotificationRepository = DailyNotificationRepositoryImpl(ongoingNotificationLocalDataSource, json)
+    fun providesDailyNotificationRepository(
+        dataSource: DailyNotificationLocalDataSource, @KtJson json: Json
+    ): DailyNotificationRepository = DailyNotificationRepositoryImpl(dataSource, json)
+
+    @Singleton
+    @Provides
+    fun providesOngoingNotificationRepository(
+        dataSource: OngoingNotificationLocalDataSource, @KtJson json: Json
+    ): OngoingNotificationRepository = OngoingNotificationRepositoryImpl(dataSource, json)
 
     @Singleton
     @Provides

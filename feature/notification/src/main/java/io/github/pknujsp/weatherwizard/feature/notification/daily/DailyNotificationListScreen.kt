@@ -41,7 +41,6 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import io.github.pknujsp.weatherwizard.core.common.R
 import io.github.pknujsp.weatherwizard.core.model.favorite.LocationType
-import io.github.pknujsp.weatherwizard.core.model.notification.daily.DailyNotificationSimpleInfo
 import io.github.pknujsp.weatherwizard.core.ui.SecondaryButton
 import io.github.pknujsp.weatherwizard.core.ui.TitleTextWithNavigation
 import io.github.pknujsp.weatherwizard.core.ui.dialog.BottomSheet
@@ -49,6 +48,7 @@ import io.github.pknujsp.weatherwizard.core.ui.dialog.DialogScreen
 import io.github.pknujsp.weatherwizard.core.ui.list.EmptyListScreen
 import io.github.pknujsp.weatherwizard.core.ui.theme.AppShapes
 import io.github.pknujsp.weatherwizard.feature.notification.NotificationRoutes
+import io.github.pknujsp.weatherwizard.feature.notification.daily.model.DailyNotificationSettings
 import io.github.pknujsp.weatherwizard.feature.notification.manager.NotificationAlarmManager
 
 @Composable
@@ -96,7 +96,7 @@ fun DailyNotificationListScreen(navController: NavController) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun Item(info: DailyNotificationSimpleInfo, onClick: () -> Unit) {
+private fun Item(info: DailyNotificationSettings, onClick: () -> Unit) {
     Surface(shape = AppShapes.large, shadowElevation = 4.dp, modifier = Modifier.padding(16.dp, 8.dp)) {
         Row(modifier = Modifier
             .fillMaxWidth()
@@ -154,7 +154,7 @@ private fun Item(info: DailyNotificationSimpleInfo, onClick: () -> Unit) {
     }
 }
 
-private fun changeAlarmSchedule(alarmManager: NotificationAlarmManager, context: Context, info: DailyNotificationSimpleInfo) {
+private fun changeAlarmSchedule(alarmManager: NotificationAlarmManager, context: Context, info: DailyNotificationSettings) {
     if (info.isEnabled) {
         alarmManager.schedule(context, info.id, info.hour, info.minute)
     } else {

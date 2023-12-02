@@ -22,6 +22,10 @@ android {
     }
 }
 
+ksp {
+    arg("room.generateKotlin", "true")
+}
+
 dependencies {
     implementation(project(":core:common"))
     implementation(libs.bundles.ktx)

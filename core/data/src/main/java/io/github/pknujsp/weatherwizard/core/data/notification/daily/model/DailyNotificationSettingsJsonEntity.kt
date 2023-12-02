@@ -19,16 +19,12 @@ internal data class DailyNotificationSettingsJsonEntity(
     @SerialName("weatherProvider") private val weatherProvider: Int,
     @SerialName("type") private val type: Int,
 ) : EntityModel {
-    fun getLocationType(): LocationType = LocationType.fromKey(locationType).let {
-        if (it is LocationType.CustomLocation) {
-            it.copy(0, latitude, longitude, addressName)
-        } else {
-            it
-        }
+    fun getLocationType(): LocationType = when (val locationType = LocationType.fromKey(locationType)) {
+        is LocationType.CustomLocation -> locationType.copy(0, latitude, longitude, addressName)
+        else -> locationType
     }
 
     fun getWeatherProvider(): WeatherDataProvider = WeatherDataProvider.fromKey(weatherProvider)
 
     fun getType(): DailyNotificationType = DailyNotificationType.fromKey(type)
-
 }

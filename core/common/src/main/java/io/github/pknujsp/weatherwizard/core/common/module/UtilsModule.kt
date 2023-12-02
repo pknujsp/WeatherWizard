@@ -9,6 +9,7 @@ import javax.inject.Qualifier
 import javax.inject.Singleton
 
 @Module
+@InstallIn(SingletonComponent::class)
 class UtilsModule {
 
     @Provides
