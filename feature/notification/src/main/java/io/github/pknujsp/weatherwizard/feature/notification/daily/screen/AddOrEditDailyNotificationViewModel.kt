@@ -1,4 +1,4 @@
-package io.github.pknujsp.weatherwizard.feature.notification.daily
+package io.github.pknujsp.weatherwizard.feature.notification.daily.screen
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -23,6 +23,8 @@ class AddOrEditDailyNotificationViewModel @Inject constructor(
     appSettingsRepository: SettingsRepository
 ) : ViewModel() {
 
+    private val notificationId = savedStateHandle.get<Long>("notificationId") ?: -1L
+    private val isNew get() = notificationId == -1L
     val units = appSettingsRepository.currentUnits.value
 
     private val _dailyNoficationUiState =
@@ -32,15 +34,15 @@ class AddOrEditDailyNotificationViewModel @Inject constructor(
                 locationType = it.locationType,
                 hour = it.hour,
                 minute = it.minute,
+                weatherDataProvider = it.weatherProvider
             )
-        }, update = ::update, switch = ::switch)
+        }, update = ::update, switch = ::switch, isNew = isNew)
 
     val dailyNotificationUiState: DailyNotificationUiState = _dailyNoficationUiState
 
     init {
         viewModelScope.launch {
-            val notificationId = savedStateHandle.get<Long>("notificationId") ?: -1L
-            if (notificationId == -1L) {
+            if (isNew) {
                 val entity = dailyNotificationRepository.getDailyNotification(notificationId)
                 entity.run {
                     _dailyNoficationUiState.dailyNotificationSettings = DailyNotificationSettings(
@@ -49,6 +51,7 @@ class AddOrEditDailyNotificationViewModel @Inject constructor(
                         locationType = data.locationType,
                         hour = data.hour,
                         minute = data.minute,
+                        weatherDataProvider = data.weatherProvider
                     )
                     _dailyNoficationUiState.isEnabled = enabled
                 }
@@ -90,7 +93,8 @@ class AddOrEditDailyNotificationViewModel @Inject constructor(
 
 
 private class MutableDailyNotificationUiState(
-    dailyNotificationSettings: DailyNotificationSettings, private val update: () -> Unit, private val switch: () -> Unit
+    dailyNotificationSettings: DailyNotificationSettings, private val update: () -> Unit, private val switch: () -> Unit,
+    override val isNew: Boolean
 ) : DailyNotificationUiState {
     override var dailyNotificationSettings by mutableStateOf(dailyNotificationSettings)
     override var isEnabled by mutableStateOf(false)

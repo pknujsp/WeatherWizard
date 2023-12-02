@@ -9,6 +9,7 @@ import io.github.pknujsp.weatherwizard.feature.notification.ongoing.model.Ongoin
 
 @Stable
 interface DailyNotificationUiState {
+    val isNew: Boolean
     val isEnabled: Boolean
     val action: Action
     val dailyNotificationSettings: DailyNotificationSettings

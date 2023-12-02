@@ -1,4 +1,4 @@
-package io.github.pknujsp.weatherwizard.feature.notification.daily
+package io.github.pknujsp.weatherwizard.feature.notification.daily.screen
 
 import android.content.Context
 import androidx.compose.foundation.layout.Arrangement
@@ -35,36 +35,28 @@ import io.github.pknujsp.weatherwizard.core.ui.WeatherProvidersScreen
 import io.github.pknujsp.weatherwizard.core.ui.dialog.DialogScreen
 import io.github.pknujsp.weatherwizard.core.ui.remoteview.RemoteViewsScreen
 import io.github.pknujsp.weatherwizard.feature.notification.R
+import io.github.pknujsp.weatherwizard.feature.notification.daily.model.DailyNotificationSettings
+import io.github.pknujsp.weatherwizard.feature.notification.daily.model.rememberDailyNotificationState
 import io.github.pknujsp.weatherwizard.feature.notification.manager.NotificationAlarmManager
 import io.github.pknujsp.weatherwizard.feature.notification.manager.RemoteViewsCreatorManager
 import io.github.pknujsp.weatherwizard.feature.searchlocation.SearchLocationScreen
 
 
 @Composable
-fun AddOrEditDailyNotificationScreen(navController: NavController,viewModel: AddOrEditDailyNotificationViewModel = hiltViewModel()) {
-    val notification by viewModel.notification.collectAsStateWithLifecycle()
+fun AddOrEditDailyNotificationScreen(navController: NavController, viewModel: AddOrEditDailyNotificationViewModel = hiltViewModel()) {
+    val notification = rememberDailyNotificationState(viewModel.dailyNotificationUiState)
+    val context = LocalContext.current
 
-    notification.onSuccess { info ->
-        val units by viewModel.units.collectAsStateWithLifecycle()
-        var showSearch by remember { mutableStateOf(false) }
-        val context = LocalContext.current
+    LaunchedEffect(notification.dailyNotificationUiState.action) {
+        notification.onChangedSettings(context)
+    }
 
-        if (info.onSaved) {
-            LaunchedEffect(Unit) {
-                scheduleAlarm(context, info)
-                navController.popBackStack()
-            }
-        }
-
+    notification.run {
         if (showSearch) {
-            SearchLocationScreen(onSelectedLocation = {
-                it?.let { newLocation ->
-                    info.apply {
-                        locationType = LocationType.CustomLocation()
-                        latitude = newLocation.latitude
-                        longitude = newLocation.longitude
-                        addressName = newLocation.addressName
-                    }
+            SearchLocationScreen(onSelectedLocation = { newLocation ->
+                newLocation?.let {
+                    dailyNotificationUiState.dailyNotificationSettings.locationType =
+                        LocationType.CustomLocation(latitude = it.latitude, longitude = it.longitude, address = it.addressName)
                 }
                 showSearch = false
             }, popBackStack = {
@@ -75,34 +67,32 @@ fun AddOrEditDailyNotificationScreen(navController: NavController,viewModel: Add
                 TitleTextWithNavigation(title = stringResource(id = R.string.add_or_edit_daily_notification)) {
                     navController.popBackStack()
                 }
-                var selectedType by remember { mutableStateOf(info.type) }
-                RemoteViewsScreen(RemoteViewsCreatorManager.createRemoteViewsCreator(selectedType), units)
+                RemoteViewsScreen(RemoteViewsCreatorManager.createRemoteViewsCreator(dailyNotificationUiState.dailyNotificationSettings.type),
+                    viewModel.units)
 
                 Column(modifier = Modifier
                     .verticalScroll(rememberScrollState())
                     .weight(1f)
                     .padding(horizontal = 16.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    NotificationTypeItem(selectedType) {
-                        selectedType = it
-                        info.type = it
+                    verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                    NotificationTypeItem(dailyNotificationUiState.dailyNotificationSettings.type) {
+                        dailyNotificationUiState.dailyNotificationSettings.type = it
                     }
-                    TimeItem(info)
-                    LocationScreen(info.locationType, onSelectedItem = {
-                        info.locationType = it
+                    TimeItem(dailyNotificationUiState.dailyNotificationSettings)
+                    LocationScreen(dailyNotificationUiState.dailyNotificationSettings.locationType, onSelectedItem = {
+                        dailyNotificationUiState.dailyNotificationSettings.locationType = it
                     }) {
                         showSearch = true
                     }
-                    WeatherProvidersScreen(info.weatherProvider) {
-                        info.weatherProvider = it
+                    WeatherProvidersScreen(dailyNotificationUiState.dailyNotificationSettings.weatherDataProvider) {
+                        dailyNotificationUiState.dailyNotificationSettings.weatherDataProvider = it
                     }
                 }
 
                 Box(modifier = Modifier.padding(12.dp)) {
                     SecondaryButton(text = stringResource(id = io.github.pknujsp.weatherwizard.core.common.R.string.save),
                         modifier = Modifier.fillMaxWidth()) {
-                        viewModel.save()
+                        dailyNotificationUiState.update()
                     }
                 }
             }
@@ -112,7 +102,7 @@ fun AddOrEditDailyNotificationScreen(navController: NavController,viewModel: Add
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TimeItem(entity: DailySavedNotificationInfo) {
+fun TimeItem(entity: DailyNotificationSettings) {
     var time by remember { mutableStateOf(entity.hour to entity.minute) }
     var expanded by remember { mutableStateOf(false) }
 
@@ -120,12 +110,8 @@ fun TimeItem(entity: DailySavedNotificationInfo) {
         expanded = true
     }, onDismissRequest = {
         expanded = false
-    }, currentData = entity.time) {
-        val timePickerState = rememberTimePickerState(
-            initialHour = time.first,
-            initialMinute = time.second,
-            is24Hour = false
-        )
+    }, currentData = entity.timeText) {
+        val timePickerState = rememberTimePickerState(initialHour = time.first, initialMinute = time.second, is24Hour = false)
 
         DialogScreen(title = stringResource(id = R.string.notification_time),
             message = stringResource(id = R.string.message_notification_time),
@@ -156,15 +142,4 @@ fun NotificationTypeItem(selectedOption: DailyNotificationType, onSelectedItem: 
             }
         },
         enums = types)
-}
-
-private fun scheduleAlarm(context: Context, info: DailySavedNotificationInfo) {
-    NotificationAlarmManager(context).run {
-        if (info.enabled) {
-            if (info.id != -1L) {
-                unSchedule(context, info.id)
-            }
-            schedule(context, info.id, info.hour, info.minute)
-        }
-    }
 }
