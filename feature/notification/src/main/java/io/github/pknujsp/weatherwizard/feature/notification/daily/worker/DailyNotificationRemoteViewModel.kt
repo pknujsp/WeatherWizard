@@ -1,74 +1,62 @@
 package io.github.pknujsp.weatherwizard.feature.notification.daily.worker
 
-import io.github.pknujsp.weatherwizard.core.common.FeatureType
-import io.github.pknujsp.weatherwizard.core.common.util.DayNightCalculator
-import io.github.pknujsp.weatherwizard.core.data.nominatim.NominatimRepository
 import io.github.pknujsp.weatherwizard.core.data.notification.daily.DailyNotificationRepository
+import io.github.pknujsp.weatherwizard.core.data.notification.daily.model.DailyNotificationSettingsEntity
 import io.github.pknujsp.weatherwizard.core.data.settings.SettingsRepository
-import io.github.pknujsp.weatherwizard.core.domain.weather.GetCurrentWeatherUseCase
-import io.github.pknujsp.weatherwizard.core.domain.weather.GetDailyForecastUseCase
-import io.github.pknujsp.weatherwizard.core.domain.weather.GetHourlyForecastUseCase
+import io.github.pknujsp.weatherwizard.core.domain.location.CurrentLocationResultState
+import io.github.pknujsp.weatherwizard.core.domain.location.GetCurrentLocationUseCase
+import io.github.pknujsp.weatherwizard.core.domain.weather.GetWeatherDataUseCase
+import io.github.pknujsp.weatherwizard.core.domain.weather.WeatherDataRequest
 import io.github.pknujsp.weatherwizard.core.model.UiState
+import io.github.pknujsp.weatherwizard.core.model.coordinate.Coordinate
+import io.github.pknujsp.weatherwizard.core.model.coordinate.LocationModel
 import io.github.pknujsp.weatherwizard.core.model.favorite.LocationType
-import io.github.pknujsp.weatherwizard.core.model.notification.NotificationSettingsEntity
-import io.github.pknujsp.weatherwizard.core.data.notification.daily.model.DailyNotificationSettingsJsonEntity
 import io.github.pknujsp.weatherwizard.feature.notification.daily.model.forecast.DailyNotificationForecastUiModel
 import io.github.pknujsp.weatherwizard.core.model.weather.common.CurrentUnits
 import io.github.pknujsp.weatherwizard.core.ui.remoteview.RemoteViewModel
-import java.time.ZonedDateTime
+import io.github.pknujsp.weatherwizard.feature.notification.daily.DailyNotificationDataMapperManager
 import javax.inject.Inject
-import kotlin.properties.Delegates
 
 class DailyNotificationRemoteViewModel @Inject constructor(
-    private val getCurrentWeatherUseCase: GetCurrentWeatherUseCase,
-    private val getHourlyForecastUseCase: GetHourlyForecastUseCase,
-    private val getDailyForecastUseCase: GetDailyForecastUseCase,
-    private val appSettingsRepository: SettingsRepository,
+    private val getWeatherDataUseCase: GetWeatherDataUseCase,
     private val dailyNotificationRepository: DailyNotificationRepository,
-    private val nominatimRepository: NominatimRepository,
+    private val getCurrentLocationUseCase: GetCurrentLocationUseCase,
+    private val appSettingsRepository: SettingsRepository,
 ) : RemoteViewModel() {
+    suspend fun load(notificationId: Long) {
+        val notificationEntity = dailyNotificationRepository.getDailyNotification(notificationId)
+        val location = loadAddress(notificationEntity.data.locationType)
 
-    private val units: CurrentUnits = appSettingsRepository.currentUnits.value
-    var notificationInfo: NotificationSettingsEntity<DailyNotificationSettingsJsonEntity> by Delegates.notNull()
-        private set
-
-    private val now = ZonedDateTime.now()
-    private val requestId = now.toInstant().toEpochMilli()
-
-    private var address: String by Delegates.notNull()
-
-    suspend fun init(notificationId: Long) {
-        notificationInfo = dailyNotificationRepository.getDailyNotification(notificationId)
-        notificationInfo.data.run {
-            address = if (getLocationType() is LocationType.CurrentLocation) nominatimRepository.reverseGeoCode(
-                latitude, longitude).getOrThrow().simpleDisplayName
-            else addressName
+        if (location.isSuccess) {
+            val request = WeatherDataRequest()
+            request.addRequest(location.getOrThrow(),
+                notificationEntity.data.type.categories.toSet(),
+                notificationEntity.data.weatherProvider)
+            val response = getWeatherDataUseCase(request.requests[0])
+            val mapper = DailyNotificationDataMapperManager.getMapperByType(notificationEntity.data.type)
+            val uiModel = mapper.map(response)
         }
+
 
     }
 
-    suspend fun loadHourlyForecast(): UiState<DailyNotificationForecastUiModel> {
-        val latitude = notificationInfo.data.latitude
-        val longitude = notificationInfo.data.longitude
 
-        val weatherProvider = notificationInfo.data.getWeatherProvider()
-        val hourlyForecast =
-            getHourlyForecastUseCase(latitude, longitude, weatherProvider, requestId).getOrNull()
-        val dailyForecast =
-            getDailyForecastUseCase(latitude, longitude, weatherProvider, requestId).getOrNull()
+    private suspend fun loadAddress(locationType: LocationType): Result<LocationModel> = when (locationType) {
+        is LocationType.CustomLocation -> {
+            Result.success(LocationModel(locationType.latitude, locationType.longitude, locationType.address))
+        }
 
-        return if (hourlyForecast != null && dailyForecast != null) {
-            val dayNightCalculator = DayNightCalculator(latitude, longitude)
+        is LocationType.CurrentLocation -> {
+            when (val result = getCurrentLocationUseCase()) {
+                is CurrentLocationResultState.Success -> {
+                    Result.success(result.location)
+                }
 
-            UiState.Success(DailyNotificationForecastUiModel(
-                address,
-                hourlyForecast,
-                dailyForecast,
-                dayNightCalculator,
-                units,
-            ))
-        } else {
-            UiState.Failure(FeatureType.NETWORK)
+                is CurrentLocationResultState.Failure -> {
+                    Result.failure(Throwable("Location is null"))
+                }
+            }
         }
     }
+
 }

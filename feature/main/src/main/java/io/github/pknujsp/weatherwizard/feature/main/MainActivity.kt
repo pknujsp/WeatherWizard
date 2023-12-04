@@ -30,7 +30,6 @@ class MainActivity : ComponentActivity() {
     private val viewModel: ActivityViewModel by viewModels()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val systemBarStyler = SystemBarStyler(window)
         val appNetworkManager = AppNetworkManager.getInstance(this)
 
         setContent {

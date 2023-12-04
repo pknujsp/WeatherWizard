@@ -34,7 +34,7 @@ class AddOrEditDailyNotificationViewModel @Inject constructor(
                 locationType = it.locationType,
                 hour = it.hour,
                 minute = it.minute,
-                weatherDataProvider = it.weatherProvider
+                weatherProvider = it.weatherProvider
             )
         }, update = ::update, switch = ::switch, isNew = isNew)
 
@@ -51,7 +51,7 @@ class AddOrEditDailyNotificationViewModel @Inject constructor(
                         locationType = data.locationType,
                         hour = data.hour,
                         minute = data.minute,
-                        weatherDataProvider = data.weatherProvider
+                        weatherProvider = data.weatherProvider
                     )
                     _dailyNoficationUiState.isEnabled = enabled
                 }

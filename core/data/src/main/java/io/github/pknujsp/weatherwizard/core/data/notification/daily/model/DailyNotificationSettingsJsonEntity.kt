@@ -3,7 +3,7 @@ package io.github.pknujsp.weatherwizard.core.data.notification.daily.model
 import io.github.pknujsp.weatherwizard.core.model.EntityModel
 import io.github.pknujsp.weatherwizard.core.model.favorite.LocationType
 import io.github.pknujsp.weatherwizard.core.model.notification.enums.DailyNotificationType
-import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherDataProvider
+import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherProvider
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -24,7 +24,7 @@ internal data class DailyNotificationSettingsJsonEntity(
         else -> locationType
     }
 
-    fun getWeatherProvider(): WeatherDataProvider = WeatherDataProvider.fromKey(weatherProvider)
+    fun getWeatherProvider(): WeatherProvider = WeatherProvider.fromKey(weatherProvider)
 
     fun getType(): DailyNotificationType = DailyNotificationType.fromKey(type)
 }

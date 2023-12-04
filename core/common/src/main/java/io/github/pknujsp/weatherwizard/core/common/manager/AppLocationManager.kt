@@ -2,17 +2,9 @@ package io.github.pknujsp.weatherwizard.core.common.manager
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.content.Intent
 import android.location.Location
 import android.location.LocationManager
 import android.os.Looper
-import android.provider.Settings
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.rememberUpdatedState
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
@@ -23,27 +15,17 @@ import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
-class AppLocationManager private constructor(context: Context) {
+internal class AppLocationManagerImpl(context: Context) : AppLocationManager {
     private val fusedLocationProvider: FusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(context)
     private val locationManager: LocationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
     private val requestingLocationUpdates = AtomicBoolean(false)
     private var callback: LocationCallback? = null
 
-    companion object {
-        private var instance: AppLocationManager? = null
-
-        fun getInstance(context: Context): AppLocationManager {
-            if (instance == null) {
-                instance = AppLocationManager(context)
-            }
-            return instance!!
-        }
-    }
-
-    fun isGpsProviderEnabled(): Boolean = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
+    override val isGpsProviderEnabled: Boolean
+        get() = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
 
     @SuppressLint("MissingPermission")
-    suspend fun getCurrentLocation(): CurrentLocationResult {
+    override suspend fun getCurrentLocation(): AppLocationManager.LocationResult {
         var result = suspendCoroutine { continuation ->
             fusedLocationProvider.lastLocation.addOnCompleteListener { task ->
                 val result = if (task.isSuccessful) {
@@ -63,9 +45,9 @@ class AppLocationManager private constructor(context: Context) {
         }
 
         return if (result.isSuccess) {
-            CurrentLocationResult.Success(result.getOrThrow())
+            AppLocationManager.LocationResult.Success(result.getOrThrow())
         } else {
-            CurrentLocationResult.Failure(result.exceptionOrNull()!!)
+            AppLocationManager.LocationResult.Failure(result.exceptionOrNull()!!)
         }
     }
 
@@ -97,21 +79,18 @@ class AppLocationManager private constructor(context: Context) {
             Looper.getMainLooper())
     }
 
-    @Composable
-    fun OpenSettingsForLocation(onReturnedFromSettings: () -> Unit) {
-        val onReturnedFromSettingsState by rememberUpdatedState(onReturnedFromSettings)
 
-        val settingsLauncher = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) {
-            onReturnedFromSettingsState()
-        }
+}
 
-        LaunchedEffect(Unit) {
-            settingsLauncher.launch(Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS))
-        }
-    }
+interface AppLocationManager {
+    val isGpsProviderEnabled: Boolean
+    suspend fun getCurrentLocation(): LocationResult
 
-    sealed interface CurrentLocationResult {
-        data class Success(val location: Location) : CurrentLocationResult
-        data class Failure(val throwable: Throwable) : CurrentLocationResult
+    sealed interface LocationResult {
+        data class Success(val location: Location) :
+            LocationResult
+
+        data class Failure(val throwable: Throwable) :
+            LocationResult
     }
 }

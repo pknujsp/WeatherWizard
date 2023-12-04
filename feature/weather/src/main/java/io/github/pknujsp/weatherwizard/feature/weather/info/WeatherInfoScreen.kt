@@ -38,9 +38,9 @@ import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
-import io.github.pknujsp.weatherwizard.core.common.manager.AppLocationManager
+import io.github.pknujsp.weatherwizard.core.common.manager.AppLocationManagerImpl
 import io.github.pknujsp.weatherwizard.core.model.favorite.LocationType
-import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherDataProvider
+import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherProvider
 import io.github.pknujsp.weatherwizard.core.ui.TitleTextWithoutNavigation
 import io.github.pknujsp.weatherwizard.core.ui.dialog.BottomSheet
 import io.github.pknujsp.weatherwizard.feature.weather.NestedWeatherRoutes
@@ -70,7 +70,7 @@ fun WeatherInfoScreen(navController: NavController) {
     var backgroundImageUrl by remember { mutableStateOf("") }
     var reload by remember { mutableIntStateOf(0) }
 
-    val gpsLocationManager = remember { AppLocationManager.getInstance(context) }
+    val gpsLocationManager = remember { AppLocationManagerImpl.getInstance(context) }
     var enabledLocation by remember { mutableStateOf(gpsLocationManager.isGpsProviderEnabled()) }
     var showLocationLoadingDialog by remember { mutableStateOf(false) }
 
@@ -147,7 +147,7 @@ fun WeatherInfoScreen(navController: NavController) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun WeatherProviderDialog(currentProvider: WeatherDataProvider, onClick: (WeatherDataProvider?) -> Unit) {
+fun WeatherProviderDialog(currentProvider: WeatherProvider, onClick: (WeatherProvider?) -> Unit) {
     BottomSheet(
         onDismissRequest = {
             onClick(null)
@@ -155,7 +155,7 @@ fun WeatherProviderDialog(currentProvider: WeatherDataProvider, onClick: (Weathe
     ) {
         Column(modifier = Modifier.padding(vertical = 16.dp)) {
             TitleTextWithoutNavigation(title = stringResource(id = R.string.weather_provider))
-            WeatherDataProvider.enums.forEach { weatherDataProvider ->
+            WeatherProvider.enums.forEach { weatherDataProvider ->
                 Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier
                     .clickable {
                         onClick(weatherDataProvider)
@@ -184,7 +184,7 @@ fun WeatherProviderDialog(currentProvider: WeatherDataProvider, onClick: (Weathe
 
 private suspend fun load(
     locationType: LocationType,
-    gpsLocationManager: AppLocationManager,
+    gpsLocationManager: AppLocationManagerImpl,
     weatherInfoViewModel: WeatherInfoViewModel,
     enabledLocation: (Boolean) -> Unit,
     showLocationLoadingDialog: (Boolean) -> Unit
@@ -195,7 +195,7 @@ private suspend fun load(
             enabledLocation(true)
             showLocationLoadingDialog(true)
             val result = gpsLocationManager.getCurrentLocation()
-            if (result is AppLocationManager.CurrentLocationResult.Success) {
+            if (result is AppLocationManagerImpl.CurrentLocationModel.Success) {
                 weatherInfoViewModel.setArgsAndLoad(result.location)
             }
             showLocationLoadingDialog(false)

@@ -1,7 +1,7 @@
 package io.github.pknujsp.weatherwizard.core.domain.weather.compare
 
 import io.github.pknujsp.weatherwizard.core.data.weather.WeatherDataRepository
-import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherDataProvider
+import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherProvider
 import io.github.pknujsp.weatherwizard.core.model.weather.hourlyforecast.HourlyForecastEntity
 import io.github.pknujsp.weatherwizard.core.model.weather.hourlyforecast.ToCompareHourlyForecastEntity
 import java.time.ZonedDateTime
@@ -13,16 +13,16 @@ class GetHourlyForecastToCompareUseCase @Inject constructor(
     override suspend fun invoke(
         latitude: Double,
         longitude: Double,
-        weatherDataProviders: List<WeatherDataProvider>,
+        weatherProviders: List<WeatherProvider>,
         requestId: Long
     ): Result<ToCompareHourlyForecastEntity> {
-        return weatherDataProviders.mapIndexed { i, provider ->
+        return weatherProviders.mapIndexed { i, provider ->
             weatherDataRepository.getHourlyForecast(latitude, longitude, provider, requestId + i)
         }.let { responses ->
             val success = responses.all { it.isSuccess }
             if (success) {
                 val entities = responses.mapIndexed { i, response ->
-                    weatherDataProviders[i] to response.getOrThrow().items.subList(weatherDataProviders[i]).map { item ->
+                    weatherProviders[i] to response.getOrThrow().items.subList(weatherProviders[i]).map { item ->
                         ToCompareHourlyForecastEntity.Item(dateTime = item.dateTime,
                             weatherCondition = item.weatherCondition,
                             temperature = item.temperature,
@@ -45,8 +45,8 @@ class GetHourlyForecastToCompareUseCase @Inject constructor(
         }
     }
 
-    private fun List<HourlyForecastEntity.Item>.subList(weatherDataProvider: WeatherDataProvider) =
-        if (weatherDataProvider == WeatherDataProvider.MetNorway) {
+    private fun List<HourlyForecastEntity.Item>.subList(weatherProvider: WeatherProvider) =
+        if (weatherProvider == WeatherProvider.MetNorway) {
             var lastIdx = 0
             val map = mutableMapOf<String, Long>()
 

@@ -8,35 +8,30 @@ import androidx.compose.ui.platform.LocalContext
 import io.github.pknujsp.weatherwizard.core.model.UiModel
 import io.github.pknujsp.weatherwizard.core.model.favorite.LocationType
 import io.github.pknujsp.weatherwizard.core.model.notification.enums.DailyNotificationType
-import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherDataProvider
+import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherProvider
 import io.github.pknujsp.weatherwizard.feature.notification.manager.NotificationAlarmManager
 
-@Stable
-data class DailyNotificationSettingsListItemUiState(
+data class DailyNotificationSettingsListItem(
     val isEnabled: Boolean,
     val id: Long = 0L,
     val type: DailyNotificationType,
     val locationType: LocationType,
     val hour: Int,
     val minute: Int,
-    val weatherDataProvider: WeatherDataProvider,
+    val weatherProvider: WeatherProvider,
 ) : UiModel {
     val timeText = String.format("%02d:%02d", hour, minute)
 }
 
-data class DailyNotificationListUiState(
-    val notifications: List<DailyNotificationSettingsListItemUiState> = emptyList(),
-    val switch: (Long, Boolean) -> Unit,
-    val delete: (Long) -> Unit
-) : UiModel {
-
-}
-
 @Stable
+data class DailyNotificationListUiState(
+    val notifications: List<DailyNotificationSettingsListItem> = emptyList(),
+) : UiModel
+
 class DailyNotificationListState(
-    val uiState: DailyNotificationListUiState, private val alarmManager: NotificationAlarmManager
+    private val switch: (Long, Boolean) -> Unit, private val delete: (Long) -> Unit, private val alarmManager: NotificationAlarmManager
 ) {
-    private fun changeAlarmSchedule(context: Context, isEnabled: Boolean, settings: DailyNotificationSettingsListItemUiState) {
+    private fun changeAlarmSchedule(context: Context, isEnabled: Boolean, settings: DailyNotificationSettingsListItem) {
         if (isEnabled) {
             alarmManager.schedule(context, settings.id, settings.hour, settings.minute)
         } else {
@@ -44,14 +39,14 @@ class DailyNotificationListState(
         }
     }
 
-    fun switch(settings: DailyNotificationSettingsListItemUiState, context: Context) {
+    fun switch(settings: DailyNotificationSettingsListItem, context: Context) {
         val isEnabled = !settings.isEnabled
-        uiState.switch(settings.id, !isEnabled)
+        switch(settings.id, !isEnabled)
         changeAlarmSchedule(context, !isEnabled, settings)
     }
 
-    fun delete(settings: DailyNotificationSettingsListItemUiState, context: Context) {
-        uiState.delete(settings.id)
+    fun delete(settings: DailyNotificationSettingsListItem, context: Context) {
+        delete(settings.id)
         changeAlarmSchedule(context, false, settings)
     }
 }
@@ -59,7 +54,7 @@ class DailyNotificationListState(
 
 @Composable
 fun rememberDailyNotificationListState(
-    uiState: DailyNotificationListUiState, context: Context = LocalContext.current
-) = remember(uiState) {
-    DailyNotificationListState(uiState, NotificationAlarmManager(context))
+    switch: (Long, Boolean) -> Unit, delete: (Long) -> Unit, context: Context = LocalContext.current
+) = remember(switch, delete) {
+    DailyNotificationListState(switch, delete, NotificationAlarmManager(context))
 }

@@ -4,12 +4,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import io.github.pknujsp.weatherwizard.core.model.EntityModel
 import io.github.pknujsp.weatherwizard.core.model.UiModel
 import io.github.pknujsp.weatherwizard.core.model.favorite.LocationType
 import io.github.pknujsp.weatherwizard.core.model.notification.enums.DailyNotificationType
-import io.github.pknujsp.weatherwizard.core.model.notification.enums.NotificationIconType
-import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherDataProvider
+import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherProvider
 
 class DailyNotificationSettings(
     val id: Long = 0L,
@@ -17,13 +15,13 @@ class DailyNotificationSettings(
     locationType: LocationType,
     hour: Int,
     minute: Int,
-    weatherDataProvider: WeatherDataProvider
+    weatherProvider: WeatherProvider
 ) : UiModel {
     var type by mutableStateOf(type)
     var locationType by mutableStateOf(locationType)
     var hour by mutableIntStateOf(hour)
     var minute by mutableIntStateOf(minute)
-    var weatherDataProvider by mutableStateOf(weatherDataProvider)
+    var weatherDataProvider by mutableStateOf(weatherProvider)
 
     private val timeFormat = "%02d:%02d"
     val timeText: String

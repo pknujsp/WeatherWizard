@@ -1,6 +1,6 @@
 package io.github.pknujsp.weatherwizard.core.network.api.metnorway.response
 
-import io.github.pknujsp.weatherwizard.core.model.weather.common.AmPm
+import io.github.pknujsp.weatherwizard.core.model.weather.common.TimeOfDayType
 import io.github.pknujsp.weatherwizard.core.model.weather.common.DateTimeValueType
 import io.github.pknujsp.weatherwizard.core.model.weather.common.PrecipitationUnit
 import io.github.pknujsp.weatherwizard.core.model.weather.common.PrecipitationValueType
@@ -55,7 +55,7 @@ class MetNorwayDailyForecastResponse(
                 val maxWindSpeed = items.maxOf { it.data.instant.details.windSpeed }
                 items.createAmPmDataList(symbols).forEach { amPmData ->
                     result.add(
-                        Item(amPm = amPmData.amPm,
+                        Item(timeOfDayType = amPmData.timeOfDayType,
                             dateTime = DateTimeValueType(firstTime.toString()),
                             minTemperature = TemperatureValueType(minTemp, TemperatureUnit.Celsius),
                             maxTemperature = TemperatureValueType(maxTemp, TemperatureUnit.Celsius),
@@ -76,20 +76,20 @@ class MetNorwayDailyForecastResponse(
     private fun List<MetNorwayResponse.Properties.Timesery>.createAmPmDataList(symbols: Map<String, WeatherConditionCategory>): List<AmPmData> {
         val items = mutableListOf<AmPmData>()
         map { ZonedDateTime.parse(it.time).hour to it }.let { pairs ->
-            pairs.filter { it.first < 12 }.createAmPmData(AmPm.AM, symbols)?.run { items.add(this) }
-            pairs.filter { it.first >= 12 }.createAmPmData(AmPm.PM, symbols)?.run { items.add(this) }
+            pairs.filter { it.first < 12 }.createAmPmData(TimeOfDayType.AM, symbols)?.run { items.add(this) }
+            pairs.filter { it.first >= 12 }.createAmPmData(TimeOfDayType.PM, symbols)?.run { items.add(this) }
         }
 
         return items
     }
 
     private fun List<Pair<Int, MetNorwayResponse.Properties.Timesery>>.createAmPmData(
-        amPm: AmPm, symbols: Map<String,
+        timeOfDayType: TimeOfDayType, symbols: Map<String,
                 WeatherConditionCategory>
     ):
             AmPmData? {
         return if (isNotEmpty()) {
-            AmPmData(amPm, PrecipitationValueType(getPrecipitationVolume(), PrecipitationUnit.Millimeter),
+            AmPmData(timeOfDayType, PrecipitationValueType(getPrecipitationVolume(), PrecipitationUnit.Millimeter),
                 WeatherConditionValueType(getWeatherCondition(symbols)))
         } else {
             null
@@ -105,7 +105,7 @@ class MetNorwayDailyForecastResponse(
         }
 
     data class Item(
-        val amPm: AmPm,
+        val timeOfDayType: TimeOfDayType,
         val dateTime: DateTimeValueType,
         val minTemperature: TemperatureValueType,
         val maxTemperature: TemperatureValueType,
@@ -116,7 +116,7 @@ class MetNorwayDailyForecastResponse(
     )
 
     private data class AmPmData(
-        val amPm: AmPm,
+        val timeOfDayType: TimeOfDayType,
         val precipitationVolume: PrecipitationValueType,
         val weatherCondition: WeatherConditionValueType,
     )

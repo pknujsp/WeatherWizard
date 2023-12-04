@@ -35,7 +35,7 @@ class WidgetManager private constructor(context: Context) {
     inline fun <reified C : WidgetRemoteViewsCreator<out UiModel>> remoteViewCreator(
         widgetType: WidgetType
     ): C = when (widgetType) {
-        WidgetType.SUMMARY -> SummaryRemoteViewCreator() as C
+        WidgetType.ALL_IN_ONE -> SummaryRemoteViewCreator() as C
         else -> throw IllegalArgumentException("Unknown widget type: $widgetType")
     }
 

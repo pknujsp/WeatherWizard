@@ -1,7 +1,7 @@
 package io.github.pknujsp.weatherwizard.core.model.notification.enums
 
-import io.github.pknujsp.weatherwizard.core.common.BaseEnum
-import io.github.pknujsp.weatherwizard.core.common.IEnum
+import io.github.pknujsp.weatherwizard.core.common.enum.BaseEnum
+import io.github.pknujsp.weatherwizard.core.common.enum.IEnum
 
 
 enum class RefreshInterval(val interval: Long) : IEnum {

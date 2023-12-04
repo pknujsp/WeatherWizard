@@ -2,7 +2,7 @@ package io.github.pknujsp.weatherwizard.core.domain.weather
 
 import io.github.pknujsp.weatherwizard.core.data.weather.WeatherDataRepository
 import io.github.pknujsp.weatherwizard.core.model.weather.AllWeatherDataEntity
-import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherDataProvider
+import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherProvider
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -11,15 +11,15 @@ class GetAllWeatherDataUseCase @Inject constructor(
     private val weatherDataRepository: WeatherDataRepository
 ) : BaseGetWeatherDataUseCase<AllWeatherDataEntity> {
     override suspend fun invoke(
-        latitude: Double, longitude: Double, weatherDataProvider: WeatherDataProvider, requestId: Long
+        latitude: Double, longitude: Double, weatherProvider: WeatherProvider, requestId: Long
     ): Result<AllWeatherDataEntity> {
         return weatherDataRepository.run {
-            val currentWeather = getCurrentWeather(latitude, longitude, weatherDataProvider, requestId)
-            val hourlyForecast = getHourlyForecast(latitude, longitude, weatherDataProvider, requestId)
-            val dailyForecast = getDailyForecast(latitude, longitude, weatherDataProvider, requestId)
-            val yesterdayWeather = if (weatherDataProvider is WeatherDataProvider.Kma) getYesterdayWeather(latitude,
+            val currentWeather = getCurrentWeather(latitude, longitude, weatherProvider, requestId)
+            val hourlyForecast = getHourlyForecast(latitude, longitude, weatherProvider, requestId)
+            val dailyForecast = getDailyForecast(latitude, longitude, weatherProvider, requestId)
+            val yesterdayWeather = if (weatherProvider is WeatherProvider.Kma) getYesterdayWeather(latitude,
                 longitude,
-                weatherDataProvider,
+                weatherProvider,
                 requestId) else Result.success(null)
 
             if (currentWeather.isSuccess and hourlyForecast.isSuccess and dailyForecast.isSuccess and yesterdayWeather.isSuccess) {

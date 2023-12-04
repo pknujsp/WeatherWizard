@@ -1,4 +1,4 @@
-package io.github.pknujsp.weatherwizard.core.common
+package io.github.pknujsp.weatherwizard.core.common.enum
 
 import androidx.annotation.StringRes
 

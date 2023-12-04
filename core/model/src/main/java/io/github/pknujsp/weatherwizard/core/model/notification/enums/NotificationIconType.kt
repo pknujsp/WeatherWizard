@@ -1,7 +1,7 @@
 package io.github.pknujsp.weatherwizard.core.model.notification.enums
 
-import io.github.pknujsp.weatherwizard.core.common.BaseEnum
-import io.github.pknujsp.weatherwizard.core.common.IEnum
+import io.github.pknujsp.weatherwizard.core.common.enum.BaseEnum
+import io.github.pknujsp.weatherwizard.core.common.enum.IEnum
 
 enum class NotificationIconType : IEnum {
     TEMPERATURE {
@@ -16,6 +16,6 @@ enum class NotificationIconType : IEnum {
     companion object : BaseEnum<NotificationIconType> {
         override val default: NotificationIconType = TEMPERATURE
         override val key: String get() = "NotificationIconType"
-        override val enums: Array<NotificationIconType> get() = entries.toTypedArray()
+        override val enums: Array<NotificationIconType> = entries.toTypedArray()
     }
 }

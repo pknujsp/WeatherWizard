@@ -10,7 +10,7 @@ import io.github.pknujsp.weatherwizard.core.data.settings.SettingsRepository
 import io.github.pknujsp.weatherwizard.core.domain.weather.compare.GetHourlyForecastToCompareUseCase
 import io.github.pknujsp.weatherwizard.core.model.UiState
 import io.github.pknujsp.weatherwizard.core.model.weather.RequestWeatherDataArgs
-import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherDataProvider
+import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherProvider
 import io.github.pknujsp.weatherwizard.core.model.weather.hourlyforecast.CompareHourlyForecast
 import io.github.pknujsp.weatherwizard.core.model.weather.hourlyforecast.HourlyForecastComparisonReport
 import io.github.pknujsp.weatherwizard.core.model.weather.hourlyforecast.SimpleHourlyForecast
@@ -40,7 +40,7 @@ class CompareHourlyForecastViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             args.run {
                 val requestId = System.currentTimeMillis()
-                getHourlyForecastToCompareUseCase(latitude, longitude, weatherDataProviders, requestId).onSuccess { entity ->
+                getHourlyForecastToCompareUseCase(latitude, longitude, weatherProviders, requestId).onSuccess { entity ->
                     val (firstTime, endTime) = entity.run {
                         items.maxOf { ZonedDateTime.parse(it.second.first().dateTime.value) } to items.minOf {
                             ZonedDateTime.parse(it.second
@@ -58,7 +58,7 @@ class CompareHourlyForecastViewModel @Inject constructor(
                     }
 
                     val units = settingsRepository.currentUnits.value
-                    val entities = mutableListOf<Pair<WeatherDataProvider, List<ToCompareHourlyForecastEntity.Item>>>()
+                    val entities = mutableListOf<Pair<WeatherProvider, List<ToCompareHourlyForecastEntity.Item>>>()
 
                     val items = entity.items.map { (provider, items) ->
                         val firstIndex = items.indexOfFirst { ZonedDateTime.parse(it.dateTime.value) == firstTime }
@@ -101,7 +101,7 @@ class CompareHourlyForecastViewModel @Inject constructor(
         dayNightCalculator.calculate(dateTime.toCalendar()) == DayNightCalculator.DayNight.DAY
 
     private fun analysis(
-        times: List<Pair<Boolean, ZonedDateTime>>, entities: List<Pair<WeatherDataProvider,
+        times: List<Pair<Boolean, ZonedDateTime>>, entities: List<Pair<WeatherProvider,
                 List<ToCompareHourlyForecastEntity.Item>>>
     ) {
         _report.value = UiState.Success(HourlyForecastComparisonReport(entities, times))
@@ -109,7 +109,7 @@ class CompareHourlyForecastViewModel @Inject constructor(
 }
 
 class CompareHourlyForecastInfo(
-    items: List<Pair<WeatherDataProvider, CompareHourlyForecast>>, val dateTimeInfo: SimpleHourlyForecast.DateTimeInfo
+    items: List<Pair<WeatherProvider, CompareHourlyForecast>>, val dateTimeInfo: SimpleHourlyForecast.DateTimeInfo
 ) {
     val weatherDataProviders = items.map { it.first }.toTypedArray()
     val items = items.run {

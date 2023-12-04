@@ -39,15 +39,13 @@ class DailyNotificationWorker @AssistedInject constructor(
 
     override suspend fun doWork(): Result {
         val notificationId = inputData.getLong("notificationId", 0L)
-        return withContext(Dispatchers.IO) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && !context.checkSelfPermission(PermissionType.POST_NOTIFICATIONS)) {
-                Result.success()
-            }
-
-            viewModel.init(notificationId)
-            appNotificationManager.notifyNotification(NotificationType.DAILY, context, load())
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && !context.checkSelfPermission(PermissionType.POST_NOTIFICATIONS)) {
             Result.success()
         }
+
+        viewModel.load(notificationId)
+        appNotificationManager.notifyNotification(NotificationType.DAILY, context, load())
+        return Result.success()
     }
 
     override suspend fun getForegroundInfo(): ForegroundInfo {
@@ -55,7 +53,7 @@ class DailyNotificationWorker @AssistedInject constructor(
     }
 
     private suspend fun load(): RemoteViewUiModel {
-        return when (val notifiationDataType = viewModel.notificationInfo.data.getType()) {
+        return when (val notifiationDataType = viewModel.notification.data.getType()) {
             DailyNotificationType.FORECAST -> loadHourlyForecast(RemoteViewsCreatorManager.createRemoteViewsCreator(
                 notifiationDataType))
 
@@ -67,7 +65,6 @@ class DailyNotificationWorker @AssistedInject constructor(
         remoteViewCreator: NotificationRemoteViewsCreator<DailyNotificationForecastUiModel>
     ): RemoteViewUiModel {
         val result = viewModel.loadHourlyForecast()
-
         val remoteViewUiModel = RemoteViewUiModel(result is UiState.Success)
 
         result.onSuccess {
@@ -88,7 +85,6 @@ class DailyNotificationWorker @AssistedInject constructor(
         remoteViewCreator: NotificationRemoteViewsCreator<DailyNotificationForecastUiModel>
     ): RemoteViewUiModel {
         val result = viewModel.loadHourlyForecast()
-
         val remoteViewUiModel = RemoteViewUiModel(result is UiState.Success)
 
         result.onSuccess {

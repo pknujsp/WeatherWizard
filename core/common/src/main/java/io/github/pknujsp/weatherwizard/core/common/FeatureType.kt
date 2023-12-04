@@ -3,12 +3,12 @@ package io.github.pknujsp.weatherwizard.core.common
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.location.LocationManager
 import android.net.Uri
 import android.os.Build
 import android.provider.Settings
 import androidx.annotation.RequiresApi
 import androidx.annotation.StringRes
-import io.github.pknujsp.weatherwizard.core.common.manager.AppLocationManager
 import io.github.pknujsp.weatherwizard.core.common.manager.AppNetworkManager
 import io.github.pknujsp.weatherwizard.core.common.manager.PermissionType
 import io.github.pknujsp.weatherwizard.core.common.manager.checkSelfPermission
@@ -24,7 +24,7 @@ enum class FeatureType(
             return context.checkSelfPermission(PermissionType.LOCATION)
         }
 
-        override fun getPendintIntent(context: Context): PendingIntent {
+        override fun getPendingIntent(context: Context): PendingIntent {
             return PendingIntent.getActivity(context,
                 title,
                 getIntent(context),
@@ -46,7 +46,7 @@ enum class FeatureType(
             return context.checkSelfPermission(PermissionType.STORAGE)
         }
 
-        override fun getPendintIntent(context: Context): PendingIntent {
+        override fun getPendingIntent(context: Context): PendingIntent {
             return PendingIntent.getActivity(context,
                 title,
                 getIntent(context),
@@ -65,7 +65,7 @@ enum class FeatureType(
             return AppNetworkManager.getInstance(context).isNetworkAvailable()
         }
 
-        override fun getPendintIntent(context: Context): PendingIntent {
+        override fun getPendingIntent(context: Context): PendingIntent {
             return PendingIntent.getActivity(context,
                 title,
                 getIntent(context),
@@ -80,11 +80,11 @@ enum class FeatureType(
         R.string.location_service_disabled,
         R.string.open_settings_for_location_service,
         Settings.ACTION_LOCATION_SOURCE_SETTINGS) {
-        override fun isAvailable(context: Context): Boolean {
-            return AppLocationManager.getInstance(context).isGpsProviderEnabled()
-        }
+        override fun isAvailable(context: Context): Boolean =
+            (context.getSystemService(Context.LOCATION_SERVICE) as LocationManager).isProviderEnabled(LocationManager.GPS_PROVIDER)
 
-        override fun getPendintIntent(context: Context): PendingIntent {
+
+        override fun getPendingIntent(context: Context): PendingIntent {
             return PendingIntent.getActivity(context,
                 title,
                 getIntent(context),
@@ -104,7 +104,7 @@ enum class FeatureType(
             return context.checkSelfPermission(PermissionType.POST_NOTIFICATIONS)
         }
 
-        override fun getPendintIntent(context: Context): PendingIntent {
+        override fun getPendingIntent(context: Context): PendingIntent {
             return PendingIntent.getActivity(context,
                 title,
                 getIntent(context),
@@ -127,7 +127,7 @@ enum class FeatureType(
             return context.checkSelfPermission(if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) PermissionType.EXACT_ALARM_ON_SDK_33_AND_ABOVE else PermissionType.EXACT_ALARM_ON_SDK_31_AND_ABOVE)
         }
 
-        override fun getPendintIntent(context: Context): PendingIntent {
+        override fun getPendingIntent(context: Context): PendingIntent {
             return PendingIntent.getActivity(context,
                 title,
                 getIntent(context),
@@ -146,7 +146,7 @@ enum class FeatureType(
 
 interface IFeature {
     fun isAvailable(context: Context): Boolean
-    fun getPendintIntent(context: Context): PendingIntent
+    fun getPendingIntent(context: Context): PendingIntent
 
     fun getIntent(context: Context): Intent
 }

@@ -1,6 +1,5 @@
 package io.github.pknujsp.weatherwizard.feature.notification.daily.screen
 
-import android.content.Context
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -46,15 +45,15 @@ import io.github.pknujsp.weatherwizard.core.ui.dialog.DialogScreen
 import io.github.pknujsp.weatherwizard.core.ui.list.EmptyListScreen
 import io.github.pknujsp.weatherwizard.core.ui.theme.AppShapes
 import io.github.pknujsp.weatherwizard.feature.notification.NotificationRoutes
-import io.github.pknujsp.weatherwizard.feature.notification.daily.model.DailyNotificationSettings
-import io.github.pknujsp.weatherwizard.feature.notification.daily.model.list.DailyNotificationSettingsListItemUiState
+import io.github.pknujsp.weatherwizard.feature.notification.daily.model.list.DailyNotificationSettingsListItem
 import io.github.pknujsp.weatherwizard.feature.notification.daily.model.list.rememberDailyNotificationListState
-import io.github.pknujsp.weatherwizard.feature.notification.manager.NotificationAlarmManager
 
 @Composable
 fun DailyNotificationListScreen(navController: NavController, viewModel: DailyNotificationListViewModel = hiltViewModel()) {
-    val notifications = rememberDailyNotificationListState(viewModel.notifications)
-    val context = LocalContext.current
+    val notificationsState = rememberDailyNotificationListState(viewModel::switch, viewModel::delete)
+    val notificationListUiState = remember {
+        viewModel.notifications
+    }
 
     Column(modifier = Modifier.fillMaxSize()) {
         TitleTextWithNavigation(title = stringResource(id = R.string.title_daily_notification)) {
@@ -65,30 +64,37 @@ fun DailyNotificationListScreen(navController: NavController, viewModel: DailyNo
                 .verticalScroll(rememberScrollState())
                 .weight(1f),
         ) {
-            if (notifications.uiState.notifications.isEmpty()) {
+            val context = LocalContext.current
+            if (notificationListUiState.notifications.isEmpty()) {
                 EmptyListScreen(message = io.github.pknujsp.weatherwizard.feature.notification.R.string.empty_daily_notification)
             } else {
-                for (notification in notifications.uiState.notifications) {
-                    Item(uiState = notification) {
+                for (notification in notificationListUiState.notifications) {
+                    Item(item = notification, onClick = {
                         navController.navigate(NotificationRoutes.AddOrEditDaily.routeWithArguments(notification.id))
-                    }
+                    }, onSwitch = { item ->
+                        notificationsState.switch(item, context)
+                    }, onDelete = {
+                        notificationsState.delete(it, context)
+                    })
                 }
             }
         }
-        Box(modifier = Modifier.padding(12.dp)) {
-            SecondaryButton(text = stringResource(id = io.github.pknujsp.weatherwizard.feature.notification.R.string.add_daily_notification),
-                modifier = Modifier.fillMaxWidth()) {
-                navController.navigate(NotificationRoutes.AddOrEditDaily.routeWithArguments(-1L))
-            }
+    }
+    Box(modifier = Modifier.padding(12.dp)) {
+        SecondaryButton(text = stringResource(id = io.github.pknujsp.weatherwizard.feature.notification.R.string.add_daily_notification),
+            modifier = Modifier.fillMaxWidth()) {
+            navController.navigate(NotificationRoutes.AddOrEditDaily.routeWithArguments(-1L))
         }
     }
-
 }
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun Item(uiState: DailyNotificationSettingsListItemUiState, onClick: () -> Unit) {
+private fun Item(
+    item: DailyNotificationSettingsListItem, onClick: () -> Unit, onSwitch: (DailyNotificationSettingsListItem) -> Unit,
+    onDelete: (DailyNotificationSettingsListItem) -> Unit
+) {
     Surface(shape = AppShapes.large, shadowElevation = 4.dp, modifier = Modifier.padding(16.dp, 8.dp)) {
         Row(modifier = Modifier
             .fillMaxWidth()
@@ -97,21 +103,19 @@ private fun Item(uiState: DailyNotificationSettingsListItemUiState, onClick: () 
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(16.dp)) {
             Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                Text(text = uiState.timeText, style = TextStyle(fontSize = 30.sp, color = Color.DarkGray, letterSpacing = 0.1.sp))
+                Text(text = item.timeText, style = TextStyle(fontSize = 30.sp, color = Color.DarkGray, letterSpacing = 0.1.sp))
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                     AsyncImage(model = ImageRequest.Builder(LocalContext.current).data(LocationType.icon).build(),
-                        contentDescription = stringResource(id = uiState.locationType.title),
+                        contentDescription = stringResource(id = item.locationType.title),
                         modifier = Modifier.size(16.dp))
-                    Text(text = if (uiState.locationType is LocationType.CustomLocation) uiState.locationType.address else stringResource(id =
-                        uiState
-                        .locationType.title),
+                    Text(text = if (item.locationType is LocationType.CustomLocation) item.locationType.address else stringResource(id = item.locationType.title),
                         style = TextStyle(fontSize = 16.sp, color = Color.Gray))
                 }
-                Text(text = stringResource(id = uiState.type.title), style = TextStyle(fontSize = 14.sp, color = Color.Blue))
+                Text(text = stringResource(id = item.type.title), style = TextStyle(fontSize = 14.sp, color = Color.Blue))
             }
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Switch(checked = uiState.isEnabled, onCheckedChange = {
-                    uiState.switch()
+                Switch(checked = item.isEnabled, onCheckedChange = {
+                    onSwitch(item)
                 })
 
                 var isClickedDelete by remember { mutableStateOf(false) }
@@ -130,7 +134,7 @@ private fun Item(uiState: DailyNotificationSettingsListItemUiState, onClick: () 
                     ) {
                         val message =
                             stringResource(id = io.github.pknujsp.weatherwizard.feature.notification.R.string.delete_daily_notification_message).let {
-                                "${uiState.timeText} $it"
+                                "${item.timeText} $it"
                             }
                         DialogScreen(title = stringResource(id = R.string.delete),
                             message = message,
@@ -139,7 +143,7 @@ private fun Item(uiState: DailyNotificationSettingsListItemUiState, onClick: () 
                             onClickNegative = { isClickedDelete = false },
                             onClickPositive = {
                                 isClickedDelete = false
-                                uiState.delete()
+                                onDelete(item)
                             })
                     }
                 }

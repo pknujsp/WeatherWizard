@@ -3,7 +3,7 @@ package io.github.pknujsp.weatherwizard.core.common.manager
 import android.content.Context
 import io.github.pknujsp.weatherwizard.core.common.FeatureType
 
-fun Context.checkFeatureStateAndUpdateWidgets(featureTypes: Array<FeatureType>): FeatureState {
+fun Context.checkFeatureState(featureTypes: Array<FeatureType>): FeatureState {
     return featureTypes.firstOrNull {
         !it.isAvailable(this)
     }?.let {

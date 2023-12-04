@@ -4,7 +4,7 @@ import io.github.pknujsp.weatherwizard.core.model.EntityModel
 import io.github.pknujsp.weatherwizard.core.model.favorite.LocationType
 import io.github.pknujsp.weatherwizard.core.model.notification.enums.NotificationIconType
 import io.github.pknujsp.weatherwizard.core.model.notification.enums.RefreshInterval
-import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherDataProvider
+import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherProvider
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -24,6 +24,6 @@ internal data class OngoingNotificationSettingsJsonEntity(
     }
 
     fun getRefreshInterval() = RefreshInterval.fromKey(refreshInterval)
-    fun getWeatherProvider() = WeatherDataProvider.fromKey(weatherProvider)
+    fun getWeatherProvider() = WeatherProvider.fromKey(weatherProvider)
     fun getNotificationIconType() = NotificationIconType.fromKey(notificationIconType)
 }

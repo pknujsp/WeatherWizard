@@ -11,6 +11,7 @@ import io.github.pknujsp.weatherwizard.core.common.FeatureType
 import io.github.pknujsp.weatherwizard.core.model.notification.enums.NotificationType
 import io.github.pknujsp.weatherwizard.core.model.worker.IWorker
 import io.github.pknujsp.weatherwizard.core.ui.notification.AppNotificationManager
+import io.github.pknujsp.weatherwizard.feature.widget.WidgetManager
 
 
 @HiltWorker
@@ -21,10 +22,17 @@ class WidgetDeleteWorker @AssistedInject constructor(
         override val name: String get() = "WidgetDeleteWorker"
         override val requiredFeatures: Array<FeatureType>
             get() = arrayOf()
+
+        const val APP_WIDGET_IDS_KEY = "appWidgetIds"
     }
 
     override suspend fun doWork(): Result {
-        val appWidgetIds = inputData.getIntArray("appWidgetIds")!!
+        val inputDataMap = inputData.keyValueMap
+        if (APP_WIDGET_IDS_KEY !in inputDataMap) {
+            return Result.success()
+        }
+
+        val appWidgetIds = inputDataMap[APP_WIDGET_IDS_KEY] as IntArray
         widgetRemoteViewModel.deleteWidgets(appWidgetIds)
         return Result.success()
     }

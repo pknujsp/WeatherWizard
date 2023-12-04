@@ -33,10 +33,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import io.github.pknujsp.weatherwizard.core.common.IEnum
+import io.github.pknujsp.weatherwizard.core.common.enum.IEnum
 import io.github.pknujsp.weatherwizard.core.common.R
 import io.github.pknujsp.weatherwizard.core.model.favorite.LocationType
-import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherDataProvider
+import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherProvider
 import io.github.pknujsp.weatherwizard.core.ui.dialog.BottomSheet
 
 
@@ -220,10 +220,10 @@ fun ColumnScope.LocationScreen(locationType: LocationType, onSelectedItem: (Loca
 }
 
 @Composable
-fun WeatherProvidersScreen(weatherProvider: WeatherDataProvider, onSelectedItem: (WeatherDataProvider) -> Unit) {
+fun WeatherProvidersScreen(weatherProvider: WeatherProvider, onSelectedItem: (WeatherProvider) -> Unit) {
     MediumTitleTextWithoutNavigation(title = stringResource(id = io.github.pknujsp.weatherwizard.core.ui.R.string.weather_provider))
 
-    val radioOptions = remember { WeatherDataProvider.enums }
+    val radioOptions = remember { WeatherProvider.enums }
 
     RadioButtons(radioOptions = radioOptions, selectedOption = weatherProvider, onOptionSelected = {
         onSelectedItem(it)

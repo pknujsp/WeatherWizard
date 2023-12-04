@@ -20,7 +20,7 @@ import io.github.pknujsp.weatherwizard.core.model.flickr.FlickrRequestParameters
 import io.github.pknujsp.weatherwizard.core.model.nominatim.ReverseGeoCode
 import io.github.pknujsp.weatherwizard.core.model.weather.RequestWeatherDataArgs
 import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherConditionCategory
-import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherDataProvider
+import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherProvider
 import io.github.pknujsp.weatherwizard.core.model.weather.current.CurrentWeather
 import io.github.pknujsp.weatherwizard.core.model.weather.current.CurrentWeatherEntity
 import io.github.pknujsp.weatherwizard.core.model.weather.dailyforecast.DailyForecastEntity
@@ -110,7 +110,7 @@ class WeatherInfoViewModel @Inject constructor(
             _args.value =
                 RequestWeatherDataArgs(latitude = lat,
                     longitude = lon,
-                    weatherDataProvider = settingsRepository.getWeatherDataProvider(),
+                    weatherProvider = settingsRepository.getWeatherDataProvider(),
                     locationType = locationType)
 
             loadAllWeatherData()
@@ -118,10 +118,10 @@ class WeatherInfoViewModel @Inject constructor(
         }
     }
 
-    fun updateWeatherDataProvider(weatherDataProvider: WeatherDataProvider) {
+    fun updateWeatherDataProvider(weatherProvider: WeatherProvider) {
         viewModelScope.launch {
             _processState.value = ProcessState.Running
-            settingsRepository.setWeatherDataProvider(weatherDataProvider)
+            settingsRepository.setWeatherDataProvider(weatherProvider)
         }
     }
 
@@ -136,7 +136,7 @@ class WeatherInfoViewModel @Inject constructor(
 
                 getAllWeatherDataUseCase(latitude,
                     longitude,
-                    weatherDataProvider,
+                    weatherProvider,
                     requestDateTime.toInstant().toEpochMilli()).onSuccess { allWeatherDataEntity ->
                     createFlickrRequestParameter(allWeatherDataEntity.currentWeatherEntity.weatherCondition.value,
                         latitude,

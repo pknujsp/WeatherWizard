@@ -6,7 +6,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import io.github.pknujsp.weatherwizard.core.data.settings.SettingsRepository
 import io.github.pknujsp.weatherwizard.core.model.weather.common.PrecipitationUnit
 import io.github.pknujsp.weatherwizard.core.model.weather.common.TemperatureUnit
-import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherDataProvider
+import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherProvider
 import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherDataUnit
 import io.github.pknujsp.weatherwizard.core.model.weather.common.WindSpeedUnit
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -28,15 +28,15 @@ class SettingsViewModel @Inject constructor(
     private val _precipitationUnit = MutableStateFlow<PrecipitationUnit>(PrecipitationUnit.default)
     val precipitationUnit: StateFlow<PrecipitationUnit> = _precipitationUnit
 
-    private val _weatherDataProvider = MutableStateFlow<WeatherDataProvider>(WeatherDataProvider.default)
-    val weatherDataProvider: StateFlow<WeatherDataProvider> = _weatherDataProvider
+    private val _weatherProvider = MutableStateFlow<WeatherProvider>(WeatherProvider.default)
+    val weatherProvider: StateFlow<WeatherProvider> = _weatherProvider
 
     init {
         viewModelScope.launch {
             _windSpeedUnit.value = settingsRepository.getWindSpeedUnit()
             _temperatureUnit.value = settingsRepository.getTemperatureUnit()
             _precipitationUnit.value = settingsRepository.getPrecipitationUnit()
-            _weatherDataProvider.value = settingsRepository.getWeatherDataProvider()
+            _weatherProvider.value = settingsRepository.getWeatherDataProvider()
         }
     }
 
@@ -61,9 +61,9 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
-    fun updateWeatherDataProvider(provider: WeatherDataProvider) {
+    fun updateWeatherDataProvider(provider: WeatherProvider) {
         viewModelScope.launch {
-            _weatherDataProvider.value = provider
+            _weatherProvider.value = provider
             settingsRepository.setWeatherDataProvider(provider)
         }
     }

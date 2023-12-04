@@ -186,13 +186,13 @@ fun WeatherContentScreen(arguments: ContentArguments, weatherInfoViewModel: Weat
                                         arguments.run {
                                             AsyncImage(
                                                 model = ImageRequest.Builder(LocalContext.current)
-                                                    .data(args.weatherDataProvider.logo).crossfade(false).build(),
+                                                    .data(args.weatherProvider.logo).crossfade(false).build(),
                                                 contentDescription = stringResource(id = io.github.pknujsp.weatherwizard.feature.weather.R.string.weather_provider),
                                                 modifier = Modifier.size(16.dp),
                                             )
                                             Spacer(modifier = Modifier.width(4.dp))
                                             Text(
-                                                text = stringResource(id = args.weatherDataProvider.name),
+                                                text = stringResource(id = args.weatherProvider.name),
                                                 fontSize = 14.sp,
                                                 color = Color.White,
                                                 style = LocalTextStyle.current.merge(outlineTextStyle),
@@ -260,10 +260,10 @@ fun WeatherContentScreen(arguments: ContentArguments, weatherInfoViewModel: Weat
     }
 
     if (onClickedWeatherProviderButton) {
-        WeatherProviderDialog(arguments.args.weatherDataProvider) {
+        WeatherProviderDialog(arguments.args.weatherProvider) {
             onClickedWeatherProviderButton = false
             it?.let {
-                if (arguments.args.weatherDataProvider != it) {
+                if (arguments.args.weatherProvider != it) {
                     weatherInfoViewModel.updateWeatherDataProvider(it)
                     arguments.reload()
                 }
