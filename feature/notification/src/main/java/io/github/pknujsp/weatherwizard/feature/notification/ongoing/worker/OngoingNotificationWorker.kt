@@ -22,6 +22,7 @@ import io.github.pknujsp.weatherwizard.core.common.manager.FeatureStateChecker
 import io.github.pknujsp.weatherwizard.core.domain.weather.WeatherResponseState
 import io.github.pknujsp.weatherwizard.core.model.UiModel
 import io.github.pknujsp.weatherwizard.core.model.coordinate.LocationType
+import io.github.pknujsp.weatherwizard.core.model.notification.enums.NotificationIconType
 import io.github.pknujsp.weatherwizard.core.model.notification.enums.NotificationType
 import io.github.pknujsp.weatherwizard.core.model.remoteviews.RemoteViewUiModel
 import io.github.pknujsp.weatherwizard.core.model.worker.IWorker
@@ -31,6 +32,7 @@ import io.github.pknujsp.weatherwizard.core.ui.remoteview.RemoteViewCreator
 import io.github.pknujsp.weatherwizard.core.ui.remoteview.RetryRemoteViewCreator
 import io.github.pknujsp.weatherwizard.feature.notification.daily.worker.DailyNotificationWorker
 import io.github.pknujsp.weatherwizard.feature.notification.manager.RemoteViewsCreatorManager
+import io.github.pknujsp.weatherwizard.feature.notification.ongoing.OngoingNotificationUiModelMapper
 import io.github.pknujsp.weatherwizard.feature.notification.remoteview.NotificationRemoteViewsCreator
 
 
@@ -62,26 +64,29 @@ class OngoingNotificationWorker @AssistedInject constructor(
 
         val uiModel = remoteViewsModel.load(notificationEntity)
         val creator: NotificationRemoteViewsCreator<UiModel> = RemoteViewsCreatorManager.createRemoteViewsCreator(uiModel.notification.type)
-
+        val retryPendingIntent = appNotificationManager.getRefreshPendingIntent(context,
+            NotificationType.ONGOING,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
+            OngoingNotificationReceiver::class)
         when (uiModel.state) {
             is WeatherResponseState.Success -> {
-                val smallRemoteView = creator.createSmallContentView(uiModel, context)
-                val bigRemoteView = creator.createBigContentView(uiModel, context)
+                val model = OngoingNotificationUiModelMapper().map(uiModel, remoteViewsModel.units)
+                model.refreshPendingIntent = retryPendingIntent
+                val smallRemoteView = creator.createSmallContentView(model, context)
+                val bigRemoteView = creator.createBigContentView(model, context)
 
                 val entity = RemoteViewUiModel(
                     true,
                     smallRemoteView,
                     bigRemoteView,
                     "${uiModel.notification.location.address} • ${uiModel.updatedTimeText}",
+                    smallIcon = if (model.iconType == NotificationIconType.TEMPERATURE) createTemperatureIcon(model.currentTemperature) else null,
+                    smallIconId = model.currentWeather.weatherIcon,
                 )
                 appNotificationManager.notifyNotification(NotificationType.ONGOING, context, entity)
             }
 
             else -> {
-                val retryPendingIntent = appNotificationManager.getRefreshPendingIntent(context,
-                    NotificationType.ONGOING,
-                    PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
-                    OngoingNotificationReceiver::class)
                 val remoteViewUiModel = RemoteViewUiModel(
                     false,
                     failedContentRemoteViews = retryRemoteViewCreator.createView(context,

@@ -8,12 +8,14 @@ import io.github.pknujsp.weatherwizard.core.model.coordinate.LocationType
 import io.github.pknujsp.weatherwizard.core.model.widget.WidgetType
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import kotlinx.serialization.InternalSerializationApi
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.serializer
 import javax.inject.Inject
 
 class WidgetRepositoryImpl @Inject constructor(
     private val dataSource: WidgetLocalDataSource,
-    @KtJson json: Json,
+    @KtJson private val json: Json,
 ) : WidgetRepository {
 
     private val jsonParser: JsonParser = JsonParser(json)
@@ -29,6 +31,7 @@ class WidgetRepositoryImpl @Inject constructor(
         WidgetSettingsEntityList(list)
     }
 
+    @OptIn(InternalSerializationApi::class)
     override suspend fun add(entity: WidgetSettingsEntity): Int {
         val jsonEntity = WidgetSettingsJsonEntity(
             weatherProvider = entity.weatherProvider.key,
@@ -39,7 +42,8 @@ class WidgetRepositoryImpl @Inject constructor(
             country = entity.location.country,
         )
 
-        return dataSource.add(WidgetDto(id = entity.id, widgetType = entity.widgetType.key, content = jsonParser.parse(jsonEntity)))
+        val encoded = json.encodeToString(WidgetSettingsJsonEntity::class.serializer(), jsonEntity)
+        return dataSource.add(WidgetDto(id = entity.id, widgetType = entity.widgetType.key, content = encoded))
     }
 
     override suspend fun get(id: Int): WidgetSettingsEntity {

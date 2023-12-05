@@ -25,6 +25,7 @@ class OngoingNotificationRemoteViewUiModel(
 ) : UiModel {
     val time: String =
         SimpleDateFormat("HH:mm", Locale.getDefault()).format(currentCalendar.time)
+
     val currentTemperature: String = currentWeather.temperature.toStringWithOnlyDegree()
 
     var refreshPendingIntent: PendingIntent by Delegates.notNull()

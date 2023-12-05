@@ -43,7 +43,7 @@ import io.github.pknujsp.weatherwizard.feature.weather.info.WeatherInfoViewModel
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun DetailDailyForecastScreen(viewModel: WeatherInfoViewModel, popBackStack: () -> Unit) {
+fun DetailDailyForecastScreen(dailyForecast: DetailDailyForecast, popBackStack: () -> Unit) {
     BackHandler {
         popBackStack()
     }
@@ -51,23 +51,17 @@ fun DetailDailyForecastScreen(viewModel: WeatherInfoViewModel, popBackStack: () 
         TitleTextWithNavigation(title = stringResource(R.string.daily_forecast)) {
             popBackStack()
         }
-        val dailyForecast by viewModel.detailDailyForecast.collectAsStateWithLifecycle()
-
         LazyColumn(
             state = rememberLazyListState(),
             modifier = Modifier
                 .fillMaxWidth()
                 .navigationBarsPadding(),
         ) {
-            dailyForecast.onSuccess {
-                itemsIndexed(it.items) { i, item ->
-                    Item(
-                        item = item,
-                        displayPrecipitationProbability = it.displayPrecipitationProbability,
-                    ) {
-
-                    }
-
+            itemsIndexed(dailyForecast.items) { i, item ->
+                Item(
+                    item = item,
+                    displayPrecipitationProbability = dailyForecast.displayPrecipitationProbability,
+                ) {
 
                 }
             }
@@ -88,22 +82,14 @@ private fun Item(
                 .clickable {
                     onClick()
                 }) {
-            Text(text = listOf(
-                AStyle(
-                    text = "${date}\n",
-                    span = SpanStyle(fontSize = 14.sp, color = Color.Gray)
-                ),
-                AStyle(
-                    text = dayOfWeek,
-                    span = SpanStyle(fontSize = 16.sp, color = Color.Black)
-                )
-            ).toAnnotated(), modifier = Modifier
-                .weight(0.2f, true)
-                .padding(start = 16.dp),
+            Text(text = listOf(AStyle(text = "${date}\n", span = SpanStyle(fontSize = 14.sp, color = Color.Gray)),
+                AStyle(text = dayOfWeek, span = SpanStyle(fontSize = 16.sp, color = Color.Black))).toAnnotated(),
+                modifier = Modifier
+                    .weight(0.2f, true)
+                    .padding(start = 16.dp),
                 lineHeight = 20.sp)
 
-            Row(
-                modifier = Modifier.weight(0.4f, true),
+            Row(modifier = Modifier.weight(0.4f, true),
                 horizontalArrangement = Arrangement.spacedBy(4.dp, Alignment.CenterHorizontally),
                 verticalAlignment = Alignment.CenterVertically) {
                 weatherConditionIcons.forEachIndexed { i, it ->
@@ -112,12 +98,10 @@ private fun Item(
                         modifier = Modifier.size(52.dp),
                         contentDescription = null)
                     if (i < weatherConditionIcons.lastIndex) {
-                        Box(
-                            modifier = Modifier
-                                .width(1.dp)
-                                .height(16.dp)
-                                .background(Color.LightGray)
-                        )
+                        Box(modifier = Modifier
+                            .width(1.dp)
+                            .height(16.dp)
+                            .background(Color.LightGray))
                     }
                 }
             }
@@ -127,9 +111,7 @@ private fun Item(
                 .padding(end = 16.dp),
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally) {
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(4.dp),
-                    verticalAlignment = Alignment.CenterVertically) {
+                Row(horizontalArrangement = Arrangement.spacedBy(4.dp), verticalAlignment = Alignment.CenterVertically) {
                     if (displayPrecipitationProbability) {
                         AsyncImage(model = ImageRequest.Builder(context = LocalContext.current).data(R.drawable.ic_umbrella).build(),
                             modifier = Modifier.size(14.dp),

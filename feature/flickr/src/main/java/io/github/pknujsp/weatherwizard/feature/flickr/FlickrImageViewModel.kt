@@ -31,11 +31,10 @@ class FlickrImageViewModel @Inject constructor(
     fun load() {
         if (requestParameter != null) {
             viewModelScope.launch {
-                flickrImageUiState = flickrImageUiState.copy(isLoaded = false, isLoading = true, textRes = R.string.loading_image)
+                //flickrImageUiState = flickrImageUiState.copy(isLoaded = false, isLoading = true, textRes = R.string.loading_image)
 
                 flickrRepository.getPhoto(requestParameter!!).onSuccess {
-                    flickrImageUiState =
-                        flickrImageUiState.copy(flickerImageEntity = it, url = it.imageUrl, isLoaded = true, isLoading = false)
+                    flickrImageUiState = flickrImageUiState.copy(url = it.imageUrl, isLoaded = true, isLoading = false)
                 }.onFailure {
                     flickrImageUiState =
                         flickrImageUiState.copy(isLoaded = false, isLoading = false, textRes = R.string.retry_to_load_image_if_failed)

@@ -2,11 +2,10 @@ package io.github.pknujsp.weatherwizard.feature.notification.model
 
 import io.github.pknujsp.weatherwizard.core.domain.weather.WeatherResponseState
 import io.github.pknujsp.weatherwizard.core.model.UiModel
-import io.github.pknujsp.weatherwizard.core.model.weather.common.CurrentUnits
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 
-abstract class NotificationHeaderUiModel : UiModel {
+abstract class NotificationHeaderModel : UiModel {
     abstract val state: WeatherResponseState
     abstract val updatedTime: ZonedDateTime
 

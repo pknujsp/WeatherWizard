@@ -70,11 +70,6 @@ fun HostSettingsScreen() {
     NavHost(navController = navController, route = SettingsRoutes.route, startDestination = SettingsRoutes.Main.route,
         modifier = Modifier.navigationBarsPadding()) {
         composable(SettingsRoutes.Main.route) { SettingsScreen(navController, viewModel) }
-        composable(SettingsRoutes.ValueUnit.route) { Test() }
+        composable(SettingsRoutes.ValueUnit.route) { ValueUnitScreen(navController, viewModel) }
     }
-}
-
-@Composable
-fun Test() {
-
 }

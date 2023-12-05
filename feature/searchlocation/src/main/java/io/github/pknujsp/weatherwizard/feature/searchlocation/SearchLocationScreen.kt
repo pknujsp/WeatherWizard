@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -32,6 +33,17 @@ fun SearchLocationScreen(onSelectedLocation: (PickedLocation?) -> Unit, popBackS
 
         val query by remember { mutableStateOf("" to 0L) }
         var showSearchHistory by remember { mutableStateOf(true) }
+
+        LaunchedEffect(uiAction) {
+            when (uiAction) {
+                is Action.OnSelectedArea -> {
+                    onSelectedLocation((uiAction as Action.OnSelectedArea).location)
+                    popBackStack()
+                }
+                else -> {
+                }
+            }
+        }
 
         TitleTextWithNavigation(title = stringResource(id = R.string.add_new_area)) {
             if (showSearchHistory) {

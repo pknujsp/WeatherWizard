@@ -9,12 +9,12 @@ import io.github.pknujsp.weatherwizard.core.model.weather.common.CurrentUnits
 import io.github.pknujsp.weatherwizard.core.model.weather.dailyforecast.DailyForecastEntity
 import io.github.pknujsp.weatherwizard.core.model.weather.hourlyforecast.HourlyForecastEntity
 import io.github.pknujsp.weatherwizard.feature.notification.daily.model.forecast.DailyNotificationForecastUiModel
-import io.github.pknujsp.weatherwizard.feature.notification.model.NotificationHeaderUiModel
+import io.github.pknujsp.weatherwizard.feature.notification.model.NotificationHeaderModel
 import java.time.ZonedDateTime
 
-data class DailyNotificationHeaderUiModel(
+data class DailyNotificationHeaderModel(
     override val updatedTime: ZonedDateTime, override val state: WeatherResponseState, val notification: DailyNotificationSettingsEntity
-) : NotificationHeaderUiModel() {
+) : NotificationHeaderModel() {
     inline fun <reified T : UiModel> map(units: CurrentUnits): T {
         val succeedState = state as WeatherResponseState.Success
         val dayNightCalculator = DayNightCalculator(succeedState.location.latitude, succeedState.location.longitude)

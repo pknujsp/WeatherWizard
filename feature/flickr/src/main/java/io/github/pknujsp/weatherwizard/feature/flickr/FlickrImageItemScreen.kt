@@ -39,12 +39,14 @@ fun FlickrImageItemScreen(
         viewModel.initialize(requestParameter)
     }
 
-    val uiState = remember { viewModel.flickrImageUiState }
+    val uiState = viewModel.flickrImageUiState
 
-    if (uiState.isLoaded) {
-        onLoadedImage(uiState.url)
-    } else {
-        onLoadedImage("")
+    LaunchedEffect(uiState) {
+        if (uiState.isLoaded) {
+            onLoadedImage(uiState.url)
+        } else {
+            onLoadedImage("")
+        }
     }
 
     UrlItem(text = if (uiState.isLoaded) uiState.url else stringResource(uiState.textRes), onClick = {

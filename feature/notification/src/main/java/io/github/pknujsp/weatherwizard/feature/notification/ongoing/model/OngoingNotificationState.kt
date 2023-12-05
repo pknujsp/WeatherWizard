@@ -16,8 +16,8 @@ import io.github.pknujsp.weatherwizard.feature.notification.ongoing.worker.Ongoi
 
 class OngoingNotificationState(
     val ongoingNotificationUiState: OngoingNotificationUiState,
-    val appNotificationManager: AppNotificationManager,
-    val appAlarmManager: AppAlarmManager,
+    private val appNotificationManager: AppNotificationManager,
+    private val appAlarmManager: AppAlarmManager,
 ) {
     var showSearch by mutableStateOf(false)
 
@@ -40,8 +40,7 @@ class OngoingNotificationState(
     ) {
         val pendingIntent = appNotificationManager.getRefreshPendingIntent(context,
             NotificationType.ONGOING,
-            PendingIntent.FLAG_IMMUTABLE or if (ongoingNotificationUiState.isEnabled) PendingIntent.FLAG_UPDATE_CURRENT else PendingIntent
-                .FLAG_NO_CREATE,
+            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
             OngoingNotificationReceiver::class)
 
         if (ongoingNotificationUiState.isEnabled) {

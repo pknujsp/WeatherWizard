@@ -50,13 +50,6 @@ import io.github.pknujsp.weatherwizard.feature.weather.info.hourlyforecast.detai
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun WeatherInfoScreen(navController: NavController, viewModel: WeatherInfoViewModel = hiltViewModel()) {
-    /**
-    var nestedRoutes by rememberSaveable(saver = Saver(save = { it.value.route },
-    restore = { mutableStateOf(NestedWeatherRoutes.getRoute(it)) })) {
-    mutableStateOf(NestedWeatherRoutes.startDestination)
-    }
-     */
-
     val mainState = rememberWeatherMainState(weatherMainUiState = viewModel.uiState)
 
     LaunchedEffect(mainState.reload) {
@@ -82,13 +75,13 @@ fun WeatherInfoScreen(navController: NavController, viewModel: WeatherInfoViewMo
         }
 
         is NestedWeatherRoutes.DetailHourlyForecast -> {
-            DetailHourlyForecastScreen(viewModel) {
+            DetailHourlyForecastScreen(mainState.weatherMainUiState.weather!!.detailHourlyForecast) {
                 mainState.navigate(NestedWeatherRoutes.Main)
             }
         }
 
         is NestedWeatherRoutes.DetailDailyForecast -> {
-            DetailDailyForecastScreen(viewModel) {
+            DetailDailyForecastScreen(mainState.weatherMainUiState.weather!!.detailDailyForecast) {
                 mainState.navigate(NestedWeatherRoutes.Main)
             }
         }

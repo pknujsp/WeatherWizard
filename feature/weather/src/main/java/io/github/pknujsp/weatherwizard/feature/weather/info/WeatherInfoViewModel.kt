@@ -168,6 +168,7 @@ class WeatherInfoViewModel @Inject constructor(
                     simpleDailyForecast,
                     detailDailyForecast,
                     yesterdayWeather)
+                _uiState.updateLastUpdatedTime(requestDateTime)
                 _uiState.flickrRequestParameters = flckerRequestParameter
                 _uiState.processState = ProcessState.Succeed
             }

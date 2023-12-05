@@ -6,17 +6,21 @@ import io.github.pknujsp.weatherwizard.core.model.JsonParser
 import io.github.pknujsp.weatherwizard.core.model.notification.NotificationSettingsEntity
 import io.github.pknujsp.weatherwizard.core.database.notification.daily.DailyNotificationLocalDataSource
 import io.github.pknujsp.weatherwizard.core.data.notification.daily.model.DailyNotificationSettingsJsonEntity
+import io.github.pknujsp.weatherwizard.core.data.widget.WidgetSettingsJsonEntity
 import io.github.pknujsp.weatherwizard.core.database.notification.NotificationDto
 import io.github.pknujsp.weatherwizard.core.model.coordinate.LocationType
 import io.github.pknujsp.weatherwizard.core.model.notification.enums.NotificationType
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import kotlinx.serialization.InternalSerializationApi
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonNull.content
+import kotlinx.serialization.serializer
 import javax.inject.Inject
 
 class DailyNotificationRepositoryImpl @Inject constructor(
     private val dataSource: DailyNotificationLocalDataSource,
-    @KtJson json: Json,
+    @KtJson private val json: Json,
 ) : DailyNotificationRepository {
 
     private val jsonParser = JsonParser(json)
@@ -57,25 +61,27 @@ class DailyNotificationRepositoryImpl @Inject constructor(
             )
         }
 
+    @OptIn(InternalSerializationApi::class)
     override suspend fun updateDailyNotification(entity: NotificationSettingsEntity<DailyNotificationSettingsEntity>) {
         entity.run {
-            val content = jsonParser.parse(DailyNotificationSettingsJsonEntity(
-                latitude = data.location.latitude,
-                longitude = data.location.longitude,
-                address = data.location.address,
-                country = data.location.country,
-                hour = data.hour,
-                minute = data.minute,
-                locationType = data.location.locationType.key,
-                weatherProvider = data.weatherProvider.key,
-                type = data.type.key,
-            ))
+            val encoded = json.encodeToString(DailyNotificationSettingsJsonEntity::class.serializer(),
+                DailyNotificationSettingsJsonEntity(
+                    latitude = data.location.latitude,
+                    longitude = data.location.longitude,
+                    address = data.location.address,
+                    country = data.location.country,
+                    hour = data.hour,
+                    minute = data.minute,
+                    locationType = data.location.locationType.key,
+                    weatherProvider = data.weatherProvider.key,
+                    type = data.type.key,
+                ))
 
             dataSource.updateDailyNotification(NotificationDto(
                 id = id,
                 enabled = enabled,
                 notificationType = NotificationType.DAILY.notificationId,
-                content = content,
+                content = encoded,
             ))
         }
     }

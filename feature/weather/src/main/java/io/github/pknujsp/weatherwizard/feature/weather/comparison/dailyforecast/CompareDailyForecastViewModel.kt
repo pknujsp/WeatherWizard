@@ -24,8 +24,7 @@ class CompareDailyForecastViewModel @Inject constructor(
 ) : CompareForecastViewModel() {
 
     private val _dailyForecast =
-        MutableStateFlow<UiState<io.github.pknujsp.weatherwizard.feature.weather.comparison.dailyforecast.CompareDailyForecastInfo>>(UiState
-            .Loading)
+        MutableStateFlow<UiState<io.github.pknujsp.weatherwizard.feature.weather.comparison.dailyforecast.CompareDailyForecastInfo>>(UiState.Loading)
 
     val dailyForecast: StateFlow<UiState<io.github.pknujsp.weatherwizard.feature.weather.comparison.dailyforecast.CompareDailyForecastInfo>> =
         _dailyForecast
@@ -34,10 +33,10 @@ class CompareDailyForecastViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             args.run {
                 val requestId = System.currentTimeMillis()
-                getDailyForecastToCompareUseCase(args.location.latitude, args.location.longitude, weatherProviders,
-                    requestId)
-                    .onSuccess {
-                    entity ->
+                getDailyForecastToCompareUseCase(args.location.latitude,
+                    args.location.longitude,
+                    weatherProviders,
+                    requestId).onSuccess { entity ->
                     val (firstDate, endDate) = entity.run {
                         items.maxOf { ZonedDateTime.parse(it.second.dayItems.first().dateTime.value).toLocalDate() } to items.minOf {
                             ZonedDateTime.parse(it.second.dayItems.last().dateTime.value).toLocalDate()
@@ -79,10 +78,9 @@ class CompareDailyForecastInfo(
     items: List<Pair<WeatherProvider, CompareDailyForecast>>, val dates: Array<String>
 ) {
     val weatherDataProviders = items.map { it.first }.toTypedArray()
-    val items =
-        (0..<items.first().second.items.size).map { i ->
-            items.map { it.second.items[i] }.toTypedArray()
-        }.toTypedArray()
+    val items = (0..<items.first().second.items.size).map { i ->
+        items.map { it.second.items[i] }.toTypedArray()
+    }.toTypedArray()
 
 
     companion object {

@@ -9,12 +9,14 @@ import io.github.pknujsp.weatherwizard.core.model.notification.NotificationSetti
 import io.github.pknujsp.weatherwizard.core.model.notification.enums.NotificationType
 import io.github.pknujsp.weatherwizard.core.data.notification.ongoing.model.OngoingNotificationSettingsJsonEntity
 import io.github.pknujsp.weatherwizard.core.model.coordinate.LocationType
+import kotlinx.serialization.InternalSerializationApi
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.serializer
 import javax.inject.Inject
 
 class OngoingNotificationRepositoryImpl @Inject constructor(
     private val ongoingNotificationLocalDataSource: OngoingNotificationLocalDataSource,
-    @KtJson json: Json,
+    @KtJson private val json: Json,
 ) : OngoingNotificationRepository {
 
     private val jsonParser = JsonParser(json)
@@ -35,6 +37,7 @@ class OngoingNotificationRepositoryImpl @Inject constructor(
         return NotificationSettingsEntity(dto?.id ?: 0L, dto?.enabled ?: false, entity, dto != null)
     }
 
+    @OptIn(InternalSerializationApi::class)
     override suspend fun updateOngoingNotification(notificationSettingsEntity: NotificationSettingsEntity<OngoingNotificationSettingsEntity>): Boolean {
         val entity = notificationSettingsEntity.data
 
@@ -48,12 +51,12 @@ class OngoingNotificationRepositoryImpl @Inject constructor(
             country = entity.location.country,
             locationType = entity.location.locationType.key,
         )
-
+        val encoded = json.encodeToString(OngoingNotificationSettingsJsonEntity::class.serializer(), jsonEntity)
         return ongoingNotificationLocalDataSource.updateOngoingNotification(NotificationDto(
             id = notificationSettingsEntity.id,
             notificationType = NotificationType.ONGOING.notificationId,
             enabled = notificationSettingsEntity.enabled,
-            content = jsonParser.parse(jsonEntity),
+            content = encoded,
         ))
     }
 
