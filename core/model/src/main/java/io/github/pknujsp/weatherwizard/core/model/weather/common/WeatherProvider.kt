@@ -8,6 +8,7 @@ import io.github.pknujsp.weatherwizard.core.common.enum.IEnum
 sealed interface WeatherProvider : IEnum {
     val name: Int
     val logo: Int
+    val majorWeatherEntityTypes: Set<MajorWeatherEntityType>
 
     companion object : BaseEnum<WeatherProvider> {
         override val enums: Array<WeatherProvider> get() = arrayOf(Kma, MetNorway)
@@ -20,6 +21,12 @@ sealed interface WeatherProvider : IEnum {
         @StringRes override val name: Int = io.github.pknujsp.weatherwizard.core.common.R.string.kma
         override val key = 0
         override val title: Int = name
+        override val majorWeatherEntityTypes: Set<MajorWeatherEntityType> = setOf(
+            MajorWeatherEntityType.CURRENT_CONDITION,
+            MajorWeatherEntityType.HOURLY_FORECAST,
+            MajorWeatherEntityType.DAILY_FORECAST,
+            MajorWeatherEntityType.YESTERDAY_WEATHER,
+        )
     }
 
     data object MetNorway : WeatherProvider {
@@ -27,6 +34,11 @@ sealed interface WeatherProvider : IEnum {
         @StringRes override val name: Int = io.github.pknujsp.weatherwizard.core.common.R.string.met_norway
         override val key = 1
         override val title: Int = name
+        override val majorWeatherEntityTypes: Set<MajorWeatherEntityType> = setOf(
+            MajorWeatherEntityType.CURRENT_CONDITION,
+            MajorWeatherEntityType.HOURLY_FORECAST,
+            MajorWeatherEntityType.DAILY_FORECAST,
+        )
     }
 
 

@@ -17,13 +17,16 @@ import io.github.pknujsp.weatherwizard.core.data.nominatim.NominatimRepository
 import io.github.pknujsp.weatherwizard.core.data.settings.SettingsRepository
 import io.github.pknujsp.weatherwizard.core.domain.location.CurrentLocationResultState
 import io.github.pknujsp.weatherwizard.core.domain.location.GetCurrentLocationUseCase
-import io.github.pknujsp.weatherwizard.core.domain.weather.GetAllWeatherDataUseCase
+import io.github.pknujsp.weatherwizard.core.domain.weather.GetWeatherDataUseCase
+import io.github.pknujsp.weatherwizard.core.domain.weather.WeatherDataRequest
+import io.github.pknujsp.weatherwizard.core.domain.weather.WeatherResponseState
 import io.github.pknujsp.weatherwizard.core.model.ProcessState
 import io.github.pknujsp.weatherwizard.core.model.UiState
 import io.github.pknujsp.weatherwizard.core.model.coordinate.LocationType
 import io.github.pknujsp.weatherwizard.core.model.coordinate.LocationTypeModel
 import io.github.pknujsp.weatherwizard.core.model.flickr.FlickrRequestParameters
 import io.github.pknujsp.weatherwizard.core.model.weather.RequestWeatherArguments
+import io.github.pknujsp.weatherwizard.core.model.weather.common.MajorWeatherEntityType
 import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherConditionCategory
 import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherProvider
 import io.github.pknujsp.weatherwizard.core.model.weather.current.CurrentWeather
@@ -49,37 +52,16 @@ import kotlin.properties.Delegates
 
 @HiltViewModel
 class WeatherInfoViewModel @Inject constructor(
-    private val getAllWeatherDataUseCase: GetAllWeatherDataUseCase,
     private val favoriteAreaListRepository: FavoriteAreaListRepository,
     private val settingsRepository: SettingsRepository,
     private val targetLocationRepository: TargetLocationRepository,
     private val getCurrentLocationUseCase: GetCurrentLocationUseCase,
-    private val nominatimRepository: NominatimRepository
+    private val nominatimRepository: NominatimRepository,
+    private val getWeatherDataUseCase: GetWeatherDataUseCase
 ) : ViewModel() {
 
     private var _uiState = MutableWeatherMainUiState()
     val uiState: WeatherMainUiState by mutableStateOf(_uiState)
-
-    private val _flickrRequestParameter = MutableStateFlow<UiState<FlickrRequestParameters>>(UiState.Loading)
-    val flickrRequestParameter: StateFlow<UiState<FlickrRequestParameters>> = _flickrRequestParameter.asStateFlow()
-
-    private val _currentWeather = MutableStateFlow<UiState<CurrentWeather>>(UiState.Loading)
-    val currentWeather: StateFlow<UiState<CurrentWeather>> = _currentWeather.asStateFlow()
-
-    private val _simpleHourlyForecast = MutableStateFlow<UiState<SimpleHourlyForecast>>(UiState.Loading)
-    val simpleHourlyForecast: StateFlow<UiState<SimpleHourlyForecast>> = _simpleHourlyForecast.asStateFlow()
-
-    private val _detailHourlyForecast = MutableStateFlow<UiState<DetailHourlyForecast>>(UiState.Loading)
-    val detailHourlyForecast: StateFlow<UiState<DetailHourlyForecast>> = _detailHourlyForecast.asStateFlow()
-
-    private val _simpleDailyForecast = MutableStateFlow<UiState<SimpleDailyForecast>>(UiState.Loading)
-    val simpleDailyForecast: StateFlow<UiState<SimpleDailyForecast>> = _simpleDailyForecast.asStateFlow()
-
-    private val _detailDailyForecast = MutableStateFlow<UiState<DetailDailyForecast>>(UiState.Loading)
-    val detailDailyForecast: StateFlow<UiState<DetailDailyForecast>> = _detailDailyForecast.asStateFlow()
-
-    private val _yesterdayWeather = MutableStateFlow<UiState<YesterdayWeather>>(UiState.Loading)
-    val yesterdayWeather: StateFlow<UiState<YesterdayWeather>> = _yesterdayWeather.asStateFlow()
 
     fun initialize() {
         viewModelScope.launch {
@@ -145,29 +127,49 @@ class WeatherInfoViewModel @Inject constructor(
     private fun loadAllWeatherData() {
         viewModelScope.launch(Dispatchers.IO) {
             uiState.args.run {
+                val weatherDataRequest = WeatherDataRequest()
+                weatherDataRequest.addRequest(location, weatherProvider.majorWeatherEntityTypes, weatherProvider)
+
+                val entity = when (val result = getWeatherDataUseCase(weatherDataRequest.requests[0])) {
+                    is WeatherResponseState.Success -> result.entity
+                    is WeatherResponseState.PartiallySuccess -> result.entity
+                    is WeatherResponseState.Failure -> {
+                        _uiState.processState = ProcessState.Failed(FailedReason.SERVER_ERROR)
+                        return@launch
+                    }
+                }
                 val requestDateTime = ZonedDateTime.now()
                 val dayNightCalculator = DayNightCalculator(location.latitude, location.longitude, requestDateTime.toTimeZone())
 
-                getAllWeatherDataUseCase(location.latitude,
-                    location.longitude,
-                    weatherProvider,
-                    requestDateTime.toInstant().toEpochMilli()).onSuccess { allWeatherDataEntity ->
-                    createFlickrRequestParameter(allWeatherDataEntity.currentWeatherEntity.weatherCondition.value,
-                        location.latitude,
-                        location.longitude,
-                        requestDateTime)
-                    createCurrentWeatherUiModel(allWeatherDataEntity.currentWeatherEntity, dayNightCalculator, requestDateTime.toCalendar())
-                    createHourlyForecastUiModel(allWeatherDataEntity.hourlyForecastEntity, dayNightCalculator)
-                    createDailyForecastUiModel(allWeatherDataEntity.dailyForecastEntity)
-                    allWeatherDataEntity.yesterdayWeatherEntity?.run {
-                        createYesterdayWeatherUiModel(this)
-                    }
+                val currentWeatherEntity = entity.toEntity<CurrentWeatherEntity>()
+                val hourlyForecastEntity = entity.toEntity<HourlyForecastEntity>()
+                val dailyForecastEntity = entity.toEntity<DailyForecastEntity>()
 
-                    _uiState.updateLastUpdatedTime(requestDateTime)
-                    _uiState.processState = ProcessState.Succeed
-                }.onFailure {
-                    _uiState.processState = ProcessState.Failed(FailedReason.SERVER_ERROR)
+                val flckerRequestParameter = createFlickrRequestParameter(currentWeatherEntity.weatherCondition.value,
+                    location.latitude,
+                    location.longitude,
+                    requestDateTime)
+                val currentWeather = createCurrentWeatherUiModel(currentWeatherEntity, dayNightCalculator, requestDateTime.toCalendar())
+                val simpleHourlyForecast = createSimpleHourlyForecastUiModel(hourlyForecastEntity, dayNightCalculator)
+                val detailHourlyForecast = createDetailHourlyForecastUiModel(hourlyForecastEntity, dayNightCalculator)
+                val simpleDailyForecast = createSimpleDailyForecastUiModel(dailyForecastEntity)
+                val detailDailyForecast = createDetailDailyForecastUiModel(dailyForecastEntity)
+
+                val yesterdayWeather = if (entity.weatherDataMajorCategories.contains(MajorWeatherEntityType.YESTERDAY_WEATHER)) {
+                    val yesterdayWeatherEntity = entity.toEntity<YesterdayWeatherEntity>()
+                    createYesterdayWeatherUiModel(yesterdayWeatherEntity)
+                } else {
+                    null
                 }
+
+                _uiState.weather = Weather(currentWeather,
+                    simpleHourlyForecast,
+                    detailHourlyForecast,
+                    simpleDailyForecast,
+                    detailDailyForecast,
+                    yesterdayWeather)
+                _uiState.flickrRequestParameters = flckerRequestParameter
+                _uiState.processState = ProcessState.Succeed
             }
         }
     }
@@ -175,105 +177,96 @@ class WeatherInfoViewModel @Inject constructor(
 
     private fun createCurrentWeatherUiModel(
         currentWeatherEntity: CurrentWeatherEntity, dayNightCalculator: DayNightCalculator, currentCalendar: java.util.Calendar
-    ) {
-        viewModelScope.launch(Dispatchers.Default) {
-            _currentWeather.value = UiState.Loading
-            val currentWeather = currentWeatherEntity.run {
-                val unit = settingsRepository.currentUnits.value
-                CurrentWeather(weatherCondition = weatherCondition,
-                    temperature = temperature.convertUnit(unit.temperatureUnit),
-                    feelsLikeTemperature = feelsLikeTemperature.convertUnit(unit.temperatureUnit),
-                    humidity = humidity,
-                    windSpeed = windSpeed.convertUnit(unit.windSpeedUnit),
-                    windDirection = windDirection,
-                    precipitationVolume = precipitationVolume.convertUnit(unit.precipitationUnit),
-                    dayNightCalculator = dayNightCalculator,
-                    currentCalendar = currentCalendar)
-            }
-
-            _currentWeather.value = UiState.Success(currentWeather)
+    ): CurrentWeather {
+        return currentWeatherEntity.run {
+            val unit = settingsRepository.currentUnits.value
+            CurrentWeather(weatherCondition = weatherCondition,
+                temperature = temperature.convertUnit(unit.temperatureUnit),
+                feelsLikeTemperature = feelsLikeTemperature.convertUnit(unit.temperatureUnit),
+                humidity = humidity,
+                windSpeed = windSpeed.convertUnit(unit.windSpeedUnit),
+                windDirection = windDirection,
+                precipitationVolume = precipitationVolume.convertUnit(unit.precipitationUnit),
+                dayNightCalculator = dayNightCalculator,
+                currentCalendar = currentCalendar)
         }
     }
 
-    private fun createHourlyForecastUiModel(
+    private fun createSimpleHourlyForecastUiModel(
         hourlyForecastEntity: HourlyForecastEntity, dayNightCalculator: DayNightCalculator
-    ) {
-        viewModelScope.launch(Dispatchers.Default) {
-            val unit = settingsRepository.currentUnits.value
+    ): SimpleHourlyForecast {
+        val unit = settingsRepository.currentUnits.value
+        val simpleHourlyForecast = hourlyForecastEntity.items.mapIndexed { i, it ->
+            SimpleHourlyForecast.Item(
+                id = i,
+                dateTime = it.dateTime,
+                weatherCondition = it.weatherCondition,
+                temperature = it.temperature.convertUnit(unit.temperatureUnit),
+                feelsLikeTemperature = it.feelsLikeTemperature.convertUnit(unit.temperatureUnit),
+                humidity = it.humidity,
+                windSpeed = it.windSpeed.convertUnit(unit.windSpeedUnit),
+                windDirection = it.windDirection,
+                precipitationVolume = it.precipitationVolume.convertUnit(unit.precipitationUnit),
+                precipitationProbability = it.precipitationProbability,
+                dayNightCalculator = dayNightCalculator,
+            )
+        }
 
-            val simpleHourlyForecast = hourlyForecastEntity.items.mapIndexed { i, it ->
-                SimpleHourlyForecast.Item(
+        val dateItems =
+            DynamicDateTimeUiCreator(hourlyForecastEntity.items.map { it.dateTime.value }, SimpleHourlyForecast.itemWidth).invoke()
+
+        return SimpleHourlyForecast(simpleHourlyForecast, dateItems)
+    }
+
+    private fun createDetailHourlyForecastUiModel(
+        hourlyForecastEntity: HourlyForecastEntity, dayNightCalculator: DayNightCalculator
+    ): DetailHourlyForecast {
+        val unit = settingsRepository.currentUnits.value
+        val formatter = DateTimeFormatter.ofPattern("M.d EEE")
+        val detailHourlyForecast = hourlyForecastEntity.items.groupBy { ZonedDateTime.parse(it.dateTime.value).dayOfYear }.map {
+            ZonedDateTime.parse(it.value.first().dateTime.value).format(formatter) to it.value.mapIndexed { i, item ->
+                DetailHourlyForecast.Item(
                     id = i,
-                    dateTime = it.dateTime,
-                    weatherCondition = it.weatherCondition,
-                    temperature = it.temperature.convertUnit(unit.temperatureUnit),
-                    feelsLikeTemperature = it.feelsLikeTemperature.convertUnit(unit.temperatureUnit),
-                    humidity = it.humidity,
-                    windSpeed = it.windSpeed.convertUnit(unit.windSpeedUnit),
-                    windDirection = it.windDirection,
-                    precipitationVolume = it.precipitationVolume.convertUnit(unit.precipitationUnit),
-                    precipitationProbability = it.precipitationProbability,
+                    dateTime = item.dateTime,
+                    weatherCondition = item.weatherCondition,
+                    temperature = item.temperature.convertUnit(unit.temperatureUnit),
+                    feelsLikeTemperature = item.feelsLikeTemperature.convertUnit(unit.temperatureUnit),
+                    humidity = item.humidity,
+                    windSpeed = item.windSpeed.convertUnit(unit.windSpeedUnit),
+                    windDirection = item.windDirection,
+                    precipitationVolume = item.precipitationVolume.convertUnit(unit.precipitationUnit),
+                    precipitationProbability = item.precipitationProbability,
                     dayNightCalculator = dayNightCalculator,
                 )
             }
-
-            val formatter = DateTimeFormatter.ofPattern("M.d EEE")
-            val detailHourlyForecast = hourlyForecastEntity.items.groupBy { ZonedDateTime.parse(it.dateTime.value).dayOfYear }.map {
-                ZonedDateTime.parse(it.value.first().dateTime.value).format(formatter) to it.value.mapIndexed { i, item ->
-                    DetailHourlyForecast.Item(
-                        id = i,
-                        dateTime = item.dateTime,
-                        weatherCondition = item.weatherCondition,
-                        temperature = item.temperature.convertUnit(unit.temperatureUnit),
-                        feelsLikeTemperature = item.feelsLikeTemperature.convertUnit(unit.temperatureUnit),
-                        humidity = item.humidity,
-                        windSpeed = item.windSpeed.convertUnit(unit.windSpeedUnit),
-                        windDirection = item.windDirection,
-                        precipitationVolume = item.precipitationVolume.convertUnit(unit.precipitationUnit),
-                        precipitationProbability = item.precipitationProbability,
-                        dayNightCalculator = dayNightCalculator,
-                    )
-                }
-            }
-
-            val dateItems =
-                DynamicDateTimeUiCreator(hourlyForecastEntity.items.map { it.dateTime.value }, SimpleHourlyForecast.itemWidth).invoke()
-            _simpleHourlyForecast.value = UiState.Success(SimpleHourlyForecast(simpleHourlyForecast, dateItems))
-            _detailHourlyForecast.value = UiState.Success(DetailHourlyForecast(detailHourlyForecast))
         }
+        return DetailHourlyForecast(detailHourlyForecast)
     }
 
-    private fun createDailyForecastUiModel(
+
+    private fun createSimpleDailyForecastUiModel(
         dailyForecastEntity: DailyForecastEntity
-    ) {
-        viewModelScope.launch(Dispatchers.Default) {
-            _simpleDailyForecast.value = UiState.Success(SimpleDailyForecast(dailyForecastEntity, settingsRepository.currentUnits.value))
-            _detailDailyForecast.value = UiState.Success(DetailDailyForecast(dailyForecastEntity, settingsRepository.currentUnits.value))
-        }
-    }
+    ) = SimpleDailyForecast(dailyForecastEntity, settingsRepository.currentUnits.value)
+
+    private fun createDetailDailyForecastUiModel(
+        dailyForecastEntity: DailyForecastEntity
+    ) = DetailDailyForecast(dailyForecastEntity, settingsRepository.currentUnits.value)
 
     private fun createYesterdayWeatherUiModel(
         yesterdayWeatherEntity: YesterdayWeatherEntity
-    ) {
-        viewModelScope.launch(Dispatchers.Default) {
-            val temperatureUnit = settingsRepository.currentUnits.value.temperatureUnit
-            _yesterdayWeather.value =
-                UiState.Success(YesterdayWeather(temperature = yesterdayWeatherEntity.temperature.convertUnit(temperatureUnit)))
-        }
+    ): YesterdayWeather {
+        val temperatureUnit = settingsRepository.currentUnits.value.temperatureUnit
+        return YesterdayWeather(temperature = yesterdayWeatherEntity.temperature.convertUnit(temperatureUnit))
     }
 
     private fun createFlickrRequestParameter(
         weatherCondition: WeatherConditionCategory, latitude: Double, longitude: Double, requestDateTime: ZonedDateTime
-    ) {
-        viewModelScope.launch(Dispatchers.Default) {
-            _flickrRequestParameter.value = UiState.Success(FlickrRequestParameters(
-                weatherCondition = weatherCondition,
-                latitude = latitude,
-                longitude = longitude,
-                refreshDateTime = requestDateTime,
-            ))
-        }
-    }
+    ): FlickrRequestParameters = FlickrRequestParameters(
+        weatherCondition = weatherCondition,
+        latitude = latitude,
+        longitude = longitude,
+        refreshDateTime = requestDateTime,
+    )
 }
 
 private class MutableWeatherMainUiState(
@@ -281,8 +274,11 @@ private class MutableWeatherMainUiState(
     override var isGpsEnabled by mutableStateOf(false)
     override var processState: ProcessState by mutableStateOf(ProcessState.Idle)
     override var args: RequestWeatherArguments by Delegates.notNull()
+    override var flickrRequestParameters: FlickrRequestParameters? by mutableStateOf(null)
     override var lastUpdatedTime: String = ""
         private set
+
+    override var weather: Weather? by mutableStateOf(null)
 
     companion object {
         private val dateTimeFormatter = DateTimeFormatter.ofPattern("MM.dd HH:mm")
@@ -291,4 +287,5 @@ private class MutableWeatherMainUiState(
     fun updateLastUpdatedTime(lastUpdatedTime: ZonedDateTime) {
         this.lastUpdatedTime = lastUpdatedTime.format(dateTimeFormatter)
     }
+
 }

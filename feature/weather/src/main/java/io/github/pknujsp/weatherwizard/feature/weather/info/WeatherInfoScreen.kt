@@ -50,73 +50,58 @@ import io.github.pknujsp.weatherwizard.feature.weather.info.hourlyforecast.detai
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun WeatherInfoScreen(navController: NavController, viewModel: WeatherInfoViewModel = hiltViewModel()) {
+    /**
     var nestedRoutes by rememberSaveable(saver = Saver(save = { it.value.route },
-        restore = { mutableStateOf(NestedWeatherRoutes.getRoute(it)) })) {
-        mutableStateOf(NestedWeatherRoutes.startDestination)
+    restore = { mutableStateOf(NestedWeatherRoutes.getRoute(it)) })) {
+    mutableStateOf(NestedWeatherRoutes.startDestination)
     }
-    val viewModelStoreOwner = LocalViewModelStoreOwner.current
+     */
 
-    val uiState = remember { viewModel.uiState }
-    val scrollState = rememberScrollState()
-    val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
+    val mainState = rememberWeatherMainState(weatherMainUiState = viewModel.uiState)
 
-    var backgroundImageUrl by remember { mutableStateOf("") }
-    var reload by remember { mutableIntStateOf(0) }
-
-    val window = (LocalContext.current as Activity).window
-    val windowInsetsController = remember { WindowCompat.getInsetsController(window, window.decorView) }
-
-    LaunchedEffect(reload) {
+    LaunchedEffect(mainState.reload) {
         viewModel.initialize()
     }
 
-    when (nestedRoutes) {
+    when (mainState.nestedRoutes.value) {
         is NestedWeatherRoutes.Main -> {
-            windowInsetsController.isAppearanceLightNavigationBars = false
-            val contentArguments =
-                ContentArguments(
-                    uiState,
-                    scrollState,
-                    scrollBehavior,
-                    backgroundImageUrl,
-                    navigate = {
-                        nestedRoutes = it
-                    },
-                    reload = {
-                        reload++
-                    },
-                    onChangedBackgroundImageUrl = {
-                        backgroundImageUrl = it
-                    }
-                )
+            val contentArguments = ContentArguments(mainState.weatherMainUiState,
+                mainState.scrollState,
+                mainState.scrollBehavior,
+                mainState.backgroundImageUrl,
+                navigate = {
+                    mainState.navigate(it)
+                },
+                reload = {
+                    mainState.reload()
+                },
+                onChangedBackgroundImageUrl = {
+                    mainState.backgroundImageUrl = it
+                })
             WeatherContentScreen(contentArguments, viewModel)
         }
 
         is NestedWeatherRoutes.DetailHourlyForecast -> {
-            windowInsetsController.isAppearanceLightNavigationBars = true
             DetailHourlyForecastScreen(viewModel) {
-                nestedRoutes = NestedWeatherRoutes.Main
+                mainState.navigate(NestedWeatherRoutes.Main)
             }
         }
 
         is NestedWeatherRoutes.DetailDailyForecast -> {
-            windowInsetsController.isAppearanceLightNavigationBars = true
             DetailDailyForecastScreen(viewModel) {
-                nestedRoutes = NestedWeatherRoutes.Main
+                mainState.navigate(NestedWeatherRoutes.Main)
             }
         }
 
         is NestedWeatherRoutes.ComparisonDailyForecast -> {
-            windowInsetsController.isAppearanceLightNavigationBars = true
-            CompareDailyForecastScreen(uiState.args) {
-                nestedRoutes = NestedWeatherRoutes.Main
+            CompareDailyForecastScreen(mainState.weatherMainUiState.args) {
+                mainState.navigate(NestedWeatherRoutes.Main)
             }
         }
 
         is NestedWeatherRoutes.ComparisonHourlyForecast -> {
-            windowInsetsController.isAppearanceLightNavigationBars = true
-            CompareHourlyForecastScreen(uiState.args, viewModelStoreOwner!!) {
-                nestedRoutes = NestedWeatherRoutes.Main
+            CompareHourlyForecastScreen(mainState.weatherMainUiState.args, mainState.viewModelStoreOwner!!) {
+                mainState.navigate(NestedWeatherRoutes.Main)
             }
         }
     }

@@ -18,7 +18,7 @@ sealed interface WeatherResponseState {
     val weatherProvider: WeatherProvider
 
     data class Failure(
-        override val requestId: Long, override val location: LocationTypeModel, override val weatherProvider: WeatherProvider
+        override val requestId: Long, override val location: LocationTypeModel, override val weatherProvider: WeatherProvider,
     ) : WeatherResponseState
 
     data class Success(

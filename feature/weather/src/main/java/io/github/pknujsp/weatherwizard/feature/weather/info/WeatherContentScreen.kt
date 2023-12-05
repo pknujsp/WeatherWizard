@@ -223,16 +223,16 @@ fun WeatherContentScreen(arguments: ContentArguments, weatherInfoViewModel: Weat
                             .verticalScroll(arguments.scrollState),
                         verticalArrangement = Arrangement.spacedBy(20.dp),
                     ) {
-                        arguments.run {
+                        arguments.uiState.weather?.run {
                             Spacer(modifier = Modifier.height(innerPadding.calculateTopPadding()))
-                            CurrentWeatherScreen(weatherInfoViewModel)
-                            HourlyForecastScreen(weatherInfoViewModel, navigate)
-                            SimpleDailyForecastScreen(weatherInfoViewModel, navigate)
+                            CurrentWeatherScreen(currentWeather, yesterdayWeather)
+                            HourlyForecastScreen(simpleHourlyForecast, arguments.navigate)
+                            SimpleDailyForecastScreen(simpleDailyForecast, arguments.navigate)
                             SimpleMapScreen(arguments.uiState.args)
                             AirQualityScreen(arguments.uiState.args)
                             SimpleSunSetRiseScreen(arguments.uiState.args)
-                            FlickrImageItemScreen(weatherInfoViewModel.flickrRequestParameter) {
-                                onChangedBackgroundImageUrl(it)
+                            FlickrImageItemScreen(arguments.uiState.flickrRequestParameters!!) {
+                                arguments.onChangedBackgroundImageUrl(it)
                             }
                             Spacer(modifier = Modifier.height(innerPadding.calculateBottomPadding()))
                         }

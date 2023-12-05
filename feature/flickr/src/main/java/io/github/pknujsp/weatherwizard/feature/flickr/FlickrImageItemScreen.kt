@@ -10,10 +10,8 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
@@ -24,65 +22,45 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import io.github.pknujsp.weatherwizard.core.common.R
-import io.github.pknujsp.weatherwizard.core.model.UiState
 import io.github.pknujsp.weatherwizard.core.model.flickr.FlickrRequestParameters
 import io.github.pknujsp.weatherwizard.core.model.onError
 import io.github.pknujsp.weatherwizard.core.model.onLoading
 import io.github.pknujsp.weatherwizard.core.model.onSuccess
 import io.github.pknujsp.weatherwizard.core.ui.theme.outlineTextStyle
-import kotlinx.coroutines.flow.StateFlow
 
 @Composable
 fun FlickrImageItemScreen(
-    parameterFlow: StateFlow<UiState<FlickrRequestParameters>>,
-    onLoadedImage: (String) -> Unit
+    requestParameter: FlickrRequestParameters, viewModel: FlickrImageViewModel = hiltViewModel(), onLoadedImage: (String) -> Unit
 ) {
-    val requestParameter by parameterFlow.collectAsStateWithLifecycle()
-    requestParameter.onLoading {
-
-    }.onSuccess { requestParameters ->
-        val viewModel: FlickrImageViewModel = hiltViewModel()
-        viewModel.load(requestParameters)
-
-        val flickerImageEntity by viewModel.image.collectAsStateWithLifecycle()
-        val context = LocalContext.current
-        var imageUrl by remember {
-            mutableStateOf("")
-        }
-
-        flickerImageEntity.onSuccess {
-            imageUrl = it.imageUrl
-            onLoadedImage(it.imageUrl)
-        }.onError {
-            imageUrl = stringResource(id = R.string.reload)
-            onLoadedImage("")
-        }.onLoading {
-            imageUrl = stringResource(io.github.pknujsp.weatherwizard.feature.flickr.R.string
-                .loading_image)
-        }
-
-        UrlItem(url = imageUrl, onClick = {
-            if (imageUrl.isNotEmpty())
-                viewModel.reload()
-        })
+    LaunchedEffect(requestParameter) {
+        viewModel.initialize(requestParameter)
     }
 
+    val uiState = remember { viewModel.flickrImageUiState }
 
+    if (uiState.isLoaded) {
+        onLoadedImage(uiState.url)
+    } else {
+        onLoadedImage("")
+    }
+
+    UrlItem(text = if (uiState.isLoaded) uiState.url else stringResource(uiState.textRes), onClick = {
+        if (!uiState.isLoading) viewModel.load()
+    })
 }
 
 @Composable
-private fun UrlItem(url: String, onClick: () -> Unit) {
+private fun UrlItem(text: String, onClick: () -> Unit) {
     Row(modifier = Modifier
         .padding(start = 84.dp, end = 14.dp, top = 6.dp)
         .fillMaxWidth(),
         horizontalArrangement = Arrangement.End,
         verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
 
-        Text(text = url,
+        Text(text = text,
             textDecoration = TextDecoration.Underline,
             color = Color.White,
             fontSize = 11.sp,
@@ -94,14 +72,9 @@ private fun UrlItem(url: String, onClick: () -> Unit) {
                 .weight(1f)
                 .clickable { onClick() })
         Spacer(modifier = Modifier.padding(horizontal = 4.dp))
-        AsyncImage(
-            model = ImageRequest.Builder(LocalContext.current)
-                .data(R.drawable.flickrlogo)
-                .crossfade(false)
-                .build(),
+        AsyncImage(model = ImageRequest.Builder(LocalContext.current).data(R.drawable.flickrlogo).crossfade(false).build(),
             contentDescription = stringResource(io.github.pknujsp.weatherwizard.feature.flickr.R.string.flickr),
             contentScale = ContentScale.Inside,
-            modifier = Modifier.width(31.dp)
-        )
+            modifier = Modifier.width(31.dp))
     }
 }

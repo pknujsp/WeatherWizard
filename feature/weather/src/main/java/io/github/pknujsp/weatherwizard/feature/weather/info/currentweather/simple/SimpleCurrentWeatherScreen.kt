@@ -32,6 +32,8 @@ import io.github.pknujsp.weatherwizard.core.common.util.AStyle
 import io.github.pknujsp.weatherwizard.core.common.util.toAnnotated
 import io.github.pknujsp.weatherwizard.core.model.onSuccess
 import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherDataCategory
+import io.github.pknujsp.weatherwizard.core.model.weather.current.CurrentWeather
+import io.github.pknujsp.weatherwizard.core.model.weather.yesterday.YesterdayWeather
 import io.github.pknujsp.weatherwizard.core.ui.textColor
 import io.github.pknujsp.weatherwizard.core.ui.theme.notIncludeTextPaddingStyle
 import io.github.pknujsp.weatherwizard.core.ui.theme.outlineTextStyle
@@ -40,14 +42,10 @@ import io.github.pknujsp.weatherwizard.feature.weather.info.WeatherInfoViewModel
 
 
 @Composable
-fun CurrentWeatherScreen(weatherInfoViewModel: WeatherInfoViewModel) {
-    val currentWeather by weatherInfoViewModel.currentWeather.collectAsStateWithLifecycle()
-
-    currentWeather.onSuccess { current ->
+fun CurrentWeatherScreen(currentWeather: CurrentWeather, yesterdayWeather: YesterdayWeather?) {
+    currentWeather.let { current ->
         Column {
-            ConstraintLayout(modifier = Modifier
-                .fillMaxWidth()
-            ) {
+            ConstraintLayout(modifier = Modifier.fillMaxWidth()) {
                 val (weatherIcon, condition, temperature, feelsLikeTemperature) = createRefs()
                 Text(text = listOf(
                     AStyle(
@@ -78,15 +76,15 @@ fun CurrentWeatherScreen(weatherInfoViewModel: WeatherInfoViewModel) {
 
                 Text(
                     text = stringResource(current.weatherCondition.value.stringRes),
-                    modifier = Modifier
-                        .constrainAs(condition) {
-                            bottom.linkTo(temperature.top)
-                            start.linkTo(parent.start)
-                            end.linkTo(parent.end)
-                        },
-                    style = TextStyle(fontSize = TextUnit(24f, TextUnitType.Sp), color = textColor, fontWeight = FontWeight.Medium,
-                        textAlign = TextAlign.Center)
-                        .merge(outlineTextStyle).merge(notIncludeTextPaddingStyle),
+                    modifier = Modifier.constrainAs(condition) {
+                        bottom.linkTo(temperature.top)
+                        start.linkTo(parent.start)
+                        end.linkTo(parent.end)
+                    },
+                    style = TextStyle(fontSize = TextUnit(24f, TextUnitType.Sp),
+                        color = textColor,
+                        fontWeight = FontWeight.Medium,
+                        textAlign = TextAlign.Center).merge(outlineTextStyle).merge(notIncludeTextPaddingStyle),
                 )
 
                 Text(text = listOf(
@@ -102,17 +100,13 @@ fun CurrentWeatherScreen(weatherInfoViewModel: WeatherInfoViewModel) {
                 }, style = LocalTextStyle.current.merge(notIncludeTextPaddingStyle).merge(outlineTextStyle))
             }
 
-            Column(modifier = Modifier
-                .fillMaxWidth()
-            ) {
-                val yesterdayWeather by weatherInfoViewModel.yesterdayWeather.collectAsStateWithLifecycle()
+            Column(modifier = Modifier.fillMaxWidth()) {
                 val textColor = remember { Color.White }
 
                 Text(text = listOf(
                     AStyle("${stringResource(id = WeatherDataCategory.HUMIDITY.stringId)} ",
                         span = SpanStyle(fontSize = 13.sp, color = textColor)),
-                    AStyle(current.humidity.toString(),
-                        span = SpanStyle(fontSize = 15.sp, color = textColor)),
+                    AStyle(current.humidity.toString(), span = SpanStyle(fontSize = 15.sp, color = textColor)),
                 ).toAnnotated())
 
                 Text(text = listOf(
@@ -120,8 +114,7 @@ fun CurrentWeatherScreen(weatherInfoViewModel: WeatherInfoViewModel) {
                         "${current.windDirection} ",
                         span = SpanStyle(fontSize = 13.sp, color = textColor),
                     ),
-                    AStyle(current.windSpeed.strength(LocalContext.current),
-                        span = SpanStyle(fontSize = 15.sp, color = textColor)),
+                    AStyle(current.windSpeed.strength(LocalContext.current), span = SpanStyle(fontSize = 15.sp, color = textColor)),
                 ).toAnnotated())
 
                 Text(text = listOf(
@@ -130,10 +123,8 @@ fun CurrentWeatherScreen(weatherInfoViewModel: WeatherInfoViewModel) {
                     AStyle("좋음", span = SpanStyle(fontSize = 15.sp, color = textColor)),
                 ).toAnnotated())
 
-                yesterdayWeather.onSuccess {
-                    Text(text = it.text(current.temperature, LocalContext.current),
-                        color = textColor,
-                        fontSize = 14.sp)
+                yesterdayWeather?.let {
+                    Text(text = it.text(current.temperature, LocalContext.current), color = textColor, fontSize = 14.sp)
                 }
             }
         }
