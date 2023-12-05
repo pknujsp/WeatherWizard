@@ -1,8 +1,6 @@
 package io.github.pknujsp.weatherwizard.core.model.nominatim
 
 import io.github.pknujsp.weatherwizard.core.model.UiModel
-import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherDataProvider
-import java.time.ZonedDateTime
 
 data class ReverseGeoCode(
     val displayName: String,

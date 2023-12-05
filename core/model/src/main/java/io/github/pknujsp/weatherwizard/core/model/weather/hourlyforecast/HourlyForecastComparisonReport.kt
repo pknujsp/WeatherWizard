@@ -2,11 +2,11 @@ package io.github.pknujsp.weatherwizard.core.model.weather.hourlyforecast
 
 import io.github.pknujsp.weatherwizard.core.model.UiModel
 import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherConditionCategory
-import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherDataProvider
+import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherProvider
 import java.time.ZonedDateTime
 
 class HourlyForecastComparisonReport(
-    items: List<Pair<WeatherDataProvider, List<ToCompareHourlyForecastEntity.Item>>>,
+    items: List<Pair<WeatherProvider, List<ToCompareHourlyForecastEntity.Item>>>,
     times: List<Pair<Boolean, ZonedDateTime>>,
 ) : UiModel {
 

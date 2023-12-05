@@ -38,7 +38,7 @@ import io.github.pknujsp.weatherwizard.feature.weather.info.WeatherInfoViewModel
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun DetailHourlyForecastScreen(viewModel: WeatherInfoViewModel, popBackStack: () -> Unit) {
+fun DetailHourlyForecastScreen(hourlyForecast: DetailHourlyForecast, popBackStack: () -> Unit) {
     BackHandler {
         popBackStack()
     }
@@ -46,36 +46,34 @@ fun DetailHourlyForecastScreen(viewModel: WeatherInfoViewModel, popBackStack: ()
         TitleTextWithNavigation(title = stringResource(io.github.pknujsp.weatherwizard.core.common.R.string.hourly_forecast)) {
             popBackStack()
         }
-        val hourlyForecast by viewModel.detailHourlyForecast.collectAsStateWithLifecycle()
-
         LazyColumn(
             state = rememberLazyListState(),
             modifier = Modifier
                 .fillMaxWidth()
                 .navigationBarsPadding(),
         ) {
-            hourlyForecast.onSuccess {
-                it.items.forEach { pair ->
-                    stickyHeader(key = pair.first) {
-                        Box(
-                            contentAlignment = Alignment.CenterStart,
-                            modifier = Modifier.background(Color.LightGray.copy(alpha = 0.8f), AppShapes.small).padding(horizontal = 16.dp,
-                                vertical
-                            = 2.dp)
-                        ) {
-                            Text(text = pair.first,
-                                style = TextStyle(fontSize = 14.sp, color = Color.White),)
-                        }
+            hourlyForecast.items.forEach { pair ->
+                stickyHeader(key = pair.first) {
+                    Box(contentAlignment = Alignment.CenterStart,
+                        modifier = Modifier
+                            .background(Color.LightGray.copy(alpha = 0.8f), AppShapes.small)
+                            .padding(horizontal = 16.dp, vertical = 2.dp)) {
+                        Text(
+                            text = pair.first,
+                            style = TextStyle(fontSize = 14.sp, color = Color.White),
+                        )
                     }
-                    itemsIndexed(pair.second) { _, item ->
-                        Item(item = item,
-                            displayPrecipitationProbability = it.displayPrecipitationProbability,
-                            displayPrecipitationVolume = it.displayPrecipitationVolume,
-                            displaySnowfallVolume = it.displaySnowfallVolume,
-                            displayRainfallVolume = it.displayRainfallVolume) {}
-                    }
-
                 }
+                itemsIndexed(pair.second) { _, item ->
+                    Item(item = item,
+                        displayPrecipitationProbability = hourlyForecast.displayPrecipitationProbability,
+                        displayPrecipitationVolume = hourlyForecast.displayPrecipitationVolume,
+                        displaySnowfallVolume = hourlyForecast.displaySnowfallVolume,
+                        displayRainfallVolume = hourlyForecast.displayRainfallVolume) {
+
+                    }
+                }
+
             }
         }
     }
@@ -99,15 +97,17 @@ private fun Item(
                 .clickable {
                     onClick()
                 }) {
-            Text(text = time, style = TextStyle(fontSize = 16.sp, color = Color.Gray), modifier = Modifier
-                .weight(0.1f, true)
-                .padding(start = 16.dp))
+            Text(text = time,
+                style = TextStyle(fontSize = 16.sp, color = Color.Gray),
+                modifier = Modifier
+                    .weight(0.1f, true)
+                    .padding(start = 16.dp))
 
             Row(modifier = Modifier
                 .weight(0.3f, true)
-                .padding(end = 16.dp), horizontalArrangement = Arrangement.spacedBy(4.dp), verticalAlignment =
-            Alignment
-                .CenterVertically) {
+                .padding(end = 16.dp),
+                horizontalArrangement = Arrangement.spacedBy(4.dp),
+                verticalAlignment = Alignment.CenterVertically) {
                 AsyncImage(model = ImageRequest.Builder(context = LocalContext.current).data(weatherIcon).build(),
                     modifier = Modifier.size(44.dp),
                     contentDescription = null)

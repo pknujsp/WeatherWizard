@@ -3,8 +3,6 @@ package io.github.pknujsp.weatherwizard.core.ui.notification
 import android.annotation.SuppressLint
 import android.app.Notification.VISIBILITY_PUBLIC
 import android.app.NotificationChannel
-import android.app.NotificationManager
-import android.app.NotificationManager.IMPORTANCE_HIGH
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
@@ -46,11 +44,10 @@ class AppNotificationManager(context: Context) {
         PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE)
          */
 
-        val builder = NotificationCompat.Builder(context, notificationType.channelId).apply {
+        return NotificationCompat.Builder(context, notificationType.channelId).apply {
             setSmallIcon(io.github.pknujsp.weatherwizard.core.common.R.mipmap.ic_launcher_foreground)
             setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
         }
-        return builder
     }
 
     fun cancelNotification(notificationType: NotificationType) {
@@ -86,8 +83,9 @@ class AppNotificationManager(context: Context) {
         notificationBulder.apply {
             setSubText(entity.subText)
             setCustomBigContentView(entity.bigContentRemoteViews)
-            setOnlyAlertOnce(true)
             setWhen(0)
+            setOngoing(notificationType.ongoing)
+            setSilent(notificationType.silent)
 
             entity.smallIcon?.let {
                 setSmallIcon(it)
@@ -100,10 +98,6 @@ class AppNotificationManager(context: Context) {
                 setCustomContentView(entity.smallContentRemoteViews)
             } else {
                 setCustomContentView(entity.bigContentRemoteViews)
-            }
-
-            if (notificationType == NotificationType.ONGOING) {
-                setOngoing(true)
             }
         }
 

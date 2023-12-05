@@ -24,16 +24,24 @@ import io.github.pknujsp.weatherwizard.core.ui.PrimaryButton
 
 @Composable
 fun UnavailableFeatureScreen(featureType: FeatureType, onClick: () -> Unit) {
+    FailedScreen(title = featureType.title,
+        alertMessage = featureType.alertMessage,
+        actionMessage = featureType.actionMessage,
+        onClick = onClick)
+}
+
+@Composable
+fun FailedScreen(@StringRes title: Int, @StringRes alertMessage: Int, @StringRes actionMessage: Int, onClick: () -> Unit) {
     val window = (LocalContext.current as Activity).window
     WindowCompat.getInsetsController(window, window.decorView).isAppearanceLightNavigationBars = true
 
     Column(modifier = Modifier
         .fillMaxSize()
         .padding(horizontal = 16.dp, vertical = 24.dp), verticalArrangement = Arrangement.Center) {
-        Text(text = stringResource(featureType.title), style = TextStyle(fontSize = 24.sp, color = Color.Black))
+        Text(text = stringResource(title), style = TextStyle(fontSize = 24.sp, color = Color.Black))
         Spacer(modifier = Modifier.height(16.dp))
-        Text(text = stringResource(featureType.alertMessage), style = TextStyle(fontSize = 16.sp, color = Color.DarkGray))
+        Text(text = stringResource(alertMessage), style = TextStyle(fontSize = 16.sp, color = Color.DarkGray))
         Spacer(modifier = Modifier.height(16.dp))
-        PrimaryButton(text = stringResource(id = featureType.actionMessage), onClick = onClick, modifier = Modifier.align(Alignment.End))
+        PrimaryButton(text = stringResource(id = actionMessage), onClick = onClick, modifier = Modifier.align(Alignment.End))
     }
 }

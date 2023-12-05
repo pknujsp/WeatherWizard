@@ -9,12 +9,12 @@ import io.github.pknujsp.weatherwizard.core.model.weather.common.RainfallValueTy
 import io.github.pknujsp.weatherwizard.core.model.weather.common.SnowfallValueType
 import io.github.pknujsp.weatherwizard.core.model.weather.common.TemperatureValueType
 import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherConditionValueType
-import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherDataProvider
+import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherProvider
 import io.github.pknujsp.weatherwizard.core.model.weather.common.WindDirectionValueType
 import io.github.pknujsp.weatherwizard.core.model.weather.common.WindSpeedValueType
 
 data class ToCompareHourlyForecastEntity(
-    val items: List<Pair<WeatherDataProvider, List<Item>>>
+    val items: List<Pair<WeatherProvider, List<Item>>>
 ) : EntityModel {
     data class Item(
         val dateTime: DateTimeValueType,

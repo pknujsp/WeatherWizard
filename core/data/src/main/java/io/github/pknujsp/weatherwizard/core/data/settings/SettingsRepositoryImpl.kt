@@ -5,7 +5,7 @@ import io.github.pknujsp.weatherwizard.core.model.DBEntityState
 import io.github.pknujsp.weatherwizard.core.model.weather.common.CurrentUnits
 import io.github.pknujsp.weatherwizard.core.model.weather.common.PrecipitationUnit
 import io.github.pknujsp.weatherwizard.core.model.weather.common.TemperatureUnit
-import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherDataProvider
+import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherProvider
 import io.github.pknujsp.weatherwizard.core.model.weather.common.WindSpeedUnit
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -82,14 +82,14 @@ class SettingsRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun getWeatherDataProvider(): WeatherDataProvider {
-        return when (val provider = appDataStore.readAsLong(WeatherDataProvider.key)) {
-            is DBEntityState.Exists -> WeatherDataProvider.fromKey(provider.data.toInt())
-            is DBEntityState.NotExists -> WeatherDataProvider.default
+    override suspend fun getWeatherDataProvider(): WeatherProvider {
+        return when (val provider = appDataStore.readAsLong(WeatherProvider.key)) {
+            is DBEntityState.Exists -> WeatherProvider.fromKey(provider.data.toInt())
+            is DBEntityState.NotExists -> WeatherProvider.default
         }
     }
 
-    override suspend fun setWeatherDataProvider(provider: WeatherDataProvider) {
-        appDataStore.save(WeatherDataProvider.key, provider.key.toLong())
+    override suspend fun setWeatherDataProvider(provider: WeatherProvider) {
+        appDataStore.save(WeatherProvider.key, provider.key.toLong())
     }
 }

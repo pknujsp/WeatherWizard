@@ -1,39 +1,38 @@
 package io.github.pknujsp.weatherwizard.core.domain.weather
 
-import io.github.pknujsp.core.annotation.KBindFunc
 import io.github.pknujsp.weatherwizard.core.model.EntityModel
-import io.github.pknujsp.weatherwizard.core.model.coordinate.Coordinate
-import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherDataMajorCategory
-import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherDataProvider
+import io.github.pknujsp.weatherwizard.core.model.coordinate.LocationModel
+import io.github.pknujsp.weatherwizard.core.model.coordinate.LocationTypeModel
+import io.github.pknujsp.weatherwizard.core.model.weather.common.MajorWeatherEntityType
+import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherProvider
 
-data class ResponseEntity(
-    val weatherDataMajorCategories: Set<WeatherDataMajorCategory>, val responses: List<EntityModel>
+data class WeatherResponseEntity(
+    val weatherDataMajorCategories: Set<MajorWeatherEntityType>, val responses: List<EntityModel>
 ) : EntityModel {
     inline fun <reified T : EntityModel> toEntity(): T = responses.first { it is T } as T
 }
 
-
-sealed interface ResponseState {
+sealed interface WeatherResponseState {
     val requestId: Long
-    val coordinate: Coordinate
-    val weatherDataProvider: WeatherDataProvider
+    val location: LocationTypeModel
+    val weatherProvider: WeatherProvider
 
     data class Failure(
-        override val requestId: Long, override val coordinate: Coordinate, override val weatherDataProvider: WeatherDataProvider
-    ) : ResponseState
+        override val requestId: Long, override val location: LocationTypeModel, override val weatherProvider: WeatherProvider,
+    ) : WeatherResponseState
 
     data class Success(
         override val requestId: Long,
-        override val coordinate: Coordinate,
-        override val weatherDataProvider: WeatherDataProvider,
-        val entity: ResponseEntity
-    ) : ResponseState
+        override val location: LocationTypeModel,
+        override val weatherProvider: WeatherProvider,
+        val entity: WeatherResponseEntity
+    ) : WeatherResponseState
 
     data class PartiallySuccess(
         override val requestId: Long,
-        override val coordinate: Coordinate,
-        override val weatherDataProvider: WeatherDataProvider,
-        val entity: ResponseEntity,
-        val failedCategories: List<WeatherDataMajorCategory>
-    ) : ResponseState
+        override val location: LocationTypeModel,
+        override val weatherProvider: WeatherProvider,
+        val entity: WeatherResponseEntity,
+        val failedCategories: List<MajorWeatherEntityType>
+    ) : WeatherResponseState
 }

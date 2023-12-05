@@ -16,7 +16,7 @@ import androidx.navigation.compose.rememberNavController
 import io.github.pknujsp.weatherwizard.core.common.FeatureType
 import io.github.pknujsp.weatherwizard.core.common.manager.PermissionManager
 import io.github.pknujsp.weatherwizard.core.common.manager.PermissionType
-import io.github.pknujsp.weatherwizard.core.model.favorite.LocationType
+import io.github.pknujsp.weatherwizard.core.model.coordinate.LocationType
 import io.github.pknujsp.weatherwizard.core.ui.feature.UnavailableFeatureScreen
 import io.github.pknujsp.weatherwizard.core.ui.feature.OpenAppSettingsActivity
 import io.github.pknujsp.weatherwizard.feature.weather.info.WeatherInfoScreen

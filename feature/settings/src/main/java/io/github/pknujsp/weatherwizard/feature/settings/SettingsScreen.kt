@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -14,7 +13,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.Dp
 import androidx.core.view.WindowCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -25,11 +23,10 @@ import androidx.navigation.compose.rememberNavController
 import io.github.pknujsp.weatherwizard.core.ui.ButtonSettingItem
 import io.github.pknujsp.weatherwizard.core.ui.CheckBoxSettingItem
 import io.github.pknujsp.weatherwizard.core.ui.TextValueSettingItem
-import io.github.pknujsp.weatherwizard.core.ui.TitleTextWithoutNavigation
 
 @Composable
 fun SettingsScreen(navController: NavController, viewModel: SettingsViewModel) {
-    val weatherDataProvider by viewModel.weatherDataProvider.collectAsStateWithLifecycle()
+    val weatherDataProvider by viewModel.weatherProvider.collectAsStateWithLifecycle()
     var displayValuesBottomSheet by remember { mutableStateOf(false) }
     val context = LocalContext.current
 
@@ -73,11 +70,6 @@ fun HostSettingsScreen() {
     NavHost(navController = navController, route = SettingsRoutes.route, startDestination = SettingsRoutes.Main.route,
         modifier = Modifier.navigationBarsPadding()) {
         composable(SettingsRoutes.Main.route) { SettingsScreen(navController, viewModel) }
-        composable(SettingsRoutes.ValueUnit.route) { Test() }
+        composable(SettingsRoutes.ValueUnit.route) { ValueUnitScreen(navController, viewModel) }
     }
-}
-
-@Composable
-fun Test() {
-
 }

@@ -20,4 +20,5 @@ dependencies {
     implementation(libs.okhttp.logginginterceptor)
     ksp(libs.ksealedbinding.compiler)
     implementation(libs.ksealedbinding.annotation)
+    implementation(libs.kotlinx.serialization.json)
 }

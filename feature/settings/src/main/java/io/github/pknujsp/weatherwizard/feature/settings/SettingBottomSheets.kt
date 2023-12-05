@@ -21,7 +21,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
-import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherDataProvider
+import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherProvider
 import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherDataUnit
 import io.github.pknujsp.weatherwizard.core.ui.TitleTextWithoutNavigation
 import io.github.pknujsp.weatherwizard.core.ui.dialog.BottomSheet
@@ -68,7 +68,7 @@ internal fun ValuesBottomSheet(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-internal fun WeatherDataProviderBottomSheet(currentProvider: WeatherDataProvider, onClick: (WeatherDataProvider?) -> Unit) {
+internal fun WeatherDataProviderBottomSheet(currentProvider: WeatherProvider, onClick: (WeatherProvider?) -> Unit) {
     BottomSheet(
         consumedNavigationBar = true,
         onDismissRequest = {
@@ -80,7 +80,7 @@ internal fun WeatherDataProviderBottomSheet(currentProvider: WeatherDataProvider
             .padding(vertical = 16.dp)
         ) {
             TitleTextWithoutNavigation(title = stringResource(id = R.string.title_weather_data_provider))
-            WeatherDataProvider.enums.forEach { weatherDataProvider ->
+            WeatherProvider.enums.forEach { weatherDataProvider ->
                 Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier
                     .clickable {
                         onClick(weatherDataProvider)

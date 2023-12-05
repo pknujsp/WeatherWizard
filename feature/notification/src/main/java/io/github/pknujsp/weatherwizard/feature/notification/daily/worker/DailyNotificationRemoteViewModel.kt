@@ -1,74 +1,99 @@
 package io.github.pknujsp.weatherwizard.feature.notification.daily.worker
 
-import io.github.pknujsp.weatherwizard.core.common.FeatureType
-import io.github.pknujsp.weatherwizard.core.common.util.DayNightCalculator
 import io.github.pknujsp.weatherwizard.core.data.nominatim.NominatimRepository
-import io.github.pknujsp.weatherwizard.core.data.notification.NotificationRepository
+import io.github.pknujsp.weatherwizard.core.data.notification.daily.DailyNotificationRepository
+import io.github.pknujsp.weatherwizard.core.data.notification.daily.model.DailyNotificationSettingsEntity
 import io.github.pknujsp.weatherwizard.core.data.settings.SettingsRepository
-import io.github.pknujsp.weatherwizard.core.domain.weather.GetCurrentWeatherUseCase
-import io.github.pknujsp.weatherwizard.core.domain.weather.GetDailyForecastUseCase
-import io.github.pknujsp.weatherwizard.core.domain.weather.GetHourlyForecastUseCase
-import io.github.pknujsp.weatherwizard.core.model.UiState
-import io.github.pknujsp.weatherwizard.core.model.favorite.LocationType
-import io.github.pknujsp.weatherwizard.core.model.notification.NotificationEntity
-import io.github.pknujsp.weatherwizard.core.model.notification.daily.DailyNotificationInfoEntity
-import io.github.pknujsp.weatherwizard.core.model.notification.daily.forecast.DailyNotificationForecastUiModel
-import io.github.pknujsp.weatherwizard.core.model.weather.common.CurrentUnits
+import io.github.pknujsp.weatherwizard.core.domain.location.CurrentLocationResultState
+import io.github.pknujsp.weatherwizard.core.domain.location.GetCurrentLocationUseCase
+import io.github.pknujsp.weatherwizard.core.domain.weather.GetWeatherDataUseCase
+import io.github.pknujsp.weatherwizard.core.domain.weather.WeatherDataRequest
+import io.github.pknujsp.weatherwizard.core.domain.weather.WeatherResponseState
+import io.github.pknujsp.weatherwizard.core.model.coordinate.LocationType
+import io.github.pknujsp.weatherwizard.core.model.coordinate.LocationTypeModel
 import io.github.pknujsp.weatherwizard.core.ui.remoteview.RemoteViewModel
-import java.time.ZonedDateTime
+import io.github.pknujsp.weatherwizard.feature.notification.daily.model.DailyNotificationHeaderModel
 import javax.inject.Inject
-import kotlin.properties.Delegates
 
 class DailyNotificationRemoteViewModel @Inject constructor(
-    private val getCurrentWeatherUseCase: GetCurrentWeatherUseCase,
-    private val getHourlyForecastUseCase: GetHourlyForecastUseCase,
-    private val getDailyForecastUseCase: GetDailyForecastUseCase,
-    private val appSettingsRepository: SettingsRepository,
-    private val notificationRepository: NotificationRepository,
+    private val getWeatherDataUseCase: GetWeatherDataUseCase,
+    private val dailyNotificationRepository: DailyNotificationRepository,
+    private val getCurrentLocationUseCase: GetCurrentLocationUseCase,
     private val nominatimRepository: NominatimRepository,
+    appSettingsRepository: SettingsRepository,
 ) : RemoteViewModel() {
 
-    private val units: CurrentUnits = appSettingsRepository.currentUnits.value
-    var notificationInfo: NotificationEntity<DailyNotificationInfoEntity> by Delegates.notNull()
-        private set
+    val units = appSettingsRepository.currentUnits.value
 
-    private val now = ZonedDateTime.now()
-    private val requestId = now.toInstant().toEpochMilli()
 
-    private var address: String by Delegates.notNull()
-
-    suspend fun init(notificationId: Long) {
-        notificationInfo = notificationRepository.getDailyNotification(notificationId)
-        notificationInfo.data.run {
-            address = if (getLocationType() is LocationType.CurrentLocation) nominatimRepository.reverseGeoCode(
-                latitude, longitude).getOrThrow().simpleDisplayName
-            else addressName
-        }
-
+    suspend fun loadNotification(notificationId: Long): DailyNotificationSettingsEntity {
+        val notificationEntity = dailyNotificationRepository.getDailyNotification(notificationId)
+        return notificationEntity.data
     }
 
-    suspend fun loadHourlyForecast(): UiState<DailyNotificationForecastUiModel> {
-        val latitude = notificationInfo.data.latitude
-        val longitude = notificationInfo.data.longitude
+    suspend fun load(
+        dailyNotificationSettingsEntity: DailyNotificationSettingsEntity,
+    ): DailyNotificationHeaderModel {
+        return loadWeatherData(dailyNotificationSettingsEntity)
+    }
 
-        val weatherProvider = notificationInfo.data.getWeatherProvider()
-        val hourlyForecast =
-            getHourlyForecastUseCase(latitude, longitude, weatherProvider, requestId).getOrNull()
-        val dailyForecast =
-            getDailyForecastUseCase(latitude, longitude, weatherProvider, requestId).getOrNull()
+    private suspend fun loadWeatherData(dailyNotificationSettingsEntity: DailyNotificationSettingsEntity): DailyNotificationHeaderModel {
+        val weatherDataRequest = WeatherDataRequest()
 
-        return if (hourlyForecast != null && dailyForecast != null) {
-            val dayNightCalculator = DayNightCalculator(latitude, longitude)
+        if (dailyNotificationSettingsEntity.location.locationType is LocationType.CurrentLocation) {
+            when (val currentLocation = getCurrentLocationUseCase()) {
+                is CurrentLocationResultState.Success -> {
+                    val address = nominatimRepository.reverseGeoCode(currentLocation.latitude, currentLocation.longitude)
+                    address.fold(onSuccess = {
+                        weatherDataRequest.addRequest(
+                            dailyNotificationSettingsEntity.location.copy(
+                                address = it.simpleDisplayName,
+                                country = it.country,
+                                latitude = currentLocation.latitude,
+                                longitude = currentLocation.longitude,
+                            ),
+                            dailyNotificationSettingsEntity.type.categories.toSet(),
+                            dailyNotificationSettingsEntity.weatherProvider,
+                        )
+                    }, onFailure = {
+                        return DailyNotificationHeaderModel(weatherDataRequest.requestedTime,
+                            WeatherResponseState.Failure(-1, LocationTypeModel(), dailyNotificationSettingsEntity.weatherProvider),
+                            dailyNotificationSettingsEntity)
+                    })
 
-            UiState.Success(DailyNotificationForecastUiModel(
-                address,
-                hourlyForecast,
-                dailyForecast,
-                dayNightCalculator,
-                units,
-            ))
+                }
+
+                else -> {
+                    return DailyNotificationHeaderModel(weatherDataRequest.requestedTime,
+                        WeatherResponseState.Failure(-1, LocationTypeModel(), dailyNotificationSettingsEntity.weatherProvider),
+                        dailyNotificationSettingsEntity)
+                }
+            }
         } else {
-            UiState.Failure(FeatureType.NETWORK)
+            weatherDataRequest.addRequest(
+                dailyNotificationSettingsEntity.location,
+                dailyNotificationSettingsEntity.type.categories.toSet(),
+                dailyNotificationSettingsEntity.weatherProvider,
+            )
         }
+
+
+        val response = getWeatherDataUseCase(weatherDataRequest.requests[0])
+
+        val uiModel = DailyNotificationHeaderModel(weatherDataRequest.requestedTime,
+            response,
+            notification = if (dailyNotificationSettingsEntity.location.locationType is LocationType.CurrentLocation) {
+                dailyNotificationSettingsEntity.copy(location = dailyNotificationSettingsEntity.location.copy(
+                    latitude = response.location.latitude,
+                    longitude = response.location.longitude,
+                    address = response.location.address,
+                    country = response.location.country,
+                ))
+            } else {
+                dailyNotificationSettingsEntity
+            })
+
+        return uiModel
     }
+
 }

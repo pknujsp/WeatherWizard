@@ -10,6 +10,8 @@ enum class NotificationType(
     val channelName: String,
     val channelDescription: String,
     val importance: Int,
+    val ongoing: Boolean ,
+    val silent: Boolean,
     @StringRes val contentTitle: Int,
     @StringRes val contentText: Int,
 ) {
@@ -20,7 +22,9 @@ enum class NotificationType(
         channelDescription = "ONGOING",
         importance = NotificationManager.IMPORTANCE_DEFAULT,
         contentTitle = 0,
-        contentText = 0
+        contentText = 0,
+        ongoing = true,
+        silent = true
     ),
     DAILY(
         notificationId = 2,
@@ -29,7 +33,9 @@ enum class NotificationType(
         channelDescription = "DAILY",
         importance = NotificationManager.IMPORTANCE_HIGH,
         contentTitle = 0,
-        contentText = 0
+        contentText = 0,
+        ongoing = false,
+        silent = false
     ),
     WORKING(
         notificationId = 3,
@@ -38,6 +44,8 @@ enum class NotificationType(
         channelDescription = "WORKING",
         importance = NotificationManager.IMPORTANCE_MIN,
         contentTitle = R.string.notification_working_title,
-        contentText = R.string.notification_working_text
+        contentText = R.string.notification_working_text,
+        ongoing = false,
+        silent = true
     ),
 }

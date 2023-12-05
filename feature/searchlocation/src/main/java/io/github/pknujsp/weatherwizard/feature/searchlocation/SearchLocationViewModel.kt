@@ -9,7 +9,6 @@ import io.github.pknujsp.weatherwizard.core.model.UiAction
 import io.github.pknujsp.weatherwizard.core.model.UiState
 import io.github.pknujsp.weatherwizard.core.model.nominatim.GeoCode
 import io.github.pknujsp.weatherwizard.core.model.nominatim.GeoCodeEntity
-import io.github.pknujsp.weatherwizard.core.model.notification.CustomLocation
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -53,8 +52,8 @@ class SearchLocationViewModel @Inject constructor(
     }
 
     private fun onSelected(geoCode: GeoCode) {
-        viewModelScope.launch(Dispatchers.IO) {
-            _uiAction.value = Action.OnSelectedArea(CustomLocation(addressName = geoCode.displayName,
+        viewModelScope.launch {
+            _uiAction.value = Action.OnSelectedArea(PickedLocation(addressName = geoCode.displayName,
                 countryName = geoCode.country,
                 latitude = geoCode.latitude,
                 longitude = geoCode.longitude,
@@ -68,7 +67,7 @@ class SearchLocationViewModel @Inject constructor(
 
 @KBindFunc
 sealed interface Action : UiAction {
-    data class OnSelectedArea(val location: CustomLocation) : Action
+    data class OnSelectedArea(val location: PickedLocation) : Action
 
     data object Default : Action
 }

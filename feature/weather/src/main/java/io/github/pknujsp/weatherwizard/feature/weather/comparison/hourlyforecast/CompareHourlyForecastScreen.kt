@@ -54,8 +54,8 @@ import io.github.pknujsp.weatherwizard.core.common.util.AStyle
 import io.github.pknujsp.weatherwizard.core.common.util.toAnnotated
 import io.github.pknujsp.weatherwizard.core.model.onLoading
 import io.github.pknujsp.weatherwizard.core.model.onSuccess
-import io.github.pknujsp.weatherwizard.core.model.weather.RequestWeatherDataArgs
-import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherDataProvider
+import io.github.pknujsp.weatherwizard.core.model.weather.RequestWeatherArguments
+import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherProvider
 import io.github.pknujsp.weatherwizard.core.model.weather.hourlyforecast.CompareHourlyForecast
 import io.github.pknujsp.weatherwizard.core.ui.DynamicDateTime
 import io.github.pknujsp.weatherwizard.core.ui.TitleTextWithNavigation
@@ -67,7 +67,7 @@ import io.github.pknujsp.weatherwizard.feature.weather.R
 
 @Composable
 fun CompareHourlyForecastScreen(
-    args: RequestWeatherDataArgs, viewModelStoreOwner: ViewModelStoreOwner, popBackStack: () -> Unit
+    args: RequestWeatherArguments, viewModelStoreOwner: ViewModelStoreOwner, popBackStack: () -> Unit
 ) {
     BackHandler {
         popBackStack()
@@ -167,20 +167,20 @@ fun Content(compareHourlyForecastInfo: CompareHourlyForecastInfo, lazyListState:
 
 
 @Composable
-internal fun WeatherDataProviderInfo(weatherDataProvider: WeatherDataProvider, height: Dp) {
+internal fun WeatherDataProviderInfo(weatherProvider: WeatherProvider, height: Dp) {
     Row(horizontalArrangement = Arrangement.Start,
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
             .height(height)
             .padding(start = 12.dp)) {
         AsyncImage(
-            model = ImageRequest.Builder(LocalContext.current).data(weatherDataProvider.logo).crossfade(false).build(),
+            model = ImageRequest.Builder(LocalContext.current).data(weatherProvider.logo).crossfade(false).build(),
             contentDescription = stringResource(id = R.string.weather_provider),
             modifier = Modifier.size(18.dp),
         )
         Spacer(modifier = Modifier.width(4.dp))
         Text(
-            text = stringResource(id = weatherDataProvider.name),
+            text = stringResource(id = weatherProvider.name),
             fontSize = 15.sp,
             color = Color.White,
         )

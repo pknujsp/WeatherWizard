@@ -1,10 +1,8 @@
 package io.github.pknujsp.weatherwizard.feature.widget.activity.configure
 
 import android.app.Activity
-import android.app.PendingIntent
 import android.appwidget.AppWidgetManager
 import android.content.Intent
-import android.widget.RemoteViews
 import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -27,7 +25,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import io.github.pknujsp.weatherwizard.core.model.ActionState
-import io.github.pknujsp.weatherwizard.core.model.favorite.LocationType
+import io.github.pknujsp.weatherwizard.core.model.coordinate.LocationType
+import io.github.pknujsp.weatherwizard.core.model.coordinate.LocationTypeModel
 import io.github.pknujsp.weatherwizard.core.model.widget.WidgetType
 import io.github.pknujsp.weatherwizard.core.ui.LocationScreen
 import io.github.pknujsp.weatherwizard.core.ui.SecondaryButton
@@ -35,46 +34,51 @@ import io.github.pknujsp.weatherwizard.core.ui.TitleTextWithNavigation
 import io.github.pknujsp.weatherwizard.core.ui.WeatherProvidersScreen
 import io.github.pknujsp.weatherwizard.core.ui.remoteview.RemoteViewsScreen
 import io.github.pknujsp.weatherwizard.feature.searchlocation.SearchLocationScreen
+import io.github.pknujsp.weatherwizard.feature.widget.R
 import io.github.pknujsp.weatherwizard.feature.widget.WidgetManager
-import io.github.pknujsp.weatherwizard.feature.widget.summary.SummaryWeatherWidgetProvider
 
 
 @Composable
 fun WidgetConfigureScreen(navController: NavController, widgetId: Int, widgetType: WidgetType) {
     val context = LocalContext.current
-    val activity = remember { context as Activity }
     val viewModel: WidgetConfigureViewModel = hiltViewModel()
 
     LaunchedEffect(Unit) {
         viewModel.load(widgetId, widgetType)
     }
 
-    val units by viewModel.units.collectAsStateWithLifecycle()
-    val widget = remember { viewModel.widget }
+    val widget = viewModel.widget
     var showSearch by remember { mutableStateOf(false) }
     val widgetManager = remember { WidgetManager.getInstance(context) }
-    val actionState by viewModel.action.collectAsStateWithLifecycle()
+    val actionState = remember { viewModel.action }
 
-    if (widget.onSaved) {
-        LaunchedEffect(Unit) {
-            println("WidgetConfigureScreen: widget.onSaved")
-            createWidgetAndFinish(activity, widget.id, widgetManager)
+    val activity = remember { context as Activity }
+
+    LaunchedEffect(actionState) {
+        if (actionState != null) {
+            when (actionState) {
+                ConfigureActionState.SAVE_SUCCESS -> {
+                    createWidgetAndFinish(activity, widgetId, widgetManager)
+                }
+
+                ConfigureActionState.NO_LOCATION_IS_SELECTED -> {
+                    Toast.makeText(context, context.getString(actionState.message), Toast.LENGTH_SHORT).show()
+                }
+
+                else -> {
+                }
+            }
         }
-    }
-
-    actionState?.let {
-        Toast.makeText(context, stringResource(id = it.message), Toast.LENGTH_SHORT).show()
     }
 
     if (showSearch) {
         SearchLocationScreen(onSelectedLocation = {
             it?.let { newLocation ->
-                widget.apply {
-                    locationType = LocationType.CustomLocation()
-                    latitude = newLocation.latitude
-                    longitude = newLocation.longitude
-                    addressName = newLocation.addressName
-                }
+                widget.location = LocationTypeModel(locationType = LocationType.CustomLocation,
+                    address = newLocation.addressName,
+                    latitude = newLocation.latitude,
+                    country = newLocation.countryName,
+                    longitude = newLocation.longitude)
             }
             showSearch = false
         }, popBackStack = {
@@ -85,15 +89,15 @@ fun WidgetConfigureScreen(navController: NavController, widgetId: Int, widgetTyp
             TitleTextWithNavigation(title = stringResource(id = io.github.pknujsp.weatherwizard.feature.widget.R.string.configure_widget)) {
                 navController.popBackStack()
             }
-            RemoteViewsScreen(widgetManager.remoteViewCreator(widgetType), units)
+            RemoteViewsScreen(widgetManager.remoteViewCreator(widgetType), viewModel.units)
 
             Column(modifier = Modifier
                 .verticalScroll(rememberScrollState())
                 .weight(1f)
                 .padding(horizontal = 16.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                LocationScreen(widget.locationType, onSelectedItem = {
-                    widget.locationType = it
+                LocationScreen(widget.location, onSelectedItem = {
+                    widget.location = widget.location.copy(locationType = it)
                 }) {
                     showSearch = true
                 }
@@ -128,5 +132,9 @@ enum class ConfigureActionState : ActionState {
     NO_LOCATION_IS_SELECTED {
         override val message: Int
             get() = io.github.pknujsp.weatherwizard.core.common.R.string.no_location_is_selected
+    },
+    SAVE_SUCCESS {
+        override val message: Int
+            get() = R.string.added_widget
     },
 }

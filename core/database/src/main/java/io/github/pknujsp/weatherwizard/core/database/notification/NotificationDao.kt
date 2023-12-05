@@ -4,12 +4,14 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Upsert
+import io.github.pknujsp.weatherwizard.core.model.notification.enums.NotificationType
 import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface NotificationDao {
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Upsert(entity = NotificationDto::class)
     suspend fun insert(notificationDto: NotificationDto): Long
 
     @Query("SELECT * FROM notifications ORDER BY id DESC")
@@ -32,4 +34,7 @@ interface NotificationDao {
 
     @Query("UPDATE notifications SET enabled = :enabled WHERE `id` = :id")
     suspend fun switchState(id: Long, enabled: Boolean)
+
+    @Query("UPDATE notifications SET enabled = :enabled WHERE `notificationType` = :type")
+    suspend fun switchOngointNotificationState(type: Int = NotificationType.ONGOING.notificationId, enabled: Boolean)
 }

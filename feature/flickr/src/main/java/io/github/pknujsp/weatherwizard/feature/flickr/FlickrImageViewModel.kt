@@ -1,15 +1,13 @@
 package io.github.pknujsp.weatherwizard.feature.flickr
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.github.pknujsp.weatherwizard.core.data.flickr.FlickrRepository
-import io.github.pknujsp.weatherwizard.core.model.UiState
-import io.github.pknujsp.weatherwizard.core.model.flickr.FlickrImageEntity
 import io.github.pknujsp.weatherwizard.core.model.flickr.FlickrRequestParameters
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -18,30 +16,32 @@ class FlickrImageViewModel @Inject constructor(
     private val flickrRepository: FlickrRepository
 ) : ViewModel() {
 
-    private val _image = MutableStateFlow<UiState<FlickrImageEntity>>(UiState.Loading)
-    val image: StateFlow<UiState<FlickrImageEntity>> = _image
+    private var requestParameter: FlickrRequestParameters? = null
 
-    private val parameter = MutableStateFlow<FlickrRequestParameters?>(null)
+    var flickrImageUiState by mutableStateOf(FlickrImageUiState())
+        private set
 
-    fun load(
+    fun initialize(
         requestParameter: FlickrRequestParameters
     ) {
-        viewModelScope.launch(Dispatchers.IO) {
-            parameter.value = requestParameter
-            flickrRepository.getPhoto(requestParameter).onSuccess {
-                _image.value = UiState.Success(it)
-            }.onFailure {
-                _image.value = UiState.Error(it)
+        this.requestParameter = requestParameter
+        load()
+    }
+
+    fun load() {
+        if (requestParameter != null) {
+            viewModelScope.launch {
+                //flickrImageUiState = flickrImageUiState.copy(isLoaded = false, isLoading = true, textRes = R.string.loading_image)
+
+                flickrRepository.getPhoto(requestParameter!!).onSuccess {
+                    flickrImageUiState = flickrImageUiState.copy(url = it.imageUrl, isLoaded = true, isLoading = false)
+                }.onFailure {
+                    flickrImageUiState =
+                        flickrImageUiState.copy(isLoaded = false, isLoading = false, textRes = R.string.retry_to_load_image_if_failed)
+                }
             }
         }
     }
-
-    fun reload() {
-        parameter.value?.run {
-            load(this)
-        }
-    }
-
 
 
 }

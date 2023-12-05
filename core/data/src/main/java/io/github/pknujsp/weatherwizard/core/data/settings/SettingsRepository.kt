@@ -3,7 +3,7 @@ package io.github.pknujsp.weatherwizard.core.data.settings
 import io.github.pknujsp.weatherwizard.core.model.weather.common.CurrentUnits
 import io.github.pknujsp.weatherwizard.core.model.weather.common.PrecipitationUnit
 import io.github.pknujsp.weatherwizard.core.model.weather.common.TemperatureUnit
-import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherDataProvider
+import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherProvider
 import io.github.pknujsp.weatherwizard.core.model.weather.common.WindSpeedUnit
 import kotlinx.coroutines.flow.StateFlow
 
@@ -24,7 +24,7 @@ interface SettingsRepository {
 
     suspend fun setPrecipitationUnit(unit: PrecipitationUnit)
 
-    suspend fun getWeatherDataProvider(): WeatherDataProvider
+    suspend fun getWeatherDataProvider(): WeatherProvider
 
-    suspend fun setWeatherDataProvider(provider: WeatherDataProvider)
+    suspend fun setWeatherDataProvider(provider: WeatherProvider)
 }

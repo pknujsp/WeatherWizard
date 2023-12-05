@@ -7,8 +7,6 @@ import io.github.pknujsp.weatherwizard.core.model.weather.common.CurrentUnits
 import io.github.pknujsp.weatherwizard.core.model.weather.current.CurrentWeatherEntity
 import io.github.pknujsp.weatherwizard.core.model.weather.dailyforecast.DailyForecastEntity
 import io.github.pknujsp.weatherwizard.core.model.weather.hourlyforecast.HourlyForecastEntity
-import io.github.pknujsp.weatherwizard.core.domain.weather.ResponseEntity
-import io.github.pknujsp.weatherwizard.core.domain.weather.ResponseState
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import java.util.Locale

@@ -3,7 +3,6 @@ import org.jetbrains.kotlin.konan.properties.Properties
 plugins {
     id("plugin.android.library")
     alias(libs.plugins.ksp)
-    alias(libs.plugins.kotlin.parcelize)
     alias(libs.plugins.kotlin.serialization)
 }
 
@@ -21,6 +20,10 @@ android {
         buildConfigField("String", "FLICKR_KEY", "\"${properties["flickr_key"]}\"")
         buildConfigField("String", "AQICN_KEY", "\"${properties["aqicn_key"]}\"")
     }
+}
+
+ksp {
+    arg("room.generateKotlin", "true")
 }
 
 dependencies {

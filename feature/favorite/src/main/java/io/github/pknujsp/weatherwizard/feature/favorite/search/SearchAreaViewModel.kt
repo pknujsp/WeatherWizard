@@ -5,13 +5,14 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.github.pknujsp.core.annotation.KBindFunc
 import io.github.pknujsp.weatherwizard.core.data.favorite.FavoriteAreaListRepository
-import io.github.pknujsp.weatherwizard.core.data.favorite.TargetAreaRepository
+import io.github.pknujsp.weatherwizard.core.data.favorite.SelectedLocationModel
+import io.github.pknujsp.weatherwizard.core.data.favorite.TargetLocationRepository
 import io.github.pknujsp.weatherwizard.core.data.nominatim.NominatimRepository
 import io.github.pknujsp.weatherwizard.core.data.searchhistory.SearchHistoryRepository
 import io.github.pknujsp.weatherwizard.core.model.UiAction
 import io.github.pknujsp.weatherwizard.core.model.UiState
 import io.github.pknujsp.weatherwizard.core.model.favorite.FavoriteAreaListEntity
-import io.github.pknujsp.weatherwizard.core.model.favorite.LocationType
+import io.github.pknujsp.weatherwizard.core.model.coordinate.LocationType
 import io.github.pknujsp.weatherwizard.core.model.nominatim.GeoCode
 import io.github.pknujsp.weatherwizard.core.model.nominatim.GeoCodeEntity
 import kotlinx.coroutines.Dispatchers
@@ -25,7 +26,7 @@ class SearchAreaViewModel @Inject constructor(
     private val searchHistoryRepository: SearchHistoryRepository,
     private val nominatimRepository: NominatimRepository,
     private val favoriteAreaRepository: FavoriteAreaListRepository,
-    private val targetAreaRepository: TargetAreaRepository
+    private val targetLocationRepository: TargetLocationRepository
 ) : ViewModel() {
 
     private val _searchResult = MutableStateFlow<UiState<List<GeoCode>>>(UiState.Loading)
@@ -73,7 +74,10 @@ class SearchAreaViewModel @Inject constructor(
                     longitude = geoCode.longitude,
                     placeId = geoCode.placeId)
             )
-            targetAreaRepository.updateTargetArea(LocationType.CustomLocation(newId))
+            targetLocationRepository.updateTargetLocation(SelectedLocationModel(
+                locationType = LocationType.CustomLocation,
+                locationId = newId
+            ))
             _uiAction.value = Action.OnSelectedArea
         }
     }

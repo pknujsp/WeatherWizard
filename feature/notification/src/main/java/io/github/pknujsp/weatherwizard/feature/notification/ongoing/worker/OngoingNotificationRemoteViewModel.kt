@@ -1,63 +1,88 @@
 package io.github.pknujsp.weatherwizard.feature.notification.ongoing.worker
 
-import io.github.pknujsp.weatherwizard.core.common.FeatureType
-import io.github.pknujsp.weatherwizard.core.common.util.DayNightCalculator
-import io.github.pknujsp.weatherwizard.core.common.util.toCalendar
 import io.github.pknujsp.weatherwizard.core.data.nominatim.NominatimRepository
-import io.github.pknujsp.weatherwizard.core.data.notification.NotificationRepository
+import io.github.pknujsp.weatherwizard.core.data.notification.ongoing.OngoingNotificationRepository
+import io.github.pknujsp.weatherwizard.core.data.notification.ongoing.model.OngoingNotificationSettingsEntity
 import io.github.pknujsp.weatherwizard.core.data.settings.SettingsRepository
-import io.github.pknujsp.weatherwizard.core.domain.weather.GetCurrentWeatherUseCase
-import io.github.pknujsp.weatherwizard.core.domain.weather.GetHourlyForecastUseCase
-import io.github.pknujsp.weatherwizard.core.model.UiState
-import io.github.pknujsp.weatherwizard.core.model.favorite.LocationType
-import io.github.pknujsp.weatherwizard.core.model.notification.ongoing.OngoingNotificationUiModel
+import io.github.pknujsp.weatherwizard.core.domain.location.CurrentLocationResultState
+import io.github.pknujsp.weatherwizard.core.domain.location.GetCurrentLocationUseCase
+import io.github.pknujsp.weatherwizard.core.domain.weather.GetWeatherDataUseCase
+import io.github.pknujsp.weatherwizard.core.domain.weather.WeatherDataRequest
+import io.github.pknujsp.weatherwizard.core.domain.weather.WeatherResponseState
+import io.github.pknujsp.weatherwizard.core.model.coordinate.LocationType
+import io.github.pknujsp.weatherwizard.core.model.coordinate.LocationTypeModel
 import io.github.pknujsp.weatherwizard.core.ui.remoteview.RemoteViewModel
-import java.time.ZonedDateTime
+import io.github.pknujsp.weatherwizard.feature.notification.ongoing.model.OngoingNotificationHeaderModel
 import javax.inject.Inject
 
 class OngoingNotificationRemoteViewModel @Inject constructor(
-    private val getCurrentWeatherUseCase: GetCurrentWeatherUseCase,
-    private val getHourlyForecastUseCase: GetHourlyForecastUseCase,
-    private val appSettingsRepository: SettingsRepository,
-    private val notificationRepository: NotificationRepository,
+    private val getWeatherDataUseCase: GetWeatherDataUseCase,
+    private val getCurrentLocationUseCase: GetCurrentLocationUseCase,
+    private val ongoingNotificationRepository: OngoingNotificationRepository,
     private val nominatimRepository: NominatimRepository,
+    appSettingsRepository: SettingsRepository,
 ) : RemoteViewModel() {
 
-    suspend fun load(): UiState<OngoingNotificationUiModel> {
-        val units = appSettingsRepository.currentUnits.value
-        val notificationInfo = notificationRepository.getOngoingNotification()
+    val units = appSettingsRepository.currentUnits.value
 
-        val now = ZonedDateTime.now()
-        val requestId = now.toInstant().toEpochMilli()
+    suspend fun loadNotification(): OngoingNotificationSettingsEntity {
+        val notificationEntity = ongoingNotificationRepository.getOngoingNotification()
+        return notificationEntity.data
+    }
 
-        val latitude = notificationInfo.data.latitude
-        val longitude = notificationInfo.data.longitude
-        val locationType = notificationInfo.data.getLocationType()
-        val address = if (locationType is LocationType.CurrentLocation) nominatimRepository.reverseGeoCode(latitude, longitude)
-            .getOrThrow().simpleDisplayName
-        else notificationInfo.data.addressName
+    suspend fun load(
+        settings: OngoingNotificationSettingsEntity,
+    ): OngoingNotificationHeaderModel {
+        return loadWeatherData(settings)
+    }
 
-        val weatherProvider = notificationInfo.data.getWeatherProvider()
+    private suspend fun loadWeatherData(settings: OngoingNotificationSettingsEntity): OngoingNotificationHeaderModel {
+        val weatherDataRequest = WeatherDataRequest()
+        if (settings.location.locationType is LocationType.CurrentLocation) {
+            when (val currentLocation = getCurrentLocationUseCase()) {
+                is CurrentLocationResultState.Success -> {
+                    nominatimRepository.reverseGeoCode(currentLocation.latitude, currentLocation.longitude).fold(onSuccess = {
+                        weatherDataRequest.addRequest(
+                            settings.location.copy(
+                                address = it.simpleDisplayName,
+                                country = it.country,
+                                latitude = currentLocation.latitude,
+                                longitude = currentLocation.longitude,
+                            ),
+                            settings.type.categories.toSet(),
+                            settings.weatherProvider,
+                        )
+                    }, onFailure = {
+                        return OngoingNotificationHeaderModel(weatherDataRequest.requestedTime,
+                            WeatherResponseState.Failure(-1, LocationTypeModel(), settings.weatherProvider),
+                            settings)
+                    })
+                }
 
-        val currentWeather =
-            getCurrentWeatherUseCase(latitude, longitude, weatherProvider, requestId).getOrNull()
-        val hourlyForecast =
-            getHourlyForecastUseCase(latitude, longitude, weatherProvider, requestId).getOrNull()
-
-        return if (currentWeather != null && hourlyForecast != null) {
-            val dayNightCalculator = DayNightCalculator(latitude, longitude)
-
-            UiState.Success(OngoingNotificationUiModel(
-                address = address,
-                currentWeather = currentWeather,
-                hourlyForecast = hourlyForecast,
-                dayNightCalculator = dayNightCalculator,
-                currentCalendar = now.toCalendar(),
-                units = units,
-                iconType = notificationInfo.data.getNotificationIconType()
-            ))
+                else -> {
+                    return OngoingNotificationHeaderModel(weatherDataRequest.requestedTime,
+                        WeatherResponseState.Failure(-1, LocationTypeModel(), settings.weatherProvider),
+                        settings)
+                }
+            }
         } else {
-            UiState.Failure(FeatureType.NETWORK)
+            weatherDataRequest.addRequest(
+                settings.location,
+                settings.type.categories.toSet(),
+                settings.weatherProvider,
+            )
         }
+
+        val response = getWeatherDataUseCase(weatherDataRequest.requests[0])
+
+        val uiModel = OngoingNotificationHeaderModel(weatherDataRequest.requestedTime,
+            response,
+            notification = if (settings.location.locationType is LocationType.CurrentLocation) {
+                settings.copy(location = response.location)
+            } else {
+                settings
+            })
+
+        return uiModel
     }
 }

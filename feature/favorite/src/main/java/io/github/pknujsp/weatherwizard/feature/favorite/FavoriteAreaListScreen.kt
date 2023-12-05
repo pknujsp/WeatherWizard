@@ -39,8 +39,9 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
+import io.github.pknujsp.weatherwizard.core.data.favorite.SelectedLocationModel
 import io.github.pknujsp.weatherwizard.core.model.favorite.FavoriteArea
-import io.github.pknujsp.weatherwizard.core.model.favorite.LocationType
+import io.github.pknujsp.weatherwizard.core.model.coordinate.LocationType
 import io.github.pknujsp.weatherwizard.core.ui.MainRoutes
 import io.github.pknujsp.weatherwizard.core.ui.RootNavControllerViewModel
 import io.github.pknujsp.weatherwizard.core.ui.SecondaryButton
@@ -50,8 +51,7 @@ import kotlinx.coroutines.flow.filter
 
 
 @Composable
-fun FavoriteAreaListScreen(navController: NavController) {
-    val viewModel: FavoriteAreaViewModel = hiltViewModel()
+fun FavoriteAreaListScreen(navController: NavController, viewModel: FavoriteAreaViewModel = hiltViewModel()) {
     val favoriteAreaList by viewModel.favoriteLocationList.collectAsStateWithLifecycle()
     val targetLocation by viewModel.targetLocation.collectAsStateWithLifecycle()
     val rootNavControllerViewModel: RootNavControllerViewModel =
@@ -66,8 +66,10 @@ fun FavoriteAreaListScreen(navController: NavController) {
     Column(modifier = Modifier.fillMaxSize()) {
         LazyColumn(modifier = Modifier.weight(1f), state = rememberLazyListState()) {
             item {
-                CurrentLocationItem(targetLocation) {
-                    viewModel.updateTargetArea(LocationType.CurrentLocation)
+                if (targetLocation != null) {
+                    CurrentLocationItem(targetLocation!!) {
+                        viewModel.updateTargetLocation(SelectedLocationModel(LocationType.CurrentLocation))
+                    }
                 }
             }
             if (favoriteAreaList.isEmpty()) {
@@ -75,12 +77,14 @@ fun FavoriteAreaListScreen(navController: NavController) {
                     EmptyListScreen(message = R.string.no_favorite_location)
                 }
             } else {
-                items(favoriteAreaList) { favoriteLocation ->
-                    FavoriteLocationItem(favoriteLocation, targetLocation, onClick = {
-                        viewModel.updateTargetArea(LocationType.CustomLocation(favoriteLocation.id))
-                    }, onClickMore = {
+                if (targetLocation != null) {
+                    items(favoriteAreaList) { favoriteLocation ->
+                        FavoriteLocationItem(favoriteLocation, targetLocation!!, onClick = {
+                            viewModel.updateTargetLocation(SelectedLocationModel(LocationType.CustomLocation, favoriteLocation.id))
+                        }, onClickMore = {
 
-                    })
+                        })
+                    }
                 }
             }
         }
@@ -97,11 +101,11 @@ fun FavoriteAreaListScreen(navController: NavController) {
 
 @Composable
 private fun FavoriteLocationItem(
-    favoriteLocation: FavoriteArea, currentLocationType: LocationType, onClick: () -> Unit, onClickMore: () -> Unit
+    favoriteLocation: FavoriteArea, currentLocationModel: SelectedLocationModel, onClick: () -> Unit, onClickMore: () -> Unit
 ) {
     val isCurrentLocation = remember {
-        if (currentLocationType is LocationType.CustomLocation) {
-            currentLocationType.locationId == favoriteLocation.id
+        if (currentLocationModel.locationType is LocationType.CustomLocation) {
+            currentLocationModel.locationId == favoriteLocation.id
         } else {
             false
         }
@@ -142,7 +146,7 @@ private fun FavoriteLocationItem(
 
 
 @Composable
-private fun CurrentLocationItem(currentLocationType: LocationType, onClick: () -> Unit) {
+private fun CurrentLocationItem(currentLocationModel: SelectedLocationModel, onClick: () -> Unit) {
     Box(modifier = Modifier
         .fillMaxWidth()
         .wrapContentHeight()
@@ -151,7 +155,7 @@ private fun CurrentLocationItem(currentLocationType: LocationType, onClick: () -
             .fillMaxWidth()
             .wrapContentHeight()
             .clickable {
-                if (currentLocationType !is LocationType.CurrentLocation) {
+                if (currentLocationModel.locationType !is LocationType.CurrentLocation) {
                     onClick()
                 }
             }
@@ -167,8 +171,8 @@ private fun CurrentLocationItem(currentLocationType: LocationType, onClick: () -
             Text(text = stringResource(id = io.github.pknujsp.weatherwizard.core.common.R.string.current_location),
                 style = TextStyle(fontSize = 16.sp, color = Color.Blue, textAlign = TextAlign.Left),
                 modifier = Modifier.weight(1f))
-            Checkbox(checked = currentLocationType is LocationType.CurrentLocation, onCheckedChange = {
-                if (currentLocationType !is LocationType.CurrentLocation) {
+            Checkbox(checked = currentLocationModel.locationType is LocationType.CurrentLocation, onCheckedChange = {
+                if (currentLocationModel.locationType !is LocationType.CurrentLocation) {
                     onClick()
                 }
             })

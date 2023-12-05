@@ -27,7 +27,7 @@ import androidx.core.graphics.drawable.toBitmap
 import io.github.pknujsp.weatherwizard.core.common.util.DayNightCalculator
 import io.github.pknujsp.weatherwizard.core.common.util.SunSetRise
 import io.github.pknujsp.weatherwizard.core.common.util.toCalendar
-import io.github.pknujsp.weatherwizard.core.model.weather.RequestWeatherDataArgs
+import io.github.pknujsp.weatherwizard.core.model.weather.RequestWeatherArguments
 import io.github.pknujsp.weatherwizard.core.ui.weather.item.CardInfo
 import io.github.pknujsp.weatherwizard.core.ui.weather.item.SimpleWeatherScreenBackground
 import java.time.ZonedDateTime
@@ -35,9 +35,9 @@ import java.time.format.DateTimeFormatter
 
 
 @Composable
-fun SimpleSunSetRiseScreen(args: RequestWeatherDataArgs) {
+fun SimpleSunSetRiseScreen(args: RequestWeatherArguments) {
     SimpleWeatherScreenBackground(cardInfo = CardInfo(title = stringResource(io.github.pknujsp.weatherwizard.core.common.R.string.sun_set_rise)) {
-        SunSetRiseContent(args.latitude, args.longitude)
+        SunSetRiseContent(args.location.latitude, args.location.longitude)
     })
 }
 

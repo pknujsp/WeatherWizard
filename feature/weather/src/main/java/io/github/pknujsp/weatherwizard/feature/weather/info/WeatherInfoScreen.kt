@@ -33,14 +33,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.view.WindowCompat
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
-import io.github.pknujsp.weatherwizard.core.common.manager.AppLocationManager
-import io.github.pknujsp.weatherwizard.core.model.favorite.LocationType
-import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherDataProvider
+import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherProvider
 import io.github.pknujsp.weatherwizard.core.ui.TitleTextWithoutNavigation
 import io.github.pknujsp.weatherwizard.core.ui.dialog.BottomSheet
 import io.github.pknujsp.weatherwizard.feature.weather.NestedWeatherRoutes
@@ -52,94 +49,52 @@ import io.github.pknujsp.weatherwizard.feature.weather.info.hourlyforecast.detai
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun WeatherInfoScreen(navController: NavController) {
-    val viewModelStoreOwner = checkNotNull(LocalViewModelStoreOwner.current)
-    val viewModel: WeatherInfoViewModel = hiltViewModel(viewModelStoreOwner)
+fun WeatherInfoScreen(navController: NavController, viewModel: WeatherInfoViewModel = hiltViewModel()) {
+    val mainState = rememberWeatherMainState(weatherMainUiState = viewModel.uiState)
 
-    var nestedRoutes by rememberSaveable(saver = Saver(save = { it.value.route },
-        restore = { mutableStateOf(NestedWeatherRoutes.getRoute(it)) })) {
-        mutableStateOf(NestedWeatherRoutes.startDestination)
+    LaunchedEffect(mainState.reload) {
+        viewModel.initialize()
     }
 
-    val context = LocalContext.current
-    val scrollState = rememberScrollState()
-    val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
-
-    val arguments by viewModel.args.collectAsStateWithLifecycle()
-    val processState by viewModel.processState.collectAsStateWithLifecycle()
-    var backgroundImageUrl by remember { mutableStateOf("") }
-    var reload by remember { mutableIntStateOf(0) }
-
-    val gpsLocationManager = remember { AppLocationManager.getInstance(context) }
-    var enabledLocation by remember { mutableStateOf(gpsLocationManager.isGpsProviderEnabled()) }
-    var showLocationLoadingDialog by remember { mutableStateOf(false) }
-
-    val window = (LocalContext.current as Activity).window
-    val windowInsetsController = remember { WindowCompat.getInsetsController(window, window.decorView) }
-
-    LaunchedEffect(reload) {
-        load(viewModel.locationType, gpsLocationManager, viewModel, enabledLocation = {
-            enabledLocation = it
-        }, showLocationLoadingDialog = {
-            showLocationLoadingDialog = it
-        })
-    }
-
-    when (nestedRoutes) {
+    when (mainState.nestedRoutes.value) {
         is NestedWeatherRoutes.Main -> {
-            windowInsetsController.isAppearanceLightNavigationBars = false
-            arguments?.let {
-                val contentArguments =
-                    ContentArguments(
-                        arguments!!,
-                        scrollState,
-                        scrollBehavior,
-                        processState,
-                        enabledLocation,
-                        backgroundImageUrl,
-                        navigate = {
-                            nestedRoutes = it
-                        },
-                        reload = {
-                            reload++
-                        },
-                        onChangedBackgroundImageUrl = {
-                            backgroundImageUrl = it
-                        }
-                    )
-                WeatherContentScreen(contentArguments, viewModel)
-            }
+            val contentArguments = ContentArguments(mainState.weatherMainUiState,
+                mainState.scrollState,
+                mainState.scrollBehavior,
+                mainState.backgroundImageUrl,
+                navigate = {
+                    mainState.navigate(it)
+                },
+                reload = {
+                    mainState.reload()
+                },
+                onChangedBackgroundImageUrl = {
+                    mainState.backgroundImageUrl = it
+                })
+            WeatherContentScreen(contentArguments, viewModel)
         }
 
         is NestedWeatherRoutes.DetailHourlyForecast -> {
-            windowInsetsController.isAppearanceLightNavigationBars = true
-            DetailHourlyForecastScreen(viewModel) {
-                nestedRoutes = NestedWeatherRoutes.Main
+            DetailHourlyForecastScreen(mainState.weatherMainUiState.weather!!.detailHourlyForecast) {
+                mainState.navigate(NestedWeatherRoutes.Main)
             }
         }
 
         is NestedWeatherRoutes.DetailDailyForecast -> {
-            windowInsetsController.isAppearanceLightNavigationBars = true
-            DetailDailyForecastScreen(viewModel) {
-                nestedRoutes = NestedWeatherRoutes.Main
+            DetailDailyForecastScreen(mainState.weatherMainUiState.weather!!.detailDailyForecast) {
+                mainState.navigate(NestedWeatherRoutes.Main)
             }
         }
 
         is NestedWeatherRoutes.ComparisonDailyForecast -> {
-            windowInsetsController.isAppearanceLightNavigationBars = true
-            arguments?.let {
-                CompareDailyForecastScreen(it) {
-                    nestedRoutes = NestedWeatherRoutes.Main
-                }
+            CompareDailyForecastScreen(mainState.weatherMainUiState.args) {
+                mainState.navigate(NestedWeatherRoutes.Main)
             }
         }
 
         is NestedWeatherRoutes.ComparisonHourlyForecast -> {
-            windowInsetsController.isAppearanceLightNavigationBars = true
-            arguments?.let {
-                CompareHourlyForecastScreen(it, viewModelStoreOwner) {
-                    nestedRoutes = NestedWeatherRoutes.Main
-                }
+            CompareHourlyForecastScreen(mainState.weatherMainUiState.args, mainState.viewModelStoreOwner!!) {
+                mainState.navigate(NestedWeatherRoutes.Main)
             }
         }
     }
@@ -147,7 +102,7 @@ fun WeatherInfoScreen(navController: NavController) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun WeatherProviderDialog(currentProvider: WeatherDataProvider, onClick: (WeatherDataProvider?) -> Unit) {
+fun WeatherProviderDialog(currentProvider: WeatherProvider, onClick: (WeatherProvider?) -> Unit) {
     BottomSheet(
         onDismissRequest = {
             onClick(null)
@@ -155,7 +110,7 @@ fun WeatherProviderDialog(currentProvider: WeatherDataProvider, onClick: (Weathe
     ) {
         Column(modifier = Modifier.padding(vertical = 16.dp)) {
             TitleTextWithoutNavigation(title = stringResource(id = R.string.weather_provider))
-            WeatherDataProvider.enums.forEach { weatherDataProvider ->
+            WeatherProvider.enums.forEach { weatherDataProvider ->
                 Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier
                     .clickable {
                         onClick(weatherDataProvider)
@@ -179,30 +134,5 @@ fun WeatherProviderDialog(currentProvider: WeatherDataProvider, onClick: (Weathe
                 }
             }
         }
-    }
-}
-
-private suspend fun load(
-    locationType: LocationType,
-    gpsLocationManager: AppLocationManager,
-    weatherInfoViewModel: WeatherInfoViewModel,
-    enabledLocation: (Boolean) -> Unit,
-    showLocationLoadingDialog: (Boolean) -> Unit
-) {
-    weatherInfoViewModel.waitForLoad()
-    if (locationType is LocationType.CurrentLocation) {
-        if (gpsLocationManager.isGpsProviderEnabled()) {
-            enabledLocation(true)
-            showLocationLoadingDialog(true)
-            val result = gpsLocationManager.getCurrentLocation()
-            if (result is AppLocationManager.CurrentLocationResult.Success) {
-                weatherInfoViewModel.setArgsAndLoad(result.location)
-            }
-            showLocationLoadingDialog(false)
-        } else {
-            enabledLocation(false)
-        }
-    } else {
-        weatherInfoViewModel.setArgsAndLoad()
     }
 }

@@ -38,18 +38,19 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import io.github.pknujsp.weatherwizard.core.model.onLoading
 import io.github.pknujsp.weatherwizard.core.model.onSuccess
-import io.github.pknujsp.weatherwizard.core.model.weather.RequestWeatherDataArgs
+import io.github.pknujsp.weatherwizard.core.model.weather.RequestWeatherArguments
 import io.github.pknujsp.weatherwizard.core.ui.TitleTextWithNavigation
 import io.github.pknujsp.weatherwizard.core.ui.lottie.CancellableLoadingScreen
 import io.github.pknujsp.weatherwizard.feature.weather.comparison.hourlyforecast.CompareForecastCard
 import io.github.pknujsp.weatherwizard.feature.weather.comparison.hourlyforecast.WeatherDataProviderInfo
 
 @Composable
-fun CompareDailyForecastScreen(args: RequestWeatherDataArgs, popBackStack: () -> Unit) {
+fun CompareDailyForecastScreen(
+    args: RequestWeatherArguments, viewModel: CompareDailyForecastViewModel = hiltViewModel(), popBackStack: () -> Unit
+) {
     BackHandler {
         popBackStack()
     }
-    val viewModel: CompareDailyForecastViewModel = hiltViewModel()
     LaunchedEffect(Unit) {
         viewModel.load(args)
     }
@@ -104,10 +105,8 @@ fun Content(compareDailyForecastInfo: CompareDailyForecastInfo) {
                 state = rememberLazyListState(),
             ) {
                 items(count = compareDailyForecastInfo.items.size, key = { it }) { i ->
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.spacedBy(weatherDataProviderInfoHeight)
-                    ) {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.spacedBy(weatherDataProviderInfoHeight)) {
                         Text(text = compareDailyForecastInfo.dates[i],
                             style = TextStyle(fontSize = 13.sp, color = Color.White, textAlign = TextAlign.Center),
                             modifier = Modifier.height(dateTextHeight))
@@ -129,8 +128,7 @@ fun Content(compareDailyForecastInfo: CompareDailyForecastInfo) {
         val providersCount = compareDailyForecastInfo.weatherDataProviders.size
         val height = placeables[0].height
 
-        val forecastRowHeight =
-            (height - dateTextHeightPx - (weatherDataProviderInfoHeightPx * providersCount)) / providersCount
+        val forecastRowHeight = (height - dateTextHeightPx - (weatherDataProviderInfoHeightPx * providersCount)) / providersCount
 
         layout(constraints.maxWidth, height) {
             placeables.first().run {
@@ -168,11 +166,9 @@ private fun Item(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween) {
                 weatherConditionIcons.forEach { icon ->
-                    AsyncImage(
-                        model = ImageRequest.Builder(LocalContext.current).data(icon).crossfade(false).build(),
+                    AsyncImage(model = ImageRequest.Builder(LocalContext.current).data(icon).crossfade(false).build(),
                         contentDescription = null,
-                        modifier = Modifier.weight(1f, true)
-                    )
+                        modifier = Modifier.weight(1f, true))
                 }
             }
 

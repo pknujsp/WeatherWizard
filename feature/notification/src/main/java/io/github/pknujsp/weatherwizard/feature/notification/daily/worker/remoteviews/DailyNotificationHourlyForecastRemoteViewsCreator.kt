@@ -2,7 +2,7 @@ package io.github.pknujsp.weatherwizard.feature.notification.daily.worker.remote
 
 import android.content.Context
 import android.widget.RemoteViews
-import io.github.pknujsp.weatherwizard.core.model.notification.daily.forecast.DailyNotificationForecastUiModel
+import io.github.pknujsp.weatherwizard.feature.notification.daily.model.forecast.DailyNotificationForecastUiModel
 import io.github.pknujsp.weatherwizard.core.model.weather.common.CurrentUnits
 import io.github.pknujsp.weatherwizard.feature.notification.R
 import io.github.pknujsp.weatherwizard.feature.notification.remoteview.NotificationRemoteViewsCreator

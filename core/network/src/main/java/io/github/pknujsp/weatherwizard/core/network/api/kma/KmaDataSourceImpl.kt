@@ -1,21 +1,22 @@
 package io.github.pknujsp.weatherwizard.core.network.api.kma
 
-import android.util.LruCache
 import io.github.pknujsp.weatherwizard.core.model.weather.kma.parameter.KmaCurrentWeatherRequestParameter
 import io.github.pknujsp.weatherwizard.core.model.weather.kma.parameter.KmaDailyForecastRequestParameter
 import io.github.pknujsp.weatherwizard.core.model.weather.kma.parameter.KmaHourlyForecastRequestParameter
 import io.github.pknujsp.weatherwizard.core.model.weather.kma.parameter.KmaYesterdayWeatherRequestParameter
+import io.github.pknujsp.weatherwizard.core.network.api.MultipleRequestHelper
+import io.github.pknujsp.weatherwizard.core.network.api.RequestState
 import io.github.pknujsp.weatherwizard.core.network.api.kma.parser.KmaHtmlParser
+import io.github.pknujsp.weatherwizard.core.network.api.onResponse
 import io.github.pknujsp.weatherwizard.core.network.retrofit.onResult
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
 import org.jsoup.Jsoup
 import java.lang.ref.WeakReference
 import java.time.ZoneId
 import java.time.ZonedDateTime
+import java.util.concurrent.ConcurrentHashMap
 import javax.inject.Inject
 
 class KmaDataSourceImpl @Inject constructor(
@@ -24,44 +25,38 @@ class KmaDataSourceImpl @Inject constructor(
 ) : KmaDataSource {
 
     private val zoneId = ZoneId.of("Asia/Seoul")
-    private val requestStateMap = LruCache<Long, MutableStateFlow<ForecastRequestState>>(5)
-    private val mutex = Mutex()
+    private val requestHelper = MultipleRequestHelper<Response>()
 
     override suspend fun getCurrentWeather(parameter: KmaCurrentWeatherRequestParameter): Result<KmaCurrentWeatherResponse> {
         request(parameter.code, parameter.requestId)
-        return mutex.withLock { requestStateMap[parameter.requestId]!! }.filter { it !is ForecastRequestState.Waiting }.first()
-            .onResponse().map { it.currentWeather }
+        return requestHelper.get(parameter.requestId)?.filter { it !is RequestState.Waiting }?.first()?.onResponse()
+            ?.map { it.currentWeather } ?: Result.failure(Throwable("Unknown error"))
     }
 
     override suspend fun getHourlyForecast(parameter: KmaHourlyForecastRequestParameter): Result<KmaHourlyForecastResponse> {
         request(parameter.code, parameter.requestId)
-        return mutex.withLock { requestStateMap[parameter.requestId]!! }.filter { it !is ForecastRequestState.Waiting }.first()
-            .onResponse().map { it.hourlyForecasts }
+        return requestHelper.get(parameter.requestId)?.filter { it !is RequestState.Waiting }?.first()?.onResponse()
+            ?.map { it.hourlyForecasts } ?: Result.failure(Throwable("Unknown error"))
     }
 
     override suspend fun getDailyForecast(parameter: KmaDailyForecastRequestParameter): Result<KmaDailyForecastResponse> {
         request(parameter.code, parameter.requestId)
-        return mutex.withLock { requestStateMap[parameter.requestId]!! }.filter { it !is ForecastRequestState.Waiting }.first()
-            .onResponse().map { it.dailyForecasts }
+        return requestHelper.get(parameter.requestId)?.filter { it !is RequestState.Waiting }?.first()?.onResponse()
+            ?.map { it.dailyForecasts } ?: Result.failure(Throwable("Unknown error"))
     }
 
     override suspend fun getYesterdayWeather(parameter: KmaYesterdayWeatherRequestParameter): Result<KmaYesterdayWeatherResponse> {
         request(parameter.code, parameter.requestId)
-        return mutex.withLock { requestStateMap[parameter.requestId]!! }.filter { it !is ForecastRequestState.Waiting }.first()
-            .onResponse().map { it.yesterdayWeather }
+        return requestHelper.get(parameter.requestId)?.filter { it !is RequestState.Waiting }?.first()?.onResponse()
+            ?.map { it.yesterdayWeather } ?: Result.failure(Throwable("Unknown error"))
     }
 
 
     private suspend fun request(code: String, requestId: Long) {
-        mutex.withLock {
-            if (requestStateMap.get(requestId) != null) {
-                requestStateMap[requestId]!!.value.registerWaiting()
-                return
-            }
-            requestStateMap.put(requestId, MutableStateFlow(ForecastRequestState.Waiting(requestId)))
+        if (!requestHelper.addRequest(requestId)) {
+            return
         }
 
-        // 현재날씨
         val currentResponse = kmaNetworkApi.getCurrentWeather(code = code).onResult().fold(
             onSuccess = {
                 val parsed = kmaHtmlParser.parseCurrentConditions(
@@ -94,32 +89,27 @@ class KmaDataSourceImpl @Inject constructor(
             },
         )
 
-        mutex.withLock {
-            requestStateMap[requestId]!!.value = if (currentResponse.isSuccess && forecastResponse.isSuccess) {
-                val current = currentResponse.getOrThrow()
-                val hourly = forecastResponse.getOrThrow().first
-                val daily = forecastResponse.getOrThrow().second
+        val result = if (currentResponse.isSuccess && forecastResponse.isSuccess) {
+            val current = currentResponse.getOrThrow()
+            val hourly = forecastResponse.getOrThrow().first
+            val daily = forecastResponse.getOrThrow().second
 
-                ForecastRequestState.Success(
-                    Response(
-                        currentWeather = KmaCurrentWeatherResponse(currentWeather = current,
-                            hourlyForecast = hourly.first()),
-                        hourlyForecasts = KmaHourlyForecastResponse(hourly),
-                        dailyForecasts = KmaDailyForecastResponse(daily),
-                        yesterdayWeather = KmaYesterdayWeatherResponse(current),
-                    ),
-                    requestId,
-                )
-            } else {
-                val cause = "${currentResponse.exceptionOrNull()?.message} ${forecastResponse.exceptionOrNull()?.message}"
-                ForecastRequestState.Failure(
-                    throwable = Throwable(cause),
-                    requestId = requestId,
-                )
-            }
-
+            RequestState.Success(
+                Response(
+                    currentWeather = KmaCurrentWeatherResponse(currentWeather = current, hourlyForecast = hourly.first()),
+                    hourlyForecasts = KmaHourlyForecastResponse(hourly),
+                    dailyForecasts = KmaDailyForecastResponse(daily),
+                    yesterdayWeather = KmaYesterdayWeatherResponse(current),
+                ),
+            )
+        } else {
+            val cause = "${currentResponse.exceptionOrNull()?.message} ${forecastResponse.exceptionOrNull()?.message}"
+            RequestState.Failure(
+                throwable = Throwable(cause),
+            )
         }
 
+        requestHelper.update(requestId, result)
     }
 
     private data class Response(
@@ -127,55 +117,5 @@ class KmaDataSourceImpl @Inject constructor(
         val hourlyForecasts: KmaHourlyForecastResponse,
         val dailyForecasts: KmaDailyForecastResponse,
         val yesterdayWeather: KmaYesterdayWeatherResponse
-    ) {
-        private var consumed: Int = 0
-        private val requestCount: Int = 4
-
-        fun consume() {
-            consumed++
-        }
-
-        fun isAllConsumed(): Boolean = consumed == requestCount
-
-    }
-
-    private sealed class ForecastRequestState {
-        var requestCount: Int = 0
-        abstract val requestId: Long
-
-        companion object {
-            val mutex = Mutex()
-        }
-
-        fun registerWaiting() {
-            requestCount++
-        }
-
-        data class Waiting(override val requestId: Long) : ForecastRequestState()
-
-        data class Success(
-            val response: Response,
-            override val requestId: Long,
-        ) : ForecastRequestState()
-
-        data class Failure(
-            val throwable: Throwable,
-            override val requestId: Long,
-        ) : ForecastRequestState()
-
-    }
-
-    private suspend fun ForecastRequestState.onResponse(): Result<Response> {
-        return when (this) {
-            is ForecastRequestState.Success -> {
-                ForecastRequestState.mutex.withLock {
-                    response.consume()
-                }
-                Result.success(response)
-            }
-
-            is ForecastRequestState.Failure -> Result.failure(throwable)
-            else -> Result.failure(Throwable("Unknown error"))
-        }
-    }
+    )
 }

@@ -2,6 +2,8 @@ package io.github.pknujsp.weatherwizard.core.model
 
 import io.github.pknujsp.core.annotation.KBindFunc
 import io.github.pknujsp.weatherwizard.core.common.FeatureType
+import io.github.pknujsp.weatherwizard.core.common.manager.FailedReason
+import io.github.pknujsp.weatherwizard.core.common.manager.FeatureState
 
 @KBindFunc
 sealed interface UiState<out T> {
@@ -24,10 +26,9 @@ sealed interface VarState<out T> {
     }
 }
 
-@KBindFunc
 sealed interface ProcessState {
     data object Idle : ProcessState
     data object Running : ProcessState
     data object Succeed : ProcessState
-    data object Failed : ProcessState
+    data class Failed(val reason: FailedReason) : ProcessState
 }
