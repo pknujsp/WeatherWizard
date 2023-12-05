@@ -15,7 +15,7 @@ class GetDailyForecastToCompareUseCase @Inject constructor(
         requestId: Long
     ): Result<ToCompareDailyForecastEntity> {
         return weatherProviders.mapIndexed { i, provider ->
-            weatherDataRepository.getDailyForecast(latitude, longitude, provider, requestId + i)
+            weatherDataRepository.getDailyForecast(latitude, longitude, provider, requestId + i, false)
         }.let { responses ->
             val success = responses.all { it.isSuccess }
             if (success) {

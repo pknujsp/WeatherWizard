@@ -27,7 +27,7 @@ class DailyNotificationListViewModel @Inject constructor(
                 val list = it.map { entity ->
                     DailyNotificationSettingsListItem(id = entity.id,
                         type = entity.data.type,
-                        locationType = entity.data.locationType,
+                        location = entity.data.location,
                         hour = entity.data.hour,
                         minute = entity.data.minute,
                         weatherProvider = entity.data.weatherProvider,

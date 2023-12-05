@@ -17,7 +17,7 @@ class GetHourlyForecastToCompareUseCase @Inject constructor(
         requestId: Long
     ): Result<ToCompareHourlyForecastEntity> {
         return weatherProviders.mapIndexed { i, provider ->
-            weatherDataRepository.getHourlyForecast(latitude, longitude, provider, requestId + i)
+            weatherDataRepository.getHourlyForecast(latitude, longitude, provider, requestId + i, false)
         }.let { responses ->
             val success = responses.all { it.isSuccess }
             if (success) {

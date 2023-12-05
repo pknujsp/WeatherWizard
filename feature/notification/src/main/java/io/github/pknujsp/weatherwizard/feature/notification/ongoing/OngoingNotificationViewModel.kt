@@ -29,7 +29,7 @@ class OngoingNotificationViewModel @Inject constructor(
                 notificationIconType = it.notificationIconType,
                 refreshInterval = it.refreshInterval,
                 weatherProvider = it.weatherProvider,
-                locationType = it.locationType,
+                location = it.location,
             )
         },
         update = ::update,
@@ -48,7 +48,7 @@ class OngoingNotificationViewModel @Inject constructor(
                     notificationIconType = settingsEntity.data.notificationIconType,
                     refreshInterval = settingsEntity.data.refreshInterval,
                     weatherProvider = settingsEntity.data.weatherProvider,
-                    locationType = settingsEntity.data.locationType,
+                    location = settingsEntity.data.location,
                 )
                 isEnabled = settingsEntity.enabled
             }
@@ -78,7 +78,7 @@ class OngoingNotificationViewModel @Inject constructor(
                 notificationIconType = it.ongoingNotificationSettings.notificationIconType,
                 refreshInterval = it.ongoingNotificationSettings.refreshInterval,
                 weatherProvider = it.ongoingNotificationSettings.weatherProvider,
-                locationType = it.ongoingNotificationSettings.locationType,
+                location = it.ongoingNotificationSettings.location,
             ),
             isInitialized = true)
     }

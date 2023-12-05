@@ -2,6 +2,7 @@ package io.github.pknujsp.weatherwizard.core.database
 
 import android.content.Context
 import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
@@ -29,6 +30,12 @@ class DataStoreImpl @Inject constructor(
         }
     }
 
+    override suspend fun save(key: String, value: Int) {
+        context.dataStore.edit {
+            it[intPreferencesKey(key)] = value
+        }
+    }
+
     override suspend fun readAsString(key: String): DBEntityState<String> {
         return context.dataStore.data.map { preferences ->
             preferences[stringPreferencesKey(key)]?.run {
@@ -45,9 +52,23 @@ class DataStoreImpl @Inject constructor(
         }.first()
     }
 
+    override suspend fun readAsInt(key: String): DBEntityState<Int> {
+        return context.dataStore.data.map { preferences ->
+            preferences[intPreferencesKey(key)]?.run {
+                DBEntityState.Exists(this)
+            } ?: DBEntityState.NotExists
+        }.first()
+    }
+
     override suspend fun deleteLong(key: String) {
         context.dataStore.edit {
             it.remove(longPreferencesKey(key))
+        }
+    }
+
+    override suspend fun deleteInt(key: String) {
+        context.dataStore.edit {
+            it.remove(intPreferencesKey(key))
         }
     }
 

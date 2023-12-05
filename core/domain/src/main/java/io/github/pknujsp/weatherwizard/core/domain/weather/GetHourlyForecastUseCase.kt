@@ -16,7 +16,7 @@ class GetHourlyForecastUseCase @Inject constructor(
         weatherProvider: WeatherProvider,
         requestId: Long
     ): Result<HourlyForecastEntity> {
-        return weatherDataRepository.getHourlyForecast(latitude, longitude, weatherProvider, requestId)
+        return weatherDataRepository.getHourlyForecast(latitude, longitude, weatherProvider, requestId, false)
     }
 
 }

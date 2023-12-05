@@ -25,7 +25,7 @@ class WidgetHeaderUiModel(
 
     inline fun <reified T : UiModel> map(units: CurrentUnits): T {
         val succeedState = state as WeatherResponseState.Success
-        val dayNightCalculator = DayNightCalculator(succeedState.coordinate.latitude, succeedState.coordinate.longitude)
+        val dayNightCalculator = DayNightCalculator(succeedState.location.latitude, succeedState.location.longitude)
 
         val uiModel = when (widget.widgetType) {
             WidgetType.ALL_IN_ONE -> {

@@ -1,50 +1,29 @@
 package io.github.pknujsp.weatherwizard.core.domain.location
 
 import io.github.pknujsp.weatherwizard.core.common.manager.AppLocationManager
-import io.github.pknujsp.weatherwizard.core.data.nominatim.NominatimRepository
-import io.github.pknujsp.weatherwizard.core.model.coordinate.LocationModel
+import io.github.pknujsp.weatherwizard.core.common.manager.FailedReason
 import javax.inject.Inject
 
 class GetCurrentLocationUseCase @Inject constructor(
-    private val appLocationManager: AppLocationManager,
-    private val nominatimRepository: NominatimRepository
+    private val appLocationManager: AppLocationManager
 ) {
-    suspend operator fun invoke(): CurrentLocationResultState {
-        if (appLocationManager.isGpsProviderEnabled) {
-            val currentLocation = appLocationManager.getCurrentLocation()
-            val (latitude, longitude) = when (currentLocation) {
-                is AppLocationManager.LocationResult.Success -> {
-                    currentLocation.location.latitude to currentLocation.location.longitude
-                }
-
-                is AppLocationManager.LocationResult.Failure -> {
-                    return CurrentLocationResultState.Failure(CurrentLocationResultState.FailureReason.UNKNOWN)
-                }
+    suspend operator fun invoke(): CurrentLocationResultState = if (appLocationManager.isGpsProviderEnabled) {
+        when (val currentLocation = appLocationManager.getCurrentLocation()) {
+            is AppLocationManager.LocationResult.Success -> {
+                CurrentLocationResultState.Success(currentLocation.location.latitude, currentLocation.location.longitude)
             }
 
-            val reverseGeoCode = nominatimRepository.reverseGeoCode(latitude, longitude)
-            val result = reverseGeoCode.fold(
-                onSuccess = {
-                    CurrentLocationResultState.Success(LocationModel(latitude, longitude, it.simpleDisplayName))
-                },
-                onFailure = {
-                    CurrentLocationResultState.Failure(CurrentLocationResultState.FailureReason.UNKNOWN)
-                }
-            )
-
-            return result
-        } else {
-            return CurrentLocationResultState.Failure(CurrentLocationResultState.FailureReason.GPS_PROVIDER_DISABLED)
+            is AppLocationManager.LocationResult.Failure -> {
+                CurrentLocationResultState.Failure(FailedReason.UNKNOWN)
+            }
         }
+    } else {
+        CurrentLocationResultState.Failure(FailedReason.LOCATION_PROVIDER_DISABLED)
     }
+
 }
 
 sealed interface CurrentLocationResultState {
-    data class Success(val location: LocationModel) : CurrentLocationResultState
-    data class Failure(val reason: FailureReason) : CurrentLocationResultState
-
-    enum class FailureReason {
-        GPS_PROVIDER_DISABLED,
-        UNKNOWN
-    }
+    data class Success(val latitude: Double, val longitude: Double) : CurrentLocationResultState
+    data class Failure(val reason: FailedReason) : CurrentLocationResultState
 }

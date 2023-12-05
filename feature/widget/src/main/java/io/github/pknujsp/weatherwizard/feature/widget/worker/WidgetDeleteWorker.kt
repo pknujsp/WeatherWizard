@@ -16,7 +16,7 @@ import io.github.pknujsp.weatherwizard.feature.widget.WidgetManager
 
 @HiltWorker
 class WidgetDeleteWorker @AssistedInject constructor(
-    @Assisted val context: Context, @Assisted params: WorkerParameters, private val widgetRemoteViewModel: WidgetRemoteViewModel
+    @Assisted val context: Context, @Assisted params: WorkerParameters, private val widgetRemoteViewModel: DeleteWidgetRemoteViewModel
 ) : CoroutineWorker(context, params) {
     companion object : IWorker {
         override val name: String get() = "WidgetDeleteWorker"

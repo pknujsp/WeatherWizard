@@ -108,4 +108,10 @@
     <string name="again">다시 시도</string>
     <string name="air_quality">대기질</string>
     <string name="all_in_one">종합</string>
+    <string name="current_weather_and_hourly_forecast">현재/시간별 예보</string>
+    <string name="server_error_title">서버 오류</string>
+    <string name="server_error_message">서버에서 문제가 발생하였습니다</string>
+    <string name="unknown_error_title">알수없는오류</string>
+    <string name="unknown_error_message">알수없는 오류가 발생하였습니다</string>
+    <string name="title_failed_to_load_weather_data">날씨 자료 다운로드 실패</string>
 </resources>

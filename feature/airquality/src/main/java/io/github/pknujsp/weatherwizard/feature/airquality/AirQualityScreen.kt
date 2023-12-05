@@ -29,7 +29,7 @@ import io.github.pknujsp.weatherwizard.core.model.airquality.SimpleAirQuality
 import io.github.pknujsp.weatherwizard.core.model.onError
 import io.github.pknujsp.weatherwizard.core.model.onLoading
 import io.github.pknujsp.weatherwizard.core.model.onSuccess
-import io.github.pknujsp.weatherwizard.core.model.weather.RequestWeatherDataArgs
+import io.github.pknujsp.weatherwizard.core.model.weather.RequestWeatherArguments
 import io.github.pknujsp.weatherwizard.core.ui.theme.AppShapes
 import io.github.pknujsp.weatherwizard.core.ui.weather.item.CardInfo
 import io.github.pknujsp.weatherwizard.core.ui.weather.item.SimpleWeatherFailedBox
@@ -37,13 +37,13 @@ import io.github.pknujsp.weatherwizard.core.ui.weather.item.SimpleWeatherScreenB
 
 
 @Composable
-fun AirQualityScreen(requestWeatherDataArgs: RequestWeatherDataArgs) {
+fun AirQualityScreen(requestWeatherArguments: RequestWeatherArguments) {
     val viewModel = hiltViewModel<AirQualityViewModel>()
     val airQuality by viewModel.airQuality.collectAsStateWithLifecycle()
 
     airQuality.onLoading {
-        requestWeatherDataArgs.run {
-            viewModel.loadAirQuality(latitude, longitude)
+        requestWeatherArguments.run {
+            viewModel.loadAirQuality(requestWeatherArguments.location.latitude, requestWeatherArguments.location.longitude)
         }
     }.onSuccess {
         SimpleWeatherScreenBackground(CardInfo(title = stringResource(io.github.pknujsp.weatherwizard.core.model.R.string.air_quality_index),
@@ -104,7 +104,9 @@ private fun ColumnScope.SimpleCurrentContent(simpleAirQuality: SimpleAirQuality)
             stringResource(AirPollutants.CO.nameResId) to co,
         )
     }
-    FlowRow(maxItemsInEachRow = 3, verticalArrangement = Arrangement.Center, horizontalArrangement = Arrangement.Center,
+    FlowRow(maxItemsInEachRow = 3,
+        verticalArrangement = Arrangement.Center,
+        horizontalArrangement = Arrangement.Center,
         modifier = Modifier.fillMaxWidth()) {
         grids.forEach { (pollutant, value) ->
 

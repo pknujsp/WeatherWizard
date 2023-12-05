@@ -5,20 +5,15 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import io.github.pknujsp.weatherwizard.core.model.UiModel
-import io.github.pknujsp.weatherwizard.core.model.favorite.LocationType
+import io.github.pknujsp.weatherwizard.core.model.coordinate.LocationTypeModel
 import io.github.pknujsp.weatherwizard.core.model.notification.enums.DailyNotificationType
 import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherProvider
 
 class DailyNotificationSettings(
-    val id: Long = 0L,
-    type: DailyNotificationType,
-    locationType: LocationType,
-    hour: Int,
-    minute: Int,
-    weatherProvider: WeatherProvider
+    val id: Long = 0L, type: DailyNotificationType, location: LocationTypeModel, hour: Int, minute: Int, weatherProvider: WeatherProvider
 ) : UiModel {
     var type by mutableStateOf(type)
-    var locationType by mutableStateOf(locationType)
+    var location by mutableStateOf(location)
     var hour by mutableIntStateOf(hour)
     var minute by mutableIntStateOf(minute)
     var weatherDataProvider by mutableStateOf(weatherProvider)

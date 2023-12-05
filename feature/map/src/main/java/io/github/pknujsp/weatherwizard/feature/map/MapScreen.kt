@@ -42,7 +42,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.pknujsp.weatherwizard.core.model.onError
 import io.github.pknujsp.weatherwizard.core.model.onSuccess
-import io.github.pknujsp.weatherwizard.core.model.weather.RequestWeatherDataArgs
+import io.github.pknujsp.weatherwizard.core.model.weather.RequestWeatherArguments
 import io.github.pknujsp.weatherwizard.core.ui.weather.item.CardInfo
 import io.github.pknujsp.weatherwizard.core.ui.weather.item.SimpleWeatherFailedBox
 import io.github.pknujsp.weatherwizard.core.ui.weather.item.SimpleWeatherScreenBackground
@@ -121,7 +121,7 @@ private fun MapView.poiOnMap(latitude: Double, longitude: Double, iconSize: Dp) 
 }
 
 @Composable
-fun SimpleMapScreen(requestWeatherDataArgs: RequestWeatherDataArgs) {
+fun SimpleMapScreen(requestWeatherArguments: RequestWeatherArguments) {
     val viewModel = hiltViewModel<RainViewerViewModel>()
     val context = LocalContext.current
     val tiles by viewModel.radarTiles.collectAsStateWithLifecycle()
@@ -130,7 +130,7 @@ fun SimpleMapScreen(requestWeatherDataArgs: RequestWeatherDataArgs) {
         viewModel.load(context)
     }
 
-    tiles.onSuccess { tiles ->
+    tiles.onSuccess {
         SimpleWeatherScreenBackground(CardInfo(title = stringResource(id = R.string.radar)) {
             Column(modifier = Modifier
                 .fillMaxWidth()
@@ -146,7 +146,9 @@ fun SimpleMapScreen(requestWeatherDataArgs: RequestWeatherDataArgs) {
                     .fillMaxWidth()
                     .height(240.dp)) {
                     val simpleMapController = remember { SimpleMapController() }
-                    MapScreen(requestWeatherDataArgs.latitude, requestWeatherDataArgs.longitude, tiles, viewModel, simpleMapController)
+                    MapScreen(requestWeatherArguments.location.latitude, requestWeatherArguments.location.longitude, it,
+                        viewModel,
+                        simpleMapController)
                     MapControllerScreen(simpleMapController, iconSize = 32.dp, bottomSpace = 20.dp)
                 }
 

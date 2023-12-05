@@ -44,7 +44,6 @@ class WidgetManager private constructor(context: Context) {
      * The widget is updated with the provided RemoteViews.
      */
     fun updateWidget(appWidgetId: Int, remoteView: RemoteViews, context: Context) {
-        println("WidgetManager.updateWidget: $appWidgetId")
         remoteView.setOnClickPendingIntent(remoteView.layoutId, getDialogPendingIntent(context))
         appWidgetManager.updateAppWidget(appWidgetId, remoteView)
     }

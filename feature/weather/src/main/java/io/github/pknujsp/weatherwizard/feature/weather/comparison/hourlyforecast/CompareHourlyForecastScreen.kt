@@ -54,7 +54,7 @@ import io.github.pknujsp.weatherwizard.core.common.util.AStyle
 import io.github.pknujsp.weatherwizard.core.common.util.toAnnotated
 import io.github.pknujsp.weatherwizard.core.model.onLoading
 import io.github.pknujsp.weatherwizard.core.model.onSuccess
-import io.github.pknujsp.weatherwizard.core.model.weather.RequestWeatherDataArgs
+import io.github.pknujsp.weatherwizard.core.model.weather.RequestWeatherArguments
 import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherProvider
 import io.github.pknujsp.weatherwizard.core.model.weather.hourlyforecast.CompareHourlyForecast
 import io.github.pknujsp.weatherwizard.core.ui.DynamicDateTime
@@ -67,7 +67,7 @@ import io.github.pknujsp.weatherwizard.feature.weather.R
 
 @Composable
 fun CompareHourlyForecastScreen(
-    args: RequestWeatherDataArgs, viewModelStoreOwner: ViewModelStoreOwner, popBackStack: () -> Unit
+    args: RequestWeatherArguments, viewModelStoreOwner: ViewModelStoreOwner, popBackStack: () -> Unit
 ) {
     BackHandler {
         popBackStack()

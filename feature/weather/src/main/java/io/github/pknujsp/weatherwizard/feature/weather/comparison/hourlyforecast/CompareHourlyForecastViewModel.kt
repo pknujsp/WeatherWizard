@@ -9,7 +9,7 @@ import io.github.pknujsp.weatherwizard.core.common.util.toCalendar
 import io.github.pknujsp.weatherwizard.core.data.settings.SettingsRepository
 import io.github.pknujsp.weatherwizard.core.domain.weather.compare.GetHourlyForecastToCompareUseCase
 import io.github.pknujsp.weatherwizard.core.model.UiState
-import io.github.pknujsp.weatherwizard.core.model.weather.RequestWeatherDataArgs
+import io.github.pknujsp.weatherwizard.core.model.weather.RequestWeatherArguments
 import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherProvider
 import io.github.pknujsp.weatherwizard.core.model.weather.hourlyforecast.CompareHourlyForecast
 import io.github.pknujsp.weatherwizard.core.model.weather.hourlyforecast.HourlyForecastComparisonReport
@@ -36,18 +36,18 @@ class CompareHourlyForecastViewModel @Inject constructor(
     private val _report = MutableStateFlow<UiState<HourlyForecastComparisonReport>>(UiState.Loading)
     val report: StateFlow<UiState<HourlyForecastComparisonReport>> = _report
 
-    override fun load(args: RequestWeatherDataArgs) {
+    override fun load(args: RequestWeatherArguments) {
         viewModelScope.launch(Dispatchers.IO) {
             args.run {
                 val requestId = System.currentTimeMillis()
-                getHourlyForecastToCompareUseCase(latitude, longitude, weatherProviders, requestId).onSuccess { entity ->
+                getHourlyForecastToCompareUseCase(location.latitude, location.longitude, weatherProviders, requestId).onSuccess { entity ->
                     val (firstTime, endTime) = entity.run {
                         items.maxOf { ZonedDateTime.parse(it.second.first().dateTime.value) } to items.minOf {
                             ZonedDateTime.parse(it.second
                                 .last().dateTime.value)
                         }
                     }
-                    val dayNightCalculator = DayNightCalculator(latitude, longitude)
+                    val dayNightCalculator = DayNightCalculator(location.latitude, location.longitude)
                     val dayOrNightList = mutableListOf<Pair<Boolean, ZonedDateTime>>()
                     var time = firstTime
                     while (time <= endTime) {

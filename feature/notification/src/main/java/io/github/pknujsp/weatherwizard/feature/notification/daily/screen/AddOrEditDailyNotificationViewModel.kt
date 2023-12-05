@@ -29,13 +29,11 @@ class AddOrEditDailyNotificationViewModel @Inject constructor(
 
     private val _dailyNoficationUiState =
         MutableDailyNotificationUiState(dailyNotificationSettings = DailyNotificationSettingsEntity().let {
-            DailyNotificationSettings(
-                type = it.type,
-                locationType = it.locationType,
+            DailyNotificationSettings(type = it.type,
+                location = it.location,
                 hour = it.hour,
                 minute = it.minute,
-                weatherProvider = it.weatherProvider
-            )
+                weatherProvider = it.weatherProvider)
         }, update = ::update, switch = ::switch, isNew = isNew)
 
     val dailyNotificationUiState: DailyNotificationUiState = _dailyNoficationUiState
@@ -45,14 +43,12 @@ class AddOrEditDailyNotificationViewModel @Inject constructor(
             if (isNew) {
                 val entity = dailyNotificationRepository.getDailyNotification(notificationId)
                 entity.run {
-                    _dailyNoficationUiState.dailyNotificationSettings = DailyNotificationSettings(
-                        id = id,
+                    _dailyNoficationUiState.dailyNotificationSettings = DailyNotificationSettings(id = id,
                         type = data.type,
-                        locationType = data.locationType,
+                        location = data.location,
                         hour = data.hour,
                         minute = data.minute,
-                        weatherProvider = data.weatherProvider
-                    )
+                        weatherProvider = data.weatherProvider)
                     _dailyNoficationUiState.isEnabled = enabled
                 }
             }
@@ -62,7 +58,7 @@ class AddOrEditDailyNotificationViewModel @Inject constructor(
     private fun createSettingsEntity() = dailyNotificationUiState.dailyNotificationSettings.let {
         DailyNotificationSettingsEntity(
             type = it.type,
-            locationType = it.locationType,
+            location = it.location,
             hour = it.hour,
             minute = it.minute,
         )
@@ -93,7 +89,9 @@ class AddOrEditDailyNotificationViewModel @Inject constructor(
 
 
 private class MutableDailyNotificationUiState(
-    dailyNotificationSettings: DailyNotificationSettings, private val update: () -> Unit, private val switch: () -> Unit,
+    dailyNotificationSettings: DailyNotificationSettings,
+    private val update: () -> Unit,
+    private val switch: () -> Unit,
     override val isNew: Boolean
 ) : DailyNotificationUiState {
     override var dailyNotificationSettings by mutableStateOf(dailyNotificationSettings)

@@ -8,7 +8,7 @@ import io.github.pknujsp.weatherwizard.core.model.JsonParser
 import io.github.pknujsp.weatherwizard.core.model.notification.NotificationSettingsEntity
 import io.github.pknujsp.weatherwizard.core.model.notification.enums.NotificationType
 import io.github.pknujsp.weatherwizard.core.data.notification.ongoing.model.OngoingNotificationSettingsJsonEntity
-import io.github.pknujsp.weatherwizard.core.model.favorite.LocationType
+import io.github.pknujsp.weatherwizard.core.model.coordinate.LocationType
 import kotlinx.serialization.json.Json
 import javax.inject.Inject
 
@@ -24,11 +24,12 @@ class OngoingNotificationRepositoryImpl @Inject constructor(
         val entity = dto?.run {
             val jsonEntity = jsonParser.parse<OngoingNotificationSettingsJsonEntity>(content)
 
-            val locationType = jsonEntity.getLocationType()
-            OngoingNotificationSettingsEntity(notificationIconType = jsonEntity.getNotificationIconType(),
+            OngoingNotificationSettingsEntity(
+                notificationIconType = jsonEntity.getNotificationIconType(),
                 refreshInterval = jsonEntity.getRefreshInterval(),
                 weatherProvider = jsonEntity.getWeatherProvider(),
-                locationType = locationType)
+                location = jsonEntity.getLocation(),
+            )
         } ?: OngoingNotificationSettingsEntity()
 
         return NotificationSettingsEntity(dto?.id ?: 0L, dto?.enabled ?: false, entity, dto != null)
@@ -36,21 +37,16 @@ class OngoingNotificationRepositoryImpl @Inject constructor(
 
     override suspend fun updateOngoingNotification(notificationSettingsEntity: NotificationSettingsEntity<OngoingNotificationSettingsEntity>): Boolean {
         val entity = notificationSettingsEntity.data
-        val locationType = entity.locationType
-        val (latitude, longitude, addressName) = if (locationType is LocationType.CustomLocation) {
-            Triple(locationType.latitude, locationType.longitude, locationType.address)
-        } else {
-            Triple(0.0, 0.0, "")
-        }
 
         val jsonEntity = OngoingNotificationSettingsJsonEntity(
             notificationIconType = entity.notificationIconType.key,
             refreshInterval = entity.refreshInterval.key,
             weatherProvider = entity.weatherProvider.key,
-            latitude = latitude,
-            longitude = longitude,
-            addressName = addressName,
-            locationType = locationType.key,
+            latitude = entity.location.latitude,
+            longitude = entity.location.longitude,
+            address = entity.location.address,
+            country = entity.location.country,
+            locationType = entity.location.locationType.key,
         )
 
         return ongoingNotificationLocalDataSource.updateOngoingNotification(NotificationDto(

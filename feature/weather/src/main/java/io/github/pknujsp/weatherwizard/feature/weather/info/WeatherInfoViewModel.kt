@@ -1,24 +1,29 @@
 package io.github.pknujsp.weatherwizard.feature.weather.info
 
 
-import android.location.Location
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import io.github.pknujsp.weatherwizard.core.common.manager.FailedReason
 import io.github.pknujsp.weatherwizard.core.common.util.DayNightCalculator
 import io.github.pknujsp.weatherwizard.core.common.util.toCalendar
 import io.github.pknujsp.weatherwizard.core.common.util.toTimeZone
 import io.github.pknujsp.weatherwizard.core.data.favorite.FavoriteAreaListRepository
-import io.github.pknujsp.weatherwizard.core.data.favorite.TargetAreaRepository
+import io.github.pknujsp.weatherwizard.core.data.favorite.TargetLocationRepository
 import io.github.pknujsp.weatherwizard.core.data.nominatim.NominatimRepository
 import io.github.pknujsp.weatherwizard.core.data.settings.SettingsRepository
+import io.github.pknujsp.weatherwizard.core.domain.location.CurrentLocationResultState
+import io.github.pknujsp.weatherwizard.core.domain.location.GetCurrentLocationUseCase
 import io.github.pknujsp.weatherwizard.core.domain.weather.GetAllWeatherDataUseCase
 import io.github.pknujsp.weatherwizard.core.model.ProcessState
 import io.github.pknujsp.weatherwizard.core.model.UiState
-import io.github.pknujsp.weatherwizard.core.model.favorite.LocationType
+import io.github.pknujsp.weatherwizard.core.model.coordinate.LocationType
+import io.github.pknujsp.weatherwizard.core.model.coordinate.LocationTypeModel
 import io.github.pknujsp.weatherwizard.core.model.flickr.FlickrRequestParameters
-import io.github.pknujsp.weatherwizard.core.model.nominatim.ReverseGeoCode
-import io.github.pknujsp.weatherwizard.core.model.weather.RequestWeatherDataArgs
+import io.github.pknujsp.weatherwizard.core.model.weather.RequestWeatherArguments
 import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherConditionCategory
 import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherProvider
 import io.github.pknujsp.weatherwizard.core.model.weather.current.CurrentWeather
@@ -35,6 +40,7 @@ import io.github.pknujsp.weatherwizard.core.ui.weather.item.DynamicDateTimeUiCre
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
@@ -44,132 +50,124 @@ import kotlin.properties.Delegates
 @HiltViewModel
 class WeatherInfoViewModel @Inject constructor(
     private val getAllWeatherDataUseCase: GetAllWeatherDataUseCase,
-    private val nominatimRepository: NominatimRepository,
     private val favoriteAreaListRepository: FavoriteAreaListRepository,
     private val settingsRepository: SettingsRepository,
-    targetAreaRepository: TargetAreaRepository,
+    private val targetLocationRepository: TargetLocationRepository,
+    private val getCurrentLocationUseCase: GetCurrentLocationUseCase,
+    private val nominatimRepository: NominatimRepository
 ) : ViewModel() {
 
-    var locationType: LocationType by Delegates.notNull()
-        private set
-
-    private val _processState = MutableStateFlow<ProcessState>(ProcessState.Idle)
-    val processState: StateFlow<ProcessState> = _processState
-
-    private val _args = MutableStateFlow<RequestWeatherDataArgs?>(null)
-    val args: StateFlow<RequestWeatherDataArgs?> = _args
-
-    private val _reverseGeoCode = MutableStateFlow<UiState<ReverseGeoCode>>(UiState.Loading)
-    val reverseGeoCode: StateFlow<UiState<ReverseGeoCode>> = _reverseGeoCode
+    private var _uiState = MutableWeatherMainUiState()
+    val uiState: WeatherMainUiState by mutableStateOf(_uiState)
 
     private val _flickrRequestParameter = MutableStateFlow<UiState<FlickrRequestParameters>>(UiState.Loading)
-    val flickrRequestParameter: StateFlow<UiState<FlickrRequestParameters>> = _flickrRequestParameter
+    val flickrRequestParameter: StateFlow<UiState<FlickrRequestParameters>> = _flickrRequestParameter.asStateFlow()
 
     private val _currentWeather = MutableStateFlow<UiState<CurrentWeather>>(UiState.Loading)
-    val currentWeather: StateFlow<UiState<CurrentWeather>> = _currentWeather
+    val currentWeather: StateFlow<UiState<CurrentWeather>> = _currentWeather.asStateFlow()
 
     private val _simpleHourlyForecast = MutableStateFlow<UiState<SimpleHourlyForecast>>(UiState.Loading)
-    val simpleHourlyForecast: StateFlow<UiState<SimpleHourlyForecast>> = _simpleHourlyForecast
+    val simpleHourlyForecast: StateFlow<UiState<SimpleHourlyForecast>> = _simpleHourlyForecast.asStateFlow()
 
     private val _detailHourlyForecast = MutableStateFlow<UiState<DetailHourlyForecast>>(UiState.Loading)
-    val detailHourlyForecast: StateFlow<UiState<DetailHourlyForecast>> = _detailHourlyForecast
+    val detailHourlyForecast: StateFlow<UiState<DetailHourlyForecast>> = _detailHourlyForecast.asStateFlow()
 
     private val _simpleDailyForecast = MutableStateFlow<UiState<SimpleDailyForecast>>(UiState.Loading)
-    val simpleDailyForecast: StateFlow<UiState<SimpleDailyForecast>> = _simpleDailyForecast
+    val simpleDailyForecast: StateFlow<UiState<SimpleDailyForecast>> = _simpleDailyForecast.asStateFlow()
 
     private val _detailDailyForecast = MutableStateFlow<UiState<DetailDailyForecast>>(UiState.Loading)
-    val detailDailyForecast: StateFlow<UiState<DetailDailyForecast>> = _detailDailyForecast
+    val detailDailyForecast: StateFlow<UiState<DetailDailyForecast>> = _detailDailyForecast.asStateFlow()
 
     private val _yesterdayWeather = MutableStateFlow<UiState<YesterdayWeather>>(UiState.Loading)
-    val yesterdayWeather: StateFlow<UiState<YesterdayWeather>> = _yesterdayWeather
+    val yesterdayWeather: StateFlow<UiState<YesterdayWeather>> = _yesterdayWeather.asStateFlow()
 
-    init {
+    fun initialize() {
         viewModelScope.launch {
-            locationType = targetAreaRepository.getTargetArea()
-        }
-    }
+            _uiState.processState = ProcessState.Running
+            val location = targetLocationRepository.getTargetLocation()
+            val weatherProvider = settingsRepository.getWeatherDataProvider()
 
-
-    fun waitForLoad() {
-        viewModelScope.launch {
-            _processState.value = ProcessState.Idle
-        }
-    }
-
-    fun setArgsAndLoad(location: Location? = null) {
-        viewModelScope.launch {
-            _processState.value = ProcessState.Running
-            val (lat, lon) = when (locationType) {
-                is LocationType.CurrentLocation -> location!!.latitude to location.longitude
-                is LocationType.CustomLocation -> favoriteAreaListRepository.getById((locationType as LocationType.CustomLocation).locationId)
-                    .getOrThrow().run {
-                        latitude to longitude
+            if (location.locationType is LocationType.CurrentLocation) {
+                when (val currentLocation = getCurrentLocationUseCase()) {
+                    is CurrentLocationResultState.Success -> {
+                        _uiState.isGpsEnabled = true
+                        val targetLocation = nominatimRepository.reverseGeoCode(currentLocation.latitude, currentLocation.longitude)
+                        targetLocation.onSuccess {
+                            _uiState.args = RequestWeatherArguments(weatherProvider = weatherProvider,
+                                location = LocationTypeModel(
+                                    locationType = LocationType.CurrentLocation,
+                                    latitude = currentLocation.latitude,
+                                    longitude = currentLocation.longitude,
+                                    address = it.simpleDisplayName,
+                                    country = it.country,
+                                ))
+                            loadAllWeatherData()
+                        }.onFailure {
+                            _uiState.processState = ProcessState.Failed(FailedReason.SERVER_ERROR)
+                        }
                     }
+
+                    is CurrentLocationResultState.Failure -> {
+                        _uiState.isGpsEnabled = false
+                        _uiState.processState = ProcessState.Failed(currentLocation.reason)
+                    }
+
+                }
+            } else {
+                val targetLocation = favoriteAreaListRepository.getById(location.locationId)
+                targetLocation.onFailure {
+                    _uiState.processState = ProcessState.Failed(FailedReason.UNKNOWN)
+                }.onSuccess {
+                    _uiState.args = RequestWeatherArguments(weatherProvider = settingsRepository.getWeatherDataProvider(),
+                        location = LocationTypeModel(
+                            locationType = LocationType.CustomLocation,
+                            latitude = it.latitude,
+                            longitude = it.longitude,
+                            address = it.areaName,
+                            country = it.countryName,
+                        ))
+                    loadAllWeatherData()
+                }
+
             }
-
-            _args.value =
-                RequestWeatherDataArgs(latitude = lat,
-                    longitude = lon,
-                    weatherProvider = settingsRepository.getWeatherDataProvider(),
-                    locationType = locationType)
-
-            loadAllWeatherData()
-
         }
     }
+
 
     fun updateWeatherDataProvider(weatherProvider: WeatherProvider) {
         viewModelScope.launch {
-            _processState.value = ProcessState.Running
+            _uiState.processState = ProcessState.Running
             settingsRepository.setWeatherDataProvider(weatherProvider)
+            _uiState.args = _uiState.args.copy(weatherProvider = weatherProvider)
         }
     }
 
     private fun loadAllWeatherData() {
         viewModelScope.launch(Dispatchers.IO) {
-            args.value?.run {
+            uiState.args.run {
                 val requestDateTime = ZonedDateTime.now()
-                reverseGeoCode(latitude, longitude, requestDateTime)
+                val dayNightCalculator = DayNightCalculator(location.latitude, location.longitude, requestDateTime.toTimeZone())
 
-                val dayNightCalculator = DayNightCalculator(latitude, longitude, requestDateTime.toTimeZone())
-                val currentCalendar = requestDateTime.toCalendar()
-
-                getAllWeatherDataUseCase(latitude,
-                    longitude,
+                getAllWeatherDataUseCase(location.latitude,
+                    location.longitude,
                     weatherProvider,
                     requestDateTime.toInstant().toEpochMilli()).onSuccess { allWeatherDataEntity ->
                     createFlickrRequestParameter(allWeatherDataEntity.currentWeatherEntity.weatherCondition.value,
-                        latitude,
-                        longitude,
+                        location.latitude,
+                        location.longitude,
                         requestDateTime)
-                    createCurrentWeatherUiModel(allWeatherDataEntity.currentWeatherEntity, dayNightCalculator, currentCalendar)
+                    createCurrentWeatherUiModel(allWeatherDataEntity.currentWeatherEntity, dayNightCalculator, requestDateTime.toCalendar())
                     createHourlyForecastUiModel(allWeatherDataEntity.hourlyForecastEntity, dayNightCalculator)
                     createDailyForecastUiModel(allWeatherDataEntity.dailyForecastEntity)
                     allWeatherDataEntity.yesterdayWeatherEntity?.run {
                         createYesterdayWeatherUiModel(this)
                     }
 
-                    _processState.value = ProcessState.Succeed
+                    _uiState.updateLastUpdatedTime(requestDateTime)
+                    _uiState.processState = ProcessState.Succeed
                 }.onFailure {
-                    _processState.value = ProcessState.Failed
+                    _uiState.processState = ProcessState.Failed(FailedReason.SERVER_ERROR)
                 }
-            }
-        }
-    }
-
-    private fun reverseGeoCode(latitude: Double, longitude: Double, requestDateTime: ZonedDateTime) {
-        viewModelScope.launch(Dispatchers.IO) {
-            nominatimRepository.reverseGeoCode(latitude, longitude).onSuccess {
-                _reverseGeoCode.value = UiState.Success(ReverseGeoCode(
-                    displayName = it.simpleDisplayName,
-                    country = it.country,
-                    countryCode = it.countryCode,
-                    latitude = it.latitude,
-                    longitude = it.longitude,
-                    requestDateTime = requestDateTime.format(DateTimeFormatter.ofPattern("M.d EEE HH:mm")),
-                ))
-            }.onFailure {
-                _reverseGeoCode.value = UiState.Error(it)
             }
         }
     }
@@ -188,8 +186,7 @@ class WeatherInfoViewModel @Inject constructor(
                     humidity = humidity,
                     windSpeed = windSpeed.convertUnit(unit.windSpeedUnit),
                     windDirection = windDirection,
-                    precipitationVolume = precipitationVolume.convertUnit(
-                        unit.precipitationUnit),
+                    precipitationVolume = precipitationVolume.convertUnit(unit.precipitationUnit),
                     dayNightCalculator = dayNightCalculator,
                     currentCalendar = currentCalendar)
             }
@@ -214,8 +211,7 @@ class WeatherInfoViewModel @Inject constructor(
                     humidity = it.humidity,
                     windSpeed = it.windSpeed.convertUnit(unit.windSpeedUnit),
                     windDirection = it.windDirection,
-                    precipitationVolume = it.precipitationVolume.convertUnit(
-                        unit.precipitationUnit),
+                    precipitationVolume = it.precipitationVolume.convertUnit(unit.precipitationUnit),
                     precipitationProbability = it.precipitationProbability,
                     dayNightCalculator = dayNightCalculator,
                 )
@@ -262,8 +258,7 @@ class WeatherInfoViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.Default) {
             val temperatureUnit = settingsRepository.currentUnits.value.temperatureUnit
             _yesterdayWeather.value =
-                UiState.Success(YesterdayWeather(temperature = yesterdayWeatherEntity.temperature.convertUnit(
-                    temperatureUnit)))
+                UiState.Success(YesterdayWeather(temperature = yesterdayWeatherEntity.temperature.convertUnit(temperatureUnit)))
         }
     }
 
@@ -278,5 +273,22 @@ class WeatherInfoViewModel @Inject constructor(
                 refreshDateTime = requestDateTime,
             ))
         }
+    }
+}
+
+private class MutableWeatherMainUiState(
+) : WeatherMainUiState {
+    override var isGpsEnabled by mutableStateOf(false)
+    override var processState: ProcessState by mutableStateOf(ProcessState.Idle)
+    override var args: RequestWeatherArguments by Delegates.notNull()
+    override var lastUpdatedTime: String = ""
+        private set
+
+    companion object {
+        private val dateTimeFormatter = DateTimeFormatter.ofPattern("MM.dd HH:mm")
+    }
+
+    fun updateLastUpdatedTime(lastUpdatedTime: ZonedDateTime) {
+        this.lastUpdatedTime = lastUpdatedTime.format(dateTimeFormatter)
     }
 }

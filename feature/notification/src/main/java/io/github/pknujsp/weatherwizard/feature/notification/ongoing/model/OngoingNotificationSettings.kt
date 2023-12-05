@@ -4,7 +4,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import io.github.pknujsp.weatherwizard.core.model.UiModel
-import io.github.pknujsp.weatherwizard.core.model.favorite.LocationType
+import io.github.pknujsp.weatherwizard.core.model.coordinate.LocationTypeModel
 import io.github.pknujsp.weatherwizard.core.model.notification.enums.NotificationIconType
 import io.github.pknujsp.weatherwizard.core.model.notification.enums.RefreshInterval
 import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherProvider
@@ -14,10 +14,10 @@ class OngoingNotificationSettings(
     notificationIconType: NotificationIconType,
     refreshInterval: RefreshInterval,
     weatherProvider: WeatherProvider,
-    locationType: LocationType,
+    location: LocationTypeModel,
 ) : UiModel {
     var notificationIconType by mutableStateOf(notificationIconType)
     var refreshInterval by mutableStateOf(refreshInterval)
     var weatherProvider by mutableStateOf(weatherProvider)
-    var locationType by mutableStateOf(locationType)
+    var location by mutableStateOf(location)
 }

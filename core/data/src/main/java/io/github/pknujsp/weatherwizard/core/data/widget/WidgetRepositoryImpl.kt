@@ -4,7 +4,7 @@ import io.github.pknujsp.weatherwizard.core.common.module.KtJson
 import io.github.pknujsp.weatherwizard.core.database.widget.WidgetDto
 import io.github.pknujsp.weatherwizard.core.database.widget.WidgetLocalDataSource
 import io.github.pknujsp.weatherwizard.core.model.JsonParser
-import io.github.pknujsp.weatherwizard.core.model.favorite.LocationType
+import io.github.pknujsp.weatherwizard.core.model.coordinate.LocationType
 import io.github.pknujsp.weatherwizard.core.model.widget.WidgetType
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -20,12 +20,10 @@ class WidgetRepositoryImpl @Inject constructor(
     override fun getAll(): Flow<WidgetSettingsEntityList> = dataSource.getAll().map {
         val list = it.map { dto ->
             val jsonEntity = jsonParser.parse<WidgetSettingsJsonEntity>(dto.content)
-            WidgetSettingsEntity(
-                id = dto.id,
-                locationType = jsonEntity.getLocationType(),
+            WidgetSettingsEntity(id = dto.id,
+                location = jsonEntity.getLocation(),
                 weatherProvider = jsonEntity.getWeatherProvider(),
-                widgetType = WidgetType.fromKey(dto.widgetType)
-            )
+                widgetType = WidgetType.fromKey(dto.widgetType))
         }
 
         WidgetSettingsEntityList(list)
@@ -33,11 +31,12 @@ class WidgetRepositoryImpl @Inject constructor(
 
     override suspend fun add(entity: WidgetSettingsEntity): Int {
         val jsonEntity = WidgetSettingsJsonEntity(
-            latitude = if (entity.locationType is LocationType.CustomLocation) entity.locationType.latitude else 0.0,
-            longitude = if (entity.locationType is LocationType.CustomLocation) entity.locationType.longitude else 0.0,
-            addressName = if (entity.locationType is LocationType.CustomLocation) entity.locationType.address else "",
-            locationTypeKey = entity.locationType.key,
-            weatherProviderKey = entity.weatherProvider.key,
+            weatherProvider = entity.weatherProvider.key,
+            locationType = entity.location.locationType.key,
+            latitude = entity.location.latitude,
+            longitude = entity.location.longitude,
+            address = entity.location.address,
+            country = entity.location.country,
         )
 
         return dataSource.add(WidgetDto(id = entity.id, widgetType = entity.widgetType.key, content = jsonParser.parse(jsonEntity)))
@@ -47,12 +46,10 @@ class WidgetRepositoryImpl @Inject constructor(
         val dto = dataSource.getById(id)
         val jsonEntity = jsonParser.parse<WidgetSettingsJsonEntity>(dto.content)
 
-        return WidgetSettingsEntity(
-            id = dto.id,
-            locationType = jsonEntity.getLocationType(),
+        return WidgetSettingsEntity(id = dto.id,
+            location = jsonEntity.getLocation(),
             weatherProvider = jsonEntity.getWeatherProvider(),
-            widgetType = WidgetType.fromKey(dto.widgetType)
-        )
+            widgetType = WidgetType.fromKey(dto.widgetType))
     }
 
     override suspend fun delete(id: Int) {

@@ -23,7 +23,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import io.github.pknujsp.weatherwizard.core.model.favorite.LocationType
+import io.github.pknujsp.weatherwizard.core.model.coordinate.LocationType
+import io.github.pknujsp.weatherwizard.core.model.coordinate.LocationTypeModel
 import io.github.pknujsp.weatherwizard.core.model.notification.enums.NotificationIconType
 import io.github.pknujsp.weatherwizard.core.model.notification.enums.RefreshInterval
 import io.github.pknujsp.weatherwizard.core.ui.BottomSheetSettingItem
@@ -52,10 +53,13 @@ fun OngoingNotificationScreen(navController: NavController, viewModel: OngoingNo
         if (showSearch) {
             SearchLocationScreen(onSelectedLocation = { newLocation ->
                 newLocation?.let {
-                    ongoingNotificationUiState.ongoingNotificationSettings.locationType =
-                        LocationType.CustomLocation(latitude = newLocation.latitude,
-                            longitude = newLocation.longitude,
-                            address = newLocation.addressName)
+                    ongoingNotificationUiState.ongoingNotificationSettings.location =
+                        ongoingNotificationUiState.ongoingNotificationSettings.location.copy(
+                            latitude = it.latitude,
+                            longitude = it.longitude,
+                            address = it.addressName,
+                            country = it.countryName,
+                        )
                 }
                 showSearch = false
             }, popBackStack = {
@@ -84,8 +88,8 @@ fun OngoingNotificationScreen(navController: NavController, viewModel: OngoingNo
 
                     if (ongoingNotificationUiState.isEnabled) {
                         val settings = ongoingNotificationUiState.ongoingNotificationSettings
-                        LocationScreen(settings.locationType, onSelectedItem = {
-                            settings.locationType = it
+                        LocationScreen(settings.location, onSelectedItem = {
+                            settings.location = settings.location.copy(locationType = it)
                         }) {
                             showSearch = true
                         }

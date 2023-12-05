@@ -19,17 +19,20 @@ class GetWeatherDataUseCase @Inject constructor(
                     MajorWeatherEntityType.CURRENT_CONDITION -> weatherDataRepository.getCurrentWeather(latitude,
                         longitude,
                         weatherProvider,
-                        requestId)
+                        requestId,
+                        false)
 
                     MajorWeatherEntityType.HOURLY_FORECAST -> weatherDataRepository.getHourlyForecast(latitude,
                         longitude,
                         weatherProvider,
-                        requestId)
+                        requestId,
+                        false)
 
                     MajorWeatherEntityType.DAILY_FORECAST -> weatherDataRepository.getDailyForecast(latitude,
                         longitude,
                         weatherProvider,
-                        requestId)
+                        requestId,
+                        false)
 
                     MajorWeatherEntityType.AIR_QUALITY -> airQualityRepository.getAirQuality(
                         latitude,
@@ -39,7 +42,8 @@ class GetWeatherDataUseCase @Inject constructor(
                     MajorWeatherEntityType.YESTERDAY_WEATHER -> weatherDataRepository.getYesterdayWeather(latitude,
                         longitude,
                         weatherProvider,
-                        requestId)
+                        requestId,
+                        false)
                 }
             }
 

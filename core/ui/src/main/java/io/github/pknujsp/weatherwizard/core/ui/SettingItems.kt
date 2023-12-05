@@ -35,7 +35,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import io.github.pknujsp.weatherwizard.core.common.enum.IEnum
 import io.github.pknujsp.weatherwizard.core.common.R
-import io.github.pknujsp.weatherwizard.core.model.favorite.LocationType
+import io.github.pknujsp.weatherwizard.core.model.coordinate.LocationType
+import io.github.pknujsp.weatherwizard.core.model.coordinate.LocationTypeModel
 import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherProvider
 import io.github.pknujsp.weatherwizard.core.ui.dialog.BottomSheet
 
@@ -198,19 +199,18 @@ fun BottomSheetSettingItem(
 }
 
 @Composable
-fun ColumnScope.LocationScreen(locationType: LocationType, onSelectedItem: (LocationType) -> Unit, onClick: () -> Unit) {
+fun ColumnScope.LocationScreen(selectedLocation: LocationTypeModel, onSelectedItem: (LocationType) -> Unit, onClick: () -> Unit) {
     MediumTitleTextWithoutNavigation(title = stringResource(id = R.string.location))
-    val radioOptions = remember { LocationType.enums }
 
-    RadioButtons(radioOptions = radioOptions, selectedOption = locationType, onOptionSelected = {
+    RadioButtons(radioOptions = LocationType.enums, selectedOption = selectedLocation.locationType, onOptionSelected = {
         onSelectedItem(it)
     })
 
-    if (locationType is LocationType.CustomLocation) {
+    if (selectedLocation.locationType is LocationType.CustomLocation) {
         Row(verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(20.dp),
             modifier = Modifier.align(Alignment.End)) {
-            Text(text = locationType.address, style = TextStyle(fontSize = 16.sp))
+            Text(text = selectedLocation.address, style = TextStyle(fontSize = 16.sp))
             SecondaryButton(text = stringResource(id = io.github.pknujsp.weatherwizard.core.ui.R.string.select_location),
                 modifier = Modifier.wrapContentSize()) {
                 onClick()
@@ -223,9 +223,7 @@ fun ColumnScope.LocationScreen(locationType: LocationType, onSelectedItem: (Loca
 fun WeatherProvidersScreen(weatherProvider: WeatherProvider, onSelectedItem: (WeatherProvider) -> Unit) {
     MediumTitleTextWithoutNavigation(title = stringResource(id = io.github.pknujsp.weatherwizard.core.ui.R.string.weather_provider))
 
-    val radioOptions = remember { WeatherProvider.enums }
-
-    RadioButtons(radioOptions = radioOptions, selectedOption = weatherProvider, onOptionSelected = {
+    RadioButtons(radioOptions = WeatherProvider.enums, selectedOption = weatherProvider, onOptionSelected = {
         onSelectedItem(it)
     })
 }

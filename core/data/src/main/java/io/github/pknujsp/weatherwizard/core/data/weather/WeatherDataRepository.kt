@@ -8,21 +8,22 @@ import io.github.pknujsp.weatherwizard.core.model.weather.yesterday.YesterdayWea
 
 interface WeatherDataRepository {
     suspend fun getCurrentWeather(
-        latitude: Double,
-        longitude: Double,
-        weatherProvider: WeatherProvider,
-        requestId: Long
+        latitude: Double, longitude: Double, weatherProvider: WeatherProvider, requestId: Long, bypassCache: Boolean
     ): Result<CurrentWeatherEntity>
 
-    suspend fun getHourlyForecast(latitude: Double, longitude: Double, weatherProvider: WeatherProvider, requestId: Long):
-            Result<HourlyForecastEntity>
+    suspend fun getHourlyForecast(
+        latitude: Double, longitude: Double, weatherProvider: WeatherProvider, requestId: Long, bypassCache: Boolean
+    ): Result<HourlyForecastEntity>
 
-    suspend fun getDailyForecast(latitude: Double, longitude: Double, weatherProvider: WeatherProvider, requestId: Long): Result<DailyForecastEntity>
+    suspend fun getDailyForecast(
+        latitude: Double, longitude: Double, weatherProvider: WeatherProvider, requestId: Long, bypassCache: Boolean
+    ): Result<DailyForecastEntity>
 
     suspend fun getYesterdayWeather(
-        latitude: Double,
-        longitude: Double,
-        weatherProvider: WeatherProvider,
-        requestId: Long
+        latitude: Double, longitude: Double, weatherProvider: WeatherProvider, requestId: Long, bypassCache: Boolean
     ): Result<YesterdayWeatherEntity>
+}
+
+interface WeatherDataRepositoryInitializer {
+    suspend fun initialize()
 }

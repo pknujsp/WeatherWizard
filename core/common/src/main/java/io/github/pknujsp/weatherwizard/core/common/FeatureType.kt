@@ -101,6 +101,9 @@ enum class FeatureType(
         Settings.ACTION_APPLICATION_DETAILS_SETTINGS) {
         @RequiresApi(Build.VERSION_CODES.TIRAMISU)
         override fun isAvailable(context: Context): Boolean {
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
+                return true
+            }
             return context.checkSelfPermission(PermissionType.POST_NOTIFICATIONS)
         }
 
@@ -141,6 +144,7 @@ enum class FeatureType(
             }
         }
     },
+
 }
 
 

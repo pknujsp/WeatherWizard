@@ -1,6 +1,7 @@
 package io.github.pknujsp.weatherwizard.core.domain.weather
 
 import io.github.pknujsp.weatherwizard.core.model.coordinate.LocationModel
+import io.github.pknujsp.weatherwizard.core.model.coordinate.LocationTypeModel
 import io.github.pknujsp.weatherwizard.core.model.weather.common.MajorWeatherEntityType
 import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherProvider
 import java.time.ZonedDateTime
@@ -9,7 +10,7 @@ import java.util.concurrent.atomic.AtomicLong
 class WeatherDataRequest(
     val requestedTime: ZonedDateTime = ZonedDateTime.now(),
 ) {
-    private val sameLocationMap: MutableMap<LocationModel, SameLocation> = mutableMapOf()
+    private val sameLocationMap: MutableMap<LocationTypeModel, SameLocation> = mutableMapOf()
     val requests
         get() = sameLocationMap.values.flatMap { request ->
             request.requests.map {
@@ -30,7 +31,7 @@ class WeatherDataRequest(
      * @return requestId
      */
     fun addRequest(
-        location: LocationModel,
+        location: LocationTypeModel,
         weatherDataCategories: Set<MajorWeatherEntityType>,
         weatherProvider: WeatherProvider,
     ): Long {
@@ -42,7 +43,7 @@ class WeatherDataRequest(
     }
 
     private data class SameLocation(
-        val location: LocationModel
+        val location: LocationTypeModel
     ) {
         private val requestMap: MutableMap<WeatherProvider, MutableSet<MajorWeatherEntityType>> = mutableMapOf()
         private val requestIdMap: MutableMap<WeatherProvider, Long> = mutableMapOf()
@@ -70,7 +71,7 @@ class WeatherDataRequest(
 
     data class Request(
         val requestId: Long,
-        val location: LocationModel,
+        val location: LocationTypeModel,
         val weatherProvider: WeatherProvider,
         val weatherDataMajorCategories: Set<MajorWeatherEntityType>,
     )

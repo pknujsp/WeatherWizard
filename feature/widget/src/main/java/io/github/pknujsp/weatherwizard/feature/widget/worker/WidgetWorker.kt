@@ -9,10 +9,11 @@ import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import io.github.pknujsp.weatherwizard.core.common.FeatureType
 import io.github.pknujsp.weatherwizard.core.common.manager.FeatureState
-import io.github.pknujsp.weatherwizard.core.common.manager.checkFeatureState
+import io.github.pknujsp.weatherwizard.core.common.manager.FeatureStateChecker
+import io.github.pknujsp.weatherwizard.core.data.widget.WidgetSettingsEntity
 import io.github.pknujsp.weatherwizard.core.domain.weather.WeatherResponseState
 import io.github.pknujsp.weatherwizard.core.model.UiModel
-import io.github.pknujsp.weatherwizard.core.model.favorite.LocationType
+import io.github.pknujsp.weatherwizard.core.model.coordinate.LocationType
 import io.github.pknujsp.weatherwizard.core.model.notification.enums.NotificationType
 import io.github.pknujsp.weatherwizard.core.model.worker.IWorker
 import io.github.pknujsp.weatherwizard.core.ui.feature.FeatureStateRemoteViewCreator
@@ -21,8 +22,6 @@ import io.github.pknujsp.weatherwizard.core.ui.remoteview.RemoteViewCreator
 import io.github.pknujsp.weatherwizard.core.ui.remoteview.RetryRemoteViewCreator
 import io.github.pknujsp.weatherwizard.feature.widget.WidgetManager
 import io.github.pknujsp.weatherwizard.feature.widget.remoteview.WidgetRemoteViewsCreator
-import kotlinx.coroutines.withTimeout
-import kotlin.time.Duration
 
 
 @HiltWorker
@@ -66,49 +65,52 @@ class WidgetWorker @AssistedInject constructor(
 
         var excludeLocationType: LocationType? = null
         if (action == WidgetManager.Action.UPDATE_ONLY_BASED_CURRENT_LOCATION) {
-            excludeLocationType = LocationType.CustomLocation()
+            excludeLocationType = LocationType.CustomLocation
         }
 
-        val excludeAppWidgetIds = mutableListOf<Int>()
+        val excludeWidgets = mutableSetOf<WidgetSettingsEntity>()
 
         // 위젯이 활성화되어 있지 않다면 DB에서 삭제
         widgetEntityList.widgetSettings.forEach {
             if (!widgetManager.isBind(it.id)) {
-                excludeAppWidgetIds.add(it.id)
+                excludeWidgets.add(it)
             }
         }
 
-        if (widgetEntityList.locationTypeGroups.getValue(LocationType.CurrentLocation()).isNotEmpty()) {
+        if (widgetEntityList.locationTypeGroups.getValue(LocationType.CurrentLocation).isNotEmpty()) {
             if (!checkFeatureStateAndUpdateWidgets(arrayOf(FeatureType.LOCATION_PERMISSION, FeatureType.LOCATION_SERVICE),
-                    widgetEntityList.locationTypeGroups.getValue(LocationType.CurrentLocation()).map {
+                    widgetEntityList.locationTypeGroups.getValue(LocationType.CurrentLocation).map {
                         it.id
                     }.toIntArray())) {
-                return Result.success()
+                widgetEntityList.locationTypeGroups.getValue(LocationType.CurrentLocation).forEach {
+                    excludeWidgets.add(it)
+                }
             }
         }
 
-        val widgetStates = widgetRemoteViewModel.load(excludeAppWidgetIds, excludeLocationType)
-        val failedWidgetIds = widgetStates.filter { it.state is WeatherResponseState.Failure }.map { it.widget.id }.toIntArray()
-        val retryPendingIntent = if (failedWidgetIds.isNotEmpty()) widgetManager.getUpdatePendingIntent(context,
-            WidgetManager.Action.UPDATE_ONLY_WITH_WIDGETS,
-            failedWidgetIds) else null
+        with(widgetRemoteViewModel.load(excludeWidgets, excludeLocationType)) {
+            val failedWidgetIds = filter { it.state is WeatherResponseState.Failure }.map { it.widget.id }.toIntArray()
+            val retryPendingIntent = if (failedWidgetIds.isNotEmpty()) widgetManager.getUpdatePendingIntent(context,
+                WidgetManager.Action.UPDATE_ONLY_WITH_WIDGETS,
+                failedWidgetIds) else null
 
-        widgetStates.forEach { model ->
-            val remoteView = when (model.state) {
-                is WeatherResponseState.Success -> {
-                    val creator: WidgetRemoteViewsCreator<UiModel> = widgetManager.remoteViewCreator(model.widget.widgetType)
-                    creator.createContentView(model.map(widgetRemoteViewModel.units), context)
+            forEach { model ->
+                val remoteView = when (model.state) {
+                    is WeatherResponseState.Success -> {
+                        val creator: WidgetRemoteViewsCreator<UiModel> = widgetManager.remoteViewCreator(model.widget.widgetType)
+                        creator.createContentView(model.map(widgetRemoteViewModel.units), context)
+                    }
+
+                    else -> {
+                        retryRemoteViewCreator.createView(context,
+                            context.getString(io.github.pknujsp.weatherwizard.core.common.R.string.refresh),
+                            retryPendingIntent!!,
+                            RemoteViewCreator.WIDGET)
+                    }
                 }
 
-                else -> {
-                    retryRemoteViewCreator.createView(context,
-                        context.getString(io.github.pknujsp.weatherwizard.core.common.R.string.refresh),
-                        retryPendingIntent!!,
-                        RemoteViewCreator.WIDGET)
-                }
+                widgetManager.updateWidget(model.widget.id, remoteView, context)
             }
-
-            widgetManager.updateWidget(model.widget.id, remoteView, context)
         }
 
         return Result.success()
@@ -119,7 +121,7 @@ class WidgetWorker @AssistedInject constructor(
     }
 
     private fun checkFeatureStateAndUpdateWidgets(featureTypes: Array<FeatureType>, widgetIds: IntArray): Boolean {
-        return when (val state = context.checkFeatureState(featureTypes)) {
+        return when (val state = FeatureStateChecker.checkFeatureState(context, featureTypes)) {
             is FeatureState.Unavailable -> {
                 val remoteViews = featureStateRemoteViewCreator.createView(context, state.featureType, RemoteViewCreator.WIDGET)
                 widgetIds.forEach {

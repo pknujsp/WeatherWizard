@@ -51,20 +51,18 @@ import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import io.github.pknujsp.weatherwizard.core.common.FeatureType
 import io.github.pknujsp.weatherwizard.core.common.R
+import io.github.pknujsp.weatherwizard.core.common.manager.FailedReason
 import io.github.pknujsp.weatherwizard.core.common.util.AStyle
 import io.github.pknujsp.weatherwizard.core.common.util.toAnnotated
 import io.github.pknujsp.weatherwizard.core.model.ProcessState
-import io.github.pknujsp.weatherwizard.core.model.onRunning
-import io.github.pknujsp.weatherwizard.core.model.onSucceed
-import io.github.pknujsp.weatherwizard.core.model.onSuccess
-import io.github.pknujsp.weatherwizard.core.model.weather.RequestWeatherDataArgs
-import io.github.pknujsp.weatherwizard.core.ui.feature.UnavailableFeatureScreen
+import io.github.pknujsp.weatherwizard.core.model.coordinate.LocationType
+import io.github.pknujsp.weatherwizard.core.ui.feature.FailedScreen
 import io.github.pknujsp.weatherwizard.core.ui.feature.OpenAppSettingsActivity
+import io.github.pknujsp.weatherwizard.core.ui.feature.UnavailableFeatureScreen
 import io.github.pknujsp.weatherwizard.core.ui.lottie.NonCancellableLoadingScreen
 import io.github.pknujsp.weatherwizard.core.ui.theme.notIncludeTextPaddingStyle
 import io.github.pknujsp.weatherwizard.core.ui.theme.outlineTextStyle
@@ -84,7 +82,6 @@ import io.github.pknujsp.weatherwizard.feature.weather.info.hourlyforecast.simpl
 fun WeatherContentScreen(arguments: ContentArguments, weatherInfoViewModel: WeatherInfoViewModel) {
     var openLocationSettings by remember { mutableStateOf(false) }
     var onClickedWeatherProviderButton by remember { mutableStateOf(false) }
-    val headInfo by weatherInfoViewModel.reverseGeoCode.collectAsStateWithLifecycle()
 
     Box {
         AsyncImage(
@@ -101,17 +98,19 @@ fun WeatherContentScreen(arguments: ContentArguments, weatherInfoViewModel: Weat
             filterQuality = FilterQuality.High,
         )
 
-        arguments.processState.onRunning {
-            NonCancellableLoadingScreen(stringResource(id = R.string.loading_weather_data)) {
+        when (arguments.uiState.processState) {
+            is ProcessState.Running -> {
+                NonCancellableLoadingScreen(stringResource(id = R.string.loading_weather_data)) {
 
+                }
             }
-        }.onSucceed {
-            Scaffold(modifier = Modifier.nestedScroll(arguments.scrollBehavior.nestedScrollConnection),
-                containerColor = Color.Black.copy(alpha = 0.17f),
-                topBar = {
-                    CustomTopAppBar(smallTitle = {
-                        Column(horizontalAlignment = Alignment.Start, verticalArrangement = Arrangement.Center) {
-                            headInfo.onSuccess {
+
+            is ProcessState.Succeed -> {
+                Scaffold(modifier = Modifier.nestedScroll(arguments.scrollBehavior.nestedScrollConnection),
+                    containerColor = Color.Black.copy(alpha = 0.17f),
+                    topBar = {
+                        CustomTopAppBar(smallTitle = {
+                            Column(horizontalAlignment = Alignment.Start, verticalArrangement = Arrangement.Center) {
                                 Row(verticalAlignment = Alignment.CenterVertically) {
                                     Icon(imageVector = Icons.Rounded.Place,
                                         contentDescription = null,
@@ -120,37 +119,37 @@ fun WeatherContentScreen(arguments: ContentArguments, weatherInfoViewModel: Weat
                                             .size(15.dp)
                                             .padding(end = 4.dp))
                                     Text(
-                                        text = it.displayName,
+                                        text = arguments.uiState.args.location.address,
                                         color = Color.White,
                                         fontSize = 14.sp,
                                         style = LocalTextStyle.current.merge(notIncludeTextPaddingStyle).merge(outlineTextStyle),
                                     )
                                 }
                                 Text(
-                                    text = it.requestDateTime,
+                                    text = arguments.uiState.lastUpdatedTime,
                                     fontSize = TextUnit(11f, TextUnitType.Sp),
                                     color = Color.White,
                                     style = LocalTextStyle.current.merge(notIncludeTextPaddingStyle).merge(outlineTextStyle),
                                 )
+
                             }
-                        }
-                    },
-                        bigTitle = {
-                            Column(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(end = 60.dp),
-                            ) {
-                                headInfo.onSuccess { it ->
+                        },
+                            bigTitle = {
+                                Column(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(end = 60.dp),
+                                ) {
+
                                     Text(
                                         text = listOf(
                                             AStyle(
-                                                "${it.country}\n",
+                                                "${arguments.uiState.args.location.country}\n",
                                                 span = SpanStyle(
                                                     fontSize = 18.sp,
                                                 ),
                                             ),
-                                            AStyle(it.displayName, span = SpanStyle(fontSize = 24.sp)),
+                                            AStyle(arguments.uiState.args.location.address, span = SpanStyle(fontSize = 24.sp)),
                                         ).toAnnotated(),
                                         textAlign = TextAlign.Start,
                                         fontWeight = FontWeight.Bold,
@@ -164,16 +163,15 @@ fun WeatherContentScreen(arguments: ContentArguments, weatherInfoViewModel: Weat
                                         verticalAlignment = Alignment.CenterVertically,
                                     ) {
                                         AsyncImage(
-                                            model = ImageRequest.Builder(LocalContext.current)
-                                                .data(R.drawable.ic_time)
-                                                .crossfade(false).build(),
+                                            model = ImageRequest.Builder(LocalContext.current).data(R.drawable.ic_time).crossfade(false)
+                                                .build(),
                                             contentDescription = stringResource(id = io.github.pknujsp.weatherwizard.core.model.R.string.weather_info_head_info_update_time),
                                             colorFilter = ColorFilter.tint(Color.White),
                                             modifier = Modifier.size(16.dp),
                                         )
                                         Spacer(modifier = Modifier.width(4.dp))
                                         Text(
-                                            text = it.requestDateTime,
+                                            text = arguments.uiState.lastUpdatedTime,
                                             fontSize = 14.sp,
                                             color = Color.White, style = LocalTextStyle.current.merge(outlineTextStyle),
                                         )
@@ -186,13 +184,13 @@ fun WeatherContentScreen(arguments: ContentArguments, weatherInfoViewModel: Weat
                                         arguments.run {
                                             AsyncImage(
                                                 model = ImageRequest.Builder(LocalContext.current)
-                                                    .data(args.weatherProvider.logo).crossfade(false).build(),
+                                                    .data(arguments.uiState.args.weatherProvider.logo).crossfade(false).build(),
                                                 contentDescription = stringResource(id = io.github.pknujsp.weatherwizard.feature.weather.R.string.weather_provider),
                                                 modifier = Modifier.size(16.dp),
                                             )
                                             Spacer(modifier = Modifier.width(4.dp))
                                             Text(
-                                                text = stringResource(id = args.weatherProvider.name),
+                                                text = stringResource(id = arguments.uiState.args.weatherProvider.name),
                                                 fontSize = 14.sp,
                                                 color = Color.White,
                                                 style = LocalTextStyle.current.merge(outlineTextStyle),
@@ -200,70 +198,84 @@ fun WeatherContentScreen(arguments: ContentArguments, weatherInfoViewModel: Weat
                                         }
                                     }
                                 }
-                            }
-                        },
-                        actions = {
-                            IconButton(onClick = { arguments.reload() }) {
-                                Icon(painter = painterResource(id = R.drawable.ic_refresh),
-                                    contentDescription = null)
-                            }
-                        },
-                        scrollBehavior = arguments.scrollBehavior,
-                        colors = CustomTopAppBarColors(
-                            containerColor = Color.Transparent,
-                            scrolledContainerColor = Color.Transparent,
-                            titleContentColor = Color.White,
-                            navigationIconContentColor = Color.White,
-                            actionIconContentColor = Color.White,
-                        ),
-                        modifier = Modifier.background(brush = shardowBox()),
-                        windowInsets = WindowInsets(0.dp, 0.dp, 0.dp, 0.dp))
-                }) { innerPadding ->
+                            },
+                            actions = {
+                                IconButton(onClick = { arguments.reload() }) {
+                                    Icon(painter = painterResource(id = R.drawable.ic_refresh), contentDescription = null)
+                                }
+                            },
+                            scrollBehavior = arguments.scrollBehavior,
+                            colors = CustomTopAppBarColors(
+                                containerColor = Color.Transparent,
+                                scrolledContainerColor = Color.Transparent,
+                                titleContentColor = Color.White,
+                                navigationIconContentColor = Color.White,
+                                actionIconContentColor = Color.White,
+                            ),
+                            modifier = Modifier.background(brush = shardowBox()),
+                            windowInsets = WindowInsets(0.dp, 0.dp, 0.dp, 0.dp))
+                    }) { innerPadding ->
 
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(horizontal = 12.dp)
-                        .verticalScroll(arguments.scrollState),
-                    verticalArrangement = Arrangement.spacedBy(20.dp),
-                ) {
-                    arguments.run {
-                        Spacer(modifier = Modifier.height(innerPadding.calculateTopPadding()))
-                        CurrentWeatherScreen(weatherInfoViewModel)
-                        HourlyForecastScreen(weatherInfoViewModel, navigate)
-                        SimpleDailyForecastScreen(weatherInfoViewModel, navigate)
-                        SimpleMapScreen(args)
-                        AirQualityScreen(args)
-                        SimpleSunSetRiseScreen(args)
-                        FlickrImageItemScreen(weatherInfoViewModel.flickrRequestParameter) {
-                            onChangedBackgroundImageUrl(it)
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(horizontal = 12.dp)
+                            .verticalScroll(arguments.scrollState),
+                        verticalArrangement = Arrangement.spacedBy(20.dp),
+                    ) {
+                        arguments.run {
+                            Spacer(modifier = Modifier.height(innerPadding.calculateTopPadding()))
+                            CurrentWeatherScreen(weatherInfoViewModel)
+                            HourlyForecastScreen(weatherInfoViewModel, navigate)
+                            SimpleDailyForecastScreen(weatherInfoViewModel, navigate)
+                            SimpleMapScreen(arguments.uiState.args)
+                            AirQualityScreen(arguments.uiState.args)
+                            SimpleSunSetRiseScreen(arguments.uiState.args)
+                            FlickrImageItemScreen(weatherInfoViewModel.flickrRequestParameter) {
+                                onChangedBackgroundImageUrl(it)
+                            }
+                            Spacer(modifier = Modifier.height(innerPadding.calculateBottomPadding()))
                         }
-                        Spacer(modifier = Modifier.height(innerPadding.calculateBottomPadding()))
-                    }
 
+                    }
                 }
             }
-        }
-    }
 
-    if (!arguments.enabledLocation) {
-        UnavailableFeatureScreen(
-            featureType = FeatureType.LOCATION_SERVICE) {
-            openLocationSettings = true
-        }
-        if (openLocationSettings) {
-            OpenAppSettingsActivity(featureType = FeatureType.LOCATION_SERVICE) {
-                arguments.reload()
-                openLocationSettings = false
+            is ProcessState.Failed -> {
+                when (val reason = (arguments.uiState.processState as ProcessState.Failed).reason) {
+                    FailedReason.LOCATION_PROVIDER_DISABLED -> {
+                        UnavailableFeatureScreen(featureType = FeatureType.LOCATION_SERVICE) {
+                            openLocationSettings = true
+                        }
+                        if (openLocationSettings) {
+                            OpenAppSettingsActivity(featureType = FeatureType.LOCATION_SERVICE) {
+                                arguments.reload()
+                                openLocationSettings = false
+                            }
+                        }
+                    }
+
+                    else -> {
+                        FailedScreen(R.string.title_failed_to_load_weather_data, reason.message, R.string.reload) {
+                            arguments.reload()
+                        }
+                    }
+                }
             }
+
+            else -> {
+
+
+            }
+
         }
     }
 
     if (onClickedWeatherProviderButton) {
-        WeatherProviderDialog(arguments.args.weatherProvider) {
+        WeatherProviderDialog(arguments.uiState.args.weatherProvider) {
             onClickedWeatherProviderButton = false
             it?.let {
-                if (arguments.args.weatherProvider != it) {
+                if (arguments.uiState.args.weatherProvider != it) {
                     weatherInfoViewModel.updateWeatherDataProvider(it)
                     arguments.reload()
                 }
@@ -274,21 +286,17 @@ fun WeatherContentScreen(arguments: ContentArguments, weatherInfoViewModel: Weat
 
 @Stable
 fun shardowBox(
-): Brush = Brush.linearGradient(
-    0.0f to Color.Black.copy(alpha = 0.5f),
+): Brush = Brush.linearGradient(0.0f to Color.Black.copy(alpha = 0.5f),
     1.0f to Color.Transparent,
     start = Offset(0.0f, 0f),
     end = Offset(0.0f, Float.POSITIVE_INFINITY),
-    tileMode = TileMode.Clamp
-)
+    tileMode = TileMode.Clamp)
 
 @Stable
 class ContentArguments @OptIn(ExperimentalMaterial3Api::class) constructor(
-    val args: RequestWeatherDataArgs,
+    val uiState: WeatherMainUiState,
     val scrollState: ScrollState,
     val scrollBehavior: TopAppBarScrollBehavior,
-    val processState: ProcessState,
-    val enabledLocation: Boolean,
     var backgroundImageUrl: String,
     val navigate: (NestedWeatherRoutes) -> Unit,
     val reload: () -> Unit,

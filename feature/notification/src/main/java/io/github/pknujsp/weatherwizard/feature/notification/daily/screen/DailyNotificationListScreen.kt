@@ -37,7 +37,7 @@ import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import io.github.pknujsp.weatherwizard.core.common.R
-import io.github.pknujsp.weatherwizard.core.model.favorite.LocationType
+import io.github.pknujsp.weatherwizard.core.model.coordinate.LocationType
 import io.github.pknujsp.weatherwizard.core.ui.SecondaryButton
 import io.github.pknujsp.weatherwizard.core.ui.TitleTextWithNavigation
 import io.github.pknujsp.weatherwizard.core.ui.dialog.BottomSheet
@@ -92,7 +92,9 @@ fun DailyNotificationListScreen(navController: NavController, viewModel: DailyNo
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun Item(
-    item: DailyNotificationSettingsListItem, onClick: () -> Unit, onSwitch: (DailyNotificationSettingsListItem) -> Unit,
+    item: DailyNotificationSettingsListItem,
+    onClick: () -> Unit,
+    onSwitch: (DailyNotificationSettingsListItem) -> Unit,
     onDelete: (DailyNotificationSettingsListItem) -> Unit
 ) {
     Surface(shape = AppShapes.large, shadowElevation = 4.dp, modifier = Modifier.padding(16.dp, 8.dp)) {
@@ -106,9 +108,9 @@ private fun Item(
                 Text(text = item.timeText, style = TextStyle(fontSize = 30.sp, color = Color.DarkGray, letterSpacing = 0.1.sp))
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                     AsyncImage(model = ImageRequest.Builder(LocalContext.current).data(LocationType.icon).build(),
-                        contentDescription = stringResource(id = item.locationType.title),
+                        contentDescription = stringResource(id = item.location.locationType.title),
                         modifier = Modifier.size(16.dp))
-                    Text(text = if (item.locationType is LocationType.CustomLocation) item.locationType.address else stringResource(id = item.locationType.title),
+                    Text(text = if (item.location.locationType is LocationType.CustomLocation) item.location.address else stringResource(id = item.location.locationType.title),
                         style = TextStyle(fontSize = 16.sp, color = Color.Gray))
                 }
                 Text(text = stringResource(id = item.type.title), style = TextStyle(fontSize = 14.sp, color = Color.Blue))

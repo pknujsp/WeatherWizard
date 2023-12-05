@@ -1,6 +1,5 @@
 package io.github.pknujsp.weatherwizard.feature.notification.daily.screen
 
-import android.content.Context
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -22,11 +21,10 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
-import io.github.pknujsp.weatherwizard.core.model.favorite.LocationType
+import io.github.pknujsp.weatherwizard.core.model.coordinate.LocationType
+import io.github.pknujsp.weatherwizard.core.model.coordinate.LocationTypeModel
 import io.github.pknujsp.weatherwizard.core.model.notification.enums.DailyNotificationType
-import io.github.pknujsp.weatherwizard.core.model.onSuccess
 import io.github.pknujsp.weatherwizard.core.ui.BottomSheetSettingItem
 import io.github.pknujsp.weatherwizard.core.ui.LocationScreen
 import io.github.pknujsp.weatherwizard.core.ui.SecondaryButton
@@ -37,7 +35,6 @@ import io.github.pknujsp.weatherwizard.core.ui.remoteview.RemoteViewsScreen
 import io.github.pknujsp.weatherwizard.feature.notification.R
 import io.github.pknujsp.weatherwizard.feature.notification.daily.model.DailyNotificationSettings
 import io.github.pknujsp.weatherwizard.feature.notification.daily.model.rememberDailyNotificationState
-import io.github.pknujsp.weatherwizard.feature.notification.manager.NotificationAlarmManager
 import io.github.pknujsp.weatherwizard.feature.notification.manager.RemoteViewsCreatorManager
 import io.github.pknujsp.weatherwizard.feature.searchlocation.SearchLocationScreen
 
@@ -55,8 +52,12 @@ fun AddOrEditDailyNotificationScreen(navController: NavController, viewModel: Ad
         if (showSearch) {
             SearchLocationScreen(onSelectedLocation = { newLocation ->
                 newLocation?.let {
-                    dailyNotificationUiState.dailyNotificationSettings.locationType =
-                        LocationType.CustomLocation(latitude = it.latitude, longitude = it.longitude, address = it.addressName)
+                    dailyNotificationUiState.dailyNotificationSettings.location =
+                        LocationTypeModel(locationType = LocationType.CustomLocation,
+                            address = it.addressName,
+                            latitude = it.latitude,
+                            country = it.countryName,
+                            longitude = it.longitude)
                 }
                 showSearch = false
             }, popBackStack = {
@@ -79,8 +80,9 @@ fun AddOrEditDailyNotificationScreen(navController: NavController, viewModel: Ad
                         dailyNotificationUiState.dailyNotificationSettings.type = it
                     }
                     TimeItem(dailyNotificationUiState.dailyNotificationSettings)
-                    LocationScreen(dailyNotificationUiState.dailyNotificationSettings.locationType, onSelectedItem = {
-                        dailyNotificationUiState.dailyNotificationSettings.locationType = it
+                    LocationScreen(dailyNotificationUiState.dailyNotificationSettings.location, onSelectedItem = {
+                        dailyNotificationUiState.dailyNotificationSettings.location =
+                            dailyNotificationUiState.dailyNotificationSettings.location.copy(locationType = it)
                     }) {
                         showSearch = true
                     }

@@ -14,13 +14,14 @@ class GetAllWeatherDataUseCase @Inject constructor(
         latitude: Double, longitude: Double, weatherProvider: WeatherProvider, requestId: Long
     ): Result<AllWeatherDataEntity> {
         return weatherDataRepository.run {
-            val currentWeather = getCurrentWeather(latitude, longitude, weatherProvider, requestId)
-            val hourlyForecast = getHourlyForecast(latitude, longitude, weatherProvider, requestId)
-            val dailyForecast = getDailyForecast(latitude, longitude, weatherProvider, requestId)
+            val currentWeather = getCurrentWeather(latitude, longitude, weatherProvider, requestId, false)
+            val hourlyForecast = getHourlyForecast(latitude, longitude, weatherProvider, requestId, false)
+            val dailyForecast = getDailyForecast(latitude, longitude, weatherProvider, requestId, false)
             val yesterdayWeather = if (weatherProvider is WeatherProvider.Kma) getYesterdayWeather(latitude,
                 longitude,
                 weatherProvider,
-                requestId) else Result.success(null)
+                requestId,
+                false) else Result.success(null)
 
             if (currentWeather.isSuccess and hourlyForecast.isSuccess and dailyForecast.isSuccess and yesterdayWeather.isSuccess) {
                 Result.success(AllWeatherDataEntity(currentWeather.getOrThrow(),

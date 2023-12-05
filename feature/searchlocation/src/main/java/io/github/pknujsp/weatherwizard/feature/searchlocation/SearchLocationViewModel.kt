@@ -53,7 +53,7 @@ class SearchLocationViewModel @Inject constructor(
 
     private fun onSelected(geoCode: GeoCode) {
         viewModelScope.launch(Dispatchers.IO) {
-            _uiAction.value = Action.OnSelectedArea(CustomLocation(addressName = geoCode.displayName,
+            _uiAction.value = Action.OnSelectedArea(PickedLocation(addressName = geoCode.displayName,
                 countryName = geoCode.country,
                 latitude = geoCode.latitude,
                 longitude = geoCode.longitude,
@@ -67,7 +67,7 @@ class SearchLocationViewModel @Inject constructor(
 
 @KBindFunc
 sealed interface Action : UiAction {
-    data class OnSelectedArea(val location: CustomLocation) : Action
+    data class OnSelectedArea(val location: PickedLocation) : Action
 
     data object Default : Action
 }

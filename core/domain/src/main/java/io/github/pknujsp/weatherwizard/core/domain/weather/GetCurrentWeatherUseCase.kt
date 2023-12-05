@@ -16,7 +16,7 @@ class GetCurrentWeatherUseCase @Inject constructor(
         weatherProvider: WeatherProvider,
         requestId: Long
     ): Result<CurrentWeatherEntity> {
-        return weatherDataRepository.getCurrentWeather(latitude, longitude, weatherProvider, requestId)
+        return weatherDataRepository.getCurrentWeather(latitude, longitude, weatherProvider, requestId, false)
     }
 
 }

@@ -20,7 +20,7 @@ import io.github.pknujsp.weatherwizard.feature.favorite.search.SearchBar
 import io.github.pknujsp.weatherwizard.feature.favorite.search.SearchResultScreen
 
 @Composable
-fun SearchLocationScreen(onSelectedLocation: (CustomLocation?) -> Unit, popBackStack: () -> Unit) {
+fun SearchLocationScreen(onSelectedLocation: (PickedLocation?) -> Unit, popBackStack: () -> Unit) {
     BackHandler {
         popBackStack()
     }
@@ -29,8 +29,6 @@ fun SearchLocationScreen(onSelectedLocation: (CustomLocation?) -> Unit, popBackS
         val searchAreaViewModel: SearchLocationViewModel = hiltViewModel()
         val searchResult by searchAreaViewModel.searchResult.collectAsStateWithLifecycle()
         val uiAction by searchAreaViewModel.uiAction.collectAsStateWithLifecycle()
-
-
 
         val query by remember { mutableStateOf("" to 0L) }
         var showSearchHistory by remember { mutableStateOf(true) }

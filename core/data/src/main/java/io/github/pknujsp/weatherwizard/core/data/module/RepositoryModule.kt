@@ -1,5 +1,6 @@
 package io.github.pknujsp.weatherwizard.core.data.module
 
+import dagger.Binds
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -9,8 +10,8 @@ import io.github.pknujsp.weatherwizard.core.data.aqicn.AirQualityRepository
 import io.github.pknujsp.weatherwizard.core.data.aqicn.AirQualityRepositoryImpl
 import io.github.pknujsp.weatherwizard.core.data.favorite.FavoriteAreaListRepository
 import io.github.pknujsp.weatherwizard.core.data.favorite.FavoriteAreaListRepositoryImpl
-import io.github.pknujsp.weatherwizard.core.data.favorite.TargetAreaRepository
-import io.github.pknujsp.weatherwizard.core.data.favorite.TargetAreaRepositoryImpl
+import io.github.pknujsp.weatherwizard.core.data.favorite.TargetLocationRepository
+import io.github.pknujsp.weatherwizard.core.data.favorite.TargetLocationRepositoryImpl
 import io.github.pknujsp.weatherwizard.core.data.nominatim.NominatimRepository
 import io.github.pknujsp.weatherwizard.core.data.nominatim.NominatimRepositoryImpl
 import io.github.pknujsp.weatherwizard.core.data.notification.daily.DailyNotificationRepository
@@ -44,9 +45,14 @@ object RepositoryModule {
 
     @Provides
     @Singleton
-    fun providesWeatherRepository(
+    fun providesWeatherRepositoryImpl(
         weatherResponseMapperManager: WeatherResponseMapperManager, weatherApiRequestManager: WeatherApiRequestManager
-    ): WeatherDataRepository = WeatherDataRepositoryImpl(weatherResponseMapperManager, weatherApiRequestManager)
+    ): WeatherDataRepositoryImpl = WeatherDataRepositoryImpl(weatherResponseMapperManager, weatherApiRequestManager)
+
+    @Provides
+    fun providesWeatherRepository(
+        weatherDataRepositoryImpl: WeatherDataRepositoryImpl
+    ): WeatherDataRepository = weatherDataRepositoryImpl
 
 
     @Provides
@@ -70,7 +76,7 @@ object RepositoryModule {
 
     @Singleton
     @Provides
-    fun providesTargetAreaRepository(appDataStore: AppDataStore): TargetAreaRepository = TargetAreaRepositoryImpl(appDataStore)
+    fun providesTargetAreaRepository(appDataStore: AppDataStore): TargetLocationRepository = TargetLocationRepositoryImpl(appDataStore)
 
     @Singleton
     @Provides

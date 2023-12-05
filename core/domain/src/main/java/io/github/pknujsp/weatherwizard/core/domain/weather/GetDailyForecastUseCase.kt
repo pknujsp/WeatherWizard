@@ -16,7 +16,7 @@ class GetDailyForecastUseCase @Inject constructor(
         weatherProvider: WeatherProvider,
         requestId: Long
     ): Result<DailyForecastEntity> {
-        return weatherDataRepository.getDailyForecast(latitude, longitude, weatherProvider, requestId)
+        return weatherDataRepository.getDailyForecast(latitude, longitude, weatherProvider, requestId, false)
     }
 
 }

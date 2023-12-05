@@ -38,14 +38,14 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import io.github.pknujsp.weatherwizard.core.model.onLoading
 import io.github.pknujsp.weatherwizard.core.model.onSuccess
-import io.github.pknujsp.weatherwizard.core.model.weather.RequestWeatherDataArgs
+import io.github.pknujsp.weatherwizard.core.model.weather.RequestWeatherArguments
 import io.github.pknujsp.weatherwizard.core.ui.TitleTextWithNavigation
 import io.github.pknujsp.weatherwizard.core.ui.lottie.CancellableLoadingScreen
 import io.github.pknujsp.weatherwizard.feature.weather.comparison.hourlyforecast.CompareForecastCard
 import io.github.pknujsp.weatherwizard.feature.weather.comparison.hourlyforecast.WeatherDataProviderInfo
 
 @Composable
-fun CompareDailyForecastScreen(args: RequestWeatherDataArgs, popBackStack: () -> Unit) {
+fun CompareDailyForecastScreen(args: RequestWeatherArguments, popBackStack: () -> Unit) {
     BackHandler {
         popBackStack()
     }
