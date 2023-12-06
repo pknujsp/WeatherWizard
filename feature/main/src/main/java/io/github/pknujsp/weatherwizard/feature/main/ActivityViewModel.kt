@@ -10,14 +10,10 @@ import javax.inject.Inject
 
 @HiltViewModel
 class ActivityViewModel @Inject constructor(
-    private val repositoryInitializer: RepositoryInitializer
+
 ) : ViewModel() {
 
-    init {
-        viewModelScope.launch(Dispatchers.Default) {
-            repositoryInitializer.initialize()
-        }
-    }
+
 
     override fun onCleared() {
         super.onCleared()

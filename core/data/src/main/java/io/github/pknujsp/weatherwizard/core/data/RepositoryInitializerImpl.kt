@@ -9,10 +9,6 @@ class RepositoryInitializerImpl @Inject constructor(
     private val weatherDataRepositoryInitializer: WeatherDataRepositoryInitializer,
 ) : RepositoryInitializer {
     override suspend fun initialize() {
-        supervisorScope {
-            launch {
-                weatherDataRepositoryInitializer.initialize()
-            }
-        }
+        weatherDataRepositoryInitializer.initialize()
     }
 }
