@@ -1,14 +1,16 @@
 package io.github.pknujsp.weatherwizard.core.data
 
-import io.github.pknujsp.weatherwizard.core.data.weather.WeatherDataRepositoryInitializer
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.supervisorScope
 import javax.inject.Inject
 
-class RepositoryInitializerImpl @Inject constructor(
-    private val weatherDataRepositoryInitializer: WeatherDataRepositoryInitializer,
-) : RepositoryInitializer {
+class RepositoryInitializerManagerImpl @Inject constructor(
+    private val weatherDataRepository: RepositoryInitializer, private val airQualityRepository: RepositoryInitializer
+) : RepositoryInitializerManager {
     override suspend fun initialize() {
-        weatherDataRepositoryInitializer.initialize()
+        weatherDataRepository.initialize()
+        airQualityRepository.initialize()
     }
+}
+
+interface RepositoryInitializerManager {
+    suspend fun initialize()
 }

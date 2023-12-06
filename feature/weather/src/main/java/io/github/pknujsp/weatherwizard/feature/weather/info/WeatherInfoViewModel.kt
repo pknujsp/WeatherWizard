@@ -21,7 +21,6 @@ import io.github.pknujsp.weatherwizard.core.domain.weather.GetWeatherDataUseCase
 import io.github.pknujsp.weatherwizard.core.domain.weather.WeatherDataRequest
 import io.github.pknujsp.weatherwizard.core.domain.weather.WeatherResponseState
 import io.github.pknujsp.weatherwizard.core.model.ProcessState
-import io.github.pknujsp.weatherwizard.core.model.UiState
 import io.github.pknujsp.weatherwizard.core.model.coordinate.LocationType
 import io.github.pknujsp.weatherwizard.core.model.coordinate.LocationTypeModel
 import io.github.pknujsp.weatherwizard.core.model.flickr.FlickrRequestParameters
@@ -41,9 +40,6 @@ import io.github.pknujsp.weatherwizard.core.model.weather.yesterday.YesterdayWea
 import io.github.pknujsp.weatherwizard.core.model.weather.yesterday.YesterdayWeatherEntity
 import io.github.pknujsp.weatherwizard.core.ui.weather.item.DynamicDateTimeUiCreator
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
@@ -60,7 +56,7 @@ class WeatherInfoViewModel @Inject constructor(
     private val getWeatherDataUseCase: GetWeatherDataUseCase
 ) : ViewModel() {
 
-    private var _uiState = MutableWeatherMainUiState()
+    private val _uiState = MutableWeatherMainUiState()
     val uiState: WeatherMainUiState by mutableStateOf(_uiState)
 
     fun initialize() {
@@ -130,9 +126,8 @@ class WeatherInfoViewModel @Inject constructor(
                 val weatherDataRequest = WeatherDataRequest()
                 weatherDataRequest.addRequest(location, weatherProvider.majorWeatherEntityTypes, weatherProvider)
 
-                val entity = when (val result = getWeatherDataUseCase(weatherDataRequest.requests[0])) {
+                val entity = when (val result = getWeatherDataUseCase(weatherDataRequest.requests[0], false)) {
                     is WeatherResponseState.Success -> result.entity
-                    is WeatherResponseState.PartiallySuccess -> result.entity
                     is WeatherResponseState.Failure -> {
                         _uiState.processState = ProcessState.Failed(FailedReason.SERVER_ERROR)
                         return@launch

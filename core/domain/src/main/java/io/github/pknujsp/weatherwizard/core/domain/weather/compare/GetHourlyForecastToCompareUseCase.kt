@@ -1,6 +1,7 @@
 package io.github.pknujsp.weatherwizard.core.domain.weather.compare
 
 import io.github.pknujsp.weatherwizard.core.data.weather.WeatherDataRepository
+import io.github.pknujsp.weatherwizard.core.model.weather.common.MajorWeatherEntityType
 import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherProvider
 import io.github.pknujsp.weatherwizard.core.model.weather.hourlyforecast.HourlyForecastEntity
 import io.github.pknujsp.weatherwizard.core.model.weather.hourlyforecast.ToCompareHourlyForecastEntity
@@ -11,18 +12,14 @@ class GetHourlyForecastToCompareUseCase @Inject constructor(
     private val weatherDataRepository: WeatherDataRepository
 ) : BaseGetForecastToCompareUseCase<ToCompareHourlyForecastEntity> {
     override suspend fun invoke(
-        latitude: Double,
-        longitude: Double,
-        weatherProviders: List<WeatherProvider>,
-        requestId: Long
+        latitude: Double, longitude: Double, weatherProviders: List<WeatherProvider>, requestId: Long
     ): Result<ToCompareHourlyForecastEntity> {
         return weatherProviders.mapIndexed { i, provider ->
-            weatherDataRepository.getHourlyForecast(latitude, longitude, provider, requestId + i, false)
+            weatherDataRepository.getWeatherData(MajorWeatherEntityType.HOURLY_FORECAST, latitude, longitude, provider, requestId + i)
         }.let { responses ->
-            val success = responses.all { it.isSuccess }
-            if (success) {
+            if (responses.all { it.isSuccess }) {
                 val entities = responses.mapIndexed { i, response ->
-                    weatherProviders[i] to response.getOrThrow().items.subList(weatherProviders[i]).map { item ->
+                    weatherProviders[i] to (response.getOrThrow() as HourlyForecastEntity).items.subList(weatherProviders[i]).map { item ->
                         ToCompareHourlyForecastEntity.Item(dateTime = item.dateTime,
                             weatherCondition = item.weatherCondition,
                             temperature = item.temperature,
@@ -52,13 +49,9 @@ class GetHourlyForecastToCompareUseCase @Inject constructor(
 
             for (i in (size / 2)..<size) {
                 val diff = map.getOrPut(this[i].dateTime.value) {
-                    java.time.Duration.ofSeconds(
-                        ZonedDateTime.parse(this[i].dateTime.value).toEpochSecond()
-                    ).toHours()
+                    java.time.Duration.ofSeconds(ZonedDateTime.parse(this[i].dateTime.value).toEpochSecond()).toHours()
                 } - map.getOrPut(this[i - 1].dateTime.value) {
-                    java.time.Duration.ofSeconds(
-                        ZonedDateTime.parse(this[i - 1].dateTime.value).toEpochSecond()
-                    ).toHours()
+                    java.time.Duration.ofSeconds(ZonedDateTime.parse(this[i - 1].dateTime.value).toEpochSecond()).toHours()
                 }
 
                 if (diff > 1) {

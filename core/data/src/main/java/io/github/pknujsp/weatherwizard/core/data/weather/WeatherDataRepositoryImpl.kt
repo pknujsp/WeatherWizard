@@ -1,5 +1,7 @@
 package io.github.pknujsp.weatherwizard.core.data.weather
 
+import android.util.Log
+import io.github.pknujsp.weatherwizard.core.data.RepositoryInitializer
 import io.github.pknujsp.weatherwizard.core.data.weather.mapper.WeatherResponseMapperManager
 import io.github.pknujsp.weatherwizard.core.data.weather.request.WeatherApiRequestManager
 import io.github.pknujsp.weatherwizard.core.model.EntityModel
@@ -16,7 +18,7 @@ class WeatherDataRepositoryImpl @Inject constructor(
     private val weatherResponseMapperManager: WeatherResponseMapperManager,
     private val weatherApiRequestManager: WeatherApiRequestManager,
     private val cacheManager: CacheManager<EntityModel>
-) : WeatherDataRepository, WeatherDataRepositoryInitializer {
+) : WeatherDataRepository, RepositoryInitializer {
 
     private suspend fun <T : EntityModel> getCache(
         key: String, cls: KClass<T>
@@ -40,6 +42,7 @@ class WeatherDataRepositoryImpl @Inject constructor(
 
         if (!bypassCache) {
             getCache(key, majorWeatherEntityType.entityClass)?.let {
+                Log.d("WeatherDataRepository", "Cache hit: $key, $it")
                 return Result.success(it)
             }
         }

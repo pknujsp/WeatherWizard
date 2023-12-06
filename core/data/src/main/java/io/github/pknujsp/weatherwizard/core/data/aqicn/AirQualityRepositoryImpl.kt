@@ -1,5 +1,8 @@
 package io.github.pknujsp.weatherwizard.core.data.aqicn
 
+import io.github.pknujsp.weatherwizard.core.data.RepositoryInitializer
+import io.github.pknujsp.weatherwizard.core.data.weather.CacheManager
+import io.github.pknujsp.weatherwizard.core.model.EntityModel
 import io.github.pknujsp.weatherwizard.core.model.VarState
 import io.github.pknujsp.weatherwizard.core.model.airquality.AirQualityDescription
 import io.github.pknujsp.weatherwizard.core.model.airquality.AirQualityEntity
@@ -9,12 +12,18 @@ import io.github.pknujsp.weatherwizard.core.network.api.aqicn.AqiCnResponse
 import java.time.LocalDate
 import java.time.ZonedDateTime
 import javax.inject.Inject
+import kotlin.reflect.KClass
 
 class AirQualityRepositoryImpl @Inject constructor(
-    private val aqiCnDataSource: AqiCnDataSource
-) : AirQualityRepository {
-    override suspend fun getAirQuality(latitude: Double, longitude: Double) =
-        aqiCnDataSource.getAqiCnData(latitude, longitude).map { response ->
+    private val aqiCnDataSource: AqiCnDataSource, private val cacheManager: CacheManager<AirQualityEntity>
+) : AirQualityRepository, RepositoryInitializer {
+    override suspend fun getAirQuality(latitude: Double, longitude: Double): Result<AirQualityEntity> {
+        val key = toKey(latitude, longitude)
+        getCache(key)?.run {
+            return Result.success(this)
+        }
+
+        val result = aqiCnDataSource.getAqiCnData(latitude, longitude).map { response ->
             response.data.run {
                 val current = AirQualityEntity.Current(aqi = AirQualityValueType(value = aqi.toInt(),
                     airQualityDescription = AirQualityDescription.fromValue(aqi.toInt())),
@@ -58,17 +67,34 @@ class AirQualityRepositoryImpl @Inject constructor(
             }
         }
 
-    private fun String.toInt(): Int = toIntOrNull() ?: toDouble().toInt()
-
-    private fun List<AqiCnResponse.Data.Forecast.Daily.ForecastPollutant>.map() =
-        associate {
-            LocalDate.parse(it.day) to AirQualityEntity.DailyForecast.Item.Pollutant(
-                avg = AirQualityValueType(value = it.avg.toInt(),
-                    airQualityDescription = AirQualityDescription.fromValue(it.avg.toInt())),
-                max = AirQualityValueType(value = it.max.toInt(),
-                    airQualityDescription = AirQualityDescription.fromValue(it.max.toInt())),
-                min = AirQualityValueType(value = it.min.toInt(),
-                    airQualityDescription = AirQualityDescription.fromValue(it.min.toInt())))
+        if (result.isSuccess) {
+            cacheManager.put(key, result.getOrThrow())
         }
+        return result
+    }
+
+    private fun String.toInt(): Int = toIntOrNull() ?: toDoubleOrNull()?.toInt() ?: 0
+
+    private fun List<AqiCnResponse.Data.Forecast.Daily.ForecastPollutant>.map() = associate {
+        LocalDate.parse(it.day) to AirQualityEntity.DailyForecast.Item.Pollutant(avg = AirQualityValueType(value = it.avg.toInt(),
+            airQualityDescription = AirQualityDescription.fromValue(it.avg.toInt())),
+            max = AirQualityValueType(value = it.max.toInt(), airQualityDescription = AirQualityDescription.fromValue(it.max.toInt())),
+            min = AirQualityValueType(value = it.min.toInt(), airQualityDescription = AirQualityDescription.fromValue(it.min.toInt())))
+    }
+
+    private suspend fun getCache(
+        key: String
+    ): AirQualityEntity? = when (val cacheState = cacheManager.get(key, AirQualityEntity::class)) {
+        is CacheManager.CacheState.Valid -> {
+            cacheState.value
+        }
+
+        else -> null
+    }
+
+    private fun toKey(latitude: Double, longitude: Double): String = "$latitude,$longitude"
+    override suspend fun initialize() {
+        cacheManager.startCacheCleaner()
+    }
 
 }

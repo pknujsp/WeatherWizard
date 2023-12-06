@@ -1,5 +1,6 @@
 package io.github.pknujsp.weatherwizard.core.data.weather
 
+import android.util.Log
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -28,6 +29,7 @@ class CacheManager<T : Any>(
                     val now = LocalDateTime.now()
                     for ((key, value) in cacheMap.entries) {
                         if (value.isExpired(now, cacheMaxTime)) {
+                            Log.d("CacheManager cleaner", "Cache deleted: $key")
                             value.clear()
                             cacheMap.remove(key)
                             lastSearchTimeMap.remove(key)
@@ -39,7 +41,7 @@ class CacheManager<T : Any>(
         }
     }
 
-    suspend fun <O : T> get(key: String, cls: KClass<O>): CacheState<out O> = mutex.withLock {
+    suspend fun <O : T> get(key: String, cls: KClass<O>): CacheState<out O> {
         val cache = cacheMap[key] ?: return CacheState.Miss
 
         val now = LocalDateTime.now()
@@ -54,15 +56,13 @@ class CacheManager<T : Any>(
             return CacheState.Expired
         }
 
-        cache.cacheList.firstOrNull { cls.isInstance(it) }?.let { CacheState.Valid(cls.cast(it)) } ?: CacheState.Miss
+        return cache.cacheList.firstOrNull { cls.isInstance(it) }?.let { CacheState.Valid(cls.cast(it)) } ?: CacheState.Miss
     }
 
     suspend fun put(key: String, value: T) {
-        mutex.withLock {
-            cacheMap.getOrPut(key) {
-                Cache(LocalDateTime.now())
-            }.add(value)
-        }
+        cacheMap.getOrPut(key) {
+            Cache(LocalDateTime.now())
+        }.add(value)
     }
 
     private data class Cache<T>(

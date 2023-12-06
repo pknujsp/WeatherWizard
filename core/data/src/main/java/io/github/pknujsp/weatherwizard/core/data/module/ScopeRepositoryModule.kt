@@ -3,23 +3,24 @@ package io.github.pknujsp.weatherwizard.core.data.module
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
-import dagger.hilt.android.components.ActivityComponent
-import dagger.hilt.android.components.ActivityRetainedComponent
-import dagger.hilt.android.scopes.ActivityRetainedScoped
-import dagger.hilt.android.scopes.ActivityScoped
 import dagger.hilt.components.SingletonComponent
 import io.github.pknujsp.weatherwizard.core.data.RepositoryInitializer
-import io.github.pknujsp.weatherwizard.core.data.RepositoryInitializerImpl
+import io.github.pknujsp.weatherwizard.core.data.RepositoryInitializerManager
+import io.github.pknujsp.weatherwizard.core.data.RepositoryInitializerManagerImpl
+import io.github.pknujsp.weatherwizard.core.data.aqicn.AirQualityRepositoryImpl
 import io.github.pknujsp.weatherwizard.core.data.searchhistory.SearchHistoryRepository
 import io.github.pknujsp.weatherwizard.core.data.searchhistory.SearchHistoryRepositoryImpl
 import io.github.pknujsp.weatherwizard.core.data.weather.WeatherDataRepositoryImpl
-import io.github.pknujsp.weatherwizard.core.data.weather.WeatherDataRepositoryInitializer
 import io.github.pknujsp.weatherwizard.core.database.searchhistory.SearchHistoryLocalDataSource
+import javax.inject.Named
 import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
 object ScopeRepositoryModule {
+
+    private const val WEATHER_REPOSITORY = "WEATHER_REPOSITORY"
+    private const val AIR_QUALITY_REPOSITORY = "AIR_QUALITY_REPOSITORY"
 
     @Provides
     fun providesSearchHistoryRepository(searchHistoryLocalDataSource: SearchHistoryLocalDataSource): SearchHistoryRepository =
@@ -27,12 +28,20 @@ object ScopeRepositoryModule {
 
 
     @Provides
-    fun providesWeatherDataRepositoryInitializer(weatherDataRepositoryImpl: WeatherDataRepositoryImpl): WeatherDataRepositoryInitializer =
+    @Named(WEATHER_REPOSITORY)
+    fun providesWeatherRepositoryInitializer(weatherDataRepositoryImpl: WeatherDataRepositoryImpl): RepositoryInitializer =
         weatherDataRepositoryImpl
 
     @Provides
+    @Named(AIR_QUALITY_REPOSITORY)
+    fun providesAirQualityRepositoryInitializer(airQualityRepositoryImpl: AirQualityRepositoryImpl): RepositoryInitializer =
+        airQualityRepositoryImpl
+
+    @Provides
     @Singleton
-    fun providesRepositoryInitializer(weatherDataRepositoryInitializer: WeatherDataRepositoryInitializer): RepositoryInitializer =
-        RepositoryInitializerImpl(weatherDataRepositoryInitializer)
+    fun providesRepositoryInitializer(
+        @Named(WEATHER_REPOSITORY) weatherRepository: RepositoryInitializer,
+        @Named(AIR_QUALITY_REPOSITORY) airQualityRepository: RepositoryInitializer
+    ): RepositoryInitializerManager = RepositoryInitializerManagerImpl(weatherRepository, airQualityRepository)
 
 }

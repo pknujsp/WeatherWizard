@@ -1,6 +1,5 @@
 package io.github.pknujsp.weatherwizard.core.data.module
 
-import dagger.Binds
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -22,6 +21,7 @@ import io.github.pknujsp.weatherwizard.core.data.rainviewer.RadarTilesRepository
 import io.github.pknujsp.weatherwizard.core.data.rainviewer.RadarTilesRepositoryImpl
 import io.github.pknujsp.weatherwizard.core.data.settings.SettingsRepository
 import io.github.pknujsp.weatherwizard.core.data.settings.SettingsRepositoryImpl
+import io.github.pknujsp.weatherwizard.core.data.weather.CacheManager
 import io.github.pknujsp.weatherwizard.core.data.weather.WeatherDataRepository
 import io.github.pknujsp.weatherwizard.core.data.weather.WeatherDataRepositoryImpl
 import io.github.pknujsp.weatherwizard.core.data.weather.mapper.WeatherResponseMapperManager
@@ -37,6 +37,7 @@ import io.github.pknujsp.weatherwizard.core.network.api.aqicn.AqiCnDataSource
 import io.github.pknujsp.weatherwizard.core.network.api.nominatim.NominatimDataSource
 import io.github.pknujsp.weatherwizard.core.network.api.rainviewer.RainViewerDataSource
 import kotlinx.serialization.json.Json
+import java.time.Duration
 import javax.inject.Singleton
 
 @InstallIn(SingletonComponent::class)
@@ -47,7 +48,7 @@ object RepositoryModule {
     @Singleton
     fun providesWeatherRepositoryImpl(
         weatherResponseMapperManager: WeatherResponseMapperManager, weatherApiRequestManager: WeatherApiRequestManager
-    ): WeatherDataRepositoryImpl = WeatherDataRepositoryImpl(weatherResponseMapperManager, weatherApiRequestManager)
+    ): WeatherDataRepositoryImpl = WeatherDataRepositoryImpl(weatherResponseMapperManager, weatherApiRequestManager, CacheManager())
 
     @Provides
     fun providesWeatherRepository(
@@ -67,7 +68,17 @@ object RepositoryModule {
 
     @Provides
     @Singleton
-    fun providesAirQualityRepository(aqiCnDataSource: AqiCnDataSource): AirQualityRepository = AirQualityRepositoryImpl(aqiCnDataSource)
+    fun providesAirQualityRepositoryImpl(aqiCnDataSource: AqiCnDataSource): AirQualityRepositoryImpl = AirQualityRepositoryImpl(
+        aqiCnDataSource,
+        CacheManager(cacheMaxTime = Duration.ofMinutes(10),
+            searchMaxInterval = Duration.ofMinutes(1),
+            cleaningInterval = Duration.ofMinutes(20)))
+
+    @Provides
+    fun providesAirQualityRepository(
+        airQualityRepositoryImp: AirQualityRepositoryImpl
+    ): AirQualityRepository = airQualityRepositoryImp
+
 
     @Provides
     @Singleton
