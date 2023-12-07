@@ -7,7 +7,7 @@ import kotlinx.coroutines.sync.withLock
 import java.time.Duration
 import java.time.LocalDateTime
 import kotlin.reflect.KClass
-import kotlin.reflect.full.cast
+import kotlin.reflect.full.safeCast
 import kotlin.time.toKotlinDuration
 
 
@@ -83,7 +83,7 @@ class CacheManager<T : Any>(
             mutableMap[value::class] = value
         }
 
-        fun get(typeCls: KClass<T>): T? = mutableMap[typeCls]?.run { typeCls.cast(this) }
+        fun get(typeCls: KClass<T>): T? = mutableMap[typeCls]?.run { typeCls.safeCast(this) }
 
         fun isExpired(now: LocalDateTime, cacheMaxTime: Duration): Boolean = Duration.between(added, now) > cacheMaxTime
 
