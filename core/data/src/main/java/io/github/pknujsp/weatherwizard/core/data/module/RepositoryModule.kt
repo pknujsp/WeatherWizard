@@ -72,7 +72,7 @@ object RepositoryModule {
         aqiCnDataSource,
         CacheManager(cacheMaxTime = Duration.ofMinutes(10),
             searchMaxInterval = Duration.ofMinutes(1),
-            cleaningInterval = Duration.ofMinutes(20)))
+            cleaningInterval = Duration.ofMinutes(10)))
 
     @Provides
     fun providesAirQualityRepository(

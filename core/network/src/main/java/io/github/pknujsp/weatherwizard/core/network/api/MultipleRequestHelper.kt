@@ -22,11 +22,11 @@ internal class MultipleRequestHelper<T>(
     fun addRequest(requestId: Long): Boolean {
         clear()
 
-        if (requestMap.contains(requestId)) {
-            return false
+        return if (requestMap.contains(requestId)) {
+            false
         } else {
             requestMap[requestId] = MutableStateFlow(RequestState.Waiting)
-            return true
+            true
         }
     }
 

@@ -1,11 +1,11 @@
 [versions]
 # kotlin
 
-kotlin = "1.9.20"
-kotlin_compiler_extension = "1.5.5"
+kotlin = "1.9.21"
+kotlin_compiler_extension = "1.5.6"
 kotlinx_coroutines = "1.8.0-RC"
 kotlinx_serialization_json = "1.6.2"
-ksp = "1.9.20-1.0.14"
+ksp = "1.9.21-1.0.15"
 
 android_gradle_plugin = "8.2.0"
 android_desugar_jdk_libs = "2.0.4"
@@ -26,7 +26,7 @@ androidx_hilt = "1.1.0"
 androidx_windowmanager = "1.0.0"
 androidx_paging = "3.2.1"
 accompanist = "0.32.0"
-dagger = "2.48.1"
+dagger = "2.49"
 
 androidx_test_espresso = "3.5.1"
 androidx_test_runner = "1.5.2"
@@ -37,7 +37,7 @@ androidx_test_junit = "1.1.5"
 androidx_test_truth = "1.5.0"
 androidx_test_orchestra = "1.4.2"
 androidx_test_arch = "2.2.0"
-androidx_test_hilt = "2.48.1"
+androidx_test_hilt = "2.49"
 androidx_start_up = "1.1.1"
 
 androidx_splashscreen = "1.0.1"
@@ -73,9 +73,9 @@ firebase_analytics = "21.5.0"
 
 ksealedbinding = "1.0.0"
 
-ktlint = "1.0.0"
-ktlint_gradle_plugin = "11.6.0"
-detekt = "1.23.1"
+ktlint = "1.0.1"
+ktlint_gradle_plugin = "12.0.2"
+detekt = "1.23.4"
 
 jsoup = "1.16.1"
 sunrisesunsetcalculator = "1.2"

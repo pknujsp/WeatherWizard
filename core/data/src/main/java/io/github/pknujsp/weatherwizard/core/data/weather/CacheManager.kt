@@ -14,7 +14,7 @@ import kotlin.time.toKotlinDuration
 class CacheManager<T : Any>(
     private val cacheMaxTime: Duration = Duration.ofMinutes(4),
     private val searchMaxInterval: Duration = Duration.ofSeconds(25),
-    cleaningInterval: Duration = Duration.ofMinutes(5)
+    cleaningInterval: Duration = Duration.ofMinutes(10)
 ) {
 
     private val cacheMap = mutableMapOf<String, Cache<T>>()
@@ -30,60 +30,69 @@ class CacheManager<T : Any>(
                     for ((key, value) in cacheMap.entries) {
                         if (value.isExpired(now, cacheMaxTime)) {
                             Log.d("CacheManager cleaner", "Cache deleted: $key")
-                            value.clear()
-                            cacheMap.remove(key)
-                            lastSearchTimeMap.remove(key)
+                            clearExpiredCache(key)
                         }
                     }
                 }
             }
             delay(cleaningInterval)
+            Log.d("CacheManager cleaner", "$this ${LocalDateTime.now()}")
         }
     }
 
-    suspend fun <O : T> get(key: String, cls: KClass<O>): CacheState<out O> {
-        val cache = cacheMap[key] ?: return CacheState.Miss
+    suspend fun get(key: String, cls: KClass<T>): CacheState<T> {
+        val cache = mutex.withLock { cacheMap[key] } ?: return CacheState.Miss
 
         val now = LocalDateTime.now()
         val isValidSearch = lastSearchTimeMap[key]?.let { Duration.between(it, now) <= searchMaxInterval } ?: false
         if (!isValidSearch) {
-            lastSearchTimeMap[key] = now
+            mutex.withLock {
+                lastSearchTimeMap[key] = now
+            }
         }
 
-        if (cache.isExpired(lastSearchTimeMap[key]!!, cacheMaxTime)) {
-            cache.clear()
-            cacheMap.remove(key)
+        if (cache.isExpired(now, cacheMaxTime)) {
+            clearExpiredCache(key)
             return CacheState.Expired
         }
 
-        return cache.cacheList.firstOrNull { cls.isInstance(it) }?.let { CacheState.Valid(cls.cast(it)) } ?: CacheState.Miss
+        return cache.get(cls)?.let { CacheState.Valid(it) } ?: CacheState.Miss
     }
 
     suspend fun put(key: String, value: T) {
-        cacheMap.getOrPut(key) {
-            Cache(LocalDateTime.now())
-        }.add(value)
+        mutex.withLock {
+            cacheMap.getOrPut(key) {
+                Cache(LocalDateTime.now())
+            }.add(value)
+        }
     }
 
-    private data class Cache<T>(
+    private suspend fun clearExpiredCache(key: String) {
+        mutex.withLock {
+            cacheMap[key]?.clear()
+            cacheMap.remove(key)
+        }
+    }
+
+    private data class Cache<T : Any>(
         val added: LocalDateTime
     ) {
-        private val mutableList: MutableList<T> = mutableListOf()
-        val cacheList: List<T>
-            get() = mutableList
+        private val mutableMap = mutableMapOf<KClass<out T>, T>()
 
         fun add(value: T) {
-            mutableList.add(value)
+            mutableMap[value::class] = value
         }
+
+        fun get(typeCls: KClass<T>): T? = mutableMap[typeCls]?.run { typeCls.cast(this) }
 
         fun isExpired(now: LocalDateTime, cacheMaxTime: Duration): Boolean = Duration.between(added, now) > cacheMaxTime
 
         fun clear() {
-            mutableList.clear()
+            mutableMap.clear()
         }
     }
 
-    sealed interface CacheState<T> {
+    sealed interface CacheState<out T> {
         data object Expired : CacheState<Nothing>
         data object Miss : CacheState<Nothing>
         data class Valid<T>(val value: T) : CacheState<T>
