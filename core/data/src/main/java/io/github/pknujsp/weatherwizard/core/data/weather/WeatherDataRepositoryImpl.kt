@@ -1,6 +1,6 @@
 package io.github.pknujsp.weatherwizard.core.data.weather
 
-import io.github.pknujsp.weatherwizard.core.data.RepositoryInitializer
+import io.github.pknujsp.weatherwizard.core.data.RepositoryCacheManager
 import io.github.pknujsp.weatherwizard.core.data.weather.mapper.WeatherResponseMapperManager
 import io.github.pknujsp.weatherwizard.core.data.weather.request.WeatherApiRequestManager
 import io.github.pknujsp.weatherwizard.core.model.EntityModel
@@ -10,20 +10,19 @@ import io.github.pknujsp.weatherwizard.core.model.weather.current.CurrentWeather
 import io.github.pknujsp.weatherwizard.core.model.weather.dailyforecast.DailyForecastEntity
 import io.github.pknujsp.weatherwizard.core.model.weather.hourlyforecast.HourlyForecastEntity
 import io.github.pknujsp.weatherwizard.core.model.weather.yesterday.YesterdayWeatherEntity
-import java.util.UUID
 import javax.inject.Inject
 import kotlin.reflect.KClass
 
 class WeatherDataRepositoryImpl @Inject constructor(
     private val weatherResponseMapperManager: WeatherResponseMapperManager,
     private val weatherApiRequestManager: WeatherApiRequestManager,
-    private val cacheManager: CacheManager<EntityModel>
-) : WeatherDataRepository, RepositoryInitializer {
+    cacheManager: CacheManager<EntityModel>
+) : WeatherDataRepository, RepositoryCacheManager<EntityModel>(cacheManager) {
 
     private suspend fun <T : EntityModel> getCache(
         key: String, cls: KClass<T>
     ): T? = when (val cacheState = cacheManager.get<T>(key)) {
-        is CacheManager.CacheState.Hit -> {
+        is CacheState.Hit -> {
             cacheState.value
         }
 
@@ -92,10 +91,6 @@ class WeatherDataRepositoryImpl @Inject constructor(
         weatherResponseMapperManager.mapYesterdayWeather(it, requestWeatherData.weatherProvider)
     }
 
-
-    override suspend fun initialize() {
-        cacheManager.startCacheCleaner()
-    }
 
     private fun RequestWeatherData.key(): String = "$majorWeatherEntityType-$latitude-$longitude-$weatherProvider"
 

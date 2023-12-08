@@ -1,7 +1,8 @@
 package io.github.pknujsp.weatherwizard.core.data.aqicn
 
-import io.github.pknujsp.weatherwizard.core.data.RepositoryInitializer
+import io.github.pknujsp.weatherwizard.core.data.RepositoryCacheManager
 import io.github.pknujsp.weatherwizard.core.data.weather.CacheManager
+import io.github.pknujsp.weatherwizard.core.data.weather.CacheState
 import io.github.pknujsp.weatherwizard.core.model.VarState
 import io.github.pknujsp.weatherwizard.core.model.airquality.AirQualityDescription
 import io.github.pknujsp.weatherwizard.core.model.airquality.AirQualityEntity
@@ -13,8 +14,8 @@ import java.time.ZonedDateTime
 import javax.inject.Inject
 
 class AirQualityRepositoryImpl @Inject constructor(
-    private val aqiCnDataSource: AqiCnDataSource, private val cacheManager: CacheManager<AirQualityEntity>
-) : AirQualityRepository, RepositoryInitializer {
+    private val aqiCnDataSource: AqiCnDataSource, cacheManager: CacheManager<AirQualityEntity>
+) : AirQualityRepository, RepositoryCacheManager<AirQualityEntity>(cacheManager) {
     override suspend fun getAirQuality(latitude: Double, longitude: Double): Result<AirQualityEntity> {
         val key = toKey(latitude, longitude)
         getCache(key)?.run {
@@ -83,7 +84,7 @@ class AirQualityRepositoryImpl @Inject constructor(
     private suspend fun getCache(
         key: String
     ): AirQualityEntity? = when (val cacheState = cacheManager.get<AirQualityEntity>(key)) {
-        is CacheManager.CacheState.Hit -> {
+        is CacheState.Hit -> {
             cacheState.value
         }
 
@@ -91,8 +92,5 @@ class AirQualityRepositoryImpl @Inject constructor(
     }
 
     private fun toKey(latitude: Double, longitude: Double): String = "$latitude-$longitude"
-    override suspend fun initialize() {
-        cacheManager.startCacheCleaner()
-    }
 
 }

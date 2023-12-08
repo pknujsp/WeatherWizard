@@ -31,8 +31,6 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        viewModel.initializeRepositories()
         val appNetworkManager = AppNetworkManager.getInstance(this)
 
         setContent {
@@ -79,11 +77,11 @@ class MainActivity : ComponentActivity() {
 
     override fun onRestart() {
         super.onRestart()
-        viewModel.initializeRepositories()
+        viewModel.startCacheCleaner()
     }
 
     override fun onStop() {
         super.onStop()
-        viewModel.stopRepositoryInitialization()
+        viewModel.stopCacheCleaner()
     }
 }

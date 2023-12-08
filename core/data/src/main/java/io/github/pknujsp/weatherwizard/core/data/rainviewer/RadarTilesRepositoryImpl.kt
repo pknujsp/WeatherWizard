@@ -1,18 +1,16 @@
 package io.github.pknujsp.weatherwizard.core.data.rainviewer
 
-import android.util.LruCache
-import io.github.pknujsp.weatherwizard.core.data.RepositoryInitializer
+import io.github.pknujsp.weatherwizard.core.data.RepositoryCacheManager
 import io.github.pknujsp.weatherwizard.core.data.weather.CacheManager
-import io.github.pknujsp.weatherwizard.core.model.airquality.AirQualityEntity
+import io.github.pknujsp.weatherwizard.core.data.weather.CacheState
 import io.github.pknujsp.weatherwizard.core.model.rainviewer.RadarTiles
 import io.github.pknujsp.weatherwizard.core.network.api.rainviewer.RainViewerDataSource
 import javax.inject.Inject
 
 class RadarTilesRepositoryImpl @Inject constructor(
-    private val rainViewerDataSource: RainViewerDataSource, private val cacheManager: CacheManager<RadarTiles>
-) : RadarTilesRepository, RepositoryInitializer {
+    private val rainViewerDataSource: RainViewerDataSource, cacheManager: CacheManager<RadarTiles>
+) : RadarTilesRepository, RepositoryCacheManager<RadarTiles>(cacheManager) {
 
-    private val cache = LruCache<Int, RadarTiles>(1)
     private var cacheKeyString = System.currentTimeMillis().toString()
 
     override suspend fun getTiles(): Result<RadarTiles> {
@@ -37,7 +35,7 @@ class RadarTilesRepositoryImpl @Inject constructor(
 
     private suspend fun getCache(
     ): RadarTiles? = when (val cacheState = cacheManager.get<RadarTiles>(cacheKeyString)) {
-        is CacheManager.CacheState.Hit -> {
+        is CacheState.Hit -> {
             cacheState.value
         }
 
@@ -47,7 +45,4 @@ class RadarTilesRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun initialize() {
-        cacheManager.startCacheCleaner()
-    }
 }
