@@ -1,13 +1,17 @@
 package io.github.pknujsp.weatherwizard.core.domain.weather
 
+import io.github.pknujsp.weatherwizard.core.common.coroutines.CoDispatcher
+import io.github.pknujsp.weatherwizard.core.common.coroutines.CoDispatcherType
 import io.github.pknujsp.weatherwizard.core.data.weather.RequestWeatherData
 import io.github.pknujsp.weatherwizard.core.data.weather.WeatherDataRepository
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.async
 import kotlinx.coroutines.supervisorScope
 import javax.inject.Inject
 
 class GetWeatherDataUseCase @Inject constructor(
-    private val weatherDataRepository: WeatherDataRepository
+    private val weatherDataRepository: WeatherDataRepository,
+    @CoDispatcher(CoDispatcherType.MULTIPLE) private val dispatcher: CoroutineDispatcher
 ) {
 
     suspend operator fun invoke(
@@ -16,7 +20,7 @@ class GetWeatherDataUseCase @Inject constructor(
         return request.run {
             val responseList = supervisorScope {
                 request.weatherDataMajorCategories.map {
-                    async {
+                    async(dispatcher) {
                         it to weatherDataRepository.getWeatherData(RequestWeatherData(it,
                             location.latitude,
                             location.longitude,
