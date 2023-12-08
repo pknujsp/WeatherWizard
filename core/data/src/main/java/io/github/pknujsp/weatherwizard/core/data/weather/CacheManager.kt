@@ -1,23 +1,21 @@
 package io.github.pknujsp.weatherwizard.core.data.weather
 
 import android.util.Log
-import io.github.pknujsp.weatherwizard.core.data.R
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import java.time.Duration
 import java.time.LocalDateTime
 import java.util.concurrent.atomic.AtomicLong
-import kotlin.reflect.full.safeCast
 
 
 class CacheManager<T : Any>(
-    cacheMaxTime: Duration = Duration.ofMinutes(4),
+    defaultCacheMaxTime: Duration = Duration.ofMinutes(5),
     searchMaxInterval: Duration = Duration.ofSeconds(25),
     cleaningInterval: Duration = Duration.ofMinutes(10)
 ) {
 
-    private val cacheMaxTime = cacheMaxTime.toMillis()
+    private val defaultCacheMaxTime = defaultCacheMaxTime.toMillis()
     private val searchMaxInterval = searchMaxInterval.toMillis()
     private val cleaningInterval = cleaningInterval.toMillis()
 
@@ -30,7 +28,7 @@ class CacheManager<T : Any>(
                 if (cacheMap.isNotEmpty()) {
                     val now = System.currentTimeMillis()
                     cacheMap.entries.removeIf { (_, cache) ->
-                        !cache.isRecentlyHitted(now, searchMaxInterval) and cache.isExpired(now, cacheMaxTime)
+                        !cache.isRecentlyHitted(now, searchMaxInterval) and cache.isExpired(now)
                     }
                 }
             }
@@ -43,20 +41,23 @@ class CacheManager<T : Any>(
         val cache = mutex.withLock { cacheMap[key] } ?: return CacheState.Miss
 
         val now = System.currentTimeMillis()
-        return if (cache.isRecentlyHitted(now, searchMaxInterval) or !cache.isExpired(now, cacheMaxTime)) {
+        return if (cache.isRecentlyHitted(now, searchMaxInterval) or !cache.isExpired(now)) {
             (cache.value as? E)?.let {
                 cache.lastHitTime.set(now)
+                Log.d("CacheManager", "hit $key")
                 CacheState.Hit(it)
             } ?: CacheState.Miss
         } else {
             clearCache(key)
+            Log.d("CacheManager", "miss $key")
             CacheState.Miss
         }
     }
 
-    suspend fun put(key: String, value: T) {
+    suspend fun put(key: String, value: T, cacheMaxTimeInMinutes: Long = defaultCacheMaxTime) {
         mutex.withLock {
-            cacheMap[key] = Cache(value)
+            Log.d("CacheManager", "put $key")
+            cacheMap[key] = Cache(value, cacheMaxTimeInMinutes)
         }
     }
 
@@ -67,12 +68,11 @@ class CacheManager<T : Any>(
     }
 
     private data class Cache<T : Any>(
-        val value: T,
-        val addedTime: Long = System.currentTimeMillis(),
+        val value: T, val cacheMaxTime: Long, val addedTime: Long = System.currentTimeMillis()
     ) {
         val lastHitTime = AtomicLong(addedTime)
 
-        fun isExpired(now: Long, cacheMaxTime: Long): Boolean = now - addedTime > cacheMaxTime
+        fun isExpired(now: Long): Boolean = now - addedTime > cacheMaxTime
 
         fun isRecentlyHitted(now: Long, searchMaxInterval: Long): Boolean = now - lastHitTime.get() <= searchMaxInterval
     }

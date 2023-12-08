@@ -73,7 +73,7 @@ class OngoingNotificationRemoteViewModel @Inject constructor(
             )
         }
 
-        val response = getWeatherDataUseCase(weatherDataRequest.finalRequests[0])
+        val response = getWeatherDataUseCase(weatherDataRequest.finalRequests[0], false)
 
         val uiModel = OngoingNotificationHeaderModel(weatherDataRequest.requestedTime,
             response,

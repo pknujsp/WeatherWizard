@@ -20,7 +20,7 @@ class MetNorwayDataSourceImpl @Inject constructor(
     private val requestHelper = MultipleRequestHelper<Response>()
 
     private suspend fun request(parameter: MetNorwayRequestParameter) {
-        if (!requestHelper.addRequest(parameter.requestId)) {
+        if (!requestHelper.add(parameter.requestId)) {
             return
         }
 
@@ -30,7 +30,7 @@ class MetNorwayDataSourceImpl @Inject constructor(
                 val current = it.toCurrentWeather()
                 val hourlyForecast = it.toHourlyForecast()
                 val dailyForecast = it.toDailyForecast()
-                RequestState.Success(
+                RequestState.Responsed(
                     Response(
                         currentWeather = current,
                         hourlyForecasts = hourlyForecast,

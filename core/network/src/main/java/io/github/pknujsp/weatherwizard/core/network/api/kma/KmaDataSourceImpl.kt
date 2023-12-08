@@ -1,5 +1,6 @@
 package io.github.pknujsp.weatherwizard.core.network.api.kma
 
+import android.util.Log
 import io.github.pknujsp.weatherwizard.core.model.weather.kma.parameter.KmaCurrentWeatherRequestParameter
 import io.github.pknujsp.weatherwizard.core.model.weather.kma.parameter.KmaDailyForecastRequestParameter
 import io.github.pknujsp.weatherwizard.core.model.weather.kma.parameter.KmaHourlyForecastRequestParameter
@@ -9,14 +10,12 @@ import io.github.pknujsp.weatherwizard.core.network.api.RequestState
 import io.github.pknujsp.weatherwizard.core.network.api.kma.parser.KmaHtmlParser
 import io.github.pknujsp.weatherwizard.core.network.api.onResponse
 import io.github.pknujsp.weatherwizard.core.network.retrofit.onResult
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
 import org.jsoup.Jsoup
 import java.lang.ref.WeakReference
 import java.time.ZoneId
 import java.time.ZonedDateTime
-import java.util.concurrent.ConcurrentHashMap
 import javax.inject.Inject
 
 class KmaDataSourceImpl @Inject constructor(
@@ -53,9 +52,10 @@ class KmaDataSourceImpl @Inject constructor(
 
 
     private suspend fun request(code: String, requestId: Long) {
-        if (!requestHelper.addRequest(requestId)) {
+        if (!requestHelper.add(requestId)) {
             return
         }
+        Log.d("KmaDataSourceImpl", "request $requestId, code $code")
 
         val currentResponse = kmaNetworkApi.getCurrentWeather(code = code).onResult().fold(
             onSuccess = {
@@ -94,7 +94,7 @@ class KmaDataSourceImpl @Inject constructor(
             val hourly = forecastResponse.getOrThrow().first
             val daily = forecastResponse.getOrThrow().second
 
-            RequestState.Success(
+            RequestState.Responsed(
                 Response(
                     currentWeather = KmaCurrentWeatherResponse(currentWeather = current, hourlyForecast = hourly.first()),
                     hourlyForecasts = KmaHourlyForecastResponse(hourly),

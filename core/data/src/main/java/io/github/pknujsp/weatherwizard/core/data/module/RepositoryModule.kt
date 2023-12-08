@@ -70,7 +70,7 @@ object RepositoryModule {
     @Singleton
     fun providesAirQualityRepositoryImpl(aqiCnDataSource: AqiCnDataSource): AirQualityRepositoryImpl = AirQualityRepositoryImpl(
         aqiCnDataSource,
-        CacheManager(cacheMaxTime = Duration.ofMinutes(10),
+        CacheManager(defaultCacheMaxTime = Duration.ofMinutes(10),
             searchMaxInterval = Duration.ofMinutes(1),
             cleaningInterval = Duration.ofMinutes(10)))
 

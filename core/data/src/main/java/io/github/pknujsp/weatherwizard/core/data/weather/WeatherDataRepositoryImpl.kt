@@ -1,6 +1,5 @@
 package io.github.pknujsp.weatherwizard.core.data.weather
 
-import android.util.Log
 import io.github.pknujsp.weatherwizard.core.data.RepositoryInitializer
 import io.github.pknujsp.weatherwizard.core.data.weather.mapper.WeatherResponseMapperManager
 import io.github.pknujsp.weatherwizard.core.data.weather.request.WeatherApiRequestManager
@@ -11,6 +10,7 @@ import io.github.pknujsp.weatherwizard.core.model.weather.current.CurrentWeather
 import io.github.pknujsp.weatherwizard.core.model.weather.dailyforecast.DailyForecastEntity
 import io.github.pknujsp.weatherwizard.core.model.weather.hourlyforecast.HourlyForecastEntity
 import io.github.pknujsp.weatherwizard.core.model.weather.yesterday.YesterdayWeatherEntity
+import java.util.UUID
 import javax.inject.Inject
 import kotlin.reflect.KClass
 
@@ -37,7 +37,6 @@ class WeatherDataRepositoryImpl @Inject constructor(
 
         if (!bypassCache) {
             getCache(key, requestWeatherData.majorWeatherEntityType.entityClass)?.let {
-                Log.d("WeatherDataRepository", "Cache hit: $key, $it")
                 return Result.success(it)
             }
         }
@@ -50,7 +49,7 @@ class WeatherDataRepositoryImpl @Inject constructor(
         }
 
         if (!bypassCache and result.isSuccess) {
-            cacheManager.put(key, result.getOrThrow())
+            cacheManager.put(key, result.getOrNull()!!)
         }
         return result
     }
@@ -98,5 +97,11 @@ class WeatherDataRepositoryImpl @Inject constructor(
         cacheManager.startCacheCleaner()
     }
 
-    private fun RequestWeatherData.key(): String = "$majorWeatherEntityType$latitude-$longitude$weatherProvider"
+    private fun RequestWeatherData.key(): String = "$majorWeatherEntityType-$latitude-$longitude-$weatherProvider"
+
+    private val WeatherProvider.cacheMaxTimeInMinutes: Long
+        get() = when (this) {
+            is WeatherProvider.Kma -> 300_000 // 5 분
+            is WeatherProvider.MetNorway -> 300_000 // 5 분
+        }
 }
