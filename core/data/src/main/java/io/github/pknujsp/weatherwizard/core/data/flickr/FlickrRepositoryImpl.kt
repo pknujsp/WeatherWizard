@@ -20,7 +20,7 @@ class FlickrRepositoryImpl @Inject constructor(
 
         val photos = flickrDataSource.getPhotosFromGallery(getPhotosFromGalleryParameter)
         if (photos.isFailure) {
-            return Result.failure(photos.exceptionOrNull()!!)
+            return Result.failure(Throwable())
         }
 
         val photo = photos.getOrNull()!!.photos.photo[(0 until photos.getOrNull()!!.photos.photo.size).random()]

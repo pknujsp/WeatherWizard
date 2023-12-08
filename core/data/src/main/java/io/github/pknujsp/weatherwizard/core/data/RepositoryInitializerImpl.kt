@@ -5,7 +5,9 @@ import kotlinx.coroutines.supervisorScope
 import javax.inject.Inject
 
 class RepositoryInitializerManagerImpl @Inject constructor(
-    private val weatherDataRepository: RepositoryInitializer, private val airQualityRepository: RepositoryInitializer
+    private val weatherDataRepository: RepositoryInitializer,
+    private val airQualityRepository: RepositoryInitializer,
+    private val rainViewerRepository: RepositoryInitializer
 ) : RepositoryInitializerManager {
     override suspend fun initialize() {
         supervisorScope {
@@ -14,6 +16,9 @@ class RepositoryInitializerManagerImpl @Inject constructor(
             }
             launch {
                 airQualityRepository.initialize()
+            }
+            launch {
+                rainViewerRepository.initialize()
             }
         }
     }

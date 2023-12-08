@@ -63,8 +63,11 @@ object RepositoryModule {
 
     @Provides
     @Singleton
-    fun providesRadartilesRepository(rainViewerDataSource: RainViewerDataSource): RadarTilesRepository =
-        RadarTilesRepositoryImpl(rainViewerDataSource)
+    fun providesRadartilesRepositoryImpl(rainViewerDataSource: RainViewerDataSource): RadarTilesRepositoryImpl =
+        RadarTilesRepositoryImpl(rainViewerDataSource, CacheManager())
+
+    @Provides
+    fun providesRadartilesRepository(radarTilesRepositoryImpl: RadarTilesRepositoryImpl): RadarTilesRepository = radarTilesRepositoryImpl
 
     @Provides
     @Singleton
