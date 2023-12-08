@@ -4,7 +4,7 @@ import androidx.lifecycle.ViewModel
 import io.github.pknujsp.weatherwizard.core.model.weather.RequestWeatherArguments
 import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherProvider
 
-abstract class CompareForecastViewModel :ViewModel(){
-    val weatherProviders = WeatherProvider.enums.toList()
+abstract class CompareForecastViewModel : ViewModel() {
+    val weatherProviders get() = WeatherProvider.enums
     abstract fun load(args: RequestWeatherArguments)
 }

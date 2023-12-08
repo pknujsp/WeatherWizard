@@ -3,24 +3,23 @@ package io.github.pknujsp.weatherwizard.feature.main
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import io.github.pknujsp.weatherwizard.core.data.RepositoryInitializer
+import io.github.pknujsp.weatherwizard.core.data.GlobalRepositoryCacheManager
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class ActivityViewModel @Inject constructor(
-    private val repositoryInitializer: RepositoryInitializer
+    private val globalRepositoryCacheManager: GlobalRepositoryCacheManager
 ) : ViewModel() {
 
-    init {
-        viewModelScope.launch(Dispatchers.Default) {
-            repositoryInitializer.initialize()
-        }
+    fun startCacheCleaner() {
+        globalRepositoryCacheManager.startCacheCleaner()
     }
 
-    override fun onCleared() {
-        super.onCleared()
+    fun stopCacheCleaner() {
+        globalRepositoryCacheManager.stopCacheCleaner()
     }
 
 }

@@ -78,7 +78,7 @@ class DailyNotificationRemoteViewModel @Inject constructor(
         }
 
 
-        val response = getWeatherDataUseCase(weatherDataRequest.requests[0])
+        val response = getWeatherDataUseCase(weatherDataRequest.finalRequests[0],false)
 
         val uiModel = DailyNotificationHeaderModel(weatherDataRequest.requestedTime,
             response,

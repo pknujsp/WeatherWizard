@@ -1,7 +1,10 @@
 package io.github.pknujsp.weatherwizard.core.domain.weather.compare
 
+import io.github.pknujsp.weatherwizard.core.data.weather.RequestWeatherData
 import io.github.pknujsp.weatherwizard.core.data.weather.WeatherDataRepository
-import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherProvider
+import io.github.pknujsp.weatherwizard.core.domain.weather.WeatherDataRequest
+import io.github.pknujsp.weatherwizard.core.model.weather.common.MajorWeatherEntityType
+import io.github.pknujsp.weatherwizard.core.model.weather.dailyforecast.DailyForecastEntity
 import io.github.pknujsp.weatherwizard.core.model.weather.dailyforecast.ToCompareDailyForecastEntity
 import javax.inject.Inject
 
@@ -9,26 +12,20 @@ class GetDailyForecastToCompareUseCase @Inject constructor(
     private val weatherDataRepository: WeatherDataRepository
 ) : BaseGetForecastToCompareUseCase<ToCompareDailyForecastEntity> {
     override suspend fun invoke(
-        latitude: Double,
-        longitude: Double,
-        weatherProviders: List<WeatherProvider>,
-        requestId: Long
+        requests: List<WeatherDataRequest.Request>
     ): Result<ToCompareDailyForecastEntity> {
-        return weatherProviders.mapIndexed { i, provider ->
-            weatherDataRepository.getDailyForecast(latitude, longitude, provider, requestId + i, false)
+        return requests.map { request ->
+            request.weatherProvider to weatherDataRepository.getWeatherData(RequestWeatherData(latitude = request.location.latitude,
+                longitude = request.location.longitude,
+                weatherProvider = request.weatherProvider,
+                majorWeatherEntityType = MajorWeatherEntityType.DAILY_FORECAST), request.requestId)
         }.let { responses ->
-            val success = responses.all { it.isSuccess }
-            if (success) {
-                Result.success(ToCompareDailyForecastEntity(
-                    weatherProviders.zip(responses.map { it.getOrThrow() }) { provider, entity ->
-                        provider to entity
-                    }.toList()
-                ))
+            if (responses.all { it.second.isSuccess }) {
+                Result.success(ToCompareDailyForecastEntity(responses.map { it.first to (it.second.getOrThrow() as DailyForecastEntity) }))
             } else {
-                Result.failure(responses.first { it.isFailure }.exceptionOrNull()!!)
+                Result.failure(Throwable())
             }
         }
     }
-
 
 }

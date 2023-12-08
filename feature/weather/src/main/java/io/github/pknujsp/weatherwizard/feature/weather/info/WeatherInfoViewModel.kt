@@ -7,6 +7,8 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import io.github.pknujsp.weatherwizard.core.common.coroutines.CoDispatcher
+import io.github.pknujsp.weatherwizard.core.common.coroutines.CoDispatcherType
 import io.github.pknujsp.weatherwizard.core.common.manager.FailedReason
 import io.github.pknujsp.weatherwizard.core.common.util.DayNightCalculator
 import io.github.pknujsp.weatherwizard.core.common.util.toCalendar
@@ -21,7 +23,6 @@ import io.github.pknujsp.weatherwizard.core.domain.weather.GetWeatherDataUseCase
 import io.github.pknujsp.weatherwizard.core.domain.weather.WeatherDataRequest
 import io.github.pknujsp.weatherwizard.core.domain.weather.WeatherResponseState
 import io.github.pknujsp.weatherwizard.core.model.ProcessState
-import io.github.pknujsp.weatherwizard.core.model.UiState
 import io.github.pknujsp.weatherwizard.core.model.coordinate.LocationType
 import io.github.pknujsp.weatherwizard.core.model.coordinate.LocationTypeModel
 import io.github.pknujsp.weatherwizard.core.model.flickr.FlickrRequestParameters
@@ -40,10 +41,8 @@ import io.github.pknujsp.weatherwizard.core.model.weather.hourlyforecast.SimpleH
 import io.github.pknujsp.weatherwizard.core.model.weather.yesterday.YesterdayWeather
 import io.github.pknujsp.weatherwizard.core.model.weather.yesterday.YesterdayWeatherEntity
 import io.github.pknujsp.weatherwizard.core.ui.weather.item.DynamicDateTimeUiCreator
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
@@ -57,14 +56,15 @@ class WeatherInfoViewModel @Inject constructor(
     private val targetLocationRepository: TargetLocationRepository,
     private val getCurrentLocationUseCase: GetCurrentLocationUseCase,
     private val nominatimRepository: NominatimRepository,
-    private val getWeatherDataUseCase: GetWeatherDataUseCase
+    private val getWeatherDataUseCase: GetWeatherDataUseCase,
+    @CoDispatcher(CoDispatcherType.IO) private val dispatcher: CoroutineDispatcher
 ) : ViewModel() {
 
-    private var _uiState = MutableWeatherMainUiState()
+    private val _uiState = MutableWeatherMainUiState()
     val uiState: WeatherMainUiState by mutableStateOf(_uiState)
 
     fun initialize() {
-        viewModelScope.launch {
+        viewModelScope.launch(dispatcher) {
             _uiState.processState = ProcessState.Running
             val location = targetLocationRepository.getTargetLocation()
             val weatherProvider = settingsRepository.getWeatherDataProvider()
@@ -125,14 +125,13 @@ class WeatherInfoViewModel @Inject constructor(
     }
 
     private fun loadAllWeatherData() {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(dispatcher) {
             uiState.args.run {
                 val weatherDataRequest = WeatherDataRequest()
                 weatherDataRequest.addRequest(location, weatherProvider.majorWeatherEntityTypes, weatherProvider)
 
-                val entity = when (val result = getWeatherDataUseCase(weatherDataRequest.requests[0])) {
+                val entity = when (val result = getWeatherDataUseCase(weatherDataRequest.finalRequests[0], false)) {
                     is WeatherResponseState.Success -> result.entity
-                    is WeatherResponseState.PartiallySuccess -> result.entity
                     is WeatherResponseState.Failure -> {
                         _uiState.processState = ProcessState.Failed(FailedReason.SERVER_ERROR)
                         return@launch

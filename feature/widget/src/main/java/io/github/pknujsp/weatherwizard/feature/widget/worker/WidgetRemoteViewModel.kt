@@ -14,7 +14,9 @@ import io.github.pknujsp.weatherwizard.core.model.coordinate.LocationType
 import io.github.pknujsp.weatherwizard.core.model.coordinate.LocationTypeModel
 import io.github.pknujsp.weatherwizard.core.ui.remoteview.RemoteViewModel
 import io.github.pknujsp.weatherwizard.feature.widget.worker.model.WidgetHeaderUiModel
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.supervisorScope
 import java.time.ZonedDateTime
 import javax.inject.Inject
 import kotlin.properties.Delegates
@@ -103,9 +105,15 @@ class WidgetRemoteViewModel @Inject constructor(
             requestMapWithRequestIdAndWidget.getOrPut(requestId) { mutableListOf() }.add(it)
         }
 
-        weatherDataRequest.requests.forEach { request ->
-            val response = getWeatherDataUseCase(request)
-            for (widget in requestMapWithRequestIdAndWidget[request.requestId]!!) {
+        val responses = supervisorScope {
+            weatherDataRequest.finalRequests.map { request ->
+                async { getWeatherDataUseCase(request, false) }
+            }
+        }
+
+        responses.forEach {
+            val response = it.await()
+            for (widget in requestMapWithRequestIdAndWidget[response.requestId]!!) {
                 responseMap[widget] = response
             }
         }

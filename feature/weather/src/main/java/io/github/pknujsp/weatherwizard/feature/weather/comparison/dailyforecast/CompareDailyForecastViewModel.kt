@@ -5,6 +5,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.github.pknujsp.weatherwizard.core.data.settings.SettingsRepository
+import io.github.pknujsp.weatherwizard.core.domain.weather.WeatherDataRequest
 import io.github.pknujsp.weatherwizard.core.domain.weather.compare.GetDailyForecastToCompareUseCase
 import io.github.pknujsp.weatherwizard.core.model.UiState
 import io.github.pknujsp.weatherwizard.core.model.weather.RequestWeatherArguments
@@ -23,20 +24,22 @@ class CompareDailyForecastViewModel @Inject constructor(
     private val getDailyForecastToCompareUseCase: GetDailyForecastToCompareUseCase, private val settingsRepository: SettingsRepository
 ) : CompareForecastViewModel() {
 
-    private val _dailyForecast =
-        MutableStateFlow<UiState<io.github.pknujsp.weatherwizard.feature.weather.comparison.dailyforecast.CompareDailyForecastInfo>>(UiState.Loading)
+    private val _dailyForecast = MutableStateFlow<UiState<CompareDailyForecastInfo>>(UiState.Loading)
 
-    val dailyForecast: StateFlow<UiState<io.github.pknujsp.weatherwizard.feature.weather.comparison.dailyforecast.CompareDailyForecastInfo>> =
-        _dailyForecast
+    val dailyForecast: StateFlow<UiState<CompareDailyForecastInfo>> = _dailyForecast
 
     override fun load(args: RequestWeatherArguments) {
         viewModelScope.launch(Dispatchers.IO) {
             args.run {
-                val requestId = System.currentTimeMillis()
-                getDailyForecastToCompareUseCase(args.location.latitude,
-                    args.location.longitude,
-                    weatherProviders,
-                    requestId).onSuccess { entity ->
+
+                val weatherDataRequest = WeatherDataRequest()
+                weatherProviders.forEach {
+                    weatherDataRequest.addRequest(args.location,
+                        setOf(io.github.pknujsp.weatherwizard.core.model.weather.common.MajorWeatherEntityType.DAILY_FORECAST),
+                        it)
+                }
+
+                getDailyForecastToCompareUseCase(weatherDataRequest.finalRequests).onSuccess { entity ->
                     val (firstDate, endDate) = entity.run {
                         items.maxOf { ZonedDateTime.parse(it.second.dayItems.first().dateTime.value).toLocalDate() } to items.minOf {
                             ZonedDateTime.parse(it.second.dayItems.last().dateTime.value).toLocalDate()

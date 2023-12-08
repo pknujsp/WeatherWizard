@@ -1,10 +1,11 @@
 package io.github.pknujsp.weatherwizard.core.data.module
 
-import dagger.Binds
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import io.github.pknujsp.weatherwizard.core.common.coroutines.CoDispatcher
+import io.github.pknujsp.weatherwizard.core.common.coroutines.CoDispatcherType
 import io.github.pknujsp.weatherwizard.core.common.module.KtJson
 import io.github.pknujsp.weatherwizard.core.data.aqicn.AirQualityRepository
 import io.github.pknujsp.weatherwizard.core.data.aqicn.AirQualityRepositoryImpl
@@ -22,6 +23,7 @@ import io.github.pknujsp.weatherwizard.core.data.rainviewer.RadarTilesRepository
 import io.github.pknujsp.weatherwizard.core.data.rainviewer.RadarTilesRepositoryImpl
 import io.github.pknujsp.weatherwizard.core.data.settings.SettingsRepository
 import io.github.pknujsp.weatherwizard.core.data.settings.SettingsRepositoryImpl
+import io.github.pknujsp.weatherwizard.core.data.weather.CacheManager
 import io.github.pknujsp.weatherwizard.core.data.weather.WeatherDataRepository
 import io.github.pknujsp.weatherwizard.core.data.weather.WeatherDataRepositoryImpl
 import io.github.pknujsp.weatherwizard.core.data.weather.mapper.WeatherResponseMapperManager
@@ -36,7 +38,9 @@ import io.github.pknujsp.weatherwizard.core.database.widget.WidgetLocalDataSourc
 import io.github.pknujsp.weatherwizard.core.network.api.aqicn.AqiCnDataSource
 import io.github.pknujsp.weatherwizard.core.network.api.nominatim.NominatimDataSource
 import io.github.pknujsp.weatherwizard.core.network.api.rainviewer.RainViewerDataSource
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.serialization.json.Json
+import java.time.Duration
 import javax.inject.Singleton
 
 @InstallIn(SingletonComponent::class)
@@ -46,8 +50,11 @@ object RepositoryModule {
     @Provides
     @Singleton
     fun providesWeatherRepositoryImpl(
-        weatherResponseMapperManager: WeatherResponseMapperManager, weatherApiRequestManager: WeatherApiRequestManager
-    ): WeatherDataRepositoryImpl = WeatherDataRepositoryImpl(weatherResponseMapperManager, weatherApiRequestManager)
+        weatherResponseMapperManager: WeatherResponseMapperManager,
+        weatherApiRequestManager: WeatherApiRequestManager,
+        @CoDispatcher(CoDispatcherType.DEFAULT) dispatcher: CoroutineDispatcher
+    ): WeatherDataRepositoryImpl =
+        WeatherDataRepositoryImpl(weatherResponseMapperManager, weatherApiRequestManager, CacheManager(dispatcher = dispatcher))
 
     @Provides
     fun providesWeatherRepository(
@@ -62,12 +69,28 @@ object RepositoryModule {
 
     @Provides
     @Singleton
-    fun providesRadartilesRepository(rainViewerDataSource: RainViewerDataSource): RadarTilesRepository =
-        RadarTilesRepositoryImpl(rainViewerDataSource)
+    fun providesRadartilesRepositoryImpl(
+        rainViewerDataSource: RainViewerDataSource, @CoDispatcher(CoDispatcherType.DEFAULT) dispatcher: CoroutineDispatcher
+    ): RadarTilesRepositoryImpl = RadarTilesRepositoryImpl(rainViewerDataSource, CacheManager(dispatcher = dispatcher))
+
+    @Provides
+    fun providesRadartilesRepository(radarTilesRepositoryImpl: RadarTilesRepositoryImpl): RadarTilesRepository = radarTilesRepositoryImpl
 
     @Provides
     @Singleton
-    fun providesAirQualityRepository(aqiCnDataSource: AqiCnDataSource): AirQualityRepository = AirQualityRepositoryImpl(aqiCnDataSource)
+    fun providesAirQualityRepositoryImpl(
+        aqiCnDataSource: AqiCnDataSource, @CoDispatcher(CoDispatcherType.DEFAULT) dispatcher: CoroutineDispatcher
+    ): AirQualityRepositoryImpl = AirQualityRepositoryImpl(aqiCnDataSource,
+        CacheManager(defaultCacheExpiryTime = Duration.ofMinutes(10),
+            readMaxInterval = Duration.ofMinutes(1),
+            cleaningInterval = Duration.ofMinutes(10),
+            dispatcher = dispatcher))
+
+    @Provides
+    fun providesAirQualityRepository(
+        airQualityRepositoryImp: AirQualityRepositoryImpl
+    ): AirQualityRepository = airQualityRepositoryImp
+
 
     @Provides
     @Singleton

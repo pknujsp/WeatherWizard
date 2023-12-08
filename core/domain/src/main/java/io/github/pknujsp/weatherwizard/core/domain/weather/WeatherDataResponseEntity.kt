@@ -28,11 +28,4 @@ sealed interface WeatherResponseState {
         val entity: WeatherResponseEntity
     ) : WeatherResponseState
 
-    data class PartiallySuccess(
-        override val requestId: Long,
-        override val location: LocationTypeModel,
-        override val weatherProvider: WeatherProvider,
-        val entity: WeatherResponseEntity,
-        val failedCategories: List<MajorWeatherEntityType>
-    ) : WeatherResponseState
 }
