@@ -6,11 +6,15 @@ import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherProvider
 
 interface WeatherDataRepository {
     suspend fun getWeatherData(
-        majorWeatherEntityType: MajorWeatherEntityType,
-        latitude: Double,
-        longitude: Double,
-        weatherProvider: WeatherProvider,
+        requestWeatherData: RequestWeatherData,
         requestId: Long,
         bypassCache: Boolean = true
     ): Result<EntityModel>
 }
+
+data class RequestWeatherData(
+    val majorWeatherEntityType: MajorWeatherEntityType,
+    val latitude: Double,
+    val longitude: Double,
+    val weatherProvider: WeatherProvider,
+)

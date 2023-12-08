@@ -1,7 +1,8 @@
 package io.github.pknujsp.weatherwizard.core.domain.weather.compare
 
+import io.github.pknujsp.weatherwizard.core.data.weather.RequestWeatherData
 import io.github.pknujsp.weatherwizard.core.data.weather.WeatherDataRepository
-import io.github.pknujsp.weatherwizard.core.model.weather.common.MajorWeatherEntityType
+import io.github.pknujsp.weatherwizard.core.domain.weather.WeatherDataRequest
 import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherProvider
 import io.github.pknujsp.weatherwizard.core.model.weather.hourlyforecast.HourlyForecastEntity
 import io.github.pknujsp.weatherwizard.core.model.weather.hourlyforecast.ToCompareHourlyForecastEntity
@@ -12,14 +13,18 @@ class GetHourlyForecastToCompareUseCase @Inject constructor(
     private val weatherDataRepository: WeatherDataRepository
 ) : BaseGetForecastToCompareUseCase<ToCompareHourlyForecastEntity> {
     override suspend fun invoke(
-        latitude: Double, longitude: Double, weatherProviders: List<WeatherProvider>, requestId: Long
+        requests: List<WeatherDataRequest.Request>
     ): Result<ToCompareHourlyForecastEntity> {
-        return weatherProviders.mapIndexed { i, provider ->
-            weatherDataRepository.getWeatherData(MajorWeatherEntityType.HOURLY_FORECAST, latitude, longitude, provider, requestId + i)
+        return requests.map { request ->
+            request.weatherProvider to weatherDataRepository.getWeatherData(RequestWeatherData(latitude = request.location.latitude,
+                longitude = request.location.longitude,
+                weatherProvider = request.weatherProvider,
+                majorWeatherEntityType = io.github.pknujsp.weatherwizard.core.model.weather.common.MajorWeatherEntityType.HOURLY_FORECAST),
+                request.requestId)
         }.let { responses ->
-            if (responses.all { it.isSuccess }) {
-                val entities = responses.mapIndexed { i, response ->
-                    weatherProviders[i] to (response.getOrThrow() as HourlyForecastEntity).items.subList(weatherProviders[i]).map { item ->
+            if (responses.all { it.second.isSuccess }) {
+                val entities = responses.map {
+                    it.first to (it.second.getOrThrow() as HourlyForecastEntity).items.mapByWeatherProvider(it.first).map { item ->
                         ToCompareHourlyForecastEntity.Item(dateTime = item.dateTime,
                             weatherCondition = item.weatherCondition,
                             temperature = item.temperature,
@@ -37,12 +42,12 @@ class GetHourlyForecastToCompareUseCase @Inject constructor(
                 }
                 Result.success(ToCompareHourlyForecastEntity(entities))
             } else {
-                Result.failure(responses.first { it.isFailure }.exceptionOrNull()!!)
+                Result.failure(Throwable())
             }
         }
     }
 
-    private fun List<HourlyForecastEntity.Item>.subList(weatherProvider: WeatherProvider) =
+    private fun List<HourlyForecastEntity.Item>.mapByWeatherProvider(weatherProvider: WeatherProvider) =
         if (weatherProvider == WeatherProvider.MetNorway) {
             var lastIdx = 0
             val map = mutableMapOf<String, Long>()

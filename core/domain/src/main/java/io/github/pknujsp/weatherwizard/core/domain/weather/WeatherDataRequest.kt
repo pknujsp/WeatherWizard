@@ -1,6 +1,5 @@
 package io.github.pknujsp.weatherwizard.core.domain.weather
 
-import io.github.pknujsp.weatherwizard.core.model.coordinate.LocationModel
 import io.github.pknujsp.weatherwizard.core.model.coordinate.LocationTypeModel
 import io.github.pknujsp.weatherwizard.core.model.weather.common.MajorWeatherEntityType
 import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherProvider
@@ -11,7 +10,7 @@ class WeatherDataRequest(
     val requestedTime: ZonedDateTime = ZonedDateTime.now(),
 ) {
     private val sameLocationMap: MutableMap<LocationTypeModel, SameLocation> = mutableMapOf()
-    val requests
+    val finalRequests
         get() = sameLocationMap.values.flatMap { request ->
             request.requests.map {
                 Request(
@@ -53,7 +52,7 @@ class WeatherDataRequest(
                 it.key to it.value.toSet()
             }
 
-        fun getRequestId(weatherProvider: WeatherProvider): Long = requestIdMap.getValue(weatherProvider)
+        fun getRequestId(weatherProvider: WeatherProvider) = requestIdMap.getValue(weatherProvider)
 
         fun addWeatherProviderWithCategories(
             weatherProvider: WeatherProvider, weatherDataCategories: Set<MajorWeatherEntityType>,

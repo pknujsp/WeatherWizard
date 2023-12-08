@@ -22,8 +22,8 @@ class WeatherDataRepositoryImpl @Inject constructor(
 
     private suspend fun <T : EntityModel> getCache(
         key: String, cls: KClass<T>
-    ): T? = when (val cacheState = cacheManager.get(key, cls)) {
-        is CacheManager.CacheState.Valid -> {
+    ): T? = when (val cacheState = cacheManager.get<T>(key)) {
+        is CacheManager.CacheState.Hit -> {
             cacheState.value
         }
 
@@ -31,28 +31,22 @@ class WeatherDataRepositoryImpl @Inject constructor(
     }
 
     override suspend fun getWeatherData(
-        majorWeatherEntityType: MajorWeatherEntityType,
-        latitude: Double,
-        longitude: Double,
-        weatherProvider: WeatherProvider,
-        requestId: Long,
-        bypassCache: Boolean
+        requestWeatherData: RequestWeatherData, requestId: Long, bypassCache: Boolean
     ): Result<EntityModel> {
-        val key = toKey(latitude, longitude, weatherProvider)
+        val key = requestWeatherData.key()
 
         if (!bypassCache) {
-            getCache(key, majorWeatherEntityType.entityClass)?.let {
+            getCache(key, requestWeatherData.majorWeatherEntityType.entityClass)?.let {
                 Log.d("WeatherDataRepository", "Cache hit: $key, $it")
                 return Result.success(it)
             }
         }
 
-        val result = when (majorWeatherEntityType) {
-            MajorWeatherEntityType.CURRENT_CONDITION -> getCurrentWeather(latitude, longitude, weatherProvider, requestId)
-            MajorWeatherEntityType.HOURLY_FORECAST -> getHourlyForecast(latitude, longitude, weatherProvider, requestId)
-            MajorWeatherEntityType.DAILY_FORECAST -> getDailyForecast(latitude, longitude, weatherProvider, requestId)
-            MajorWeatherEntityType.YESTERDAY_WEATHER -> getYesterdayWeather(latitude, longitude, weatherProvider, requestId)
-            else -> throw IllegalArgumentException("Invalid majorWeatherEntityType: $majorWeatherEntityType")
+        val result = when (requestWeatherData.majorWeatherEntityType) {
+            MajorWeatherEntityType.CURRENT_CONDITION -> getCurrentWeather(requestWeatherData, requestId)
+            MajorWeatherEntityType.HOURLY_FORECAST -> getHourlyForecast(requestWeatherData, requestId)
+            MajorWeatherEntityType.DAILY_FORECAST -> getDailyForecast(requestWeatherData, requestId)
+            else -> getYesterdayWeather(requestWeatherData, requestId)
         }
 
         if (!bypassCache and result.isSuccess) {
@@ -62,48 +56,47 @@ class WeatherDataRepositoryImpl @Inject constructor(
     }
 
     private suspend fun getCurrentWeather(
-        latitude: Double, longitude: Double, weatherProvider: WeatherProvider, requestId: Long
-    ): Result<CurrentWeatherEntity> =
-        weatherApiRequestManager.getCurrentWeather(latitude, longitude, weatherProvider, requestId).fold(onSuccess = { response ->
-            Result.success(weatherResponseMapperManager.mapCurrentWeather(response, weatherProvider))
-        }, onFailure = { error ->
-            Result.failure(error)
-        })
+        requestWeatherData: RequestWeatherData, requestId: Long
+    ): Result<CurrentWeatherEntity> = weatherApiRequestManager.getCurrentWeather(requestWeatherData.latitude,
+        requestWeatherData.longitude,
+        requestWeatherData.weatherProvider,
+        requestId).map {
+        weatherResponseMapperManager.mapCurrentWeather(it, requestWeatherData.weatherProvider)
+    }
 
 
     private suspend fun getHourlyForecast(
-        latitude: Double, longitude: Double, weatherProvider: WeatherProvider, requestId: Long
-    ): Result<HourlyForecastEntity> =
-        weatherApiRequestManager.getHourlyForecast(latitude, longitude, weatherProvider, requestId).fold(onSuccess = { response ->
-            Result.success(weatherResponseMapperManager.mapHourlyForecast(response, weatherProvider))
-        }, onFailure = { error ->
-            Result.failure(error)
-        })
+        requestWeatherData: RequestWeatherData, requestId: Long
+    ): Result<HourlyForecastEntity> = weatherApiRequestManager.getHourlyForecast(requestWeatherData.latitude,
+        requestWeatherData.longitude,
+        requestWeatherData.weatherProvider,
+        requestId).map {
+        weatherResponseMapperManager.mapHourlyForecast(it, requestWeatherData.weatherProvider)
+    }
 
 
     private suspend fun getDailyForecast(
-        latitude: Double, longitude: Double, weatherProvider: WeatherProvider, requestId: Long
-    ): Result<DailyForecastEntity> =
-        weatherApiRequestManager.getDailyForecast(latitude, longitude, weatherProvider, requestId).fold(onSuccess = { response ->
-            Result.success(weatherResponseMapperManager.mapDailyForecast(response, weatherProvider))
-        }, onFailure = { error ->
-            Result.failure(error)
-        })
-
+        requestWeatherData: RequestWeatherData, requestId: Long
+    ): Result<DailyForecastEntity> = weatherApiRequestManager.getDailyForecast(requestWeatherData.latitude,
+        requestWeatherData.longitude,
+        requestWeatherData.weatherProvider,
+        requestId).map {
+        weatherResponseMapperManager.mapDailyForecast(it, requestWeatherData.weatherProvider)
+    }
 
     private suspend fun getYesterdayWeather(
-        latitude: Double, longitude: Double, weatherProvider: WeatherProvider, requestId: Long
-    ): Result<YesterdayWeatherEntity> =
-        weatherApiRequestManager.getYesterdayWeather(latitude, longitude, weatherProvider, requestId).fold(onSuccess = { response ->
-            Result.success(weatherResponseMapperManager.mapYesterdayWeather(response, weatherProvider))
-        }, onFailure = { error ->
-            Result.failure(error)
-        })
+        requestWeatherData: RequestWeatherData, requestId: Long
+    ): Result<YesterdayWeatherEntity> = weatherApiRequestManager.getYesterdayWeather(requestWeatherData.latitude,
+        requestWeatherData.longitude,
+        requestWeatherData.weatherProvider,
+        requestId).map {
+        weatherResponseMapperManager.mapYesterdayWeather(it, requestWeatherData.weatherProvider)
+    }
 
-    private fun toKey(latitude: Double, longitude: Double, weatherProvider: WeatherProvider): String =
-        "$latitude,$longitude,${weatherProvider.name}"
 
     override suspend fun initialize() {
         cacheManager.startCacheCleaner()
     }
+
+    private fun RequestWeatherData.key(): String = "$majorWeatherEntityType$latitude-$longitude$weatherProvider"
 }

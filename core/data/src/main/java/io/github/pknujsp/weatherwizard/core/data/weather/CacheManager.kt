@@ -1,37 +1,36 @@
 package io.github.pknujsp.weatherwizard.core.data.weather
 
 import android.util.Log
+import io.github.pknujsp.weatherwizard.core.data.R
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import java.time.Duration
 import java.time.LocalDateTime
-import kotlin.reflect.KClass
+import java.util.concurrent.atomic.AtomicLong
 import kotlin.reflect.full.safeCast
-import kotlin.time.toKotlinDuration
 
 
 class CacheManager<T : Any>(
-    private val cacheMaxTime: Duration = Duration.ofMinutes(4),
-    private val searchMaxInterval: Duration = Duration.ofSeconds(25),
+    cacheMaxTime: Duration = Duration.ofMinutes(4),
+    searchMaxInterval: Duration = Duration.ofSeconds(25),
     cleaningInterval: Duration = Duration.ofMinutes(10)
 ) {
 
+    private val cacheMaxTime = cacheMaxTime.toMillis()
+    private val searchMaxInterval = searchMaxInterval.toMillis()
+    private val cleaningInterval = cleaningInterval.toMillis()
+
     private val cacheMap = mutableMapOf<String, Cache<T>>()
-    private val lastSearchTimeMap = mutableMapOf<String, LocalDateTime>()
-    private val cleaningInterval = cleaningInterval.toKotlinDuration()
     private val mutex = Mutex()
 
     suspend fun startCacheCleaner() {
         while (true) {
             mutex.withLock {
                 if (cacheMap.isNotEmpty()) {
-                    val now = LocalDateTime.now()
-                    for ((key, value) in cacheMap.entries) {
-                        if (value.isExpired(now, cacheMaxTime)) {
-                            Log.d("CacheManager cleaner", "Cache deleted: $key")
-                            clearExpiredCache(key)
-                        }
+                    val now = System.currentTimeMillis()
+                    cacheMap.entries.removeIf { (_, cache) ->
+                        !cache.isRecentlyHitted(now, searchMaxInterval) and cache.isExpired(now, cacheMaxTime)
                     }
                 }
             }
@@ -40,61 +39,46 @@ class CacheManager<T : Any>(
         }
     }
 
-    suspend fun get(key: String, cls: KClass<T>): CacheState<T> {
+    suspend fun <E : T> get(key: String): CacheState<E> {
         val cache = mutex.withLock { cacheMap[key] } ?: return CacheState.Miss
 
-        val now = LocalDateTime.now()
-        val isValidSearch = lastSearchTimeMap[key]?.let { Duration.between(it, now) <= searchMaxInterval } ?: false
-        if (!isValidSearch) {
-            mutex.withLock {
-                lastSearchTimeMap[key] = now
-            }
+        val now = System.currentTimeMillis()
+        return if (cache.isRecentlyHitted(now, searchMaxInterval) or !cache.isExpired(now, cacheMaxTime)) {
+            (cache.value as? E)?.let {
+                cache.lastHitTime.set(now)
+                CacheState.Hit(it)
+            } ?: CacheState.Miss
+        } else {
+            clearCache(key)
+            CacheState.Miss
         }
-
-        if (cache.isExpired(now, cacheMaxTime)) {
-            clearExpiredCache(key)
-            return CacheState.Expired
-        }
-
-        return cache.get(cls)?.let { CacheState.Valid(it) } ?: CacheState.Miss
     }
 
     suspend fun put(key: String, value: T) {
         mutex.withLock {
-            cacheMap.getOrPut(key) {
-                Cache(LocalDateTime.now())
-            }.add(value)
+            cacheMap[key] = Cache(value)
         }
     }
 
-    private suspend fun clearExpiredCache(key: String) {
+    private suspend fun clearCache(key: String) {
         mutex.withLock {
-            cacheMap[key]?.clear()
             cacheMap.remove(key)
         }
     }
 
     private data class Cache<T : Any>(
-        val added: LocalDateTime
+        val value: T,
+        val addedTime: Long = System.currentTimeMillis(),
     ) {
-        private val mutableMap = mutableMapOf<KClass<out T>, T>()
+        val lastHitTime = AtomicLong(addedTime)
 
-        fun add(value: T) {
-            mutableMap[value::class] = value
-        }
+        fun isExpired(now: Long, cacheMaxTime: Long): Boolean = now - addedTime > cacheMaxTime
 
-        fun get(typeCls: KClass<T>): T? = mutableMap[typeCls]?.run { typeCls.safeCast(this) }
-
-        fun isExpired(now: LocalDateTime, cacheMaxTime: Duration): Boolean = Duration.between(added, now) > cacheMaxTime
-
-        fun clear() {
-            mutableMap.clear()
-        }
+        fun isRecentlyHitted(now: Long, searchMaxInterval: Long): Boolean = now - lastHitTime.get() <= searchMaxInterval
     }
 
     sealed interface CacheState<out T> {
-        data object Expired : CacheState<Nothing>
         data object Miss : CacheState<Nothing>
-        data class Valid<T>(val value: T) : CacheState<T>
+        data class Hit<T>(val value: T) : CacheState<T>
     }
 }

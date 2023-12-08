@@ -103,7 +103,7 @@ class WidgetRemoteViewModel @Inject constructor(
             requestMapWithRequestIdAndWidget.getOrPut(requestId) { mutableListOf() }.add(it)
         }
 
-        weatherDataRequest.requests.forEach { request ->
+        weatherDataRequest.finalRequests.forEach { request ->
             val response = getWeatherDataUseCase(request)
             for (widget in requestMapWithRequestIdAndWidget[request.requestId]!!) {
                 responseMap[widget] = response

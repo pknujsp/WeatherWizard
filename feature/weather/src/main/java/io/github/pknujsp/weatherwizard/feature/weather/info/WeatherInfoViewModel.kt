@@ -126,7 +126,7 @@ class WeatherInfoViewModel @Inject constructor(
                 val weatherDataRequest = WeatherDataRequest()
                 weatherDataRequest.addRequest(location, weatherProvider.majorWeatherEntityTypes, weatherProvider)
 
-                val entity = when (val result = getWeatherDataUseCase(weatherDataRequest.requests[0], false)) {
+                val entity = when (val result = getWeatherDataUseCase(weatherDataRequest.finalRequests[0], false)) {
                     is WeatherResponseState.Success -> result.entity
                     is WeatherResponseState.Failure -> {
                         _uiState.processState = ProcessState.Failed(FailedReason.SERVER_ERROR)
