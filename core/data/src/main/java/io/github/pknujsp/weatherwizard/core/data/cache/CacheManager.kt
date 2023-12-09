@@ -1,4 +1,4 @@
-package io.github.pknujsp.weatherwizard.core.data.weather
+package io.github.pknujsp.weatherwizard.core.data.cache
 
 import android.util.Log
 import kotlinx.coroutines.CompletableDeferred
@@ -8,23 +8,19 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.ObsoleteCoroutinesApi
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.channels.actor
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.supervisorScope
-import kotlinx.coroutines.sync.withLock
 import java.time.Duration
-import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicLong
-import kotlin.concurrent.withLock
 
 
 class CacheManager<T : Any>(
     defaultCacheExpiryTime: Duration = Duration.ofMinutes(5),
-    readMaxInterval: Duration = Duration.ofSeconds(20),
+    readMaxInterval: Duration = Duration.ofSeconds(5),
     cleaningInterval: Duration = Duration.ofMinutes(10),
     dispatcher: CoroutineDispatcher
 ) : CoroutineScope by CoroutineScope(dispatcher) {
+
     private val defaultCacheExpiryTime = defaultCacheExpiryTime.toMillis()
     private val readMaxInterval = readMaxInterval.toMillis()
     private val cleaningInterval = cleaningInterval.toMillis()
@@ -40,7 +36,7 @@ class CacheManager<T : Any>(
         if (cacheCleanerJob?.isActive == true) {
             return
         }
-        cacheCleanerJob = CoroutineScope(coroutineContext + SupervisorJob()).launch {
+        cacheCleanerJob = CoroutineScope(SupervisorJob()).launch {
             Log.d("CacheManager", "${this@CacheManager} - StartedCacheCleaner")
             while (true) {
                 delay(cleaningInterval)
@@ -60,12 +56,9 @@ class CacheManager<T : Any>(
         return response.await()
     }
 
+
     suspend fun put(key: String, value: T, cacheExpiryTime: Long = defaultCacheExpiryTime) {
         cacheActor.send(CacheMessage.Put(key, value, cacheExpiryTime))
-    }
-
-    suspend fun removeCache(key: String) {
-        cacheActor.send(CacheMessage.Remove(key))
     }
 
     @OptIn(ObsoleteCoroutinesApi::class)
@@ -82,17 +75,17 @@ class CacheManager<T : Any>(
 
                 is CacheMessage.Get -> {
                     val cache = cacheMap[msg.key]
-                    val now = System.currentTimeMillis()
 
-                    msg.response.complete(if (cache?.isCacheRemovalRequired(now, readMaxInterval) == false) {
-                        cache.lastHitTime.set(now)
+                    msg.response.complete(if (cache?.isExpired() == true) {
+                        cache.hit()
                         Log.d("CacheManager", "HitCache: ${msg.key}")
                         CacheState.Hit(cache.value)
                     } else {
-                        cacheMap.remove(msg.key)
                         Log.d("CacheManager", "MissCache: ${msg.key}")
+                        cacheMap.remove(msg.key)
                         CacheState.Miss
                     })
+
                 }
 
                 is CacheMessage.Remove -> {
@@ -110,26 +103,31 @@ class CacheManager<T : Any>(
 
     private sealed interface CacheMessage<out T> {
         data class Put<T>(val key: String, val value: T, val expiryTime: Long) : CacheMessage<T>
-        data class Get<T>(val key: String, val response: CompletableDeferred<CacheState<T>>) : CacheMessage<T>
         data class Remove(val key: String) : CacheMessage<Nothing>
         data object Clear : CacheMessage<Nothing>
+        data class Get<T>(
+            val key: String, val response: CompletableDeferred<CacheState<T>>
+        ) : CacheMessage<T>
     }
 
-    private data class Cache<T : Any>(
-        val value: T, val cacheExpiryTime: Long, val addedTime: Long = System.currentTimeMillis()
-    ) {
-        val lastHitTime = AtomicLong(addedTime)
-
-        fun isExpired(now: Long): Boolean = now - addedTime > cacheExpiryTime
-
-        fun isHitRecently(now: Long, readMaxInterval: Long): Boolean = now - lastHitTime.get() <= readMaxInterval
-
-        fun isCacheRemovalRequired(now: Long, readMaxInterval: Long) = isExpired(now) and !isHitRecently(now, readMaxInterval)
+    sealed interface CacheState<out T> {
+        data class Hit<T>(val value: T) : CacheState<T>
+        data object Miss : CacheState<Nothing>
     }
-
 }
 
-sealed interface CacheState<out T> {
-    data object Miss : CacheState<Nothing>
-    data class Hit<T>(val value: T) : CacheState<T>
+data class Cache<T>(
+    val value: T, val cacheExpiryTime: Long, val addedTime: Long = System.currentTimeMillis()
+) {
+    private val _lastHitTime = AtomicLong(addedTime)
+    val lastHitTime: Long
+        get() = _lastHitTime.get()
+
+    fun hit(now: Long = System.currentTimeMillis()) {
+        _lastHitTime.set(now)
+    }
+
+    fun isExpired(now: Long = System.currentTimeMillis()): Boolean = now - addedTime > cacheExpiryTime
+
+    fun isHitRecently(now: Long = System.currentTimeMillis(), readMaxInterval: Long): Boolean = now - lastHitTime <= readMaxInterval
 }

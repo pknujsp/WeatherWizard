@@ -1,8 +1,7 @@
 package io.github.pknujsp.weatherwizard.core.data.rainviewer
 
 import io.github.pknujsp.weatherwizard.core.data.RepositoryCacheManager
-import io.github.pknujsp.weatherwizard.core.data.weather.CacheManager
-import io.github.pknujsp.weatherwizard.core.data.weather.CacheState
+import io.github.pknujsp.weatherwizard.core.data.cache.CacheManager
 import io.github.pknujsp.weatherwizard.core.model.rainviewer.RadarTiles
 import io.github.pknujsp.weatherwizard.core.network.api.rainviewer.RainViewerDataSource
 import javax.inject.Inject
@@ -35,7 +34,7 @@ class RadarTilesRepositoryImpl @Inject constructor(
 
     private suspend fun getCache(
     ): RadarTiles? = when (val cacheState = cacheManager.get<RadarTiles>(cacheKeyString)) {
-        is CacheState.Hit -> {
+        is CacheManager.CacheState.Hit -> {
             cacheState.value
         }
 

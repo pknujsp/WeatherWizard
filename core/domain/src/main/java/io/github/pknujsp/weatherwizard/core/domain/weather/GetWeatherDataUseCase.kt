@@ -18,30 +18,27 @@ class GetWeatherDataUseCase @Inject constructor(
         request: WeatherDataRequest.Request, bypassCache: Boolean = true
     ): WeatherResponseState {
         return request.run {
-            val responseList = supervisorScope {
-                request.weatherDataMajorCategories.map {
-                    async(dispatcher) {
-                        it to weatherDataRepository.getWeatherData(RequestWeatherData(it,
-                            location.latitude,
-                            location.longitude,
-                            weatherProvider), requestId, bypassCache)
-                    }
+            val response = supervisorScope {
+                async(dispatcher) {
+                    weatherDataRepository.getWeatherData(RequestWeatherData(request.weatherDataMajorCategories,
+                        location.latitude,
+                        location.longitude,
+                        weatherProvider), requestId, bypassCache)
                 }
             }
 
-            if (responseList.all { it.await().second.isSuccess }) {
+            response.await().fold(onSuccess = {
                 WeatherResponseState.Success(requestId,
                     location,
                     weatherProvider,
-                    WeatherResponseEntity(weatherDataMajorCategories, responseList.map { it.await().second.getOrNull()!! }))
-            } else {
+                    WeatherResponseEntity(weatherDataMajorCategories, it.list))
+            }, onFailure = {
                 WeatherResponseState.Failure(
                     requestId,
                     location,
                     weatherProvider,
                 )
-            }
-
+            })
         }
 
     }

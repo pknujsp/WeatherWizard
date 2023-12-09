@@ -19,26 +19,26 @@ class GetHourlyForecastToCompareUseCase @Inject constructor(
             request.weatherProvider to weatherDataRepository.getWeatherData(RequestWeatherData(latitude = request.location.latitude,
                 longitude = request.location.longitude,
                 weatherProvider = request.weatherProvider,
-                majorWeatherEntityType = io.github.pknujsp.weatherwizard.core.model.weather.common.MajorWeatherEntityType.HOURLY_FORECAST),
-                request.requestId)
+                majorWeatherEntityTypes = request.weatherDataMajorCategories), request.requestId)
         }.let { responses ->
             if (responses.all { it.second.isSuccess }) {
                 val entities = responses.map {
-                    it.first to (it.second.getOrThrow() as HourlyForecastEntity).items.mapByWeatherProvider(it.first).map { item ->
-                        ToCompareHourlyForecastEntity.Item(dateTime = item.dateTime,
-                            weatherCondition = item.weatherCondition,
-                            temperature = item.temperature,
-                            feelsLikeTemperature = item.feelsLikeTemperature,
-                            humidity = item.humidity,
-                            windSpeed = item.windSpeed,
-                            windDirection = item.windDirection,
-                            rainfallVolume = item.rainfallVolume,
-                            snowfallVolume = item.snowfallVolume,
-                            rainfallProbability = item.rainfallProbability,
-                            snowfallProbability = item.snowfallProbability,
-                            precipitationVolume = item.precipitationVolume,
-                            precipitationProbability = item.precipitationProbability)
-                    }
+                    it.first to (it.second.getOrThrow().list.first() as HourlyForecastEntity).items.mapByWeatherProvider(it.first)
+                        .map { item ->
+                            ToCompareHourlyForecastEntity.Item(dateTime = item.dateTime,
+                                weatherCondition = item.weatherCondition,
+                                temperature = item.temperature,
+                                feelsLikeTemperature = item.feelsLikeTemperature,
+                                humidity = item.humidity,
+                                windSpeed = item.windSpeed,
+                                windDirection = item.windDirection,
+                                rainfallVolume = item.rainfallVolume,
+                                snowfallVolume = item.snowfallVolume,
+                                rainfallProbability = item.rainfallProbability,
+                                snowfallProbability = item.snowfallProbability,
+                                precipitationVolume = item.precipitationVolume,
+                                precipitationProbability = item.precipitationProbability)
+                        }
                 }
                 Result.success(ToCompareHourlyForecastEntity(entities))
             } else {

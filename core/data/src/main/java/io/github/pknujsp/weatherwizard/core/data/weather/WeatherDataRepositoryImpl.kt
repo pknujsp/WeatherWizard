@@ -1,29 +1,34 @@
 package io.github.pknujsp.weatherwizard.core.data.weather
 
 import io.github.pknujsp.weatherwizard.core.data.RepositoryCacheManager
+import io.github.pknujsp.weatherwizard.core.data.cache.CacheManager
 import io.github.pknujsp.weatherwizard.core.data.weather.mapper.WeatherResponseMapperManager
+import io.github.pknujsp.weatherwizard.core.data.weather.model.CachedWeatherModel
+import io.github.pknujsp.weatherwizard.core.data.weather.model.WeatherModel
 import io.github.pknujsp.weatherwizard.core.data.weather.request.WeatherApiRequestManager
-import io.github.pknujsp.weatherwizard.core.model.EntityModel
 import io.github.pknujsp.weatherwizard.core.model.weather.common.MajorWeatherEntityType
-import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherProvider
 import io.github.pknujsp.weatherwizard.core.model.weather.current.CurrentWeatherEntity
 import io.github.pknujsp.weatherwizard.core.model.weather.dailyforecast.DailyForecastEntity
 import io.github.pknujsp.weatherwizard.core.model.weather.hourlyforecast.HourlyForecastEntity
 import io.github.pknujsp.weatherwizard.core.model.weather.yesterday.YesterdayWeatherEntity
 import javax.inject.Inject
-import kotlin.reflect.KClass
 
 class WeatherDataRepositoryImpl @Inject constructor(
     private val weatherResponseMapperManager: WeatherResponseMapperManager,
     private val weatherApiRequestManager: WeatherApiRequestManager,
-    cacheManager: CacheManager<EntityModel>
-) : WeatherDataRepository, RepositoryCacheManager<EntityModel>(cacheManager) {
+    cacheManager: CacheManager<CachedWeatherModel>
+) : WeatherDataRepository, RepositoryCacheManager<CachedWeatherModel>(cacheManager) {
 
-    private suspend fun <T : EntityModel> getCache(
-        key: String, cls: KClass<T>
-    ): T? = when (val cacheState = cacheManager.get<T>(key)) {
-        is CacheState.Hit -> {
-            cacheState.value
+
+    private suspend fun getCache(
+        key: String, requestWeatherData: RequestWeatherData
+    ): WeatherModel? = when (val cacheState = cacheManager.get<CachedWeatherModel>(key)) {
+        is CacheManager.CacheState.Hit -> {
+            if (requestWeatherData.majorWeatherEntityTypes in cacheState.value) {
+                cacheState.value.export(requestWeatherData.majorWeatherEntityTypes)
+            } else {
+                null
+            }
         }
 
         else -> null
@@ -31,27 +36,42 @@ class WeatherDataRepositoryImpl @Inject constructor(
 
     override suspend fun getWeatherData(
         requestWeatherData: RequestWeatherData, requestId: Long, bypassCache: Boolean
-    ): Result<EntityModel> {
+    ): Result<WeatherModel> {
         val key = requestWeatherData.key()
 
         if (!bypassCache) {
-            getCache(key, requestWeatherData.majorWeatherEntityType.entityClass)?.let {
+            getCache(key, requestWeatherData)?.let {
                 return Result.success(it)
             }
         }
 
-        val result = when (requestWeatherData.majorWeatherEntityType) {
-            MajorWeatherEntityType.CURRENT_CONDITION -> getCurrentWeather(requestWeatherData, requestId)
-            MajorWeatherEntityType.HOURLY_FORECAST -> getHourlyForecast(requestWeatherData, requestId)
-            MajorWeatherEntityType.DAILY_FORECAST -> getDailyForecast(requestWeatherData, requestId)
-            else -> getYesterdayWeather(requestWeatherData, requestId)
+        val result = load(requestWeatherData, requestId)
+        val allSuccess = result.all { it.second.isSuccess }
+
+        if (!bypassCache and allSuccess) {
+            cacheManager.put(key, CachedWeatherModel(requestWeatherData).apply {
+                result.forEach { (type, value) ->
+                    put(type, value.getOrThrow())
+                }
+            })
         }
 
-        if (!bypassCache and result.isSuccess) {
-            cacheManager.put(key, result.getOrNull()!!)
+        return if (allSuccess) {
+            Result.success(WeatherModel(result.map { it.second.getOrThrow() }))
+        } else {
+            Result.failure(Throwable())
         }
-        return result
     }
+
+    private suspend fun load(requestWeatherData: RequestWeatherData, requestId: Long) =
+        requestWeatherData.majorWeatherEntityTypes.map { type ->
+            type to when (type) {
+                MajorWeatherEntityType.CURRENT_CONDITION -> getCurrentWeather(requestWeatherData, requestId)
+                MajorWeatherEntityType.HOURLY_FORECAST -> getHourlyForecast(requestWeatherData, requestId)
+                MajorWeatherEntityType.DAILY_FORECAST -> getDailyForecast(requestWeatherData, requestId)
+                else -> getYesterdayWeather(requestWeatherData, requestId)
+            }
+        }
 
     private suspend fun getCurrentWeather(
         requestWeatherData: RequestWeatherData, requestId: Long
@@ -92,11 +112,6 @@ class WeatherDataRepositoryImpl @Inject constructor(
     }
 
 
-    private fun RequestWeatherData.key(): String = "$majorWeatherEntityType-$latitude-$longitude-$weatherProvider"
+    private fun RequestWeatherData.key(): String = "$latitude-$longitude-$weatherProvider"
 
-    private val WeatherProvider.cacheMaxTimeInMinutes: Long
-        get() = when (this) {
-            is WeatherProvider.Kma -> 300_000 // 5 분
-            is WeatherProvider.MetNorway -> 300_000 // 5 분
-        }
 }

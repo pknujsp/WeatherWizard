@@ -1,8 +1,7 @@
 package io.github.pknujsp.weatherwizard.core.data.aqicn
 
 import io.github.pknujsp.weatherwizard.core.data.RepositoryCacheManager
-import io.github.pknujsp.weatherwizard.core.data.weather.CacheManager
-import io.github.pknujsp.weatherwizard.core.data.weather.CacheState
+import io.github.pknujsp.weatherwizard.core.data.cache.CacheManager
 import io.github.pknujsp.weatherwizard.core.model.VarState
 import io.github.pknujsp.weatherwizard.core.model.airquality.AirQualityDescription
 import io.github.pknujsp.weatherwizard.core.model.airquality.AirQualityEntity
@@ -84,7 +83,7 @@ class AirQualityRepositoryImpl @Inject constructor(
     private suspend fun getCache(
         key: String
     ): AirQualityEntity? = when (val cacheState = cacheManager.get<AirQualityEntity>(key)) {
-        is CacheState.Hit -> {
+        is CacheManager.CacheState.Hit -> {
             cacheState.value
         }
 

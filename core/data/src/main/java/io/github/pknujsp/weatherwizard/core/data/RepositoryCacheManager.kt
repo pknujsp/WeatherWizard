@@ -1,6 +1,6 @@
 package io.github.pknujsp.weatherwizard.core.data
 
-import io.github.pknujsp.weatherwizard.core.data.weather.CacheManager
+import io.github.pknujsp.weatherwizard.core.data.cache.CacheManager
 
 abstract class RepositoryCacheManager<T : Any>(protected val cacheManager: CacheManager<T>) {
     fun startCacheCleaner() {
