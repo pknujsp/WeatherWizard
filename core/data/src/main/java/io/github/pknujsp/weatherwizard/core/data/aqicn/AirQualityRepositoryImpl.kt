@@ -83,7 +83,7 @@ class AirQualityRepositoryImpl @Inject constructor(
 
     private suspend fun getCache(
         key: String
-    ): AirQualityEntity? = when (val cacheState = cacheManager.get<AirQualityEntity>(key)) {
+    ): AirQualityEntity? = when (val cacheState = cacheManager.get(key)) {
         is CacheManager.CacheState.Hit -> {
             cacheState.value
         }

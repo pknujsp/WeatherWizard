@@ -34,7 +34,7 @@ class RadarTilesRepositoryImpl @Inject constructor(
     }
 
     private suspend fun getCache(
-    ): RadarTiles? = when (val cacheState = cacheManager.get<RadarTiles>(cacheKeyString)) {
+    ): RadarTiles? = when (val cacheState = cacheManager.get(cacheKeyString)) {
         is CacheManager.CacheState.Hit -> {
             cacheState.value
         }

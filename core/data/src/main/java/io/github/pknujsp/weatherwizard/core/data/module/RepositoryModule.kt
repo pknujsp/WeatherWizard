@@ -81,7 +81,7 @@ object RepositoryModule {
     fun providesAirQualityRepositoryImpl(
         aqiCnDataSource: AqiCnDataSource, @CoDispatcher(CoDispatcherType.DEFAULT) dispatcher: CoroutineDispatcher
     ): AirQualityRepositoryImpl = AirQualityRepositoryImpl(aqiCnDataSource,
-        CacheManagerImpl(defaultCacheExpiryTime = Duration.ofMinutes(10),
+        CacheManagerImpl(cacheExpiryTime = Duration.ofMinutes(10),
             cleaningInterval = Duration.ofMinutes(15),
             dispatcher = dispatcher))
 

@@ -22,7 +22,7 @@ class WeatherDataRepositoryImpl @Inject constructor(
 
     private suspend fun getCache(
         key: String, requestWeatherData: RequestWeatherData
-    ): WeatherModel? = when (val cacheState = cacheManager.get<CachedWeatherModel>(key)) {
+    ): WeatherModel? = when (val cacheState = cacheManager.get(key)) {
         is CacheManager.CacheState.Hit -> {
             if (requestWeatherData.majorWeatherEntityTypes in cacheState.value) {
                 cacheState.value.export(requestWeatherData.majorWeatherEntityTypes)

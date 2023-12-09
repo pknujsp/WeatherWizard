@@ -1,6 +1,8 @@
 package io.github.pknujsp.weatherwizard.core.data.cache
 
 import android.util.Log
+import android.util.LruCache
+import androidx.core.util.lruCache
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
@@ -12,25 +14,27 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.time.Duration
 import java.util.concurrent.atomic.AtomicBoolean
-import java.util.concurrent.atomic.AtomicLong
 
 /**
  * CacheManager
  *
  * defaultCacheExpiryTime: 기본 캐시 만료 시간
  * cleaningInterval: 캐시 청소 주기
+ * cacheMaxSize: 캐시 최대 크기
  * dispatcher: 캐시 청소를 위한 코루틴 디스패처
  */
 internal class CacheManagerImpl<T : Any>(
-    defaultCacheExpiryTime: Duration = Duration.ofMinutes(5),
+    cacheExpiryTime: Duration = Duration.ofMinutes(5),
     cleaningInterval: Duration = Duration.ofMinutes(5),
+    cacheMaxSize: Int = 15,
     dispatcher: CoroutineDispatcher
-) : CacheManager<T>(defaultCacheExpiryTime.toMillis(), cleaningInterval.toMillis()), CoroutineScope by CoroutineScope(dispatcher) {
+) : CacheManager<T>(cacheExpiryTime.toMillis(), cleaningInterval.toMillis(), cacheMaxSize),
+    CoroutineScope by CoroutineScope(dispatcher) {
 
     private val cacheActor = cacheManagerActor()
     private var cacheCleanerJob: Job? = null
-    private val isCleanerWorking = AtomicBoolean(false)
-    private val waitingTimeWhenCleaning = 20L
+    private val isCacheCleanerRunning = AtomicBoolean(false)
+    private val waitTimeForCacheCleaning = 20L
 
     init {
         startCacheCleaner()
@@ -49,13 +53,13 @@ internal class CacheManagerImpl<T : Any>(
 
             while (true) {
                 delay(cleaningInterval)
-                Log.d("CacheManager", "캐시 정리 시작, ${isCleanerWorking.get()}")
-                isCleanerWorking.getAndSet(true)
+                Log.d("CacheManager", "캐시 정리 시작, ${isCacheCleanerRunning.get()}")
+                isCacheCleanerRunning.getAndSet(true)
                 cacheActor.send(CacheMessage.Clear(CompletableDeferred<Unit>().apply {
                     await()
-                    isCleanerWorking.getAndSet(false)
+                    isCacheCleanerRunning.getAndSet(false)
                 }))
-                Log.d("CacheManager", "캐시 정리 완료, ${isCleanerWorking.get()}")
+                Log.d("CacheManager", "캐시 정리 완료, ${isCacheCleanerRunning.get()}")
             }
         }
     }
@@ -63,8 +67,8 @@ internal class CacheManagerImpl<T : Any>(
     override fun stopCacheCleaner() {
         Log.d("CacheManager", "${this@CacheManagerImpl} - StoppedCacheCleaner")
         CoroutineScope(SupervisorJob()).launch {
-            while (isCleanerWorking.get()) {
-                delay(waitingTimeWhenCleaning)
+            while (isCacheCleanerRunning.get()) {
+                delay(waitTimeForCacheCleaning)
             }
             cacheCleanerJob?.cancel()
         }
@@ -84,45 +88,53 @@ internal class CacheManagerImpl<T : Any>(
     @OptIn(ObsoleteCoroutinesApi::class)
     private fun CoroutineScope.cacheManagerActor(
     ) = actor<CacheMessage<T>> {
-        val cacheMap = mutableMapOf<String, Cache<T>>()
+        val cacheMap = lruCache<String, Cache<T>>(cacheMaxSize)
         for (msg in channel) {
             msg.process(cacheMap)
         }
     }
 
     private sealed interface CacheMessage<T> {
-        fun process(cacheMap: MutableMap<String, Cache<T>>)
+        fun process(cacheMap: LruCache<String, Cache<T>>)
 
         data class Put<T>(val key: String, val value: T, val expiryTime: Long) : CacheMessage<T> {
-            override fun process(cacheMap: MutableMap<String, Cache<T>>) {
+            override fun process(cacheMap: LruCache<String, Cache<T>>) {
                 Log.d("CacheManager", "PutCache: $key")
-                cacheMap[key] = Cache(value, expiryTime)
+                cacheMap.put(key, Cache(value, expiryTime))
             }
         }
 
         data class Remove<T>(val key: String) : CacheMessage<T> {
-            override fun process(cacheMap: MutableMap<String, Cache<T>>) {
+            override fun process(cacheMap: LruCache<String, Cache<T>>) {
                 Log.d("CacheManager", "RemoveCache: $key")
                 cacheMap.remove(key)
             }
         }
 
         data class Clear<T>(val response: CompletableDeferred<Unit>) : CacheMessage<T> {
-            override fun process(cacheMap: MutableMap<String, Cache<T>>) {
+            override fun process(cacheMap: LruCache<String, Cache<T>>) {
                 val now = System.currentTimeMillis()
-                cacheMap.entries.removeIf { (_, cache) -> cache.isExpired(now) }
-                response.complete(Unit)
+                try {
+                    cacheMap.snapshot().forEach { (key, cache) ->
+                        if (cache.isExpired(now)) {
+                            cacheMap.remove(key)
+                        }
+                    }
+                } catch (e: UnsupportedOperationException) {
+                    e.printStackTrace()
+                } finally {
+                    response.complete(Unit)
+                }
             }
         }
 
         data class Get<T>(
             val key: String, val response: CompletableDeferred<CacheState<T>>
         ) : CacheMessage<T> {
-            override fun process(cacheMap: MutableMap<String, Cache<T>>) {
+            override fun process(cacheMap: LruCache<String, Cache<T>>) {
                 val cache = cacheMap[key]
 
                 response.complete(if (cache?.isExpired() == true) {
-                    cache.hit()
                     Log.d("CacheManager", "HitCache: $key")
                     CacheState.Hit(cache.value)
                 } else {
@@ -139,15 +151,5 @@ internal class CacheManagerImpl<T : Any>(
 data class Cache<T>(
     val value: T, val cacheExpiryTime: Long, val addedTime: Long = System.currentTimeMillis()
 ) {
-    private val _lastHitTime = AtomicLong(addedTime)
-    val lastHitTime: Long
-        get() = _lastHitTime.get()
-
-    fun hit(now: Long = System.currentTimeMillis()) {
-        _lastHitTime.getAndSet(now)
-    }
-
     fun isExpired(now: Long = System.currentTimeMillis()): Boolean = now - addedTime > cacheExpiryTime
-
-    fun isHitRecently(now: Long = System.currentTimeMillis(), readMaxInterval: Long): Boolean = now - lastHitTime <= readMaxInterval
 }

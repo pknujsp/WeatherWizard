@@ -10,7 +10,7 @@ class FlickrRepositoryImpl @Inject constructor(
     private val flickrDataSource: FlickrDataSource
 ) : FlickrRepository {
 
-    private val imageUrlMap = LruCache<String, String>(5)
+    private val imageUrlMap = LruCache<String, String>(10)
 
     override suspend fun getPhoto(parameter: FlickrRequestParameters): Result<FlickrImageEntity> {
         val getPhotosFromGalleryParameter = parameter.toGetPhotosFromGalleryParameter()
