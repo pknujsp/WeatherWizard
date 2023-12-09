@@ -2,6 +2,7 @@ package io.github.pknujsp.weatherwizard.core.data.rainviewer
 
 import io.github.pknujsp.weatherwizard.core.data.RepositoryCacheManager
 import io.github.pknujsp.weatherwizard.core.data.cache.CacheManager
+import io.github.pknujsp.weatherwizard.core.data.cache.CacheManagerImpl
 import io.github.pknujsp.weatherwizard.core.model.rainviewer.RadarTiles
 import io.github.pknujsp.weatherwizard.core.network.api.rainviewer.RainViewerDataSource
 import javax.inject.Inject

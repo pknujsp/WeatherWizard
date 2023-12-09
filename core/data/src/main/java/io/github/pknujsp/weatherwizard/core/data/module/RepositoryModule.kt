@@ -23,7 +23,7 @@ import io.github.pknujsp.weatherwizard.core.data.rainviewer.RadarTilesRepository
 import io.github.pknujsp.weatherwizard.core.data.rainviewer.RadarTilesRepositoryImpl
 import io.github.pknujsp.weatherwizard.core.data.settings.SettingsRepository
 import io.github.pknujsp.weatherwizard.core.data.settings.SettingsRepositoryImpl
-import io.github.pknujsp.weatherwizard.core.data.cache.CacheManager
+import io.github.pknujsp.weatherwizard.core.data.cache.CacheManagerImpl
 import io.github.pknujsp.weatherwizard.core.data.weather.WeatherDataRepository
 import io.github.pknujsp.weatherwizard.core.data.weather.WeatherDataRepositoryImpl
 import io.github.pknujsp.weatherwizard.core.data.weather.mapper.WeatherResponseMapperManager
@@ -54,7 +54,7 @@ object RepositoryModule {
         weatherApiRequestManager: WeatherApiRequestManager,
         @CoDispatcher(CoDispatcherType.DEFAULT) dispatcher: CoroutineDispatcher
     ): WeatherDataRepositoryImpl =
-        WeatherDataRepositoryImpl(weatherResponseMapperManager, weatherApiRequestManager, CacheManager(dispatcher = dispatcher))
+        WeatherDataRepositoryImpl(weatherResponseMapperManager, weatherApiRequestManager, CacheManagerImpl(dispatcher = dispatcher))
 
     @Provides
     fun providesWeatherRepository(
@@ -71,7 +71,7 @@ object RepositoryModule {
     @Singleton
     fun providesRadartilesRepositoryImpl(
         rainViewerDataSource: RainViewerDataSource, @CoDispatcher(CoDispatcherType.DEFAULT) dispatcher: CoroutineDispatcher
-    ): RadarTilesRepositoryImpl = RadarTilesRepositoryImpl(rainViewerDataSource, CacheManager(dispatcher = dispatcher))
+    ): RadarTilesRepositoryImpl = RadarTilesRepositoryImpl(rainViewerDataSource, CacheManagerImpl(dispatcher = dispatcher))
 
     @Provides
     fun providesRadartilesRepository(radarTilesRepositoryImpl: RadarTilesRepositoryImpl): RadarTilesRepository = radarTilesRepositoryImpl
@@ -81,9 +81,8 @@ object RepositoryModule {
     fun providesAirQualityRepositoryImpl(
         aqiCnDataSource: AqiCnDataSource, @CoDispatcher(CoDispatcherType.DEFAULT) dispatcher: CoroutineDispatcher
     ): AirQualityRepositoryImpl = AirQualityRepositoryImpl(aqiCnDataSource,
-        CacheManager(defaultCacheExpiryTime = Duration.ofMinutes(10),
-            readMaxInterval = Duration.ofMinutes(1),
-            cleaningInterval = Duration.ofMinutes(10),
+        CacheManagerImpl(defaultCacheExpiryTime = Duration.ofMinutes(10),
+            cleaningInterval = Duration.ofMinutes(15),
             dispatcher = dispatcher))
 
     @Provides

@@ -2,6 +2,7 @@ package io.github.pknujsp.weatherwizard.core.data.aqicn
 
 import io.github.pknujsp.weatherwizard.core.data.RepositoryCacheManager
 import io.github.pknujsp.weatherwizard.core.data.cache.CacheManager
+import io.github.pknujsp.weatherwizard.core.data.cache.CacheManagerImpl
 import io.github.pknujsp.weatherwizard.core.model.VarState
 import io.github.pknujsp.weatherwizard.core.model.airquality.AirQualityDescription
 import io.github.pknujsp.weatherwizard.core.model.airquality.AirQualityEntity
