@@ -1,10 +1,10 @@
 package io.github.pknujsp.weatherwizard.core.data.cache
 
-abstract class CacheManager<T : Any>(
+abstract class CacheManager<T>(
     protected val defaultCacheExpiryTime: Long,
     protected val cleaningInterval: Long,
 ) {
-    abstract suspend fun <E : T> get(key: String): CacheState<E>
+    abstract suspend fun get(key: String): CacheState<T>
 
     abstract suspend fun put(key: String, value: T, cacheExpiryTime: Long = defaultCacheExpiryTime)
 

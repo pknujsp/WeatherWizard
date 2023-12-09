@@ -7,11 +7,9 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.ObsoleteCoroutinesApi
 import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.channels.actor
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import java.time.Duration
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicLong
@@ -72,8 +70,8 @@ internal class CacheManagerImpl<T : Any>(
         }
     }
 
-    override suspend fun <E : T> get(key: String): CacheState<E> {
-        val response = CompletableDeferred<CacheState<E>>()
+    override suspend fun get(key: String): CacheState<T> {
+        val response = CompletableDeferred<CacheState<T>>()
         cacheActor.send(CacheMessage.Get(key, response))
         return response.await()
     }
@@ -87,50 +85,53 @@ internal class CacheManagerImpl<T : Any>(
     private fun CoroutineScope.cacheManagerActor(
     ) = actor<CacheMessage<T>> {
         val cacheMap = mutableMapOf<String, Cache<T>>()
-
         for (msg in channel) {
-            when (msg) {
-                is CacheMessage.Put -> {
-                    Log.d("CacheManager", "PutCache: ${msg.key}")
-                    cacheMap[msg.key] = Cache(msg.value, msg.expiryTime)
-                }
-
-                is CacheMessage.Get -> {
-                    val cache = cacheMap[msg.key]
-
-                    msg.response.complete(if (cache?.isExpired() == true) {
-                        cache.hit()
-                        Log.d("CacheManager", "HitCache: ${msg.key}")
-                        CacheState.Hit(cache.value)
-                    } else {
-                        Log.d("CacheManager", "MissCache: ${msg.key}")
-                        cacheMap.remove(msg.key)
-                        CacheState.Miss
-                    })
-
-                }
-
-                is CacheMessage.Remove -> {
-                    Log.d("CacheManager", "RemoveCache: ${msg.key}")
-                    cacheMap.remove(msg.key)
-                }
-
-                is CacheMessage.Clear -> {
-                    val now = System.currentTimeMillis()
-                    cacheMap.entries.removeIf { (_, cache) -> cache.isExpired(now) }
-                    msg.response.complete(Unit)
-                }
-            }
+            msg.process(cacheMap)
         }
     }
 
-    private sealed interface CacheMessage<out T> {
-        data class Put<T>(val key: String, val value: T, val expiryTime: Long) : CacheMessage<T>
-        data class Remove(val key: String) : CacheMessage<Nothing>
-        data class Clear(val response: CompletableDeferred<Unit>) : CacheMessage<Nothing>
+    private sealed interface CacheMessage<T> {
+        fun process(cacheMap: MutableMap<String, Cache<T>>)
+
+        data class Put<T>(val key: String, val value: T, val expiryTime: Long) : CacheMessage<T> {
+            override fun process(cacheMap: MutableMap<String, Cache<T>>) {
+                Log.d("CacheManager", "PutCache: $key")
+                cacheMap[key] = Cache(value, expiryTime)
+            }
+        }
+
+        data class Remove<T>(val key: String) : CacheMessage<T> {
+            override fun process(cacheMap: MutableMap<String, Cache<T>>) {
+                Log.d("CacheManager", "RemoveCache: $key")
+                cacheMap.remove(key)
+            }
+        }
+
+        data class Clear<T>(val response: CompletableDeferred<Unit>) : CacheMessage<T> {
+            override fun process(cacheMap: MutableMap<String, Cache<T>>) {
+                val now = System.currentTimeMillis()
+                cacheMap.entries.removeIf { (_, cache) -> cache.isExpired(now) }
+                response.complete(Unit)
+            }
+        }
+
         data class Get<T>(
             val key: String, val response: CompletableDeferred<CacheState<T>>
-        ) : CacheMessage<T>
+        ) : CacheMessage<T> {
+            override fun process(cacheMap: MutableMap<String, Cache<T>>) {
+                val cache = cacheMap[key]
+
+                response.complete(if (cache?.isExpired() == true) {
+                    cache.hit()
+                    Log.d("CacheManager", "HitCache: $key")
+                    CacheState.Hit(cache.value)
+                } else {
+                    Log.d("CacheManager", "MissCache: $key")
+                    cacheMap.remove(key)
+                    CacheState.Miss
+                })
+            }
+        }
     }
 
 }
