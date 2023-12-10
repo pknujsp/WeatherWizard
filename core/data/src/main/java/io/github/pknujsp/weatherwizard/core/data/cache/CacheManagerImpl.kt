@@ -28,8 +28,7 @@ internal class CacheManagerImpl<T : Any>(
     cleaningInterval: Duration = Duration.ofMinutes(5),
     cacheMaxSize: Int = 15,
     dispatcher: CoroutineDispatcher
-) : CacheManager<T>(cacheExpiryTime.toMillis(), cleaningInterval.toMillis(), cacheMaxSize),
-    CoroutineScope by CoroutineScope(dispatcher) {
+) : CacheManager<T>(cacheExpiryTime.toMillis(), cleaningInterval.toMillis(), cacheMaxSize), CoroutineScope by CoroutineScope(dispatcher) {
 
     private val cacheActor = cacheManagerActor()
     private var cacheCleanerJob: Job? = null
@@ -55,10 +54,10 @@ internal class CacheManagerImpl<T : Any>(
                 delay(cleaningInterval)
                 Log.d("CacheManager", "캐시 정리 시작, ${isCacheCleanerRunning.get()}")
                 isCacheCleanerRunning.getAndSet(true)
-                cacheActor.send(CacheMessage.Clear(CompletableDeferred<Unit>().apply {
-                    await()
-                    isCacheCleanerRunning.getAndSet(false)
-                }))
+                val response = CompletableDeferred<Unit>()
+                cacheActor.send(CacheMessage.Clear(response))
+                response.await()
+                isCacheCleanerRunning.getAndSet(false)
                 Log.d("CacheManager", "캐시 정리 완료, ${isCacheCleanerRunning.get()}")
             }
         }
@@ -134,13 +133,13 @@ internal class CacheManagerImpl<T : Any>(
             override fun process(cacheMap: LruCache<String, Cache<T>>) {
                 val cache = cacheMap[key]
 
-                response.complete(if (cache?.isExpired() == true) {
-                    Log.d("CacheManager", "HitCache: $key")
-                    CacheState.Hit(cache.value)
-                } else {
+                response.complete(if (cache == null || cache?.isExpired() == true) {
                     Log.d("CacheManager", "MissCache: $key")
                     cacheMap.remove(key)
                     CacheState.Miss
+                } else {
+                    Log.d("CacheManager", "HitCache: $key")
+                    CacheState.Hit(cache.value)
                 })
             }
         }

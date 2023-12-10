@@ -19,7 +19,7 @@ class GetHourlyForecastToCompareUseCase @Inject constructor(
             request.weatherProvider to weatherDataRepository.getWeatherData(RequestWeatherData(latitude = request.location.latitude,
                 longitude = request.location.longitude,
                 weatherProvider = request.weatherProvider,
-                majorWeatherEntityTypes = request.weatherDataMajorCategories), request.requestId)
+                majorWeatherEntityTypes = request.weatherDataMajorCategories), request.requestId, false)
         }.let { responses ->
             if (responses.all { it.second.isSuccess }) {
                 val entities = responses.map {
