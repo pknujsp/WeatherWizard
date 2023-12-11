@@ -15,7 +15,7 @@ class GetWeatherDataUseCase @Inject constructor(
 ) {
 
     suspend operator fun invoke(
-        request: WeatherDataRequest.Request, bypassCache: Boolean = true
+        request: WeatherDataRequest.Request, bypassCache: Boolean = false
     ): WeatherResponseState {
         return request.run {
             val response = supervisorScope {

@@ -49,9 +49,9 @@ google_oss_plugin = "0.10.6"
 junit = "4.13.2"
 leakcanaryAndroid = "2.8.1"
 lithoAnnotations = "0.48.0"
-mockit = "5.4.0"
-mockitKotlin = "5.1.0"
-robolectric = "4.10.3"
+mockit = "5.8.0"
+mockitKotlin = "5.2.1"
+robolectric = "4.11.1"
 lottie = "6.2.0"
 
 material = "1.10.0"
@@ -82,7 +82,7 @@ sunrisesunsetcalculator = "1.2"
 
 osmdroid = "6.1.17"
 uiautomator = "2.2.0"
-benchmark-macro-junit4 = "1.1.1"
+benchmark-macro-junit4 = "1.2.2"
 constraintlayout = "2.1.4"
 
 

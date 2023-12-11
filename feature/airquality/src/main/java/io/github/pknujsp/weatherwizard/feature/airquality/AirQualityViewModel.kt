@@ -4,10 +4,13 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import io.github.pknujsp.weatherwizard.core.common.coroutines.CoDispatcher
+import io.github.pknujsp.weatherwizard.core.common.coroutines.CoDispatcherType
 import io.github.pknujsp.weatherwizard.core.data.aqicn.AirQualityRepository
 import io.github.pknujsp.weatherwizard.core.model.UiState
 import io.github.pknujsp.weatherwizard.core.model.airquality.AirQualityEntity
 import io.github.pknujsp.weatherwizard.core.model.airquality.SimpleAirQuality
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -17,25 +20,36 @@ import javax.inject.Inject
 
 @HiltViewModel
 class AirQualityViewModel @Inject constructor(
-    private val airQualityRepository: AirQualityRepository, private val savedStateHandle: SavedStateHandle
+    private val airQualityRepository: AirQualityRepository,
+    @CoDispatcher(CoDispatcherType.IO) private val ioDispatcher: CoroutineDispatcher,
 ) : ViewModel() {
 
     private val _airQuality: MutableStateFlow<UiState<SimpleAirQuality>> = MutableStateFlow(UiState.Loading)
     val airQuality: StateFlow<UiState<SimpleAirQuality>> = _airQuality
 
+    private var latitude: Double = 0.0
+    private var longitude: Double = 0.0
+
     fun reload() {
         viewModelScope.launch {
             _airQuality.value = UiState.Loading
+            loadAirQuality(latitude, longitude)
         }
     }
 
     fun loadAirQuality(latitude: Double, longitude: Double) {
-        viewModelScope.launch(Dispatchers.IO) {
-            airQualityRepository.getAirQuality(latitude, longitude).onSuccess {
-                _airQuality.value = UiState.Success(createModel(it))
-            }.onFailure {
-                _airQuality.value = UiState.Error(it)
-            }
+        viewModelScope.launch(ioDispatcher) {
+            this@AirQualityViewModel.latitude = latitude
+            this@AirQualityViewModel.longitude = longitude
+
+            _airQuality.value = airQualityRepository.getAirQuality(latitude, longitude).fold(
+                onSuccess = { airQuality ->
+                    UiState.Success(createModel(airQuality))
+                },
+                onFailure = { throwable ->
+                    UiState.Error(throwable)
+                }
+            )
         }
     }
 

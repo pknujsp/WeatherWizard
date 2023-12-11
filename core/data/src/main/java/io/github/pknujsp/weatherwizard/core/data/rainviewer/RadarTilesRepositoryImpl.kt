@@ -1,17 +1,17 @@
 package io.github.pknujsp.weatherwizard.core.data.rainviewer
 
 import io.github.pknujsp.weatherwizard.core.data.RepositoryCacheManager
+import io.github.pknujsp.weatherwizard.core.data.cache.CacheCleaner
 import io.github.pknujsp.weatherwizard.core.data.cache.CacheManager
-import io.github.pknujsp.weatherwizard.core.data.cache.CacheManagerImpl
 import io.github.pknujsp.weatherwizard.core.model.rainviewer.RadarTiles
 import io.github.pknujsp.weatherwizard.core.network.api.rainviewer.RainViewerDataSource
 import javax.inject.Inject
 
 class RadarTilesRepositoryImpl @Inject constructor(
-    private val rainViewerDataSource: RainViewerDataSource, cacheManager: CacheManager<RadarTiles>
-) : RadarTilesRepository, RepositoryCacheManager<RadarTiles>(cacheManager) {
+    private val rainViewerDataSource: RainViewerDataSource, cacheManager: CacheManager<Long, RadarTiles>, cacheCleaner: CacheCleaner
+) : RadarTilesRepository, RepositoryCacheManager<Long, RadarTiles>(cacheCleaner, cacheManager) {
 
-    private var cacheKeyString = System.currentTimeMillis().toString()
+    private var cacheKey = System.currentTimeMillis()
 
     override suspend fun getTiles(): Result<RadarTiles> {
         return getCache()?.run {
@@ -27,20 +27,20 @@ class RadarTilesRepositoryImpl @Inject constructor(
                     },
                     it.version,
                 ).apply {
-                    cacheManager.put(cacheKeyString, this)
+                    cacheManager.put(cacheKey, this)
                 }
             }
         }
     }
 
     private suspend fun getCache(
-    ): RadarTiles? = when (val cacheState = cacheManager.get(cacheKeyString)) {
+    ): RadarTiles? = when (val cacheState = cacheManager.get(cacheKey)) {
         is CacheManager.CacheState.Hit -> {
             cacheState.value
         }
 
         else -> {
-            cacheKeyString = System.currentTimeMillis().toString()
+            cacheKey = System.currentTimeMillis()
             null
         }
     }

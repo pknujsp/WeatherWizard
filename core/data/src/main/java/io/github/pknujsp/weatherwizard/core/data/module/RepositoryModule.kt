@@ -27,6 +27,7 @@ import io.github.pknujsp.weatherwizard.core.data.cache.CacheManagerImpl
 import io.github.pknujsp.weatherwizard.core.data.weather.WeatherDataRepository
 import io.github.pknujsp.weatherwizard.core.data.weather.WeatherDataRepositoryImpl
 import io.github.pknujsp.weatherwizard.core.data.weather.mapper.WeatherResponseMapperManager
+import io.github.pknujsp.weatherwizard.core.data.weather.model.CachedWeatherModel
 import io.github.pknujsp.weatherwizard.core.data.weather.request.WeatherApiRequestManager
 import io.github.pknujsp.weatherwizard.core.data.widget.WidgetRepository
 import io.github.pknujsp.weatherwizard.core.data.widget.WidgetRepositoryImpl
@@ -35,6 +36,8 @@ import io.github.pknujsp.weatherwizard.core.database.favoritearea.FavoriteAreaLi
 import io.github.pknujsp.weatherwizard.core.database.notification.daily.DailyNotificationLocalDataSource
 import io.github.pknujsp.weatherwizard.core.database.notification.ongoing.OngoingNotificationLocalDataSource
 import io.github.pknujsp.weatherwizard.core.database.widget.WidgetLocalDataSource
+import io.github.pknujsp.weatherwizard.core.model.airquality.AirQualityEntity
+import io.github.pknujsp.weatherwizard.core.model.rainviewer.RadarTiles
 import io.github.pknujsp.weatherwizard.core.network.api.aqicn.AqiCnDataSource
 import io.github.pknujsp.weatherwizard.core.network.api.nominatim.NominatimDataSource
 import io.github.pknujsp.weatherwizard.core.network.api.rainviewer.RainViewerDataSource
@@ -53,8 +56,10 @@ object RepositoryModule {
         weatherResponseMapperManager: WeatherResponseMapperManager,
         weatherApiRequestManager: WeatherApiRequestManager,
         @CoDispatcher(CoDispatcherType.DEFAULT) dispatcher: CoroutineDispatcher
-    ): WeatherDataRepositoryImpl =
-        WeatherDataRepositoryImpl(weatherResponseMapperManager, weatherApiRequestManager, CacheManagerImpl(dispatcher = dispatcher))
+    ): WeatherDataRepositoryImpl {
+        val cacheManagerImpl = CacheManagerImpl<Int, CachedWeatherModel>(dispatcher = dispatcher)
+        return WeatherDataRepositoryImpl(weatherResponseMapperManager, weatherApiRequestManager, cacheManagerImpl, cacheManagerImpl)
+    }
 
     @Provides
     fun providesWeatherRepository(
@@ -71,7 +76,10 @@ object RepositoryModule {
     @Singleton
     fun providesRadartilesRepositoryImpl(
         rainViewerDataSource: RainViewerDataSource, @CoDispatcher(CoDispatcherType.DEFAULT) dispatcher: CoroutineDispatcher
-    ): RadarTilesRepositoryImpl = RadarTilesRepositoryImpl(rainViewerDataSource, CacheManagerImpl(dispatcher = dispatcher))
+    ): RadarTilesRepositoryImpl {
+        val cacheManagerImpl = CacheManagerImpl<Long, RadarTiles>(cacheMaxSize = 1, dispatcher = dispatcher)
+        return RadarTilesRepositoryImpl(rainViewerDataSource, cacheManagerImpl, cacheManagerImpl)
+    }
 
     @Provides
     fun providesRadartilesRepository(radarTilesRepositoryImpl: RadarTilesRepositoryImpl): RadarTilesRepository = radarTilesRepositoryImpl
@@ -80,10 +88,10 @@ object RepositoryModule {
     @Singleton
     fun providesAirQualityRepositoryImpl(
         aqiCnDataSource: AqiCnDataSource, @CoDispatcher(CoDispatcherType.DEFAULT) dispatcher: CoroutineDispatcher
-    ): AirQualityRepositoryImpl = AirQualityRepositoryImpl(aqiCnDataSource,
-        CacheManagerImpl(cacheExpiryTime = Duration.ofMinutes(10),
-            cleaningInterval = Duration.ofMinutes(15),
-            dispatcher = dispatcher))
+    ): AirQualityRepositoryImpl {
+        val cacheManagerImpl = CacheManagerImpl<Int, AirQualityEntity>(cacheMaxSize = 10, dispatcher = dispatcher)
+        return AirQualityRepositoryImpl(aqiCnDataSource, cacheManagerImpl, cacheManagerImpl)
+    }
 
     @Provides
     fun providesAirQualityRepository(

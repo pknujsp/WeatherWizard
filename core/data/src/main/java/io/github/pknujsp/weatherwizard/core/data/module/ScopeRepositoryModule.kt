@@ -32,25 +32,25 @@ object ScopeRepositoryModule {
 
     @Provides
     @Named(WEATHER_REPOSITORY)
-    fun providesWeatherRepositoryInitializer(weatherDataRepositoryImpl: WeatherDataRepositoryImpl): RepositoryCacheManager<*> =
+    fun providesWeatherRepositoryInitializer(weatherDataRepositoryImpl: WeatherDataRepositoryImpl): RepositoryCacheManager<*, *> =
         weatherDataRepositoryImpl
 
     @Provides
     @Named(AIR_QUALITY_REPOSITORY)
-    fun providesAirQualityRepositoryInitializer(airQualityRepositoryImpl: AirQualityRepositoryImpl): RepositoryCacheManager<*> =
+    fun providesAirQualityRepositoryInitializer(airQualityRepositoryImpl: AirQualityRepositoryImpl): RepositoryCacheManager<*, *> =
         airQualityRepositoryImpl
 
     @Provides
     @Named(RAIN_VIEWER_REPOSITORY)
-    fun providesRainViewerRepositoryInitializer(radarTilesRepositoryImpl: RadarTilesRepositoryImpl): RepositoryCacheManager<*> =
+    fun providesRainViewerRepositoryInitializer(radarTilesRepositoryImpl: RadarTilesRepositoryImpl): RepositoryCacheManager<*, *> =
         radarTilesRepositoryImpl
 
     @Provides
     @Singleton
     fun providesRepositoryInitializer(
-        @Named(WEATHER_REPOSITORY) weatherRepository: RepositoryCacheManager<*>,
-        @Named(AIR_QUALITY_REPOSITORY) airQualityRepository: RepositoryCacheManager<*>,
-        @Named(RAIN_VIEWER_REPOSITORY) rainViewerRepository: RepositoryCacheManager<*>
+        @Named(WEATHER_REPOSITORY) weatherRepository: RepositoryCacheManager<*, *>,
+        @Named(AIR_QUALITY_REPOSITORY) airQualityRepository: RepositoryCacheManager<*, *>,
+        @Named(RAIN_VIEWER_REPOSITORY) rainViewerRepository: RepositoryCacheManager<*, *>
     ): GlobalRepositoryCacheManager = GlobalRepositoryCacheManagerImpl(weatherRepository, airQualityRepository, rainViewerRepository)
 
 }

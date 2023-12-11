@@ -1,11 +1,11 @@
 package io.github.pknujsp.weatherwizard.core.data.cache
 
-import android.util.Log
 import android.util.LruCache
 import androidx.core.util.lruCache
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.ObsoleteCoroutinesApi
 import kotlinx.coroutines.SupervisorJob
@@ -23,12 +23,13 @@ import java.util.concurrent.atomic.AtomicBoolean
  * cacheMaxSize: 캐시 최대 크기
  * dispatcher: 캐시 청소를 위한 코루틴 디스패처
  */
-internal class CacheManagerImpl<T : Any>(
+class CacheManagerImpl<K, V>(
     cacheExpiryTime: Duration = Duration.ofMinutes(5),
     cleaningInterval: Duration = Duration.ofMinutes(5),
-    cacheMaxSize: Int = 15,
+    cacheMaxSize: Int = 10,
     dispatcher: CoroutineDispatcher
-) : CacheManager<T>(cacheExpiryTime.toMillis(), cleaningInterval.toMillis(), cacheMaxSize), CoroutineScope by CoroutineScope(dispatcher) {
+) : CacheManager<K, V>(cacheExpiryTime.toMillis(), cleaningInterval.toMillis(), cacheMaxSize), CacheCleaner,
+    CoroutineScope by CoroutineScope(dispatcher) {
 
     private val cacheActor = cacheManagerActor()
     private var cacheCleanerJob: Job? = null
@@ -36,36 +37,36 @@ internal class CacheManagerImpl<T : Any>(
     private val waitTimeForCacheCleaning = 20L
 
     init {
-        startCacheCleaner()
-        cacheActor.invokeOnClose {
-            stopCacheCleaner()
-        }
+        start()
     }
 
-    override fun startCacheCleaner() {
+    override fun start() {
         if (cacheCleanerJob?.isActive == true) {
             return
         }
 
         cacheCleanerJob = CoroutineScope(SupervisorJob()).launch {
-            Log.d("CacheManager", "${this@CacheManagerImpl} - StartedCacheCleaner")
+            println("CacheManager" + "${this@CacheManagerImpl} - 캐시 클리너 시작")
 
             while (true) {
                 delay(cleaningInterval)
-                Log.d("CacheManager", "캐시 정리 시작, ${isCacheCleanerRunning.get()}")
+
+                println("CacheManager" + "캐시 자동 정리 시작")
                 isCacheCleanerRunning.getAndSet(true)
-                val response = CompletableDeferred<Unit>()
+
+                val response = CompletableDeferred<Int>()
                 cacheActor.send(CacheMessage.Clear(response))
                 response.await()
+
                 isCacheCleanerRunning.getAndSet(false)
-                Log.d("CacheManager", "캐시 정리 완료, ${isCacheCleanerRunning.get()}")
+                println("CacheManager" + "캐시 자동 정리 완료, ${response.await()}개 삭제됨")
             }
         }
     }
 
-    override fun stopCacheCleaner() {
-        Log.d("CacheManager", "${this@CacheManagerImpl} - StoppedCacheCleaner")
-        CoroutineScope(SupervisorJob()).launch {
+    override fun stop() {
+        println("CacheManager" + "${this@CacheManagerImpl} - 캐시 클리너 종료")
+        launch(SupervisorJob()) {
             while (isCacheCleanerRunning.get()) {
                 delay(waitTimeForCacheCleaning)
             }
@@ -73,82 +74,99 @@ internal class CacheManagerImpl<T : Any>(
         }
     }
 
-    override suspend fun get(key: String): CacheState<T> {
-        val response = CompletableDeferred<CacheState<T>>()
+    override suspend fun get(key: K): CacheState<V> {
+        val response = CompletableDeferred<CacheState<V>>()
         cacheActor.send(CacheMessage.Get(key, response))
         return response.await()
     }
 
 
-    override suspend fun put(key: String, value: T, cacheExpiryTime: Long) {
+    override suspend fun put(key: K, value: V, cacheExpiryTime: Long) {
         cacheActor.send(CacheMessage.Put(key, value, cacheExpiryTime))
+    }
+
+    override suspend fun remove(key: K): Boolean {
+        val response = CompletableDeferred<Boolean>()
+        cacheActor.send(CacheMessage.Remove(key, response))
+        return response.await()
+    }
+
+    override suspend fun entries(): List<Pair<K, Cache<V>>> {
+        val response = CompletableDeferred<List<Pair<K, Cache<V>>>>()
+        cacheActor.send(CacheMessage.Entries(response))
+        return response.await()
     }
 
     @OptIn(ObsoleteCoroutinesApi::class)
     private fun CoroutineScope.cacheManagerActor(
-    ) = actor<CacheMessage<T>> {
-        val cacheMap = lruCache<String, Cache<T>>(cacheMaxSize)
+    ) = actor<CacheMessage<K, V>>(start = CoroutineStart.LAZY) {
+        val cacheMap = LruCache<K, Cache<V>>(cacheMaxSize)
         for (msg in channel) {
             msg.process(cacheMap)
         }
     }
 
-    private sealed interface CacheMessage<T> {
-        fun process(cacheMap: LruCache<String, Cache<T>>)
+    private sealed interface CacheMessage<K, V> {
+        fun process(cacheMap: LruCache<K, Cache<V>>)
 
-        data class Put<T>(val key: String, val value: T, val expiryTime: Long) : CacheMessage<T> {
-            override fun process(cacheMap: LruCache<String, Cache<T>>) {
-                Log.d("CacheManager", "PutCache: $key")
+        data class Put<K, V>(val key: K, val value: V, val expiryTime: Long) : CacheMessage<K, V> {
+            override fun process(cacheMap: LruCache<K, Cache<V>>) {
+                println("CacheManager" + "캐시 추가: $key")
                 cacheMap.put(key, Cache(value, expiryTime))
             }
         }
 
-        data class Remove<T>(val key: String) : CacheMessage<T> {
-            override fun process(cacheMap: LruCache<String, Cache<T>>) {
-                Log.d("CacheManager", "RemoveCache: $key")
-                cacheMap.remove(key)
+        data class Remove<K, V>(val key: K, val response: CompletableDeferred<Boolean>) : CacheMessage<K, V> {
+            override fun process(cacheMap: LruCache<K, Cache<V>>) {
+                println("CacheManager" + "캐시 삭제: $key")
+                response.complete(cacheMap.remove(key) != null)
             }
         }
 
-        data class Clear<T>(val response: CompletableDeferred<Unit>) : CacheMessage<T> {
-            override fun process(cacheMap: LruCache<String, Cache<T>>) {
+        data class Clear<K, V>(val response: CompletableDeferred<Int>) : CacheMessage<K, V> {
+            override fun process(cacheMap: LruCache<K, Cache<V>>) {
                 val now = System.currentTimeMillis()
-                try {
-                    cacheMap.snapshot().forEach { (key, cache) ->
-                        if (cache.isExpired(now)) {
-                            cacheMap.remove(key)
-                        }
+                var removedCount = 0
+                cacheMap.snapshot().forEach { (key, cache) ->
+                    if (cache.isExpired(now)) {
+                        cacheMap.remove(key)
+                        removedCount++
                     }
-                } catch (e: UnsupportedOperationException) {
-                    e.printStackTrace()
-                } finally {
-                    response.complete(Unit)
                 }
+                response.complete(removedCount)
             }
         }
 
-        data class Get<T>(
-            val key: String, val response: CompletableDeferred<CacheState<T>>
-        ) : CacheMessage<T> {
-            override fun process(cacheMap: LruCache<String, Cache<T>>) {
-                val cache = cacheMap[key]
-
-                response.complete(if (cache == null || cache?.isExpired() == true) {
-                    Log.d("CacheManager", "MissCache: $key")
-                    cacheMap.remove(key)
+        data class Get<K, V>(
+            val key: K, val response: CompletableDeferred<CacheState<V>>
+        ) : CacheMessage<K, V> {
+            override fun process(cacheMap: LruCache<K, Cache<V>>) {
+                val cacheState = cacheMap[key]?.run {
+                    if (isExpired()) {
+                        CacheState.Miss
+                    } else {
+                        CacheState.Hit(value)
+                    }
+                } ?: run {
                     CacheState.Miss
-                } else {
-                    Log.d("CacheManager", "HitCache: $key")
-                    CacheState.Hit(cache.value)
-                })
+                }
+                response.complete(cacheState)
+            }
+        }
+
+        data class Entries<K, V>(
+            val response: CompletableDeferred<List<Pair<K, Cache<V>>>>
+        ) : CacheMessage<K, V> {
+            override fun process(cacheMap: LruCache<K, Cache<V>>) {
+                response.complete(cacheMap.snapshot().map { it.key to it.value })
             }
         }
     }
 
 }
 
-data class Cache<T>(
-    val value: T, val cacheExpiryTime: Long, val addedTime: Long = System.currentTimeMillis()
+data class Cache<V>(
+    val value: V, val cacheExpiryTime: Long, val addedTime: Long = System.currentTimeMillis()
 ) {
     fun isExpired(now: Long = System.currentTimeMillis()): Boolean = now - addedTime > cacheExpiryTime
 }

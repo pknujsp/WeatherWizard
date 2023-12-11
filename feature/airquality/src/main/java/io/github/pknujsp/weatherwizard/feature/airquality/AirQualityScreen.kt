@@ -4,7 +4,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
@@ -37,8 +36,7 @@ import io.github.pknujsp.weatherwizard.core.ui.weather.item.SimpleWeatherScreenB
 
 
 @Composable
-fun AirQualityScreen(requestWeatherArguments: RequestWeatherArguments) {
-    val viewModel = hiltViewModel<AirQualityViewModel>()
+fun AirQualityScreen(requestWeatherArguments: RequestWeatherArguments, viewModel: AirQualityViewModel = hiltViewModel()) {
     val airQuality by viewModel.airQuality.collectAsStateWithLifecycle()
 
     airQuality.onLoading {
@@ -70,7 +68,7 @@ fun AirQualityScreen(requestWeatherArguments: RequestWeatherArguments) {
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-private fun ColumnScope.SimpleCurrentContent(simpleAirQuality: SimpleAirQuality) {
+private fun SimpleCurrentContent(simpleAirQuality: SimpleAirQuality) {
     Row(
         horizontalArrangement = Arrangement.spacedBy(6.dp),
         verticalAlignment = Alignment.CenterVertically,

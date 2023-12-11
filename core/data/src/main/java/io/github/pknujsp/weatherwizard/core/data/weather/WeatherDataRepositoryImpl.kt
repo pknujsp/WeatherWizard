@@ -1,6 +1,7 @@
 package io.github.pknujsp.weatherwizard.core.data.weather
 
 import io.github.pknujsp.weatherwizard.core.data.RepositoryCacheManager
+import io.github.pknujsp.weatherwizard.core.data.cache.CacheCleaner
 import io.github.pknujsp.weatherwizard.core.data.cache.CacheManager
 import io.github.pknujsp.weatherwizard.core.data.weather.mapper.WeatherResponseMapperManager
 import io.github.pknujsp.weatherwizard.core.data.weather.model.CachedWeatherModel
@@ -16,12 +17,13 @@ import javax.inject.Inject
 class WeatherDataRepositoryImpl @Inject constructor(
     private val weatherResponseMapperManager: WeatherResponseMapperManager,
     private val weatherApiRequestManager: WeatherApiRequestManager,
-    cacheManager: CacheManager<CachedWeatherModel>
-) : WeatherDataRepository, RepositoryCacheManager<CachedWeatherModel>(cacheManager) {
+    cacheManager: CacheManager<Int, CachedWeatherModel>,
+    cacheCleaner: CacheCleaner
+) : WeatherDataRepository, RepositoryCacheManager<Int, CachedWeatherModel>(cacheCleaner, cacheManager) {
 
 
     private suspend fun getCache(
-        key: String, requestWeatherData: RequestWeatherData
+        key: Int, requestWeatherData: RequestWeatherData
     ): WeatherModel? = when (val cacheState = cacheManager.get(key)) {
         is CacheManager.CacheState.Hit -> {
             if (requestWeatherData.majorWeatherEntityTypes in cacheState.value) {
@@ -112,6 +114,6 @@ class WeatherDataRepositoryImpl @Inject constructor(
     }
 
 
-    private fun RequestWeatherData.key(): String = "$latitude-$longitude-$weatherProvider"
+    private fun RequestWeatherData.key() = hashCode()
 
 }
