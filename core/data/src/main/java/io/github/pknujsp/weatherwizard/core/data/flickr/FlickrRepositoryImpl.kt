@@ -6,7 +6,7 @@ import io.github.pknujsp.weatherwizard.core.model.flickr.FlickrRequestParameters
 import io.github.pknujsp.weatherwizard.core.network.api.flickr.FlickrDataSource
 import javax.inject.Inject
 
-class FlickrRepositoryImpl @Inject constructor(
+class FlickrRepositoryImpl(
     private val flickrDataSource: FlickrDataSource
 ) : FlickrRepository {
 

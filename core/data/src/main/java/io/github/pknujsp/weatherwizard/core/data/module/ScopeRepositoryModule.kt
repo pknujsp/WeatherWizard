@@ -32,17 +32,17 @@ object ScopeRepositoryModule {
 
     @Provides
     @Named(WEATHER_REPOSITORY)
-    fun providesWeatherRepositoryInitializer(weatherDataRepositoryImpl: WeatherDataRepositoryImpl): RepositoryCacheManager<*, *> =
+    internal fun providesWeatherRepositoryInitializer(weatherDataRepositoryImpl: WeatherDataRepositoryImpl): RepositoryCacheManager<*, *> =
         weatherDataRepositoryImpl
 
     @Provides
     @Named(AIR_QUALITY_REPOSITORY)
-    fun providesAirQualityRepositoryInitializer(airQualityRepositoryImpl: AirQualityRepositoryImpl): RepositoryCacheManager<*, *> =
+    internal fun providesAirQualityRepositoryInitializer(airQualityRepositoryImpl: AirQualityRepositoryImpl): RepositoryCacheManager<*, *> =
         airQualityRepositoryImpl
 
     @Provides
     @Named(RAIN_VIEWER_REPOSITORY)
-    fun providesRainViewerRepositoryInitializer(radarTilesRepositoryImpl: RadarTilesRepositoryImpl): RepositoryCacheManager<*, *> =
+    internal fun providesRainViewerRepositoryInitializer(radarTilesRepositoryImpl: RadarTilesRepositoryImpl): RepositoryCacheManager<*, *> =
         radarTilesRepositoryImpl
 
     @Provides

@@ -7,6 +7,8 @@ import dagger.hilt.components.SingletonComponent
 import io.github.pknujsp.weatherwizard.core.data.weather.request.WeatherApiRequestManager
 import io.github.pknujsp.weatherwizard.core.data.weather.request.WeatherApiRequestManagerImpl
 import io.github.pknujsp.weatherwizard.core.data.weather.request.WeatherApiRequestPreProcessorManager
+import io.github.pknujsp.weatherwizard.core.model.ApiRequestParameter
+import io.github.pknujsp.weatherwizard.core.model.ApiResponseModel
 import io.github.pknujsp.weatherwizard.core.network.api.kma.KmaDataSource
 import io.github.pknujsp.weatherwizard.core.network.api.metnorway.MetNorwayDataSource
 import javax.inject.Singleton
@@ -20,7 +22,8 @@ object ApiRequestManagerModule {
     fun providesWeatherApiRequestManager(
         kmaDataSource: KmaDataSource,
         metNorwayDataSource: MetNorwayDataSource,
-        weatherApiRequestPreProcessorManager: WeatherApiRequestPreProcessorManager
-    ): WeatherApiRequestManager = WeatherApiRequestManagerImpl(kmaDataSource, metNorwayDataSource, weatherApiRequestPreProcessorManager)
+        weatherApiRequestPreProcessorManager: WeatherApiRequestPreProcessorManager<@JvmSuppressWildcards ApiRequestParameter>
+    ): WeatherApiRequestManager<ApiResponseModel> =
+        WeatherApiRequestManagerImpl(kmaDataSource, metNorwayDataSource, weatherApiRequestPreProcessorManager)
 
 }

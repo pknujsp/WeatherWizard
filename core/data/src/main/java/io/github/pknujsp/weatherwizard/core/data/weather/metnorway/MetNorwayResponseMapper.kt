@@ -2,6 +2,8 @@ package io.github.pknujsp.weatherwizard.core.data.weather.metnorway
 
 import io.github.pknujsp.weatherwizard.core.data.weather.DefaultValueUnit
 import io.github.pknujsp.weatherwizard.core.data.weather.mapper.WeatherResponseMapper
+import io.github.pknujsp.weatherwizard.core.model.EntityModel
+import io.github.pknujsp.weatherwizard.core.model.weather.common.MajorWeatherEntityType
 import io.github.pknujsp.weatherwizard.core.model.weather.common.PrecipitationUnit
 import io.github.pknujsp.weatherwizard.core.model.weather.common.PressureUnit
 import io.github.pknujsp.weatherwizard.core.model.weather.common.ProbabilityValueType
@@ -14,16 +16,14 @@ import io.github.pknujsp.weatherwizard.core.model.weather.common.WindSpeedUnit
 import io.github.pknujsp.weatherwizard.core.model.weather.current.CurrentWeatherEntity
 import io.github.pknujsp.weatherwizard.core.model.weather.dailyforecast.DailyForecastEntity
 import io.github.pknujsp.weatherwizard.core.model.weather.hourlyforecast.HourlyForecastEntity
-import io.github.pknujsp.weatherwizard.core.model.weather.yesterday.YesterdayWeatherEntity
-import io.github.pknujsp.weatherwizard.core.network.api.kma.KmaYesterdayWeatherResponse
+import io.github.pknujsp.weatherwizard.core.model.ApiResponseModel
 import io.github.pknujsp.weatherwizard.core.network.api.metnorway.response.MetNorwayCurrentWeatherResponse
 import io.github.pknujsp.weatherwizard.core.network.api.metnorway.response.MetNorwayDailyForecastResponse
 import io.github.pknujsp.weatherwizard.core.network.api.metnorway.response.MetNorwayHourlyForecastResponse
 import javax.inject.Inject
 
 
-class MetNorwayResponseMapper @Inject constructor() :
-    WeatherResponseMapper<MetNorwayCurrentWeatherResponse, MetNorwayHourlyForecastResponse, MetNorwayDailyForecastResponse, KmaYesterdayWeatherResponse> {
+internal class MetNorwayResponseMapper : WeatherResponseMapper<EntityModel> {
 
     private companion object : DefaultValueUnit {
         override val DEFAULT_TEMPERATURE_UNIT = TemperatureUnit.Celsius
@@ -34,7 +34,7 @@ class MetNorwayResponseMapper @Inject constructor() :
         override val DEFAULT_PRESSURE_UNIT = PressureUnit.Hectopascal
     }
 
-    override fun mapCurrentWeather(response: MetNorwayCurrentWeatherResponse): CurrentWeatherEntity {
+    private fun mapCurrentWeather(response: MetNorwayCurrentWeatherResponse): CurrentWeatherEntity {
         return response.run {
             CurrentWeatherEntity(
                 weatherCondition = weatherCondition,
@@ -48,7 +48,7 @@ class MetNorwayResponseMapper @Inject constructor() :
         }
     }
 
-    override fun mapHourlyForecast(response: MetNorwayHourlyForecastResponse): HourlyForecastEntity {
+    private fun mapHourlyForecast(response: MetNorwayHourlyForecastResponse): HourlyForecastEntity {
         return HourlyForecastEntity(response.items.map { item ->
             HourlyForecastEntity.Item(
                 dateTime = item.dateTime,
@@ -66,10 +66,9 @@ class MetNorwayResponseMapper @Inject constructor() :
         })
     }
 
-    override fun mapDailyForecast(response: MetNorwayDailyForecastResponse): DailyForecastEntity {
+    private fun mapDailyForecast(response: MetNorwayDailyForecastResponse): DailyForecastEntity {
         val dayItems = response.items.groupBy { it.dateTime }.map { (day, dayItems) ->
-            DailyForecastEntity.DayItem(
-                dateTime = day,
+            DailyForecastEntity.DayItem(dateTime = day,
                 minTemperature = dayItems[0].minTemperature,
                 maxTemperature = dayItems[0].maxTemperature,
                 windMinSpeed = dayItems[0].windMinSpeed,
@@ -79,13 +78,15 @@ class MetNorwayResponseMapper @Inject constructor() :
                         weatherCondition = item.weatherCondition,
                         precipitationVolume = item.precipitationVolume,
                     )
-                }
-            )
+                })
         }
         return DailyForecastEntity(dayItems)
     }
 
-    override fun mapYesterdayWeather(response: KmaYesterdayWeatherResponse): YesterdayWeatherEntity {
-        TODO("어제 날씨 정보 없음")
+    override fun map(apiResponseModel: ApiResponseModel, majorWeatherEntityType: MajorWeatherEntityType) = when (majorWeatherEntityType) {
+        MajorWeatherEntityType.CURRENT_CONDITION -> mapCurrentWeather(apiResponseModel as MetNorwayCurrentWeatherResponse)
+        MajorWeatherEntityType.HOURLY_FORECAST -> mapHourlyForecast(apiResponseModel as MetNorwayHourlyForecastResponse)
+        MajorWeatherEntityType.DAILY_FORECAST -> mapDailyForecast(apiResponseModel as MetNorwayDailyForecastResponse)
+        else -> throw IllegalArgumentException("Invalid majorWeatherEntityType: $majorWeatherEntityType")
     }
 }

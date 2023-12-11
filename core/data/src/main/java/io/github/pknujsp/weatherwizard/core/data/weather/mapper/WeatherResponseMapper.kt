@@ -1,25 +1,10 @@
 package io.github.pknujsp.weatherwizard.core.data.weather.mapper
 
 import io.github.pknujsp.weatherwizard.core.data.ResponseMapper
-import io.github.pknujsp.weatherwizard.core.model.weather.current.CurrentWeatherEntity
-import io.github.pknujsp.weatherwizard.core.model.weather.dailyforecast.DailyForecastEntity
-import io.github.pknujsp.weatherwizard.core.model.weather.hourlyforecast.HourlyForecastEntity
-import io.github.pknujsp.weatherwizard.core.model.weather.yesterday.YesterdayWeatherEntity
-import io.github.pknujsp.weatherwizard.core.network.ApiResponseModel
-import io.github.pknujsp.weatherwizard.core.network.api.CurrentWeatherResponseModel
-import io.github.pknujsp.weatherwizard.core.network.api.DailyForecastResponseModel
-import io.github.pknujsp.weatherwizard.core.network.api.HourlyForecastResponseModel
+import io.github.pknujsp.weatherwizard.core.model.EntityModel
+import io.github.pknujsp.weatherwizard.core.model.weather.common.MajorWeatherEntityType
+import io.github.pknujsp.weatherwizard.core.model.ApiResponseModel
 
-interface WeatherResponseMapper<C : CurrentWeatherResponseModel,
-        H : HourlyForecastResponseModel,
-        D : DailyForecastResponseModel,
-        Y : ApiResponseModel> : ResponseMapper {
-    fun mapCurrentWeather(response: C): CurrentWeatherEntity
-
-    fun mapHourlyForecast(response: H): HourlyForecastEntity
-
-    fun mapDailyForecast(response: D): DailyForecastEntity
-
-    fun mapYesterdayWeather(response: Y): YesterdayWeatherEntity
-
+interface WeatherResponseMapper<out T : EntityModel> : ResponseMapper {
+    fun map(apiResponseModel: ApiResponseModel, majorWeatherEntityType: MajorWeatherEntityType): T
 }

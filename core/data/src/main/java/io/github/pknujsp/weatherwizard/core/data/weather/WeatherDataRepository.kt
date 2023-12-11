@@ -15,7 +15,7 @@ interface WeatherDataRepository {
      * @return 날씨 데이터
      */
     suspend fun getWeatherData(
-        requestWeatherData: RequestWeatherData, requestId: Long, bypassCache: Boolean = true
+        requestWeatherData: RequestWeatherData, requestId: Long, bypassCache: Boolean = false
     ): Result<WeatherModel>
 }
 

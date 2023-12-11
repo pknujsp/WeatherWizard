@@ -32,9 +32,9 @@ class CacheManagerImpl<K, V>(
     CoroutineScope by CoroutineScope(dispatcher) {
 
     private val cacheActor = cacheManagerActor()
-    private var cacheCleanerJob: Job? = null
     private val isCacheCleanerRunning = AtomicBoolean(false)
     private val waitTimeForCacheCleaning = 20L
+    private var cacheCleanerJob: Job? = null
 
     init {
         start()
@@ -45,7 +45,7 @@ class CacheManagerImpl<K, V>(
             return
         }
 
-        cacheCleanerJob = CoroutineScope(SupervisorJob()).launch {
+        cacheCleanerJob = launch(SupervisorJob()) {
             println("CacheManager" + "${this@CacheManagerImpl} - 캐시 클리너 시작")
 
             while (true) {
@@ -66,11 +66,12 @@ class CacheManagerImpl<K, V>(
 
     override fun stop() {
         println("CacheManager" + "${this@CacheManagerImpl} - 캐시 클리너 종료")
-        launch(SupervisorJob()) {
+        launch {
             while (isCacheCleanerRunning.get()) {
                 delay(waitTimeForCacheCleaning)
             }
             cacheCleanerJob?.cancel()
+            cacheCleanerJob = null
         }
     }
 
@@ -150,6 +151,7 @@ class CacheManagerImpl<K, V>(
                 } ?: run {
                     CacheState.Miss
                 }
+                println("CacheManager" + "캐시 조회: $key, $cacheState")
                 response.complete(cacheState)
             }
         }

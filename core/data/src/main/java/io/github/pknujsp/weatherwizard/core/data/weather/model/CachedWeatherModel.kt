@@ -1,14 +1,11 @@
 package io.github.pknujsp.weatherwizard.core.data.weather.model
 
-import io.github.pknujsp.weatherwizard.core.data.weather.RequestWeatherData
 import io.github.pknujsp.weatherwizard.core.model.EntityModel
 import io.github.pknujsp.weatherwizard.core.model.weather.common.MajorWeatherEntityType
+import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherProvider
 import java.util.concurrent.ConcurrentHashMap
-import kotlin.reflect.KClass
 
-data class CachedWeatherModel(
-    val requestWeatherData: RequestWeatherData
-) : EntityModel {
+class CachedWeatherModel : EntityModel {
     private val dataMap = ConcurrentHashMap<MajorWeatherEntityType, EntityModel>()
 
     fun <T : EntityModel> put(majorWeatherEntityType: MajorWeatherEntityType, value: T) {
@@ -26,6 +23,4 @@ data class CachedWeatherModel(
         return WeatherModel(valueList)
     }
 
-    operator fun contains(majorWeatherEntityTypes: Set<MajorWeatherEntityType>): Boolean =
-        requestWeatherData.majorWeatherEntityTypes.containsAll(majorWeatherEntityTypes)
 }

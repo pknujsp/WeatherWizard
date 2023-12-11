@@ -7,7 +7,7 @@ import io.github.pknujsp.weatherwizard.core.model.rainviewer.RadarTiles
 import io.github.pknujsp.weatherwizard.core.network.api.rainviewer.RainViewerDataSource
 import javax.inject.Inject
 
-class RadarTilesRepositoryImpl @Inject constructor(
+internal class RadarTilesRepositoryImpl(
     private val rainViewerDataSource: RainViewerDataSource, cacheManager: CacheManager<Long, RadarTiles>, cacheCleaner: CacheCleaner
 ) : RadarTilesRepository, RepositoryCacheManager<Long, RadarTiles>(cacheCleaner, cacheManager) {
 

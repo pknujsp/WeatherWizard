@@ -6,7 +6,7 @@ import io.github.pknujsp.weatherwizard.core.model.nominatim.ReverseGeoCodeEntity
 import io.github.pknujsp.weatherwizard.core.network.api.nominatim.NominatimDataSource
 import javax.inject.Inject
 
-class NominatimRepositoryImpl @Inject constructor(
+internal class NominatimRepositoryImpl(
     private val dataSource: NominatimDataSource
 ) : NominatimRepository {
 

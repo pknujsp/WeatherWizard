@@ -13,7 +13,7 @@ import java.time.LocalDate
 import java.time.ZonedDateTime
 import javax.inject.Inject
 
-class AirQualityRepositoryImpl @Inject constructor(
+internal class AirQualityRepositoryImpl(
     private val aqiCnDataSource: AqiCnDataSource, cacheManager: CacheManager<Int, AirQualityEntity>, cacheCleaner: CacheCleaner
 ) : AirQualityRepository, RepositoryCacheManager<Int, AirQualityEntity>(cacheCleaner, cacheManager) {
     override suspend fun getAirQuality(latitude: Double, longitude: Double): Result<AirQualityEntity> {
