@@ -3,8 +3,10 @@ package io.github.pknujsp.weatherwizard.core.data.weather.kma
 import io.github.pknujsp.weatherwizard.core.common.util.toLeastZero
 import io.github.pknujsp.weatherwizard.core.data.weather.DefaultValueUnit
 import io.github.pknujsp.weatherwizard.core.data.weather.mapper.WeatherResponseMapper
+import io.github.pknujsp.weatherwizard.core.model.EntityModel
 import io.github.pknujsp.weatherwizard.core.model.weather.common.DateTimeValueType
 import io.github.pknujsp.weatherwizard.core.model.weather.common.HumidityValueType
+import io.github.pknujsp.weatherwizard.core.model.weather.common.MajorWeatherEntityType
 import io.github.pknujsp.weatherwizard.core.model.weather.common.PercentageUnit
 import io.github.pknujsp.weatherwizard.core.model.weather.common.PrecipitationUnit
 import io.github.pknujsp.weatherwizard.core.model.weather.common.PrecipitationValueType
@@ -25,6 +27,7 @@ import io.github.pknujsp.weatherwizard.core.model.weather.current.CurrentWeather
 import io.github.pknujsp.weatherwizard.core.model.weather.dailyforecast.DailyForecastEntity
 import io.github.pknujsp.weatherwizard.core.model.weather.hourlyforecast.HourlyForecastEntity
 import io.github.pknujsp.weatherwizard.core.model.weather.yesterday.YesterdayWeatherEntity
+import io.github.pknujsp.weatherwizard.core.model.ApiResponseModel
 import io.github.pknujsp.weatherwizard.core.network.api.kma.KmaCurrentWeatherResponse
 import io.github.pknujsp.weatherwizard.core.network.api.kma.KmaDailyForecastResponse
 import io.github.pknujsp.weatherwizard.core.network.api.kma.KmaHourlyForecastResponse
@@ -32,8 +35,7 @@ import io.github.pknujsp.weatherwizard.core.network.api.kma.KmaYesterdayWeatherR
 import javax.inject.Inject
 
 
-class KmaResponseMapper @Inject constructor() :
-    WeatherResponseMapper<KmaCurrentWeatherResponse, KmaHourlyForecastResponse, KmaDailyForecastResponse, KmaYesterdayWeatherResponse> {
+internal class KmaResponseMapper : WeatherResponseMapper<EntityModel> {
 
     private companion object : DefaultValueUnit {
         val weatherConditionMap = mapOf(
@@ -67,7 +69,7 @@ class KmaResponseMapper @Inject constructor() :
         override val DEFAULT_PRESSURE_UNIT = PressureUnit.Hectopascal
     }
 
-    override fun mapCurrentWeather(response: KmaCurrentWeatherResponse): CurrentWeatherEntity {
+    private fun mapCurrentWeather(response: KmaCurrentWeatherResponse): CurrentWeatherEntity {
         return response.run {
             CurrentWeatherEntity(
                 weatherCondition = WeatherConditionValueType(mapWeatherCondition(weatherCondition)),
@@ -81,7 +83,7 @@ class KmaResponseMapper @Inject constructor() :
         }
     }
 
-    override fun mapHourlyForecast(response: KmaHourlyForecastResponse): HourlyForecastEntity {
+    private fun mapHourlyForecast(response: KmaHourlyForecastResponse): HourlyForecastEntity {
         val list = response.items.map { item ->
             HourlyForecastEntity.Item(
                 dateTime = DateTimeValueType(item.dateTime),
@@ -102,10 +104,9 @@ class KmaResponseMapper @Inject constructor() :
         return HourlyForecastEntity(items = list)
     }
 
-    override fun mapDailyForecast(response: KmaDailyForecastResponse): DailyForecastEntity {
+    private fun mapDailyForecast(response: KmaDailyForecastResponse): DailyForecastEntity {
         val dayItems: List<DailyForecastEntity.DayItem> = response.items.map { dayItem ->
-            DailyForecastEntity.DayItem(
-                dateTime = DateTimeValueType(dayItem.date),
+            DailyForecastEntity.DayItem(dateTime = DateTimeValueType(dayItem.date),
                 minTemperature = TemperatureValueType(dayItem.minTemp, DEFAULT_TEMPERATURE_UNIT),
                 maxTemperature = TemperatureValueType(dayItem.maxTemp, DEFAULT_TEMPERATURE_UNIT),
                 items = listOfNotNull(dayItem.amValues, dayItem.pmValues, dayItem.singleValues).map { item ->
@@ -113,14 +114,13 @@ class KmaResponseMapper @Inject constructor() :
                         weatherCondition = WeatherConditionValueType(mapWeatherCondition(item.weatherDescription)),
                         precipitationProbability = ProbabilityValueType(item.pop, PercentageUnit),
                     )
-                }
-            )
+                })
         }
 
         return DailyForecastEntity(dayItems)
     }
 
-    override fun mapYesterdayWeather(response: KmaYesterdayWeatherResponse): YesterdayWeatherEntity {
+    private fun mapYesterdayWeather(response: KmaYesterdayWeatherResponse): YesterdayWeatherEntity {
         return YesterdayWeatherEntity(
             TemperatureValueType(response.temperature, DEFAULT_TEMPERATURE_UNIT),
         )
@@ -129,6 +129,14 @@ class KmaResponseMapper @Inject constructor() :
 
     private fun mapWeatherCondition(text: String): WeatherConditionCategory {
         return weatherConditionMap.getValue(text)
+    }
+
+    override fun map(apiResponseModel: ApiResponseModel, majorWeatherEntityType: MajorWeatherEntityType) = when (majorWeatherEntityType) {
+        MajorWeatherEntityType.CURRENT_CONDITION -> mapCurrentWeather(apiResponseModel as KmaCurrentWeatherResponse)
+        MajorWeatherEntityType.HOURLY_FORECAST -> mapHourlyForecast(apiResponseModel as KmaHourlyForecastResponse)
+        MajorWeatherEntityType.DAILY_FORECAST -> mapDailyForecast(apiResponseModel as KmaDailyForecastResponse)
+        MajorWeatherEntityType.YESTERDAY_WEATHER -> mapYesterdayWeather(apiResponseModel as KmaYesterdayWeatherResponse)
+        else -> throw IllegalArgumentException("Unsupported majorWeatherEntityType: $majorWeatherEntityType")
     }
 
 }

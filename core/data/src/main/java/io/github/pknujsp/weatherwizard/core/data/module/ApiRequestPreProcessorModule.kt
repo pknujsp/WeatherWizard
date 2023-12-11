@@ -9,6 +9,7 @@ import io.github.pknujsp.weatherwizard.core.data.weather.kma.KmaRequestPreProces
 import io.github.pknujsp.weatherwizard.core.data.weather.request.WeatherApiRequestPreProcessorManager
 import io.github.pknujsp.weatherwizard.core.data.weather.request.WeatherApiRequestPreProcessorManagerImpl
 import io.github.pknujsp.weatherwizard.core.database.coordinate.KorCoordinateDao
+import io.github.pknujsp.weatherwizard.core.model.ApiRequestParameter
 import javax.inject.Named
 import javax.inject.Singleton
 
@@ -19,13 +20,11 @@ object ApiRequestPreProcessorModule {
     private const val KMA_PRE_PROCESSOR = "KmaPreProcessor"
 
     @Provides
-    @Singleton
-    @Named(KMA_PRE_PROCESSOR)
-    fun providesKmaPreProcessor(korCoordinateDao: KorCoordinateDao): WeatherRequestPreProcessor = KmaRequestPreProcessor(korCoordinateDao)
+    fun providesKmaPreProcessor(korCoordinateDao: KorCoordinateDao): KmaRequestPreProcessor = KmaRequestPreProcessor(korCoordinateDao)
 
     @Singleton
     @Provides
     fun providesRequestPreProcessorManager(
-        @Named(KMA_PRE_PROCESSOR) kmaPreProcessor: WeatherRequestPreProcessor
-    ): WeatherApiRequestPreProcessorManager = WeatherApiRequestPreProcessorManagerImpl(kmaPreProcessor)
+        kmaPreProcessor: KmaRequestPreProcessor
+    ): WeatherApiRequestPreProcessorManager<ApiRequestParameter> = WeatherApiRequestPreProcessorManagerImpl(kmaPreProcessor)
 }

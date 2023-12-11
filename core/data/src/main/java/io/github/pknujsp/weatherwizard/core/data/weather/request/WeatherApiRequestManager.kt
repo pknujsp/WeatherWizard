@@ -1,30 +1,18 @@
 package io.github.pknujsp.weatherwizard.core.data.weather.request
 
+import io.github.pknujsp.weatherwizard.core.model.weather.common.MajorWeatherEntityType
 import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherProvider
-import io.github.pknujsp.weatherwizard.core.network.ApiResponseModel
+import io.github.pknujsp.weatherwizard.core.model.ApiResponseModel
 
-interface WeatherApiRequestManager {
-    suspend fun getCurrentWeather(
+@JvmSuppressWildcards
+interface WeatherApiRequestManager<out T : ApiResponseModel> {
+
+    suspend fun get(
         latitude: Double,
         longitude: Double,
         weatherProvider: WeatherProvider,
+        majorWeatherEntityType: MajorWeatherEntityType,
         requestId: Long
-    ): Result<ApiResponseModel>
+    ): Result<T>
 
-    suspend fun getHourlyForecast(latitude: Double, longitude: Double, weatherProvider: WeatherProvider, requestId: Long):
-            Result<ApiResponseModel>
-
-    suspend fun getDailyForecast(
-        latitude: Double,
-        longitude: Double,
-        weatherProvider: WeatherProvider,
-        requestId: Long
-    ): Result<ApiResponseModel>
-
-    suspend fun getYesterdayWeather(
-        latitude: Double,
-        longitude: Double,
-        weatherProvider: WeatherProvider,
-        requestId: Long
-    ): Result<ApiResponseModel>
 }

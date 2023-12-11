@@ -1,7 +1,7 @@
 package io.github.pknujsp.weatherwizard.core.network.api.nominatim.response
 
 
-import io.github.pknujsp.weatherwizard.core.network.ApiResponseModel
+import io.github.pknujsp.weatherwizard.core.model.ApiResponseModel
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 

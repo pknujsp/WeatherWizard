@@ -2,15 +2,15 @@ package io.github.pknujsp.weatherwizard.core.data.flickr
 
 import android.util.LruCache
 import io.github.pknujsp.weatherwizard.core.model.flickr.FlickrImageEntity
-import io.github.pknujsp.weatherwizard.core.network.api.flickr.FlickrDataSource
 import io.github.pknujsp.weatherwizard.core.model.flickr.FlickrRequestParameters
+import io.github.pknujsp.weatherwizard.core.network.api.flickr.FlickrDataSource
 import javax.inject.Inject
 
-class FlickrRepositoryImpl @Inject constructor(
+class FlickrRepositoryImpl(
     private val flickrDataSource: FlickrDataSource
 ) : FlickrRepository {
 
-    private val imageUrlMap = LruCache<String, String>(5)
+    private val imageUrlMap = LruCache<String, String>(10)
 
     override suspend fun getPhoto(parameter: FlickrRequestParameters): Result<FlickrImageEntity> {
         val getPhotosFromGalleryParameter = parameter.toGetPhotosFromGalleryParameter()

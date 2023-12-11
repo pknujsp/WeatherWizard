@@ -3,6 +3,7 @@ package io.github.pknujsp.weatherwizard.core.data.weather.kma
 import io.github.pknujsp.weatherwizard.core.common.util.LocationDistance
 import io.github.pknujsp.weatherwizard.core.data.weather.WeatherRequestPreProcessor
 import io.github.pknujsp.weatherwizard.core.database.coordinate.KorCoordinateDao
+import io.github.pknujsp.weatherwizard.core.model.ApiRequestParameter
 import io.github.pknujsp.weatherwizard.core.model.coordinate.KorCoordinateDto
 import io.github.pknujsp.weatherwizard.core.model.weather.kma.parameter.KmaCurrentWeatherRequestParameter
 import io.github.pknujsp.weatherwizard.core.model.weather.kma.parameter.KmaDailyForecastRequestParameter
@@ -16,7 +17,7 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import javax.inject.Inject
 
-class KmaRequestPreProcessor @Inject constructor(
+class KmaRequestPreProcessor(
     private val korCoordinateDao: KorCoordinateDao
 ) : WeatherRequestPreProcessor {
 
@@ -34,10 +35,8 @@ class KmaRequestPreProcessor @Inject constructor(
         for (dto in list) {
             compLatLng[0] = dto.latitudeSecondsDivide100!!.toDouble()
             compLatLng[1] = dto.longitudeSecondsDivide100!!.toDouble()
-            distance = LocationDistance.distance(
-                criteriaLatLng[0], criteriaLatLng[1], compLatLng[0], compLatLng[1],
-                LocationDistance.Unit.METER
-            )
+            distance =
+                LocationDistance.distance(criteriaLatLng[0], criteriaLatLng[1], compLatLng[0], compLatLng[1], LocationDistance.Unit.METER)
             if (distance < minDistance) {
                 minDistance = distance
                 nearbyKmaAreaCodeDto = dto
@@ -55,10 +54,9 @@ class KmaRequestPreProcessor @Inject constructor(
                 async {
                     val dto = findCoordinate(latitude, longitude)
                     korAreaCodesMap[key]!!.value = QueryState.Loaded(dto.administrativeAreaCode)
-                }
+                }.await()
             }
         }
-
 
         korAreaCodesMap[key]!!.collect {
             when (it) {
@@ -72,47 +70,27 @@ class KmaRequestPreProcessor @Inject constructor(
     }
 
     override suspend fun getCurrentWeatherRequestParameter(
-        latitude: Double,
-        longitude: Double,
-        requestId: Long
-    ): KmaCurrentWeatherRequestParameter {
-        return KmaCurrentWeatherRequestParameter(
-            code = getAreaCode(latitude, longitude).first(),
-            requestId = requestId
-        )
+        latitude: Double, longitude: Double, requestId: Long
+    ): ApiRequestParameter {
+        return KmaCurrentWeatherRequestParameter(code = getAreaCode(latitude, longitude).first(), requestId = requestId)
     }
 
     override suspend fun getHourlyForecastRequestParameter(
-        latitude: Double,
-        longitude: Double,
-        requestId: Long
-    ): KmaHourlyForecastRequestParameter {
-        return KmaHourlyForecastRequestParameter(
-            code = getAreaCode(latitude, longitude).first(),
-            requestId = requestId
-        )
+        latitude: Double, longitude: Double, requestId: Long
+    ): ApiRequestParameter {
+        return KmaHourlyForecastRequestParameter(code = getAreaCode(latitude, longitude).first(), requestId = requestId)
     }
 
     override suspend fun getDailyForecastRequestParameter(
-        latitude: Double,
-        longitude: Double,
-        requestId: Long
-    ): KmaDailyForecastRequestParameter {
-        return KmaDailyForecastRequestParameter(
-            code = getAreaCode(latitude, longitude).first(),
-            requestId = requestId
-        )
+        latitude: Double, longitude: Double, requestId: Long
+    ): ApiRequestParameter {
+        return KmaDailyForecastRequestParameter(code = getAreaCode(latitude, longitude).first(), requestId = requestId)
     }
 
     override suspend fun getYesterdayWeatherRequestParameter(
-        latitude: Double,
-        longitude: Double,
-        requestId: Long
-    ): KmaYesterdayWeatherRequestParameter {
-        return KmaYesterdayWeatherRequestParameter(
-            code = getAreaCode(latitude, longitude).first(),
-            requestId = requestId
-        )
+        latitude: Double, longitude: Double, requestId: Long
+    ): ApiRequestParameter {
+        return KmaYesterdayWeatherRequestParameter(code = getAreaCode(latitude, longitude).first(), requestId = requestId)
     }
 
     private sealed interface QueryState {
