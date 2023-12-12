@@ -20,11 +20,12 @@ import io.github.pknujsp.weatherwizard.core.common.FeatureType
 import io.github.pknujsp.weatherwizard.core.common.manager.FeatureState
 import io.github.pknujsp.weatherwizard.core.common.manager.FeatureStateChecker
 import io.github.pknujsp.weatherwizard.core.domain.weather.WeatherResponseState
+import io.github.pknujsp.weatherwizard.core.model.RemoteViewUiModel
 import io.github.pknujsp.weatherwizard.core.model.UiModel
 import io.github.pknujsp.weatherwizard.core.model.coordinate.LocationType
 import io.github.pknujsp.weatherwizard.core.model.notification.enums.NotificationIconType
 import io.github.pknujsp.weatherwizard.core.model.notification.enums.NotificationType
-import io.github.pknujsp.weatherwizard.core.model.remoteviews.RemoteViewUiModel
+import io.github.pknujsp.weatherwizard.core.model.remoteviews.NotificationViewState
 import io.github.pknujsp.weatherwizard.core.model.worker.IWorker
 import io.github.pknujsp.weatherwizard.core.ui.feature.FeatureStateRemoteViewCreator
 import io.github.pknujsp.weatherwizard.core.ui.notification.AppNotificationManager
@@ -63,7 +64,7 @@ class OngoingNotificationWorker @AssistedInject constructor(
         }
 
         val uiModel = remoteViewsModel.load(notificationEntity)
-        val creator: NotificationRemoteViewsCreator<UiModel> = RemoteViewsCreatorManager.createRemoteViewsCreator(uiModel.notification.type)
+        val creator: NotificationRemoteViewsCreator<RemoteViewUiModel> = RemoteViewsCreatorManager.createRemoteViewsCreator(uiModel.notification.type)
         val retryPendingIntent = appNotificationManager.getRefreshPendingIntent(context,
             NotificationType.ONGOING,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
@@ -75,7 +76,7 @@ class OngoingNotificationWorker @AssistedInject constructor(
                 val smallRemoteView = creator.createSmallContentView(model, context)
                 val bigRemoteView = creator.createBigContentView(model, context)
 
-                val entity = RemoteViewUiModel(
+                val entity = NotificationViewState(
                     true,
                     smallRemoteView,
                     bigRemoteView,
@@ -87,14 +88,14 @@ class OngoingNotificationWorker @AssistedInject constructor(
             }
 
             else -> {
-                val remoteViewUiModel = RemoteViewUiModel(
+                val notificationViewState = NotificationViewState(
                     false,
                     failedContentRemoteViews = retryRemoteViewCreator.createView(context,
                         context.getString(io.github.pknujsp.weatherwizard.core.common.R.string.refresh),
                         retryPendingIntent,
                         RemoteViewCreator.NOTIFICATION),
                 )
-                appNotificationManager.notifyNotification(NotificationType.ONGOING, context, remoteViewUiModel)
+                appNotificationManager.notifyNotification(NotificationType.ONGOING, context, notificationViewState)
             }
 
         }
@@ -107,11 +108,11 @@ class OngoingNotificationWorker @AssistedInject constructor(
         return when (val state = FeatureStateChecker.checkFeatureState(context, featureTypes)) {
             is FeatureState.Unavailable -> {
                 val remoteViews = featureStateRemoteViewCreator.createView(context, state.featureType, RemoteViewCreator.NOTIFICATION)
-                val remoteViewUiModel = RemoteViewUiModel(
+                val notificationViewState = NotificationViewState(
                     false,
                     failedContentRemoteViews = remoteViews,
                 )
-                appNotificationManager.notifyNotification(NotificationType.ONGOING, context, remoteViewUiModel)
+                appNotificationManager.notifyNotification(NotificationType.ONGOING, context, notificationViewState)
                 false
             }
 

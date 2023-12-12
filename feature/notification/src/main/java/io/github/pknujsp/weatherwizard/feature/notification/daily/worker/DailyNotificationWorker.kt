@@ -12,10 +12,11 @@ import io.github.pknujsp.weatherwizard.core.common.FeatureType
 import io.github.pknujsp.weatherwizard.core.common.manager.FeatureState
 import io.github.pknujsp.weatherwizard.core.common.manager.FeatureStateChecker
 import io.github.pknujsp.weatherwizard.core.domain.weather.WeatherResponseState
+import io.github.pknujsp.weatherwizard.core.model.RemoteViewUiModel
 import io.github.pknujsp.weatherwizard.core.model.UiModel
 import io.github.pknujsp.weatherwizard.core.model.coordinate.LocationType
 import io.github.pknujsp.weatherwizard.core.model.notification.enums.NotificationType
-import io.github.pknujsp.weatherwizard.core.model.remoteviews.RemoteViewUiModel
+import io.github.pknujsp.weatherwizard.core.model.remoteviews.NotificationViewState
 import io.github.pknujsp.weatherwizard.core.model.worker.IWorker
 import io.github.pknujsp.weatherwizard.core.ui.feature.FeatureStateRemoteViewCreator
 import io.github.pknujsp.weatherwizard.core.ui.notification.AppNotificationManager
@@ -58,19 +59,19 @@ class DailyNotificationWorker @AssistedInject constructor(
         }
 
         val uiModel = viewModel.load(notificationEntity)
-        val creator: NotificationRemoteViewsCreator<UiModel> = RemoteViewsCreatorManager.createRemoteViewsCreator(uiModel.notification.type)
+        val creator: NotificationRemoteViewsCreator<RemoteViewUiModel> = RemoteViewsCreatorManager.createRemoteViewsCreator(uiModel.notification.type)
 
         when (uiModel.state) {
             is WeatherResponseState.Success -> {
                 val smallRemoteView = creator.createSmallContentView(uiModel, context)
                 val bigRemoteView = creator.createBigContentView(uiModel, context)
 
-                val remoteViewUiModel = RemoteViewUiModel(
+                val notificationViewState = NotificationViewState(
                     true,
                     smallContentRemoteViews = smallRemoteView,
                     bigContentRemoteViews = bigRemoteView,
                 )
-                appNotificationManager.notifyNotification(NotificationType.DAILY, context, remoteViewUiModel)
+                appNotificationManager.notifyNotification(NotificationType.DAILY, context, notificationViewState)
             }
 
             else -> {
@@ -78,14 +79,14 @@ class DailyNotificationWorker @AssistedInject constructor(
                     NotificationType.DAILY,
                     PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
                     DailyNotificationReceiver::class)
-                val remoteViewUiModel = RemoteViewUiModel(
+                val notificationViewState = NotificationViewState(
                     false,
                     failedContentRemoteViews = retryRemoteViewCreator.createView(context,
                         context.getString(io.github.pknujsp.weatherwizard.core.common.R.string.refresh),
                         retryPendingIntent,
                         RemoteViewCreator.NOTIFICATION),
                 )
-                appNotificationManager.notifyNotification(NotificationType.DAILY, context, remoteViewUiModel)
+                appNotificationManager.notifyNotification(NotificationType.DAILY, context, notificationViewState)
             }
 
         }
@@ -98,11 +99,11 @@ class DailyNotificationWorker @AssistedInject constructor(
         return when (val state = FeatureStateChecker.checkFeatureState(context, featureTypes)) {
             is FeatureState.Unavailable -> {
                 val remoteViews = featureStateRemoteViewCreator.createView(context, state.featureType, RemoteViewCreator.NOTIFICATION)
-                val remoteViewUiModel = RemoteViewUiModel(
+                val notificationViewState = NotificationViewState(
                     false,
                     failedContentRemoteViews = remoteViews,
                 )
-                appNotificationManager.notifyNotification(NotificationType.DAILY, context, remoteViewUiModel)
+                appNotificationManager.notifyNotification(NotificationType.DAILY, context, notificationViewState)
                 false
             }
 

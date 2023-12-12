@@ -12,7 +12,7 @@ import io.github.pknujsp.weatherwizard.core.domain.weather.WeatherResponseState
 import io.github.pknujsp.weatherwizard.core.model.coordinate.LocationType
 import io.github.pknujsp.weatherwizard.core.model.coordinate.LocationTypeModel
 import io.github.pknujsp.weatherwizard.core.ui.remoteview.RemoteViewModel
-import io.github.pknujsp.weatherwizard.feature.notification.daily.model.DailyNotificationHeaderModel
+import io.github.pknujsp.weatherwizard.feature.notification.daily.model.DailyNotificationRemoteViewUiState
 import javax.inject.Inject
 
 class DailyNotificationRemoteViewModel @Inject constructor(
@@ -33,11 +33,11 @@ class DailyNotificationRemoteViewModel @Inject constructor(
 
     suspend fun load(
         dailyNotificationSettingsEntity: DailyNotificationSettingsEntity,
-    ): DailyNotificationHeaderModel {
+    ): DailyNotificationRemoteViewUiState {
         return loadWeatherData(dailyNotificationSettingsEntity)
     }
 
-    private suspend fun loadWeatherData(dailyNotificationSettingsEntity: DailyNotificationSettingsEntity): DailyNotificationHeaderModel {
+    private suspend fun loadWeatherData(dailyNotificationSettingsEntity: DailyNotificationSettingsEntity): DailyNotificationRemoteViewUiState {
         val weatherDataRequest = WeatherDataRequest()
 
         if (dailyNotificationSettingsEntity.location.locationType is LocationType.CurrentLocation) {
@@ -56,7 +56,7 @@ class DailyNotificationRemoteViewModel @Inject constructor(
                             dailyNotificationSettingsEntity.weatherProvider,
                         )
                     }, onFailure = {
-                        return DailyNotificationHeaderModel(weatherDataRequest.requestedTime,
+                        return DailyNotificationRemoteViewUiState(weatherDataRequest.requestedTime,
                             WeatherResponseState.Failure(-1, LocationTypeModel(), dailyNotificationSettingsEntity.weatherProvider),
                             dailyNotificationSettingsEntity)
                     })
@@ -64,7 +64,7 @@ class DailyNotificationRemoteViewModel @Inject constructor(
                 }
 
                 else -> {
-                    return DailyNotificationHeaderModel(weatherDataRequest.requestedTime,
+                    return DailyNotificationRemoteViewUiState(weatherDataRequest.requestedTime,
                         WeatherResponseState.Failure(-1, LocationTypeModel(), dailyNotificationSettingsEntity.weatherProvider),
                         dailyNotificationSettingsEntity)
                 }
@@ -80,7 +80,7 @@ class DailyNotificationRemoteViewModel @Inject constructor(
 
         val response = getWeatherDataUseCase(weatherDataRequest.finalRequests[0],false)
 
-        val uiModel = DailyNotificationHeaderModel(weatherDataRequest.requestedTime,
+        val uiModel = DailyNotificationRemoteViewUiState(weatherDataRequest.requestedTime,
             response,
             notification = if (dailyNotificationSettingsEntity.location.locationType is LocationType.CurrentLocation) {
                 dailyNotificationSettingsEntity.copy(location = dailyNotificationSettingsEntity.location.copy(

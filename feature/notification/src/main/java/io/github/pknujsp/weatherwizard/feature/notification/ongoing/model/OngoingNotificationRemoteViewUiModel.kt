@@ -3,6 +3,7 @@ package io.github.pknujsp.weatherwizard.feature.notification.ongoing.model
 import android.app.PendingIntent
 import io.github.pknujsp.weatherwizard.core.common.util.DayNightCalculator
 import io.github.pknujsp.weatherwizard.core.common.util.toCalendar
+import io.github.pknujsp.weatherwizard.core.model.RemoteViewUiModel
 import io.github.pknujsp.weatherwizard.core.model.UiModel
 import io.github.pknujsp.weatherwizard.core.model.notification.enums.NotificationIconType
 import io.github.pknujsp.weatherwizard.core.model.weather.common.CurrentUnits
@@ -15,14 +16,15 @@ import java.util.Locale
 import kotlin.properties.Delegates
 
 class OngoingNotificationRemoteViewUiModel(
-    val address: String,
+    override val lastUpdated: ZonedDateTime,
+    override val address: String,
     val iconType: NotificationIconType,
     currentWeather: CurrentWeatherEntity,
     hourlyForecast: HourlyForecastEntity,
     dayNightCalculator: DayNightCalculator,
     currentCalendar: Calendar,
     units: CurrentUnits
-) : UiModel {
+) : RemoteViewUiModel {
     val time: String =
         SimpleDateFormat("HH:mm", Locale.getDefault()).format(currentCalendar.time)
 

@@ -6,11 +6,11 @@ import io.github.pknujsp.weatherwizard.core.domain.weather.WeatherResponseState
 import io.github.pknujsp.weatherwizard.core.model.weather.common.CurrentUnits
 import io.github.pknujsp.weatherwizard.core.model.weather.current.CurrentWeatherEntity
 import io.github.pknujsp.weatherwizard.core.model.weather.hourlyforecast.HourlyForecastEntity
-import io.github.pknujsp.weatherwizard.feature.notification.ongoing.model.OngoingNotificationHeaderModel
+import io.github.pknujsp.weatherwizard.feature.notification.ongoing.model.OngoingNotificationRemoteViewUiState
 import io.github.pknujsp.weatherwizard.feature.notification.ongoing.model.OngoingNotificationRemoteViewUiModel
 
 class OngoingNotificationUiModelMapper {
-    fun map(model: OngoingNotificationHeaderModel, units: CurrentUnits): OngoingNotificationRemoteViewUiModel {
+    fun map(model: OngoingNotificationRemoteViewUiState, units: CurrentUnits): OngoingNotificationRemoteViewUiModel {
         val entity = (model.state as WeatherResponseState.Success).entity
 
         return OngoingNotificationRemoteViewUiModel(model.notification.location.address,

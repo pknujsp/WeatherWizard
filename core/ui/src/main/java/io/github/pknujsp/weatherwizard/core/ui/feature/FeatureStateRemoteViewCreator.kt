@@ -15,7 +15,7 @@ class FeatureStateRemoteViewCreator : RemoteViewCreator {
             it.setTextViewText(R.id.action_button, context.getString(featureType.actionMessage))
             it.setOnClickPendingIntent(R.id.action_button, featureType.getPendingIntent(context))
 
-            RemoteViewCreator.createBaseView(context, containerType).apply {
+            createBaseView(context, containerType).apply {
                 addView(R.id.remote_views_root_container, it)
             }
         }

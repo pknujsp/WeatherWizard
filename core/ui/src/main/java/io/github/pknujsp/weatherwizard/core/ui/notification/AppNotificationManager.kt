@@ -11,7 +11,7 @@ import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.work.ForegroundInfo
 import io.github.pknujsp.weatherwizard.core.model.notification.enums.NotificationType
-import io.github.pknujsp.weatherwizard.core.model.remoteviews.RemoteViewUiModel
+import io.github.pknujsp.weatherwizard.core.model.remoteviews.NotificationViewState
 import io.github.pknujsp.weatherwizard.core.ui.R
 import kotlin.reflect.KClass
 
@@ -77,7 +77,7 @@ class AppNotificationManager(context: Context) {
     }
 
     @SuppressLint("MissingPermission")
-    fun notifyNotification(notificationType: NotificationType, context: Context, entity: RemoteViewUiModel) {
+    fun notifyNotification(notificationType: NotificationType, context: Context, entity: NotificationViewState) {
         val notificationBulder = createNotification(notificationType, context)
 
         notificationBulder.apply {

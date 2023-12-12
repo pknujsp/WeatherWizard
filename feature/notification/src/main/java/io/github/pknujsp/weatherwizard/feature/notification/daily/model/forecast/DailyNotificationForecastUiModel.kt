@@ -2,6 +2,7 @@ package io.github.pknujsp.weatherwizard.feature.notification.daily.model.forecas
 
 import io.github.pknujsp.weatherwizard.core.common.util.DayNightCalculator
 import io.github.pknujsp.weatherwizard.core.common.util.toCalendar
+import io.github.pknujsp.weatherwizard.core.model.RemoteViewUiModel
 import io.github.pknujsp.weatherwizard.core.model.UiModel
 import io.github.pknujsp.weatherwizard.core.model.weather.common.CurrentUnits
 import io.github.pknujsp.weatherwizard.core.model.weather.dailyforecast.DailyForecastEntity
@@ -10,12 +11,13 @@ import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 
 class DailyNotificationForecastUiModel(
-    val address: String,
+    override val lastUpdated: ZonedDateTime,
+    override val address: String,
     hourlyForecast: HourlyForecastEntity,
     dailyForecast: DailyForecastEntity,
     dayNightCalculator: DayNightCalculator,
     units: CurrentUnits
-) : UiModel {
+) : RemoteViewUiModel {
 
     private val dateFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("d E")
     private val hourRange get() = 0..8

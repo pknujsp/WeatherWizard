@@ -4,10 +4,11 @@ import android.content.Context
 import android.widget.RemoteViews
 import io.github.pknujsp.weatherwizard.feature.notification.daily.model.forecast.DailyNotificationForecastUiModel
 import io.github.pknujsp.weatherwizard.core.model.weather.common.CurrentUnits
+import io.github.pknujsp.weatherwizard.core.ui.remoteview.RemoteViewCreator
 import io.github.pknujsp.weatherwizard.feature.notification.R
 import io.github.pknujsp.weatherwizard.feature.notification.remoteview.NotificationRemoteViewsCreator
 
-class DailyNotificationHourlyForecastRemoteViewsCreator : NotificationRemoteViewsCreator<DailyNotificationForecastUiModel> {
+class DailyNotificationHourlyForecastRemoteViewsCreator : NotificationRemoteViewsCreator<DailyNotificationForecastUiModel>() {
     override fun createSmallContentView(model: DailyNotificationForecastUiModel, context: Context): RemoteViews {
         return createBigContentView(model, context)
     }
@@ -17,9 +18,13 @@ class DailyNotificationHourlyForecastRemoteViewsCreator : NotificationRemoteView
     }
 
     override fun createBigContentView(model: DailyNotificationForecastUiModel, context: Context): RemoteViews {
-        return RemoteViews(context.packageName, R.layout.notification_daily_forecast_big).apply {
+        val contentView = RemoteViews(context.packageName, R.layout.notification_daily_forecast_big).apply {
             createHourlyForecastView(model, context)
             createDailyForecastView(model, context)
+        }
+        return createBaseView(context, RemoteViewCreator.NOTIFICATION).apply {
+            createHeaderView(this, model)
+            addView(io.github.pknujsp.weatherwizard.core.ui.R.id.remote_views_root_container, contentView)
         }
     }
 

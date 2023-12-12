@@ -4,8 +4,6 @@ import android.app.PendingIntent
 import android.content.Context
 import android.widget.RemoteViews
 import io.github.pknujsp.weatherwizard.core.ui.R
-import io.github.pknujsp.weatherwizard.core.ui.remoteview.RemoteViewCreator.Companion.WIDGET
-import io.github.pknujsp.weatherwizard.core.ui.remoteview.RemoteViewCreator.Companion.createBaseView
 
 class RetryRemoteViewCreator : RemoteViewCreator {
 
