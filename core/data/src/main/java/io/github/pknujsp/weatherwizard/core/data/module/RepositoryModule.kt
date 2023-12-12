@@ -90,7 +90,7 @@ object RepositoryModule {
     internal fun providesAirQualityRepositoryImpl(
         aqiCnDataSource: AqiCnDataSource, @CoDispatcher(CoDispatcherType.DEFAULT) dispatcher: CoroutineDispatcher
     ): AirQualityRepositoryImpl {
-        val cacheManagerImpl = CacheManagerImpl<Int, AirQualityEntity>(cacheMaxSize = 10, dispatcher = dispatcher)
+        val cacheManagerImpl = CacheManagerImpl<Int, AirQualityEntity>(cacheMaxSize = 4, dispatcher = dispatcher)
         return AirQualityRepositoryImpl(aqiCnDataSource, cacheManagerImpl, cacheManagerImpl)
     }
 
