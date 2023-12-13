@@ -5,12 +5,16 @@ import android.content.Context
 import android.location.Location
 import android.location.LocationManager
 import android.os.Looper
+import com.google.android.gms.location.CurrentLocationRequest
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
+import com.google.android.gms.tasks.CancellationToken
+import com.google.android.gms.tasks.CancellationTokenSource
+import com.google.android.gms.tasks.OnTokenCanceledListener
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
@@ -26,57 +30,33 @@ internal class AppLocationManagerImpl(context: Context) : AppLocationManager {
 
     @SuppressLint("MissingPermission")
     override suspend fun getCurrentLocation(): AppLocationManager.LocationResult {
-        var result = suspendCoroutine { continuation ->
-            fusedLocationProvider.lastLocation.addOnCompleteListener { task ->
-                val result = if (task.isSuccessful) {
-                    task.result?.run {
-                        Result.success(this)
-                    } ?: Result.failure(Throwable("Location is null"))
-                } else {
-                    Result.failure(task.exception!!)
-                }
-                continuation.resume(result)
-            }
+        return findCurrentLocation()?.let {
+            AppLocationManager.LocationResult.Success(it)
+        } ?: run {
+            AppLocationManager.LocationResult.Failure(Throwable("Location is null"))
         }
-        if (result.isFailure) {
-            result = findCurrentLocation()?.run {
-                Result.success(this)
-            } ?: Result.failure(Throwable("Location is null"))
-        }
-
-        return result.fold(onSuccess = { AppLocationManager.LocationResult.Success(it) },
-            onFailure = { AppLocationManager.LocationResult.Failure(it) })
     }
 
     @SuppressLint("MissingPermission")
     private suspend fun findCurrentLocation(): Location? = suspendCoroutine { continuation ->
-        if (isRequestedLocationUpdate.get()) {
-            callback?.run {
-                fusedLocationProvider.removeLocationUpdates(this)
-            }
-        } else {
-            isRequestedLocationUpdate.getAndSet(true)
-        }
-
-        callback = object : LocationCallback() {
-            val resumed = AtomicBoolean(false)
-
-            override fun onLocationResult(p: LocationResult) {
-                if (!resumed.get()) {
-                    resumed.getAndSet(true)
-                    isRequestedLocationUpdate.getAndSet(false)
-                    fusedLocationProvider.removeLocationUpdates(this)
-                    continuation.resume(p.lastLocation)
-                }
+        fusedLocationProvider.getCurrentLocation(createCurrentLocationRequest(), object : CancellationToken() {
+            override fun isCancellationRequested(): Boolean = false
+            override fun onCanceledRequested(p0: OnTokenCanceledListener): CancellationToken = CancellationTokenSource().token
+        }).addOnFailureListener {
+            continuation.resume(null)
+        }.addOnCanceledListener {
+            continuation.resume(null)
+        }.addOnSuccessListener {
+            it?.run {
+                continuation.resume(this)
+            } ?: run {
+                continuation.resume(null)
             }
         }
-
-        fusedLocationProvider.requestLocationUpdates(LocationRequest.Builder(Priority.PRIORITY_BALANCED_POWER_ACCURACY, 200L).build(),
-            callback!!,
-            Looper.getMainLooper())
     }
 
-
+    private fun createCurrentLocationRequest() =
+        CurrentLocationRequest.Builder().setDurationMillis(6_000L).setPriority(Priority.PRIORITY_HIGH_ACCURACY).build()
 }
 
 interface AppLocationManager {

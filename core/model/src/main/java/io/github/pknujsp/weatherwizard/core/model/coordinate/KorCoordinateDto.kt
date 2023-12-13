@@ -19,11 +19,11 @@ class KorCoordinateDto(
     @ColumnInfo(name = "latitude_hours") val latitudeHours: String? = null,
     @ColumnInfo(name = "latitude_minutes") val latitudeMinutes: String? = null,
     @ColumnInfo(name = "latitude_seconds") val latitudeSeconds: String? = null,
-    @ColumnInfo(name = "longitude_seconds_divide_100") val longitudeSecondsDivide100: String,
-    @ColumnInfo(name = "latitude_seconds_divide_100") val latitudeSecondsDivide100: String,
+    @ColumnInfo(name = "longitude_seconds_divide_100") val longitudeSecondsDivide100: String? = null,
+    @ColumnInfo(name = "latitude_seconds_divide_100") val latitudeSecondsDivide100: String? = null,
     @ColumnInfo(name = "mid_land_fcst_code") val midLandFcstCode: String? = null,
     @ColumnInfo(name = "mid_ta_code") val midTaCode: String? = null,
 ) {
-    fun latitude(): Double = latitudeSecondsDivide100.toDouble().toCoordinate()
-    fun longitude(): Double = longitudeSecondsDivide100.toDouble().toCoordinate()
+    fun latitude(): Double = latitudeSecondsDivide100!!.toDouble().toCoordinate()
+    fun longitude(): Double = longitudeSecondsDivide100!!.toDouble().toCoordinate()
 }
