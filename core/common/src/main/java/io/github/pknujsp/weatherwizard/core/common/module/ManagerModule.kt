@@ -8,8 +8,6 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import io.github.pknujsp.weatherwizard.core.common.manager.AppLocationManager
 import io.github.pknujsp.weatherwizard.core.common.manager.AppLocationManagerImpl
-import kotlinx.serialization.json.Json
-import javax.inject.Qualifier
 import javax.inject.Singleton
 
 @Module
@@ -18,7 +16,6 @@ class ManagerModule {
 
     @Provides
     @Singleton
-    fun providesAppLocationManager(@ApplicationContext context: Context): AppLocationManager =
-        AppLocationManagerImpl(context)
+    fun providesAppLocationManager(@ApplicationContext context: Context): AppLocationManager = AppLocationManagerImpl(context)
 
 }

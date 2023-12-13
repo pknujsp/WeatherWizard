@@ -18,7 +18,7 @@ import kotlin.coroutines.suspendCoroutine
 internal class AppLocationManagerImpl(context: Context) : AppLocationManager {
     private val fusedLocationProvider: FusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(context)
     private val locationManager: LocationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
-    private val requestingLocationUpdates = AtomicBoolean(false)
+    private val isRequestedLocationUpdate = AtomicBoolean(false)
     private var callback: LocationCallback? = null
 
     override val isGpsProviderEnabled: Boolean
@@ -44,21 +44,18 @@ internal class AppLocationManagerImpl(context: Context) : AppLocationManager {
             } ?: Result.failure(Throwable("Location is null"))
         }
 
-        return if (result.isSuccess) {
-            AppLocationManager.LocationResult.Success(result.getOrThrow())
-        } else {
-            AppLocationManager.LocationResult.Failure(result.exceptionOrNull()!!)
-        }
+        return result.fold(onSuccess = { AppLocationManager.LocationResult.Success(it) },
+            onFailure = { AppLocationManager.LocationResult.Failure(it) })
     }
 
     @SuppressLint("MissingPermission")
     private suspend fun findCurrentLocation(): Location? = suspendCoroutine { continuation ->
-        if (requestingLocationUpdates.get()) {
+        if (isRequestedLocationUpdate.get()) {
             callback?.run {
                 fusedLocationProvider.removeLocationUpdates(this)
             }
         } else {
-            requestingLocationUpdates.set(true)
+            isRequestedLocationUpdate.getAndSet(true)
         }
 
         callback = object : LocationCallback() {
@@ -66,8 +63,8 @@ internal class AppLocationManagerImpl(context: Context) : AppLocationManager {
 
             override fun onLocationResult(p: LocationResult) {
                 if (!resumed.get()) {
-                    resumed.set(true)
-                    requestingLocationUpdates.set(false)
+                    resumed.getAndSet(true)
+                    isRequestedLocationUpdate.getAndSet(false)
                     fusedLocationProvider.removeLocationUpdates(this)
                     continuation.resume(p.lastLocation)
                 }
@@ -87,10 +84,8 @@ interface AppLocationManager {
     suspend fun getCurrentLocation(): LocationResult
 
     sealed interface LocationResult {
-        data class Success(val location: Location) :
-            LocationResult
+        data class Success(val location: Location) : LocationResult
 
-        data class Failure(val throwable: Throwable) :
-            LocationResult
+        data class Failure(val throwable: Throwable) : LocationResult
     }
 }
