@@ -2,14 +2,6 @@ package io.github.pknujsp.weatherwizard.feature.notification.ongoing.worker
 
 import android.app.PendingIntent
 import android.content.Context
-import android.graphics.Bitmap
-import android.graphics.Canvas
-import android.graphics.Color
-import android.graphics.Paint
-import android.graphics.Rect
-import android.text.TextPaint
-import android.util.TypedValue
-import androidx.core.graphics.drawable.IconCompat
 import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.ForegroundInfo
@@ -17,15 +9,13 @@ import androidx.work.WorkerParameters
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import io.github.pknujsp.weatherwizard.core.common.FeatureType
+import io.github.pknujsp.weatherwizard.core.common.R
 import io.github.pknujsp.weatherwizard.core.common.manager.FeatureState
 import io.github.pknujsp.weatherwizard.core.common.manager.FeatureStateChecker
-import io.github.pknujsp.weatherwizard.core.domain.weather.WeatherResponseState
 import io.github.pknujsp.weatherwizard.core.model.RemoteViewUiModel
-import io.github.pknujsp.weatherwizard.core.model.UiModel
 import io.github.pknujsp.weatherwizard.core.model.coordinate.LocationType
-import io.github.pknujsp.weatherwizard.core.model.notification.enums.NotificationIconType
 import io.github.pknujsp.weatherwizard.core.model.notification.enums.NotificationType
-import io.github.pknujsp.weatherwizard.core.model.remoteviews.NotificationViewState
+import io.github.pknujsp.weatherwizard.core.model.notification.NotificationViewState
 import io.github.pknujsp.weatherwizard.core.model.worker.IWorker
 import io.github.pknujsp.weatherwizard.core.ui.feature.FeatureStateRemoteViewCreator
 import io.github.pknujsp.weatherwizard.core.ui.notification.AppNotificationManager
@@ -35,15 +25,15 @@ import io.github.pknujsp.weatherwizard.feature.notification.daily.worker.DailyNo
 import io.github.pknujsp.weatherwizard.feature.notification.manager.RemoteViewsCreatorManager
 import io.github.pknujsp.weatherwizard.feature.notification.ongoing.OngoingNotificationUiModelMapper
 import io.github.pknujsp.weatherwizard.feature.notification.remoteview.NotificationRemoteViewsCreator
+import io.github.pknujsp.weatherwizard.feature.notification.util.NotificationIconGenerator
 
 
 @HiltWorker
 class OngoingNotificationWorker @AssistedInject constructor(
     @Assisted val context: Context, @Assisted params: WorkerParameters, private val remoteViewsModel: OngoingNotificationRemoteViewModel
 ) : CoroutineWorker(context, params) {
+
     private val appNotificationManager = AppNotificationManager(context)
-    private val featureStateRemoteViewCreator = FeatureStateRemoteViewCreator()
-    private val retryRemoteViewCreator = RetryRemoteViewCreator()
 
     companion object : IWorker {
         override val name: String get() = "OngoingNotificationWorker"
@@ -56,6 +46,7 @@ class OngoingNotificationWorker @AssistedInject constructor(
         if (!checkFeatureStateAndNotify(DailyNotificationWorker.requiredFeatures)) {
             return Result.success()
         }
+
         val notificationEntity = remoteViewsModel.loadNotification()
 
         if (notificationEntity.location.locationType is LocationType.CurrentLocation && !checkFeatureStateAndNotify(arrayOf(FeatureType.LOCATION_PERMISSION,
@@ -63,43 +54,40 @@ class OngoingNotificationWorker @AssistedInject constructor(
             return Result.success()
         }
 
-        val uiModel = remoteViewsModel.load(notificationEntity)
-        val creator: NotificationRemoteViewsCreator<RemoteViewUiModel> = RemoteViewsCreatorManager.createRemoteViewsCreator(uiModel.notification.type)
+        val uiState = remoteViewsModel.load(notificationEntity)
+
+        val creator: NotificationRemoteViewsCreator<RemoteViewUiModel> =
+            RemoteViewsCreatorManager.createRemoteViewsCreator(uiState.notificationType)
+
         val retryPendingIntent = appNotificationManager.getRefreshPendingIntent(context,
             NotificationType.ONGOING,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
             OngoingNotificationReceiver::class)
-        when (uiModel.state) {
-            is WeatherResponseState.Success -> {
-                val model = OngoingNotificationUiModelMapper().map(uiModel, remoteViewsModel.units)
-                model.refreshPendingIntent = retryPendingIntent
-                val smallRemoteView = creator.createSmallContentView(model, context)
-                val bigRemoteView = creator.createBigContentView(model, context)
 
-                val entity = NotificationViewState(
-                    true,
-                    smallRemoteView,
-                    bigRemoteView,
-                    "${uiModel.notification.location.address} • ${uiModel.updatedTimeText}",
-                    smallIcon = if (model.iconType == NotificationIconType.TEMPERATURE) createTemperatureIcon(model.currentTemperature) else null,
-                    smallIconId = model.currentWeather.weatherIcon,
-                )
-                appNotificationManager.notifyNotification(NotificationType.ONGOING, context, entity)
-            }
+        val notificationState = if (uiState.isSuccessful) {
+            val model = OngoingNotificationUiModelMapper().mapToUiModel(uiState.model!!, remoteViewsModel.units)
 
-            else -> {
-                val notificationViewState = NotificationViewState(
-                    false,
-                    failedContentRemoteViews = retryRemoteViewCreator.createView(context,
-                        context.getString(io.github.pknujsp.weatherwizard.core.common.R.string.refresh),
-                        retryPendingIntent,
-                        RemoteViewCreator.NOTIFICATION),
-                )
-                appNotificationManager.notifyNotification(NotificationType.ONGOING, context, notificationViewState)
-            }
+            val smallRemoteView = creator.createSmallContentView(model, context)
+            val bigRemoteView = creator.createBigContentView(model, context)
 
+            NotificationViewState(
+                true,
+                notificationType = NotificationType.ONGOING,
+                smallContentRemoteViews = smallRemoteView,
+                bigContentRemoteViews = bigRemoteView,
+                icon = NotificationIconGenerator.createIcon(context, uiState.notificationIconType!!, uiState.model, remoteViewsModel.units),
+            )
+        } else {
+            NotificationViewState(
+                false,
+                failedContentRemoteViews = RetryRemoteViewCreator.createView(context,
+                    context.getString(R.string.refresh),
+                    retryPendingIntent,
+                    RemoteViewCreator.NOTIFICATION),
+                notificationType = NotificationType.ONGOING,
+            )
         }
-
+        appNotificationManager.notifyNotification(NotificationType.ONGOING, context, notificationState)
         return Result.success()
     }
 
@@ -107,10 +95,11 @@ class OngoingNotificationWorker @AssistedInject constructor(
     private fun checkFeatureStateAndNotify(featureTypes: Array<FeatureType>): Boolean {
         return when (val state = FeatureStateChecker.checkFeatureState(context, featureTypes)) {
             is FeatureState.Unavailable -> {
-                val remoteViews = featureStateRemoteViewCreator.createView(context, state.featureType, RemoteViewCreator.NOTIFICATION)
+                val remoteViews = FeatureStateRemoteViewCreator.createView(context, state.featureType, RemoteViewCreator.NOTIFICATION)
                 val notificationViewState = NotificationViewState(
                     false,
                     failedContentRemoteViews = remoteViews,
+                    notificationType = NotificationType.ONGOING,
                 )
                 appNotificationManager.notifyNotification(NotificationType.ONGOING, context, notificationViewState)
                 false
@@ -125,36 +114,4 @@ class OngoingNotificationWorker @AssistedInject constructor(
         return appNotificationManager.createForegroundNotification(context, NotificationType.WORKING)
     }
 
-    private fun createTemperatureIcon(temperature: String): IconCompat {
-        val textSize = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 19f, context.resources.displayMetrics)
-        val textRect = Rect()
-
-        val textPaint = TextPaint().apply {
-            color = Color.WHITE
-            typeface = android.graphics.Typeface.create("sans-serif-condensed", android.graphics.Typeface.BOLD)
-            textAlign = Paint.Align.CENTER
-            textScaleX = 0.88f
-            isAntiAlias = true
-            setTextSize(textSize)
-            getTextBounds(temperature, 0, temperature.length, textRect)
-            style = Paint.Style.FILL
-        }
-
-        val iconSize = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 24f, context.resources.displayMetrics).toInt()
-        val iconBitmap = Bitmap.createBitmap(iconSize, iconSize, Bitmap.Config.ARGB_8888)
-        val canvas = Canvas(iconBitmap)
-
-        val x = canvas.width / 2f
-        val y = canvas.height / 2f + textRect.height() / 2f
-
-        canvas.drawText(temperature, x, y, textPaint)
-        textPaint.apply {
-            color = Color.BLACK
-            style = Paint.Style.STROKE
-            strokeWidth = 1f
-        }
-        canvas.drawText(temperature, x, y, textPaint)
-
-        return IconCompat.createWithBitmap(iconBitmap)
-    }
 }

@@ -10,8 +10,8 @@ import android.widget.RemoteViews
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.work.ForegroundInfo
+import io.github.pknujsp.weatherwizard.core.model.notification.NotificationViewState
 import io.github.pknujsp.weatherwizard.core.model.notification.enums.NotificationType
-import io.github.pknujsp.weatherwizard.core.model.remoteviews.NotificationViewState
 import io.github.pknujsp.weatherwizard.core.ui.R
 import kotlin.reflect.KClass
 
@@ -81,16 +81,15 @@ class AppNotificationManager(context: Context) {
         val notificationBulder = createNotification(notificationType, context)
 
         notificationBulder.apply {
-            setSubText(entity.subText)
             setCustomBigContentView(entity.bigContentRemoteViews)
             setWhen(0)
             setOngoing(notificationType.ongoing)
             setSilent(notificationType.silent)
 
-            entity.smallIcon?.let {
+            entity.icon?.let {
                 setSmallIcon(it)
             } ?: run {
-                setSmallIcon(entity.smallIconId)
+                setSmallIcon(io.github.pknujsp.weatherwizard.core.common.R.mipmap.ic_launcher)
             }
 
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) {

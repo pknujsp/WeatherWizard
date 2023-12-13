@@ -6,7 +6,7 @@ import io.github.pknujsp.weatherwizard.core.common.FeatureType
 import io.github.pknujsp.weatherwizard.core.ui.R
 import io.github.pknujsp.weatherwizard.core.ui.remoteview.RemoteViewCreator
 
-class FeatureStateRemoteViewCreator : RemoteViewCreator {
+object FeatureStateRemoteViewCreator : RemoteViewCreator {
 
     fun createView(context: Context, featureType: FeatureType, containerType: Int): RemoteViews {
         return RemoteViews(context.packageName, R.layout.view_feature_state).let {
@@ -15,7 +15,7 @@ class FeatureStateRemoteViewCreator : RemoteViewCreator {
             it.setTextViewText(R.id.action_button, context.getString(featureType.actionMessage))
             it.setOnClickPendingIntent(R.id.action_button, featureType.getPendingIntent(context))
 
-            createBaseView(context, containerType).apply {
+            createBaseView(context, containerType, false).apply {
                 addView(R.id.remote_views_root_container, it)
             }
         }

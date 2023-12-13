@@ -2,9 +2,6 @@ package io.github.pknujsp.weatherwizard.core.model
 
 import java.time.ZonedDateTime
 
-interface UiModel {}
+interface UiModel : Model
 
-interface RemoteViewUiModel {
-    val address: String
-    val lastUpdated: ZonedDateTime
-}
+interface RemoteViewUiModel : UiModel

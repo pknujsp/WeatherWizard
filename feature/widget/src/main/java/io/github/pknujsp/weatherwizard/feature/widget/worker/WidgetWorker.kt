@@ -35,9 +35,7 @@ class WidgetWorker @AssistedInject constructor(
     private val featureStateRemoteViewCreator: FeatureStateRemoteViewCreator by lazy {
         FeatureStateRemoteViewCreator()
     }
-    private val retryRemoteViewCreator: RetryRemoteViewCreator by lazy {
-        RetryRemoteViewCreator()
-    }
+
 
     companion object : IWorker {
         override val name: String get() = "WidgetWorker"
@@ -102,7 +100,7 @@ class WidgetWorker @AssistedInject constructor(
                     }
 
                     else -> {
-                        retryRemoteViewCreator.createView(context,
+                        RetryRemoteViewCreator.createView(context,
                             context.getString(io.github.pknujsp.weatherwizard.core.common.R.string.refresh),
                             retryPendingIntent!!,
                             RemoteViewCreator.WIDGET)

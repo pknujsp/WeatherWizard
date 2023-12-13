@@ -13,6 +13,7 @@ sealed interface UiState<out T> {
     data class Failure(val featureType: FeatureType) : UiState<Nothing>
 }
 
+
 @KBindFunc
 sealed interface VarState<out T> {
     fun valueNotNull(): T

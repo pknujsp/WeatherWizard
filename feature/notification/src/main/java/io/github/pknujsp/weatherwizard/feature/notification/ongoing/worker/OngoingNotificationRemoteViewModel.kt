@@ -10,7 +10,6 @@ import io.github.pknujsp.weatherwizard.core.domain.weather.GetWeatherDataUseCase
 import io.github.pknujsp.weatherwizard.core.domain.weather.WeatherDataRequest
 import io.github.pknujsp.weatherwizard.core.domain.weather.WeatherResponseState
 import io.github.pknujsp.weatherwizard.core.model.coordinate.LocationType
-import io.github.pknujsp.weatherwizard.core.model.coordinate.LocationTypeModel
 import io.github.pknujsp.weatherwizard.core.ui.remoteview.RemoteViewModel
 import io.github.pknujsp.weatherwizard.feature.notification.ongoing.model.OngoingNotificationRemoteViewUiState
 import javax.inject.Inject
@@ -32,9 +31,7 @@ class OngoingNotificationRemoteViewModel @Inject constructor(
 
     suspend fun load(
         settings: OngoingNotificationSettingsEntity,
-    ): OngoingNotificationRemoteViewUiState {
-        return loadWeatherData(settings)
-    }
+    ): OngoingNotificationRemoteViewUiState = loadWeatherData(settings)
 
     private suspend fun loadWeatherData(settings: OngoingNotificationSettingsEntity): OngoingNotificationRemoteViewUiState {
         val weatherDataRequest = WeatherDataRequest()
@@ -53,16 +50,12 @@ class OngoingNotificationRemoteViewModel @Inject constructor(
                             settings.weatherProvider,
                         )
                     }, onFailure = {
-                        return OngoingNotificationRemoteViewUiState(weatherDataRequest.requestedTime,
-                            WeatherResponseState.Failure(-1, LocationTypeModel(), settings.weatherProvider),
-                            settings)
+                        return OngoingNotificationRemoteViewUiState(isSuccessful = false, notificationType = settings.type)
                     })
                 }
 
                 else -> {
-                    return OngoingNotificationRemoteViewUiState(weatherDataRequest.requestedTime,
-                        WeatherResponseState.Failure(-1, LocationTypeModel(), settings.weatherProvider),
-                        settings)
+                    return OngoingNotificationRemoteViewUiState(isSuccessful = false, notificationType = settings.type)
                 }
             }
         } else {
@@ -73,16 +66,15 @@ class OngoingNotificationRemoteViewModel @Inject constructor(
             )
         }
 
-        val response = getWeatherDataUseCase(weatherDataRequest.finalRequests[0], false)
+        return when (val response = getWeatherDataUseCase(weatherDataRequest.finalRequests[0], false)) {
+            is WeatherResponseState.Success -> OngoingNotificationRemoteViewUiState(notificationIconType = settings.notificationIconType,
+                model = response.entity,
+                address = response.location.address,
+                lastUpdated = weatherDataRequest.requestedTime,
+                notificationType = settings.type,
+                isSuccessful = true)
 
-        val uiModel = OngoingNotificationRemoteViewUiState(weatherDataRequest.requestedTime,
-            response,
-            notification = if (settings.location.locationType is LocationType.CurrentLocation) {
-                settings.copy(location = response.location)
-            } else {
-                settings
-            })
-
-        return uiModel
+            else -> OngoingNotificationRemoteViewUiState(isSuccessful = false, notificationType = settings.type)
+        }
     }
 }

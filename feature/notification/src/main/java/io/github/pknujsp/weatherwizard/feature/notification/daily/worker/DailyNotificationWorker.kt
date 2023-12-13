@@ -9,14 +9,14 @@ import androidx.work.WorkerParameters
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import io.github.pknujsp.weatherwizard.core.common.FeatureType
+import io.github.pknujsp.weatherwizard.core.common.R
 import io.github.pknujsp.weatherwizard.core.common.manager.FeatureState
 import io.github.pknujsp.weatherwizard.core.common.manager.FeatureStateChecker
 import io.github.pknujsp.weatherwizard.core.domain.weather.WeatherResponseState
 import io.github.pknujsp.weatherwizard.core.model.RemoteViewUiModel
-import io.github.pknujsp.weatherwizard.core.model.UiModel
 import io.github.pknujsp.weatherwizard.core.model.coordinate.LocationType
 import io.github.pknujsp.weatherwizard.core.model.notification.enums.NotificationType
-import io.github.pknujsp.weatherwizard.core.model.remoteviews.NotificationViewState
+import io.github.pknujsp.weatherwizard.core.model.notification.NotificationViewState
 import io.github.pknujsp.weatherwizard.core.model.worker.IWorker
 import io.github.pknujsp.weatherwizard.core.ui.feature.FeatureStateRemoteViewCreator
 import io.github.pknujsp.weatherwizard.core.ui.notification.AppNotificationManager
@@ -82,7 +82,7 @@ class DailyNotificationWorker @AssistedInject constructor(
                 val notificationViewState = NotificationViewState(
                     false,
                     failedContentRemoteViews = retryRemoteViewCreator.createView(context,
-                        context.getString(io.github.pknujsp.weatherwizard.core.common.R.string.refresh),
+                        context.getString(R.string.refresh),
                         retryPendingIntent,
                         RemoteViewCreator.NOTIFICATION),
                 )
