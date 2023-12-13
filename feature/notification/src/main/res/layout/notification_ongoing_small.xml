@@ -22,7 +22,7 @@
         android:layout_height="wrap_content"
         android:layout_centerVertical="true"
         android:layout_marginHorizontal="6dp"
-        android:layout_toStartOf="@id/refresh_button"
+        android:layout_toStartOf="@id/action_button"
         android:layout_toEndOf="@id/weather_icon"
         android:gravity="center_vertical">
 
@@ -61,7 +61,7 @@
 
 
     <ImageView
-        android:id="@+id/refresh_button"
+        android:id="@+id/action_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"
