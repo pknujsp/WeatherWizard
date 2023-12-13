@@ -12,7 +12,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import javax.inject.Inject
 
-class SettingsRepositoryImpl @Inject constructor(
+class SettingsRepositoryImpl(
     private val appDataStore: AppDataStore
 ) : SettingsRepository {
 
@@ -21,11 +21,9 @@ class SettingsRepositoryImpl @Inject constructor(
     override val currentUnits: StateFlow<CurrentUnits> = _currentUnits
 
     override suspend fun init() {
-        _currentUnits.value = CurrentUnits(
-            temperatureUnit = getTemperatureUnit(),
+        _currentUnits.value = CurrentUnits(temperatureUnit = getTemperatureUnit(),
             windSpeedUnit = getWindSpeedUnit(),
-            precipitationUnit = getPrecipitationUnit()
-        )
+            precipitationUnit = getPrecipitationUnit())
     }
 
     override suspend fun getTemperatureUnit(): TemperatureUnit {

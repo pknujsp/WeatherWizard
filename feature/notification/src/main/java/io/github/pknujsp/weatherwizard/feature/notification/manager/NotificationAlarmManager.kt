@@ -32,6 +32,10 @@ class NotificationAlarmManager(context: Context) {
         }
     }
 
+    fun isScheduled(context: Context, notificationId: Long): Boolean {
+        return getPendingIntent(notificationId, context, PendingIntent.FLAG_NO_CREATE or PendingIntent.FLAG_IMMUTABLE) != null
+    }
+
     private fun getPendingIntent(notificationId: Long, context: Context, flags: Int): PendingIntent? {
         return PendingIntent.getBroadcast(context,
             pendingIntentRequestFactory.requestId(notificationId.toInt()),

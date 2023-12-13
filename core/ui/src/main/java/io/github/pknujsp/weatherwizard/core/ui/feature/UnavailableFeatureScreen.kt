@@ -24,9 +24,9 @@ import io.github.pknujsp.weatherwizard.core.ui.PrimaryButton
 
 @Composable
 fun UnavailableFeatureScreen(featureType: FeatureType, onClick: () -> Unit) {
-    FailedScreen(title = featureType.title,
-        alertMessage = featureType.alertMessage,
-        actionMessage = featureType.actionMessage,
+    FailedScreen(title = featureType.failedReason.title,
+        alertMessage = featureType.failedReason.message,
+        actionMessage = featureType.failedReason.action,
         onClick = onClick)
 }
 
