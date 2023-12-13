@@ -1,7 +1,6 @@
 package io.github.pknujsp.weatherwizard.feature.widget.activity
 
 import android.app.Activity
-import android.app.PendingIntent
 import android.content.Intent
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -22,7 +21,6 @@ import io.github.pknujsp.weatherwizard.core.ui.SecondaryButton
 import io.github.pknujsp.weatherwizard.core.ui.ThirdButton
 import io.github.pknujsp.weatherwizard.feature.widget.R
 import io.github.pknujsp.weatherwizard.feature.widget.WidgetManager
-import io.github.pknujsp.weatherwizard.feature.widget.summary.SummaryWeatherWidgetProvider
 
 
 @Composable

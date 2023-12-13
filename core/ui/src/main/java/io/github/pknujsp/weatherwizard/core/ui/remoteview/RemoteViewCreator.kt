@@ -15,7 +15,7 @@ interface RemoteViewCreator {
         const val NOTIFICATION = 0
         const val WIDGET = 1
 
-        val lastUpdatedTimeFormat = DateTimeFormatter.ofPattern("MM.dd E HH:mm")
+        val lastUpdatedTimeFormat: DateTimeFormatter = DateTimeFormatter.ofPattern("MM.dd E HH:mm")
     }
 
     fun createBaseView(context: Context, containerType: Int, visibilityOfHeader: Boolean = true) = RemoteViews(context.packageName,

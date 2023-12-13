@@ -8,20 +8,19 @@ import androidx.work.WorkerParameters
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import io.github.pknujsp.weatherwizard.core.common.FeatureType
+import io.github.pknujsp.weatherwizard.core.common.R
 import io.github.pknujsp.weatherwizard.core.common.manager.FeatureState
 import io.github.pknujsp.weatherwizard.core.common.manager.FeatureStateChecker
 import io.github.pknujsp.weatherwizard.core.data.widget.WidgetSettingsEntity
 import io.github.pknujsp.weatherwizard.core.domain.weather.WeatherResponseState
 import io.github.pknujsp.weatherwizard.core.model.RemoteViewUiModel
-import io.github.pknujsp.weatherwizard.core.model.UiModel
 import io.github.pknujsp.weatherwizard.core.model.coordinate.LocationType
 import io.github.pknujsp.weatherwizard.core.model.notification.enums.NotificationType
 import io.github.pknujsp.weatherwizard.core.model.worker.IWorker
-import io.github.pknujsp.weatherwizard.core.ui.feature.FeatureStateRemoteViewCreator
+import io.github.pknujsp.weatherwizard.core.ui.feature.UiStateRemoteViewCreator
 import io.github.pknujsp.weatherwizard.core.ui.notification.AppNotificationManager
 import io.github.pknujsp.weatherwizard.core.ui.remoteview.DefaultRemoteViewCreator
 import io.github.pknujsp.weatherwizard.core.ui.remoteview.RemoteViewCreator
-import io.github.pknujsp.weatherwizard.core.ui.remoteview.RetryRemoteViewCreator
 import io.github.pknujsp.weatherwizard.feature.widget.WidgetManager
 import io.github.pknujsp.weatherwizard.feature.widget.remoteview.WidgetRemoteViewsCreator
 import java.time.ZonedDateTime
@@ -35,7 +34,6 @@ class WidgetWorker @AssistedInject constructor(
     private val widgetManager: WidgetManager by lazy {
         WidgetManager.getInstance(context)
     }
-
 
     companion object : IWorker {
         override val name: String get() = "WidgetWorker"
@@ -102,10 +100,12 @@ class WidgetWorker @AssistedInject constructor(
                     }
 
                     else -> {
-                        RetryRemoteViewCreator.createView(context,
-                            context.getString(io.github.pknujsp.weatherwizard.core.common.R.string.refresh),
-                            retryPendingIntent!!,
-                            RemoteViewCreator.WIDGET)
+                        UiStateRemoteViewCreator.createView(context,
+                            R.string.title_failed_to_load_data,
+                            R.string.failed_to_load_data,
+                            R.string.refresh,
+                            RemoteViewCreator.WIDGET,
+                            retryPendingIntent!!)
                     }
                 }
 
@@ -123,7 +123,7 @@ class WidgetWorker @AssistedInject constructor(
     private fun checkFeatureStateAndUpdateWidgets(featureTypes: Array<FeatureType>, widgetIds: IntArray): Boolean {
         return when (val state = FeatureStateChecker.checkFeatureState(context, featureTypes)) {
             is FeatureState.Unavailable -> {
-                val remoteViews = FeatureStateRemoteViewCreator.createView(context, state.featureType, RemoteViewCreator.WIDGET)
+                val remoteViews = UiStateRemoteViewCreator.createView(context, state.featureType, RemoteViewCreator.WIDGET)
                 widgetIds.forEach {
                     widgetManager.updateWidget(it, remoteViews, context)
                 }

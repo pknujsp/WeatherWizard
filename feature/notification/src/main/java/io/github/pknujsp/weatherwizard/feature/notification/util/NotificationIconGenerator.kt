@@ -43,7 +43,7 @@ object NotificationIconGenerator {
         textPaint.apply {
             color = Color.BLACK
             style = Paint.Style.STROKE
-            strokeWidth = 1f
+            strokeWidth = 0.9f
         }
         canvas.drawText(temperature, x, y, textPaint)
 
@@ -54,7 +54,7 @@ object NotificationIconGenerator {
         context: Context, notificationIconType: NotificationIconType, weatherResponseEntity: WeatherResponseEntity, units: CurrentUnits
     ) = when (notificationIconType) {
         NotificationIconType.TEMPERATURE -> createTemperatureIcon(context,
-            weatherResponseEntity.toEntity<CurrentWeatherEntity>().temperature.convertUnit(units.temperatureUnit).toString())
+            weatherResponseEntity.toEntity<CurrentWeatherEntity>().temperature.convertUnit(units.temperatureUnit).toStringWithOnlyDegree())
 
         NotificationIconType.ICON -> IconCompat.createWithResource(context,
             weatherResponseEntity.toEntity<CurrentWeatherEntity>().weatherCondition.value.getWeatherIconByTimeOfDay(weatherResponseEntity.dayNightCalculator.calculate(

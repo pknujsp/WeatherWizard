@@ -10,6 +10,7 @@ import android.widget.RemoteViews
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.work.ForegroundInfo
+import io.github.pknujsp.weatherwizard.core.common.enum.pendingIntentRequestFactory
 import io.github.pknujsp.weatherwizard.core.model.notification.enums.NotificationType
 import io.github.pknujsp.weatherwizard.core.ui.R
 import kotlin.reflect.KClass
@@ -36,13 +37,6 @@ class AppNotificationManager(context: Context) {
     private fun createNotification(notificationType: NotificationType, context: Context): NotificationCompat.Builder {
         createNotificationChannel(notificationType)
 
-        /**
-        val clickIntent = Intent(context, MainActivity::class.java)
-        clickIntent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
-        val pendingIntent = PendingIntent.getActivity(context, System.currentTimeMillis().toInt(), clickIntent,
-        PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE)
-         */
-
         return NotificationCompat.Builder(context, notificationType.channelId).apply {
             setSmallIcon(io.github.pknujsp.weatherwizard.core.common.R.mipmap.ic_launcher_foreground)
             setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
@@ -60,9 +54,12 @@ class AppNotificationManager(context: Context) {
 
 
     fun getRefreshPendingIntent(context: Context, notificationType: NotificationType, flags: Int, cls: KClass<*>): PendingIntent {
-        return PendingIntent.getBroadcast(context, notificationType.notificationId, Intent(context, cls.java).apply {
-            action = ""
-        }, flags)
+        return PendingIntent.getBroadcast(context,
+            pendingIntentRequestFactory.requestId(notificationType::class),
+            Intent(context, cls.java).apply {
+                action = ""
+            },
+            flags)
     }
 
     fun createForegroundNotification(context: Context, notificationType: NotificationType): ForegroundInfo {

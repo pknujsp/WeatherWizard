@@ -17,10 +17,9 @@ import io.github.pknujsp.weatherwizard.core.model.coordinate.LocationType
 import io.github.pknujsp.weatherwizard.core.model.notification.enums.NotificationType
 import io.github.pknujsp.weatherwizard.core.ui.notification.NotificationViewState
 import io.github.pknujsp.weatherwizard.core.model.worker.IWorker
-import io.github.pknujsp.weatherwizard.core.ui.feature.FeatureStateRemoteViewCreator
+import io.github.pknujsp.weatherwizard.core.ui.feature.UiStateRemoteViewCreator
 import io.github.pknujsp.weatherwizard.core.ui.notification.AppNotificationManager
 import io.github.pknujsp.weatherwizard.core.ui.remoteview.RemoteViewCreator
-import io.github.pknujsp.weatherwizard.core.ui.remoteview.RetryRemoteViewCreator
 import io.github.pknujsp.weatherwizard.feature.notification.manager.RemoteViewsCreatorManager
 import io.github.pknujsp.weatherwizard.feature.notification.remoteview.NotificationRemoteViewsCreator
 
@@ -81,10 +80,14 @@ class DailyNotificationWorker @AssistedInject constructor(
 
             val notificationViewState = NotificationViewState(
                 false,
-                failedContentRemoteViews = RetryRemoteViewCreator.createView(context,
-                    context.getString(R.string.refresh),
+                failedContentRemoteViews = UiStateRemoteViewCreator.createView(
+                    context,
+                    R.string.title_failed_to_load_data,
+                    R.string.failed_to_load_data,
+                    R.string.refresh,
+                    RemoteViewCreator.NOTIFICATION,
                     retryPendingIntent,
-                    RemoteViewCreator.NOTIFICATION),
+                ),
                 refreshPendingIntent = retryPendingIntent,
                 notificationType = NotificationType.DAILY,
             )
@@ -100,7 +103,7 @@ class DailyNotificationWorker @AssistedInject constructor(
     private fun checkFeatureStateAndNotify(featureTypes: Array<FeatureType>): Boolean {
         return when (val state = FeatureStateChecker.checkFeatureState(context, featureTypes)) {
             is FeatureState.Unavailable -> {
-                val remoteViews = FeatureStateRemoteViewCreator.createView(context, state.featureType, RemoteViewCreator.NOTIFICATION)
+                val remoteViews = UiStateRemoteViewCreator.createView(context, state.featureType, RemoteViewCreator.NOTIFICATION)
                 val notificationViewState = NotificationViewState(
                     false,
                     failedContentRemoteViews = remoteViews,
