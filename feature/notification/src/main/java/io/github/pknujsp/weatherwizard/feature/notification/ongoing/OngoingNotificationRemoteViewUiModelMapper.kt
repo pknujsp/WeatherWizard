@@ -10,7 +10,7 @@ import io.github.pknujsp.weatherwizard.core.model.weather.hourlyforecast.HourlyF
 import io.github.pknujsp.weatherwizard.feature.notification.ongoing.model.OngoingNotificationRemoteViewUiModel
 import java.time.ZonedDateTime
 
-class OngoingNotificationUiModelMapper : UiModelMapper<WeatherResponseEntity, OngoingNotificationRemoteViewUiModel> {
+class OngoingNotificationRemoteViewUiModelMapper : UiModelMapper<WeatherResponseEntity, OngoingNotificationRemoteViewUiModel> {
     override fun mapToUiModel(model: WeatherResponseEntity, units: CurrentUnits): OngoingNotificationRemoteViewUiModel {
         return model.let {
             val currentWeather = it.toEntity<CurrentWeatherEntity>().run {

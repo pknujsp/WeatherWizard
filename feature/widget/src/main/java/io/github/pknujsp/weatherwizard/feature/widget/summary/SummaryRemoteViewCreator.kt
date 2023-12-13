@@ -9,7 +9,7 @@ import io.github.pknujsp.weatherwizard.feature.widget.remoteview.WidgetRemoteVie
 
 class SummaryRemoteViewCreator : WidgetRemoteViewsCreator<SummaryUiModel>() {
     override fun createContentView(
-        model: SummaryUiModel, context: Context
+        model: SummaryUiModel, header: Header, context: Context
     ): RemoteViews {
         return RemoteViews(context.packageName, R.layout.summary_weather_widget).let { content ->
             model.currentWeather.let { currentWeather ->
@@ -45,7 +45,7 @@ class SummaryRemoteViewCreator : WidgetRemoteViewsCreator<SummaryUiModel>() {
             }
 
             createBaseView(context, RemoteViewCreator.WIDGET).apply {
-                createHeaderView(this, model)
+                createHeaderView(this, header)
                 addView(io.github.pknujsp.weatherwizard.core.ui.R.id.remote_views_root_container, content)
             }
         }

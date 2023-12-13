@@ -7,5 +7,5 @@ import io.github.pknujsp.weatherwizard.core.model.UiModel
 import io.github.pknujsp.weatherwizard.core.ui.remoteview.DefaultRemoteViewCreator
 
 abstract class WidgetRemoteViewsCreator<T : RemoteViewUiModel> : DefaultRemoteViewCreator() {
-    abstract fun createContentView(model: T, context: Context): RemoteViews
+    abstract fun createContentView(model: T, header: Header, context: Context): RemoteViews
 }

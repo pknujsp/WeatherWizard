@@ -14,7 +14,7 @@
         android:textStyle="bold" />
 
     <TextView
-        android:id="@+id/action_button"
+        android:id="@+id/refresh_button"
         style="@style/Button.Default"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

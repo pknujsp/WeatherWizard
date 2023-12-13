@@ -17,12 +17,6 @@ class WidgetHeaderUiModel(
     val widget: WidgetSettingsEntity, val state: WeatherResponseState, val updatedTime: ZonedDateTime
 ) : UiModel {
 
-    val updatedTimeText: String = updatedTime.format(dateTimeFormatter)
-
-    private companion object {
-        val dateTimeFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("M.d EEE HH:mm")
-    }
-
     inline fun <reified T : UiModel> map(units: CurrentUnits): T {
         val succeedState = state as WeatherResponseState.Success
         val dayNightCalculator = DayNightCalculator(succeedState.location.latitude, succeedState.location.longitude)

@@ -13,8 +13,6 @@ import java.time.format.DateTimeFormatter
 import java.util.Locale
 
 class SummaryUiModel(
-    override val lastUpdated: ZonedDateTime,
-    override val address: String,
     currentWeatherEntity: CurrentWeatherEntity,
     hourlyForecastEntity: HourlyForecastEntity,
     dailyForecastEntity: DailyForecastEntity,

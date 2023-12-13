@@ -8,6 +8,7 @@ import io.github.pknujsp.weatherwizard.core.model.notification.enums.Notificatio
 import io.github.pknujsp.weatherwizard.core.model.notification.enums.OngoingNotificationType
 import io.github.pknujsp.weatherwizard.core.model.remoteviews.RemoteViewUiState
 import io.github.pknujsp.weatherwizard.core.model.weather.common.MajorWeatherEntityType
+import io.github.pknujsp.weatherwizard.core.ui.remoteview.DefaultRemoteViewCreator
 import java.time.ZonedDateTime
 
 data class OngoingNotificationRemoteViewUiState(
@@ -17,4 +18,6 @@ data class OngoingNotificationRemoteViewUiState(
     override val lastUpdated: ZonedDateTime? = null,
     val notificationIconType: NotificationIconType? = null,
     val notificationType: OngoingNotificationType
-) : RemoteViewUiState<WeatherResponseEntity>
+) : RemoteViewUiState<WeatherResponseEntity> {
+    val header get() = if (isSuccessful) DefaultRemoteViewCreator.Header(address!!, lastUpdated!!) else null
+}

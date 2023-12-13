@@ -7,6 +7,6 @@ import io.github.pknujsp.weatherwizard.core.ui.remoteview.DefaultRemoteViewCreat
 import io.github.pknujsp.weatherwizard.core.ui.remoteview.RemoteViewCreator
 
 abstract class NotificationRemoteViewsCreator<T : RemoteViewUiModel> : DefaultRemoteViewCreator() {
-    abstract fun createSmallContentView(model: T, context: Context): RemoteViews
-    abstract fun createBigContentView(model: T, context: Context): RemoteViews
+    abstract fun createSmallContentView(model: T, header: Header, context: Context): RemoteViews
+    abstract fun createBigContentView(model: T, header: Header, context: Context): RemoteViews
 }

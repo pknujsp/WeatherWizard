@@ -12,11 +12,10 @@ import io.github.pknujsp.weatherwizard.core.common.FeatureType
 import io.github.pknujsp.weatherwizard.core.common.R
 import io.github.pknujsp.weatherwizard.core.common.manager.FeatureState
 import io.github.pknujsp.weatherwizard.core.common.manager.FeatureStateChecker
-import io.github.pknujsp.weatherwizard.core.domain.weather.WeatherResponseState
 import io.github.pknujsp.weatherwizard.core.model.RemoteViewUiModel
 import io.github.pknujsp.weatherwizard.core.model.coordinate.LocationType
 import io.github.pknujsp.weatherwizard.core.model.notification.enums.NotificationType
-import io.github.pknujsp.weatherwizard.core.model.notification.NotificationViewState
+import io.github.pknujsp.weatherwizard.core.ui.notification.NotificationViewState
 import io.github.pknujsp.weatherwizard.core.model.worker.IWorker
 import io.github.pknujsp.weatherwizard.core.ui.feature.FeatureStateRemoteViewCreator
 import io.github.pknujsp.weatherwizard.core.ui.notification.AppNotificationManager
@@ -30,8 +29,11 @@ class DailyNotificationWorker @AssistedInject constructor(
     @Assisted val context: Context, @Assisted params: WorkerParameters, private val viewModel: DailyNotificationRemoteViewModel
 ) : CoroutineWorker(context, params) {
     private val appNotificationManager = AppNotificationManager(context)
-    private val featureStateRemoteViewCreator = FeatureStateRemoteViewCreator()
-    private val retryRemoteViewCreator = RetryRemoteViewCreator()
+    private val retryPendingIntent
+        get() = appNotificationManager.getRefreshPendingIntent(context,
+            NotificationType.DAILY,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
+            DailyNotificationReceiver::class)
 
     companion object : IWorker {
         override val name: String = "DailyNotificationWorker"
@@ -46,7 +48,6 @@ class DailyNotificationWorker @AssistedInject constructor(
             return Result.success()
         }
 
-
         if (!checkFeatureStateAndNotify(requiredFeatures)) {
             return Result.success()
         }
@@ -59,37 +60,38 @@ class DailyNotificationWorker @AssistedInject constructor(
         }
 
         val uiModel = viewModel.load(notificationEntity)
-        val creator: NotificationRemoteViewsCreator<RemoteViewUiModel> = RemoteViewsCreatorManager.createRemoteViewsCreator(uiModel.notification.type)
+        val creator: NotificationRemoteViewsCreator<RemoteViewUiModel> =
+            RemoteViewsCreatorManager.createRemoteViewsCreator(uiModel.notificationType)
 
-        when (uiModel.state) {
-            is WeatherResponseState.Success -> {
-                val smallRemoteView = creator.createSmallContentView(uiModel, context)
-                val bigRemoteView = creator.createBigContentView(uiModel, context)
+        if (uiModel.isSuccessful) {
+            val model = DailyNotificationForecastUiModelMapper().mapToUiModel(uiModel.model!!, viewModel.units)
+            val header = uiModel.header!!
+            val smallRemoteView = creator.createSmallContentView(model, header, context)
+            val bigRemoteView = creator.createBigContentView(model, header, context)
 
-                val notificationViewState = NotificationViewState(
-                    true,
-                    smallContentRemoteViews = smallRemoteView,
-                    bigContentRemoteViews = bigRemoteView,
-                )
-                appNotificationManager.notifyNotification(NotificationType.DAILY, context, notificationViewState)
-            }
+            val notificationViewState = NotificationViewState(
+                true,
+                smallContentRemoteViews = smallRemoteView,
+                bigContentRemoteViews = bigRemoteView,
+                notificationType = NotificationType.DAILY,
+                refreshPendingIntent = retryPendingIntent,
+            )
+            appNotificationManager.notifyNotification(NotificationType.DAILY, context, notificationViewState)
+        } else {
 
-            else -> {
-                val retryPendingIntent = appNotificationManager.getRefreshPendingIntent(context,
-                    NotificationType.DAILY,
-                    PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
-                    DailyNotificationReceiver::class)
-                val notificationViewState = NotificationViewState(
-                    false,
-                    failedContentRemoteViews = retryRemoteViewCreator.createView(context,
-                        context.getString(R.string.refresh),
-                        retryPendingIntent,
-                        RemoteViewCreator.NOTIFICATION),
-                )
-                appNotificationManager.notifyNotification(NotificationType.DAILY, context, notificationViewState)
-            }
-
+            val notificationViewState = NotificationViewState(
+                false,
+                failedContentRemoteViews = RetryRemoteViewCreator.createView(context,
+                    context.getString(R.string.refresh),
+                    retryPendingIntent,
+                    RemoteViewCreator.NOTIFICATION),
+                refreshPendingIntent = retryPendingIntent,
+                notificationType = NotificationType.DAILY,
+            )
+            appNotificationManager.notifyNotification(NotificationType.DAILY, context, notificationViewState)
         }
+
+
 
         return Result.success()
     }
@@ -98,10 +100,12 @@ class DailyNotificationWorker @AssistedInject constructor(
     private fun checkFeatureStateAndNotify(featureTypes: Array<FeatureType>): Boolean {
         return when (val state = FeatureStateChecker.checkFeatureState(context, featureTypes)) {
             is FeatureState.Unavailable -> {
-                val remoteViews = featureStateRemoteViewCreator.createView(context, state.featureType, RemoteViewCreator.NOTIFICATION)
+                val remoteViews = FeatureStateRemoteViewCreator.createView(context, state.featureType, RemoteViewCreator.NOTIFICATION)
                 val notificationViewState = NotificationViewState(
                     false,
                     failedContentRemoteViews = remoteViews,
+                    refreshPendingIntent = retryPendingIntent,
+                    notificationType = NotificationType.DAILY,
                 )
                 appNotificationManager.notifyNotification(NotificationType.DAILY, context, notificationViewState)
                 false

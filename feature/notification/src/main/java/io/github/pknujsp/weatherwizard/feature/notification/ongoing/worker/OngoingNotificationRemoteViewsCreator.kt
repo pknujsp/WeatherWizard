@@ -24,35 +24,31 @@ class OngoingNotificationRemoteViewsCreator : NotificationRemoteViewsCreator<Ong
         }
     }
 
-    override fun createSmallContentView(model: OngoingNotificationRemoteViewUiModel, context: Context): RemoteViews {
+    override fun createSmallContentView(model: OngoingNotificationRemoteViewUiModel, header: Header, context: Context): RemoteViews {
         val contentView = RemoteViews(context.packageName, R.layout.notification_ongoing_small).apply {
             model.apply {
                 setImageViewResource(R.id.weather_icon, currentWeather.weatherIcon)
                 setTextViewText(R.id.temperature, currentWeather.temperature)
                 setTextViewText(R.id.feels_like_temperature, currentWeather.feelsLikeTemperature)
-                setTextViewText(R.id.address, address)
-                setOnClickPendingIntent(R.id.refresh_button, refreshPendingIntent)
             }
         }
         return createBaseView(context, RemoteViewCreator.NOTIFICATION).apply {
-            createHeaderView(this, model)
+            createHeaderView(this, header)
             addView(io.github.pknujsp.weatherwizard.core.ui.R.id.remote_views_root_container, contentView)
         }
     }
 
-    override fun createBigContentView(model: OngoingNotificationRemoteViewUiModel, context: Context): RemoteViews {
+    override fun createBigContentView(model: OngoingNotificationRemoteViewUiModel, header: Header, context: Context): RemoteViews {
         val contentView = RemoteViews(context.packageName, R.layout.notification_ongoing_big).apply {
             model.apply {
                 setImageViewResource(R.id.weather_icon, currentWeather.weatherIcon)
                 setTextViewText(R.id.temperature, currentWeather.temperature)
                 setTextViewText(R.id.feels_like_temperature, currentWeather.feelsLikeTemperature)
-                setTextViewText(R.id.address, address)
-                setOnClickPendingIntent(R.id.refresh_button, refreshPendingIntent)
                 createHourlyForecastView(model, context)
             }
         }
         return createBaseView(context, RemoteViewCreator.NOTIFICATION).apply {
-            createHeaderView(this, model)
+            createHeaderView(this, header)
             addView(io.github.pknujsp.weatherwizard.core.ui.R.id.remote_views_root_container, contentView)
         }
     }
