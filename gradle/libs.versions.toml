@@ -66,11 +66,8 @@ compile_sdk = "34"
 target_sdk = "34"
 min_sdk = "26"
 
-#firebase
-firebase_crashlytics = "18.6.0"
+firebase_bom = "32.7.0"
 firebase_crashlytics_gradle_plugin = "2.9.9"
-firebase_analytics = "21.5.0"
-
 ksealedbinding = "1.0.0"
 
 ktlint = "1.0.1"
@@ -163,8 +160,9 @@ robolectric = { module = "org.robolectric:robolectric", version.ref = "robolectr
 google-dagger-hilt-testing = { module = "com.google.dagger:hilt-android-testing", version.ref = "androidx_test_hilt" }
 
 # firebase--------------------------------------------------------------------------------------------------------------------
-firebase-crashlytics = { group = "com.google.firebase", name = "firebase-crashlytics-ktx", version.ref = "firebase_crashlytics" }
-firebase-analytics = { group = "com.google.firebase", name = "firebase-analytics-ktx", version.ref = "firebase_analytics" }
+firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebase_bom" }
+firebase-crashlytics = { module = "com.google.firebase:firebase-crashlytics"}
+firebase-analytics = { module = "com.google.firebase:firebase-analytics" }
 
 # dagger hilt------------------------------------------------------------------------------------------------------------------------
 dagger-hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "dagger" }
