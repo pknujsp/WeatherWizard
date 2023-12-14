@@ -5,6 +5,8 @@ import android.appwidget.AppWidgetManager
 import android.content.Context
 import android.content.Intent
 import android.widget.RemoteViews
+import io.github.pknujsp.weatherwizard.core.common.enum.PendingIntentRequestFactory
+import io.github.pknujsp.weatherwizard.core.common.enum.pendingIntentRequestFactory
 import io.github.pknujsp.weatherwizard.core.model.UiModel
 import io.github.pknujsp.weatherwizard.core.model.widget.WidgetType
 import io.github.pknujsp.weatherwizard.feature.widget.activity.WidgetActivity
@@ -13,6 +15,7 @@ import io.github.pknujsp.weatherwizard.feature.widget.summary.SummaryRemoteViewC
 import io.github.pknujsp.weatherwizard.feature.widget.summary.SummaryWeatherWidgetProvider
 
 class WidgetManager private constructor(context: Context) {
+
     private val appWidgetManager = AppWidgetManager.getInstance(context)
     val widgetIds get() = appWidgetManager.installedProviders.flatMap { appWidgetManager.getAppWidgetIds(it.provider).toList() }
 
@@ -57,20 +60,25 @@ class WidgetManager private constructor(context: Context) {
     /**
      * Returns a PendingIntent for starting a WidgetActivity.
      */
-    private fun getDialogPendingIntent(context: Context) =
-        PendingIntent.getActivity(context, 10000, Intent(context, WidgetActivity::class.java).apply {
+    private fun getDialogPendingIntent(context: Context) = PendingIntent.getActivity(context,
+        pendingIntentRequestFactory.requestId(WidgetActivity::class),
+        Intent(context, WidgetActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK
-        }, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
+        },
+        PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
 
     /**
      * Returns a PendingIntent for broadcasting an update to widgets.
      * The PendingIntent includes the provided action and appWidgetIds.
      */
     fun getUpdatePendingIntent(context: Context, action: Action, appWidgetIds: IntArray = intArrayOf()): PendingIntent {
-        return PendingIntent.getBroadcast(context, 11000, Intent(context, SummaryWeatherWidgetProvider::class.java).apply {
-            this.action = action.name
-            putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, appWidgetIds)
-        }, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
+        return PendingIntent.getBroadcast(context,
+            pendingIntentRequestFactory.requestId(Action.UPDATE_ALL_WIDGETS::class),
+            Intent(context, SummaryWeatherWidgetProvider::class.java).apply {
+                this.action = action.name
+                putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, appWidgetIds)
+            },
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
     }
 
     /**
@@ -78,10 +86,13 @@ class WidgetManager private constructor(context: Context) {
      * The PendingIntent includes the provided appWidgetIds.
      */
     fun getInitPendingIntent(context: Context, appWidgetIds: IntArray): PendingIntent {
-        return PendingIntent.getBroadcast(context, 12000, Intent(context, SummaryWeatherWidgetProvider::class.java).apply {
-            action = Action.INIT_NEW_WIDGET.name
-            putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, appWidgetIds)
-        }, PendingIntent.FLAG_ONE_SHOT or PendingIntent.FLAG_IMMUTABLE)
+        return PendingIntent.getBroadcast(context,
+            pendingIntentRequestFactory.requestId(Action.INIT_NEW_WIDGET::class),
+            Intent(context, SummaryWeatherWidgetProvider::class.java).apply {
+                action = Action.INIT_NEW_WIDGET.name
+                putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, appWidgetIds)
+            },
+            PendingIntent.FLAG_ONE_SHOT or PendingIntent.FLAG_IMMUTABLE)
     }
 
     /**

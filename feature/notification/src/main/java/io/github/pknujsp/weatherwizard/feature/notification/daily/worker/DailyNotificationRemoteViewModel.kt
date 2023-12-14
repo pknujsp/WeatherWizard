@@ -12,7 +12,8 @@ import io.github.pknujsp.weatherwizard.core.domain.weather.WeatherResponseState
 import io.github.pknujsp.weatherwizard.core.model.coordinate.LocationType
 import io.github.pknujsp.weatherwizard.core.model.coordinate.LocationTypeModel
 import io.github.pknujsp.weatherwizard.core.ui.remoteview.RemoteViewModel
-import io.github.pknujsp.weatherwizard.feature.notification.daily.model.DailyNotificationHeaderModel
+import io.github.pknujsp.weatherwizard.feature.notification.daily.model.DailyNotificationRemoteViewUiState
+import io.github.pknujsp.weatherwizard.feature.notification.ongoing.model.OngoingNotificationRemoteViewUiState
 import javax.inject.Inject
 
 class DailyNotificationRemoteViewModel @Inject constructor(
@@ -33,11 +34,11 @@ class DailyNotificationRemoteViewModel @Inject constructor(
 
     suspend fun load(
         dailyNotificationSettingsEntity: DailyNotificationSettingsEntity,
-    ): DailyNotificationHeaderModel {
+    ): DailyNotificationRemoteViewUiState {
         return loadWeatherData(dailyNotificationSettingsEntity)
     }
 
-    private suspend fun loadWeatherData(dailyNotificationSettingsEntity: DailyNotificationSettingsEntity): DailyNotificationHeaderModel {
+    private suspend fun loadWeatherData(dailyNotificationSettingsEntity: DailyNotificationSettingsEntity): DailyNotificationRemoteViewUiState {
         val weatherDataRequest = WeatherDataRequest()
 
         if (dailyNotificationSettingsEntity.location.locationType is LocationType.CurrentLocation) {
@@ -56,17 +57,19 @@ class DailyNotificationRemoteViewModel @Inject constructor(
                             dailyNotificationSettingsEntity.weatherProvider,
                         )
                     }, onFailure = {
-                        return DailyNotificationHeaderModel(weatherDataRequest.requestedTime,
-                            WeatherResponseState.Failure(-1, LocationTypeModel(), dailyNotificationSettingsEntity.weatherProvider),
-                            dailyNotificationSettingsEntity)
+                        return DailyNotificationRemoteViewUiState(
+                            isSuccessful = false,
+                            notificationType = dailyNotificationSettingsEntity.type,
+                        )
                     })
 
                 }
 
                 else -> {
-                    return DailyNotificationHeaderModel(weatherDataRequest.requestedTime,
-                        WeatherResponseState.Failure(-1, LocationTypeModel(), dailyNotificationSettingsEntity.weatherProvider),
-                        dailyNotificationSettingsEntity)
+                    return DailyNotificationRemoteViewUiState(
+                        isSuccessful = false,
+                        notificationType = dailyNotificationSettingsEntity.type,
+                    )
                 }
             }
         } else {
@@ -77,23 +80,18 @@ class DailyNotificationRemoteViewModel @Inject constructor(
             )
         }
 
+        return when (val response = getWeatherDataUseCase(weatherDataRequest.finalRequests[0], false)) {
+            is WeatherResponseState.Success -> DailyNotificationRemoteViewUiState(model = response.entity,
+                address = response.location.address,
+                lastUpdated = weatherDataRequest.requestedTime,
+                notificationType = dailyNotificationSettingsEntity.type,
+                isSuccessful = true)
 
-        val response = getWeatherDataUseCase(weatherDataRequest.finalRequests[0],false)
-
-        val uiModel = DailyNotificationHeaderModel(weatherDataRequest.requestedTime,
-            response,
-            notification = if (dailyNotificationSettingsEntity.location.locationType is LocationType.CurrentLocation) {
-                dailyNotificationSettingsEntity.copy(location = dailyNotificationSettingsEntity.location.copy(
-                    latitude = response.location.latitude,
-                    longitude = response.location.longitude,
-                    address = response.location.address,
-                    country = response.location.country,
-                ))
-            } else {
-                dailyNotificationSettingsEntity
-            })
-
-        return uiModel
+            else -> DailyNotificationRemoteViewUiState(
+                isSuccessful = false,
+                notificationType = dailyNotificationSettingsEntity.type,
+            )
+        }
     }
 
 }

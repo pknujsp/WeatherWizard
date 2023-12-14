@@ -61,8 +61,7 @@ fun PermissionCheckingScreen(navController: NavController) {
                         }, refreshKey)
 
                         if (unavailable) {
-                            UnavailableFeatureScreen(
-                                featureType = FeatureType.LOCATION_PERMISSION) {
+                            UnavailableFeatureScreen(featureType = FeatureType.LOCATION_PERMISSION) {
                                 openLocationPermissionActivity = true
                             }
                         }
@@ -89,8 +88,7 @@ fun PermissionCheckingScreen(navController: NavController) {
                 }, refreshKey)
 
                 if (unavailable) {
-                    UnavailableFeatureScreen(
-                        featureType = FeatureType.STORAGE_PERMISSION) {
+                    UnavailableFeatureScreen(featureType = FeatureType.STORAGE_PERMISSION) {
                         openStoragePermissionActivity = true
                     }
                 }

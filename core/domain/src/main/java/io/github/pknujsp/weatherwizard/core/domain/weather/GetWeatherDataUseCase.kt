@@ -2,6 +2,7 @@ package io.github.pknujsp.weatherwizard.core.domain.weather
 
 import io.github.pknujsp.weatherwizard.core.common.coroutines.CoDispatcher
 import io.github.pknujsp.weatherwizard.core.common.coroutines.CoDispatcherType
+import io.github.pknujsp.weatherwizard.core.common.util.DayNightCalculator
 import io.github.pknujsp.weatherwizard.core.data.weather.RequestWeatherData
 import io.github.pknujsp.weatherwizard.core.data.weather.WeatherDataRepository
 import kotlinx.coroutines.CoroutineDispatcher
@@ -31,7 +32,7 @@ class GetWeatherDataUseCase @Inject constructor(
                 WeatherResponseState.Success(requestId,
                     location,
                     weatherProvider,
-                    WeatherResponseEntity(weatherDataMajorCategories, it.list))
+                    WeatherResponseEntity(weatherDataMajorCategories, it.list, DayNightCalculator(location.latitude, location.longitude)))
             }, onFailure = {
                 WeatherResponseState.Failure(
                     requestId,

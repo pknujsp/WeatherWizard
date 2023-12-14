@@ -60,4 +60,7 @@ dependencies {
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.activity)
     implementation(libs.androidx.appcompat)
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.crashlytics)
+    implementation(libs.firebase.analytics)
 }

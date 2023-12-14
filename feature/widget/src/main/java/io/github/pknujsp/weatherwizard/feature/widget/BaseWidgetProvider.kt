@@ -50,16 +50,12 @@ abstract class BaseWidgetProvider : AppWidgetProvider() {
         val inputData = Data(mapOf("appWidgetIds" to (appWidgetIds ?: intArrayOf()), "action" to action.name))
         val workerClass = getWorkerClass(action)
 
-        val request =
-            OneTimeWorkRequest.Builder(workerClass).setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST).setInputData(inputData)
-                .build()
-
+        val request = OneTimeWorkRequest.Builder(workerClass).setInputData(inputData).build()
         WorkManager.getInstance(context).enqueue(request)
     }
 
     private fun getWorkerClass(action: WidgetManager.Action) = when (action) {
         WidgetManager.Action.UPDATE_ONLY_WITH_WIDGETS, WidgetManager.Action.INIT_NEW_WIDGET, WidgetManager.Action.UPDATE_ONLY_BASED_CURRENT_LOCATION, WidgetManager.Action.UPDATE_ALL_WIDGETS -> WidgetWorker::class.java
-
         WidgetManager.Action.DELETE -> WidgetDeleteWorker::class.java
     }
 }

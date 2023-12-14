@@ -30,11 +30,11 @@ class KmaRequestPreProcessor(
         var minDistance = Double.MAX_VALUE
         var distance: Double
         val compLatLng = DoubleArray(2)
-        lateinit var nearbyKmaAreaCodeDto: KorCoordinateDto
+        var nearbyKmaAreaCodeDto: KorCoordinateDto? = null
 
         for (dto in list) {
-            compLatLng[0] = dto.latitudeSecondsDivide100!!.toDouble()
-            compLatLng[1] = dto.longitudeSecondsDivide100!!.toDouble()
+            compLatLng[0] = dto.latitude()
+            compLatLng[1] = dto.longitude()
             distance =
                 LocationDistance.distance(criteriaLatLng[0], criteriaLatLng[1], compLatLng[0], compLatLng[1], LocationDistance.Unit.METER)
             if (distance < minDistance) {
@@ -43,10 +43,10 @@ class KmaRequestPreProcessor(
             }
         }
 
-        return nearbyKmaAreaCodeDto
+        return nearbyKmaAreaCodeDto!!
     }
 
-    private fun getAreaCode(latitude: Double, longitude: Double) = channelFlow<String> {
+    private fun getAreaCode(latitude: Double, longitude: Double) = channelFlow {
         val key = Pair(latitude, longitude)
         mutex.withLock {
             if (!korAreaCodesMap.containsKey(key)) {

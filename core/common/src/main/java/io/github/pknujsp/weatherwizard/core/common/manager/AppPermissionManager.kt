@@ -77,7 +77,13 @@ fun PermissionManager(
 
 enum class PermissionType(val permissions: Array<String>) {
     LOCATION(
-        arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION),
+        arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION).let {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                it + Manifest.permission.ACCESS_BACKGROUND_LOCATION
+            } else {
+                it
+            }
+        },
     ),
     STORAGE(
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {

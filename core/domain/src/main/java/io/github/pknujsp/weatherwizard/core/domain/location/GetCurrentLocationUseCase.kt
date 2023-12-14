@@ -2,6 +2,7 @@ package io.github.pknujsp.weatherwizard.core.domain.location
 
 import io.github.pknujsp.weatherwizard.core.common.manager.AppLocationManager
 import io.github.pknujsp.weatherwizard.core.common.manager.FailedReason
+import io.github.pknujsp.weatherwizard.core.common.util.toCoordinate
 import javax.inject.Inject
 
 class GetCurrentLocationUseCase @Inject constructor(
@@ -10,7 +11,8 @@ class GetCurrentLocationUseCase @Inject constructor(
     suspend operator fun invoke(): CurrentLocationResultState = if (appLocationManager.isGpsProviderEnabled) {
         when (val currentLocation = appLocationManager.getCurrentLocation()) {
             is AppLocationManager.LocationResult.Success -> {
-                CurrentLocationResultState.Success(currentLocation.location.latitude, currentLocation.location.longitude)
+                CurrentLocationResultState.Success(currentLocation.location.latitude.toCoordinate(),
+                    currentLocation.location.longitude.toCoordinate())
             }
 
             is AppLocationManager.LocationResult.Failure -> {

@@ -21,9 +21,29 @@ object FeatureStateChecker {
     }
 }
 
-enum class FailedReason(@StringRes val title: Int, @StringRes val message: Int) {
-    NETWORK_DISABLED(R.string.title_network_is_unavailable, R.string.network_unavailable),
-    SERVER_ERROR(R.string.server_error_title, R.string.server_error_message),
-    UNKNOWN(R.string.unknown_error_title, R.string.unknown_error_message),
-    LOCATION_PROVIDER_DISABLED(R.string.title_location_is_disabled, R.string.location_service_disabled),
+enum class FailedReason(@StringRes val title: Int, @StringRes val message: Int, @StringRes val action: Int) {
+    NETWORK_DISABLED(R.string.network, R.string.network_unavailable, R.string.open_settings_for_network),
+    SERVER_ERROR(R.string.server_error_title, R.string.server_error_message, R.string.reload),
+    UNKNOWN(R.string.unknown_error_title, R.string.unknown_error_message, R.string.reload),
+    LOCATION_PROVIDER_DISABLED(R.string.location_service, R.string.location_service_disabled, R.string.open_settings_for_location_service),
+    LOCATION_PERMISSION_DENIED(
+        R.string.location_permission,
+        R.string.location_permission_denied,
+        R.string.open_settings_for_permission,
+    ),
+    STORAGE_PERMISSION_DENIED(
+        R.string.storage_permission,
+        R.string.storage_permission_denied,
+        R.string.open_settings_for_permission,
+    ),
+    POST_NOTIFICATION_PERMISSION_DENIED(
+        R.string.post_notification_permission,
+        R.string.post_notification_permission_denied,
+        R.string.open_settings_for_permission,
+    ),
+    EXACT_ALARM_PERMISSION_DENIED(
+        R.string.exact_alarm_permission,
+        R.string.exact_alarm_permission_denied,
+        R.string.open_settings_for_permission,
+    );
 }

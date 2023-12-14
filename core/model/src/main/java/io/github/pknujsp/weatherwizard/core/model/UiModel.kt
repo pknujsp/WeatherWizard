@@ -1,4 +1,7 @@
 package io.github.pknujsp.weatherwizard.core.model
 
-interface UiModel {
-}
+import java.time.ZonedDateTime
+
+interface UiModel : Model
+
+interface RemoteViewUiModel : UiModel

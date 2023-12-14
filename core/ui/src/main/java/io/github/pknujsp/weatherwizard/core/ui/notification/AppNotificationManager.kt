@@ -10,8 +10,8 @@ import android.widget.RemoteViews
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.work.ForegroundInfo
+import io.github.pknujsp.weatherwizard.core.common.enum.pendingIntentRequestFactory
 import io.github.pknujsp.weatherwizard.core.model.notification.enums.NotificationType
-import io.github.pknujsp.weatherwizard.core.model.remoteviews.RemoteViewUiModel
 import io.github.pknujsp.weatherwizard.core.ui.R
 import kotlin.reflect.KClass
 
@@ -37,13 +37,6 @@ class AppNotificationManager(context: Context) {
     private fun createNotification(notificationType: NotificationType, context: Context): NotificationCompat.Builder {
         createNotificationChannel(notificationType)
 
-        /**
-        val clickIntent = Intent(context, MainActivity::class.java)
-        clickIntent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
-        val pendingIntent = PendingIntent.getActivity(context, System.currentTimeMillis().toInt(), clickIntent,
-        PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE)
-         */
-
         return NotificationCompat.Builder(context, notificationType.channelId).apply {
             setSmallIcon(io.github.pknujsp.weatherwizard.core.common.R.mipmap.ic_launcher_foreground)
             setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
@@ -61,9 +54,12 @@ class AppNotificationManager(context: Context) {
 
 
     fun getRefreshPendingIntent(context: Context, notificationType: NotificationType, flags: Int, cls: KClass<*>): PendingIntent {
-        return PendingIntent.getBroadcast(context, notificationType.notificationId, Intent(context, cls.java).apply {
-            action = ""
-        }, flags)
+        return PendingIntent.getBroadcast(context,
+            pendingIntentRequestFactory.requestId(notificationType::class),
+            Intent(context, cls.java).apply {
+                action = ""
+            },
+            flags)
     }
 
     fun createForegroundNotification(context: Context, notificationType: NotificationType): ForegroundInfo {
@@ -77,20 +73,19 @@ class AppNotificationManager(context: Context) {
     }
 
     @SuppressLint("MissingPermission")
-    fun notifyNotification(notificationType: NotificationType, context: Context, entity: RemoteViewUiModel) {
+    fun notifyNotification(notificationType: NotificationType, context: Context, entity: NotificationViewState) {
         val notificationBulder = createNotification(notificationType, context)
 
         notificationBulder.apply {
-            setSubText(entity.subText)
             setCustomBigContentView(entity.bigContentRemoteViews)
             setWhen(0)
             setOngoing(notificationType.ongoing)
             setSilent(notificationType.silent)
 
-            entity.smallIcon?.let {
+            entity.icon?.let {
                 setSmallIcon(it)
             } ?: run {
-                setSmallIcon(entity.smallIconId)
+                setSmallIcon(io.github.pknujsp.weatherwizard.core.common.R.mipmap.ic_launcher)
             }
 
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) {
@@ -109,7 +104,7 @@ class AppNotificationManager(context: Context) {
         val notificationBulder = createNotification(notificationType, context)
 
         notificationBulder.setSmallIcon(io.github.pknujsp.weatherwizard.core.common.R.drawable.ic_refresh)
-            .setContent(RemoteViews(context.packageName, R.layout.view_loading)).setOnlyAlertOnce(true).setWhen(0).setSilent(true)
+            .setContent(RemoteViews(context.packageName, R.layout.view_loading)).setWhen(0).setSilent(true)
 
         NotificationManagerCompat.from(context).notify(notificationType.notificationId, notificationBulder.build())
     }

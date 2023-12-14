@@ -46,12 +46,9 @@ class CacheManagerImpl<K, V>(
         }
 
         cacheCleanerJob = launch(SupervisorJob()) {
-            println("CacheManager" + "${this@CacheManagerImpl} - 캐시 클리너 시작")
-
             while (true) {
                 delay(cleaningInterval)
 
-                println("CacheManager" + "캐시 자동 정리 시작")
                 isCacheCleanerRunning.getAndSet(true)
 
                 val response = CompletableDeferred<Int>()
@@ -59,13 +56,11 @@ class CacheManagerImpl<K, V>(
                 response.await()
 
                 isCacheCleanerRunning.getAndSet(false)
-                println("CacheManager" + "캐시 자동 정리 완료, ${response.await()}개 삭제됨")
             }
         }
     }
 
     override fun stop() {
-        println("CacheManager" + "${this@CacheManagerImpl} - 캐시 클리너 종료")
         launch {
             while (isCacheCleanerRunning.get()) {
                 delay(waitTimeForCacheCleaning)
@@ -112,14 +107,12 @@ class CacheManagerImpl<K, V>(
 
         data class Put<K, V>(val key: K, val value: V, val expiryTime: Long) : CacheMessage<K, V> {
             override fun process(cacheMap: LruCache<K, Cache<V>>) {
-                println("CacheManager" + "캐시 추가: $key")
                 cacheMap.put(key, Cache(value, expiryTime))
             }
         }
 
         data class Remove<K, V>(val key: K, val response: CompletableDeferred<Boolean>) : CacheMessage<K, V> {
             override fun process(cacheMap: LruCache<K, Cache<V>>) {
-                println("CacheManager" + "캐시 삭제: $key")
                 response.complete(cacheMap.remove(key) != null)
             }
         }
@@ -151,7 +144,6 @@ class CacheManagerImpl<K, V>(
                 } ?: run {
                     CacheState.Miss
                 }
-                println("CacheManager" + "캐시 조회: $key, $cacheState")
                 response.complete(cacheState)
             }
         }

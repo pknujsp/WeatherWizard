@@ -111,7 +111,11 @@
     <string name="current_weather_and_hourly_forecast">현재/시간별 예보</string>
     <string name="server_error_title">서버 오류</string>
     <string name="server_error_message">서버에서 문제가 발생하였습니다</string>
-    <string name="unknown_error_title">알수없는오류</string>
+    <string name="unknown_error_title">알수없는 오류</string>
     <string name="unknown_error_message">알수없는 오류가 발생하였습니다</string>
     <string name="title_failed_to_load_weather_data">날씨 자료 다운로드 실패</string>
+    <string name="last_updated_time">업데이트 시각</string>
+    <string name="address">주소</string>
+    <string name="title_failed_to_load_data">데이터 가져오기 실패</string>
+    <string name="failed_to_load_data">데이터를 가져오는 중 오류가 발생하였습니다</string>
 </resources>

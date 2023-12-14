@@ -11,7 +11,6 @@ import io.github.pknujsp.weatherwizard.core.network.api.aqicn.AqiCnDataSource
 import io.github.pknujsp.weatherwizard.core.network.api.aqicn.AqiCnResponse
 import java.time.LocalDate
 import java.time.ZonedDateTime
-import javax.inject.Inject
 
 internal class AirQualityRepositoryImpl(
     private val aqiCnDataSource: AqiCnDataSource, cacheManager: CacheManager<Int, AirQualityEntity>, cacheCleaner: CacheCleaner
