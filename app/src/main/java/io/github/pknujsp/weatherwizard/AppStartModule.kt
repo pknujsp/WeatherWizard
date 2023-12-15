@@ -7,8 +7,8 @@ import dagger.hilt.components.SingletonComponent
 import io.github.pknujsp.weatherwizard.core.data.notification.daily.DailyNotificationRepository
 import io.github.pknujsp.weatherwizard.core.data.notification.ongoing.OngoingNotificationRepository
 import io.github.pknujsp.weatherwizard.core.data.widget.WidgetRepository
-import io.github.pknujsp.weatherwizard.notification.NotificationStarter
-import io.github.pknujsp.weatherwizard.notification.NotificationStarterImpl
+import io.github.pknujsp.weatherwizard.feature.main.notification.NotificationStarter
+import io.github.pknujsp.weatherwizard.feature.main.notification.NotificationStarterImpl
 import io.github.pknujsp.weatherwizard.widget.WidgetStarter
 import io.github.pknujsp.weatherwizard.widget.WidgetStarterImpl
 

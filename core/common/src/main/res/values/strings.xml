@@ -121,4 +121,5 @@
 
     <string name="notification_working_title">작업 진행 중</string>
     <string name="notification_working_text">작업이 진행 중입니다</string>
+    <string name="set_as_complete">수정완료</string>
 </resources>

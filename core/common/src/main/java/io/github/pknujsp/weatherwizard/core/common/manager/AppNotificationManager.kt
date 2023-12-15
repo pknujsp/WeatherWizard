@@ -62,11 +62,10 @@ class AppNotificationManager(context: Context) {
     }
 
     fun createForegroundNotification(context: Context, notificationType: NotificationType): ForegroundInfo {
-        val notification =
-            createNotification(notificationType, context).setSmallIcon(R.mipmap.ic_launcher)
-                .setContentText(context.getString(notificationType.contentText))
-                .setContentTitle(context.getString(notificationType.contentTitle)).setPriority(notificationType.importance).setSilent(true)
-                .build()
+        val notification = createNotification(notificationType, context).setSmallIcon(R.mipmap.ic_launcher)
+            .setContentText(context.getString(notificationType.contentText))
+            .setContentTitle(context.getString(notificationType.contentTitle)).setPriority(notificationType.importance).setSilent(true)
+            .build()
 
         return ForegroundInfo(notificationType.notificationId, notification)
     }
@@ -76,7 +75,6 @@ class AppNotificationManager(context: Context) {
         val notificationBulder = createNotification(notificationType, context)
 
         notificationBulder.apply {
-            setCustomBigContentView(entity.bigContentRemoteViews)
             setWhen(0)
             setOngoing(notificationType.ongoing)
             setSilent(notificationType.silent)
@@ -87,11 +85,12 @@ class AppNotificationManager(context: Context) {
                 setSmallIcon(R.mipmap.ic_launcher)
             }
 
+            setCustomBigContentView(if (entity.success) entity.bigContentRemoteViews else entity.bigFailedContentRemoteViews)
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) {
-                setContent(entity.smallContentRemoteViews)
-                setCustomContentView(entity.smallContentRemoteViews)
+                setContent(if (entity.success) entity.smallContentRemoteViews else entity.smallFailedContentRemoteViews)
+                setCustomContentView(if (entity.success) entity.smallContentRemoteViews else entity.smallFailedContentRemoteViews)
             } else {
-                setCustomContentView(entity.bigContentRemoteViews)
+                setCustomContentView(if (entity.success) entity.bigContentRemoteViews else entity.bigFailedContentRemoteViews)
             }
         }
 

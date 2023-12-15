@@ -8,6 +8,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import io.github.pknujsp.weatherwizard.core.common.manager.AppLocationManager
 import io.github.pknujsp.weatherwizard.core.common.manager.AppNotificationManager
 import io.github.pknujsp.weatherwizard.core.common.manager.NotificationType
+import io.github.pknujsp.weatherwizard.core.common.manager.ServiceType
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -20,7 +21,6 @@ class LocationService : LifecycleService() {
     companion object {
         const val ACTION_START_LOCATION_SERVICE = "ACTION_START_LOCATION_SERVICE"
         const val ACTION_STOP_LOCATION_SERVICE = "ACTION_STOP_LOCATION_SERVICE"
-        const val SERVICE_ID = 1
     }
 
     private fun stopLocationService() {
@@ -30,11 +30,10 @@ class LocationService : LifecycleService() {
 
     private fun startLocationService() {
         lifecycleScope.launch {
-            startForeground(SERVICE_ID,
+            startForeground(ServiceType.LOCATION.id,
                 appNotificationManager.createNotification(NotificationType.LOCATION_SERVICE, applicationContext).build())
-            val location = appLocationManager.getCurrentLocation()
 
-            when (location) {
+            when (appLocationManager.getCurrentLocation()) {
                 is AppLocationManager.LocationResult.Success -> {
                 }
 

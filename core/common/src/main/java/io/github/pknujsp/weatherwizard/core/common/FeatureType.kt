@@ -77,7 +77,6 @@ enum class FeatureType(
     },
     LOCATION_SERVICE(FailedReason.LOCATION_PROVIDER_DISABLED, Settings.ACTION_LOCATION_SOURCE_SETTINGS) {
 
-
         override fun isAvailable(context: Context): Boolean =
             (context.getSystemService(Context.LOCATION_SERVICE) as LocationManager).isProviderEnabled(LocationManager.GPS_PROVIDER)
 

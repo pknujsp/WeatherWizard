@@ -79,12 +79,20 @@ class OngoingNotificationWorker @AssistedInject constructor(
                 refreshPendingIntent = retryPendingIntent)
         } else {
             NotificationViewState(false,
-                failedContentRemoteViews = UiStateRemoteViewCreator.createView(context,
+                smallFailedContentRemoteViews = UiStateRemoteViewCreator.createView(context,
                     R.string.title_failed_to_load_data,
                     R.string.failed_to_load_data,
                     R.string.refresh,
                     RemoteViewCreator.NOTIFICATION,
-                    retryPendingIntent),
+                    retryPendingIntent,
+                    UiStateRemoteViewCreator.ViewSizeType.SMALL),
+                bigFailedContentRemoteViews = UiStateRemoteViewCreator.createView(context,
+                    R.string.title_failed_to_load_data,
+                    R.string.failed_to_load_data,
+                    R.string.refresh,
+                    RemoteViewCreator.NOTIFICATION,
+                    retryPendingIntent,
+                    UiStateRemoteViewCreator.ViewSizeType.BIG),
                 notificationType = NotificationType.ONGOING,
                 refreshPendingIntent = retryPendingIntent)
         }
@@ -95,9 +103,18 @@ class OngoingNotificationWorker @AssistedInject constructor(
     private fun checkFeatureStateAndNotify(featureTypes: Array<FeatureType>): Boolean {
         return when (val state = FeatureStateChecker.checkFeatureState(context, featureTypes)) {
             is FeatureState.Unavailable -> {
-                val remoteViews = UiStateRemoteViewCreator.createView(context, state.featureType, RemoteViewCreator.NOTIFICATION)
+                val smallRemoteViews = UiStateRemoteViewCreator.createView(context,
+                    state.featureType,
+                    RemoteViewCreator.NOTIFICATION,
+                    viewSizeType = UiStateRemoteViewCreator.ViewSizeType.SMALL)
+                val bigRemoteViews = UiStateRemoteViewCreator.createView(context,
+                    state.featureType,
+                    RemoteViewCreator.NOTIFICATION,
+                    viewSizeType = UiStateRemoteViewCreator.ViewSizeType.BIG)
+
                 val notificationViewState = NotificationViewState(false,
-                    failedContentRemoteViews = remoteViews,
+                    smallFailedContentRemoteViews = smallRemoteViews,
+                    bigFailedContentRemoteViews = bigRemoteViews,
                     notificationType = NotificationType.ONGOING,
                     refreshPendingIntent = retryPendingIntent)
                 appNotificationManager.notifyNotification(NotificationType.ONGOING, context, notificationViewState)

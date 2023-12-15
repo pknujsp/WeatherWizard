@@ -14,4 +14,5 @@ dependencies {
     implementation(project(":feature:settings"))
     implementation(project(":feature:favorite"))
     implementation(project(":feature:notification"))
+    implementation(project(":feature:map"))
 }

@@ -10,7 +10,8 @@ data class NotificationViewState(
     val notificationType: NotificationType,
     val smallContentRemoteViews: RemoteViews? = null,
     val bigContentRemoteViews: RemoteViews? = null,
-    val failedContentRemoteViews: RemoteViews? = null,
+    val smallFailedContentRemoteViews: RemoteViews? = null,
+    val bigFailedContentRemoteViews: RemoteViews? = null,
     val icon: IconCompat? = null,
     val refreshPendingIntent: PendingIntent
 ) {
@@ -19,7 +20,8 @@ data class NotificationViewState(
             smallContentRemoteViews?.setOnClickPendingIntent(R.id.action_button, refreshPendingIntent)
             bigContentRemoteViews?.setOnClickPendingIntent(R.id.action_button, refreshPendingIntent)
         } else {
-            failedContentRemoteViews?.setOnClickPendingIntent(R.id.action_button, refreshPendingIntent)
+            smallFailedContentRemoteViews?.setOnClickPendingIntent(R.id.complete_button, refreshPendingIntent)
+            bigFailedContentRemoteViews?.setOnClickPendingIntent(R.id.complete_button, refreshPendingIntent)
         }
     }
 }
