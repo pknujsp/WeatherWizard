@@ -8,10 +8,9 @@ import androidx.work.WorkerParameters
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import io.github.pknujsp.weatherwizard.core.common.FeatureType
-import io.github.pknujsp.weatherwizard.core.model.notification.enums.NotificationType
+import io.github.pknujsp.weatherwizard.core.common.manager.NotificationType
 import io.github.pknujsp.weatherwizard.core.model.worker.IWorker
-import io.github.pknujsp.weatherwizard.core.ui.notification.AppNotificationManager
-import io.github.pknujsp.weatherwizard.feature.widget.WidgetManager
+import io.github.pknujsp.weatherwizard.core.common.manager.AppNotificationManager
 
 
 @HiltWorker

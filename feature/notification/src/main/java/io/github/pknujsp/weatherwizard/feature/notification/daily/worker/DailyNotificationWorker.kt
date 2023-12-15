@@ -14,11 +14,11 @@ import io.github.pknujsp.weatherwizard.core.common.manager.FeatureState
 import io.github.pknujsp.weatherwizard.core.common.manager.FeatureStateChecker
 import io.github.pknujsp.weatherwizard.core.model.RemoteViewUiModel
 import io.github.pknujsp.weatherwizard.core.model.coordinate.LocationType
-import io.github.pknujsp.weatherwizard.core.model.notification.enums.NotificationType
-import io.github.pknujsp.weatherwizard.core.ui.notification.NotificationViewState
+import io.github.pknujsp.weatherwizard.core.common.manager.NotificationType
+import io.github.pknujsp.weatherwizard.core.common.manager.NotificationViewState
 import io.github.pknujsp.weatherwizard.core.model.worker.IWorker
 import io.github.pknujsp.weatherwizard.core.ui.feature.UiStateRemoteViewCreator
-import io.github.pknujsp.weatherwizard.core.ui.notification.AppNotificationManager
+import io.github.pknujsp.weatherwizard.core.common.manager.AppNotificationManager
 import io.github.pknujsp.weatherwizard.core.ui.remoteview.RemoteViewCreator
 import io.github.pknujsp.weatherwizard.feature.notification.manager.RemoteViewsCreatorManager
 import io.github.pknujsp.weatherwizard.feature.notification.remoteview.NotificationRemoteViewsCreator

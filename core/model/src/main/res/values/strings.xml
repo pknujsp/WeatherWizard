@@ -90,6 +90,5 @@
     <string name="air_pollutant_no2_description">이산화질소는 대기 중에 존재하는 가스로, 높은 농도에서는 호흡기 질환을 유발할 수 있습니다.</string>
     <string name="air_pollutant_co_description">일산화탄소는 대기 중에 존재하는 가스로, 높은 농도에서는 호흡기 질환을 유발할 수 있습니다.</string>
     <string name="air_pollutant_so2_description">아황산가스는 대기 중에 존재하는 가스로, 높은 농도에서는 호흡기 질환을 유발할 수 있습니다.</string>
-    <string name="notification_working_title">작업 진행 중</string>
-    <string name="notification_working_text">작업이 진행 중입니다</string>
+
 </resources>

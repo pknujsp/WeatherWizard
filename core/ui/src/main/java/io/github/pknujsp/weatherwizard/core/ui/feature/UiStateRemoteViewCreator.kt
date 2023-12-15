@@ -20,8 +20,8 @@ object UiStateRemoteViewCreator : RemoteViewCreator {
     ): RemoteViews = RemoteViews(context.packageName, R.layout.view_feature_state).let {
         it.setTextViewText(R.id.title, context.getString(title))
         it.setTextViewText(R.id.alert_message, context.getString(alertMessage))
-        it.setTextViewText(R.id.action_button, context.getString(actionMessage))
-        it.setOnClickPendingIntent(R.id.action_button, pendingIntent)
+        it.setTextViewText(io.github.pknujsp.weatherwizard.core.common.R.id.action_button, context.getString(actionMessage))
+        it.setOnClickPendingIntent(io.github.pknujsp.weatherwizard.core.common.R.id.action_button, pendingIntent)
 
         createBaseView(context, containerType, false).apply {
             addView(R.id.remote_views_root_container, it)

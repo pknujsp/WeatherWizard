@@ -1,4 +1,4 @@
-package io.github.pknujsp.weatherwizard.core.ui.notification
+package io.github.pknujsp.weatherwizard.core.common.manager
 
 import android.annotation.SuppressLint
 import android.app.Notification.VISIBILITY_PUBLIC
@@ -10,9 +10,8 @@ import android.widget.RemoteViews
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.work.ForegroundInfo
+import io.github.pknujsp.weatherwizard.core.common.R
 import io.github.pknujsp.weatherwizard.core.common.enum.pendingIntentRequestFactory
-import io.github.pknujsp.weatherwizard.core.model.notification.enums.NotificationType
-import io.github.pknujsp.weatherwizard.core.ui.R
 import kotlin.reflect.KClass
 
 
@@ -34,11 +33,11 @@ class AppNotificationManager(context: Context) {
 
     }
 
-    private fun createNotification(notificationType: NotificationType, context: Context): NotificationCompat.Builder {
+    fun createNotification(notificationType: NotificationType, context: Context): NotificationCompat.Builder {
         createNotificationChannel(notificationType)
 
         return NotificationCompat.Builder(context, notificationType.channelId).apply {
-            setSmallIcon(io.github.pknujsp.weatherwizard.core.common.R.mipmap.ic_launcher_foreground)
+            setSmallIcon(R.mipmap.ic_launcher_foreground)
             setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
         }
     }
@@ -64,7 +63,7 @@ class AppNotificationManager(context: Context) {
 
     fun createForegroundNotification(context: Context, notificationType: NotificationType): ForegroundInfo {
         val notification =
-            createNotification(notificationType, context).setSmallIcon(io.github.pknujsp.weatherwizard.core.common.R.mipmap.ic_launcher)
+            createNotification(notificationType, context).setSmallIcon(R.mipmap.ic_launcher)
                 .setContentText(context.getString(notificationType.contentText))
                 .setContentTitle(context.getString(notificationType.contentTitle)).setPriority(notificationType.importance).setSilent(true)
                 .build()
@@ -85,7 +84,7 @@ class AppNotificationManager(context: Context) {
             entity.icon?.let {
                 setSmallIcon(it)
             } ?: run {
-                setSmallIcon(io.github.pknujsp.weatherwizard.core.common.R.mipmap.ic_launcher)
+                setSmallIcon(R.mipmap.ic_launcher)
             }
 
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) {

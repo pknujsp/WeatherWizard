@@ -2,7 +2,7 @@ package io.github.pknujsp.weatherwizard.core.database.notification.ongoing
 
 import io.github.pknujsp.weatherwizard.core.database.notification.NotificationDao
 import io.github.pknujsp.weatherwizard.core.database.notification.NotificationDto
-import io.github.pknujsp.weatherwizard.core.model.notification.enums.NotificationType
+import io.github.pknujsp.weatherwizard.core.common.manager.NotificationType
 import kotlinx.coroutines.flow.firstOrNull
 import javax.inject.Inject
 

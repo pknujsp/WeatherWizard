@@ -4,26 +4,20 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.location.Location
 import android.location.LocationManager
-import android.os.Looper
 import com.google.android.gms.location.CurrentLocationRequest
 import com.google.android.gms.location.FusedLocationProviderClient
-import com.google.android.gms.location.LocationCallback
-import com.google.android.gms.location.LocationRequest
-import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
 import com.google.android.gms.tasks.CancellationToken
 import com.google.android.gms.tasks.CancellationTokenSource
 import com.google.android.gms.tasks.OnTokenCanceledListener
-import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
 internal class AppLocationManagerImpl(context: Context) : AppLocationManager {
     private val fusedLocationProvider: FusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(context)
     private val locationManager: LocationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
-    private val isRequestedLocationUpdate = AtomicBoolean(false)
-    private var callback: LocationCallback? = null
+    private val duration = 4_000L
 
     override val isGpsProviderEnabled: Boolean
         get() = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
@@ -33,7 +27,7 @@ internal class AppLocationManagerImpl(context: Context) : AppLocationManager {
         return findCurrentLocation()?.let {
             AppLocationManager.LocationResult.Success(it)
         } ?: run {
-            AppLocationManager.LocationResult.Failure(Throwable("Location is null"))
+            AppLocationManager.LocationResult.Failure
         }
     }
 
@@ -56,7 +50,7 @@ internal class AppLocationManagerImpl(context: Context) : AppLocationManager {
     }
 
     private fun createCurrentLocationRequest() =
-        CurrentLocationRequest.Builder().setDurationMillis(6_000L).setPriority(Priority.PRIORITY_HIGH_ACCURACY).build()
+        CurrentLocationRequest.Builder().setDurationMillis(duration).setPriority(Priority.PRIORITY_HIGH_ACCURACY).build()
 }
 
 interface AppLocationManager {
@@ -65,7 +59,6 @@ interface AppLocationManager {
 
     sealed interface LocationResult {
         data class Success(val location: Location) : LocationResult
-
-        data class Failure(val throwable: Throwable) : LocationResult
+        data object Failure : LocationResult
     }
 }

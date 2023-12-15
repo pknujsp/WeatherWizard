@@ -118,4 +118,7 @@
     <string name="address">주소</string>
     <string name="title_failed_to_load_data">데이터 가져오기 실패</string>
     <string name="failed_to_load_data">데이터를 가져오는 중 오류가 발생하였습니다</string>
+
+    <string name="notification_working_title">작업 진행 중</string>
+    <string name="notification_working_text">작업이 진행 중입니다</string>
 </resources>

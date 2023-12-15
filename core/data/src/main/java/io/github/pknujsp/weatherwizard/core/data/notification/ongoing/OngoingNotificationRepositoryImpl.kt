@@ -6,9 +6,8 @@ import io.github.pknujsp.weatherwizard.core.database.notification.NotificationDt
 import io.github.pknujsp.weatherwizard.core.database.notification.ongoing.OngoingNotificationLocalDataSource
 import io.github.pknujsp.weatherwizard.core.model.JsonParser
 import io.github.pknujsp.weatherwizard.core.model.notification.NotificationSettingsEntity
-import io.github.pknujsp.weatherwizard.core.model.notification.enums.NotificationType
+import io.github.pknujsp.weatherwizard.core.common.manager.NotificationType
 import io.github.pknujsp.weatherwizard.core.data.notification.ongoing.model.OngoingNotificationSettingsJsonEntity
-import io.github.pknujsp.weatherwizard.core.model.coordinate.LocationType
 import kotlinx.serialization.InternalSerializationApi
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.serializer

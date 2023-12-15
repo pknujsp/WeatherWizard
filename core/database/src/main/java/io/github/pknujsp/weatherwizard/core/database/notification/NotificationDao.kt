@@ -1,11 +1,9 @@
 package io.github.pknujsp.weatherwizard.core.database.notification
 
 import androidx.room.Dao
-import androidx.room.Insert
-import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Upsert
-import io.github.pknujsp.weatherwizard.core.model.notification.enums.NotificationType
+import io.github.pknujsp.weatherwizard.core.common.manager.NotificationType
 import kotlinx.coroutines.flow.Flow
 
 @Dao
