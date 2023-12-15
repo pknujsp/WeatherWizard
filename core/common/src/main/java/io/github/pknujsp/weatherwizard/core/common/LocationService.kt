@@ -3,8 +3,50 @@ package io.github.pknujsp.weatherwizard.core.common
 import android.app.Service
 import android.content.Intent
 import android.os.IBinder
+import dagger.hilt.android.AndroidEntryPoint
+import io.github.pknujsp.weatherwizard.core.common.manager.AppLocationManager
+import kotlinx.coroutines.runBlocking
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class LocationService : Service() {
+
+    @Inject lateinit var appLocationManager: AppLocationManager
+
+    companion object {
+        const val ACTION_START_LOCATION_SERVICE = "ACTION_START_LOCATION_SERVICE"
+        const val ACTION_STOP_LOCATION_SERVICE = "ACTION_STOP_LOCATION_SERVICE"
+    }
+
+    private fun stopLocationService() {
+        stopForeground(STOP_FOREGROUND_REMOVE)
+        stopSelf()
+    }
+
+    private fun startLocationService() {
+        val location = runBlocking {
+            appLocationManager.getCurrentLocation()
+        }
+        when (location) {
+            is AppLocationManager.LocationResult.Success -> {
+
+
+            }
+
+            is AppLocationManager.LocationResult.Failure -> {}
+        }
+    }
+
+
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        intent?.run {
+            when (action) {
+                ACTION_START_LOCATION_SERVICE -> startLocationService()
+                ACTION_STOP_LOCATION_SERVICE -> stopLocationService()
+            }
+        }
+        return super.onStartCommand(intent, flags, startId)
+    }
 
     override fun onBind(intent: Intent?): IBinder? {
         return null
