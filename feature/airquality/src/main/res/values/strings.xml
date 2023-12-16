@@ -1,5 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <string name="data_downloaded_failed">자료 다운로드에 실패했어요</string>
-    <string name="current_air_quality">현재 대기질</string>
-</resources>

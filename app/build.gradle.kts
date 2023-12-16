@@ -53,6 +53,7 @@ dependencies {
     implementation(project(":core:common"))
     implementation(project(":core:model"))
     implementation(project(":core:data"))
+    implementation(project(":core:resource"))
     implementation(project(":feature:main"))
     implementation(project(":feature:map"))
     implementation(project(":feature:notification"))
