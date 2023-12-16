@@ -104,7 +104,7 @@ class WidgetWorker @AssistedInject constructor(
                             R.string.title_failed_to_load_data,
                             R.string.failed_to_load_data,
                             R.string.refresh,
-                            RemoteViewCreator.WIDGET,
+                            RemoteViewCreator.ContainerType.WIDGET,
                             retryPendingIntent!!)
                     }
                 }
@@ -123,7 +123,10 @@ class WidgetWorker @AssistedInject constructor(
     private fun checkFeatureStateAndUpdateWidgets(featureTypes: Array<FeatureType>, widgetIds: IntArray): Boolean {
         return when (val state = FeatureStateChecker.checkFeatureState(context, featureTypes)) {
             is FeatureState.Unavailable -> {
-                val remoteViews = UiStateRemoteViewCreator.createView(context, state.featureType, RemoteViewCreator.WIDGET)
+                val remoteViews = UiStateRemoteViewCreator.createView(context,
+                    state.featureType,
+                    RemoteViewCreator.ContainerType.WIDGET,
+                    visibilityOfCompleteButton = true)
                 widgetIds.forEach {
                     widgetManager.updateWidget(it, remoteViews, context)
                 }

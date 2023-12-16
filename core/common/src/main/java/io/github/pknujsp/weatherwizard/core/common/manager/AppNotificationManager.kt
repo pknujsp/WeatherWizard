@@ -37,7 +37,7 @@ class AppNotificationManager(context: Context) {
         createNotificationChannel(notificationType)
 
         return NotificationCompat.Builder(context, notificationType.channelId).apply {
-            setSmallIcon(io.github.pknujsp.weatherwizard.core.resource.R.mipmap.ic_launcher_foreground)
+            setSmallIcon(R.mipmap.ic_launcher_foreground)
             setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
         }
     }
@@ -63,7 +63,7 @@ class AppNotificationManager(context: Context) {
 
     fun createForegroundNotification(context: Context, notificationType: NotificationType): ForegroundInfo {
         val notification = createNotification(notificationType,
-            context).setSmallIcon(io.github.pknujsp.weatherwizard.core.resource.R.mipmap.ic_launcher_foreground)
+            context).setSmallIcon(R.mipmap.ic_launcher_foreground)
             .setContentText(context.getString(notificationType.contentText))
             .setContentTitle(context.getString(notificationType.contentTitle)).setPriority(notificationType.importance).setSilent(true)
             .build()
@@ -83,7 +83,7 @@ class AppNotificationManager(context: Context) {
             entity.icon?.let {
                 setSmallIcon(it)
             } ?: run {
-                setSmallIcon(io.github.pknujsp.weatherwizard.core.resource.R.mipmap.ic_launcher_foreground)
+                setSmallIcon(R.mipmap.ic_launcher_foreground)
             }
 
             setCustomBigContentView(if (entity.success) entity.bigContentRemoteViews else entity.bigFailedContentRemoteViews)

@@ -5,9 +5,14 @@
     android:layout_height="wrap_content"
     android:orientation="vertical">
 
+    <FrameLayout
+        style="@style/Widget.WeatherWizard.Widget.Container.Content"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
     <include
         android:id="@+id/header"
-        layout="@layout/view_header"
+        layout="@layout/big_view_header"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 

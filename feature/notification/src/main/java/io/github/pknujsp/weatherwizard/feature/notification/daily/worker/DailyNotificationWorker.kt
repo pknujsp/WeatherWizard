@@ -84,14 +84,14 @@ class DailyNotificationWorker @AssistedInject constructor(
                     R.string.title_failed_to_load_data,
                     R.string.failed_to_load_data,
                     R.string.refresh,
-                    RemoteViewCreator.NOTIFICATION,
+                    RemoteViewCreator.ContainerType.NOTIFICATION_SMALL,
                     retryPendingIntent,
                     UiStateRemoteViewCreator.ViewSizeType.SMALL),
                 bigContentRemoteViews = UiStateRemoteViewCreator.createView(context,
                     R.string.title_failed_to_load_data,
                     R.string.failed_to_load_data,
                     R.string.refresh,
-                    RemoteViewCreator.NOTIFICATION,
+                    RemoteViewCreator.ContainerType.NOTIFICATION_BIG,
                     retryPendingIntent,
                     UiStateRemoteViewCreator.ViewSizeType.BIG),
                 refreshPendingIntent = retryPendingIntent,
@@ -111,12 +111,14 @@ class DailyNotificationWorker @AssistedInject constructor(
             is FeatureState.Unavailable -> {
                 val smallRemoteViews = UiStateRemoteViewCreator.createView(context,
                     state.featureType,
-                    RemoteViewCreator.NOTIFICATION,
-                    viewSizeType = UiStateRemoteViewCreator.ViewSizeType.SMALL)
+                    RemoteViewCreator.ContainerType.NOTIFICATION_SMALL,
+                    viewSizeType = UiStateRemoteViewCreator.ViewSizeType.SMALL,
+                    visibilityOfCompleteButton = true)
                 val bigRemoteViews = UiStateRemoteViewCreator.createView(context,
                     state.featureType,
-                    RemoteViewCreator.NOTIFICATION,
-                    viewSizeType = UiStateRemoteViewCreator.ViewSizeType.BIG)
+                    RemoteViewCreator.ContainerType.NOTIFICATION_BIG,
+                    viewSizeType = UiStateRemoteViewCreator.ViewSizeType.BIG,
+                    visibilityOfCompleteButton = true)
 
                 val notificationViewState = NotificationViewState(
                     false,

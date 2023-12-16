@@ -3,7 +3,7 @@ package io.github.pknujsp.weatherwizard.core.ui.remoteview
 import android.content.Context
 import android.view.View
 import android.widget.RemoteViews
-import io.github.pknujsp.weatherwizard.core.model.RemoteViewUiModel
+import androidx.annotation.LayoutRes
 import io.github.pknujsp.weatherwizard.core.model.weather.common.CurrentUnits
 import io.github.pknujsp.weatherwizard.core.resource.R
 import io.github.pknujsp.weatherwizard.core.ui.remoteview.RemoteViewCreator.Companion.lastUpdatedTimeFormat
@@ -12,18 +12,20 @@ import java.time.format.DateTimeFormatter
 
 interface RemoteViewCreator {
     companion object {
-        const val NOTIFICATION = 0
-        const val WIDGET = 1
-
         val lastUpdatedTimeFormat: DateTimeFormatter = DateTimeFormatter.ofPattern("MM.dd E HH:mm")
     }
 
-    fun createBaseView(context: Context, containerType: Int, visibilityOfHeader: Boolean = true) = RemoteViews(context.packageName,
-        if (containerType == NOTIFICATION) R.layout.view_base_notification else R.layout.view_base_widget).apply {
-        if (!visibilityOfHeader) {
-            setViewVisibility(R.id.header, View.GONE)
-        }
+    enum class ContainerType(@LayoutRes val layoutRes: Int) {
+        WIDGET(R.layout.view_base_widget), NOTIFICATION_SMALL(R.layout.small_view_base_notification),
+        NOTIFICATION_BIG(R.layout.big_view_base_notification)
     }
+
+    fun createBaseView(context: Context, containerType: ContainerType, visibilityOfHeader: Boolean = true) =
+        RemoteViews(context.packageName, containerType.layoutRes).apply {
+            if (!visibilityOfHeader) {
+                setViewVisibility(R.id.header, View.GONE)
+            }
+        }
 
 }
 

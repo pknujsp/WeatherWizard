@@ -7,9 +7,14 @@
 
     <include
         android:id="@+id/header"
-        layout="@layout/view_header"
+        layout="@layout/big_view_header"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="2dp" />
+
+    <FrameLayout
+        style="@style/Widget.WeatherWizard.Notification.Container.Content"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
 
 </LinearLayout>

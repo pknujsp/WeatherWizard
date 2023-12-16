@@ -22,9 +22,9 @@ class DailyNotificationHourlyForecastRemoteViewsCreator : NotificationRemoteView
             createHourlyForecastView(model, context)
             createDailyForecastView(model, context)
         }
-        return createBaseView(context, RemoteViewCreator.NOTIFICATION).apply {
+        return createBaseView(context, RemoteViewCreator.ContainerType.NOTIFICATION_BIG).apply {
             createHeaderView(this, header)
-            addView(R.id.remote_views_root_container, contentView)
+            addView(R.id.remote_views_content_container, contentView)
         }
     }
 

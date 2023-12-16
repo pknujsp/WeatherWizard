@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+
     <style name="Theme.WeatherWizard" parent="Theme.Material3.Light.NoActionBar" />
 
     <style name="Button.Default" parent="">
@@ -12,6 +13,19 @@
         <item name="android:background">@drawable/background_stroke_button</item>
         <item name="android:clickable">true</item>
         <item name="android:textColor">@android:color/black</item>
+    </style>
+
+    <style name="Button.TextWithDrawable" parent="">
+        <item name="android:background">@drawable/background_stroke_button</item>
+        <item name="android:clickable">true</item>
+        <item name="android:textColor">@android:color/white</item>
+        <item name="android:backgroundTint">@color/blue_button</item>
+    </style>
+
+    <style name="Button.TextWithDrawable.Round" parent="">
+        <item name="android:background">@drawable/background_round_button</item>
+        <item name="android:clickable">true</item>
+        <item name="android:backgroundTint">@color/blue_button</item>
     </style>
 
     <style name="Widget.WeatherWizard.RemoteViews.RootContainer" parent="">
@@ -32,7 +46,6 @@
     <style name="Widget.WeatherWizard.Notification.Container.Content" parent="Widget.WeatherWizard.RemoteViews.Container.Content" />
 
     <style name="Widget.WeatherWizard.Widget.Container.Content" parent="Widget.WeatherWizard.RemoteViews.Container.Content" />
-
 
     <style name="WidgetActivity" parent="Theme.AppCompat.Dialog">
         <item name="android:windowNoTitle">true</item>
