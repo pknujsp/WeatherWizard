@@ -6,7 +6,7 @@ import android.widget.RemoteViews
 import androidx.annotation.LayoutRes
 import androidx.annotation.StringRes
 import io.github.pknujsp.weatherwizard.core.common.FeatureType
-import io.github.pknujsp.weatherwizard.core.ui.R
+import io.github.pknujsp.weatherwizard.core.resource.R
 import io.github.pknujsp.weatherwizard.core.ui.remoteview.RemoteViewCreator
 
 object UiStateRemoteViewCreator : RemoteViewCreator {

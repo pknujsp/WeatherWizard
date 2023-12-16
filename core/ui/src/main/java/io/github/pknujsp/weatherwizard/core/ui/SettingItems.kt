@@ -34,7 +34,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import io.github.pknujsp.weatherwizard.core.common.enum.IEnum
-import io.github.pknujsp.weatherwizard.core.common.R
+import io.github.pknujsp.weatherwizard.core.resource.R
 import io.github.pknujsp.weatherwizard.core.model.coordinate.LocationType
 import io.github.pknujsp.weatherwizard.core.model.coordinate.LocationTypeModel
 import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherProvider
@@ -211,7 +211,7 @@ fun ColumnScope.LocationScreen(selectedLocation: LocationTypeModel, onSelectedIt
             horizontalArrangement = Arrangement.spacedBy(20.dp),
             modifier = Modifier.align(Alignment.End)) {
             Text(text = selectedLocation.address, style = TextStyle(fontSize = 16.sp))
-            SecondaryButton(text = stringResource(id = io.github.pknujsp.weatherwizard.core.ui.R.string.select_location),
+            SecondaryButton(text = stringResource(id = io.github.pknujsp.weatherwizard.core.resource.R.string.select_location),
                 modifier = Modifier.wrapContentSize()) {
                 onClick()
             }
@@ -221,7 +221,7 @@ fun ColumnScope.LocationScreen(selectedLocation: LocationTypeModel, onSelectedIt
 
 @Composable
 fun WeatherProvidersScreen(weatherProvider: WeatherProvider, onSelectedItem: (WeatherProvider) -> Unit) {
-    MediumTitleTextWithoutNavigation(title = stringResource(id = io.github.pknujsp.weatherwizard.core.ui.R.string.weather_provider))
+    MediumTitleTextWithoutNavigation(title = stringResource(id = io.github.pknujsp.weatherwizard.core.resource.R.string.weather_provider))
 
     RadioButtons(radioOptions = WeatherProvider.enums, selectedOption = weatherProvider, onOptionSelected = {
         onSelectedItem(it)

@@ -5,7 +5,7 @@ import android.view.View
 import android.widget.RemoteViews
 import io.github.pknujsp.weatherwizard.core.model.RemoteViewUiModel
 import io.github.pknujsp.weatherwizard.core.model.weather.common.CurrentUnits
-import io.github.pknujsp.weatherwizard.core.ui.R
+import io.github.pknujsp.weatherwizard.core.resource.R
 import io.github.pknujsp.weatherwizard.core.ui.remoteview.RemoteViewCreator.Companion.lastUpdatedTimeFormat
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter

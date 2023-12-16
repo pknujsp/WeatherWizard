@@ -36,7 +36,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
-import io.github.pknujsp.weatherwizard.core.common.R
+import io.github.pknujsp.weatherwizard.core.resource.R
 import io.github.pknujsp.weatherwizard.core.model.coordinate.LocationType
 import io.github.pknujsp.weatherwizard.core.ui.SecondaryButton
 import io.github.pknujsp.weatherwizard.core.ui.TitleTextWithNavigation
@@ -66,7 +66,7 @@ fun DailyNotificationListScreen(navController: NavController, viewModel: DailyNo
         ) {
             val context = LocalContext.current
             if (notificationListUiState.notifications.isEmpty()) {
-                EmptyListScreen(message = io.github.pknujsp.weatherwizard.feature.notification.R.string.empty_daily_notification)
+                EmptyListScreen(message = io.github.pknujsp.weatherwizard.core.resource.R.string.empty_daily_notification)
             } else {
                 for (notification in notificationListUiState.notifications) {
                     Item(item = notification, onClick = {
@@ -81,7 +81,7 @@ fun DailyNotificationListScreen(navController: NavController, viewModel: DailyNo
         }
     }
     Box(modifier = Modifier.padding(12.dp)) {
-        SecondaryButton(text = stringResource(id = io.github.pknujsp.weatherwizard.feature.notification.R.string.add_daily_notification),
+        SecondaryButton(text = stringResource(id = io.github.pknujsp.weatherwizard.core.resource.R.string.add_daily_notification),
             modifier = Modifier.fillMaxWidth()) {
             navController.navigate(NotificationRoutes.AddOrEditDaily.routeWithArguments(-1L))
         }
@@ -135,7 +135,7 @@ private fun Item(
                         },
                     ) {
                         val message =
-                            stringResource(id = io.github.pknujsp.weatherwizard.feature.notification.R.string.delete_daily_notification_message).let {
+                            stringResource(id = io.github.pknujsp.weatherwizard.core.resource.R.string.delete_daily_notification_message).let {
                                 "${item.timeText} $it"
                             }
                         DialogScreen(title = stringResource(id = R.string.delete),

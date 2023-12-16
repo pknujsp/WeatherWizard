@@ -33,7 +33,7 @@ import io.github.pknujsp.weatherwizard.core.ui.SecondaryButton
 import io.github.pknujsp.weatherwizard.core.ui.TitleTextWithNavigation
 import io.github.pknujsp.weatherwizard.core.ui.WeatherProvidersScreen
 import io.github.pknujsp.weatherwizard.core.ui.remoteview.RemoteViewsScreen
-import io.github.pknujsp.weatherwizard.feature.notification.R
+import io.github.pknujsp.weatherwizard.core.resource.R
 import io.github.pknujsp.weatherwizard.feature.notification.ongoing.model.OngoingNotificationSettings
 import io.github.pknujsp.weatherwizard.feature.notification.ongoing.model.rememberOngoingNotificationState
 import io.github.pknujsp.weatherwizard.feature.notification.ongoing.worker.OngoingNotificationRemoteViewsCreator
@@ -67,7 +67,7 @@ fun OngoingNotificationScreen(navController: NavController, viewModel: OngoingNo
             })
         } else {
             Column {
-                TitleTextWithNavigation(title = stringResource(id = io.github.pknujsp.weatherwizard.core.common.R.string.title_ongoing_notification)) {
+                TitleTextWithNavigation(title = stringResource(id = io.github.pknujsp.weatherwizard.core.resource.R.string.title_ongoing_notification)) {
                     navController.popBackStack()
                 }
                 RemoteViewsScreen(OngoingNotificationRemoteViewsCreator(), viewModel.units)
@@ -103,7 +103,7 @@ fun OngoingNotificationScreen(navController: NavController, viewModel: OngoingNo
                 }
                 if (ongoingNotificationUiState.isEnabled) {
                     Box(modifier = Modifier.padding(12.dp)) {
-                        SecondaryButton(text = stringResource(id = io.github.pknujsp.weatherwizard.core.common.R.string.save),
+                        SecondaryButton(text = stringResource(id = io.github.pknujsp.weatherwizard.core.resource.R.string.save),
                             modifier = Modifier.fillMaxWidth()) {
                             ongoingNotificationUiState.update()
                         }
@@ -119,7 +119,7 @@ fun OngoingNotificationScreen(navController: NavController, viewModel: OngoingNo
 fun RefreshIntervalScreen(settings: OngoingNotificationSettings) {
     var selectedOption by remember { mutableStateOf(settings.refreshInterval) }
 
-    BottomSheetSettingItem(title = stringResource(id = io.github.pknujsp.weatherwizard.core.common.R.string.refresh_interval),
+    BottomSheetSettingItem(title = stringResource(id = io.github.pknujsp.weatherwizard.core.resource.R.string.refresh_interval),
         selectedItem = selectedOption,
         onSelectedItem = {
             it?.run {
@@ -134,7 +134,7 @@ fun RefreshIntervalScreen(settings: OngoingNotificationSettings) {
 fun NotificationIconScreen(settings: OngoingNotificationSettings) {
     var selectedOption by remember { mutableStateOf(settings.notificationIconType) }
 
-    BottomSheetSettingItem(title = stringResource(id = io.github.pknujsp.weatherwizard.core.common.R.string.notification_icon_type),
+    BottomSheetSettingItem(title = stringResource(id = io.github.pknujsp.weatherwizard.core.resource.R.string.notification_icon_type),
         selectedItem = selectedOption,
         onSelectedItem = {
             it?.run {

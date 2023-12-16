@@ -17,8 +17,8 @@ sealed interface WeatherProvider : IEnum {
     }
 
     data object Kma : WeatherProvider {
-        @DrawableRes override val logo: Int = io.github.pknujsp.weatherwizard.core.common.R.drawable.kmaicon
-        @StringRes override val name: Int = io.github.pknujsp.weatherwizard.core.common.R.string.kma
+        @DrawableRes override val logo: Int = io.github.pknujsp.weatherwizard.core.resource.R.drawable.kmaicon
+        @StringRes override val name: Int = io.github.pknujsp.weatherwizard.core.resource.R.string.kma
         override val key = 0
         override val title: Int = name
         override val majorWeatherEntityTypes: Set<MajorWeatherEntityType> = setOf(
@@ -30,8 +30,8 @@ sealed interface WeatherProvider : IEnum {
     }
 
     data object MetNorway : WeatherProvider {
-        @DrawableRes override val logo: Int = io.github.pknujsp.weatherwizard.core.common.R.drawable.metlogo
-        @StringRes override val name: Int = io.github.pknujsp.weatherwizard.core.common.R.string.met_norway
+        @DrawableRes override val logo: Int = io.github.pknujsp.weatherwizard.core.resource.R.drawable.metlogo
+        @StringRes override val name: Int = io.github.pknujsp.weatherwizard.core.resource.R.string.met_norway
         override val key = 1
         override val title: Int = name
         override val majorWeatherEntityTypes: Set<MajorWeatherEntityType> = setOf(

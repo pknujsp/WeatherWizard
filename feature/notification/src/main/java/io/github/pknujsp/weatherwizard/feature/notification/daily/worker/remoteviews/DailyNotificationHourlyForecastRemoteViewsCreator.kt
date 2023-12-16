@@ -4,7 +4,7 @@ import android.content.Context
 import android.widget.RemoteViews
 import io.github.pknujsp.weatherwizard.core.model.weather.common.CurrentUnits
 import io.github.pknujsp.weatherwizard.core.ui.remoteview.RemoteViewCreator
-import io.github.pknujsp.weatherwizard.feature.notification.R
+import io.github.pknujsp.weatherwizard.core.resource.R
 import io.github.pknujsp.weatherwizard.feature.notification.daily.model.forecast.DailyNotificationForecastRemoteViewUiModel
 import io.github.pknujsp.weatherwizard.feature.notification.remoteview.NotificationRemoteViewsCreator
 
@@ -24,7 +24,7 @@ class DailyNotificationHourlyForecastRemoteViewsCreator : NotificationRemoteView
         }
         return createBaseView(context, RemoteViewCreator.NOTIFICATION).apply {
             createHeaderView(this, header)
-            addView(io.github.pknujsp.weatherwizard.core.ui.R.id.remote_views_root_container, contentView)
+            addView(R.id.remote_views_root_container, contentView)
         }
     }
 

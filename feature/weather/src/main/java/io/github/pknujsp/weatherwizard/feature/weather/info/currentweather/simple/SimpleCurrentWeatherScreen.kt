@@ -37,7 +37,7 @@ import io.github.pknujsp.weatherwizard.core.model.weather.yesterday.YesterdayWea
 import io.github.pknujsp.weatherwizard.core.ui.textColor
 import io.github.pknujsp.weatherwizard.core.ui.theme.notIncludeTextPaddingStyle
 import io.github.pknujsp.weatherwizard.core.ui.theme.outlineTextStyle
-import io.github.pknujsp.weatherwizard.feature.weather.R
+import io.github.pknujsp.weatherwizard.core.resource.R
 import io.github.pknujsp.weatherwizard.feature.weather.info.WeatherInfoViewModel
 
 
@@ -62,7 +62,7 @@ fun CurrentWeatherScreen(currentWeather: CurrentWeather, yesterdayWeather: Yeste
                 AsyncImage(
                     model = ImageRequest.Builder(LocalContext.current).data(current.weatherIcon).crossfade(false).build(),
                     contentDescription = stringResource(
-                        id = io.github.pknujsp.weatherwizard.core.model.R.string.weather_icon_description,
+                        id = io.github.pknujsp.weatherwizard.core.resource.R.string.weather_icon_description,
                     ),
                     modifier = Modifier
                         .size(94.dp)

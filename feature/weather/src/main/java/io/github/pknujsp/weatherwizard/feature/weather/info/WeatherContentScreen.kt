@@ -54,7 +54,7 @@ import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import io.github.pknujsp.weatherwizard.core.common.FeatureType
-import io.github.pknujsp.weatherwizard.core.common.R
+import io.github.pknujsp.weatherwizard.core.resource.R
 import io.github.pknujsp.weatherwizard.core.common.manager.FailedReason
 import io.github.pknujsp.weatherwizard.core.common.util.AStyle
 import io.github.pknujsp.weatherwizard.core.common.util.toAnnotated
@@ -93,7 +93,7 @@ fun WeatherContentScreen(arguments: ContentArguments, weatherInfoViewModel: Weat
                 else data(arguments.backgroundImageUrl)
                 build()
             },
-            contentDescription = stringResource(io.github.pknujsp.weatherwizard.feature.weather.R.string.background_image),
+            contentDescription = stringResource(io.github.pknujsp.weatherwizard.core.resource.R.string.background_image),
             filterQuality = FilterQuality.High,
         )
 
@@ -164,7 +164,7 @@ fun WeatherContentScreen(arguments: ContentArguments, weatherInfoViewModel: Weat
                                         AsyncImage(
                                             model = ImageRequest.Builder(LocalContext.current).data(R.drawable.ic_time).crossfade(false)
                                                 .build(),
-                                            contentDescription = stringResource(id = io.github.pknujsp.weatherwizard.core.model.R.string.weather_info_head_info_update_time),
+                                            contentDescription = stringResource(id = io.github.pknujsp.weatherwizard.core.resource.R.string.weather_info_head_info_update_time),
                                             colorFilter = ColorFilter.tint(Color.White),
                                             modifier = Modifier.size(16.dp),
                                         )
@@ -184,7 +184,7 @@ fun WeatherContentScreen(arguments: ContentArguments, weatherInfoViewModel: Weat
                                             AsyncImage(
                                                 model = ImageRequest.Builder(LocalContext.current)
                                                     .data(arguments.uiState.args.weatherProvider.logo).crossfade(false).build(),
-                                                contentDescription = stringResource(id = io.github.pknujsp.weatherwizard.feature.weather.R.string.weather_provider),
+                                                contentDescription = stringResource(id = io.github.pknujsp.weatherwizard.core.resource.R.string.weather_provider),
                                                 modifier = Modifier.size(16.dp),
                                             )
                                             Spacer(modifier = Modifier.width(4.dp))

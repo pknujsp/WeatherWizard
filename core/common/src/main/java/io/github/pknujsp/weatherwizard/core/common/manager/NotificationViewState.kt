@@ -3,7 +3,7 @@ package io.github.pknujsp.weatherwizard.core.common.manager
 import android.app.PendingIntent
 import android.widget.RemoteViews
 import androidx.core.graphics.drawable.IconCompat
-import io.github.pknujsp.weatherwizard.core.common.R
+import io.github.pknujsp.weatherwizard.core.resource.R
 
 data class NotificationViewState(
     val success: Boolean,

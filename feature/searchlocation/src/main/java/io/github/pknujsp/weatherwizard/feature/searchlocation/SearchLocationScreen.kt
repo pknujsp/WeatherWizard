@@ -16,7 +16,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.pknujsp.weatherwizard.core.ui.TitleTextWithNavigation
-import io.github.pknujsp.weatherwizard.feature.favorite.R
+import io.github.pknujsp.weatherwizard.core.resource.R
 import io.github.pknujsp.weatherwizard.feature.favorite.search.SearchBar
 import io.github.pknujsp.weatherwizard.feature.favorite.search.SearchResultScreen
 

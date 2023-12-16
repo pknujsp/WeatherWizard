@@ -4,7 +4,7 @@ import android.content.Context
 import android.widget.RemoteViews
 import io.github.pknujsp.weatherwizard.core.model.weather.common.CurrentUnits
 import io.github.pknujsp.weatherwizard.core.ui.remoteview.RemoteViewCreator
-import io.github.pknujsp.weatherwizard.feature.widget.R
+import io.github.pknujsp.weatherwizard.core.resource.R
 import io.github.pknujsp.weatherwizard.feature.widget.remoteview.WidgetRemoteViewsCreator
 
 class SummaryRemoteViewCreator : WidgetRemoteViewsCreator<SummaryUiModel>() {
@@ -46,7 +46,7 @@ class SummaryRemoteViewCreator : WidgetRemoteViewsCreator<SummaryUiModel>() {
 
             createBaseView(context, RemoteViewCreator.WIDGET).apply {
                 createHeaderView(this, header)
-                addView(io.github.pknujsp.weatherwizard.core.ui.R.id.remote_views_root_container, content)
+                addView(io.github.pknujsp.weatherwizard.core.resource.R.id.remote_views_root_container, content)
             }
         }
     }
@@ -55,7 +55,7 @@ class SummaryRemoteViewCreator : WidgetRemoteViewsCreator<SummaryUiModel>() {
     override fun createSampleView(context: Context, units: CurrentUnits): RemoteViews {
         return RemoteViews(context.packageName, R.layout.summary_weather_widget).let {
             createBaseView(context, RemoteViewCreator.WIDGET).apply {
-                addView(io.github.pknujsp.weatherwizard.core.ui.R.id.remote_views_root_container, it)
+                addView(io.github.pknujsp.weatherwizard.core.resource.R.id.remote_views_root_container, it)
             }
         }
     }

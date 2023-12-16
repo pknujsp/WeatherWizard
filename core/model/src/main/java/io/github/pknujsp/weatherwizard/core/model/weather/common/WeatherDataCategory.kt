@@ -2,7 +2,7 @@ package io.github.pknujsp.weatherwizard.core.model.weather.common
 
 
 import androidx.annotation.StringRes
-import io.github.pknujsp.weatherwizard.core.model.R
+import io.github.pknujsp.weatherwizard.core.resource.R
 
 enum class WeatherDataCategory(@StringRes val stringId: Int) {
     // 기온

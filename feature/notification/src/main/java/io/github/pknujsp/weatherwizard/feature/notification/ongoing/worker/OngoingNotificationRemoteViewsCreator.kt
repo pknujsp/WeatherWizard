@@ -7,20 +7,20 @@ import io.github.pknujsp.weatherwizard.core.model.weather.common.CurrentUnits
 import io.github.pknujsp.weatherwizard.core.model.weather.common.TemperatureUnit
 import io.github.pknujsp.weatherwizard.core.model.weather.common.TemperatureValueType
 import io.github.pknujsp.weatherwizard.core.ui.remoteview.RemoteViewCreator
-import io.github.pknujsp.weatherwizard.feature.notification.R
+import io.github.pknujsp.weatherwizard.core.resource.R
 import io.github.pknujsp.weatherwizard.feature.notification.remoteview.NotificationRemoteViewsCreator
 
 class OngoingNotificationRemoteViewsCreator : NotificationRemoteViewsCreator<OngoingNotificationRemoteViewUiModel>() {
     override fun createSampleView(context: Context, units: CurrentUnits): RemoteViews {
         val contentView = RemoteViews(context.packageName, R.layout.notification_ongoing_small).apply {
-            setImageViewResource(R.id.weather_icon, io.github.pknujsp.weatherwizard.core.common.R.drawable.ic_sun)
+            setImageViewResource(R.id.weather_icon, io.github.pknujsp.weatherwizard.core.resource.R.drawable.ic_sun)
             setTextViewText(R.id.temperature,
                 TemperatureValueType(16.0, TemperatureUnit.Celsius).convertUnit(units.temperatureUnit).toString())
             setTextViewText(R.id.feels_like_temperature,
                 TemperatureValueType(16.0, TemperatureUnit.Celsius).convertUnit(units.temperatureUnit).toString())
         }
         return createBaseView(context, RemoteViewCreator.NOTIFICATION).apply {
-            addView(io.github.pknujsp.weatherwizard.core.ui.R.id.remote_views_root_container, contentView)
+            addView(io.github.pknujsp.weatherwizard.core.resource.R.id.remote_views_root_container, contentView)
         }
     }
 
@@ -34,7 +34,7 @@ class OngoingNotificationRemoteViewsCreator : NotificationRemoteViewsCreator<Ong
         }
         return createBaseView(context, RemoteViewCreator.NOTIFICATION).apply {
             createHeaderView(this, header)
-            addView(io.github.pknujsp.weatherwizard.core.ui.R.id.remote_views_root_container, contentView)
+            addView(io.github.pknujsp.weatherwizard.core.resource.R.id.remote_views_root_container, contentView)
         }
     }
 
@@ -49,7 +49,7 @@ class OngoingNotificationRemoteViewsCreator : NotificationRemoteViewsCreator<Ong
         }
         return createBaseView(context, RemoteViewCreator.NOTIFICATION).apply {
             createHeaderView(this, header)
-            addView(io.github.pknujsp.weatherwizard.core.ui.R.id.remote_views_root_container, contentView)
+            addView(io.github.pknujsp.weatherwizard.core.resource.R.id.remote_views_root_container, contentView)
         }
     }
 

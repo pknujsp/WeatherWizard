@@ -24,7 +24,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import io.github.pknujsp.weatherwizard.core.common.R
+import io.github.pknujsp.weatherwizard.core.resource.R
 import io.github.pknujsp.weatherwizard.core.model.onSuccess
 import io.github.pknujsp.weatherwizard.core.model.searchhistory.SearchHistory
 import io.github.pknujsp.weatherwizard.core.ui.list.EmptyListScreen
@@ -40,7 +40,7 @@ internal fun SearchHistoryScreen(
         history.onSuccess {
             if (it.isEmpty()) {
                 item {
-                    EmptyListScreen(message = io.github.pknujsp.weatherwizard.feature.favorite.R.string.no_search_history)
+                    EmptyListScreen(message = io.github.pknujsp.weatherwizard.core.resource.R.string.no_search_history)
                 }
             } else {
                 items(items = it, key = { history -> history.id }) { history ->

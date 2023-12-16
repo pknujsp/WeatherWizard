@@ -34,7 +34,7 @@ import io.github.pknujsp.weatherwizard.core.ui.TitleTextWithNavigation
 import io.github.pknujsp.weatherwizard.core.ui.WeatherProvidersScreen
 import io.github.pknujsp.weatherwizard.core.ui.remoteview.RemoteViewsScreen
 import io.github.pknujsp.weatherwizard.feature.searchlocation.SearchLocationScreen
-import io.github.pknujsp.weatherwizard.feature.widget.R
+import io.github.pknujsp.weatherwizard.core.resource.R
 import io.github.pknujsp.weatherwizard.feature.widget.WidgetManager
 
 
@@ -86,7 +86,7 @@ fun WidgetConfigureScreen(navController: NavController, widgetId: Int, widgetTyp
         })
     } else {
         Column {
-            TitleTextWithNavigation(title = stringResource(id = io.github.pknujsp.weatherwizard.feature.widget.R.string.configure_widget)) {
+            TitleTextWithNavigation(title = stringResource(id = io.github.pknujsp.weatherwizard.core.resource.R.string.configure_widget)) {
                 navController.popBackStack()
             }
             RemoteViewsScreen(widgetManager.remoteViewCreator(widgetType), viewModel.units)
@@ -107,7 +107,7 @@ fun WidgetConfigureScreen(navController: NavController, widgetId: Int, widgetTyp
             }
 
             Box(modifier = Modifier.padding(12.dp)) {
-                SecondaryButton(text = stringResource(id = io.github.pknujsp.weatherwizard.core.common.R.string.save),
+                SecondaryButton(text = stringResource(id = io.github.pknujsp.weatherwizard.core.resource.R.string.save),
                     modifier = Modifier.fillMaxWidth()) {
                     widget.save()
                 }
@@ -131,7 +131,7 @@ fun createWidgetAndFinish(activity: Activity, widgetId: Int, widgetManager: Widg
 enum class ConfigureActionState : ActionState {
     NO_LOCATION_IS_SELECTED {
         override val message: Int
-            get() = io.github.pknujsp.weatherwizard.core.common.R.string.no_location_is_selected
+            get() = io.github.pknujsp.weatherwizard.core.resource.R.string.no_location_is_selected
     },
     SAVE_SUCCESS {
         override val message: Int

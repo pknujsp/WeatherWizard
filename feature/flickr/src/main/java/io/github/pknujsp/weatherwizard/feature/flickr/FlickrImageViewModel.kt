@@ -10,6 +10,7 @@ import io.github.pknujsp.weatherwizard.core.data.flickr.FlickrRepository
 import io.github.pknujsp.weatherwizard.core.model.flickr.FlickrRequestParameters
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import io.github.pknujsp.weatherwizard.core.resource.R
 
 @HiltViewModel
 class FlickrImageViewModel @Inject constructor(

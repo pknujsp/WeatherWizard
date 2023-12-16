@@ -19,7 +19,7 @@ import io.github.pknujsp.weatherwizard.core.ui.MediumTitleTextWithoutNavigation
 import io.github.pknujsp.weatherwizard.core.ui.PrimaryButton
 import io.github.pknujsp.weatherwizard.core.ui.SecondaryButton
 import io.github.pknujsp.weatherwizard.core.ui.ThirdButton
-import io.github.pknujsp.weatherwizard.feature.widget.R
+import io.github.pknujsp.weatherwizard.core.resource.R
 import io.github.pknujsp.weatherwizard.feature.widget.WidgetManager
 
 
@@ -53,14 +53,14 @@ fun Content(onClickLaunchApp: () -> Unit = {}, onClickRefresh: () -> Unit = {}, 
     Column(horizontalAlignment = androidx.compose.ui.Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(8.dp),
         modifier = Modifier.padding(horizontal = 48.dp, vertical = 36.dp)) {
-        MediumTitleTextWithoutNavigation(title = stringResource(id = io.github.pknujsp.weatherwizard.core.common.R.string.app_name))
+        MediumTitleTextWithoutNavigation(title = stringResource(id = io.github.pknujsp.weatherwizard.core.resource.R.string.app_name))
         PrimaryButton(text = stringResource(id = R.string.launch_app)) {
             onClickLaunchApp()
         }
-        SecondaryButton(text = stringResource(id = io.github.pknujsp.weatherwizard.core.common.R.string.refresh)) {
+        SecondaryButton(text = stringResource(id = io.github.pknujsp.weatherwizard.core.resource.R.string.refresh)) {
             onClickRefresh()
         }
-        ThirdButton(text = stringResource(id = io.github.pknujsp.weatherwizard.core.common.R.string.cancel)) {
+        ThirdButton(text = stringResource(id = io.github.pknujsp.weatherwizard.core.resource.R.string.cancel)) {
             onClickCancel()
         }
     }

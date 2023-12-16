@@ -23,7 +23,7 @@ import androidx.navigation.compose.rememberNavController
 import io.github.pknujsp.weatherwizard.core.ui.ButtonSettingItem
 import io.github.pknujsp.weatherwizard.core.ui.CheckBoxSettingItem
 import io.github.pknujsp.weatherwizard.core.ui.TextValueSettingItem
-
+import io.github.pknujsp.weatherwizard.core.resource.R
 @Composable
 fun SettingsScreen(navController: NavController, viewModel: SettingsViewModel) {
     val weatherDataProvider by viewModel.weatherProvider.collectAsStateWithLifecycle()
@@ -35,7 +35,7 @@ fun SettingsScreen(navController: NavController, viewModel: SettingsViewModel) {
             description = stringResource(id = R.string.description_value_unit), onClick = {
                 navController.navigate(SettingsRoutes.ValueUnit.route)
             }) {
-            Icon(painterResource(id = io.github.pknujsp.weatherwizard.core.common.R.drawable.ic_forward), contentDescription = "navigate")
+            Icon(painterResource(id = io.github.pknujsp.weatherwizard.core.resource.R.drawable.ic_forward), contentDescription = "navigate")
         }
 
         TextValueSettingItem(title = stringResource(id = R.string.title_weather_data_provider), value = {

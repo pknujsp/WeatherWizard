@@ -2,7 +2,7 @@ package io.github.pknujsp.weatherwizard.core.model.airquality
 
 import androidx.annotation.StringRes
 import androidx.compose.ui.graphics.Color
-import io.github.pknujsp.weatherwizard.core.model.R
+import io.github.pknujsp.weatherwizard.core.resource.R
 import io.github.pknujsp.weatherwizard.core.model.airquality.AirQualityDescription.GOOD
 import io.github.pknujsp.weatherwizard.core.model.airquality.AirQualityDescription.HAZARDOUS
 import io.github.pknujsp.weatherwizard.core.model.airquality.AirQualityDescription.MODERATE

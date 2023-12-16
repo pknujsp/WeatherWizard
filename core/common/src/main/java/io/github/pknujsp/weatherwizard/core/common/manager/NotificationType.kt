@@ -2,7 +2,7 @@ package io.github.pknujsp.weatherwizard.core.common.manager
 
 import android.app.NotificationManager
 import androidx.annotation.StringRes
-import io.github.pknujsp.weatherwizard.core.common.R
+import io.github.pknujsp.weatherwizard.core.resource.R
 
 enum class NotificationType(
     val notificationId: Int,

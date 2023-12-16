@@ -26,7 +26,7 @@ import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.animateLottieCompositionAsState
 import com.airbnb.lottie.compose.rememberLottieComposition
-import io.github.pknujsp.weatherwizard.core.ui.R
+import io.github.pknujsp.weatherwizard.core.resource.R
 
 @Composable
 private fun LoadingScreen(text: String? = null, onDismissRequest: (() -> Unit)? = null, content: @Composable (() -> Unit)? = null) {
@@ -77,7 +77,7 @@ fun CancellableLoadingScreen(
             onClick = { onDismissRequest() },
             colors = ButtonDefaults.textButtonColors(contentColor = Color.White, disabledContentColor = Color.White),
         ) {
-            Text(text = stringResource(id = io.github.pknujsp.weatherwizard.core.common.R.string.cancel))
+            Text(text = stringResource(id = io.github.pknujsp.weatherwizard.core.resource.R.string.cancel))
         }
     }
 }

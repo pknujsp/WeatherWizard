@@ -10,7 +10,7 @@ import android.widget.RemoteViews
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.work.ForegroundInfo
-import io.github.pknujsp.weatherwizard.core.common.R
+import io.github.pknujsp.weatherwizard.core.resource.R
 import io.github.pknujsp.weatherwizard.core.common.enum.pendingIntentRequestFactory
 import kotlin.reflect.KClass
 
@@ -37,7 +37,7 @@ class AppNotificationManager(context: Context) {
         createNotificationChannel(notificationType)
 
         return NotificationCompat.Builder(context, notificationType.channelId).apply {
-            setSmallIcon(R.mipmap.ic_launcher_foreground)
+            setSmallIcon(io.github.pknujsp.weatherwizard.core.resource.R.mipmap.ic_launcher_foreground)
             setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
         }
     }
@@ -62,7 +62,8 @@ class AppNotificationManager(context: Context) {
     }
 
     fun createForegroundNotification(context: Context, notificationType: NotificationType): ForegroundInfo {
-        val notification = createNotification(notificationType, context).setSmallIcon(R.mipmap.ic_launcher)
+        val notification = createNotification(notificationType,
+            context).setSmallIcon(io.github.pknujsp.weatherwizard.core.resource.R.mipmap.ic_launcher_foreground)
             .setContentText(context.getString(notificationType.contentText))
             .setContentTitle(context.getString(notificationType.contentTitle)).setPriority(notificationType.importance).setSilent(true)
             .build()
@@ -82,7 +83,7 @@ class AppNotificationManager(context: Context) {
             entity.icon?.let {
                 setSmallIcon(it)
             } ?: run {
-                setSmallIcon(R.mipmap.ic_launcher)
+                setSmallIcon(io.github.pknujsp.weatherwizard.core.resource.R.mipmap.ic_launcher_foreground)
             }
 
             setCustomBigContentView(if (entity.success) entity.bigContentRemoteViews else entity.bigFailedContentRemoteViews)
@@ -101,8 +102,9 @@ class AppNotificationManager(context: Context) {
     fun notifyLoadingNotification(notificationType: NotificationType, context: Context) {
         val notificationBulder = createNotification(notificationType, context)
 
-        notificationBulder.setSmallIcon(io.github.pknujsp.weatherwizard.core.common.R.drawable.ic_refresh)
-            .setContent(RemoteViews(context.packageName, R.layout.view_loading)).setWhen(0).setSilent(true)
+        notificationBulder.setSmallIcon(io.github.pknujsp.weatherwizard.core.resource.R.drawable.ic_refresh)
+            .setContent(RemoteViews(context.packageName, io.github.pknujsp.weatherwizard.core.resource.R.layout.view_loading)).setWhen(0)
+            .setSilent(true)
 
         NotificationManagerCompat.from(context).notify(notificationType.notificationId, notificationBulder.build())
     }

@@ -32,7 +32,7 @@ import io.github.pknujsp.weatherwizard.core.ui.TitleTextWithNavigation
 import io.github.pknujsp.weatherwizard.core.ui.WeatherProvidersScreen
 import io.github.pknujsp.weatherwizard.core.ui.dialog.DialogScreen
 import io.github.pknujsp.weatherwizard.core.ui.remoteview.RemoteViewsScreen
-import io.github.pknujsp.weatherwizard.feature.notification.R
+import io.github.pknujsp.weatherwizard.core.resource.R
 import io.github.pknujsp.weatherwizard.feature.notification.daily.model.DailyNotificationSettings
 import io.github.pknujsp.weatherwizard.feature.notification.daily.model.rememberDailyNotificationState
 import io.github.pknujsp.weatherwizard.feature.notification.manager.RemoteViewsCreatorManager
@@ -92,7 +92,7 @@ fun AddOrEditDailyNotificationScreen(navController: NavController, viewModel: Ad
                 }
 
                 Box(modifier = Modifier.padding(12.dp)) {
-                    SecondaryButton(text = stringResource(id = io.github.pknujsp.weatherwizard.core.common.R.string.save),
+                    SecondaryButton(text = stringResource(id = io.github.pknujsp.weatherwizard.core.resource.R.string.save),
                         modifier = Modifier.fillMaxWidth()) {
                         dailyNotificationUiState.update()
                     }
@@ -117,8 +117,8 @@ fun TimeItem(entity: DailyNotificationSettings) {
 
         DialogScreen(title = stringResource(id = R.string.notification_time),
             message = stringResource(id = R.string.message_notification_time),
-            negative = stringResource(id = io.github.pknujsp.weatherwizard.core.common.R.string.cancel),
-            positive = stringResource(id = io.github.pknujsp.weatherwizard.core.common.R.string.okay),
+            negative = stringResource(id = io.github.pknujsp.weatherwizard.core.resource.R.string.cancel),
+            positive = stringResource(id = io.github.pknujsp.weatherwizard.core.resource.R.string.okay),
             onClickNegative = { expanded = false },
             onClickPositive = {
                 expanded = false
@@ -136,7 +136,7 @@ fun TimeItem(entity: DailyNotificationSettings) {
 fun NotificationTypeItem(selectedOption: DailyNotificationType, onSelectedItem: (DailyNotificationType) -> Unit) {
     val types = remember { DailyNotificationType.enums }
 
-    BottomSheetSettingItem(title = stringResource(id = io.github.pknujsp.weatherwizard.core.common.R.string.data_type),
+    BottomSheetSettingItem(title = stringResource(id = io.github.pknujsp.weatherwizard.core.resource.R.string.data_type),
         selectedItem = selectedOption,
         onSelectedItem = {
             if (it != null) {

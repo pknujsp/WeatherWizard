@@ -40,5 +40,9 @@ gradlePlugin {
             id = "plugin.android.feature"
             implementationClass = "FeatureConventionPlugin"
         }
+        register("ResourceConventionPlugin") {
+            id = "plugin.android.resource"
+            implementationClass = "ResourceConventionPlugin"
+        }
     }
 }

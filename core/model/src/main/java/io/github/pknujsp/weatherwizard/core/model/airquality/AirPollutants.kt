@@ -1,7 +1,7 @@
 package io.github.pknujsp.weatherwizard.core.model.airquality
 
 import androidx.annotation.StringRes
-import io.github.pknujsp.weatherwizard.core.model.R
+import io.github.pknujsp.weatherwizard.core.resource.R
 
 enum class AirPollutants(@StringRes val nameResId: Int, @StringRes val descriptionResId: Int, val alias: String) {
     PM10(R.string.air_pollutant_pm10, R.string.air_pollutant_pm10_description, "pm10"),

@@ -60,18 +60,18 @@ fun NotificationMainScreen(navController: NavController) {
 
     if (permissionGranted) {
         Column {
-            NotificationItem(title = stringResource(id = io.github.pknujsp.weatherwizard.core.common.R.string.title_ongoing_notification),
+            NotificationItem(title = stringResource(id = io.github.pknujsp.weatherwizard.core.resource.R.string.title_ongoing_notification),
                 description = null, onClick = {
                     navController.navigate(NotificationRoutes.Ongoing.route)
                 }) {
-                Icon(painterResource(id = io.github.pknujsp.weatherwizard.core.common.R.drawable.ic_forward),
+                Icon(painterResource(id = io.github.pknujsp.weatherwizard.core.resource.R.drawable.ic_forward),
                     contentDescription = "navigate")
             }
-            NotificationItem(title = stringResource(id = io.github.pknujsp.weatherwizard.core.common.R.string.title_daily_notification),
+            NotificationItem(title = stringResource(id = io.github.pknujsp.weatherwizard.core.resource.R.string.title_daily_notification),
                 description = null, onClick = {
                     navController.navigate(NotificationRoutes.Daily.route)
                 }) {
-                Icon(painterResource(id = io.github.pknujsp.weatherwizard.core.common.R.drawable.ic_forward),
+                Icon(painterResource(id = io.github.pknujsp.weatherwizard.core.resource.R.drawable.ic_forward),
                     contentDescription = "navigate")
             }
         }

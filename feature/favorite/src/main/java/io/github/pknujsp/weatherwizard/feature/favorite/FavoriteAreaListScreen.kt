@@ -48,7 +48,7 @@ import io.github.pknujsp.weatherwizard.core.ui.SecondaryButton
 import io.github.pknujsp.weatherwizard.core.ui.list.EmptyListScreen
 import io.github.pknujsp.weatherwizard.core.ui.theme.AppShapes
 import kotlinx.coroutines.flow.filter
-
+import io.github.pknujsp.weatherwizard.core.resource.R
 
 @Composable
 fun FavoriteAreaListScreen(navController: NavController, viewModel: FavoriteAreaViewModel = hiltViewModel()) {
@@ -165,10 +165,10 @@ private fun CurrentLocationItem(currentLocationModel: SelectedLocationModel, onC
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween) {
             Icon(imageVector = Icons.Rounded.LocationOn,
-                contentDescription = stringResource(id = io.github.pknujsp.weatherwizard.core.common.R.string.current_location),
+                contentDescription = stringResource(id = io.github.pknujsp.weatherwizard.core.resource.R.string.current_location),
                 tint = Color.Blue,
                 modifier = Modifier.size(16.dp))
-            Text(text = stringResource(id = io.github.pknujsp.weatherwizard.core.common.R.string.current_location),
+            Text(text = stringResource(id = io.github.pknujsp.weatherwizard.core.resource.R.string.current_location),
                 style = TextStyle(fontSize = 16.sp, color = Color.Blue, textAlign = TextAlign.Left),
                 modifier = Modifier.weight(1f))
             Checkbox(checked = currentLocationModel.locationType is LocationType.CurrentLocation, onCheckedChange = {

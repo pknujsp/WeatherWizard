@@ -25,6 +25,7 @@ import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherProvider
 import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherDataUnit
 import io.github.pknujsp.weatherwizard.core.ui.TitleTextWithoutNavigation
 import io.github.pknujsp.weatherwizard.core.ui.dialog.BottomSheet
+import io.github.pknujsp.weatherwizard.core.resource.R
 
 
 @OptIn(ExperimentalMaterial3Api::class)

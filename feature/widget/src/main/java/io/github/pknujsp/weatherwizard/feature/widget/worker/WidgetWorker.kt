@@ -8,7 +8,7 @@ import androidx.work.WorkerParameters
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import io.github.pknujsp.weatherwizard.core.common.FeatureType
-import io.github.pknujsp.weatherwizard.core.common.R
+import io.github.pknujsp.weatherwizard.core.resource.R
 import io.github.pknujsp.weatherwizard.core.common.manager.FeatureState
 import io.github.pknujsp.weatherwizard.core.common.manager.FeatureStateChecker
 import io.github.pknujsp.weatherwizard.core.data.widget.WidgetSettingsEntity

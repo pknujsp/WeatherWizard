@@ -23,9 +23,9 @@ class SimpleDailyForecast(
         val temperatureGraphHeight: Dp = 50.dp
         private val dateFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("M/d\nE")
 
-        @DrawableRes val probabilityIcon = io.github.pknujsp.weatherwizard.core.common.R.drawable.pop
-        @DrawableRes val rainfallIcon = io.github.pknujsp.weatherwizard.core.common.R.drawable.raindrop
-        @DrawableRes val snowfallIcon = io.github.pknujsp.weatherwizard.core.common.R.drawable.snowparticle
+        @DrawableRes val probabilityIcon = io.github.pknujsp.weatherwizard.core.resource.R.drawable.pop
+        @DrawableRes val rainfallIcon = io.github.pknujsp.weatherwizard.core.resource.R.drawable.raindrop
+        @DrawableRes val snowfallIcon = io.github.pknujsp.weatherwizard.core.resource.R.drawable.snowparticle
     }
 
     init {

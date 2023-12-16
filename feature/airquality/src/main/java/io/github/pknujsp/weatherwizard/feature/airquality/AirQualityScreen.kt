@@ -22,7 +22,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import io.github.pknujsp.weatherwizard.core.model.R
+import io.github.pknujsp.weatherwizard.core.resource.R
 import io.github.pknujsp.weatherwizard.core.model.airquality.AirPollutants
 import io.github.pknujsp.weatherwizard.core.model.airquality.SimpleAirQuality
 import io.github.pknujsp.weatherwizard.core.model.onError
@@ -44,7 +44,7 @@ fun AirQualityScreen(requestWeatherArguments: RequestWeatherArguments, viewModel
             viewModel.loadAirQuality(requestWeatherArguments.location.latitude, requestWeatherArguments.location.longitude)
         }
     }.onSuccess {
-        SimpleWeatherScreenBackground(CardInfo(title = stringResource(io.github.pknujsp.weatherwizard.core.model.R.string.air_quality_index),
+        SimpleWeatherScreenBackground(CardInfo(title = stringResource(io.github.pknujsp.weatherwizard.core.resource.R.string.air_quality_index),
             content = {
                 Column(
                     verticalArrangement = Arrangement.spacedBy(16.dp),
@@ -59,7 +59,7 @@ fun AirQualityScreen(requestWeatherArguments: RequestWeatherArguments, viewModel
             }))
     }.onError {
         SimpleWeatherFailedBox(title = stringResource(id = R.string.air_quality_index),
-            description = stringResource(id = io.github.pknujsp.weatherwizard.feature.airquality.R.string.data_downloaded_failed)) {
+            description = stringResource(id = R.string.data_downloaded_failed)) {
             viewModel.reload()
         }
     }
@@ -74,7 +74,7 @@ private fun SimpleCurrentContent(simpleAirQuality: SimpleAirQuality) {
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Text(
-            text = "${stringResource(io.github.pknujsp.weatherwizard.feature.airquality.R.string.current_air_quality)} ", fontSize = 13.sp,
+            text = "${stringResource(R.string.current_air_quality)} ", fontSize = 13.sp,
             color = Color.White,
         )
         Box(

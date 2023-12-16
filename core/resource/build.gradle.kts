@@ -1,5 +1,5 @@
 plugins {
-    id("plugin.android.library")
+    id("plugin.android.resource")
 }
 
 android {
@@ -7,6 +7,5 @@ android {
 }
 
 dependencies {
-    implementation(libs.androidx.appcompat)
-    implementation(libs.material)
+
 }
