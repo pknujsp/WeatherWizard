@@ -2,6 +2,7 @@ package io.github.pknujsp.weatherwizard.feature.notification.daily.worker
 
 import android.app.PendingIntent
 import android.content.Context
+import android.content.pm.ServiceInfo
 import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.ForegroundInfo
@@ -137,7 +138,9 @@ class DailyNotificationWorker @AssistedInject constructor(
 
 
     override suspend fun getForegroundInfo(): ForegroundInfo {
-        return appNotificationManager.createForegroundNotification(context, NotificationType.WORKING)
+        return appNotificationManager.createForegroundNotification(context, NotificationType.WORKING).run {
+            ForegroundInfo(NotificationType.WORKING.notificationId, this)
+        }
     }
 
 }

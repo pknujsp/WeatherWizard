@@ -1,6 +1,7 @@
 package io.github.pknujsp.weatherwizard.feature.widget.worker
 
 import android.content.Context
+import android.content.pm.ServiceInfo
 import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.ForegroundInfo
@@ -37,7 +38,9 @@ class WidgetDeleteWorker @AssistedInject constructor(
     }
 
     override suspend fun getForegroundInfo(): ForegroundInfo {
-        return AppNotificationManager(context).createForegroundNotification(context, NotificationType.WORKING)
+        return AppNotificationManager(context).createForegroundNotification(context, NotificationType.WORKING).run {
+            ForegroundInfo(NotificationType.WORKING.notificationId, this)
+        }
     }
 
 }

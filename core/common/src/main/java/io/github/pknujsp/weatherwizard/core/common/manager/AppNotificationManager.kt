@@ -1,6 +1,7 @@
 package io.github.pknujsp.weatherwizard.core.common.manager
 
 import android.annotation.SuppressLint
+import android.app.Notification
 import android.app.Notification.VISIBILITY_PUBLIC
 import android.app.NotificationChannel
 import android.app.PendingIntent
@@ -9,9 +10,8 @@ import android.content.Intent
 import android.widget.RemoteViews
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
-import androidx.work.ForegroundInfo
-import io.github.pknujsp.weatherwizard.core.resource.R
 import io.github.pknujsp.weatherwizard.core.common.enum.pendingIntentRequestFactory
+import io.github.pknujsp.weatherwizard.core.resource.R
 import kotlin.reflect.KClass
 
 
@@ -61,14 +61,12 @@ class AppNotificationManager(context: Context) {
             flags)
     }
 
-    fun createForegroundNotification(context: Context, notificationType: NotificationType): ForegroundInfo {
-        val notification = createNotification(notificationType,
-            context).setSmallIcon(R.mipmap.ic_launcher_foreground)
+    fun createForegroundNotification(context: Context, notificationType: NotificationType): Notification {
+        return createNotification(notificationType,
+            context).setSmallIcon(R.mipmap.ic_launcher)
             .setContentText(context.getString(notificationType.contentText))
             .setContentTitle(context.getString(notificationType.contentTitle)).setPriority(notificationType.importance).setSilent(true)
             .build()
-
-        return ForegroundInfo(notificationType.notificationId, notification)
     }
 
     @SuppressLint("MissingPermission")
@@ -102,8 +100,8 @@ class AppNotificationManager(context: Context) {
     fun notifyLoadingNotification(notificationType: NotificationType, context: Context) {
         val notificationBulder = createNotification(notificationType, context)
 
-        notificationBulder.setSmallIcon(io.github.pknujsp.weatherwizard.core.resource.R.drawable.ic_refresh)
-            .setContent(RemoteViews(context.packageName, io.github.pknujsp.weatherwizard.core.resource.R.layout.view_loading)).setWhen(0)
+        notificationBulder.setSmallIcon(R.drawable.ic_refresh)
+            .setContent(RemoteViews(context.packageName, R.layout.view_loading)).setWhen(0)
             .setSilent(true)
 
         NotificationManagerCompat.from(context).notify(notificationType.notificationId, notificationBulder.build())
