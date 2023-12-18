@@ -1,22 +1,13 @@
 package io.github.pknujsp.weatherwizard.feature.notification.manager
 
 import android.annotation.SuppressLint
-import android.content.Context
 import android.content.Intent
 import android.util.Log
 import androidx.lifecycle.LifecycleService
-import androidx.lifecycle.lifecycleScope
-import androidx.work.NetworkType
-import androidx.work.OneTimeWorkRequestBuilder
-import androidx.work.WorkManager
 import dagger.hilt.android.AndroidEntryPoint
 import io.github.pknujsp.weatherwizard.core.common.coroutines.CoDispatcher
 import io.github.pknujsp.weatherwizard.core.common.coroutines.CoDispatcherType
-import io.github.pknujsp.weatherwizard.core.widgetnotification.notification.NotificationAction
-import io.github.pknujsp.weatherwizard.feature.notification.daily.DailyNotificationService
-import io.github.pknujsp.weatherwizard.feature.notification.ongoing.OngoingNotificationService
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.launch
 import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
 

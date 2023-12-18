@@ -5,6 +5,7 @@ import android.content.Context
 import android.location.Location
 import android.location.LocationManager
 import android.util.Log
+import androidx.core.app.PendingIntentCompat.send
 import com.google.android.gms.location.CurrentLocationRequest
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
@@ -12,6 +13,10 @@ import com.google.android.gms.location.Priority
 import com.google.android.gms.tasks.CancellationToken
 import com.google.android.gms.tasks.CancellationTokenSource
 import com.google.android.gms.tasks.OnTokenCanceledListener
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
@@ -24,7 +29,7 @@ internal class AppLocationManagerImpl(context: Context) : AppLocationManager {
 
     @SuppressLint("MissingPermission")
     override suspend fun getCurrentLocation(): AppLocationManager.LocationResult {
-        return findCurrentLocation()?.let {
+        return findCurrentLocation().first()?.let {
             Log.d("AppLocationManagerImpl", "getCurrentLocation: $it")
             AppLocationManager.LocationResult.Success(it)
         } ?: run {
@@ -34,18 +39,23 @@ internal class AppLocationManagerImpl(context: Context) : AppLocationManager {
     }
 
     @SuppressLint("MissingPermission")
-    private suspend fun findCurrentLocation(): Location? = suspendCoroutine { continuation ->
-        fusedLocationProvider.getCurrentLocation(Priority.PRIORITY_HIGH_ACCURACY, CancellationTokenSource().token).addOnFailureListener {
-            continuation.resume(null)
-        }.addOnCanceledListener {
-            continuation.resume(null)
-        }.addOnSuccessListener {
-            it?.run {
-                continuation.resume(this)
-            } ?: run {
-                continuation.resume(null)
+    private fun findCurrentLocation() = callbackFlow {
+        fusedLocationProvider.getCurrentLocation(Priority.PRIORITY_BALANCED_POWER_ACCURACY, CancellationTokenSource().token)
+            .addOnFailureListener {
+                launch {
+                    send(null)
+                }
+            }.addOnCanceledListener {
+                launch {
+                    send(null)
+                }
+            }.addOnSuccessListener {
+                launch {
+                    send(it)
+                }
             }
-        }
+
+        awaitClose { }
     }
 
 }
