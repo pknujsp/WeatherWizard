@@ -2,7 +2,6 @@ package io.github.pknujsp.weatherwizard.feature.notification.ongoing.worker
 
 import android.app.PendingIntent
 import android.content.Intent
-import android.util.Log
 import androidx.lifecycle.LifecycleService
 import androidx.lifecycle.lifecycleScope
 import dagger.hilt.android.AndroidEntryPoint
@@ -14,10 +13,9 @@ import io.github.pknujsp.weatherwizard.core.common.manager.FeatureState
 import io.github.pknujsp.weatherwizard.core.common.manager.FeatureStateChecker
 import io.github.pknujsp.weatherwizard.core.common.manager.NotificationType
 import io.github.pknujsp.weatherwizard.core.common.manager.NotificationViewState
-import io.github.pknujsp.weatherwizard.core.common.manager.ServiceType
 import io.github.pknujsp.weatherwizard.core.model.RemoteViewUiModel
 import io.github.pknujsp.weatherwizard.core.model.coordinate.LocationType
-import io.github.pknujsp.weatherwizard.core.model.worker.IWorker
+import io.github.pknujsp.weatherwizard.core.common.manager.IWorker
 import io.github.pknujsp.weatherwizard.core.resource.R
 import io.github.pknujsp.weatherwizard.core.ui.feature.UiStateRemoteViewCreator
 import io.github.pknujsp.weatherwizard.core.ui.remoteview.RemoteViewCreator
@@ -28,8 +26,8 @@ import io.github.pknujsp.weatherwizard.feature.notification.remoteview.Notificat
 import io.github.pknujsp.weatherwizard.feature.notification.util.NotificationIconGenerator
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.launch
+import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
-import kotlin.properties.Delegates
 
 @AndroidEntryPoint
 class OngoingNotificationService : LifecycleService() {
@@ -52,6 +50,7 @@ class OngoingNotificationService : LifecycleService() {
         override val name: String get() = "OngoingNotificationWorker"
         override val requiredFeatures: Array<FeatureType>
             get() = arrayOf(FeatureType.NETWORK, FeatureType.POST_NOTIFICATION_PERMISSION)
+        override val isRunning: AtomicBoolean = AtomicBoolean(false)
     }
 
     private fun stop() {
@@ -79,7 +78,6 @@ class OngoingNotificationService : LifecycleService() {
             return
         }
 
-        Log.d("OngoingNotificationService", "doWork: ${notificationEntity.location.locationType}")
         appNotificationManager.notifyLoadingNotification(NotificationType.ONGOING, this)
         val uiState = remoteViewsModel.load(notificationEntity)
 
@@ -117,7 +115,6 @@ class OngoingNotificationService : LifecycleService() {
                 notificationType = NotificationType.ONGOING,
                 refreshPendingIntent = retryPendingIntent)
         }
-        Log.d("OngoingNotificationService", "doWork: $notificationState")
         appNotificationManager.notifyNotification(NotificationType.ONGOING, this, notificationState)
     }
 
@@ -151,7 +148,6 @@ class OngoingNotificationService : LifecycleService() {
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         intent?.run {
-            Log.d("OngoingNotificationService", "onStartCommand: ${intent.action}")
             when (action) {
                 ACTION_START_LOCATION_SERVICE -> start()
                 ACTION_STOP_LOCATION_SERVICE -> stop()
@@ -162,5 +158,11 @@ class OngoingNotificationService : LifecycleService() {
 
     override fun onCreate() {
         super.onCreate()
+        isRunning.getAndSet(true)
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        isRunning.getAndSet(false)
     }
 }

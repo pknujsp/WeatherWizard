@@ -63,7 +63,7 @@ class AppNotificationManager(context: Context) {
 
     fun createForegroundNotification(context: Context, notificationType: NotificationType): Notification {
         return createNotification(notificationType,
-            context).setSmallIcon(R.mipmap.ic_launcher)
+            context).setSmallIcon(R.mipmap.ic_launcher_foreground)
             .setContentText(context.getString(notificationType.contentText))
             .setContentTitle(context.getString(notificationType.contentTitle)).setPriority(notificationType.importance).setSilent(true)
             .build()

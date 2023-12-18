@@ -1,16 +1,12 @@
 package io.github.pknujsp.weatherwizard.core.common.manager
 
-class ServiceManager {
+object ServiceManager {
 
-
-    fun isServiceRunning(serviceType: ServiceType): Boolean {
-        return false
-    }
+    fun isServiceRunning(worker: IWorker): Boolean = worker.isRunning.get()
 
 }
 
 
-
-enum class ServiceType(val id:Int){
+enum class ServiceType(val id: Int) {
     LOCATION(1),
 }

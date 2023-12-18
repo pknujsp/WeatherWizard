@@ -19,7 +19,7 @@ import io.github.pknujsp.weatherwizard.core.model.weather.current.CurrentWeather
 
 object NotificationIconGenerator {
 
-    private const val TEXT_SIZE = 21f
+    private const val TEXT_SIZE = 22f
     private const val ICON_SIZE = 26f
     private const val FONT_FAMILY = "sans-serif-condensed"
 

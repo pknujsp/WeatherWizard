@@ -1,7 +1,6 @@
 package io.github.pknujsp.weatherwizard.feature.widget.worker
 
 import android.content.Context
-import android.content.pm.ServiceInfo
 import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.ForegroundInfo
@@ -17,7 +16,7 @@ import io.github.pknujsp.weatherwizard.core.domain.weather.WeatherResponseState
 import io.github.pknujsp.weatherwizard.core.model.RemoteViewUiModel
 import io.github.pknujsp.weatherwizard.core.model.coordinate.LocationType
 import io.github.pknujsp.weatherwizard.core.common.manager.NotificationType
-import io.github.pknujsp.weatherwizard.core.model.worker.IWorker
+import io.github.pknujsp.weatherwizard.core.common.manager.IWorker
 import io.github.pknujsp.weatherwizard.core.ui.feature.UiStateRemoteViewCreator
 import io.github.pknujsp.weatherwizard.core.common.manager.AppNotificationManager
 import io.github.pknujsp.weatherwizard.core.ui.remoteview.DefaultRemoteViewCreator

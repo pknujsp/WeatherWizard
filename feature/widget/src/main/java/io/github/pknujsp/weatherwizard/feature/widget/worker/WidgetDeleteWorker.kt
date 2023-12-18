@@ -1,7 +1,6 @@
 package io.github.pknujsp.weatherwizard.feature.widget.worker
 
 import android.content.Context
-import android.content.pm.ServiceInfo
 import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.ForegroundInfo
@@ -10,7 +9,7 @@ import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import io.github.pknujsp.weatherwizard.core.common.FeatureType
 import io.github.pknujsp.weatherwizard.core.common.manager.NotificationType
-import io.github.pknujsp.weatherwizard.core.model.worker.IWorker
+import io.github.pknujsp.weatherwizard.core.common.manager.IWorker
 import io.github.pknujsp.weatherwizard.core.common.manager.AppNotificationManager
 
 
