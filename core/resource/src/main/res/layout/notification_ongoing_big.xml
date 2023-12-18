@@ -36,6 +36,7 @@
                     android:id="@+id/temperature"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:fontFamily="sans-serif-condensed"
                     android:includeFontPadding="false"
                     android:text="12"
                     android:textColor="@android:color/black"
@@ -48,9 +49,10 @@
                     android:layout_alignBaseline="@id/temperature"
                     android:layout_marginStart="4dp"
                     android:layout_toEndOf="@id/temperature"
+                    android:fontFamily="sans-serif-condensed"
                     android:includeFontPadding="false"
                     android:text="12"
-                    android:textSize="17sp" />
+                    android:textSize="15sp" />
 
                 <TextView
                     android:id="@+id/yesterday_temperature"
@@ -65,17 +67,16 @@
 
             </RelativeLayout>
 
-            <ImageView
+            <Button
                 android:id="@+id/action_button"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentEnd="true"
                 android:layout_centerVertical="true"
                 android:adjustViewBounds="true"
+                android:background="@drawable/refresh_button"
                 android:clickable="true"
-                android:contentDescription="@string/refresh"
-                android:scaleType="fitCenter"
-                android:src="@drawable/ic_refresh" />
+                android:contentDescription="@string/refresh" />
 
         </RelativeLayout>
 

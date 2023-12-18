@@ -4,6 +4,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.util.Log
+import androidx.core.content.ContextCompat
 
 
 class OngoingNotificationReceiver : BroadcastReceiver() {
@@ -13,8 +14,7 @@ class OngoingNotificationReceiver : BroadcastReceiver() {
             val locationServiceIntent = Intent(context, OngoingNotificationService::class.java).apply {
                 action = OngoingNotificationService.ACTION_START_LOCATION_SERVICE
             }
-            context.startService(locationServiceIntent)
-            Log.d("OngoingNotificationReceiver", "onReceive: ${intent.action}")
+            ContextCompat.startForegroundService(context, locationServiceIntent)
         }
     }
 }

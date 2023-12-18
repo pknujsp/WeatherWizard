@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    android:gravity="center_vertical"
+    android:orientation="horizontal">
 
     <ImageView
         android:id="@+id/weather_icon"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentStart="true"
-        android:layout_centerVertical="true"
         android:adjustViewBounds="true"
         android:contentDescription="@string/weather_icon"
         android:scaleType="fitCenter"
@@ -17,11 +17,9 @@
 
     <RelativeLayout
         android:id="@+id/temperature_container"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_centerVertical="true"
         android:layout_marginHorizontal="6dp"
-        android:layout_toEndOf="@id/weather_icon"
         android:gravity="center_vertical">
 
         <TextView
@@ -30,6 +28,7 @@
             android:layout_height="wrap_content"
             android:includeFontPadding="false"
             android:text="12"
+            android:fontFamily="sans-serif-condensed"
             android:textColor="@android:color/black"
             android:textSize="26sp" />
 
@@ -39,10 +38,11 @@
             android:layout_height="wrap_content"
             android:layout_alignBaseline="@id/temperature"
             android:layout_marginStart="4dp"
+            android:fontFamily="sans-serif-condensed"
             android:layout_toEndOf="@id/temperature"
             android:includeFontPadding="false"
             android:text="12"
-            android:textSize="17sp" />
+            android:textSize="15sp" />
 
         <TextView
             android:id="@+id/yesterday_temperature"
@@ -58,4 +58,4 @@
     </RelativeLayout>
 
 
-</RelativeLayout>
+</LinearLayout>
