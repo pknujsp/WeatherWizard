@@ -31,11 +31,11 @@ import io.github.pknujsp.weatherwizard.core.ui.SecondaryButton
 import io.github.pknujsp.weatherwizard.core.ui.TitleTextWithNavigation
 import io.github.pknujsp.weatherwizard.core.ui.WeatherProvidersScreen
 import io.github.pknujsp.weatherwizard.core.ui.dialog.DialogScreen
-import io.github.pknujsp.weatherwizard.core.ui.remoteview.RemoteViewsScreen
+import io.github.pknujsp.weatherwizard.core.widgetnotification.remoteview.RemoteViewsScreen
 import io.github.pknujsp.weatherwizard.core.resource.R
 import io.github.pknujsp.weatherwizard.feature.notification.daily.model.DailyNotificationSettings
 import io.github.pknujsp.weatherwizard.feature.notification.daily.model.rememberDailyNotificationState
-import io.github.pknujsp.weatherwizard.feature.notification.manager.RemoteViewsCreatorManager
+import io.github.pknujsp.weatherwizard.core.widgetnotification.remoteview.RemoteViewsCreatorManager
 import io.github.pknujsp.weatherwizard.feature.searchlocation.SearchLocationScreen
 
 

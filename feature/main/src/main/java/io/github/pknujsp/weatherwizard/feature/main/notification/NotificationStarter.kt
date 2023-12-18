@@ -9,7 +9,7 @@ import io.github.pknujsp.weatherwizard.core.data.notification.daily.DailyNotific
 import io.github.pknujsp.weatherwizard.core.data.notification.ongoing.OngoingNotificationRepository
 import io.github.pknujsp.weatherwizard.core.model.notification.enums.RefreshInterval
 import io.github.pknujsp.weatherwizard.feature.notification.manager.NotificationAlarmManager
-import io.github.pknujsp.weatherwizard.feature.notification.ongoing.worker.OngoingNotificationReceiver
+import io.github.pknujsp.weatherwizard.feature.notification.ongoing.OngoingNotificationReceiver
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch

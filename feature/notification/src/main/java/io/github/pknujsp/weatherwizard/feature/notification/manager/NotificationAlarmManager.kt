@@ -5,7 +5,7 @@ import android.content.Context
 import android.content.Intent
 import io.github.pknujsp.weatherwizard.core.common.enum.pendingIntentRequestFactory
 import io.github.pknujsp.weatherwizard.core.common.manager.AppAlarmManager
-import io.github.pknujsp.weatherwizard.feature.notification.daily.worker.DailyNotificationReceiver
+import io.github.pknujsp.weatherwizard.feature.notification.daily.DailyNotificationReceiver
 import java.time.ZonedDateTime
 
 class NotificationAlarmManager(context: Context) {

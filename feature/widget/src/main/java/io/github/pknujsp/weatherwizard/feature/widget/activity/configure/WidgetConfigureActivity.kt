@@ -1,7 +1,6 @@
 package io.github.pknujsp.weatherwizard.feature.widget.activity.configure
 
 import android.appwidget.AppWidgetManager
-import android.content.ComponentName
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -10,8 +9,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import dagger.hilt.android.AndroidEntryPoint
 import io.github.pknujsp.weatherwizard.core.model.widget.WidgetType
-import io.github.pknujsp.weatherwizard.feature.widget.extension.fromProvider
-import io.github.pknujsp.weatherwizard.feature.widget.summary.SummaryWeatherWidgetProvider
+import io.github.pknujsp.weatherwizard.feature.widget.activity.fromProvider
 
 @AndroidEntryPoint
 class WidgetConfigureActivity : ComponentActivity() {

@@ -48,7 +48,7 @@
         </activity>
 
         <receiver
-            android:name=".feature.notification.ongoing.worker.OngoingNotificationReceiver"
+            android:name=".feature.notification.ongoing.OngoingNotificationReceiver"
             android:enabled="true"
             android:exported="true">
             <intent-filter>
@@ -58,7 +58,7 @@
         </receiver>
 
         <receiver
-            android:name=".feature.notification.daily.worker.DailyNotificationReceiver"
+            android:name=".feature.notification.daily.DailyNotificationReceiver"
             android:enabled="true"
             android:exported="true">
             <intent-filter>
@@ -87,7 +87,7 @@
             android:theme="@style/WidgetActivity" />
 
         <receiver
-            android:name=".feature.widget.summary.SummaryWeatherWidgetProvider"
+            android:name=".feature.widget.activity.SummaryWeatherWidgetProvider"
             android:enabled="true"
             android:exported="false"
             android:label="@string/summary_weather_widget_description">
@@ -112,7 +112,7 @@
         </activity>
 
         <service
-            android:name=".feature.notification.ongoing.worker.OngoingNotificationService"
+            android:name=".feature.notification.ongoing.OngoingNotificationService"
             android:enabled="true"
             android:exported="false"
             android:foregroundServiceType="location" />

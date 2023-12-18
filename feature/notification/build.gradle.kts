@@ -10,6 +10,7 @@ android {
 dependencies {
     implementation(project(":core:domain"))
     implementation(project(":core:data"))
+    implementation(project(":core:widgetnotification"))
     implementation(project(":feature:searchlocation"))
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)

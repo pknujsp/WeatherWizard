@@ -9,10 +9,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import io.github.pknujsp.weatherwizard.core.common.manager.AppAlarmManager
+import io.github.pknujsp.weatherwizard.core.common.manager.AppNotificationManager
 import io.github.pknujsp.weatherwizard.core.common.manager.NotificationType
 import io.github.pknujsp.weatherwizard.core.model.notification.enums.RefreshInterval
-import io.github.pknujsp.weatherwizard.core.common.manager.AppNotificationManager
-import io.github.pknujsp.weatherwizard.feature.notification.ongoing.worker.OngoingNotificationReceiver
+import io.github.pknujsp.weatherwizard.feature.notification.ongoing.OngoingNotificationReceiver
 
 class OngoingNotificationState(
     val ongoingNotificationUiState: OngoingNotificationUiState,

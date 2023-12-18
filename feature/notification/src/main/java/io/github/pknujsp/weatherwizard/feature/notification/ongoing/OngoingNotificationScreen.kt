@@ -23,20 +23,18 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import io.github.pknujsp.weatherwizard.core.model.coordinate.LocationType
-import io.github.pknujsp.weatherwizard.core.model.coordinate.LocationTypeModel
 import io.github.pknujsp.weatherwizard.core.model.notification.enums.NotificationIconType
 import io.github.pknujsp.weatherwizard.core.model.notification.enums.RefreshInterval
+import io.github.pknujsp.weatherwizard.core.resource.R
 import io.github.pknujsp.weatherwizard.core.ui.BottomSheetSettingItem
 import io.github.pknujsp.weatherwizard.core.ui.LocationScreen
 import io.github.pknujsp.weatherwizard.core.ui.SecondaryButton
 import io.github.pknujsp.weatherwizard.core.ui.TitleTextWithNavigation
 import io.github.pknujsp.weatherwizard.core.ui.WeatherProvidersScreen
-import io.github.pknujsp.weatherwizard.core.ui.remoteview.RemoteViewsScreen
-import io.github.pknujsp.weatherwizard.core.resource.R
+import io.github.pknujsp.weatherwizard.core.widgetnotification.notification.ongoing.worker.OngoingNotificationRemoteViewsCreator
+import io.github.pknujsp.weatherwizard.core.widgetnotification.remoteview.RemoteViewsScreen
 import io.github.pknujsp.weatherwizard.feature.notification.ongoing.model.OngoingNotificationSettings
 import io.github.pknujsp.weatherwizard.feature.notification.ongoing.model.rememberOngoingNotificationState
-import io.github.pknujsp.weatherwizard.feature.notification.ongoing.worker.OngoingNotificationRemoteViewsCreator
 import io.github.pknujsp.weatherwizard.feature.searchlocation.SearchLocationScreen
 
 

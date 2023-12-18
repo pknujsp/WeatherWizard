@@ -54,6 +54,7 @@ dependencies {
     implementation(project(":core:model"))
     implementation(project(":core:data"))
     implementation(project(":core:resource"))
+    implementation(project(":core:widgetnotification"))
     implementation(project(":feature:main"))
     implementation(project(":feature:map"))
     implementation(project(":feature:notification"))

@@ -22,7 +22,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import io.github.pknujsp.weatherwizard.core.model.ActionState
 import io.github.pknujsp.weatherwizard.core.model.coordinate.LocationType
@@ -32,10 +31,11 @@ import io.github.pknujsp.weatherwizard.core.ui.LocationScreen
 import io.github.pknujsp.weatherwizard.core.ui.SecondaryButton
 import io.github.pknujsp.weatherwizard.core.ui.TitleTextWithNavigation
 import io.github.pknujsp.weatherwizard.core.ui.WeatherProvidersScreen
-import io.github.pknujsp.weatherwizard.core.ui.remoteview.RemoteViewsScreen
+import io.github.pknujsp.weatherwizard.core.widgetnotification.remoteview.RemoteViewsScreen
 import io.github.pknujsp.weatherwizard.feature.searchlocation.SearchLocationScreen
 import io.github.pknujsp.weatherwizard.core.resource.R
-import io.github.pknujsp.weatherwizard.feature.widget.WidgetManager
+import io.github.pknujsp.weatherwizard.core.widgetnotification.widget.WidgetManager
+import io.github.pknujsp.weatherwizard.feature.widget.activity.SummaryWeatherWidgetProvider
 
 
 @Composable
@@ -119,7 +119,7 @@ fun WidgetConfigureScreen(navController: NavController, widgetId: Int, widgetTyp
 
 
 fun createWidgetAndFinish(activity: Activity, widgetId: Int, widgetManager: WidgetManager) {
-    widgetManager.getInitPendingIntent(activity, intArrayOf(widgetId)).send()
+    widgetManager.getInitPendingIntent(activity, intArrayOf(widgetId), SummaryWeatherWidgetProvider::class).send()
 
     val resultValue = Intent()
     resultValue.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, widgetId)
