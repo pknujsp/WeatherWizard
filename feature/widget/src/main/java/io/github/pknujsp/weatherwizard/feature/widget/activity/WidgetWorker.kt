@@ -1,27 +1,33 @@
 package io.github.pknujsp.weatherwizard.feature.widget.activity
 
+import android.app.SearchManager.ACTION_KEY
 import android.content.Context
 import android.os.Bundle
 import io.github.pknujsp.weatherwizard.core.common.FeatureType
-import io.github.pknujsp.weatherwizard.core.common.manager.AppComponentService
+import io.github.pknujsp.weatherwizard.core.widgetnotification.model.AppComponentService
 import io.github.pknujsp.weatherwizard.core.common.manager.FeatureState
 import io.github.pknujsp.weatherwizard.core.common.manager.FeatureStateChecker
-import io.github.pknujsp.weatherwizard.core.common.manager.IWorker
+import io.github.pknujsp.weatherwizard.core.widgetnotification.model.IWorker
 import io.github.pknujsp.weatherwizard.core.data.widget.WidgetSettingsEntity
 import io.github.pknujsp.weatherwizard.core.domain.weather.WeatherResponseState
 import io.github.pknujsp.weatherwizard.core.model.RemoteViewUiModel
 import io.github.pknujsp.weatherwizard.core.model.coordinate.LocationType
 import io.github.pknujsp.weatherwizard.core.resource.R
+import io.github.pknujsp.weatherwizard.core.widgetnotification.model.WidgetServiceArgument
+import io.github.pknujsp.weatherwizard.core.widgetnotification.remoteview.DefaultRemoteViewCreator
+import io.github.pknujsp.weatherwizard.core.widgetnotification.remoteview.RemoteViewCreator
 import io.github.pknujsp.weatherwizard.core.widgetnotification.remoteview.UiStateRemoteViewCreator
 import io.github.pknujsp.weatherwizard.core.widgetnotification.widget.WidgetManager
 import io.github.pknujsp.weatherwizard.core.widgetnotification.widget.remoteview.WidgetRemoteViewsCreator
+import io.github.pknujsp.weatherwizard.feature.widget.activity.WidgetDeleteWorker.Companion.APP_WIDGET_IDS_KEY
 import java.time.ZonedDateTime
 import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
 import kotlin.properties.Delegates
 
 
-class WidgetWorker @Inject constructor(private val widgetRemoteViewModel: WidgetRemoteViewModel) : AppComponentService() {
+class WidgetWorker @Inject constructor(private val widgetRemoteViewModel: WidgetRemoteViewModel) :
+    AppComponentService<WidgetServiceArgument> {
 
     private var widgetManager: WidgetManager by Delegates.notNull()
 
@@ -29,22 +35,13 @@ class WidgetWorker @Inject constructor(private val widgetRemoteViewModel: Widget
         override val name: String get() = "WidgetWorker"
         override val requiredFeatures: Array<FeatureType>
             get() = arrayOf(FeatureType.NETWORK)
-
-        const val ACTION_KEY = "action"
-        const val APP_WIDGET_IDS_KEY = "appWidgetIds"
-
-        override val isRunning: AtomicBoolean = AtomicBoolean(false)
     }
 
-    override suspend fun start(context: Context, bundle: Bundle) {
-        if (!bundle.containsKey(ACTION_KEY) or !bundle.containsKey(APP_WIDGET_IDS_KEY)) {
-            return
-        }
-
+    override suspend fun start(context: Context, argument: WidgetServiceArgument) {
         widgetManager = WidgetManager.getInstance(context)
 
-        val action = WidgetManager.Action.valueOf(bundle.getString(ACTION_KEY, ""))
-        val appWidgetIds = bundle.getIntArray(APP_WIDGET_IDS_KEY)!!
+        val action = argument.actionType
+        val appWidgetIds = argument.widgetIds
         val widgetEntityList = widgetRemoteViewModel.loadWidgets()
 
         // 네트워크 연결 상태 확인, 연결이 안되어 있다면 위젯에 네트워크 연결 상태를 표시
@@ -82,15 +79,15 @@ class WidgetWorker @Inject constructor(private val widgetRemoteViewModel: Widget
             val failedWidgetIds = filter { it.state is WeatherResponseState.Failure }.map { it.widget.id }.toIntArray()
             val retryPendingIntent = if (failedWidgetIds.isNotEmpty()) widgetManager.getUpdatePendingIntent(context,
                 WidgetManager.Action.UPDATE_ONLY_WITH_WIDGETS,
-                failedWidgetIds,SummaryWeatherWidgetProvider::class) else null
+                failedWidgetIds,
+                SummaryWeatherWidgetProvider::class) else null
 
             forEach { model ->
                 val remoteView = when (model.state) {
                     is WeatherResponseState.Success -> {
                         val creator: WidgetRemoteViewsCreator<RemoteViewUiModel> = widgetManager.remoteViewCreator(model.widget.widgetType)
                         creator.createContentView(model.map(widgetRemoteViewModel.units),
-                            io.github.pknujsp.weatherwizard.core.widgetnotification.remoteview.DefaultRemoteViewCreator.Header("",
-                                ZonedDateTime.now()),
+                            DefaultRemoteViewCreator.Header("", ZonedDateTime.now()),
                             context)
                     }
 
@@ -99,8 +96,8 @@ class WidgetWorker @Inject constructor(private val widgetRemoteViewModel: Widget
                             R.string.title_failed_to_load_data,
                             R.string.failed_to_load_data,
                             R.string.refresh,
-                            io.github.pknujsp.weatherwizard.core.widgetnotification.remoteview.RemoteViewCreator.ContainerType.WIDGET,
-                            retryPendingIntent!!)
+                            RemoteViewCreator.ContainerType.WIDGET,
+                            pendingIntent = retryPendingIntent!!)
                     }
                 }
 
@@ -114,8 +111,9 @@ class WidgetWorker @Inject constructor(private val widgetRemoteViewModel: Widget
         return when (val state = FeatureStateChecker.checkFeatureState(context, featureTypes)) {
             is FeatureState.Unavailable -> {
                 val remoteViews = UiStateRemoteViewCreator.createView(context,
-                    state.featureType,
-                    io.github.pknujsp.weatherwizard.core.widgetnotification.remoteview.RemoteViewCreator.ContainerType.WIDGET,
+                    state.featureType.failedReason,
+                    RemoteViewCreator.ContainerType.WIDGET,
+                    pendingIntent = state.featureType.getPendingIntent(context),
                     visibilityOfCompleteButton = true)
                 widgetIds.forEach {
                     widgetManager.updateWidget(it, remoteViews, context, WidgetActivity::class)

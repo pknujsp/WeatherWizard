@@ -25,7 +25,7 @@
     <uses-permission
         android:name="android.permission.WRITE_EXTERNAL_STORAGE"
         android:maxSdkVersion="29" />
-
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <application
         android:name=".Application"
         android:icon="@mipmap/ic_launcher"
@@ -47,25 +47,6 @@
             </intent-filter>
         </activity>
 
-        <receiver
-            android:name=".feature.notification.ongoing.OngoingNotificationReceiver"
-            android:enabled="true"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.BOOT_COMPLETED" />
-                <action android:name="android.intent.action.LOCKED_BOOT_COMPLETED" />
-            </intent-filter>
-        </receiver>
-
-        <receiver
-            android:name=".feature.notification.daily.DailyNotificationReceiver"
-            android:enabled="true"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.BOOT_COMPLETED" />
-                <action android:name="android.intent.action.LOCKED_BOOT_COMPLETED" />
-            </intent-filter>
-        </receiver>
 
         <provider
             android:name="androidx.startup.InitializationProvider"
@@ -112,10 +93,29 @@
         </activity>
 
         <service
-            android:name=".feature.notification.ongoing.OngoingNotificationService"
+            android:name=".feature.notification.manager.NotificationService"
             android:enabled="true"
             android:exported="false"
             android:foregroundServiceType="location" />
+
+        <service
+            android:name=".feature.notification.manager.FakeNotificationService"
+            android:enabled="true"
+            android:exported="false" />
+
+        <receiver
+            android:name=".feature.notification.NotificationServiceReceiver"
+            android:enabled="true"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.LOCKED_BOOT_COMPLETED" />
+                <action android:name="NOTIFICATION_SERVICE_ACTION" />
+                <action android:name="ACTION_START_NOTIFICATION_SERVICE" />
+                <action android:name="ACTION_STOP_NOTIFICATION_SERVICE" />
+            </intent-filter>
+        </receiver>
+
     </application>
 
 </manifest>

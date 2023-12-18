@@ -8,6 +8,7 @@ interface OngoingNotificationUiState {
     val ongoingNotificationSettings: OngoingNotificationSettings
     val isEnabled: Boolean
     val action: Action
+    val changedCount: Int
     fun update()
     fun switch()
 

@@ -1,4 +1,4 @@
-package io.github.pknujsp.weatherwizard.core.common.manager
+package io.github.pknujsp.weatherwizard.core.common
 
 import android.app.NotificationManager
 import androidx.annotation.StringRes

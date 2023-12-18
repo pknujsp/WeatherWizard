@@ -1,6 +1,7 @@
 package io.github.pknujsp.weatherwizard.feature.notification.ongoing
 
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
@@ -60,6 +61,7 @@ class OngoingNotificationViewModel @Inject constructor(
             ongoingNotificationRepository.switch(ongoingNotificationUiState.isEnabled)
             _ongoingNotificationUiState.action =
                 if (ongoingNotificationUiState.isEnabled) OngoingNotificationUiState.Action.ENABLED else OngoingNotificationUiState.Action.DISABLED
+            _ongoingNotificationUiState.changedCount++
         }
     }
 
@@ -68,6 +70,7 @@ class OngoingNotificationViewModel @Inject constructor(
             val settingsEntity = createSettingsEntity()
             ongoingNotificationRepository.updateOngoingNotification(settingsEntity)
             _ongoingNotificationUiState.action = OngoingNotificationUiState.Action.UPDATED
+            _ongoingNotificationUiState.changedCount++
         }
     }
 
@@ -95,6 +98,7 @@ private class MutableOngoingNotificationUiState(
     override var isEnabled by mutableStateOf(false)
     override var action by mutableStateOf(OngoingNotificationUiState.Action.NONE)
     override var ongoingNotificationSettings by mutableStateOf(ongoingNotificationSettings)
+    override var changedCount by mutableIntStateOf(0)
 
     override fun switch() {
         isEnabled = !isEnabled

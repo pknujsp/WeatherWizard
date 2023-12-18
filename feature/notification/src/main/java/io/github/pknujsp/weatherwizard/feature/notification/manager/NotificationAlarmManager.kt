@@ -5,7 +5,8 @@ import android.content.Context
 import android.content.Intent
 import io.github.pknujsp.weatherwizard.core.common.enum.pendingIntentRequestFactory
 import io.github.pknujsp.weatherwizard.core.common.manager.AppAlarmManager
-import io.github.pknujsp.weatherwizard.feature.notification.daily.DailyNotificationReceiver
+import io.github.pknujsp.weatherwizard.core.widgetnotification.model.DailyNotificationServiceArgument
+import io.github.pknujsp.weatherwizard.core.widgetnotification.notification.NotificationAction
 import java.time.ZonedDateTime
 
 class NotificationAlarmManager(context: Context) {
@@ -39,9 +40,8 @@ class NotificationAlarmManager(context: Context) {
     private fun getPendingIntent(notificationId: Long, context: Context, flags: Int): PendingIntent? {
         return PendingIntent.getBroadcast(context,
             pendingIntentRequestFactory.requestId(notificationId.toInt()),
-            Intent(context, DailyNotificationReceiver::class.java).apply {
-                action = ""
-                putExtras(DailyNotificationReceiver.bundleOf(notificationId))
+            Intent(NotificationService.ACTION_PROCESS).apply {
+                putExtras(NotificationAction.Daily(DailyNotificationServiceArgument(notificationId)).toBundle())
             },
             flags)
     }

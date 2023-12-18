@@ -7,6 +7,7 @@ import android.widget.RemoteViews
 import androidx.annotation.LayoutRes
 import androidx.annotation.StringRes
 import io.github.pknujsp.weatherwizard.core.common.FeatureType
+import io.github.pknujsp.weatherwizard.core.common.manager.FailedReason
 import io.github.pknujsp.weatherwizard.core.resource.R
 
 object UiStateRemoteViewCreator : RemoteViewCreator {
@@ -21,15 +22,19 @@ object UiStateRemoteViewCreator : RemoteViewCreator {
         @StringRes alertMessage: Int,
         @StringRes actionMessage: Int,
         containerType: RemoteViewCreator.ContainerType,
-        pendingIntent: PendingIntent,
         viewSizeType: ViewSizeType = ViewSizeType.BIG,
+        pendingIntent: PendingIntent? = null,
         visibilityOfCompleteButton: Boolean = false,
+        visibilityOfActionButton: Boolean = true,
     ): RemoteViews = RemoteViews(context.packageName, viewSizeType.id).run {
         if (viewSizeType == ViewSizeType.BIG) {
             setTextViewText(R.id.title, context.getString(title))
         }
         if (!visibilityOfCompleteButton) {
             setViewVisibility(R.id.complete_button, View.GONE)
+        }
+        if (!visibilityOfActionButton) {
+            setViewVisibility(R.id.action_button, View.GONE)
         }
 
         setTextViewText(R.id.alert_message, context.getString(alertMessage))
@@ -43,12 +48,21 @@ object UiStateRemoteViewCreator : RemoteViewCreator {
 
     fun createView(
         context: Context,
-        featureType: FeatureType,
+        failedReason: FailedReason,
         containerType: RemoteViewCreator.ContainerType,
-        pendingIntent: PendingIntent = featureType.getPendingIntent(context),
         viewSizeType: ViewSizeType = ViewSizeType.BIG,
+        pendingIntent: PendingIntent? = null,
         visibilityOfCompleteButton: Boolean = false,
-    ): RemoteViews = featureType.failedReason.run {
-        createView(context, title, message, action, containerType, pendingIntent, viewSizeType, visibilityOfCompleteButton)
+        visibilityOfActionButton: Boolean = true,
+    ): RemoteViews = failedReason.run {
+        createView(context,
+            title,
+            message,
+            action,
+            containerType,
+            viewSizeType,
+            pendingIntent,
+            visibilityOfCompleteButton,
+            visibilityOfActionButton)
     }
 }

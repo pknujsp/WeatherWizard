@@ -43,7 +43,7 @@ fun OngoingNotificationScreen(navController: NavController, viewModel: OngoingNo
     val notificationState = rememberOngoingNotificationState(viewModel.ongoingNotificationUiState)
     val context = LocalContext.current
 
-    LaunchedEffect(notificationState.ongoingNotificationUiState.action) {
+    LaunchedEffect(notificationState.ongoingNotificationUiState.action,notificationState.ongoingNotificationUiState.changedCount) {
         notificationState.onChangedSettings(context)
     }
 

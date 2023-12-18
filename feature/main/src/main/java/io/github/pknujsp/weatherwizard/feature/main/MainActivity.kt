@@ -1,5 +1,7 @@
 package io.github.pknujsp.weatherwizard.feature.main
 
+import android.app.PendingIntent
+import android.content.Intent
 import android.net.ConnectivityManager
 import android.net.Network
 import android.os.Bundle
@@ -15,21 +17,21 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.lifecycle.ViewModelProvider
 import dagger.hilt.android.AndroidEntryPoint
 import io.github.pknujsp.weatherwizard.core.common.FeatureType
 import io.github.pknujsp.weatherwizard.core.common.coroutines.CoDispatcher
 import io.github.pknujsp.weatherwizard.core.common.coroutines.CoDispatcherType
+import io.github.pknujsp.weatherwizard.core.common.enum.pendingIntentRequestFactory
 import io.github.pknujsp.weatherwizard.core.common.manager.AppNetworkManager
 import io.github.pknujsp.weatherwizard.core.ui.feature.OpenAppSettingsActivity
 import io.github.pknujsp.weatherwizard.core.ui.feature.UnavailableFeatureScreen
 import io.github.pknujsp.weatherwizard.core.ui.theme.AppColorScheme
 import io.github.pknujsp.weatherwizard.core.ui.theme.MainTheme
 import io.github.pknujsp.weatherwizard.feature.map.MapInitializer
+import io.github.pknujsp.weatherwizard.feature.notification.manager.NotificationService
+import io.github.pknujsp.weatherwizard.feature.notification.NotificationServiceReceiver
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.supervisorScope
-import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 
@@ -38,7 +40,7 @@ class MainActivity : ComponentActivity() {
 
     private val viewModel: ActivityViewModel by viewModels()
 
-    @Inject @CoDispatcher(CoDispatcherType.IO) lateinit var dispatcher: CoroutineDispatcher
+    @Inject @CoDispatcher(CoDispatcherType.DEFAULT) lateinit var dispatcher: CoroutineDispatcher
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -51,11 +53,15 @@ class MainActivity : ComponentActivity() {
                     var openNetworkSettings by remember { mutableStateOf(false) }
 
                     LaunchedEffect(Unit) {
-                        supervisorScope {
-                            launch(dispatcher) {
-                                MapInitializer.initialize(this@MainActivity)
-                                viewModel.notificationStarter.start(this@MainActivity)
-                            }
+                        launch(dispatcher) {
+                            PendingIntent.getBroadcast(applicationContext,
+                                pendingIntentRequestFactory.requestId(NotificationServiceReceiver::class),
+                                Intent(applicationContext, NotificationServiceReceiver::class.java).apply {
+                                    action = NotificationService.ACTION_START_NOTIFICATION_SERVICE
+                                },
+                                PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_ONE_SHOT).send()
+                            MapInitializer.initialize(applicationContext)
+                            viewModel.notificationStarter.start(applicationContext)
                         }
                     }
 

@@ -3,7 +3,7 @@ package io.github.pknujsp.weatherwizard.core.database.notification
 import androidx.room.Dao
 import androidx.room.Query
 import androidx.room.Upsert
-import io.github.pknujsp.weatherwizard.core.common.manager.NotificationType
+import io.github.pknujsp.weatherwizard.core.common.NotificationType
 import kotlinx.coroutines.flow.Flow
 
 @Dao

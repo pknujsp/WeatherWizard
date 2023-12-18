@@ -1,4 +1,4 @@
-package io.github.pknujsp.weatherwizard.core.common.manager
+package io.github.pknujsp.weatherwizard.feature.notification.manager
 
 import android.annotation.SuppressLint
 import android.app.Notification
@@ -10,9 +10,13 @@ import android.content.Intent
 import android.widget.RemoteViews
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
+import io.github.pknujsp.weatherwizard.core.common.NotificationType
 import io.github.pknujsp.weatherwizard.core.common.enum.pendingIntentRequestFactory
 import io.github.pknujsp.weatherwizard.core.resource.R
-import kotlin.reflect.KClass
+import io.github.pknujsp.weatherwizard.core.widgetnotification.model.ComponentServiceArgument
+import io.github.pknujsp.weatherwizard.core.widgetnotification.model.NotificationViewState
+import io.github.pknujsp.weatherwizard.core.widgetnotification.notification.NotificationAction
+import io.github.pknujsp.weatherwizard.feature.notification.NotificationServiceReceiver
 
 
 class AppNotificationManager(context: Context) {
@@ -52,18 +56,19 @@ class AppNotificationManager(context: Context) {
         notificationManager.activeNotifications.any { it.id == notificationType.notificationId }
 
 
-    fun getRefreshPendingIntent(context: Context, notificationType: NotificationType, flags: Int, cls: KClass<*>): PendingIntent {
-        return PendingIntent.getBroadcast(context,
-            pendingIntentRequestFactory.requestId(notificationType::class),
-            Intent(context, cls.java).apply {
-                action = ""
-            },
-            flags)
-    }
+    fun <A : NotificationAction<out ComponentServiceArgument>> getRefreshPendingIntent(
+        context: Context, flags: Int, notificationAction: A
+    ): PendingIntent = PendingIntent.getBroadcast(context,
+        pendingIntentRequestFactory.requestId(notificationAction::class),
+        Intent(context, NotificationServiceReceiver::class.java).apply {
+            action = NotificationService.ACTION_PROCESS
+            putExtras(notificationAction.toBundle())
+        },
+        flags)
+
 
     fun createForegroundNotification(context: Context, notificationType: NotificationType): Notification {
-        return createNotification(notificationType,
-            context).setSmallIcon(R.mipmap.ic_launcher_foreground)
+        return createNotification(notificationType, context).setSmallIcon(R.mipmap.ic_launcher_foreground)
             .setContentText(context.getString(notificationType.contentText))
             .setContentTitle(context.getString(notificationType.contentTitle)).setPriority(notificationType.importance).setSilent(true)
             .build()
@@ -100,9 +105,8 @@ class AppNotificationManager(context: Context) {
     fun notifyLoadingNotification(notificationType: NotificationType, context: Context) {
         val notificationBulder = createNotification(notificationType, context)
 
-        notificationBulder.setSmallIcon(R.drawable.ic_refresh)
-            .setContent(RemoteViews(context.packageName, R.layout.view_loading)).setWhen(0)
-            .setSilent(true)
+        notificationBulder.setSmallIcon(R.drawable.ic_refresh).setContent(RemoteViews(context.packageName, R.layout.view_loading))
+            .setWhen(0).setSilent(true)
 
         NotificationManagerCompat.from(context).notify(notificationType.notificationId, notificationBulder.build())
     }

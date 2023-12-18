@@ -49,16 +49,12 @@ class OngoingNotificationRemoteViewModel @Inject constructor(
                             settings.weatherProvider,
                         )
                     }, onFailure = {
-                        return OngoingNotificationRemoteViewUiState(
-                            isSuccessful = false,
-                            notificationType = settings.type)
+                        return OngoingNotificationRemoteViewUiState(isSuccessful = false, notificationType = settings.type)
                     })
                 }
 
                 else -> {
-                    return OngoingNotificationRemoteViewUiState(
-                        isSuccessful = false,
-                        notificationType = settings.type)
+                    return OngoingNotificationRemoteViewUiState(isSuccessful = false, notificationType = settings.type)
                 }
             }
         } else {
@@ -70,17 +66,14 @@ class OngoingNotificationRemoteViewModel @Inject constructor(
         }
 
         return when (val response = getWeatherDataUseCase(weatherDataRequest.finalRequests[0], false)) {
-            is WeatherResponseState.Success -> OngoingNotificationRemoteViewUiState(
-                notificationIconType = settings.notificationIconType,
+            is WeatherResponseState.Success -> OngoingNotificationRemoteViewUiState(notificationIconType = settings.notificationIconType,
                 model = response.entity,
                 address = response.location.address,
                 lastUpdated = weatherDataRequest.requestedTime,
                 notificationType = settings.type,
                 isSuccessful = true)
 
-            else -> OngoingNotificationRemoteViewUiState(
-                isSuccessful = false,
-                notificationType = settings.type)
+            else -> OngoingNotificationRemoteViewUiState(isSuccessful = false, notificationType = settings.type)
         }
     }
 }

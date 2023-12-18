@@ -8,10 +8,8 @@ import androidx.work.WorkerParameters
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import io.github.pknujsp.weatherwizard.core.common.FeatureType
-import io.github.pknujsp.weatherwizard.core.common.manager.AppNotificationManager
-import io.github.pknujsp.weatherwizard.core.common.manager.IWorker
-import io.github.pknujsp.weatherwizard.core.common.manager.NotificationType
-import java.util.concurrent.atomic.AtomicBoolean
+import io.github.pknujsp.weatherwizard.core.common.NotificationType
+import io.github.pknujsp.weatherwizard.core.widgetnotification.model.IWorker
 
 
 @HiltWorker
@@ -24,7 +22,6 @@ class WidgetDeleteWorker @AssistedInject constructor(
             get() = arrayOf()
 
         const val APP_WIDGET_IDS_KEY = "appWidgetIds"
-        override val isRunning: AtomicBoolean = AtomicBoolean(false)
     }
 
     override suspend fun doWork(): Result {
@@ -38,10 +35,5 @@ class WidgetDeleteWorker @AssistedInject constructor(
         return Result.success()
     }
 
-    override suspend fun getForegroundInfo(): ForegroundInfo {
-        return AppNotificationManager(context).createForegroundNotification(context, NotificationType.WORKING).run {
-            ForegroundInfo(NotificationType.WORKING.notificationId, this)
-        }
-    }
 
 }

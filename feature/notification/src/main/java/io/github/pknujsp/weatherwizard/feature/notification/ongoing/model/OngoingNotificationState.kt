@@ -2,17 +2,21 @@ package io.github.pknujsp.weatherwizard.feature.notification.ongoing.model
 
 import android.app.PendingIntent
 import android.content.Context
+import android.content.Intent
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import io.github.pknujsp.weatherwizard.core.common.manager.AppAlarmManager
-import io.github.pknujsp.weatherwizard.core.common.manager.AppNotificationManager
-import io.github.pknujsp.weatherwizard.core.common.manager.NotificationType
+import io.github.pknujsp.weatherwizard.feature.notification.manager.AppNotificationManager
+import io.github.pknujsp.weatherwizard.core.common.NotificationType
 import io.github.pknujsp.weatherwizard.core.model.notification.enums.RefreshInterval
-import io.github.pknujsp.weatherwizard.feature.notification.ongoing.OngoingNotificationReceiver
+import io.github.pknujsp.weatherwizard.core.widgetnotification.notification.NotificationAction
+import io.github.pknujsp.weatherwizard.feature.notification.NotificationServiceReceiver
+import io.github.pknujsp.weatherwizard.feature.notification.manager.NotificationService
 
 class OngoingNotificationState(
     val ongoingNotificationUiState: OngoingNotificationUiState,
@@ -26,6 +30,7 @@ class OngoingNotificationState(
             return
         }
         switchNotification(context)
+
         when (ongoingNotificationUiState.action) {
             OngoingNotificationUiState.Action.ENABLED -> {}
             OngoingNotificationUiState.Action.UPDATED -> {}
@@ -39,21 +44,25 @@ class OngoingNotificationState(
         context: Context
     ) {
         val pendingIntent = appNotificationManager.getRefreshPendingIntent(context,
-            NotificationType.ONGOING,
             PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
-            OngoingNotificationReceiver::class)
+            NotificationAction.Ongoing())
+
+        if (ongoingNotificationUiState.ongoingNotificationSettings.refreshInterval != RefreshInterval.MANUAL) {
+            appAlarmManager.unScheduleRepeat(pendingIntent)
+        }
 
         if (ongoingNotificationUiState.isEnabled) {
-            pendingIntent.send()
+            val intent = Intent(context, NotificationServiceReceiver::class.java).apply {
+                action = NotificationService.ACTION_PROCESS
+                putExtras(NotificationAction.Ongoing().toBundle())
+            }
+            context.sendBroadcast(intent)
             if (ongoingNotificationUiState.ongoingNotificationSettings.refreshInterval != RefreshInterval.MANUAL) {
                 appAlarmManager.scheduleRepeat(ongoingNotificationUiState.ongoingNotificationSettings.refreshInterval.interval,
                     pendingIntent)
             }
         } else {
             appNotificationManager.cancelNotification(NotificationType.ONGOING)
-            if (ongoingNotificationUiState.ongoingNotificationSettings.refreshInterval != RefreshInterval.MANUAL) {
-                appAlarmManager.unScheduleRepeat(pendingIntent)
-            }
             pendingIntent.cancel()
         }
     }

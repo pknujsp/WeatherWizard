@@ -2,14 +2,18 @@ package io.github.pknujsp.weatherwizard.feature.main.notification
 
 import android.app.PendingIntent
 import android.content.Context
+import android.content.Intent
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import io.github.pknujsp.weatherwizard.core.common.manager.AppAlarmManager
-import io.github.pknujsp.weatherwizard.core.common.manager.AppNotificationManager
-import io.github.pknujsp.weatherwizard.core.common.manager.NotificationType
+import io.github.pknujsp.weatherwizard.feature.notification.manager.AppNotificationManager
+import io.github.pknujsp.weatherwizard.core.common.NotificationType
 import io.github.pknujsp.weatherwizard.core.data.notification.daily.DailyNotificationRepository
 import io.github.pknujsp.weatherwizard.core.data.notification.ongoing.OngoingNotificationRepository
 import io.github.pknujsp.weatherwizard.core.model.notification.enums.RefreshInterval
+import io.github.pknujsp.weatherwizard.core.widgetnotification.notification.NotificationAction
+import io.github.pknujsp.weatherwizard.feature.notification.NotificationServiceReceiver
 import io.github.pknujsp.weatherwizard.feature.notification.manager.NotificationAlarmManager
-import io.github.pknujsp.weatherwizard.feature.notification.ongoing.OngoingNotificationReceiver
+import io.github.pknujsp.weatherwizard.feature.notification.manager.NotificationService
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
@@ -39,15 +43,19 @@ class NotificationStarterImpl(
 
                 if (!appNotificationManager!!.isActiveNotification(NotificationType.ONGOING)) {
                     val pendingIntent = appNotificationManager!!.getRefreshPendingIntent(context,
-                        NotificationType.ONGOING,
                         PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
-                        OngoingNotificationReceiver::class)
+                        NotificationAction.Ongoing())
 
-                    pendingIntent.send()
+                    val intent = Intent(context, NotificationServiceReceiver::class.java).apply {
+                        action = NotificationService.ACTION_PROCESS
+                        putExtras(NotificationAction.Ongoing().toBundle())
+                    }
+                    context.sendBroadcast(intent)
                     if (it.data.refreshInterval != RefreshInterval.MANUAL) {
                         if (appAlarmManager == null) {
                             appAlarmManager = AppAlarmManager(context)
                         }
+                        appAlarmManager!!.unScheduleRepeat(pendingIntent)
                         appAlarmManager!!.scheduleRepeat(it.data.refreshInterval.interval, pendingIntent)
                     }
                 }

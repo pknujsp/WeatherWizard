@@ -18,6 +18,7 @@ class AppAlarmManager(context: Context) {
         alarmManager.cancel(pendingIntent)
     }
 
+
     fun scheduleRepeat(intervalInMillis: Long, pendingIntent: PendingIntent) {
         alarmManager.setRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, SystemClock.elapsedRealtime() + intervalInMillis,
             intervalInMillis, pendingIntent)
