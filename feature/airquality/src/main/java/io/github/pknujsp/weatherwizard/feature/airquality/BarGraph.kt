@@ -92,7 +92,7 @@ private fun Bar(
         }
 
         val isToday = item.dateTime.isEqual(today)
-        Text(text = if (isToday) stringResource(id = io.github.pknujsp.weatherwizard.core.common.R.string.today)
+        Text(text = if (isToday) stringResource(id = io.github.pknujsp.weatherwizard.core.resource.R.string.today)
         else item.dateTime.format(dateTimeFormatter),
             fontSize = barGraphTheme.dateTextStyle.fontSize,
             color = barGraphTheme.dateTextStyle.color,

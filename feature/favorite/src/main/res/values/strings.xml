@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <string name="favorite_area_list">지역 목록</string>
-    <string name="add_new_area">지역 추가</string>
-    <string name="no_search_history">검색 기록이 없어요</string>
-    <string name="already_added_areas">이미 추가되었습니다!</string>
-    <string name="empty_search_result">검색 결과가 없어요</string>
-    <string name="no_favorite_location">등록한 위치가 없어요</string>
-</resources>

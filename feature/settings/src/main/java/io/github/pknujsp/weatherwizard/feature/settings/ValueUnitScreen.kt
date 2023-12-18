@@ -15,6 +15,7 @@ import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherDataUnit
 import io.github.pknujsp.weatherwizard.core.model.weather.common.WindSpeedUnit
 import io.github.pknujsp.weatherwizard.core.ui.TextValueSettingItem
 import io.github.pknujsp.weatherwizard.core.ui.TitleTextWithNavigation
+import io.github.pknujsp.weatherwizard.core.resource.R
 
 @Composable
 fun ValueUnitScreen(navController: NavController, viewModel: SettingsViewModel) {

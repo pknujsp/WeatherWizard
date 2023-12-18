@@ -13,12 +13,12 @@ import io.github.pknujsp.weatherwizard.feature.weather.info.WeatherInfoViewModel
 
 @Composable
 fun SimpleDailyForecastScreen(dailyForecast: SimpleDailyForecast, navigate: (NestedWeatherRoutes) -> Unit) {
-    SimpleWeatherScreenBackground(CardInfo(title = stringResource(id = io.github.pknujsp.weatherwizard.core.common.R.string.daily_forecast),
+    SimpleWeatherScreenBackground(CardInfo(title = stringResource(id = io.github.pknujsp.weatherwizard.core.resource.R.string.daily_forecast),
         buttons = listOf(
-            stringResource(id = io.github.pknujsp.weatherwizard.core.common.R.string.comparison) to {
+            stringResource(id = io.github.pknujsp.weatherwizard.core.resource.R.string.comparison) to {
                 navigate(NestedWeatherRoutes.ComparisonDailyForecast)
             },
-            stringResource(id = io.github.pknujsp.weatherwizard.core.common.R.string.detail) to {
+            stringResource(id = io.github.pknujsp.weatherwizard.core.resource.R.string.detail) to {
                 navigate(NestedWeatherRoutes.DetailDailyForecast)
             },
         ),

@@ -1,6 +1,5 @@
 package io.github.pknujsp.weatherwizard.core.common.enum
 
-import android.app.PendingIntent
 import kotlin.reflect.KClass
 
 private object PendingIntentRequestFactoryImpl : PendingIntentRequestFactory {

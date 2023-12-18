@@ -60,7 +60,7 @@ fun CompareDailyForecastScreen(
             .fillMaxSize()
             .navigationBarsPadding(),
     ) {
-        TitleTextWithNavigation(title = stringResource(id = io.github.pknujsp.weatherwizard.core.common.R.string.title_comparison_daily_forecast)) {
+        TitleTextWithNavigation(title = stringResource(id = io.github.pknujsp.weatherwizard.core.resource.R.string.title_comparison_daily_forecast)) {
             popBackStack()
         }
         val compareForecastCard = remember {

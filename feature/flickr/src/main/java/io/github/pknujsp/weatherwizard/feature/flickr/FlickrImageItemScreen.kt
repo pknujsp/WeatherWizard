@@ -24,7 +24,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
-import io.github.pknujsp.weatherwizard.core.common.R
+import io.github.pknujsp.weatherwizard.core.resource.R
 import io.github.pknujsp.weatherwizard.core.model.flickr.FlickrRequestParameters
 import io.github.pknujsp.weatherwizard.core.model.onError
 import io.github.pknujsp.weatherwizard.core.model.onLoading
@@ -75,7 +75,7 @@ private fun UrlItem(text: String, onClick: () -> Unit) {
                 .clickable { onClick() })
         Spacer(modifier = Modifier.padding(horizontal = 4.dp))
         AsyncImage(model = ImageRequest.Builder(LocalContext.current).data(R.drawable.flickrlogo).crossfade(false).build(),
-            contentDescription = stringResource(io.github.pknujsp.weatherwizard.feature.flickr.R.string.flickr),
+            contentDescription = stringResource(io.github.pknujsp.weatherwizard.core.resource.R.string.flickr),
             contentScale = ContentScale.Inside,
             modifier = Modifier.width(31.dp))
     }

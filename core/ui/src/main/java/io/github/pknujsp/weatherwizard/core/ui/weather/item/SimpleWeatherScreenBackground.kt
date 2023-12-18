@@ -86,7 +86,7 @@ fun SimpleWeatherFailedBox(title: String, description: String, onClick: () -> Un
                     .padding(start = 32.dp, end = 32.dp)
             )
             Text(text = description, style = TextStyle(fontSize = 12.sp, color = Color.White))
-            SecondaryButton(onClick = onClick, text = stringResource(id = io.github.pknujsp.weatherwizard.core.common.R.string.reload))
+            SecondaryButton(onClick = onClick, text = stringResource(id = io.github.pknujsp.weatherwizard.core.resource.R.string.reload))
         }
     }
 }

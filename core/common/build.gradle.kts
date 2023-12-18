@@ -17,4 +17,5 @@ dependencies {
     implementation(libs.androidx.compose.foundation)
     implementation(libs.sunrisesunsetcalculator)
     implementation(libs.android.gms.play.services.location)
+    implementation(libs.androidx.lifecycle.service)
 }

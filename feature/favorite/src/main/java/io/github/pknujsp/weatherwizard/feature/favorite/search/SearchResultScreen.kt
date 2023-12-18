@@ -22,10 +22,10 @@ import io.github.pknujsp.weatherwizard.core.model.UiState
 import io.github.pknujsp.weatherwizard.core.model.nominatim.GeoCode
 import io.github.pknujsp.weatherwizard.core.model.onLoading
 import io.github.pknujsp.weatherwizard.core.model.onSuccess
+import io.github.pknujsp.weatherwizard.core.resource.R
 import io.github.pknujsp.weatherwizard.core.ui.list.EmptyListScreen
 import io.github.pknujsp.weatherwizard.core.ui.theme.CircularIndicatorColor
 import io.github.pknujsp.weatherwizard.core.ui.theme.CircularIndicatorTrackColor
-import io.github.pknujsp.weatherwizard.feature.favorite.R
 
 
 @Composable

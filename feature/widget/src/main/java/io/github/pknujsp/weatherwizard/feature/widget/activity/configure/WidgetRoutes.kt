@@ -5,7 +5,7 @@ import androidx.annotation.StringRes
 import androidx.navigation.NamedNavArgument
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
-import io.github.pknujsp.weatherwizard.core.common.R
+import io.github.pknujsp.weatherwizard.core.resource.R
 import io.github.pknujsp.weatherwizard.core.ui.ParentRoutes
 import io.github.pknujsp.weatherwizard.core.ui.Routes
 import io.github.pknujsp.weatherwizard.core.ui.RoutesWithArgument

@@ -1,20 +1,17 @@
 package io.github.pknujsp.weatherwizard.core.data.notification.daily
 
+import io.github.pknujsp.weatherwizard.core.common.NotificationType
 import io.github.pknujsp.weatherwizard.core.common.module.KtJson
 import io.github.pknujsp.weatherwizard.core.data.notification.daily.model.DailyNotificationSettingsEntity
+import io.github.pknujsp.weatherwizard.core.data.notification.daily.model.DailyNotificationSettingsJsonEntity
+import io.github.pknujsp.weatherwizard.core.database.notification.NotificationDto
+import io.github.pknujsp.weatherwizard.core.database.notification.daily.DailyNotificationLocalDataSource
 import io.github.pknujsp.weatherwizard.core.model.JsonParser
 import io.github.pknujsp.weatherwizard.core.model.notification.NotificationSettingsEntity
-import io.github.pknujsp.weatherwizard.core.database.notification.daily.DailyNotificationLocalDataSource
-import io.github.pknujsp.weatherwizard.core.data.notification.daily.model.DailyNotificationSettingsJsonEntity
-import io.github.pknujsp.weatherwizard.core.data.widget.WidgetSettingsJsonEntity
-import io.github.pknujsp.weatherwizard.core.database.notification.NotificationDto
-import io.github.pknujsp.weatherwizard.core.model.coordinate.LocationType
-import io.github.pknujsp.weatherwizard.core.model.notification.enums.NotificationType
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.serialization.InternalSerializationApi
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonNull.content
 import kotlinx.serialization.serializer
 import javax.inject.Inject
 

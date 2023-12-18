@@ -34,11 +34,11 @@ fun PermissionDialog(onDismissRequest: () -> Unit, onGrantPermission: () -> Unit
                 .padding(horizontal = 16.dp, vertical = 24.dp),
             horizontalAlignment = Alignment.Start,
         ) {
-            Text(text = stringResource(id = io.github.pknujsp.weatherwizard.core.common.R.string.title_why_you_need_permissions),
+            Text(text = stringResource(id = io.github.pknujsp.weatherwizard.core.resource.R.string.title_why_you_need_permissions),
                 style = MaterialTheme.typography
                     .titleLarge)
             Spacer(modifier = Modifier.height(16.dp))
-            Text(text = stringResource(id = io.github.pknujsp.weatherwizard.core.common.R.string.description_why_you_need_permissions),
+            Text(text = stringResource(id = io.github.pknujsp.weatherwizard.core.resource.R.string.description_why_you_need_permissions),
                 style = MaterialTheme.typography.bodyMedium)
             Spacer(modifier = Modifier.height(16.dp))
             Row(modifier = Modifier
@@ -47,8 +47,8 @@ fun PermissionDialog(onDismissRequest: () -> Unit, onGrantPermission: () -> Unit
                 PrimaryButton(colors = ButtonDefaults.buttonColors(
                     containerColor = Color.White,
                     contentColor = AppColorScheme.primary
-                ), text = stringResource(id = io.github.pknujsp.weatherwizard.core.common.R.string.close), onClick = onDismissRequest)
-                PrimaryButton(text = stringResource(id = io.github.pknujsp.weatherwizard.core.common.R.string.grant_permissions),
+                ), text = stringResource(id = io.github.pknujsp.weatherwizard.core.resource.R.string.close), onClick = onDismissRequest)
+                PrimaryButton(text = stringResource(id = io.github.pknujsp.weatherwizard.core.resource.R.string.grant_permissions),
                     onClick = onGrantPermission)
             }
         }

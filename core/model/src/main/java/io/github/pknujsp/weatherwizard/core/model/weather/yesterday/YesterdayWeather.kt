@@ -12,11 +12,11 @@ data class YesterdayWeather(
     fun text(todayTemperature: TemperatureValueType, context: Context): String {
         val diffTemperature = TemperatureValueType(todayTemperature.value - temperature.value, todayTemperature.unit)
         val text =
-            context.getString(if (diffTemperature.value.toInt() == 0) io.github.pknujsp.weatherwizard.core.common.R.string.as_yesterday else io.github.pknujsp.weatherwizard.core.common.R.string.than_yesterday)
+            context.getString(if (diffTemperature.value.toInt() == 0) io.github.pknujsp.weatherwizard.core.resource.R.string.as_yesterday else io.github.pknujsp.weatherwizard.core.resource.R.string.than_yesterday)
         val endText =
-            context.getString(if (diffTemperature.value.toInt() > 0) io.github.pknujsp.weatherwizard.core.common.R.string.higher else if (diffTemperature.value.toInt() < 0) io.github.pknujsp.weatherwizard.core.common.R.string.lower else io.github.pknujsp.weatherwizard.core.common.R.string.is_)
+            context.getString(if (diffTemperature.value.toInt() > 0) io.github.pknujsp.weatherwizard.core.resource.R.string.higher else if (diffTemperature.value.toInt() < 0) io.github.pknujsp.weatherwizard.core.resource.R.string.lower else io.github.pknujsp.weatherwizard.core.resource.R.string.is_)
         val temp =
-            if (diffTemperature.value.toInt() == 0) context.getString(io.github.pknujsp.weatherwizard.core.common.R.string.same_temperature) else "${
+            if (diffTemperature.value.toInt() == 0) context.getString(io.github.pknujsp.weatherwizard.core.resource.R.string.same_temperature) else "${
                 diffTemperature.value.absoluteValue.toInt()
             }${diffTemperature.unit.symbol}"
 

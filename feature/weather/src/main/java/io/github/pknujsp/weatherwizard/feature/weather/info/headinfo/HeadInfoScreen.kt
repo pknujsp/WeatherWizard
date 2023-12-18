@@ -65,9 +65,9 @@ fun HeadInfoScreen(weatherInfoViewModel: WeatherInfoViewModel) {
         ) {
             AsyncImage(
                 model = ImageRequest.Builder(LocalContext.current)
-                    .data(io.github.pknujsp.weatherwizard.core.common.R.drawable.round_update_24)
+                    .data(io.github.pknujsp.weatherwizard.core.resource.R.drawable.round_update_24)
                     .crossfade(false).build(),
-                contentDescription = stringResource(id = io.github.pknujsp.weatherwizard.core.model.R.string.weather_info_head_info_update_time),
+                contentDescription = stringResource(id = io.github.pknujsp.weatherwizard.core.resource.R.string.weather_info_head_info_update_time),
                 colorFilter = ColorFilter.tint(Color.White),
                 modifier = Modifier.size(18.dp),
             )

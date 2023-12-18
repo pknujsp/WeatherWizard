@@ -1,6 +1,7 @@
 package io.github.pknujsp.weatherwizard.core.common.manager
 
 import android.Manifest
+import android.annotation.TargetApi
 import android.app.Activity
 import android.content.Context
 import android.content.pm.PackageManager
@@ -18,7 +19,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import dagger.hilt.android.qualifiers.ApplicationContext
 
 
 /**
@@ -106,16 +106,9 @@ enum class PermissionType(val permissions: Array<String>) {
     POST_NOTIFICATIONS(arrayOf(Manifest.permission.POST_NOTIFICATIONS)),
 
     @RequiresApi(Build.VERSION_CODES.S)
-    EXACT_ALARM_ON_SDK_31_AND_ABOVE(
+    SCHEDULE_EXACT_ALARM_ON_SDK_31_AND_32(
         arrayOf(
             Manifest.permission.SCHEDULE_EXACT_ALARM,
-        ),
-    ),
-
-    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
-    EXACT_ALARM_ON_SDK_33_AND_ABOVE(
-        arrayOf(
-            Manifest.permission.USE_EXACT_ALARM,
         ),
     );
 }

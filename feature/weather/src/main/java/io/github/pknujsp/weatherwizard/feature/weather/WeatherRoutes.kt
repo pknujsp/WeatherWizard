@@ -5,7 +5,7 @@ import androidx.annotation.StringRes
 import androidx.navigation.NamedNavArgument
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
-import io.github.pknujsp.weatherwizard.core.common.R
+import io.github.pknujsp.weatherwizard.core.resource.R
 import io.github.pknujsp.weatherwizard.core.ui.ParentRoutes
 import io.github.pknujsp.weatherwizard.core.ui.Routes
 import io.github.pknujsp.weatherwizard.core.ui.RoutesWithArgument
@@ -15,7 +15,7 @@ sealed interface WeatherRoutes : Routes {
     companion object : ParentRoutes {
         override val route: String = "Weather"
         @DrawableRes override val navIcon: Int = R.drawable.ic_sun
-        @StringRes override val navTitle: Int = io.github.pknujsp.weatherwizard.core.common.R.string.nav_weather
+        @StringRes override val navTitle: Int = io.github.pknujsp.weatherwizard.core.resource.R.string.nav_weather
     }
 
     data object Main : WeatherRoutes {

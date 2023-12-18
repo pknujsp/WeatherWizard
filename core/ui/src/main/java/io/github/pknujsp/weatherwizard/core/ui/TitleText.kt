@@ -37,7 +37,7 @@ fun TitleTextWithNavigation(
         horizontalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         IconButton(onClick = onClickNavigation) {
-            Icon(Icons.Rounded.ArrowBack, contentDescription = stringResource(io.github.pknujsp.weatherwizard.core.common.R.string.back))
+            Icon(Icons.Rounded.ArrowBack, contentDescription = stringResource(io.github.pknujsp.weatherwizard.core.resource.R.string.back))
         }
         TitleText(title = title, textStyle = TextStyle(fontSize = 24.sp))
     }

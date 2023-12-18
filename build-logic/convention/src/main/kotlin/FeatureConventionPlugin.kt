@@ -30,9 +30,9 @@ class FeatureConventionPlugin : Plugin<Project> {
                 "implementation"(libs.findLibrary("coil").get())
                 "kapt"(libs.findLibrary("androidx.lifecycle.compiler").get())
 
-                "implementation"(project(":core:common"))
-                "implementation"(project(":core:model"))
-                "implementation"(project(":core:ui"))
+                IMPLEMENTATION(project(":core:common"))
+                IMPLEMENTATION(project(":core:model"))
+                IMPLEMENTATION(project(":core:ui"))
             }
         }
     }

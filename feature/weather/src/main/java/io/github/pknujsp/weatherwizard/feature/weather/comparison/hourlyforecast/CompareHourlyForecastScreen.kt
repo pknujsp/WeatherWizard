@@ -62,7 +62,7 @@ import io.github.pknujsp.weatherwizard.core.ui.TitleTextWithNavigation
 import io.github.pknujsp.weatherwizard.core.ui.TitleTextWithoutNavigation
 import io.github.pknujsp.weatherwizard.core.ui.lottie.CancellableLoadingScreen
 import io.github.pknujsp.weatherwizard.core.ui.theme.AppShapes
-import io.github.pknujsp.weatherwizard.feature.weather.R
+import io.github.pknujsp.weatherwizard.core.resource.R
 
 
 @Composable
@@ -84,7 +84,7 @@ fun CompareHourlyForecastScreen(
             .navigationBarsPadding()
             .verticalScroll(rememberScrollState()),
     ) {
-        TitleTextWithNavigation(title = stringResource(id = io.github.pknujsp.weatherwizard.core.common.R.string.title_comparison_hourly_forecast)) {
+        TitleTextWithNavigation(title = stringResource(id = io.github.pknujsp.weatherwizard.core.resource.R.string.title_comparison_hourly_forecast)) {
             popBackStack()
         }
         val compareForecastCard = remember {

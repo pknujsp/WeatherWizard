@@ -10,14 +10,10 @@ class GetCurrentLocationUseCase @Inject constructor(
 ) {
     suspend operator fun invoke(): CurrentLocationResultState = if (appLocationManager.isGpsProviderEnabled) {
         when (val currentLocation = appLocationManager.getCurrentLocation()) {
-            is AppLocationManager.LocationResult.Success -> {
-                CurrentLocationResultState.Success(currentLocation.location.latitude.toCoordinate(),
-                    currentLocation.location.longitude.toCoordinate())
-            }
+            is AppLocationManager.LocationResult.Success -> CurrentLocationResultState.Success(currentLocation.location.latitude.toCoordinate(),
+                currentLocation.location.longitude.toCoordinate())
 
-            is AppLocationManager.LocationResult.Failure -> {
-                CurrentLocationResultState.Failure(FailedReason.UNKNOWN)
-            }
+            is AppLocationManager.LocationResult.Failure -> CurrentLocationResultState.Failure(FailedReason.UNKNOWN)
         }
     } else {
         CurrentLocationResultState.Failure(FailedReason.LOCATION_PROVIDER_DISABLED)

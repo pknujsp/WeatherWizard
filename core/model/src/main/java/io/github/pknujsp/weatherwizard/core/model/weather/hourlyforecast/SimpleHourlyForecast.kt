@@ -81,9 +81,9 @@ class SimpleHourlyForecast(
         }
 
         companion object {
-            @DrawableRes val probabilityIcon = io.github.pknujsp.weatherwizard.core.common.R.drawable.ic_umbrella
-            @DrawableRes val rainfallIcon = io.github.pknujsp.weatherwizard.core.common.R.drawable.raindrop
-            @DrawableRes val snowfallIcon = io.github.pknujsp.weatherwizard.core.common.R.drawable.snowparticle
+            @DrawableRes val probabilityIcon = io.github.pknujsp.weatherwizard.core.resource.R.drawable.ic_umbrella
+            @DrawableRes val rainfallIcon = io.github.pknujsp.weatherwizard.core.resource.R.drawable.raindrop
+            @DrawableRes val snowfallIcon = io.github.pknujsp.weatherwizard.core.resource.R.drawable.snowparticle
             val imageModifier = Modifier
                 .size(16.dp)
                 .padding(end = 3.dp)

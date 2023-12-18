@@ -2,17 +2,24 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission
         android:name="android.permission.SCHEDULE_EXACT_ALARM"
-        android:maxSdkVersion="32" />
-    <uses-permission android:name="android.permission.USE_EXACT_ALARM" />
+        android:maxSdkVersion="32"
+        android:minSdkVersion="31" />
+    <uses-permission
+        android:name="android.permission.USE_EXACT_ALARM"
+        android:minSdkVersion="33" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission
         android:name="android.permission.ACCESS_BACKGROUND_LOCATION"
         android:minSdkVersion="29" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_LOCATION" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
     <uses-permission
@@ -21,6 +28,7 @@
     <uses-permission
         android:name="android.permission.WRITE_EXTERNAL_STORAGE"
         android:maxSdkVersion="29" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
     <application
         android:name=".Application"
@@ -43,25 +51,6 @@
             </intent-filter>
         </activity>
 
-        <receiver
-            android:name=".feature.notification.ongoing.worker.OngoingNotificationReceiver"
-            android:enabled="true"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.BOOT_COMPLETED" />
-                <action android:name="android.intent.action.LOCKED_BOOT_COMPLETED" />
-            </intent-filter>
-        </receiver>
-
-        <receiver
-            android:name=".feature.notification.daily.worker.DailyNotificationReceiver"
-            android:enabled="true"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.BOOT_COMPLETED" />
-                <action android:name="android.intent.action.LOCKED_BOOT_COMPLETED" />
-            </intent-filter>
-        </receiver>
 
         <provider
             android:name="androidx.startup.InitializationProvider"
@@ -74,6 +63,8 @@
                 tools:node="remove" />
         </provider>
 
+
+
         <activity
             android:name=".feature.widget.activity.WidgetActivity"
             android:excludeFromRecents="true"
@@ -83,7 +74,7 @@
             android:theme="@style/WidgetActivity" />
 
         <receiver
-            android:name=".feature.widget.summary.SummaryWeatherWidgetProvider"
+            android:name=".feature.widget.activity.SummaryWeatherWidgetProvider"
             android:enabled="true"
             android:exported="false"
             android:label="@string/summary_weather_widget_description">
@@ -107,12 +98,25 @@
             </intent-filter>
         </activity>
 
-
         <service
-            android:name=".core.common.LocationService"
+            android:name=".feature.notification.manager.NotificationService"
             android:enabled="true"
-            android:exported="true"
-            android:foregroundServiceType="location" />
+            android:foregroundServiceType="location"
+            android:exported="false" />
+
+        <receiver
+            android:name=".feature.notification.NotificationServiceReceiver"
+            android:enabled="true"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.LOCKED_BOOT_COMPLETED" />
+                <action android:name="NOTIFICATION_SERVICE_ACTION" />
+                <action android:name="ACTION_START_NOTIFICATION_SERVICE" />
+                <action android:name="ACTION_STOP_NOTIFICATION_SERVICE" />
+            </intent-filter>
+        </receiver>
+
     </application>
 
 </manifest>

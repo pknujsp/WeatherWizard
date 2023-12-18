@@ -41,7 +41,7 @@ import androidx.navigation.NavController
 import io.github.pknujsp.weatherwizard.core.ui.MainRoutes
 import io.github.pknujsp.weatherwizard.core.ui.RootNavControllerViewModel
 import io.github.pknujsp.weatherwizard.core.ui.TitleTextWithNavigation
-import io.github.pknujsp.weatherwizard.feature.map.R
+import io.github.pknujsp.weatherwizard.core.resource.R
 
 @Composable
 fun SearchAreaScreen(navController: NavController) {
@@ -60,7 +60,7 @@ fun SearchAreaScreen(navController: NavController) {
         var query by remember { mutableStateOf("" to 0L) }
         var showSearchHistory by remember { mutableStateOf(true) }
 
-        TitleTextWithNavigation(title = stringResource(id = io.github.pknujsp.weatherwizard.feature.favorite.R.string.add_new_area)) {
+        TitleTextWithNavigation(title = stringResource(id = io.github.pknujsp.weatherwizard.core.resource.R.string.add_new_area)) {
             if (showSearchHistory) {
                 navController.popBackStack()
             } else {

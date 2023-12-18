@@ -3,7 +3,7 @@ package io.github.pknujsp.weatherwizard.core.common.manager
 import android.content.Context
 import androidx.annotation.StringRes
 import io.github.pknujsp.weatherwizard.core.common.FeatureType
-import io.github.pknujsp.weatherwizard.core.common.R
+import io.github.pknujsp.weatherwizard.core.resource.R
 
 
 sealed interface FeatureState {
@@ -26,6 +26,11 @@ enum class FailedReason(@StringRes val title: Int, @StringRes val message: Int, 
     SERVER_ERROR(R.string.server_error_title, R.string.server_error_message, R.string.reload),
     UNKNOWN(R.string.unknown_error_title, R.string.unknown_error_message, R.string.reload),
     LOCATION_PROVIDER_DISABLED(R.string.location_service, R.string.location_service_disabled, R.string.open_settings_for_location_service),
+    ENABLED_BATTERY_OPTIMIZATION(
+        R.string.battery_optimization,
+        R.string.battery_optimization_enabled,
+        R.string.open_settings_to_ignore_battery_optimization,
+    ),
     LOCATION_PERMISSION_DENIED(
         R.string.location_permission,
         R.string.location_permission_denied,

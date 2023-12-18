@@ -6,7 +6,7 @@ import io.github.pknujsp.weatherwizard.core.model.weather.common.MajorWeatherEnt
 
 enum class OngoingNotificationType(val categories: Array<MajorWeatherEntityType>) : IEnum {
     CURRENT_HOURLY_FORECAST(categories = arrayOf(MajorWeatherEntityType.CURRENT_CONDITION, MajorWeatherEntityType.HOURLY_FORECAST)) {
-        override val title: Int = io.github.pknujsp.weatherwizard.core.common.R.string.current_weather_and_hourly_forecast
+        override val title: Int = io.github.pknujsp.weatherwizard.core.resource.R.string.current_weather_and_hourly_forecast
         override val key: Int = ordinal
     };
 

@@ -2,7 +2,7 @@ package io.github.pknujsp.weatherwizard.core.model.weather.common
 
 
 import android.content.Context
-import io.github.pknujsp.weatherwizard.core.model.R
+import io.github.pknujsp.weatherwizard.core.resource.R
 import io.github.pknujsp.weatherwizard.core.model.airquality.AirQualityDescription
 
 interface NoneValue<T> {

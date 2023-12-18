@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ripple xmlns:android="http://schemas.android.com/apk/res/android"
+    android:color="#C8C6C6">
+
+    <item
+        android:id="@android:id/background"
+        android:width="48dp"
+        android:height="48dp"
+        android:drawable="@drawable/ic_refresh"
+        android:gravity="center_vertical|end" />
+
+</ripple>

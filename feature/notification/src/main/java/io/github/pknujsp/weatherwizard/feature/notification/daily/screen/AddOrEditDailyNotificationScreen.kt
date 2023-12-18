@@ -22,6 +22,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import io.github.pknujsp.weatherwizard.core.common.FeatureType
 import io.github.pknujsp.weatherwizard.core.model.coordinate.LocationType
 import io.github.pknujsp.weatherwizard.core.model.coordinate.LocationTypeModel
 import io.github.pknujsp.weatherwizard.core.model.notification.enums.DailyNotificationType
@@ -31,11 +32,13 @@ import io.github.pknujsp.weatherwizard.core.ui.SecondaryButton
 import io.github.pknujsp.weatherwizard.core.ui.TitleTextWithNavigation
 import io.github.pknujsp.weatherwizard.core.ui.WeatherProvidersScreen
 import io.github.pknujsp.weatherwizard.core.ui.dialog.DialogScreen
-import io.github.pknujsp.weatherwizard.core.ui.remoteview.RemoteViewsScreen
-import io.github.pknujsp.weatherwizard.feature.notification.R
+import io.github.pknujsp.weatherwizard.core.widgetnotification.remoteview.RemoteViewsScreen
+import io.github.pknujsp.weatherwizard.core.resource.R
+import io.github.pknujsp.weatherwizard.core.ui.feature.OpenAppSettingsActivity
+import io.github.pknujsp.weatherwizard.core.ui.feature.UnavailableFeatureScreen
 import io.github.pknujsp.weatherwizard.feature.notification.daily.model.DailyNotificationSettings
 import io.github.pknujsp.weatherwizard.feature.notification.daily.model.rememberDailyNotificationState
-import io.github.pknujsp.weatherwizard.feature.notification.manager.RemoteViewsCreatorManager
+import io.github.pknujsp.weatherwizard.core.widgetnotification.remoteview.RemoteViewsCreatorManager
 import io.github.pknujsp.weatherwizard.feature.searchlocation.SearchLocationScreen
 
 
@@ -48,56 +51,67 @@ fun AddOrEditDailyNotificationScreen(navController: NavController, viewModel: Ad
         notification.onChangedSettings(context)
     }
 
-    notification.run {
-        if (showSearch) {
-            SearchLocationScreen(onSelectedLocation = { newLocation ->
-                newLocation?.let {
-                    dailyNotificationUiState.dailyNotificationSettings.location =
-                        LocationTypeModel(locationType = LocationType.CustomLocation,
-                            address = it.addressName,
-                            latitude = it.latitude,
-                            country = it.countryName,
-                            longitude = it.longitude)
-                }
-                showSearch = false
-            }, popBackStack = {
-                showSearch = false
-            })
-        } else {
-            Column {
-                TitleTextWithNavigation(title = stringResource(id = R.string.add_or_edit_daily_notification)) {
-                    navController.popBackStack()
-                }
-                RemoteViewsScreen(RemoteViewsCreatorManager.createRemoteViewsCreator(dailyNotificationUiState.dailyNotificationSettings.type),
-                    viewModel.units)
+    if (notification.isScheduleExactAlarmPermissionGranted) {
 
-                Column(modifier = Modifier
-                    .verticalScroll(rememberScrollState())
-                    .weight(1f)
-                    .padding(horizontal = 16.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                    NotificationTypeItem(dailyNotificationUiState.dailyNotificationSettings.type) {
-                        dailyNotificationUiState.dailyNotificationSettings.type = it
-                    }
-                    TimeItem(dailyNotificationUiState.dailyNotificationSettings)
-                    LocationScreen(dailyNotificationUiState.dailyNotificationSettings.location, onSelectedItem = {
+        notification.run {
+            if (showSearch) {
+                SearchLocationScreen(onSelectedLocation = { newLocation ->
+                    newLocation?.let {
                         dailyNotificationUiState.dailyNotificationSettings.location =
-                            dailyNotificationUiState.dailyNotificationSettings.location.copy(locationType = it)
-                    }) {
-                        showSearch = true
+                            LocationTypeModel(locationType = LocationType.CustomLocation,
+                                address = it.addressName,
+                                latitude = it.latitude,
+                                country = it.countryName,
+                                longitude = it.longitude)
                     }
-                    WeatherProvidersScreen(dailyNotificationUiState.dailyNotificationSettings.weatherDataProvider) {
-                        dailyNotificationUiState.dailyNotificationSettings.weatherDataProvider = it
+                    showSearch = false
+                }, popBackStack = {
+                    showSearch = false
+                })
+            } else {
+                Column {
+                    TitleTextWithNavigation(title = stringResource(id = R.string.add_or_edit_daily_notification)) {
+                        navController.popBackStack()
                     }
-                }
+                    RemoteViewsScreen(RemoteViewsCreatorManager.createRemoteViewsCreator(dailyNotificationUiState.dailyNotificationSettings.type),
+                        viewModel.units)
 
-                Box(modifier = Modifier.padding(12.dp)) {
-                    SecondaryButton(text = stringResource(id = io.github.pknujsp.weatherwizard.core.common.R.string.save),
-                        modifier = Modifier.fillMaxWidth()) {
-                        dailyNotificationUiState.update()
+                    Column(modifier = Modifier
+                        .verticalScroll(rememberScrollState())
+                        .weight(1f)
+                        .padding(horizontal = 16.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                        NotificationTypeItem(dailyNotificationUiState.dailyNotificationSettings.type) {
+                            dailyNotificationUiState.dailyNotificationSettings.type = it
+                        }
+                        TimeItem(dailyNotificationUiState.dailyNotificationSettings)
+                        LocationScreen(dailyNotificationUiState.dailyNotificationSettings.location, onSelectedItem = {
+                            dailyNotificationUiState.dailyNotificationSettings.location =
+                                dailyNotificationUiState.dailyNotificationSettings.location.copy(locationType = it)
+                        }) {
+                            showSearch = true
+                        }
+                        WeatherProvidersScreen(dailyNotificationUiState.dailyNotificationSettings.weatherDataProvider) {
+                            dailyNotificationUiState.dailyNotificationSettings.weatherDataProvider = it
+                        }
+                    }
+
+                    Box(modifier = Modifier.padding(12.dp)) {
+                        SecondaryButton(text = stringResource(id = io.github.pknujsp.weatherwizard.core.resource.R.string.save),
+                            modifier = Modifier.fillMaxWidth()) {
+                            dailyNotificationUiState.update()
+                        }
                     }
                 }
             }
+        }
+    } else if (notification.openPermissionSettings) {
+        OpenAppSettingsActivity(FeatureType.SCHEDULE_EXACT_ALARM_PERMISSION) {
+            notification.openPermissionSettings = false
+        }
+    } else {
+        UnavailableFeatureScreen(featureType = FeatureType.SCHEDULE_EXACT_ALARM_PERMISSION) {
+            notification.openPermissionSettings = true
         }
     }
 }
@@ -117,8 +131,8 @@ fun TimeItem(entity: DailyNotificationSettings) {
 
         DialogScreen(title = stringResource(id = R.string.notification_time),
             message = stringResource(id = R.string.message_notification_time),
-            negative = stringResource(id = io.github.pknujsp.weatherwizard.core.common.R.string.cancel),
-            positive = stringResource(id = io.github.pknujsp.weatherwizard.core.common.R.string.okay),
+            negative = stringResource(id = io.github.pknujsp.weatherwizard.core.resource.R.string.cancel),
+            positive = stringResource(id = io.github.pknujsp.weatherwizard.core.resource.R.string.okay),
             onClickNegative = { expanded = false },
             onClickPositive = {
                 expanded = false
@@ -136,7 +150,7 @@ fun TimeItem(entity: DailyNotificationSettings) {
 fun NotificationTypeItem(selectedOption: DailyNotificationType, onSelectedItem: (DailyNotificationType) -> Unit) {
     val types = remember { DailyNotificationType.enums }
 
-    BottomSheetSettingItem(title = stringResource(id = io.github.pknujsp.weatherwizard.core.common.R.string.data_type),
+    BottomSheetSettingItem(title = stringResource(id = io.github.pknujsp.weatherwizard.core.resource.R.string.data_type),
         selectedItem = selectedOption,
         onSelectedItem = {
             if (it != null) {

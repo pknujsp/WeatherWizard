@@ -1,7 +1,5 @@
 package io.github.pknujsp.weatherwizard.core.database.widget
 
-import io.github.pknujsp.weatherwizard.core.database.notification.NotificationDto
-import io.github.pknujsp.weatherwizard.core.model.notification.enums.NotificationType
 import kotlinx.coroutines.flow.Flow
 
 interface WidgetLocalDataSource {

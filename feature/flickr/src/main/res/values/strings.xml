@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <string name="flickr">flickr</string>
-    <string name="loading_image">사진 로드 중..</string>
-    <string name="retry_to_load_image_if_failed">사진 로드 실패 - 다시시도</string>
-</resources>

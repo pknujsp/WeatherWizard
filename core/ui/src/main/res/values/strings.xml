@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <string name="cancel">취소</string>
-    <string name="select_location">위치 선택</string>
-    <string name="weather_provider">날씨 제공사</string>
-</resources>
