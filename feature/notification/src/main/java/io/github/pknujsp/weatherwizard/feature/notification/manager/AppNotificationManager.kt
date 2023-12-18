@@ -2,11 +2,14 @@ package io.github.pknujsp.weatherwizard.feature.notification.manager
 
 import android.annotation.SuppressLint
 import android.app.Notification
+import android.app.Notification.FOREGROUND_SERVICE_DEFAULT
+import android.app.Notification.FOREGROUND_SERVICE_IMMEDIATE
 import android.app.Notification.VISIBILITY_PUBLIC
 import android.app.NotificationChannel
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.os.Build
 import android.widget.RemoteViews
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
@@ -72,9 +75,13 @@ class AppNotificationManager(context: Context) {
 
 
     fun createForegroundNotification(context: Context, notificationType: NotificationType): Notification {
-        return createNotification(notificationType, context).setSmallIcon(R.mipmap.ic_launcher_foreground)
-            .setContentText(context.getString(notificationType.contentText))
-            .setContentTitle(context.getString(notificationType.contentTitle)).build()
+        return createNotification(notificationType, context).apply {
+            setSmallIcon(R.mipmap.ic_launcher_foreground).setContentText(context.getString(notificationType.contentText))
+            setContentTitle(context.getString(notificationType.contentTitle))
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                foregroundServiceBehavior = FOREGROUND_SERVICE_IMMEDIATE
+            }
+        }.build()
     }
 
     @SuppressLint("MissingPermission")
@@ -86,7 +93,7 @@ class AppNotificationManager(context: Context) {
                 setSmallIcon(R.mipmap.ic_launcher_foreground)
             }
             setCustomBigContentView(if (entity.success) entity.bigContentRemoteViews else entity.bigFailedContentRemoteViews)
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                 setContent(if (entity.success) entity.smallContentRemoteViews else entity.smallFailedContentRemoteViews)
                 setCustomContentView(if (entity.success) entity.smallContentRemoteViews else entity.smallFailedContentRemoteViews)
             } else {

@@ -1,6 +1,6 @@
 package io.github.pknujsp.weatherwizard.feature.notification.manager
 
-import android.app.Service
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.content.pm.ServiceInfo
 import android.util.Log
@@ -8,9 +8,9 @@ import androidx.core.app.ServiceCompat
 import androidx.lifecycle.LifecycleService
 import androidx.lifecycle.lifecycleScope
 import dagger.hilt.android.AndroidEntryPoint
+import io.github.pknujsp.weatherwizard.core.common.NotificationType
 import io.github.pknujsp.weatherwizard.core.common.coroutines.CoDispatcher
 import io.github.pknujsp.weatherwizard.core.common.coroutines.CoDispatcherType
-import io.github.pknujsp.weatherwizard.core.common.NotificationType
 import io.github.pknujsp.weatherwizard.core.widgetnotification.notification.NotificationAction
 import io.github.pknujsp.weatherwizard.feature.notification.daily.DailyNotificationService
 import io.github.pknujsp.weatherwizard.feature.notification.ongoing.OngoingNotificationService
@@ -26,6 +26,8 @@ class NotificationService : LifecycleService() {
     @Inject lateinit var ongoingNotificationService: OngoingNotificationService
     @Inject lateinit var dailyNotificationService: DailyNotificationService
 
+    private val appNotificationManager: AppNotificationManager by lazy { AppNotificationManager(applicationContext) }
+
     companion object {
         const val ACTION_START_NOTIFICATION_SERVICE = "ACTION_START_NOTIFICATION_SERVICE"
         const val ACTION_STOP_NOTIFICATION_SERVICE = "ACTION_STOP_NOTIFICATION_SERVICE"
@@ -36,15 +38,16 @@ class NotificationService : LifecycleService() {
     }
 
     private fun stop() {
-        ServiceCompat.stopForeground(this, ServiceCompat.STOP_FOREGROUND_REMOVE)
-        stopSelf()
+
     }
 
+
     private fun start() {
+
     }
 
     private fun process(intent: Intent) {
-        Log.d("NotificationService", "onReceive ${intent.extras} , isRunning: $isRunning, service: $this")
+        Log.d("NotificationService", "onReceive ${intent.extras}, isRunning: $isRunning, service: $this")
         intent.extras?.let {
             lifecycleScope.launch(dispatcher) {
                 when (val action = NotificationAction.toInstance(it)) {
@@ -58,7 +61,11 @@ class NotificationService : LifecycleService() {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         intent?.run {
             when (action) {
-                ACTION_START_NOTIFICATION_SERVICE -> start()
+                ACTION_START_NOTIFICATION_SERVICE -> {
+                    start()
+                    stop()
+                }
+
                 ACTION_STOP_NOTIFICATION_SERVICE -> stop()
                 ACTION_PROCESS -> process(this)
             }
@@ -66,21 +73,19 @@ class NotificationService : LifecycleService() {
         return super.onStartCommand(intent, flags, startId)
     }
 
+    @SuppressLint("InlinedApi")
     override fun onCreate() {
         super.onCreate()
-        val appNotificationManager = AppNotificationManager(applicationContext)
-        ServiceCompat.startForeground(this,
+        ServiceCompat.startForeground(this@NotificationService,
             NotificationType.WORKING.notificationId,
             appNotificationManager.createForegroundNotification(applicationContext, NotificationType.WORKING),
             ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION)
-
-        running.getAndSet(true)
         Log.d("NotificationService", "onCreate")
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        running.getAndSet(false)
+        ServiceCompat.stopForeground(this@NotificationService, ServiceCompat.STOP_FOREGROUND_REMOVE)
         Log.d("NotificationService", "onDestroy")
     }
 

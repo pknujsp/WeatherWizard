@@ -34,7 +34,10 @@ class OngoingNotificationService @Inject constructor(
     companion object : IWorker {
         override val name: String get() = "OngoingNotificationWorker"
         override val requiredFeatures: Array<FeatureType>
-            get() = arrayOf(FeatureType.NETWORK, FeatureType.POST_NOTIFICATION_PERMISSION)
+            get() = arrayOf(FeatureType.NETWORK,
+                FeatureType.POST_NOTIFICATION_PERMISSION,
+                FeatureType.SCHEDULE_EXACT_ALARM_PERMISSION,
+                FeatureType.BATTERY_OPTIMIZATION)
     }
 
 

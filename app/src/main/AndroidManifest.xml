@@ -63,6 +63,11 @@
                 tools:node="remove" />
         </provider>
 
+        <service
+            android:name="androidx.work.impl.foreground.SystemForegroundService"
+            android:foregroundServiceType="location"
+            tools:node="merge" />
+
         <activity
             android:name=".feature.widget.activity.WidgetActivity"
             android:excludeFromRecents="true"
@@ -99,14 +104,12 @@
         <service
             android:name=".feature.notification.manager.NotificationService"
             android:enabled="true"
-            android:exported="false"
-            android:foregroundServiceType="location" />
+            android:exported="false" />
 
         <service
             android:name=".feature.notification.manager.FakeNotificationService"
             android:enabled="true"
-            android:exported="false"
-            android:foregroundServiceType="location" />
+            android:exported="false" />
 
         <receiver
             android:name=".feature.notification.NotificationServiceReceiver"
