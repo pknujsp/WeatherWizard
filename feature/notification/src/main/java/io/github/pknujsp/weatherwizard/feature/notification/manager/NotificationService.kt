@@ -1,7 +1,10 @@
 package io.github.pknujsp.weatherwizard.feature.notification.manager
 
+import android.app.Service
 import android.content.Intent
+import android.content.pm.ServiceInfo
 import android.util.Log
+import androidx.core.app.ServiceCompat
 import androidx.lifecycle.LifecycleService
 import androidx.lifecycle.lifecycleScope
 import dagger.hilt.android.AndroidEntryPoint
@@ -33,12 +36,11 @@ class NotificationService : LifecycleService() {
     }
 
     private fun stop() {
-        stopForeground(STOP_FOREGROUND_REMOVE)
+        ServiceCompat.stopForeground(this, ServiceCompat.STOP_FOREGROUND_REMOVE)
         stopSelf()
     }
 
     private fun start() {
-
     }
 
     private fun process(intent: Intent) {
@@ -66,6 +68,12 @@ class NotificationService : LifecycleService() {
 
     override fun onCreate() {
         super.onCreate()
+        val appNotificationManager = AppNotificationManager(applicationContext)
+        ServiceCompat.startForeground(this,
+            NotificationType.WORKING.notificationId,
+            appNotificationManager.createForegroundNotification(applicationContext, NotificationType.WORKING),
+            ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION)
+
         running.getAndSet(true)
         Log.d("NotificationService", "onCreate")
     }

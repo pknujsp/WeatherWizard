@@ -49,6 +49,6 @@ enum class NotificationType(
         importance = NotificationManager.IMPORTANCE_MIN,
         contentTitle = R.string.location_service,
         contentText = R.string.finding_current_location,
-        ongoing = true,
+        ongoing = false,
         silent = true),
 }

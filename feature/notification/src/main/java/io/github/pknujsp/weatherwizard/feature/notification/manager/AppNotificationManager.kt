@@ -42,7 +42,11 @@ class AppNotificationManager(context: Context) {
 
         return NotificationCompat.Builder(context, notificationType.channelId).apply {
             setSmallIcon(R.mipmap.ic_launcher_foreground)
+            setOngoing(notificationType.ongoing)
+            setSilent(notificationType.silent)
             setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+            priority = notificationType.importance
+            setWhen(0)
         }
     }
 
@@ -70,25 +74,17 @@ class AppNotificationManager(context: Context) {
     fun createForegroundNotification(context: Context, notificationType: NotificationType): Notification {
         return createNotification(notificationType, context).setSmallIcon(R.mipmap.ic_launcher_foreground)
             .setContentText(context.getString(notificationType.contentText))
-            .setContentTitle(context.getString(notificationType.contentTitle)).setPriority(notificationType.importance).setSilent(true)
-            .build()
+            .setContentTitle(context.getString(notificationType.contentTitle)).build()
     }
 
     @SuppressLint("MissingPermission")
     fun notifyNotification(notificationType: NotificationType, context: Context, entity: NotificationViewState) {
-        val notificationBulder = createNotification(notificationType, context)
-
-        notificationBulder.apply {
-            setWhen(0)
-            setOngoing(notificationType.ongoing)
-            setSilent(notificationType.silent)
-
+        val notificationBulder = createNotification(notificationType, context).apply {
             entity.icon?.let {
                 setSmallIcon(it)
             } ?: run {
                 setSmallIcon(R.mipmap.ic_launcher_foreground)
             }
-
             setCustomBigContentView(if (entity.success) entity.bigContentRemoteViews else entity.bigFailedContentRemoteViews)
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) {
                 setContent(if (entity.success) entity.smallContentRemoteViews else entity.smallFailedContentRemoteViews)
@@ -106,8 +102,7 @@ class AppNotificationManager(context: Context) {
         val notificationBulder = createNotification(notificationType, context)
 
         notificationBulder.setSmallIcon(R.drawable.ic_refresh).setContent(RemoteViews(context.packageName, R.layout.view_loading))
-            .setWhen(0).setSilent(true)
-
+            .setCustomContentView(RemoteViews(context.packageName, R.layout.view_loading))
         NotificationManagerCompat.from(context).notify(notificationType.notificationId, notificationBulder.build())
     }
 }

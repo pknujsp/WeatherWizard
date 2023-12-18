@@ -42,19 +42,20 @@ class NotificationStarterImpl(
                 }
 
                 if (!appNotificationManager!!.isActiveNotification(NotificationType.ONGOING)) {
-                    val pendingIntent = appNotificationManager!!.getRefreshPendingIntent(context,
-                        PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
-                        NotificationAction.Ongoing())
-
                     val intent = Intent(context, NotificationServiceReceiver::class.java).apply {
                         action = NotificationService.ACTION_PROCESS
                         putExtras(NotificationAction.Ongoing().toBundle())
                     }
                     context.sendBroadcast(intent)
+
                     if (it.data.refreshInterval != RefreshInterval.MANUAL) {
                         if (appAlarmManager == null) {
                             appAlarmManager = AppAlarmManager(context)
                         }
+                        val pendingIntent = appNotificationManager!!.getRefreshPendingIntent(context,
+                            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
+                            NotificationAction.Ongoing())
+
                         appAlarmManager!!.unScheduleRepeat(pendingIntent)
                         appAlarmManager!!.scheduleRepeat(it.data.refreshInterval.interval, pendingIntent)
                     }

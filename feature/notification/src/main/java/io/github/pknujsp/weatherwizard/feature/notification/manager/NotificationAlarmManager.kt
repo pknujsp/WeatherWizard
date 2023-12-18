@@ -7,7 +7,9 @@ import io.github.pknujsp.weatherwizard.core.common.enum.pendingIntentRequestFact
 import io.github.pknujsp.weatherwizard.core.common.manager.AppAlarmManager
 import io.github.pknujsp.weatherwizard.core.widgetnotification.model.DailyNotificationServiceArgument
 import io.github.pknujsp.weatherwizard.core.widgetnotification.notification.NotificationAction
+import io.github.pknujsp.weatherwizard.feature.notification.NotificationServiceReceiver
 import java.time.ZonedDateTime
+import kotlin.random.Random
 
 class NotificationAlarmManager(context: Context) {
     private val appAlarmManager: AppAlarmManager = AppAlarmManager(context)
@@ -19,7 +21,7 @@ class NotificationAlarmManager(context: Context) {
             } else {
                 it
             }
-        }.withHour(hour).withMinute(minute)
+        }.withHour(hour).withMinute(minute).withSecond(Random(System.currentTimeMillis()).nextInt(0, 10))
 
         getPendingIntent(notificationId, context, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)?.run {
             appAlarmManager.schedule(now.toInstant().toEpochMilli(), this)
@@ -40,7 +42,8 @@ class NotificationAlarmManager(context: Context) {
     private fun getPendingIntent(notificationId: Long, context: Context, flags: Int): PendingIntent? {
         return PendingIntent.getBroadcast(context,
             pendingIntentRequestFactory.requestId(notificationId.toInt()),
-            Intent(NotificationService.ACTION_PROCESS).apply {
+            Intent(context, NotificationServiceReceiver::class.java).apply {
+                action = NotificationService.ACTION_PROCESS
                 putExtras(NotificationAction.Daily(DailyNotificationServiceArgument(notificationId)).toBundle())
             },
             flags)

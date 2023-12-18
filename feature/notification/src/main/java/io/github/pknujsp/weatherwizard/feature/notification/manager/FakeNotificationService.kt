@@ -16,10 +16,16 @@ class FakeNotificationService : Service() {
         startForeground(NotificationType.WORKING.notificationId,
             appNotificationManager.createForegroundNotification(applicationContext, NotificationType.WORKING))
 
-        val service = Intent(applicationContext, NotificationService::class.java).apply {
-            action = NotificationService.ACTION_START_NOTIFICATION_SERVICE
+        intent?.action.let {
+            val service = Intent(applicationContext, NotificationService::class.java).apply {
+                action = it
+                if (intent?.extras != null) {
+                    putExtras(intent.extras!!)
+                }
+            }
+
+            startService(service)
         }
-        startService(service)
 
         stopForeground(NotificationType.WORKING.notificationId)
         stopSelf()
