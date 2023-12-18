@@ -1,6 +1,14 @@
 package io.github.pknujsp.weatherwizard.feature.notification.daily
 
 import android.content.Context
+import android.content.pm.ServiceInfo
+import android.os.Build
+import androidx.hilt.work.HiltWorker
+import androidx.work.CoroutineWorker
+import androidx.work.ForegroundInfo
+import androidx.work.WorkerParameters
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedInject
 import io.github.pknujsp.weatherwizard.core.common.FeatureType
 import io.github.pknujsp.weatherwizard.core.common.manager.FeatureState
 import io.github.pknujsp.weatherwizard.core.common.manager.FeatureStateChecker
@@ -12,35 +20,44 @@ import io.github.pknujsp.weatherwizard.core.widgetnotification.model.DailyNotifi
 import io.github.pknujsp.weatherwizard.core.widgetnotification.model.IWorker
 import io.github.pknujsp.weatherwizard.core.common.NotificationType
 import io.github.pknujsp.weatherwizard.core.widgetnotification.model.NotificationViewState
+import io.github.pknujsp.weatherwizard.core.widgetnotification.notification.NotificationAction
 import io.github.pknujsp.weatherwizard.feature.notification.manager.AppNotificationManager
 import io.github.pknujsp.weatherwizard.core.widgetnotification.notification.daily.worker.DailyNotificationForecastUiModelMapper
 import io.github.pknujsp.weatherwizard.core.widgetnotification.notification.remoteview.NotificationRemoteViewsCreator
 import io.github.pknujsp.weatherwizard.core.widgetnotification.remoteview.RemoteViewCreator
 import io.github.pknujsp.weatherwizard.core.widgetnotification.remoteview.RemoteViewsCreatorManager
 import io.github.pknujsp.weatherwizard.core.widgetnotification.remoteview.UiStateRemoteViewCreator
+import io.github.pknujsp.weatherwizard.feature.notification.ongoing.OngoingNotificationRemoteViewModel
+import io.github.pknujsp.weatherwizard.feature.notification.ongoing.OngoingNotificationService
 import javax.inject.Inject
 import kotlin.properties.Delegates
 
-class DailyNotificationService @Inject constructor(
-    private val viewModel: DailyNotificationRemoteViewModel
-) : AppComponentService<DailyNotificationServiceArgument> {
-    private var appNotificationManager: AppNotificationManager by Delegates.notNull()
+@HiltWorker
+class DailyNotificationService @AssistedInject constructor(
+    @Assisted val context: Context, @Assisted params: WorkerParameters, private val viewModel: DailyNotificationRemoteViewModel
+) : CoroutineWorker(context, params), AppComponentService<DailyNotificationServiceArgument> {
+    private val appNotificationManager: AppNotificationManager by lazy { AppNotificationManager(context) }
 
     companion object : IWorker {
         override val name: String = "DailyNotificationWorker"
-        override val requiredFeatures: Array<FeatureType>
-            get() = arrayOf(FeatureType.NETWORK,
+        override val requiredFeatures: Array<FeatureType> = arrayOf(FeatureType.NETWORK,
                 FeatureType.POST_NOTIFICATION_PERMISSION,
                 FeatureType.SCHEDULE_EXACT_ALARM_PERMISSION,
                 FeatureType.BATTERY_OPTIMIZATION)
+        override val workerId: Int = name.hashCode()
+    }
+
+    override suspend fun doWork(): Result {
+        val argument = NotificationAction.toInstance(inputData.keyValueMap).argument as DailyNotificationServiceArgument
+        start(context, argument)
+        return Result.success()
     }
 
     override suspend fun start(context: Context, argument: DailyNotificationServiceArgument) {
-        appNotificationManager = AppNotificationManager(context)
-
         if (!checkFeatureStateAndNotify(requiredFeatures, context)) {
             return
         }
+        setForeground(createForegroundInfo())
 
         val notificationId = argument.notificationId
         val notificationEntity = viewModel.loadNotification(notificationId)
@@ -120,4 +137,12 @@ class DailyNotificationService @Inject constructor(
         }
     }
 
+    private fun createForegroundInfo(): ForegroundInfo {
+        val notification = appNotificationManager.createForegroundNotification(context, NotificationType.WORKING)
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            ForegroundInfo(workerId, notification, ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION)
+        } else {
+            ForegroundInfo(workerId, notification)
+        }
+    }
 }

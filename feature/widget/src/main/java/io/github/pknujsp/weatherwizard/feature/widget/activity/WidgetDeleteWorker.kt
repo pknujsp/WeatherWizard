@@ -17,11 +17,12 @@ class WidgetDeleteWorker @AssistedInject constructor(
     @Assisted val context: Context, @Assisted params: WorkerParameters, private val widgetRemoteViewModel: DeleteWidgetRemoteViewModel
 ) : CoroutineWorker(context, params) {
     companion object : IWorker {
-        override val name: String get() = "WidgetDeleteWorker"
-        override val requiredFeatures: Array<FeatureType>
-            get() = arrayOf()
+        override val name: String  = "WidgetDeleteWorker"
+        override val requiredFeatures: Array<FeatureType> = arrayOf()
 
         const val APP_WIDGET_IDS_KEY = "appWidgetIds"
+        override val workerId: Int = name.hashCode()
+
     }
 
     override suspend fun doWork(): Result {

@@ -3,7 +3,6 @@ package io.github.pknujsp.weatherwizard.feature.main.notification
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
-import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import io.github.pknujsp.weatherwizard.core.common.manager.AppAlarmManager
 import io.github.pknujsp.weatherwizard.feature.notification.manager.AppNotificationManager
 import io.github.pknujsp.weatherwizard.core.common.NotificationType

@@ -9,10 +9,19 @@ import io.github.pknujsp.weatherwizard.core.widgetnotification.model.OngoingNoti
 
 sealed interface NotificationAction<T : ComponentServiceArgument> {
     val argument: T
+    fun toMap(): Map<String, Any>
     fun toBundle(): Bundle
 
     companion object {
         const val key: String = "key"
+
+        fun toInstance(bundle: Map<String, Any>): NotificationAction<out ComponentServiceArgument> = bundle[key]?.let {
+            return when (it) {
+                Ongoing::class.simpleName -> Ongoing(OngoingNotificationServiceArgument())
+                Daily::class.simpleName -> Daily(DailyNotificationServiceArgument(bundle["notificationId"] as Long))
+                else -> throw IllegalArgumentException("Unknown key: $it")
+            }
+        } ?: throw IllegalArgumentException("Unknown key: $key")
 
         fun toInstance(bundle: Bundle): NotificationAction<out ComponentServiceArgument> = bundle.getString(key)?.let {
             return when (it) {
@@ -26,10 +35,12 @@ sealed interface NotificationAction<T : ComponentServiceArgument> {
 
     data class Ongoing(override val argument: OngoingNotificationServiceArgument = OngoingNotificationServiceArgument()) :
         NotificationAction<OngoingNotificationServiceArgument> {
-        override fun toBundle(): Bundle = bundleOf(key to this::class.simpleName)
+        override fun toMap(): Map<String, Any> = mapOf(key to this::class.simpleName!!)
+        override fun toBundle(): Bundle = bundleOf(key to this::class.simpleName!!)
     }
 
     data class Daily(override val argument: DailyNotificationServiceArgument) : NotificationAction<DailyNotificationServiceArgument> {
-        override fun toBundle(): Bundle = bundleOf("notificationId" to argument.notificationId, key to this::class.simpleName)
+        override fun toMap(): Map<String, Any> = mapOf("notificationId" to argument.notificationId, key to this::class.simpleName!!)
+        override fun toBundle(): Bundle = bundleOf("notificationId" to argument.notificationId, key to this::class.simpleName!!)
     }
 }

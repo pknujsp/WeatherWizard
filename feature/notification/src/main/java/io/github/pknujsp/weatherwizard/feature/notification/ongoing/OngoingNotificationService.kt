@@ -2,18 +2,25 @@ package io.github.pknujsp.weatherwizard.feature.notification.ongoing
 
 import android.app.PendingIntent
 import android.content.Context
+import android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION
+import android.os.Build
 import android.util.Log
+import androidx.hilt.work.HiltWorker
+import androidx.work.CoroutineWorker
+import androidx.work.ForegroundInfo
+import androidx.work.WorkerParameters
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedInject
 import io.github.pknujsp.weatherwizard.core.common.FeatureType
-import io.github.pknujsp.weatherwizard.core.widgetnotification.model.AppComponentService
-import io.github.pknujsp.weatherwizard.feature.notification.manager.AppNotificationManager
+import io.github.pknujsp.weatherwizard.core.common.NotificationType
 import io.github.pknujsp.weatherwizard.core.common.manager.FeatureState
 import io.github.pknujsp.weatherwizard.core.common.manager.FeatureStateChecker
-import io.github.pknujsp.weatherwizard.core.widgetnotification.model.IWorker
-import io.github.pknujsp.weatherwizard.core.common.NotificationType
-import io.github.pknujsp.weatherwizard.core.widgetnotification.model.NotificationViewState
 import io.github.pknujsp.weatherwizard.core.model.RemoteViewUiModel
 import io.github.pknujsp.weatherwizard.core.model.coordinate.LocationType
 import io.github.pknujsp.weatherwizard.core.resource.R
+import io.github.pknujsp.weatherwizard.core.widgetnotification.model.AppComponentService
+import io.github.pknujsp.weatherwizard.core.widgetnotification.model.IWorker
+import io.github.pknujsp.weatherwizard.core.widgetnotification.model.NotificationViewState
 import io.github.pknujsp.weatherwizard.core.widgetnotification.model.OngoingNotificationServiceArgument
 import io.github.pknujsp.weatherwizard.core.widgetnotification.notification.NotificationAction
 import io.github.pknujsp.weatherwizard.core.widgetnotification.notification.ongoing.OngoingNotificationRemoteViewUiModelMapper
@@ -21,28 +28,32 @@ import io.github.pknujsp.weatherwizard.core.widgetnotification.notification.util
 import io.github.pknujsp.weatherwizard.core.widgetnotification.remoteview.RemoteViewCreator
 import io.github.pknujsp.weatherwizard.core.widgetnotification.remoteview.RemoteViewsCreatorManager
 import io.github.pknujsp.weatherwizard.core.widgetnotification.remoteview.UiStateRemoteViewCreator
-import javax.inject.Inject
+import io.github.pknujsp.weatherwizard.feature.notification.manager.AppNotificationManager
 import kotlin.properties.Delegates
 
-class OngoingNotificationService @Inject constructor(
-    private val remoteViewsModel: OngoingNotificationRemoteViewModel
-) : AppComponentService<OngoingNotificationServiceArgument> {
+@HiltWorker
+class OngoingNotificationService @AssistedInject constructor(
+    @Assisted val context: Context, @Assisted params: WorkerParameters, private val remoteViewsModel: OngoingNotificationRemoteViewModel
+) : CoroutineWorker(context, params), AppComponentService<OngoingNotificationServiceArgument> {
 
-    private var appNotificationManager: AppNotificationManager by Delegates.notNull()
+    private val appNotificationManager: AppNotificationManager by lazy { AppNotificationManager(context) }
     private var retryPendingIntent: PendingIntent by Delegates.notNull()
 
     companion object : IWorker {
-        override val name: String get() = "OngoingNotificationWorker"
-        override val requiredFeatures: Array<FeatureType>
-            get() = arrayOf(FeatureType.NETWORK,
-                FeatureType.POST_NOTIFICATION_PERMISSION,
-                FeatureType.SCHEDULE_EXACT_ALARM_PERMISSION,
-                FeatureType.BATTERY_OPTIMIZATION)
+        override val name: String = "OngoingNotificationWorker"
+        override val requiredFeatures: Array<FeatureType> = arrayOf(FeatureType.NETWORK,
+            FeatureType.POST_NOTIFICATION_PERMISSION,
+            FeatureType.SCHEDULE_EXACT_ALARM_PERMISSION,
+            FeatureType.BATTERY_OPTIMIZATION)
+        override val workerId: Int = name.hashCode()
     }
 
+    override suspend fun doWork(): Result {
+        start(context, OngoingNotificationServiceArgument())
+        return Result.success()
+    }
 
     override suspend fun start(context: Context, argument: OngoingNotificationServiceArgument) {
-        appNotificationManager = AppNotificationManager(context)
         retryPendingIntent = appNotificationManager.getRefreshPendingIntent(
             context,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
@@ -52,6 +63,8 @@ class OngoingNotificationService @Inject constructor(
         if (!checkFeatureStateAndNotify(requiredFeatures, context)) {
             return
         }
+
+        setForeground(createForegroundInfo())
 
         val notificationEntity = remoteViewsModel.loadNotification()
 
@@ -138,4 +151,12 @@ class OngoingNotificationService @Inject constructor(
     }
 
 
+    private fun createForegroundInfo(): ForegroundInfo {
+        val notification = appNotificationManager.createForegroundNotification(context, NotificationType.WORKING)
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            ForegroundInfo(workerId, notification, FOREGROUND_SERVICE_TYPE_LOCATION)
+        } else {
+            ForegroundInfo(workerId, notification)
+        }
+    }
 }

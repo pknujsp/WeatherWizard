@@ -2,8 +2,6 @@ package io.github.pknujsp.weatherwizard.feature.notification.manager
 
 import android.annotation.SuppressLint
 import android.app.Notification
-import android.app.Notification.FOREGROUND_SERVICE_DEFAULT
-import android.app.Notification.FOREGROUND_SERVICE_IMMEDIATE
 import android.app.Notification.VISIBILITY_PUBLIC
 import android.app.NotificationChannel
 import android.app.PendingIntent
@@ -78,9 +76,6 @@ class AppNotificationManager(context: Context) {
         return createNotification(notificationType, context).apply {
             setSmallIcon(R.mipmap.ic_launcher_foreground).setContentText(context.getString(notificationType.contentText))
             setContentTitle(context.getString(notificationType.contentTitle))
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                foregroundServiceBehavior = FOREGROUND_SERVICE_IMMEDIATE
-            }
         }.build()
     }
 

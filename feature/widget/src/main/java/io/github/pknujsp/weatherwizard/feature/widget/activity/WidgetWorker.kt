@@ -1,27 +1,23 @@
 package io.github.pknujsp.weatherwizard.feature.widget.activity
 
-import android.app.SearchManager.ACTION_KEY
 import android.content.Context
-import android.os.Bundle
 import io.github.pknujsp.weatherwizard.core.common.FeatureType
-import io.github.pknujsp.weatherwizard.core.widgetnotification.model.AppComponentService
 import io.github.pknujsp.weatherwizard.core.common.manager.FeatureState
 import io.github.pknujsp.weatherwizard.core.common.manager.FeatureStateChecker
-import io.github.pknujsp.weatherwizard.core.widgetnotification.model.IWorker
 import io.github.pknujsp.weatherwizard.core.data.widget.WidgetSettingsEntity
 import io.github.pknujsp.weatherwizard.core.domain.weather.WeatherResponseState
 import io.github.pknujsp.weatherwizard.core.model.RemoteViewUiModel
 import io.github.pknujsp.weatherwizard.core.model.coordinate.LocationType
 import io.github.pknujsp.weatherwizard.core.resource.R
+import io.github.pknujsp.weatherwizard.core.widgetnotification.model.AppComponentService
+import io.github.pknujsp.weatherwizard.core.widgetnotification.model.IWorker
 import io.github.pknujsp.weatherwizard.core.widgetnotification.model.WidgetServiceArgument
 import io.github.pknujsp.weatherwizard.core.widgetnotification.remoteview.DefaultRemoteViewCreator
 import io.github.pknujsp.weatherwizard.core.widgetnotification.remoteview.RemoteViewCreator
 import io.github.pknujsp.weatherwizard.core.widgetnotification.remoteview.UiStateRemoteViewCreator
 import io.github.pknujsp.weatherwizard.core.widgetnotification.widget.WidgetManager
 import io.github.pknujsp.weatherwizard.core.widgetnotification.widget.remoteview.WidgetRemoteViewsCreator
-import io.github.pknujsp.weatherwizard.feature.widget.activity.WidgetDeleteWorker.Companion.APP_WIDGET_IDS_KEY
 import java.time.ZonedDateTime
-import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
 import kotlin.properties.Delegates
 
@@ -32,9 +28,10 @@ class WidgetWorker @Inject constructor(private val widgetRemoteViewModel: Widget
     private var widgetManager: WidgetManager by Delegates.notNull()
 
     companion object : IWorker {
-        override val name: String get() = "WidgetWorker"
-        override val requiredFeatures: Array<FeatureType>
-            get() = arrayOf(FeatureType.NETWORK)
+        override val name: String = "WidgetWorker"
+        override val requiredFeatures: Array<FeatureType> = arrayOf(FeatureType.NETWORK)
+        override val workerId: Int = name.hashCode()
+
     }
 
     override suspend fun start(context: Context, argument: WidgetServiceArgument) {
