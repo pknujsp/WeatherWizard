@@ -1,4 +1,4 @@
-package io.github.pknujsp.weatherwizard.feature.componentservice.notification.daily.screen
+package io.github.pknujsp.weatherwizard.feature.componentservice.notification.daily
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf

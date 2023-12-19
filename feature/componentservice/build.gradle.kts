@@ -1,9 +1,16 @@
 plugins {
     id("plugin.android.feature")
+    alias(libs.plugins.kotlin.android)
 }
 
 android {
     namespace = "io.github.pknujsp.weatherwizard.feature.componentservice"
+    buildFeatures {
+        viewBinding = true
+    }
+    hilt {
+        enableAggregatingTask = true
+    }
 }
 
 dependencies {
@@ -11,9 +18,7 @@ dependencies {
     implementation(project(":core:data"))
     implementation(project(":core:widgetnotification"))
     implementation(project(":feature:searchlocation"))
+
     implementation(libs.androidx.appcompat)
     implementation(libs.androidx.activity)
-    implementation(libs.bundles.workmanager)
-    ksp(libs.ksealedbinding.compiler)
-    implementation(libs.ksealedbinding.annotation)
 }

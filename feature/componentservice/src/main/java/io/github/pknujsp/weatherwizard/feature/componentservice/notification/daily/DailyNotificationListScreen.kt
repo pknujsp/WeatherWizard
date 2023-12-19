@@ -1,4 +1,4 @@
-package io.github.pknujsp.weatherwizard.feature.componentservice.notification.daily.screen
+package io.github.pknujsp.weatherwizard.feature.componentservice.notification.daily
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement

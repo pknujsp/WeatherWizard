@@ -19,7 +19,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class WidgetConfigureViewModel @Inject constructor(
-    appSettingsRepository: SettingsRepository, private val widgetRepository: WidgetRepository, val widgetManager: WidgetManager
+    private val widgetRepository: WidgetRepository, appSettingsRepository: SettingsRepository,
 ) : ViewModel() {
     val units = appSettingsRepository.currentUnits.value
     val widget = WidgetModel(save = ::save)

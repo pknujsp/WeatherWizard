@@ -8,7 +8,7 @@ import android.widget.RemoteViews
 import io.github.pknujsp.weatherwizard.core.common.enum.pendingIntentRequestFactory
 import kotlin.reflect.KClass
 
-internal class WidgetManagerImpl(context: Context) : WidgetManager {
+class WidgetManagerImpl(context: Context) : WidgetManager {
     private val appWidgetManager: AppWidgetManager = AppWidgetManager.getInstance(context)
 
     override fun updateWidget(appWidgetId: Int, remoteView: RemoteViews, context: Context, activityCls: KClass<*>) {
@@ -22,7 +22,6 @@ internal class WidgetManagerImpl(context: Context) : WidgetManager {
         PendingIntent.getActivity(context, pendingIntentRequestFactory.requestId(activityCls), Intent(context, activityCls.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK
         }, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
-
 }
 
 interface WidgetManager {

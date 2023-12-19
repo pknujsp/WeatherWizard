@@ -9,8 +9,8 @@ import androidx.core.view.WindowCompat
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import io.github.pknujsp.weatherwizard.feature.componentservice.notification.daily.screen.AddOrEditDailyNotificationScreen
-import io.github.pknujsp.weatherwizard.feature.componentservice.notification.daily.screen.DailyNotificationListScreen
+import io.github.pknujsp.weatherwizard.feature.componentservice.notification.daily.AddOrEditDailyNotificationScreen
+import io.github.pknujsp.weatherwizard.feature.componentservice.notification.daily.DailyNotificationListScreen
 import io.github.pknujsp.weatherwizard.feature.componentservice.notification.ongoing.OngoingNotificationScreen
 
 

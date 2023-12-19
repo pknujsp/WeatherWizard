@@ -11,6 +11,7 @@ import io.github.pknujsp.weatherwizard.core.domain.weather.WeatherDataRequest
 import io.github.pknujsp.weatherwizard.core.domain.weather.WeatherResponseState
 import io.github.pknujsp.weatherwizard.core.model.coordinate.LocationType
 import io.github.pknujsp.weatherwizard.core.widgetnotification.notification.ongoing.OngoingNotificationRemoteViewUiState
+import io.github.pknujsp.weatherwizard.core.widgetnotification.remoteview.RemoteViewModel
 import javax.inject.Inject
 
 class OngoingNotificationRemoteViewModel @Inject constructor(
@@ -19,7 +20,7 @@ class OngoingNotificationRemoteViewModel @Inject constructor(
     private val ongoingNotificationRepository: OngoingNotificationRepository,
     private val nominatimRepository: NominatimRepository,
     appSettingsRepository: SettingsRepository,
-) : io.github.pknujsp.weatherwizard.core.widgetnotification.remoteview.RemoteViewModel() {
+) : RemoteViewModel() {
 
     val units = appSettingsRepository.currentUnits.value
 

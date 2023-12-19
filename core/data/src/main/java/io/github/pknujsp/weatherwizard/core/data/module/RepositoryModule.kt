@@ -83,7 +83,8 @@ object RepositoryModule {
     }
 
     @Provides
-    internal fun providesRadartilesRepository(radarTilesRepositoryImpl: RadarTilesRepositoryImpl): RadarTilesRepository = radarTilesRepositoryImpl
+    internal fun providesRadartilesRepository(radarTilesRepositoryImpl: RadarTilesRepositoryImpl): RadarTilesRepository =
+        radarTilesRepositoryImpl
 
     @Provides
     @Singleton
@@ -96,8 +97,8 @@ object RepositoryModule {
 
     @Provides
     internal fun providesAirQualityRepository(
-        airQualityRepositoryImp: AirQualityRepositoryImpl
-    ): AirQualityRepository = airQualityRepositoryImp
+        airQualityRepositoryImpl: AirQualityRepositoryImpl
+    ): AirQualityRepository = airQualityRepositoryImpl
 
 
     @Provides

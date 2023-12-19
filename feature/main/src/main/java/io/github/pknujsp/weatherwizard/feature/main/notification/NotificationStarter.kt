@@ -2,7 +2,6 @@ package io.github.pknujsp.weatherwizard.feature.main.notification
 
 import android.app.PendingIntent
 import android.content.Context
-import android.content.Intent
 import io.github.pknujsp.weatherwizard.core.common.NotificationType
 import io.github.pknujsp.weatherwizard.core.common.manager.AppAlarmManager
 import io.github.pknujsp.weatherwizard.core.data.notification.daily.DailyNotificationRepository
@@ -12,7 +11,6 @@ import io.github.pknujsp.weatherwizard.core.widgetnotification.model.ComponentSe
 import io.github.pknujsp.weatherwizard.core.widgetnotification.model.OngoingNotificationServiceArgument
 import io.github.pknujsp.weatherwizard.core.widgetnotification.notification.AppNotificationManager
 import io.github.pknujsp.weatherwizard.feature.componentservice.ComponentPendingIntentManager
-import io.github.pknujsp.weatherwizard.feature.componentservice.NotificationServiceReceiver
 import io.github.pknujsp.weatherwizard.feature.componentservice.notification.manager.NotificationAlarmManager
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.firstOrNull

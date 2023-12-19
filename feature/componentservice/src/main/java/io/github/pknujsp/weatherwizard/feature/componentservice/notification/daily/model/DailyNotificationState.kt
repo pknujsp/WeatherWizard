@@ -2,20 +2,16 @@ package io.github.pknujsp.weatherwizard.feature.componentservice.notification.da
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.os.Build
 import android.widget.Toast
-import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
-import io.github.pknujsp.weatherwizard.core.common.FeatureType
 import io.github.pknujsp.weatherwizard.core.common.manager.PermissionType
 import io.github.pknujsp.weatherwizard.core.common.manager.checkSelfPermission
 import io.github.pknujsp.weatherwizard.feature.componentservice.notification.manager.NotificationAlarmManager
-import io.github.pknujsp.weatherwizard.feature.notification.manager.NotificationAlarmManager
 
 @SuppressLint("NewApi")
 class DailyNotificationState(
