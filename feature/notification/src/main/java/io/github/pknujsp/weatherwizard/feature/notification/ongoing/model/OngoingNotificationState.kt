@@ -9,12 +9,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
-import io.github.pknujsp.weatherwizard.core.common.manager.AppAlarmManager
-import io.github.pknujsp.weatherwizard.feature.notification.manager.AppNotificationManager
 import io.github.pknujsp.weatherwizard.core.common.NotificationType
+import io.github.pknujsp.weatherwizard.core.common.manager.AppAlarmManager
 import io.github.pknujsp.weatherwizard.core.model.notification.enums.RefreshInterval
 import io.github.pknujsp.weatherwizard.core.widgetnotification.notification.NotificationAction
 import io.github.pknujsp.weatherwizard.feature.notification.NotificationServiceReceiver
+import io.github.pknujsp.weatherwizard.feature.notification.manager.AppNotificationManager
 import io.github.pknujsp.weatherwizard.feature.notification.manager.NotificationService
 
 class OngoingNotificationState(
@@ -69,7 +69,7 @@ class OngoingNotificationState(
 
 @Composable
 fun rememberOngoingNotificationState(
-    ongoingNotificationUiState: OngoingNotificationUiState, context: Context = LocalContext.current
+    ongoingNotificationUiState: OngoingNotificationUiState, appAlarmManager: AppAlarmManager, context: Context = LocalContext.current
 ) = remember(ongoingNotificationUiState, context) {
-    OngoingNotificationState(ongoingNotificationUiState, AppNotificationManager(context), AppAlarmManager(context))
+    OngoingNotificationState(ongoingNotificationUiState, AppNotificationManager(context), appAlarmManager)
 }

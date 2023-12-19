@@ -23,18 +23,19 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import io.github.pknujsp.weatherwizard.core.common.manager.WidgetManager
 import io.github.pknujsp.weatherwizard.core.model.ActionState
 import io.github.pknujsp.weatherwizard.core.model.coordinate.LocationType
 import io.github.pknujsp.weatherwizard.core.model.coordinate.LocationTypeModel
 import io.github.pknujsp.weatherwizard.core.model.widget.WidgetType
+import io.github.pknujsp.weatherwizard.core.resource.R
 import io.github.pknujsp.weatherwizard.core.ui.LocationScreen
 import io.github.pknujsp.weatherwizard.core.ui.SecondaryButton
 import io.github.pknujsp.weatherwizard.core.ui.TitleTextWithNavigation
 import io.github.pknujsp.weatherwizard.core.ui.WeatherProvidersScreen
+import io.github.pknujsp.weatherwizard.core.widgetnotification.remoteview.RemoteViewsCreatorManager
 import io.github.pknujsp.weatherwizard.core.widgetnotification.remoteview.RemoteViewsScreen
 import io.github.pknujsp.weatherwizard.feature.searchlocation.SearchLocationScreen
-import io.github.pknujsp.weatherwizard.core.resource.R
-import io.github.pknujsp.weatherwizard.core.widgetnotification.widget.WidgetManager
 import io.github.pknujsp.weatherwizard.feature.widget.activity.SummaryWeatherWidgetProvider
 
 
@@ -49,7 +50,6 @@ fun WidgetConfigureScreen(navController: NavController, widgetId: Int, widgetTyp
 
     val widget = viewModel.widget
     var showSearch by remember { mutableStateOf(false) }
-    val widgetManager = remember { WidgetManager.getInstance(context) }
     val actionState = remember { viewModel.action }
 
     val activity = remember { context as Activity }
@@ -58,7 +58,7 @@ fun WidgetConfigureScreen(navController: NavController, widgetId: Int, widgetTyp
         if (actionState != null) {
             when (actionState) {
                 ConfigureActionState.SAVE_SUCCESS -> {
-                    createWidgetAndFinish(activity, widgetId, widgetManager)
+                    createWidgetAndFinish(activity, widgetId, viewModel.widgetManager)
                 }
 
                 ConfigureActionState.NO_LOCATION_IS_SELECTED -> {
@@ -89,7 +89,7 @@ fun WidgetConfigureScreen(navController: NavController, widgetId: Int, widgetTyp
             TitleTextWithNavigation(title = stringResource(id = io.github.pknujsp.weatherwizard.core.resource.R.string.configure_widget)) {
                 navController.popBackStack()
             }
-            RemoteViewsScreen(widgetManager.remoteViewCreator(widgetType), viewModel.units)
+            RemoteViewsScreen(RemoteViewsCreatorManager.getByWidgetType(widgetType), viewModel.units)
 
             Column(modifier = Modifier
                 .verticalScroll(rememberScrollState())

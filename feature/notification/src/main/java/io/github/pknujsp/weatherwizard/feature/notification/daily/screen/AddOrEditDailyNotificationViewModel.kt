@@ -7,22 +7,25 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import io.github.pknujsp.weatherwizard.core.common.manager.AppAlarmManager
 import io.github.pknujsp.weatherwizard.core.data.notification.daily.DailyNotificationRepository
 import io.github.pknujsp.weatherwizard.core.data.notification.daily.model.DailyNotificationSettingsEntity
 import io.github.pknujsp.weatherwizard.core.data.settings.SettingsRepository
 import io.github.pknujsp.weatherwizard.core.model.notification.NotificationSettingsEntity
 import io.github.pknujsp.weatherwizard.feature.notification.daily.model.DailyNotificationSettings
 import io.github.pknujsp.weatherwizard.feature.notification.daily.model.DailyNotificationUiState
+import io.github.pknujsp.weatherwizard.feature.notification.manager.NotificationAlarmManager
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class AddOrEditDailyNotificationViewModel @Inject constructor(
     private val dailyNotificationRepository: DailyNotificationRepository,
+    appAlarmManager: AppAlarmManager,
     savedStateHandle: SavedStateHandle,
     appSettingsRepository: SettingsRepository
 ) : ViewModel() {
-
+    val notificationAlarmManager = NotificationAlarmManager(appAlarmManager)
     private val notificationId = savedStateHandle.get<Long>("notificationId") ?: -1L
     private val isNew get() = notificationId == -1L
     val units = appSettingsRepository.currentUnits.value

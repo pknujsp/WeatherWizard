@@ -55,7 +55,9 @@ class DailyNotificationListState(
 
 @Composable
 fun rememberDailyNotificationListState(
-    switch: (Long, Boolean) -> Unit, delete: (Long) -> Unit, context: Context = LocalContext.current
-) = remember(switch, delete) {
-    DailyNotificationListState(switch, delete, NotificationAlarmManager(context))
+    switch: (Long, Boolean) -> Unit,
+    delete: (Long) -> Unit,
+    notificationAlarmManager: NotificationAlarmManager,
+) = remember(switch, delete, notificationAlarmManager) {
+    DailyNotificationListState(switch, delete, notificationAlarmManager)
 }

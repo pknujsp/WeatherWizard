@@ -6,7 +6,6 @@ import android.view.View
 import android.widget.RemoteViews
 import androidx.annotation.LayoutRes
 import androidx.annotation.StringRes
-import io.github.pknujsp.weatherwizard.core.common.FeatureType
 import io.github.pknujsp.weatherwizard.core.common.manager.FailedReason
 import io.github.pknujsp.weatherwizard.core.resource.R
 

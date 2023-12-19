@@ -3,12 +3,10 @@ package io.github.pknujsp.weatherwizard.feature.widget.activity
 import android.content.Context
 import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
-import androidx.work.ForegroundInfo
 import androidx.work.WorkerParameters
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import io.github.pknujsp.weatherwizard.core.common.FeatureType
-import io.github.pknujsp.weatherwizard.core.common.NotificationType
 import io.github.pknujsp.weatherwizard.core.widgetnotification.model.IWorker
 
 

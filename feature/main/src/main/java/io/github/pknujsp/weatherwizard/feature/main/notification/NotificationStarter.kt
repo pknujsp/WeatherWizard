@@ -3,9 +3,9 @@ package io.github.pknujsp.weatherwizard.feature.main.notification
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
-import io.github.pknujsp.weatherwizard.core.common.manager.AppAlarmManager
 import io.github.pknujsp.weatherwizard.feature.notification.manager.AppNotificationManager
 import io.github.pknujsp.weatherwizard.core.common.NotificationType
+import io.github.pknujsp.weatherwizard.core.common.manager.AppAlarmManager
 import io.github.pknujsp.weatherwizard.core.data.notification.daily.DailyNotificationRepository
 import io.github.pknujsp.weatherwizard.core.data.notification.ongoing.OngoingNotificationRepository
 import io.github.pknujsp.weatherwizard.core.model.notification.enums.RefreshInterval
@@ -13,6 +13,7 @@ import io.github.pknujsp.weatherwizard.core.widgetnotification.notification.Noti
 import io.github.pknujsp.weatherwizard.feature.notification.NotificationServiceReceiver
 import io.github.pknujsp.weatherwizard.feature.notification.manager.NotificationAlarmManager
 import io.github.pknujsp.weatherwizard.feature.notification.manager.NotificationService
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
@@ -20,7 +21,10 @@ import kotlinx.coroutines.supervisorScope
 
 class NotificationStarterImpl(
     private val ongoingNotificationRepository: OngoingNotificationRepository,
-    private val dailyNotificationRepository: DailyNotificationRepository
+    private val dailyNotificationRepository: DailyNotificationRepository,
+    private val appAlarmManager: AppAlarmManager,
+    private val appNotificationManager: AppNotificationManager,
+    private val notificationAlarmManager: NotificationAlarmManager,
 ) : NotificationStarter {
 
     private suspend fun getOngoingNotification() = ongoingNotificationRepository.getOngoingNotification().let {
@@ -29,35 +33,23 @@ class NotificationStarterImpl(
 
     private suspend fun getDailyNotifications() = dailyNotificationRepository.getDailyNotifications().firstOrNull()
 
-    private var appAlarmManager: AppAlarmManager? = null
-    private var appNotificationManager: AppNotificationManager? = null
-    private var notificationAlarmManager: NotificationAlarmManager? = null
 
     private suspend fun startOngoingNotification(context: Context) {
         getOngoingNotification()?.let {
-            if (it.enabled) {
-                if (appNotificationManager == null) {
-                    appNotificationManager = AppNotificationManager(context)
+            if (it.enabled && !appNotificationManager.isActiveNotification(NotificationType.ONGOING)) {
+                val intent = Intent(context, NotificationServiceReceiver::class.java).apply {
+                    action = NotificationService.ACTION_PROCESS
+                    putExtras(NotificationAction.Ongoing().toBundle())
                 }
+                context.sendBroadcast(intent)
 
-                if (!appNotificationManager!!.isActiveNotification(NotificationType.ONGOING)) {
-                    val intent = Intent(context, NotificationServiceReceiver::class.java).apply {
-                        action = NotificationService.ACTION_PROCESS
-                        putExtras(NotificationAction.Ongoing().toBundle())
-                    }
-                    context.sendBroadcast(intent)
+                if (it.data.refreshInterval != RefreshInterval.MANUAL) {
+                    val pendingIntent = appNotificationManager.getRefreshPendingIntent(context,
+                        PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
+                        NotificationAction.Ongoing())
 
-                    if (it.data.refreshInterval != RefreshInterval.MANUAL) {
-                        if (appAlarmManager == null) {
-                            appAlarmManager = AppAlarmManager(context)
-                        }
-                        val pendingIntent = appNotificationManager!!.getRefreshPendingIntent(context,
-                            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
-                            NotificationAction.Ongoing())
-
-                        appAlarmManager!!.unScheduleRepeat(pendingIntent)
-                        appAlarmManager!!.scheduleRepeat(it.data.refreshInterval.interval, pendingIntent)
-                    }
+                    appAlarmManager.unScheduleRepeat(pendingIntent)
+                    appAlarmManager.scheduleRepeat(it.data.refreshInterval.interval, pendingIntent)
                 }
             }
         }
@@ -65,13 +57,10 @@ class NotificationStarterImpl(
 
     private suspend fun startDailyNotifications(context: Context) {
         getDailyNotifications()?.let {
-            if (notificationAlarmManager == null) {
-                notificationAlarmManager = NotificationAlarmManager(context)
-            }
             it.forEach { dailyNotification ->
                 if (dailyNotification.enabled) {
-                    if (!notificationAlarmManager!!.isScheduled(context, dailyNotification.id)) {
-                        notificationAlarmManager!!.schedule(context,
+                    if (!notificationAlarmManager.isScheduled(context, dailyNotification.id)) {
+                        notificationAlarmManager.schedule(context,
                             dailyNotification.id,
                             dailyNotification.data.hour,
                             dailyNotification.data.minute)
@@ -83,14 +72,11 @@ class NotificationStarterImpl(
 
     override suspend fun start(context: Context) {
         supervisorScope {
-            val ongoing = launch { startOngoingNotification(context) }
-            val daily = launch { startDailyNotifications(context) }
+            val ongoing = async { startOngoingNotification(context) }
+            val daily = async { startDailyNotifications(context) }
 
-            joinAll(ongoing, daily)
-
-            appAlarmManager = null
-            appNotificationManager = null
-            notificationAlarmManager = null
+            ongoing.await()
+            daily.await()
         }
     }
 }

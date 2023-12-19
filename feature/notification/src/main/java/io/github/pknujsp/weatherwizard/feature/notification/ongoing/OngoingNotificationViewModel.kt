@@ -7,6 +7,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import io.github.pknujsp.weatherwizard.core.common.manager.AppAlarmManager
 import io.github.pknujsp.weatherwizard.core.data.notification.ongoing.OngoingNotificationRepository
 import io.github.pknujsp.weatherwizard.core.data.notification.ongoing.model.OngoingNotificationSettingsEntity
 import io.github.pknujsp.weatherwizard.core.data.settings.SettingsRepository
@@ -19,6 +20,7 @@ import javax.inject.Inject
 @HiltViewModel
 class OngoingNotificationViewModel @Inject constructor(
     private val ongoingNotificationRepository: OngoingNotificationRepository,
+    val appAlarmManager: AppAlarmManager,
     appSettingsRepository: SettingsRepository,
 ) : ViewModel() {
 

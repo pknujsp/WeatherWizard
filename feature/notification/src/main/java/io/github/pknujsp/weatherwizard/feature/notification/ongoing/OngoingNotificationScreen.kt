@@ -40,10 +40,10 @@ import io.github.pknujsp.weatherwizard.feature.searchlocation.SearchLocationScre
 
 @Composable
 fun OngoingNotificationScreen(navController: NavController, viewModel: OngoingNotificationViewModel = hiltViewModel()) {
-    val notificationState = rememberOngoingNotificationState(viewModel.ongoingNotificationUiState)
+    val notificationState = rememberOngoingNotificationState(viewModel.ongoingNotificationUiState, viewModel.appAlarmManager)
     val context = LocalContext.current
 
-    LaunchedEffect(notificationState.ongoingNotificationUiState.action,notificationState.ongoingNotificationUiState.changedCount) {
+    LaunchedEffect(notificationState.ongoingNotificationUiState.action, notificationState.ongoingNotificationUiState.changedCount) {
         notificationState.onChangedSettings(context)
     }
 

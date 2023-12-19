@@ -10,40 +10,40 @@ import androidx.work.WorkerParameters
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import io.github.pknujsp.weatherwizard.core.common.FeatureType
+import io.github.pknujsp.weatherwizard.core.common.NotificationType
 import io.github.pknujsp.weatherwizard.core.common.manager.FeatureState
-import io.github.pknujsp.weatherwizard.core.common.manager.FeatureStateChecker
+import io.github.pknujsp.weatherwizard.core.common.manager.FeatureStatusManager
 import io.github.pknujsp.weatherwizard.core.model.RemoteViewUiModel
 import io.github.pknujsp.weatherwizard.core.model.coordinate.LocationType
 import io.github.pknujsp.weatherwizard.core.resource.R
 import io.github.pknujsp.weatherwizard.core.widgetnotification.model.AppComponentService
 import io.github.pknujsp.weatherwizard.core.widgetnotification.model.DailyNotificationServiceArgument
 import io.github.pknujsp.weatherwizard.core.widgetnotification.model.IWorker
-import io.github.pknujsp.weatherwizard.core.common.NotificationType
 import io.github.pknujsp.weatherwizard.core.widgetnotification.model.NotificationViewState
 import io.github.pknujsp.weatherwizard.core.widgetnotification.notification.NotificationAction
-import io.github.pknujsp.weatherwizard.feature.notification.manager.AppNotificationManager
 import io.github.pknujsp.weatherwizard.core.widgetnotification.notification.daily.worker.DailyNotificationForecastUiModelMapper
 import io.github.pknujsp.weatherwizard.core.widgetnotification.notification.remoteview.NotificationRemoteViewsCreator
 import io.github.pknujsp.weatherwizard.core.widgetnotification.remoteview.RemoteViewCreator
 import io.github.pknujsp.weatherwizard.core.widgetnotification.remoteview.RemoteViewsCreatorManager
 import io.github.pknujsp.weatherwizard.core.widgetnotification.remoteview.UiStateRemoteViewCreator
-import io.github.pknujsp.weatherwizard.feature.notification.ongoing.OngoingNotificationRemoteViewModel
-import io.github.pknujsp.weatherwizard.feature.notification.ongoing.OngoingNotificationService
-import javax.inject.Inject
-import kotlin.properties.Delegates
+import io.github.pknujsp.weatherwizard.feature.notification.manager.AppNotificationManager
 
 @HiltWorker
 class DailyNotificationService @AssistedInject constructor(
-    @Assisted val context: Context, @Assisted params: WorkerParameters, private val viewModel: DailyNotificationRemoteViewModel
+    @Assisted val context: Context,
+    @Assisted params: WorkerParameters,
+    private val viewModel: DailyNotificationRemoteViewModel,
+    private val featureStatusManager: FeatureStatusManager
 ) : CoroutineWorker(context, params), AppComponentService<DailyNotificationServiceArgument> {
     private val appNotificationManager: AppNotificationManager by lazy { AppNotificationManager(context) }
 
     companion object : IWorker {
         override val name: String = "DailyNotificationWorker"
-        override val requiredFeatures: Array<FeatureType> = arrayOf(FeatureType.NETWORK,
-                FeatureType.POST_NOTIFICATION_PERMISSION,
-                FeatureType.SCHEDULE_EXACT_ALARM_PERMISSION,
-                FeatureType.BATTERY_OPTIMIZATION)
+        override val requiredFeatures: Array<FeatureType> = arrayOf(
+            FeatureType.NETWORK,
+            FeatureType.POST_NOTIFICATION_PERMISSION,
+            FeatureType.SCHEDULE_EXACT_ALARM_PERMISSION,
+        )
         override val workerId: Int = name.hashCode()
     }
 
@@ -69,7 +69,7 @@ class DailyNotificationService @AssistedInject constructor(
 
         val uiModel = viewModel.load(notificationEntity)
         val creator: NotificationRemoteViewsCreator<RemoteViewUiModel> =
-            RemoteViewsCreatorManager.createRemoteViewsCreator(uiModel.notificationType)
+            RemoteViewsCreatorManager.getByNotificationType(uiModel.notificationType)
 
         if (uiModel.isSuccessful) {
             val model = DailyNotificationForecastUiModelMapper().mapToUiModel(uiModel.model!!, viewModel.units)
@@ -108,7 +108,7 @@ class DailyNotificationService @AssistedInject constructor(
 
 
     private fun checkFeatureStateAndNotify(featureTypes: Array<FeatureType>, context: Context): Boolean {
-        return when (val state = FeatureStateChecker.checkFeatureState(context, featureTypes)) {
+        return when (val state = featureStatusManager.status(context, featureTypes)) {
             is FeatureState.Unavailable -> {
                 val smallRemoteViews = UiStateRemoteViewCreator.createView(context,
                     state.featureType.failedReason,

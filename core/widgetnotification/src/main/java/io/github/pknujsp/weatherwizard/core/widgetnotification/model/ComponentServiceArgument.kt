@@ -1,6 +1,6 @@
 package io.github.pknujsp.weatherwizard.core.widgetnotification.model
 
-import io.github.pknujsp.weatherwizard.core.widgetnotification.widget.WidgetManager
+import io.github.pknujsp.weatherwizard.core.common.manager.WidgetManager
 
 interface ComponentServiceArgument
 

@@ -11,8 +11,9 @@ import io.github.pknujsp.weatherwizard.feature.notification.NotificationServiceR
 import java.time.ZonedDateTime
 import kotlin.random.Random
 
-class NotificationAlarmManager(context: Context) {
-    private val appAlarmManager: AppAlarmManager = AppAlarmManager(context)
+class NotificationAlarmManager(
+    private val appAlarmManager: AppAlarmManager
+) {
 
     fun schedule(context: Context, notificationId: Long, hour: Int, minute: Int) {
         val now = ZonedDateTime.now().withSecond(0).let {

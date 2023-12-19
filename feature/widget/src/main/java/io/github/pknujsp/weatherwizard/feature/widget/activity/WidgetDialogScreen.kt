@@ -15,16 +15,17 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat.startActivity
+import androidx.hilt.navigation.compose.hiltViewModel
+import io.github.pknujsp.weatherwizard.core.resource.R
 import io.github.pknujsp.weatherwizard.core.ui.MediumTitleTextWithoutNavigation
 import io.github.pknujsp.weatherwizard.core.ui.PrimaryButton
 import io.github.pknujsp.weatherwizard.core.ui.SecondaryButton
 import io.github.pknujsp.weatherwizard.core.ui.ThirdButton
-import io.github.pknujsp.weatherwizard.core.resource.R
-import io.github.pknujsp.weatherwizard.core.widgetnotification.widget.WidgetManager
+import io.github.pknujsp.weatherwizard.core.common.manager.WidgetManager
 
 
 @Composable
-fun WidgetDialogScreen() {
+fun WidgetDialogScreen(viewModel: WidgetDialogViewModel = hiltViewModel()) {
 
     Surface(color = Color.White,
         shape = io.github.pknujsp.weatherwizard.core.ui.theme.AppShapes.extraLarge,
@@ -39,7 +40,7 @@ fun WidgetDialogScreen() {
                 startActivity(context, intent, null)
                 activity.finish()
             }, onClickRefresh = {
-                WidgetManager.getInstance(context)
+                viewModel.widgetManager
                     .getUpdatePendingIntent(context, WidgetManager.Action.UPDATE_ALL_WIDGETS, cls = SummaryWeatherWidgetProvider::class)
                     .send()
             }, onClickCancel = {

@@ -6,6 +6,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import io.github.pknujsp.weatherwizard.core.common.manager.WidgetManager
 import io.github.pknujsp.weatherwizard.core.data.settings.SettingsRepository
 import io.github.pknujsp.weatherwizard.core.data.widget.WidgetRepository
 import io.github.pknujsp.weatherwizard.core.data.widget.WidgetSettingsEntity
@@ -18,7 +19,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class WidgetConfigureViewModel @Inject constructor(
-    appSettingsRepository: SettingsRepository, private val widgetRepository: WidgetRepository
+    appSettingsRepository: SettingsRepository, private val widgetRepository: WidgetRepository, val widgetManager: WidgetManager
 ) : ViewModel() {
     val units = appSettingsRepository.currentUnits.value
     val widget = WidgetModel(save = ::save)

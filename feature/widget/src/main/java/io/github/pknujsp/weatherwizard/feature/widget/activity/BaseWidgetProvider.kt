@@ -6,10 +6,7 @@ import android.appwidget.AppWidgetProvider
 import android.content.Context
 import android.content.Intent
 import androidx.core.os.bundleOf
-import androidx.work.Data
-import androidx.work.OneTimeWorkRequest
-import androidx.work.WorkManager
-import io.github.pknujsp.weatherwizard.core.widgetnotification.widget.WidgetManager
+import io.github.pknujsp.weatherwizard.core.common.manager.WidgetManager
 
 abstract class BaseWidgetProvider : AppWidgetProvider() {
     override fun onUpdate(context: Context, appWidgetManager: AppWidgetManager, appWidgetIds: IntArray) {

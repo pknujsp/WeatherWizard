@@ -3,7 +3,7 @@ package io.github.pknujsp.weatherwizard.feature.widget.activity
 import android.content.Context
 import io.github.pknujsp.weatherwizard.core.common.FeatureType
 import io.github.pknujsp.weatherwizard.core.common.manager.FeatureState
-import io.github.pknujsp.weatherwizard.core.common.manager.FeatureStateChecker
+import io.github.pknujsp.weatherwizard.core.common.manager.FeatureStatusManager
 import io.github.pknujsp.weatherwizard.core.data.widget.WidgetSettingsEntity
 import io.github.pknujsp.weatherwizard.core.domain.weather.WeatherResponseState
 import io.github.pknujsp.weatherwizard.core.model.RemoteViewUiModel
@@ -14,29 +14,27 @@ import io.github.pknujsp.weatherwizard.core.widgetnotification.model.IWorker
 import io.github.pknujsp.weatherwizard.core.widgetnotification.model.WidgetServiceArgument
 import io.github.pknujsp.weatherwizard.core.widgetnotification.remoteview.DefaultRemoteViewCreator
 import io.github.pknujsp.weatherwizard.core.widgetnotification.remoteview.RemoteViewCreator
+import io.github.pknujsp.weatherwizard.core.widgetnotification.remoteview.RemoteViewsCreatorManager
 import io.github.pknujsp.weatherwizard.core.widgetnotification.remoteview.UiStateRemoteViewCreator
-import io.github.pknujsp.weatherwizard.core.widgetnotification.widget.WidgetManager
+import io.github.pknujsp.weatherwizard.core.common.manager.WidgetManager
 import io.github.pknujsp.weatherwizard.core.widgetnotification.widget.remoteview.WidgetRemoteViewsCreator
 import java.time.ZonedDateTime
 import javax.inject.Inject
-import kotlin.properties.Delegates
 
 
-class WidgetWorker @Inject constructor(private val widgetRemoteViewModel: WidgetRemoteViewModel) :
-    AppComponentService<WidgetServiceArgument> {
-
-    private var widgetManager: WidgetManager by Delegates.notNull()
+class WidgetWorker @Inject constructor(
+    private val widgetRemoteViewModel: WidgetRemoteViewModel,
+    private val featureStatusManager: FeatureStatusManager,
+    private val widgetManager: WidgetManager
+) : AppComponentService<WidgetServiceArgument> {
 
     companion object : IWorker {
         override val name: String = "WidgetWorker"
         override val requiredFeatures: Array<FeatureType> = arrayOf(FeatureType.NETWORK)
         override val workerId: Int = name.hashCode()
-
     }
 
     override suspend fun start(context: Context, argument: WidgetServiceArgument) {
-        widgetManager = WidgetManager.getInstance(context)
-
         val action = argument.actionType
         val appWidgetIds = argument.widgetIds
         val widgetEntityList = widgetRemoteViewModel.loadWidgets()
@@ -82,7 +80,8 @@ class WidgetWorker @Inject constructor(private val widgetRemoteViewModel: Widget
             forEach { model ->
                 val remoteView = when (model.state) {
                     is WeatherResponseState.Success -> {
-                        val creator: WidgetRemoteViewsCreator<RemoteViewUiModel> = widgetManager.remoteViewCreator(model.widget.widgetType)
+                        val creator: WidgetRemoteViewsCreator<RemoteViewUiModel> =
+                            RemoteViewsCreatorManager.getByWidgetType(model.widget.widgetType)
                         creator.createContentView(model.map(widgetRemoteViewModel.units),
                             DefaultRemoteViewCreator.Header("", ZonedDateTime.now()),
                             context)
@@ -105,7 +104,7 @@ class WidgetWorker @Inject constructor(private val widgetRemoteViewModel: Widget
 
 
     private fun checkFeatureStateAndUpdateWidgets(featureTypes: Array<FeatureType>, widgetIds: IntArray, context: Context): Boolean {
-        return when (val state = FeatureStateChecker.checkFeatureState(context, featureTypes)) {
+        return when (val state = featureStatusManager.status(context, featureTypes)) {
             is FeatureState.Unavailable -> {
                 val remoteViews = UiStateRemoteViewCreator.createView(context,
                     state.featureType.failedReason,

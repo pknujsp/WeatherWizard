@@ -41,17 +41,7 @@ class NotificationService : LifecycleService() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        intent?.run {
-            when (action) {
-                ACTION_START_NOTIFICATION_SERVICE -> {
-                    start()
-                    stop()
-                }
 
-                ACTION_STOP_NOTIFICATION_SERVICE -> stop()
-                ACTION_PROCESS -> process(this)
-            }
-        }
         return super.onStartCommand(intent, flags, startId)
     }
 

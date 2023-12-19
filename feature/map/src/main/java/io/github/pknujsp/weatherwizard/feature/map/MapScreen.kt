@@ -59,8 +59,7 @@ private const val POI_MARKER_ID = "poi"
 @SuppressLint("ClickableViewAccessibility")
 @Composable
 private fun MapScreen(
-    latitude: Double, longitude: Double, tiles: RadarTilesOverlay, viewModel: RainViewerViewModel, simpleMapController:
-    SimpleMapController
+    latitude: Double, longitude: Double, tiles: RadarTilesOverlay, viewModel: RainViewerViewModel, simpleMapController: SimpleMapController
 ) {
     val radarScope = rememberCoroutineScope()
     AndroidView(modifier = Modifier.fillMaxSize(), factory = { context ->
@@ -86,7 +85,7 @@ private fun MapScreen(
                 false
             }
 
-            poiOnMap(latitude, longitude,18.dp)
+            poiOnMap(latitude, longitude, 18.dp)
             controller.animateTo(GeoPoint(latitude, longitude), 6.0, 0)
             simpleMapController.init(this)
         }
@@ -104,6 +103,10 @@ private fun MapScreen(
                 }
             }
         }
+    }, onRelease = { mapView ->
+        mapView.onPause()
+        mapView.onDetach()
+        mapView.tileProvider.clearTileCache()
     })
 
 }
@@ -113,8 +116,8 @@ private fun MapView.poiOnMap(latitude: Double, longitude: Double, iconSize: Dp) 
         id = POI_MARKER_ID
         position = GeoPoint(latitude, longitude)
         setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_CENTER)
-        icon = ResourcesCompat.getDrawable(resources, io.github.pknujsp.weatherwizard.core.resource.R.drawable.ic_my_location, null)!!
-            .toBitmap().scale(iconSize.value.toInt(), iconSize.value.toInt(), true).run {
+        icon = ResourcesCompat.getDrawable(resources, R.drawable.ic_my_location, null)!!.toBitmap()
+            .scale(iconSize.value.toInt(), iconSize.value.toInt(), true).run {
                 BitmapDrawable(resources, this)
             }
         overlays.add(this)
@@ -122,8 +125,9 @@ private fun MapView.poiOnMap(latitude: Double, longitude: Double, iconSize: Dp) 
 }
 
 @Composable
-fun SimpleMapScreen(requestWeatherArguments: RequestWeatherArguments) {
-    val viewModel = hiltViewModel<RainViewerViewModel>()
+fun SimpleMapScreen(
+    requestWeatherArguments: RequestWeatherArguments, viewModel: RainViewerViewModel = hiltViewModel()
+) {
     val context = LocalContext.current
     val tiles by viewModel.radarTiles.collectAsStateWithLifecycle()
 
@@ -147,7 +151,9 @@ fun SimpleMapScreen(requestWeatherArguments: RequestWeatherArguments) {
                     .fillMaxWidth()
                     .height(240.dp)) {
                     val simpleMapController = remember { SimpleMapController() }
-                    MapScreen(requestWeatherArguments.location.latitude, requestWeatherArguments.location.longitude, it,
+                    MapScreen(requestWeatherArguments.location.latitude,
+                        requestWeatherArguments.location.longitude,
+                        it,
                         viewModel,
                         simpleMapController)
                     MapControllerScreen(simpleMapController, iconSize = 32.dp, bottomSpace = 20.dp)
@@ -159,8 +165,8 @@ fun SimpleMapScreen(requestWeatherArguments: RequestWeatherArguments) {
             }
         })
     }.onError {
-        SimpleWeatherFailedBox(title = stringResource(id = R.string.radar), description =
-        stringResource(id = R.string.failed_to_load_radar)) {
+        SimpleWeatherFailedBox(title = stringResource(id = R.string.radar),
+            description = stringResource(id = R.string.failed_to_load_radar)) {
             viewModel.load(context)
         }
     }
@@ -188,15 +194,14 @@ private fun RadarControllerScreen(radarAdapter: RadarAdapter, onChangedPlay: (Bo
             },
         ) {
             var playIcon by remember {
-                mutableStateOf(io.github.pknujsp.weatherwizard.core.resource.R.drawable.ic_play to false)
+                mutableStateOf(R.drawable.ic_play to false)
             }
 
             val playing by radarAdapter.playing.collectAsStateWithLifecycle()
 
             LaunchedEffect(playing) {
                 onChangedPlay(playing)
-                playIcon =
-                    (if (playing) io.github.pknujsp.weatherwizard.core.resource.R.drawable.ic_pause else io.github.pknujsp.weatherwizard.core.resource.R.drawable.ic_play) to playing
+                playIcon = (if (playing) R.drawable.ic_pause else R.drawable.ic_play) to playing
             }
 
             Icon(painter = painterResource(playIcon.first), contentDescription = stringResource(id = R.string.play_all_radars))
@@ -211,7 +216,7 @@ private fun RadarControllerScreen(radarAdapter: RadarAdapter, onChangedPlay: (Bo
             modifier = Modifier.size(30.dp),
             colors = IconButtonDefaults.iconButtonColors(containerColor = Color.Transparent, contentColor = Color.White),
         ) {
-            Icon(painter = painterResource(io.github.pknujsp.weatherwizard.core.resource.R.drawable.ic_previous),
+            Icon(painter = painterResource(R.drawable.ic_previous),
                 contentDescription = stringResource(id = io.github.pknujsp.weatherwizard.core.resource.R.string.before))
         }
         IconButton(
@@ -224,7 +229,7 @@ private fun RadarControllerScreen(radarAdapter: RadarAdapter, onChangedPlay: (Bo
                 contentColor = Color.White,
             ),
         ) {
-            Icon(painter = painterResource(io.github.pknujsp.weatherwizard.core.resource.R.drawable.ic_next),
+            Icon(painter = painterResource(R.drawable.ic_next),
                 contentDescription = stringResource(id = io.github.pknujsp.weatherwizard.core.resource.R.string.next))
         }
     }
@@ -244,7 +249,7 @@ private fun BoxScope.MapControllerScreen(simpleMapController: SimpleMapControlle
         },
             modifier = Modifier.size(iconSize),
             colors = IconButtonDefaults.iconButtonColors(containerColor = Color.White, contentColor = Color.Black)) {
-            Icon(painter = painterResource(io.github.pknujsp.weatherwizard.core.resource.R.drawable.add),
+            Icon(painter = painterResource(R.drawable.add),
                 contentDescription = stringResource(id = io.github.pknujsp.weatherwizard.core.resource.R.string.zoom_in))
         }
         IconButton(onClick = {
@@ -254,7 +259,7 @@ private fun BoxScope.MapControllerScreen(simpleMapController: SimpleMapControlle
             colors = IconButtonDefaults.iconButtonColors(containerColor = Color.White,
                 contentColor = Color.Black,
                 disabledContentColor = Color.Black)) {
-            Icon(painter = painterResource(io.github.pknujsp.weatherwizard.core.resource.R.drawable.subtract),
+            Icon(painter = painterResource(R.drawable.subtract),
                 contentDescription = stringResource(id = io.github.pknujsp.weatherwizard.core.resource.R.string.zoom_out))
         }
     }

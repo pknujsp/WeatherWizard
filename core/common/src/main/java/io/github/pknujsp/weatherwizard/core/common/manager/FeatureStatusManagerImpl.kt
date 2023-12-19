@@ -1,6 +1,10 @@
 package io.github.pknujsp.weatherwizard.core.common.manager
 
+import android.annotation.SuppressLint
 import android.content.Context
+import android.os.Build
+import android.os.PowerManager
+import androidx.annotation.RequiresApi
 import androidx.annotation.StringRes
 import io.github.pknujsp.weatherwizard.core.common.FeatureType
 import io.github.pknujsp.weatherwizard.core.resource.R
@@ -11,15 +15,52 @@ sealed interface FeatureState {
     data class Unavailable(val featureType: FeatureType) : FeatureState
 }
 
-object FeatureStateChecker {
-    fun checkFeatureState(context: Context, featureTypes: Array<FeatureType>): FeatureState {
+internal class FeatureStatusManagerImpl(
+    private val networkManager: AppNetworkManager, private val locationManager: AppLocationManager
+) : FeatureStatusManager {
+
+    @SuppressLint("NewApi") private val checkMethods = mapOf(
+        FeatureType.NETWORK to AvailableChecker { _ ->
+            networkManager.isNetworkAvailable()
+        },
+        FeatureType.LOCATION_SERVICE to AvailableChecker { _ ->
+            locationManager.isGpsProviderEnabled
+        },
+        FeatureType.BATTERY_OPTIMIZATION to AvailableChecker { context ->
+            Build.VERSION.SDK_INT < Build.VERSION_CODES.S || (context.getSystemService(Context.POWER_SERVICE) as PowerManager).isIgnoringBatteryOptimizations(
+                context.packageName)
+        },
+        FeatureType.STORAGE_PERMISSION to AvailableChecker { context ->
+            context.checkSelfPermission(PermissionType.STORAGE)
+        },
+        FeatureType.POST_NOTIFICATION_PERMISSION to AvailableChecker { context ->
+            context.checkSelfPermission(PermissionType.POST_NOTIFICATIONS)
+        },
+        FeatureType.SCHEDULE_EXACT_ALARM_PERMISSION to AvailableChecker { context ->
+            context.checkSelfPermission(PermissionType.SCHEDULE_EXACT_ALARM_ON_SDK_31_AND_32)
+        },
+        FeatureType.LOCATION_PERMISSION to AvailableChecker { context ->
+            context.checkSelfPermission(PermissionType.LOCATION)
+        },
+    )
+
+    override fun status(context: Context, featureTypes: Array<FeatureType>): FeatureState {
         return featureTypes.firstOrNull {
-            !it.isAvailable(context)
+            !checkMethods.getValue(it).isAvailable(context)
         }?.let {
             FeatureState.Unavailable(it)
         } ?: FeatureState.Available
     }
+
+    private fun interface AvailableChecker {
+        fun isAvailable(context: Context): Boolean
+    }
 }
+
+interface FeatureStatusManager {
+    fun status(context: Context, featureTypes: Array<FeatureType>): FeatureState
+}
+
 
 enum class FailedReason(@StringRes val title: Int, @StringRes val message: Int, @StringRes val action: Int) {
     NETWORK_DISABLED(R.string.network, R.string.network_unavailable, R.string.open_settings_for_network),

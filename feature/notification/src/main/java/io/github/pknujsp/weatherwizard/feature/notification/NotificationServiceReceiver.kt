@@ -25,8 +25,6 @@ class NotificationServiceReceiver : BroadcastReceiver() {
             }
             Log.d("NotificationService", "NotificationServiceReceiver onReceive ${intent.extras}, ${intent.action}")
 
-            val workManager = WorkManager.getInstance(context)
-
             val workRequest = when (val action = NotificationAction.toInstance(intent.extras!!)) {
                 is NotificationAction.Ongoing -> {
                     OneTimeWorkRequestBuilder<OngoingNotificationService>().addTag(OngoingNotificationService.name).build()
@@ -37,7 +35,7 @@ class NotificationServiceReceiver : BroadcastReceiver() {
                         .addTag(OngoingNotificationService.name).build()
                 }
             }
-
+            val workManager = WorkManager.getInstance(context)
             workManager.enqueue(workRequest)
         }
     }

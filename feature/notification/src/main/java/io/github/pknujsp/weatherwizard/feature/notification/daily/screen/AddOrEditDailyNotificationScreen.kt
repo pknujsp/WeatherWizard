@@ -26,25 +26,25 @@ import io.github.pknujsp.weatherwizard.core.common.FeatureType
 import io.github.pknujsp.weatherwizard.core.model.coordinate.LocationType
 import io.github.pknujsp.weatherwizard.core.model.coordinate.LocationTypeModel
 import io.github.pknujsp.weatherwizard.core.model.notification.enums.DailyNotificationType
+import io.github.pknujsp.weatherwizard.core.resource.R
 import io.github.pknujsp.weatherwizard.core.ui.BottomSheetSettingItem
 import io.github.pknujsp.weatherwizard.core.ui.LocationScreen
 import io.github.pknujsp.weatherwizard.core.ui.SecondaryButton
 import io.github.pknujsp.weatherwizard.core.ui.TitleTextWithNavigation
 import io.github.pknujsp.weatherwizard.core.ui.WeatherProvidersScreen
 import io.github.pknujsp.weatherwizard.core.ui.dialog.DialogScreen
-import io.github.pknujsp.weatherwizard.core.widgetnotification.remoteview.RemoteViewsScreen
-import io.github.pknujsp.weatherwizard.core.resource.R
 import io.github.pknujsp.weatherwizard.core.ui.feature.OpenAppSettingsActivity
 import io.github.pknujsp.weatherwizard.core.ui.feature.UnavailableFeatureScreen
+import io.github.pknujsp.weatherwizard.core.widgetnotification.remoteview.RemoteViewsCreatorManager
+import io.github.pknujsp.weatherwizard.core.widgetnotification.remoteview.RemoteViewsScreen
 import io.github.pknujsp.weatherwizard.feature.notification.daily.model.DailyNotificationSettings
 import io.github.pknujsp.weatherwizard.feature.notification.daily.model.rememberDailyNotificationState
-import io.github.pknujsp.weatherwizard.core.widgetnotification.remoteview.RemoteViewsCreatorManager
 import io.github.pknujsp.weatherwizard.feature.searchlocation.SearchLocationScreen
 
 
 @Composable
 fun AddOrEditDailyNotificationScreen(navController: NavController, viewModel: AddOrEditDailyNotificationViewModel = hiltViewModel()) {
-    val notification = rememberDailyNotificationState(viewModel.dailyNotificationUiState)
+    val notification = rememberDailyNotificationState(viewModel.dailyNotificationUiState, viewModel.notificationAlarmManager)
     val context = LocalContext.current
 
     LaunchedEffect(notification.dailyNotificationUiState.action) {
@@ -73,7 +73,7 @@ fun AddOrEditDailyNotificationScreen(navController: NavController, viewModel: Ad
                     TitleTextWithNavigation(title = stringResource(id = R.string.add_or_edit_daily_notification)) {
                         navController.popBackStack()
                     }
-                    RemoteViewsScreen(RemoteViewsCreatorManager.createRemoteViewsCreator(dailyNotificationUiState.dailyNotificationSettings.type),
+                    RemoteViewsScreen(RemoteViewsCreatorManager.getByNotificationType(dailyNotificationUiState.dailyNotificationSettings.type),
                         viewModel.units)
 
                     Column(modifier = Modifier

@@ -1,9 +1,6 @@
 package io.github.pknujsp.weatherwizard.feature.notification
 
 import android.annotation.SuppressLint
-import android.content.Context
-import android.os.Build
-import android.os.PowerManager
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -14,7 +11,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -67,14 +63,17 @@ fun NotificationMainScreen(navController: NavController) {
     val context = LocalContext.current
 
     var openBatteryOptimizationSettings by remember { mutableStateOf(false) }
-    var permissionGranted by remember { mutableStateOf(FeatureType.POST_NOTIFICATION_PERMISSION.isAvailable(context)) }
+    var permissionGranted by remember { mutableStateOf(context.checkSelfPermission(PermissionType.POST_NOTIFICATIONS)) }
     val ignoredBatteryOptimization by remember {
         derivedStateOf {
+            true
+            /**
             if (!openBatteryOptimizationSettings) {
-                FeatureType.BATTERY_OPTIMIZATION.isAvailable(context)
+            FeatureType.BATTERY_OPTIMIZATION.isAvailable(context)
             } else {
-                false
+            false
             }
+             */
         }
     }
 
