@@ -8,7 +8,7 @@ class DeleteWidgetRemoteViewModel @Inject constructor(
     private val widgetRepository: WidgetRepository,
 ) : RemoteViewModel() {
 
-    suspend fun deleteWidgets(appWidgetIds: IntArray) {
+    suspend fun deleteWidgets(appWidgetIds: Array<Int>) {
         for (appWidgetId in appWidgetIds) {
             widgetRepository.delete(appWidgetId)
         }

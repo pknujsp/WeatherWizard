@@ -2,6 +2,7 @@ package io.github.pknujsp.weatherwizard.feature.componentservice.widget.configur
 
 import android.appwidget.AppWidgetManager
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.navigation.compose.NavHost
@@ -16,12 +17,14 @@ class WidgetConfigureActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val widgetId = intent.extras?.getInt(
-            AppWidgetManager.EXTRA_APPWIDGET_ID, AppWidgetManager.INVALID_APPWIDGET_ID) ?: AppWidgetManager.INVALID_APPWIDGET_ID
+        val widgetId = intent.extras?.getInt(AppWidgetManager.EXTRA_APPWIDGET_ID, AppWidgetManager.INVALID_APPWIDGET_ID)
+            ?: AppWidgetManager.INVALID_APPWIDGET_ID
 
         val widgetType = AppWidgetManager.getInstance(this).getAppWidgetInfo(widgetId).let {
             WidgetType.fromProvider(it.provider)
         }
+
+        Log.d("WidgetConfigureActivity", "widgetId: $widgetId, widgetType: $widgetType")
 
         setContent {
             val navController = rememberNavController()

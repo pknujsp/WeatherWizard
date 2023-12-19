@@ -42,7 +42,7 @@ fun WidgetDialogScreen() {
                 Intent(context, NotificationServiceReceiver::class.java).run {
                     action = NotificationServiceReceiver.ACTION_PROCESS
                     putExtras(WidgetServiceArgument(ComponentServiceAction.Widget.WidgetAction.UPDATE_ALL_WIDGETS.name,
-                        intArrayOf()).toBundle())
+                        emptyArray()).toBundle())
                     context.sendBroadcast(this)
                 }
             }, onClickCancel = {

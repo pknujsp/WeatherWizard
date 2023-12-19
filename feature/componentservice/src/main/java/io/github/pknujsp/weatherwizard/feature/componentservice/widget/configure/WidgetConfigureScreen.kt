@@ -54,7 +54,7 @@ fun WidgetConfigureScreen(navController: NavController, widgetId: Int, widgetTyp
 
     val widget = viewModel.widget
     var showSearch by remember { mutableStateOf(false) }
-    val actionState = remember { viewModel.action }
+    val actionState = viewModel.action
 
     val activity = remember { context as Activity }
 
@@ -123,16 +123,16 @@ fun WidgetConfigureScreen(navController: NavController, widgetId: Int, widgetTyp
 
 
 fun createWidgetAndFinish(activity: Activity, widgetId: Int) {
-    ComponentPendingIntentManager.getIntent(activity,
-        WidgetServiceArgument(ComponentServiceAction.Widget.WidgetAction.UPDATE_ALL_WIDGETS.name, intArrayOf(widgetId))).run {
-        activity.sendBroadcast(this)
-    }
-
     val resultValue = Intent()
     resultValue.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, widgetId)
 
     activity.setResult(Activity.RESULT_OK, resultValue)
     activity.finish()
+
+    ComponentPendingIntentManager.getIntent(activity,
+        WidgetServiceArgument(ComponentServiceAction.Widget.WidgetAction.INIT_NEW_WIDGET.name, arrayOf(widgetId))).run {
+        activity.sendBroadcast(this)
+    }
 }
 
 enum class ConfigureActionState : ActionState {

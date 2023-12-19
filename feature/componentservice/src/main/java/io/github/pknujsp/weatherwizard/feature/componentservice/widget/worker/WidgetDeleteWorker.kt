@@ -2,37 +2,28 @@ package io.github.pknujsp.weatherwizard.feature.componentservice.widget.worker
 
 import android.content.Context
 import androidx.hilt.work.HiltWorker
-import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import io.github.pknujsp.weatherwizard.core.common.FeatureType
+import io.github.pknujsp.weatherwizard.core.widgetnotification.model.AppComponentService
 import io.github.pknujsp.weatherwizard.core.widgetnotification.model.IWorker
+import io.github.pknujsp.weatherwizard.core.widgetnotification.model.WidgetServiceArgument
 
 
 @HiltWorker
 class WidgetDeleteWorker @AssistedInject constructor(
     @Assisted val context: Context, @Assisted params: WorkerParameters, private val widgetRemoteViewModel: DeleteWidgetRemoteViewModel
-) : CoroutineWorker(context, params) {
+) : AppComponentService<WidgetServiceArgument>(context, params, Companion) {
     companion object : IWorker {
-        override val name: String  = "WidgetDeleteWorker"
+        override val name: String = "WidgetDeleteWorker"
         override val requiredFeatures: Array<FeatureType> = arrayOf()
-
-        const val APP_WIDGET_IDS_KEY = "appWidgetIds"
         override val workerId: Int = name.hashCode()
-
     }
 
-    override suspend fun doWork(): Result {
-        val inputDataMap = inputData.keyValueMap
-        if (APP_WIDGET_IDS_KEY !in inputDataMap) {
-            return Result.success()
-        }
-
-        val appWidgetIds = inputDataMap[APP_WIDGET_IDS_KEY] as IntArray
-        widgetRemoteViewModel.deleteWidgets(appWidgetIds)
+    override suspend fun doWork(context: Context, argument: WidgetServiceArgument): Result {
+        widgetRemoteViewModel.deleteWidgets(argument.widgetIds)
         return Result.success()
     }
-
 
 }

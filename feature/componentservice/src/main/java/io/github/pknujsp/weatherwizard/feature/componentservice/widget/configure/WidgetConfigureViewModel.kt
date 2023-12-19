@@ -6,7 +6,6 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import io.github.pknujsp.weatherwizard.core.common.manager.WidgetManager
 import io.github.pknujsp.weatherwizard.core.data.settings.SettingsRepository
 import io.github.pknujsp.weatherwizard.core.data.widget.WidgetRepository
 import io.github.pknujsp.weatherwizard.core.data.widget.WidgetSettingsEntity
@@ -36,6 +35,7 @@ class WidgetConfigureViewModel @Inject constructor(
 
     private fun save() {
         viewModelScope.launch {
+            action = null
             if (widget.location.locationType is LocationType.CustomLocation && widget.location.address.isEmpty()) {
                 action = ConfigureActionState.NO_LOCATION_IS_SELECTED
                 return@launch

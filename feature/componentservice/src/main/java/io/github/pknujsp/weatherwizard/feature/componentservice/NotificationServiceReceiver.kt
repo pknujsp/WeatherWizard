@@ -6,12 +6,16 @@ import android.content.Context
 import android.content.Context.ACTIVITY_SERVICE
 import android.content.Intent
 import android.util.Log
+import androidx.work.Constraints
 import androidx.work.Data
 import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.OutOfQuotaPolicy
 import androidx.work.WorkManager
 import io.github.pknujsp.weatherwizard.core.widgetnotification.model.ComponentServiceAction
 import io.github.pknujsp.weatherwizard.feature.componentservice.notification.daily.DailyNotificationService
 import io.github.pknujsp.weatherwizard.feature.componentservice.notification.ongoing.OngoingNotificationService
+import io.github.pknujsp.weatherwizard.feature.componentservice.widget.WidgetWorker
+import io.github.pknujsp.weatherwizard.feature.componentservice.widget.worker.WidgetDeleteWorker
 
 
 class NotificationServiceReceiver : BroadcastReceiver() {
@@ -35,12 +39,12 @@ class NotificationServiceReceiver : BroadcastReceiver() {
 
                 is ComponentServiceAction.DailyNotification -> {
                     OneTimeWorkRequestBuilder<DailyNotificationService>().setInputData(Data.Builder().putAll(action.argument.toMap())
-                        .build()).addTag(OngoingNotificationService.name).build()
+                        .build()).addTag(DailyNotificationService.name).build()
                 }
 
                 is ComponentServiceAction.Widget -> {
-                    OneTimeWorkRequestBuilder<DailyNotificationService>().setInputData(Data.Builder().putAll(action.argument.toMap())
-                        .build()).addTag(OngoingNotificationService.name).build()
+                    val builder = OneTimeWorkRequestBuilder<WidgetWorker>().addTag(WidgetWorker.name)
+                    builder.setInputData(Data.Builder().putAll(action.argument.toMap()).build()).build()
                 }
             }
             val workManager = WorkManager.getInstance(context)

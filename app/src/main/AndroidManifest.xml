@@ -29,6 +29,7 @@
         android:name="android.permission.WRITE_EXTERNAL_STORAGE"
         android:maxSdkVersion="29" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
 
     <application
         android:name=".Application"
@@ -51,7 +52,6 @@
             </intent-filter>
         </activity>
 
-
         <provider
             android:name="androidx.startup.InitializationProvider"
             android:authorities="${applicationId}.androidx-startup"
@@ -63,7 +63,10 @@
                 tools:node="remove" />
         </provider>
 
-
+        <service
+            android:name="androidx.work.impl.foreground.SystemForegroundService"
+            android:foregroundServiceType="location"
+            tools:node="merge" />
 
         <activity
             android:name=".feature.componentservice.widget.WidgetActivity"
@@ -97,7 +100,6 @@
                 <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE" />
             </intent-filter>
         </activity>
-
 
         <receiver
             android:name=".feature.componentservice.NotificationServiceReceiver"

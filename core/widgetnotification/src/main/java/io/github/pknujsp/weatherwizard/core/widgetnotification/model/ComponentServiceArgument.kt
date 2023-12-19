@@ -28,7 +28,7 @@ data class DailyNotificationServiceArgument(
 
 data class WidgetServiceArgument(
     val action: String,
-    val widgetIds: IntArray,
+    val widgetIds: Array<Int>,
 ) : ComponentServiceArgument() {
     val actionType: ComponentServiceAction.Widget.WidgetAction
         get() = ComponentServiceAction.Widget.WidgetAction.valueOf(action)

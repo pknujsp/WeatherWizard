@@ -1,6 +1,7 @@
 package io.github.pknujsp.weatherwizard.core.widgetnotification.model
 
 import android.os.Bundle
+import android.util.Log
 import kotlin.reflect.KClass
 import kotlin.reflect.full.primaryConstructor
 
@@ -11,24 +12,27 @@ sealed interface ComponentServiceAction<T : ComponentServiceArgument> {
     companion object {
         private const val KEY: String = "KEY"
 
-        private fun <T : ComponentServiceArgument> KClass<T>.toArgument(get: (String) -> Any): T {
-            val properties = primaryConstructor!!.parameters.associateWith { get(it.name!!) }
+        private fun <T : ComponentServiceArgument> KClass<T>.toArgument(get: (String) -> Any, contains: (String) -> Boolean): T {
+            val properties = primaryConstructor!!.parameters.filter { contains(it.name!!) }.associateWith { get(it.name!!) }
             return primaryConstructor!!.callBy(properties)
         }
 
         @Suppress("DEPRECATION")
-        private fun <T : ComponentServiceArgument> Bundle.toArgument(argumentClass: KClass<T>): T = argumentClass.toArgument { key ->
+        private fun <T : ComponentServiceArgument> Bundle.toArgument(argumentClass: KClass<T>): T = argumentClass.toArgument(get = { key ->
             get(key)!!
-        }
-
+        }, contains = { key ->
+            containsKey(key)
+        })
 
         private fun <T : ComponentServiceArgument> Map<String, Any>.toArgument(argumentClass: KClass<T>): T =
-            argumentClass.toArgument { key ->
+            argumentClass.toArgument(get = { key ->
                 get(key)!!
-            }
-
+            }, contains = { key ->
+                containsKey(key)
+            })
 
         fun toInstance(map: Map<String, Any>): ComponentServiceAction<out ComponentServiceArgument> = map[KEY]!!.let {
+            Log.d("ComponentServiceAction", "toInstance: $map")
             when (it) {
                 WidgetServiceArgument::class.simpleName -> Widget(map.toArgument(WidgetServiceArgument::class))
                 DailyNotificationServiceArgument::class.simpleName -> DailyNotification(map.toArgument(DailyNotificationServiceArgument::class))

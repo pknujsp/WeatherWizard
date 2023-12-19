@@ -50,7 +50,7 @@ class WidgetWorker @AssistedInject constructor(
 
     private suspend fun start(context: Context, argument: WidgetServiceArgument) {
         val action = argument.actionType
-        val appWidgetIds = argument.widgetIds
+        val appWidgetIds = argument.widgetIds.toIntArray()
         val widgetEntityList = widgetRemoteViewModel.loadWidgets()
 
         // 네트워크 연결 상태 확인, 연결이 안되어 있다면 위젯에 네트워크 연결 상태를 표시
@@ -85,7 +85,7 @@ class WidgetWorker @AssistedInject constructor(
         }
 
         with(widgetRemoteViewModel.load(excludeWidgets, excludeLocationType)) {
-            val failedWidgetIds = filter { it.state is WeatherResponseState.Failure }.map { it.widget.id }.toIntArray()
+            val failedWidgetIds = filter { it.state is WeatherResponseState.Failure }.map { it.widget.id }.toTypedArray()
             val retryPendingIntent = if (failedWidgetIds.isNotEmpty()) {
                 ComponentPendingIntentManager.getRefreshPendingIntent(context,
                     PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
