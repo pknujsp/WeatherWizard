@@ -15,6 +15,6 @@ dependencies {
     implementation(project(":feature:weather"))
     implementation(project(":feature:settings"))
     implementation(project(":feature:favorite"))
-    implementation(project(":feature:notification"))
+    implementation(project(":feature:componentservice"))
     implementation(project(":feature:map"))
 }

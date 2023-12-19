@@ -58,8 +58,7 @@ dependencies {
 
     implementation(project(":feature:main"))
     implementation(project(":feature:map"))
-    implementation(project(":feature:notification"))
-    implementation(project(":feature:widget"))
+    implementation(project(":feature:componentservice"))
     implementation(project(":feature:flickr"))
     implementation(project(":feature:weather"))
     implementation(project(":feature:sunsetrise"))

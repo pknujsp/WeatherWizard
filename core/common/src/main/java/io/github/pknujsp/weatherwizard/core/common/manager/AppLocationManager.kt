@@ -49,7 +49,6 @@ internal class AppLocationManagerImpl(context: Context) : AppLocationManager {
             }.addOnSuccessListener {
                 trySend(it ?: null)
             }
-
         awaitClose { }
     }
 

@@ -4,18 +4,13 @@ import android.annotation.SuppressLint
 import android.app.Notification
 import android.app.Notification.VISIBILITY_PUBLIC
 import android.app.NotificationChannel
-import android.app.PendingIntent
 import android.content.Context
-import android.content.Intent
 import android.os.Build
 import android.widget.RemoteViews
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import io.github.pknujsp.weatherwizard.core.common.NotificationType
-import io.github.pknujsp.weatherwizard.core.common.enum.pendingIntentRequestFactory
 import io.github.pknujsp.weatherwizard.core.resource.R
-import io.github.pknujsp.weatherwizard.core.widgetnotification.model.ComponentServiceArgument
-import io.github.pknujsp.weatherwizard.core.widgetnotification.model.ComponentServiceAction
 import io.github.pknujsp.weatherwizard.core.widgetnotification.model.NotificationViewState
 
 
@@ -58,17 +53,6 @@ class AppNotificationManager(context: Context) {
 
     fun isActiveNotification(notificationType: NotificationType): Boolean =
         notificationManager.activeNotifications.any { it.id == notificationType.notificationId }
-
-
-    fun <A : ComponentServiceAction<out ComponentServiceArgument>> getRefreshPendingIntent(
-        context: Context, flags: Int, notificationAction: A
-    ): PendingIntent = PendingIntent.getBroadcast(context,
-        pendingIntentRequestFactory.requestId(notificationAction::class),
-        Intent(context, NotificationServiceReceiver::class.java).apply {
-            action = NotificationService.ACTION_PROCESS
-            putExtras(notificationAction.argument.toBundle())
-        },
-        flags)
 
 
     fun createForegroundNotification(context: Context, notificationType: NotificationType): Notification {

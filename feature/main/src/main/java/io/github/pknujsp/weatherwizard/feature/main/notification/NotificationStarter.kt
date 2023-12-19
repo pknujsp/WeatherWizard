@@ -3,7 +3,6 @@ package io.github.pknujsp.weatherwizard.feature.main.notification
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
-import io.github.pknujsp.weatherwizard.core.widgetnotification.notification.AppNotificationManager
 import io.github.pknujsp.weatherwizard.core.common.NotificationType
 import io.github.pknujsp.weatherwizard.core.common.manager.AppAlarmManager
 import io.github.pknujsp.weatherwizard.core.data.notification.daily.DailyNotificationRepository
@@ -11,9 +10,11 @@ import io.github.pknujsp.weatherwizard.core.data.notification.ongoing.OngoingNot
 import io.github.pknujsp.weatherwizard.core.model.notification.enums.RefreshInterval
 import io.github.pknujsp.weatherwizard.core.widgetnotification.model.ComponentServiceAction
 import io.github.pknujsp.weatherwizard.core.widgetnotification.model.OngoingNotificationServiceArgument
-import io.github.pknujsp.weatherwizard.core.widgetnotification.notification.NotificationServiceReceiver
-import io.github.pknujsp.weatherwizard.feature.notification.manager.NotificationAlarmManager
-import io.github.pknujsp.weatherwizard.core.widgetnotification.notification.NotificationService
+import io.github.pknujsp.weatherwizard.core.widgetnotification.notification.AppNotificationManager
+import io.github.pknujsp.weatherwizard.feature.componentservice.ComponentPendingIntentManager
+import io.github.pknujsp.weatherwizard.feature.componentservice.NotificationService
+import io.github.pknujsp.weatherwizard.feature.componentservice.NotificationServiceReceiver
+import io.github.pknujsp.weatherwizard.feature.componentservice.notification.manager.NotificationAlarmManager
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.supervisorScope
@@ -43,7 +44,7 @@ class NotificationStarterImpl(
                 context.sendBroadcast(intent)
 
                 if (it.data.refreshInterval != RefreshInterval.MANUAL) {
-                    val pendingIntent = appNotificationManager.getRefreshPendingIntent(context,
+                    val pendingIntent = ComponentPendingIntentManager.getRefreshPendingIntent(context,
                         PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
                         ComponentServiceAction.OngoingNotification())
 

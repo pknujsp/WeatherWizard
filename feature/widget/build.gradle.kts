@@ -5,9 +5,6 @@ plugins {
 
 android {
     namespace = "io.github.pknujsp.weatherwizard.feature.widget"
-    buildFeatures {
-        viewBinding = true
-    }
 }
 
 dependencies {

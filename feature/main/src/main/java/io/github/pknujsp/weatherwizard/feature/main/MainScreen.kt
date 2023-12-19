@@ -35,8 +35,8 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import io.github.pknujsp.weatherwizard.core.ui.MainRoutes
 import io.github.pknujsp.weatherwizard.core.ui.RootNavControllerViewModel
+import io.github.pknujsp.weatherwizard.feature.componentservice.notification.HostNotificationScreen
 import io.github.pknujsp.weatherwizard.feature.favorite.HostFavoriteScreen
-import io.github.pknujsp.weatherwizard.feature.notification.HostNotificationScreen
 import io.github.pknujsp.weatherwizard.feature.settings.HostSettingsScreen
 import io.github.pknujsp.weatherwizard.feature.weather.HostWeatherScreen
 

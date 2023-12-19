@@ -66,7 +66,7 @@
 
 
         <activity
-            android:name=".feature.widget.activity.WidgetActivity"
+            android:name=".feature.componentservice.widget.WidgetActivity"
             android:excludeFromRecents="true"
             android:exported="false"
             android:noHistory="true"
@@ -74,7 +74,7 @@
             android:theme="@style/WidgetActivity" />
 
         <receiver
-            android:name=".feature.widget.activity.SummaryWeatherWidgetProvider"
+            android:name=".feature.componentservice.widget.worker.SummaryWeatherWidgetProvider"
             android:enabled="true"
             android:exported="false"
             android:label="@string/summary_weather_widget_description">
@@ -90,7 +90,7 @@
         </receiver>
 
         <activity
-            android:name=".feature.widget.activity.configure.WidgetConfigureActivity"
+            android:name=".feature.componentservice.widget.configure.WidgetConfigureActivity"
             android:exported="false"
             android:screenOrientation="portrait">
             <intent-filter>
@@ -99,13 +99,13 @@
         </activity>
 
         <service
-            android:name=".core.widgetnotification.notification.NotificationService"
+            android:name=".feature.componentservice.NotificationService"
             android:enabled="true"
             android:foregroundServiceType="location"
             android:exported="false" />
 
         <receiver
-            android:name=".core.widgetnotification.notification.NotificationServiceReceiver"
+            android:name=".feature.componentservice.NotificationServiceReceiver"
             android:enabled="true"
             android:exported="false">
             <intent-filter>

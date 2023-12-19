@@ -250,7 +250,7 @@
     <string name="add_or_edit_daily_notification">알림 추가, 수정</string>
     <string name="notification_time">알림 시각</string>
     <string name="message_notification_time">알림이 울릴 시각을 설정해주세요</string>
-    <string name="empty_daily_notification">알림이 없어요</string>
+    <string name="empty_daily_notification">등록된 알림이 없어요</string>
 
     <string name="title_value_unit">값 단위</string>
     <string name="description_value_unit">온도: ℃, ℉, 풍속: m/s, km/h 등</string>
