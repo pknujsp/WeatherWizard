@@ -21,9 +21,10 @@ import io.github.pknujsp.weatherwizard.core.ui.MediumTitleTextWithoutNavigation
 import io.github.pknujsp.weatherwizard.core.ui.PrimaryButton
 import io.github.pknujsp.weatherwizard.core.ui.SecondaryButton
 import io.github.pknujsp.weatherwizard.core.ui.ThirdButton
-import io.github.pknujsp.weatherwizard.core.common.manager.WidgetManager
-import io.github.pknujsp.weatherwizard.feature.componentservice.widget.worker.SummaryWeatherWidgetProvider
-import io.github.pknujsp.weatherwizard.feature.main.MainActivity
+import io.github.pknujsp.weatherwizard.core.widgetnotification.model.ComponentServiceAction
+import io.github.pknujsp.weatherwizard.core.widgetnotification.model.WidgetServiceArgument
+import io.github.pknujsp.weatherwizard.feature.componentservice.ComponentPendingIntentManager
+import io.github.pknujsp.weatherwizard.feature.componentservice.NotificationServiceReceiver
 
 
 @Composable
@@ -37,14 +38,15 @@ fun WidgetDialogScreen(viewModel: WidgetDialogViewModel = hiltViewModel()) {
             val activity = context as Activity
 
             Content(onClickLaunchApp = {
-                val intent = Intent(context, MainActivity::class.java)
-                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
-                startActivity(context, intent, null)
                 activity.finish()
+                startActivity(context, ComponentPendingIntentManager.mainActivityIntent, null)
             }, onClickRefresh = {
-                viewModel.widgetManager
-                    .getUpdatePendingIntent(context, WidgetManager.Action.UPDATE_ALL_WIDGETS, cls = SummaryWeatherWidgetProvider::class)
-                    .send()
+                Intent(context, NotificationServiceReceiver::class.java).run {
+                    action = NotificationServiceReceiver.ACTION_PROCESS
+                    putExtras(WidgetServiceArgument(ComponentServiceAction.Widget.WidgetAction.UPDATE_ALL_WIDGETS.name,
+                        intArrayOf()).toBundle())
+                    context.sendBroadcast(this)
+                }
             }, onClickCancel = {
                 activity.finish()
             })

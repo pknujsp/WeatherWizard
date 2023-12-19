@@ -57,5 +57,9 @@ sealed interface ComponentServiceAction<T : ComponentServiceArgument> {
     data class DailyNotification(override val argument: DailyNotificationServiceArgument) :
         ComponentServiceAction<DailyNotificationServiceArgument>
 
-    data class Widget(override val argument: WidgetServiceArgument) : ComponentServiceAction<WidgetServiceArgument>
+    data class Widget(override val argument: WidgetServiceArgument) : ComponentServiceAction<WidgetServiceArgument> {
+        enum class WidgetAction {
+            INIT_NEW_WIDGET, DELETE, UPDATE_ONLY_BASED_CURRENT_LOCATION, UPDATE_ALL_WIDGETS, UPDATE_ONLY_WITH_WIDGETS
+        }
+    }
 }

@@ -98,11 +98,6 @@
             </intent-filter>
         </activity>
 
-        <service
-            android:name=".feature.componentservice.NotificationService"
-            android:enabled="true"
-            android:foregroundServiceType="location"
-            android:exported="false" />
 
         <receiver
             android:name=".feature.componentservice.NotificationServiceReceiver"

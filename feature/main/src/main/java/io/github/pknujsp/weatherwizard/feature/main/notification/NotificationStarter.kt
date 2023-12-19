@@ -12,7 +12,6 @@ import io.github.pknujsp.weatherwizard.core.widgetnotification.model.ComponentSe
 import io.github.pknujsp.weatherwizard.core.widgetnotification.model.OngoingNotificationServiceArgument
 import io.github.pknujsp.weatherwizard.core.widgetnotification.notification.AppNotificationManager
 import io.github.pknujsp.weatherwizard.feature.componentservice.ComponentPendingIntentManager
-import io.github.pknujsp.weatherwizard.feature.componentservice.NotificationService
 import io.github.pknujsp.weatherwizard.feature.componentservice.NotificationServiceReceiver
 import io.github.pknujsp.weatherwizard.feature.componentservice.notification.manager.NotificationAlarmManager
 import kotlinx.coroutines.async
@@ -37,11 +36,7 @@ class NotificationStarterImpl(
     private suspend fun startOngoingNotification(context: Context) {
         getOngoingNotification()?.let {
             if (it.enabled && !appNotificationManager.isActiveNotification(NotificationType.ONGOING)) {
-                val intent = Intent(context, NotificationServiceReceiver::class.java).apply {
-                    action = NotificationService.ACTION_PROCESS
-                    putExtras(OngoingNotificationServiceArgument().toBundle())
-                }
-                context.sendBroadcast(intent)
+                context.sendBroadcast(ComponentPendingIntentManager.getIntent(context, OngoingNotificationServiceArgument()))
 
                 if (it.data.refreshInterval != RefreshInterval.MANUAL) {
                     val pendingIntent = ComponentPendingIntentManager.getRefreshPendingIntent(context,

@@ -16,6 +16,9 @@ import io.github.pknujsp.weatherwizard.feature.componentservice.notification.ong
 
 class NotificationServiceReceiver : BroadcastReceiver() {
 
+    companion object {
+        const val ACTION_PROCESS = "NOTIFICATION_SERVICE_ACTION"
+    }
 
     override fun onReceive(context: Context, intent: Intent) {
         intent.action?.let {

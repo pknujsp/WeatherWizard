@@ -1,11 +1,7 @@
 package io.github.pknujsp.weatherwizard.core.widgetnotification.model
 
-import android.os.Bundle
 import androidx.core.os.bundleOf
-
-import io.github.pknujsp.weatherwizard.core.common.manager.WidgetManager
 import kotlin.reflect.full.declaredMemberProperties
-import kotlin.reflect.full.memberProperties
 import kotlin.reflect.full.primaryConstructor
 
 
@@ -32,8 +28,8 @@ data class WidgetServiceArgument(
     val action: String,
     val widgetIds: IntArray,
 ) : ComponentServiceArgument() {
-    val actionType: WidgetManager.Action
-        get() = WidgetManager.Action.valueOf(action)
+    val actionType: ComponentServiceAction.Widget.WidgetAction
+        get() = ComponentServiceAction.Widget.WidgetAction.valueOf(action)
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

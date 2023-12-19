@@ -1,5 +1,6 @@
 package io.github.pknujsp.weatherwizard.feature.componentservice.widget.worker
 
+import android.app.PendingIntent
 import android.content.Context
 import androidx.hilt.work.HiltWorker
 import androidx.work.WorkerParameters
@@ -15,6 +16,7 @@ import io.github.pknujsp.weatherwizard.core.model.RemoteViewUiModel
 import io.github.pknujsp.weatherwizard.core.model.coordinate.LocationType
 import io.github.pknujsp.weatherwizard.core.resource.R
 import io.github.pknujsp.weatherwizard.core.widgetnotification.model.AppComponentService
+import io.github.pknujsp.weatherwizard.core.widgetnotification.model.ComponentServiceAction
 import io.github.pknujsp.weatherwizard.core.widgetnotification.model.IWorker
 import io.github.pknujsp.weatherwizard.core.widgetnotification.model.WidgetServiceArgument
 import io.github.pknujsp.weatherwizard.core.widgetnotification.remoteview.DefaultRemoteViewCreator
@@ -22,6 +24,8 @@ import io.github.pknujsp.weatherwizard.core.widgetnotification.remoteview.Remote
 import io.github.pknujsp.weatherwizard.core.widgetnotification.remoteview.RemoteViewsCreatorManager
 import io.github.pknujsp.weatherwizard.core.widgetnotification.remoteview.UiStateRemoteViewCreator
 import io.github.pknujsp.weatherwizard.core.widgetnotification.widget.remoteview.WidgetRemoteViewsCreator
+import io.github.pknujsp.weatherwizard.feature.componentservice.ComponentPendingIntentManager
+import io.github.pknujsp.weatherwizard.feature.componentservice.widget.WidgetActivity
 import java.time.ZonedDateTime
 
 
@@ -56,7 +60,7 @@ class WidgetWorker @AssistedInject constructor(
         }
 
         var excludeLocationType: LocationType? = null
-        if (action == WidgetManager.Action.UPDATE_ONLY_BASED_CURRENT_LOCATION) {
+        if (action == ComponentServiceAction.Widget.WidgetAction.UPDATE_ONLY_BASED_CURRENT_LOCATION) {
             excludeLocationType = LocationType.CustomLocation
         }
 
@@ -83,10 +87,14 @@ class WidgetWorker @AssistedInject constructor(
 
         with(widgetRemoteViewModel.load(excludeWidgets, excludeLocationType)) {
             val failedWidgetIds = filter { it.state is WeatherResponseState.Failure }.map { it.widget.id }.toIntArray()
-            val retryPendingIntent = if (failedWidgetIds.isNotEmpty()) widgetManager.getUpdatePendingIntent(context,
-                WidgetManager.Action.UPDATE_ONLY_WITH_WIDGETS,
-                failedWidgetIds,
-                SummaryWeatherWidgetProvider::class) else null
+            val retryPendingIntent = if (failedWidgetIds.isNotEmpty()) {
+                ComponentPendingIntentManager.getRefreshPendingIntent(context,
+                    PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
+                    ComponentServiceAction.Widget(WidgetServiceArgument(ComponentServiceAction.Widget.WidgetAction.UPDATE_ONLY_WITH_WIDGETS.name,
+                        failedWidgetIds)))
+            } else {
+                null
+            }
 
             forEach { model ->
                 val remoteView = when (model.state) {

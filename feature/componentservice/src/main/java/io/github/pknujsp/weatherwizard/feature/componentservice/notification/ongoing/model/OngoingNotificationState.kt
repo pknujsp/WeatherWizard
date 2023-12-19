@@ -17,7 +17,6 @@ import io.github.pknujsp.weatherwizard.core.widgetnotification.model.OngoingNoti
 import io.github.pknujsp.weatherwizard.feature.componentservice.NotificationServiceReceiver
 import io.github.pknujsp.weatherwizard.core.widgetnotification.notification.AppNotificationManager
 import io.github.pknujsp.weatherwizard.feature.componentservice.ComponentPendingIntentManager
-import io.github.pknujsp.weatherwizard.feature.componentservice.NotificationService
 
 class OngoingNotificationState(
     val ongoingNotificationUiState: OngoingNotificationUiState,
@@ -54,7 +53,7 @@ class OngoingNotificationState(
 
         if (ongoingNotificationUiState.isEnabled) {
             val intent = Intent(context, NotificationServiceReceiver::class.java).apply {
-                action = NotificationService.ACTION_PROCESS
+                action = NotificationServiceReceiver.ACTION_PROCESS
                 putExtras(OngoingNotificationServiceArgument().toBundle())
             }
             context.sendBroadcast(intent)

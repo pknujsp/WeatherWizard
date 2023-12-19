@@ -33,7 +33,11 @@ import io.github.pknujsp.weatherwizard.core.ui.LocationScreen
 import io.github.pknujsp.weatherwizard.core.ui.SecondaryButton
 import io.github.pknujsp.weatherwizard.core.ui.TitleTextWithNavigation
 import io.github.pknujsp.weatherwizard.core.ui.WeatherProvidersScreen
+import io.github.pknujsp.weatherwizard.core.widgetnotification.model.ComponentServiceAction
+import io.github.pknujsp.weatherwizard.core.widgetnotification.model.WidgetServiceArgument
 import io.github.pknujsp.weatherwizard.core.widgetnotification.remoteview.RemoteViewsCreatorManager
+import io.github.pknujsp.weatherwizard.feature.componentservice.ComponentPendingIntentManager
+import io.github.pknujsp.weatherwizard.feature.componentservice.NotificationServiceReceiver
 import io.github.pknujsp.weatherwizard.feature.componentservice.RemoteViewsScreen
 import io.github.pknujsp.weatherwizard.feature.searchlocation.SearchLocationScreen
 import io.github.pknujsp.weatherwizard.feature.componentservice.widget.worker.SummaryWeatherWidgetProvider
@@ -58,7 +62,7 @@ fun WidgetConfigureScreen(navController: NavController, widgetId: Int, widgetTyp
         if (actionState != null) {
             when (actionState) {
                 ConfigureActionState.SAVE_SUCCESS -> {
-                    createWidgetAndFinish(activity, widgetId, viewModel.widgetManager)
+                    createWidgetAndFinish(activity, widgetId)
                 }
 
                 ConfigureActionState.NO_LOCATION_IS_SELECTED -> {
@@ -118,8 +122,11 @@ fun WidgetConfigureScreen(navController: NavController, widgetId: Int, widgetTyp
 }
 
 
-fun createWidgetAndFinish(activity: Activity, widgetId: Int, widgetManager: WidgetManager) {
-    widgetManager.getInitPendingIntent(activity, intArrayOf(widgetId), SummaryWeatherWidgetProvider::class).send()
+fun createWidgetAndFinish(activity: Activity, widgetId: Int) {
+    ComponentPendingIntentManager.getIntent(activity,
+        WidgetServiceArgument(ComponentServiceAction.Widget.WidgetAction.UPDATE_ALL_WIDGETS.name, intArrayOf(widgetId))).run {
+        activity.sendBroadcast(this)
+    }
 
     val resultValue = Intent()
     resultValue.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, widgetId)
