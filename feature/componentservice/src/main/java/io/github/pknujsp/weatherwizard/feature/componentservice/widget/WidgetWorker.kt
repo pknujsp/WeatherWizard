@@ -1,4 +1,4 @@
-package io.github.pknujsp.weatherwizard.feature.componentservice.widget.worker
+package io.github.pknujsp.weatherwizard.feature.componentservice.widget
 
 import android.app.PendingIntent
 import android.content.Context
@@ -25,9 +25,8 @@ import io.github.pknujsp.weatherwizard.core.widgetnotification.remoteview.Remote
 import io.github.pknujsp.weatherwizard.core.widgetnotification.remoteview.UiStateRemoteViewCreator
 import io.github.pknujsp.weatherwizard.core.widgetnotification.widget.remoteview.WidgetRemoteViewsCreator
 import io.github.pknujsp.weatherwizard.feature.componentservice.ComponentPendingIntentManager
-import io.github.pknujsp.weatherwizard.feature.componentservice.widget.WidgetActivity
+import io.github.pknujsp.weatherwizard.feature.componentservice.widget.worker.WidgetRemoteViewModel
 import java.time.ZonedDateTime
-
 
 @HiltWorker
 class WidgetWorker @AssistedInject constructor(

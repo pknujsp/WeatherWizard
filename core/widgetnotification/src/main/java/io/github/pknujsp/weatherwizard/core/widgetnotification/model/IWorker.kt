@@ -18,6 +18,7 @@ interface IWorker {
     val workerId: Int
 }
 
+
 abstract class AppComponentService<T : ComponentServiceArgument>(
     private val context: Context, params: WorkerParameters, private val iWorker: IWorker
 ) : CoroutineWorker(context, params) {

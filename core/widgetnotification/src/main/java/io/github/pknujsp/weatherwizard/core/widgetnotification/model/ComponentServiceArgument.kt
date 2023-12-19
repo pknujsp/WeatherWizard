@@ -20,9 +20,11 @@ abstract class ComponentServiceArgument {
 
 class OngoingNotificationServiceArgument : ComponentServiceArgument()
 
+
 data class DailyNotificationServiceArgument(
     val notificationId: Long
 ) : ComponentServiceArgument()
+
 
 data class WidgetServiceArgument(
     val action: String,

@@ -9,7 +9,7 @@ import androidx.core.view.WindowCompat
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import io.github.pknujsp.weatherwizard.feature.componentservice.notification.daily.AddOrEditDailyNotificationScreen
+import io.github.pknujsp.weatherwizard.feature.componentservice.notification.daily.ConfigDailyNotificationScreen
 import io.github.pknujsp.weatherwizard.feature.componentservice.notification.daily.DailyNotificationListScreen
 import io.github.pknujsp.weatherwizard.feature.componentservice.notification.ongoing.OngoingNotificationScreen
 
@@ -32,7 +32,7 @@ fun HostNotificationScreen() {
             DailyNotificationListScreen(navController = navController)
         }
         composable(NotificationRoutes.AddOrEditDaily.route, arguments = NotificationRoutes.AddOrEditDaily.arguments) {
-            AddOrEditDailyNotificationScreen(navController)
+            ConfigDailyNotificationScreen(navController)
         }
 
     }

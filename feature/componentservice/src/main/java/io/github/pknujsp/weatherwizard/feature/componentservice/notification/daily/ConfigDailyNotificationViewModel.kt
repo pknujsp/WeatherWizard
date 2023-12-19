@@ -21,7 +21,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class AddOrEditDailyNotificationViewModel @Inject constructor(
+class ConfigDailyNotificationViewModel @Inject constructor(
     private val dailyNotificationRepository: DailyNotificationRepository,
     appAlarmManager: AppAlarmManager,
     savedStateHandle: SavedStateHandle,

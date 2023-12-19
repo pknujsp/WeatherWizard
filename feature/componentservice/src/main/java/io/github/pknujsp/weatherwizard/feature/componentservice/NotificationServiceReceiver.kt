@@ -10,8 +10,8 @@ import androidx.work.Data
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import io.github.pknujsp.weatherwizard.core.widgetnotification.model.ComponentServiceAction
-import io.github.pknujsp.weatherwizard.feature.componentservice.notification.daily.worker.DailyNotificationService
-import io.github.pknujsp.weatherwizard.feature.componentservice.notification.ongoing.worker.OngoingNotificationService
+import io.github.pknujsp.weatherwizard.feature.componentservice.notification.daily.DailyNotificationService
+import io.github.pknujsp.weatherwizard.feature.componentservice.notification.ongoing.OngoingNotificationService
 
 
 class NotificationServiceReceiver : BroadcastReceiver() {

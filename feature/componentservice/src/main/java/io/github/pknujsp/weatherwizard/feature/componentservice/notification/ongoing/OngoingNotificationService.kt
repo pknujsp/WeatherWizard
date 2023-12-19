@@ -1,6 +1,8 @@
-package io.github.pknujsp.weatherwizard.feature.componentservice.notification.daily.worker
+package io.github.pknujsp.weatherwizard.feature.componentservice.notification.ongoing
 
+import android.app.PendingIntent
 import android.content.Context
+import android.util.Log
 import androidx.hilt.work.HiltWorker
 import androidx.work.WorkerParameters
 import dagger.assisted.Assisted
@@ -13,121 +15,135 @@ import io.github.pknujsp.weatherwizard.core.model.RemoteViewUiModel
 import io.github.pknujsp.weatherwizard.core.model.coordinate.LocationType
 import io.github.pknujsp.weatherwizard.core.resource.R
 import io.github.pknujsp.weatherwizard.core.widgetnotification.model.AppComponentService
-import io.github.pknujsp.weatherwizard.core.widgetnotification.model.DailyNotificationServiceArgument
 import io.github.pknujsp.weatherwizard.core.widgetnotification.model.IWorker
 import io.github.pknujsp.weatherwizard.core.widgetnotification.model.NotificationViewState
+import io.github.pknujsp.weatherwizard.core.widgetnotification.model.OngoingNotificationServiceArgument
+import io.github.pknujsp.weatherwizard.core.widgetnotification.model.ComponentServiceAction
 import io.github.pknujsp.weatherwizard.core.widgetnotification.model.RemoteViewUiModelMapperManager
 import io.github.pknujsp.weatherwizard.core.widgetnotification.notification.remoteview.NotificationRemoteViewsCreator
+import io.github.pknujsp.weatherwizard.core.widgetnotification.notification.util.NotificationIconGenerator
 import io.github.pknujsp.weatherwizard.core.widgetnotification.remoteview.RemoteViewCreator
 import io.github.pknujsp.weatherwizard.core.widgetnotification.remoteview.RemoteViewsCreatorManager
 import io.github.pknujsp.weatherwizard.core.widgetnotification.remoteview.UiStateRemoteViewCreator
+import io.github.pknujsp.weatherwizard.feature.componentservice.ComponentPendingIntentManager
+import kotlin.properties.Delegates
 
 @HiltWorker
-class DailyNotificationService @AssistedInject constructor(
+class OngoingNotificationService @AssistedInject constructor(
     @Assisted val context: Context,
     @Assisted params: WorkerParameters,
-    private val viewModel: DailyNotificationRemoteViewModel,
+    private val remoteViewsModel: OngoingNotificationRemoteViewModel,
     private val featureStatusManager: FeatureStatusManager
-) : AppComponentService<DailyNotificationServiceArgument>(context, params, Companion) {
+) : AppComponentService<OngoingNotificationServiceArgument>(context, params, Companion) {
+
+    private var retryPendingIntent: PendingIntent by Delegates.notNull()
 
     companion object : IWorker {
-        override val name: String = "DailyNotificationWorker"
+        override val name: String = "OngoingNotificationWorker"
         override val requiredFeatures: Array<FeatureType> = arrayOf(
             FeatureType.NETWORK,
             FeatureType.POST_NOTIFICATION_PERMISSION,
-            FeatureType.SCHEDULE_EXACT_ALARM_PERMISSION,
         )
         override val workerId: Int = name.hashCode()
     }
 
-
-    override suspend fun doWork(context: Context, argument: DailyNotificationServiceArgument): Result {
+    override suspend fun doWork(context: Context, argument: OngoingNotificationServiceArgument): Result {
         start(context, argument)
         return Result.success()
     }
 
-    private suspend fun start(context: Context, argument: DailyNotificationServiceArgument) {
+    private suspend fun start(context: Context, argument: OngoingNotificationServiceArgument) {
+        retryPendingIntent = ComponentPendingIntentManager.getRefreshPendingIntent(
+            context,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
+            ComponentServiceAction.OngoingNotification(),
+        )
+
         if (!checkFeatureStateAndNotify(requiredFeatures, context)) {
             return
         }
 
-        val notificationId = argument.notificationId
-        val notificationEntity = viewModel.loadNotification(notificationId)
+        val notificationEntity = remoteViewsModel.loadNotification()
 
         if (notificationEntity.location.locationType is LocationType.CurrentLocation && !checkFeatureStateAndNotify(arrayOf(FeatureType.LOCATION_PERMISSION,
                 FeatureType.LOCATION_SERVICE), context)) {
             return
         }
 
-        val uiModel = viewModel.load(notificationEntity)
+        appNotificationManager.notifyLoadingNotification(NotificationType.ONGOING, context)
+        val uiState = remoteViewsModel.load(notificationEntity)
 
-        if (uiModel.isSuccessful) {
-            val uiModelMapper = RemoteViewUiModelMapperManager.getByDailyNotificationType(uiModel.notificationType)
-            val model = uiModelMapper.mapToUiModel(uiModel.model!!, viewModel.units)
-            val header = uiModel.header!!
+        val notificationState = if (uiState.isSuccessful) {
+            val uiModelMapper = RemoteViewUiModelMapperManager.getByOngoingNotificationType(uiState.notificationType)
+
+            val header = uiState.header!!
+            val model = uiModelMapper.mapToUiModel(uiState.model!!, remoteViewsModel.units)
 
             val creator: NotificationRemoteViewsCreator<RemoteViewUiModel> =
-                RemoteViewsCreatorManager.getByDailyNotificationType(uiModel.notificationType)
+                RemoteViewsCreatorManager.getByOngoingNotificationType(uiState.notificationType)
             val smallRemoteView = creator.createSmallContentView(model, header, context)
             val bigRemoteView = creator.createBigContentView(model, header, context)
 
-            val notificationViewState = NotificationViewState(
-                true,
+            NotificationViewState(true,
+                notificationType = NotificationType.ONGOING,
                 smallContentRemoteViews = smallRemoteView,
                 bigContentRemoteViews = bigRemoteView,
-                notificationType = NotificationType.DAILY,
-            )
-            appNotificationManager.notifyNotification(NotificationType.DAILY, context, notificationViewState)
+                icon = NotificationIconGenerator.createIcon(context, uiState.notificationIconType!!, uiState.model!!, remoteViewsModel.units),
+                refreshPendingIntent = retryPendingIntent)
         } else {
-
-            val notificationViewState = NotificationViewState(
-                false,
-                smallFailedContentRemoteViews = UiStateRemoteViewCreator.createView(context,
+            NotificationViewState(false,
+                smallFailedContentRemoteViews = UiStateRemoteViewCreator.createView(
+                    context,
                     R.string.title_failed_to_load_data,
                     R.string.failed_to_load_data,
                     R.string.refresh,
                     RemoteViewCreator.ContainerType.NOTIFICATION_SMALL,
-                    UiStateRemoteViewCreator.ViewSizeType.SMALL),
-                bigContentRemoteViews = UiStateRemoteViewCreator.createView(context,
+                    UiStateRemoteViewCreator.ViewSizeType.SMALL,
+                    retryPendingIntent,
+                ),
+                bigFailedContentRemoteViews = UiStateRemoteViewCreator.createView(
+                    context,
                     R.string.title_failed_to_load_data,
                     R.string.failed_to_load_data,
                     R.string.refresh,
                     RemoteViewCreator.ContainerType.NOTIFICATION_BIG,
-                    UiStateRemoteViewCreator.ViewSizeType.BIG),
-                notificationType = NotificationType.DAILY,
-            )
-            appNotificationManager.notifyNotification(NotificationType.DAILY, context, notificationViewState)
+                    UiStateRemoteViewCreator.ViewSizeType.BIG,
+                    retryPendingIntent,
+                ),
+                notificationType = NotificationType.ONGOING,
+                refreshPendingIntent = retryPendingIntent)
         }
+        appNotificationManager.notifyNotification(NotificationType.ONGOING, context, notificationState)
+        Log.d("OngoingNotificationService", "notify $notificationState")
     }
-
 
     private fun checkFeatureStateAndNotify(featureTypes: Array<FeatureType>, context: Context): Boolean {
         return when (val state = featureStatusManager.status(context, featureTypes)) {
             is FeatureState.Unavailable -> {
                 val smallRemoteViews = UiStateRemoteViewCreator.createView(context,
                     state.featureType.failedReason,
-                    io.github.pknujsp.weatherwizard.core.widgetnotification.remoteview.RemoteViewCreator.ContainerType.NOTIFICATION_SMALL,
+                    RemoteViewCreator.ContainerType.NOTIFICATION_SMALL,
                     viewSizeType = UiStateRemoteViewCreator.ViewSizeType.SMALL,
-                    visibilityOfCompleteButton = false,
-                    visibilityOfActionButton = false)
+                    state.featureType.getPendingIntent(context),
+                    visibilityOfCompleteButton = true)
                 val bigRemoteViews = UiStateRemoteViewCreator.createView(context,
                     state.featureType.failedReason,
-                    io.github.pknujsp.weatherwizard.core.widgetnotification.remoteview.RemoteViewCreator.ContainerType.NOTIFICATION_BIG,
+                    RemoteViewCreator.ContainerType.NOTIFICATION_BIG,
                     viewSizeType = UiStateRemoteViewCreator.ViewSizeType.BIG,
-                    visibilityOfCompleteButton = false,
-                    visibilityOfActionButton = false)
+                    state.featureType.getPendingIntent(context),
+                    visibilityOfCompleteButton = true)
 
-                val notificationViewState = NotificationViewState(
-                    false,
+                val notificationViewState = NotificationViewState(false,
                     smallFailedContentRemoteViews = smallRemoteViews,
                     bigFailedContentRemoteViews = bigRemoteViews,
-                    notificationType = NotificationType.DAILY,
-                )
-                appNotificationManager.notifyNotification(NotificationType.DAILY, context, notificationViewState)
+                    notificationType = NotificationType.ONGOING,
+                    refreshPendingIntent = retryPendingIntent)
+                appNotificationManager.notifyNotification(NotificationType.ONGOING, context, notificationViewState)
                 false
             }
 
             else -> true
         }
     }
+
 }

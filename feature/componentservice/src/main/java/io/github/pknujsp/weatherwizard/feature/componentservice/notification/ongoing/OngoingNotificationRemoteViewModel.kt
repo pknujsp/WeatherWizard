@@ -1,4 +1,4 @@
-package io.github.pknujsp.weatherwizard.feature.componentservice.notification.ongoing.worker
+package io.github.pknujsp.weatherwizard.feature.componentservice.notification.ongoing
 
 import io.github.pknujsp.weatherwizard.core.data.nominatim.NominatimRepository
 import io.github.pknujsp.weatherwizard.core.data.notification.ongoing.OngoingNotificationRepository

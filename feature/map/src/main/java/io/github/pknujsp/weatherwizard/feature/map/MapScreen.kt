@@ -107,10 +107,9 @@ private fun MapScreen(
         viewModel.radarTiles.value.onSuccess { tilesOverlay ->
             tilesOverlay.overlays.forEach { it.second.destroy() }
         }
-        mapView.setHasTransientState(false)
+        mapView.tileProvider.clearTileCache()
         mapView.onPause()
         mapView.onDetach()
-        mapView.tileProvider.clearTileCache()
     })
 
 }
