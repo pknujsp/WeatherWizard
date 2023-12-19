@@ -51,6 +51,7 @@
             </intent-filter>
         </activity>
 
+
         <provider
             android:name="androidx.startup.InitializationProvider"
             android:authorities="${applicationId}.androidx-startup"
@@ -61,6 +62,8 @@
                 android:value="androidx.startup"
                 tools:node="remove" />
         </provider>
+
+
 
         <activity
             android:name=".feature.componentservice.widget.WidgetActivity"

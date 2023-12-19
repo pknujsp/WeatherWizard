@@ -12,7 +12,6 @@ import io.github.pknujsp.weatherwizard.core.domain.weather.WeatherDataRequest
 import io.github.pknujsp.weatherwizard.core.domain.weather.WeatherResponseState
 import io.github.pknujsp.weatherwizard.core.model.coordinate.LocationType
 import io.github.pknujsp.weatherwizard.core.model.coordinate.LocationTypeModel
-import io.github.pknujsp.weatherwizard.core.widgetnotification.remoteview.RemoteViewModel
 import io.github.pknujsp.weatherwizard.core.widgetnotification.widget.worker.model.WidgetHeaderUiModel
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.first
@@ -27,7 +26,7 @@ class WidgetRemoteViewModel @Inject constructor(
     private val getCurrentLocationUseCase: GetCurrentLocationUseCase,
     private val nominatimRepository: NominatimRepository,
     appSettingsRepository: SettingsRepository,
-) : RemoteViewModel() {
+) : io.github.pknujsp.weatherwizard.core.widgetnotification.remoteview.RemoteViewModel() {
 
     val units = appSettingsRepository.currentUnits.value
     private var widgetSettingsEntityList: WidgetSettingsEntityList by Delegates.notNull()

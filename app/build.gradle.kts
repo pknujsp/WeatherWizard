@@ -66,7 +66,6 @@ dependencies {
     implementation(project(":feature:searchlocation"))
     implementation(project(":feature:favorite"))
     implementation(project(":feature:airquality"))
-
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.activity)
     implementation(libs.androidx.appcompat)

@@ -10,7 +10,6 @@ class LibraryConventionPlugin : Plugin<Project> {
             with(pluginManager) {
                 apply("org.jetbrains.kotlin.android")
                 apply("com.android.library")
-                apply("com.google.devtools.ksp")
                 apply("org.jetbrains.kotlin.kapt")
                 apply("org.jetbrains.kotlin.plugin.parcelize")
                 apply("org.jetbrains.kotlin.plugin.serialization")
