@@ -2,8 +2,6 @@ import org.jetbrains.kotlin.konan.properties.Properties
 
 plugins {
     id("plugin.android.library")
-    alias(libs.plugins.ksp)
-    alias(libs.plugins.kotlin.serialization)
 }
 
 android {

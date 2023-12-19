@@ -15,7 +15,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat.startActivity
-import androidx.hilt.navigation.compose.hiltViewModel
 import io.github.pknujsp.weatherwizard.core.resource.R
 import io.github.pknujsp.weatherwizard.core.ui.MediumTitleTextWithoutNavigation
 import io.github.pknujsp.weatherwizard.core.ui.PrimaryButton
@@ -28,8 +27,7 @@ import io.github.pknujsp.weatherwizard.feature.componentservice.NotificationServ
 
 
 @Composable
-fun WidgetDialogScreen(viewModel: WidgetDialogViewModel = hiltViewModel()) {
-
+fun WidgetDialogScreen() {
     Surface(color = Color.White,
         shape = io.github.pknujsp.weatherwizard.core.ui.theme.AppShapes.extraLarge,
         modifier = Modifier.wrapContentSize()) {

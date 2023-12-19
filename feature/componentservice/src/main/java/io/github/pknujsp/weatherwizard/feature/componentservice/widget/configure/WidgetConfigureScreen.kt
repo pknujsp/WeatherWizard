@@ -23,7 +23,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import io.github.pknujsp.weatherwizard.core.common.manager.WidgetManager
 import io.github.pknujsp.weatherwizard.core.model.ActionState
 import io.github.pknujsp.weatherwizard.core.model.coordinate.LocationType
 import io.github.pknujsp.weatherwizard.core.model.coordinate.LocationTypeModel
@@ -37,10 +36,8 @@ import io.github.pknujsp.weatherwizard.core.widgetnotification.model.ComponentSe
 import io.github.pknujsp.weatherwizard.core.widgetnotification.model.WidgetServiceArgument
 import io.github.pknujsp.weatherwizard.core.widgetnotification.remoteview.RemoteViewsCreatorManager
 import io.github.pknujsp.weatherwizard.feature.componentservice.ComponentPendingIntentManager
-import io.github.pknujsp.weatherwizard.feature.componentservice.NotificationServiceReceiver
 import io.github.pknujsp.weatherwizard.feature.componentservice.RemoteViewsScreen
 import io.github.pknujsp.weatherwizard.feature.searchlocation.SearchLocationScreen
-import io.github.pknujsp.weatherwizard.feature.componentservice.widget.worker.SummaryWeatherWidgetProvider
 
 
 @Composable
@@ -90,7 +87,7 @@ fun WidgetConfigureScreen(navController: NavController, widgetId: Int, widgetTyp
         })
     } else {
         Column {
-            TitleTextWithNavigation(title = stringResource(id = io.github.pknujsp.weatherwizard.core.resource.R.string.configure_widget)) {
+            TitleTextWithNavigation(title = stringResource(id = R.string.configure_widget)) {
                 navController.popBackStack()
             }
             RemoteViewsScreen(RemoteViewsCreatorManager.getByWidgetType(widgetType), viewModel.units)

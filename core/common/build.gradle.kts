@@ -1,7 +1,6 @@
 plugins {
     id("plugin.android.library")
     id("plugin.android.hilt")
-    alias(libs.plugins.kotlin.android)
 }
 
 android {
