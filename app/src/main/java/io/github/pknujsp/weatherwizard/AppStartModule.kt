@@ -13,7 +13,7 @@ import io.github.pknujsp.weatherwizard.core.data.notification.ongoing.OngoingNot
 import io.github.pknujsp.weatherwizard.core.data.widget.WidgetRepository
 import io.github.pknujsp.weatherwizard.feature.main.notification.NotificationStarter
 import io.github.pknujsp.weatherwizard.feature.main.notification.NotificationStarterImpl
-import io.github.pknujsp.weatherwizard.feature.notification.manager.AppNotificationManager
+import io.github.pknujsp.weatherwizard.core.widgetnotification.notification.AppNotificationManager
 import io.github.pknujsp.weatherwizard.feature.notification.manager.NotificationAlarmManager
 import io.github.pknujsp.weatherwizard.widget.WidgetStarter
 import io.github.pknujsp.weatherwizard.widget.WidgetStarterImpl

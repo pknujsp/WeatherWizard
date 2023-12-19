@@ -99,13 +99,13 @@
         </activity>
 
         <service
-            android:name=".feature.notification.manager.NotificationService"
+            android:name=".core.widgetnotification.notification.NotificationService"
             android:enabled="true"
             android:foregroundServiceType="location"
             android:exported="false" />
 
         <receiver
-            android:name=".feature.notification.NotificationServiceReceiver"
+            android:name=".core.widgetnotification.notification.NotificationServiceReceiver"
             android:enabled="true"
             android:exported="false">
             <intent-filter>

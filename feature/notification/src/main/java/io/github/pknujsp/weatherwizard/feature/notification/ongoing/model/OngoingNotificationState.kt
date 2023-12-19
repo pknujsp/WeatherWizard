@@ -12,10 +12,11 @@ import androidx.compose.ui.platform.LocalContext
 import io.github.pknujsp.weatherwizard.core.common.NotificationType
 import io.github.pknujsp.weatherwizard.core.common.manager.AppAlarmManager
 import io.github.pknujsp.weatherwizard.core.model.notification.enums.RefreshInterval
-import io.github.pknujsp.weatherwizard.core.widgetnotification.notification.NotificationAction
-import io.github.pknujsp.weatherwizard.feature.notification.NotificationServiceReceiver
-import io.github.pknujsp.weatherwizard.feature.notification.manager.AppNotificationManager
-import io.github.pknujsp.weatherwizard.feature.notification.manager.NotificationService
+import io.github.pknujsp.weatherwizard.core.widgetnotification.model.ComponentServiceAction
+import io.github.pknujsp.weatherwizard.core.widgetnotification.model.OngoingNotificationServiceArgument
+import io.github.pknujsp.weatherwizard.core.widgetnotification.notification.NotificationServiceReceiver
+import io.github.pknujsp.weatherwizard.core.widgetnotification.notification.AppNotificationManager
+import io.github.pknujsp.weatherwizard.core.widgetnotification.notification.NotificationService
 
 class OngoingNotificationState(
     val ongoingNotificationUiState: OngoingNotificationUiState,
@@ -44,7 +45,7 @@ class OngoingNotificationState(
     ) {
         val pendingIntent = appNotificationManager.getRefreshPendingIntent(context,
             PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
-            NotificationAction.Ongoing())
+            ComponentServiceAction.OngoingNotification())
 
         if (ongoingNotificationUiState.ongoingNotificationSettings.refreshInterval != RefreshInterval.MANUAL) {
             appAlarmManager.unScheduleRepeat(pendingIntent)
@@ -53,7 +54,7 @@ class OngoingNotificationState(
         if (ongoingNotificationUiState.isEnabled) {
             val intent = Intent(context, NotificationServiceReceiver::class.java).apply {
                 action = NotificationService.ACTION_PROCESS
-                putExtras(NotificationAction.Ongoing().toBundle())
+                putExtras(OngoingNotificationServiceArgument().toBundle())
             }
             context.sendBroadcast(intent)
             if (ongoingNotificationUiState.ongoingNotificationSettings.refreshInterval != RefreshInterval.MANUAL) {

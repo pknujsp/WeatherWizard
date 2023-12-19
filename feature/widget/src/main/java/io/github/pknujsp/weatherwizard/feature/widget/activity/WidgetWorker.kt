@@ -1,9 +1,14 @@
 package io.github.pknujsp.weatherwizard.feature.widget.activity
 
 import android.content.Context
+import androidx.hilt.work.HiltWorker
+import androidx.work.WorkerParameters
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedInject
 import io.github.pknujsp.weatherwizard.core.common.FeatureType
 import io.github.pknujsp.weatherwizard.core.common.manager.FeatureState
 import io.github.pknujsp.weatherwizard.core.common.manager.FeatureStatusManager
+import io.github.pknujsp.weatherwizard.core.common.manager.WidgetManager
 import io.github.pknujsp.weatherwizard.core.data.widget.WidgetSettingsEntity
 import io.github.pknujsp.weatherwizard.core.domain.weather.WeatherResponseState
 import io.github.pknujsp.weatherwizard.core.model.RemoteViewUiModel
@@ -16,17 +21,18 @@ import io.github.pknujsp.weatherwizard.core.widgetnotification.remoteview.Defaul
 import io.github.pknujsp.weatherwizard.core.widgetnotification.remoteview.RemoteViewCreator
 import io.github.pknujsp.weatherwizard.core.widgetnotification.remoteview.RemoteViewsCreatorManager
 import io.github.pknujsp.weatherwizard.core.widgetnotification.remoteview.UiStateRemoteViewCreator
-import io.github.pknujsp.weatherwizard.core.common.manager.WidgetManager
 import io.github.pknujsp.weatherwizard.core.widgetnotification.widget.remoteview.WidgetRemoteViewsCreator
 import java.time.ZonedDateTime
-import javax.inject.Inject
 
 
-class WidgetWorker @Inject constructor(
+@HiltWorker
+class WidgetWorker @AssistedInject constructor(
+    @Assisted val context: Context,
+    @Assisted params: WorkerParameters,
     private val widgetRemoteViewModel: WidgetRemoteViewModel,
     private val featureStatusManager: FeatureStatusManager,
     private val widgetManager: WidgetManager
-) : AppComponentService<WidgetServiceArgument> {
+) : AppComponentService<WidgetServiceArgument>(context, params, Companion) {
 
     companion object : IWorker {
         override val name: String = "WidgetWorker"
@@ -34,7 +40,12 @@ class WidgetWorker @Inject constructor(
         override val workerId: Int = name.hashCode()
     }
 
-    override suspend fun start(context: Context, argument: WidgetServiceArgument) {
+    override suspend fun doWork(context: Context, argument: WidgetServiceArgument): Result {
+        start(context, argument)
+        return Result.success()
+    }
+
+    private suspend fun start(context: Context, argument: WidgetServiceArgument) {
         val action = argument.actionType
         val appWidgetIds = argument.widgetIds
         val widgetEntityList = widgetRemoteViewModel.loadWidgets()

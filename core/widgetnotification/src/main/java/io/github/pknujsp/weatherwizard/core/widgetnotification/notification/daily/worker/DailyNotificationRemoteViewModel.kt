@@ -1,4 +1,4 @@
-package io.github.pknujsp.weatherwizard.feature.notification.daily
+package io.github.pknujsp.weatherwizard.core.widgetnotification.notification.daily.worker
 
 import io.github.pknujsp.weatherwizard.core.data.nominatim.NominatimRepository
 import io.github.pknujsp.weatherwizard.core.data.notification.daily.DailyNotificationRepository

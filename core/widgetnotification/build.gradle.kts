@@ -1,5 +1,6 @@
 plugins {
     id("plugin.android.library")
+    id("plugin.android.hilt")
 }
 
 android {
@@ -15,6 +16,7 @@ dependencies {
     implementation(project(":core:data"))
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
+    implementation(libs.bundles.lifecycle)
     implementation(libs.material)
     debugImplementation(libs.bundles.compose.debug)
     implementation(platform(libs.androidx.compose.bom))

@@ -1,4 +1,4 @@
-package io.github.pknujsp.weatherwizard.feature.notification.manager
+package io.github.pknujsp.weatherwizard.core.widgetnotification.notification
 
 import android.annotation.SuppressLint
 import android.app.Notification
@@ -15,9 +15,8 @@ import io.github.pknujsp.weatherwizard.core.common.NotificationType
 import io.github.pknujsp.weatherwizard.core.common.enum.pendingIntentRequestFactory
 import io.github.pknujsp.weatherwizard.core.resource.R
 import io.github.pknujsp.weatherwizard.core.widgetnotification.model.ComponentServiceArgument
+import io.github.pknujsp.weatherwizard.core.widgetnotification.model.ComponentServiceAction
 import io.github.pknujsp.weatherwizard.core.widgetnotification.model.NotificationViewState
-import io.github.pknujsp.weatherwizard.core.widgetnotification.notification.NotificationAction
-import io.github.pknujsp.weatherwizard.feature.notification.NotificationServiceReceiver
 
 
 class AppNotificationManager(context: Context) {
@@ -61,13 +60,13 @@ class AppNotificationManager(context: Context) {
         notificationManager.activeNotifications.any { it.id == notificationType.notificationId }
 
 
-    fun <A : NotificationAction<out ComponentServiceArgument>> getRefreshPendingIntent(
+    fun <A : ComponentServiceAction<out ComponentServiceArgument>> getRefreshPendingIntent(
         context: Context, flags: Int, notificationAction: A
     ): PendingIntent = PendingIntent.getBroadcast(context,
         pendingIntentRequestFactory.requestId(notificationAction::class),
         Intent(context, NotificationServiceReceiver::class.java).apply {
             action = NotificationService.ACTION_PROCESS
-            putExtras(notificationAction.toBundle())
+            putExtras(notificationAction.argument.toBundle())
         },
         flags)
 

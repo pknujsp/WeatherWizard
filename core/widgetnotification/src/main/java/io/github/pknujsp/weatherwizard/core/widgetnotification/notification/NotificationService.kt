@@ -1,4 +1,4 @@
-package io.github.pknujsp.weatherwizard.feature.notification.manager
+package io.github.pknujsp.weatherwizard.core.widgetnotification.notification
 
 import android.annotation.SuppressLint
 import android.content.Intent

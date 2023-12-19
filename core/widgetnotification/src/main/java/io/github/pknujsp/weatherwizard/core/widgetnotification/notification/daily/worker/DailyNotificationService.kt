@@ -1,11 +1,7 @@
-package io.github.pknujsp.weatherwizard.feature.notification.daily
+package io.github.pknujsp.weatherwizard.core.widgetnotification.notification.daily.worker
 
 import android.content.Context
-import android.content.pm.ServiceInfo
-import android.os.Build
 import androidx.hilt.work.HiltWorker
-import androidx.work.CoroutineWorker
-import androidx.work.ForegroundInfo
 import androidx.work.WorkerParameters
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
@@ -20,13 +16,10 @@ import io.github.pknujsp.weatherwizard.core.widgetnotification.model.AppComponen
 import io.github.pknujsp.weatherwizard.core.widgetnotification.model.DailyNotificationServiceArgument
 import io.github.pknujsp.weatherwizard.core.widgetnotification.model.IWorker
 import io.github.pknujsp.weatherwizard.core.widgetnotification.model.NotificationViewState
-import io.github.pknujsp.weatherwizard.core.widgetnotification.notification.NotificationAction
-import io.github.pknujsp.weatherwizard.core.widgetnotification.notification.daily.worker.DailyNotificationForecastUiModelMapper
 import io.github.pknujsp.weatherwizard.core.widgetnotification.notification.remoteview.NotificationRemoteViewsCreator
 import io.github.pknujsp.weatherwizard.core.widgetnotification.remoteview.RemoteViewCreator
 import io.github.pknujsp.weatherwizard.core.widgetnotification.remoteview.RemoteViewsCreatorManager
 import io.github.pknujsp.weatherwizard.core.widgetnotification.remoteview.UiStateRemoteViewCreator
-import io.github.pknujsp.weatherwizard.feature.notification.manager.AppNotificationManager
 
 @HiltWorker
 class DailyNotificationService @AssistedInject constructor(
@@ -34,8 +27,7 @@ class DailyNotificationService @AssistedInject constructor(
     @Assisted params: WorkerParameters,
     private val viewModel: DailyNotificationRemoteViewModel,
     private val featureStatusManager: FeatureStatusManager
-) : CoroutineWorker(context, params), AppComponentService<DailyNotificationServiceArgument> {
-    private val appNotificationManager: AppNotificationManager by lazy { AppNotificationManager(context) }
+) : AppComponentService<DailyNotificationServiceArgument>(context, params, Companion) {
 
     companion object : IWorker {
         override val name: String = "DailyNotificationWorker"
@@ -47,17 +39,16 @@ class DailyNotificationService @AssistedInject constructor(
         override val workerId: Int = name.hashCode()
     }
 
-    override suspend fun doWork(): Result {
-        val argument = NotificationAction.toInstance(inputData.keyValueMap).argument as DailyNotificationServiceArgument
+
+    override suspend fun doWork(context: Context, argument: DailyNotificationServiceArgument): Result {
         start(context, argument)
         return Result.success()
     }
 
-    override suspend fun start(context: Context, argument: DailyNotificationServiceArgument) {
+    private suspend fun start(context: Context, argument: DailyNotificationServiceArgument) {
         if (!checkFeatureStateAndNotify(requiredFeatures, context)) {
             return
         }
-        setForeground(createForegroundInfo())
 
         val notificationId = argument.notificationId
         val notificationEntity = viewModel.loadNotification(notificationId)
@@ -134,15 +125,6 @@ class DailyNotificationService @AssistedInject constructor(
             }
 
             else -> true
-        }
-    }
-
-    private fun createForegroundInfo(): ForegroundInfo {
-        val notification = appNotificationManager.createForegroundNotification(context, NotificationType.WORKING)
-        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            ForegroundInfo(workerId, notification, ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION)
-        } else {
-            ForegroundInfo(workerId, notification)
         }
     }
 }
