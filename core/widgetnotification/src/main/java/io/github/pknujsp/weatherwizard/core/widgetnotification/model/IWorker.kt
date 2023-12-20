@@ -20,8 +20,10 @@ interface IWorker {
 
 
 abstract class AppComponentService<T : ComponentServiceArgument>(
-    private val context: Context, params: WorkerParameters, private val iWorker: IWorker
+    private val context: Context, params: WorkerParameters, private val iWorker: IWorker,
 ) : CoroutineWorker(context, params) {
+
+    open val isRequiredForegroundService: Boolean = true
 
     protected val appNotificationManager: AppNotificationManager by lazy { AppNotificationManager(context) }
     private val wakeLockDuration = Duration.ofMinutes(1).toMinutes()
@@ -33,7 +35,9 @@ abstract class AppComponentService<T : ComponentServiceArgument>(
     }
 
     override suspend fun doWork(): Result {
-        setForeground(createForegroundInfo())
+        if (isRequiredForegroundService) {
+            setForeground(createForegroundInfo())
+        }
         val result = doWork(context, ComponentServiceAction.toInstance(inputData.keyValueMap).argument as T)
 
         wakeLock?.release()

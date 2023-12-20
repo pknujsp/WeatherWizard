@@ -8,15 +8,20 @@ import android.util.Log
 import androidx.work.Data
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
+import dagger.hilt.android.AndroidEntryPoint
 import io.github.pknujsp.weatherwizard.core.widgetnotification.model.ComponentServiceAction
 import io.github.pknujsp.weatherwizard.core.widgetnotification.model.WidgetServiceArgument
-import io.github.pknujsp.weatherwizard.feature.componentservice.ComponentPendingIntentManager
-import io.github.pknujsp.weatherwizard.feature.componentservice.notification.daily.DailyNotificationService
-import io.github.pknujsp.weatherwizard.feature.componentservice.notification.ongoing.OngoingNotificationService
-import io.github.pknujsp.weatherwizard.feature.componentservice.widget.WidgetWorker
+import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.GlobalScope
 
-
+@OptIn(DelicateCoroutinesApi::class)
+@AndroidEntryPoint
 abstract class BaseWidgetProvider : AppWidgetProvider() {
+
+    protected companion object {
+        val globalScope get() = GlobalScope
+    }
+
     override fun onUpdate(context: Context, appWidgetManager: AppWidgetManager, appWidgetIds: IntArray) {
         Log.d("BaseWidgetProvider", "onUpdate: ${appWidgetIds.contentToString()}")
     }

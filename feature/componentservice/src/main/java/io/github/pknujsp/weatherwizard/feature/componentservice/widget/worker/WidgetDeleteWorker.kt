@@ -15,6 +15,9 @@ import io.github.pknujsp.weatherwizard.core.widgetnotification.model.WidgetServi
 class WidgetDeleteWorker @AssistedInject constructor(
     @Assisted val context: Context, @Assisted params: WorkerParameters, private val widgetRemoteViewModel: DeleteWidgetRemoteViewModel
 ) : AppComponentService<WidgetServiceArgument>(context, params, Companion) {
+
+    override val isRequiredForegroundService: Boolean = false
+
     companion object : IWorker {
         override val name: String = "WidgetDeleteWorker"
         override val requiredFeatures: Array<FeatureType> = arrayOf()
