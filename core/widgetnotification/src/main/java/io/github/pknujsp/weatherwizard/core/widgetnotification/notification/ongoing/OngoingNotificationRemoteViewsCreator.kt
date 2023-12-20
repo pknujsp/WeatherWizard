@@ -9,6 +9,7 @@ import io.github.pknujsp.weatherwizard.core.resource.R
 import io.github.pknujsp.weatherwizard.core.widgetnotification.notification.ongoing.model.OngoingNotificationRemoteViewUiModel
 import io.github.pknujsp.weatherwizard.core.widgetnotification.notification.remoteview.NotificationRemoteViewsCreator
 import io.github.pknujsp.weatherwizard.core.widgetnotification.remoteview.RemoteViewCreator
+import io.github.pknujsp.weatherwizard.core.widgetnotification.remoteview.addViewSafely
 
 class OngoingNotificationRemoteViewsCreator : NotificationRemoteViewsCreator<OngoingNotificationRemoteViewUiModel>() {
     override fun createSampleView(context: Context, units: CurrentUnits): RemoteViews {
@@ -20,7 +21,7 @@ class OngoingNotificationRemoteViewsCreator : NotificationRemoteViewsCreator<Ong
                 TemperatureValueType(16.0, TemperatureUnit.Celsius).convertUnit(units.temperatureUnit).toString())
         }
         return createBaseView(context, RemoteViewCreator.ContainerType.NOTIFICATION_SMALL).apply {
-            addView(R.id.remote_views_content_container, contentView)
+            addViewSafely(R.id.remote_views_content_container, contentView)
         }
     }
 
@@ -34,7 +35,7 @@ class OngoingNotificationRemoteViewsCreator : NotificationRemoteViewsCreator<Ong
         }
         return createBaseView(context, RemoteViewCreator.ContainerType.NOTIFICATION_SMALL).apply {
             createHeaderView(this, header)
-            addView(R.id.remote_views_content_container, contentView)
+            addViewSafely(R.id.remote_views_content_container, contentView)
         }
     }
 
@@ -50,7 +51,7 @@ class OngoingNotificationRemoteViewsCreator : NotificationRemoteViewsCreator<Ong
         return createBaseView(context,
             io.github.pknujsp.weatherwizard.core.widgetnotification.remoteview.RemoteViewCreator.ContainerType.NOTIFICATION_BIG).apply {
             createHeaderView(this, header)
-            addView(R.id.remote_views_content_container, contentView)
+            addViewSafely(R.id.remote_views_content_container, contentView)
         }
     }
 
@@ -61,7 +62,7 @@ class OngoingNotificationRemoteViewsCreator : NotificationRemoteViewsCreator<Ong
                 setImageViewResource(R.id.weather_icon, it.weatherIcon)
                 setTextViewText(R.id.temperature, it.temperature)
             }.also {
-                addView(R.id.hourly_forecast, it)
+                addViewSafely(R.id.hourly_forecast, it)
             }
         }
     }

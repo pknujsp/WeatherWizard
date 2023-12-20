@@ -41,7 +41,7 @@ object UiStateRemoteViewCreator : RemoteViewCreator {
         setOnClickPendingIntent(R.id.action_button, pendingIntent)
 
         createBaseView(context, containerType, false).also {
-            it.addView(R.id.remote_views_content_container, this)
+            it.addViewSafely(R.id.remote_views_content_container, this)
         }
     }
 

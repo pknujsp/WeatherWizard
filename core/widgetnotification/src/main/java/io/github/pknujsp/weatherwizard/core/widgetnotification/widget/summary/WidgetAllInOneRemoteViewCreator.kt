@@ -5,6 +5,7 @@ import android.widget.RemoteViews
 import io.github.pknujsp.weatherwizard.core.model.weather.common.CurrentUnits
 import io.github.pknujsp.weatherwizard.core.resource.R
 import io.github.pknujsp.weatherwizard.core.widgetnotification.remoteview.RemoteViewCreator
+import io.github.pknujsp.weatherwizard.core.widgetnotification.remoteview.addViewSafely
 import io.github.pknujsp.weatherwizard.core.widgetnotification.widget.remoteview.WidgetRemoteViewsCreator
 
 class WidgetAllInOneRemoteViewCreator : WidgetRemoteViewsCreator<WidgetAllInOneRemoteViewUiModel>() {
@@ -25,18 +26,18 @@ class WidgetAllInOneRemoteViewCreator : WidgetRemoteViewsCreator<WidgetAllInOneR
                 }
             }.let { remoteViews ->
                 remoteViews.subList(0, 6).forEach {
-                    content.addView(R.id.hourly_forecast_row_1, it)
+                    content.addViewSafely(R.id.hourly_forecast_row_1, it)
                 }
                 remoteViews.subList(6, 12).forEach {
-                    content.addView(R.id.hourly_forecast_row_2, it)
+                    content.addViewSafely(R.id.hourly_forecast_row_2, it)
                 }
             }
 
             model.dailyForecast.forEach {
-                content.addView(R.id.daily_forecast, RemoteViews(context.packageName, R.layout.view_daily_forecast_item).apply {
+                content.addViewSafely(R.id.daily_forecast, RemoteViews(context.packageName, R.layout.view_daily_forecast_item).apply {
                     setTextViewText(R.id.date, it.date)
                     it.weatherIcons.forEach { icon ->
-                        addView(R.id.weather_icons, RemoteViews(context.packageName, R.layout.view_weather_icon_item).apply {
+                        addViewSafely(R.id.weather_icons, RemoteViews(context.packageName, R.layout.view_weather_icon_item).apply {
                             setImageViewResource(R.id.weather_icon, icon)
                         })
                     }
@@ -44,10 +45,9 @@ class WidgetAllInOneRemoteViewCreator : WidgetRemoteViewsCreator<WidgetAllInOneR
                 })
             }
 
-            createBaseView(context,
-                RemoteViewCreator.ContainerType.WIDGET).apply {
+            createBaseView(context, RemoteViewCreator.ContainerType.WIDGET).apply {
                 createHeaderView(this, header)
-                addView(R.id.remote_views_content_container, content)
+                addViewSafely(R.id.remote_views_content_container, content)
             }
         }
     }
@@ -55,9 +55,8 @@ class WidgetAllInOneRemoteViewCreator : WidgetRemoteViewsCreator<WidgetAllInOneR
 
     override fun createSampleView(context: Context, units: CurrentUnits): RemoteViews {
         return RemoteViews(context.packageName, R.layout.summary_weather_widget).let {
-            createBaseView(context,
-             RemoteViewCreator.ContainerType.WIDGET).apply {
-                addView(R.id.remote_views_content_container, it)
+            createBaseView(context, RemoteViewCreator.ContainerType.WIDGET).apply {
+                addViewSafely(R.id.remote_views_content_container, it)
             }
         }
     }

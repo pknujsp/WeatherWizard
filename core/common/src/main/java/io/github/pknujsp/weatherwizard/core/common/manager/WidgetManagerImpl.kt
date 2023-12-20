@@ -1,6 +1,7 @@
 package io.github.pknujsp.weatherwizard.core.common.manager
 
 import android.app.PendingIntent
+import android.appwidget.AppWidgetHost
 import android.appwidget.AppWidgetManager
 import android.content.Context
 import android.content.Intent

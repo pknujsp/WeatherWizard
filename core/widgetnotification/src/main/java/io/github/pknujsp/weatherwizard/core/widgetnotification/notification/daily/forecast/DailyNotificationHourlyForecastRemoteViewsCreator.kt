@@ -4,6 +4,7 @@ import android.content.Context
 import android.widget.RemoteViews
 import io.github.pknujsp.weatherwizard.core.model.weather.common.CurrentUnits
 import io.github.pknujsp.weatherwizard.core.resource.R
+import io.github.pknujsp.weatherwizard.core.widgetnotification.remoteview.addViewSafely
 
 class DailyNotificationHourlyForecastRemoteViewsCreator :
     io.github.pknujsp.weatherwizard.core.widgetnotification.notification.remoteview.NotificationRemoteViewsCreator<DailyNotificationForecastRemoteViewUiModel>() {
@@ -31,7 +32,7 @@ class DailyNotificationHourlyForecastRemoteViewsCreator :
         return createBaseView(context,
             io.github.pknujsp.weatherwizard.core.widgetnotification.remoteview.RemoteViewCreator.ContainerType.NOTIFICATION_BIG).apply {
             createHeaderView(this, header)
-            addView(R.id.remote_views_content_container, contentView)
+            addViewSafely(R.id.remote_views_content_container, contentView)
         }
     }
 
@@ -41,7 +42,7 @@ class DailyNotificationHourlyForecastRemoteViewsCreator :
         context: Context
     ) {
         model.hourlyForecast.forEach {
-            addView(R.id.hourly_forecast, RemoteViews(context.packageName, R.layout.view_hourly_forecast_item).apply {
+            addViewSafely(R.id.hourly_forecast, RemoteViews(context.packageName, R.layout.view_hourly_forecast_item).apply {
                 setTextViewText(R.id.time, it.dateTime)
                 setImageViewResource(R.id.weather_icon, it.weatherIcon)
                 setTextViewText(R.id.temperature, it.temperature)
@@ -55,10 +56,10 @@ class DailyNotificationHourlyForecastRemoteViewsCreator :
         context: Context
     ) {
         model.dailyForecast.forEach {
-            addView(R.id.daily_forecast, RemoteViews(context.packageName, R.layout.view_daily_forecast_item).apply {
+            addViewSafely(R.id.daily_forecast, RemoteViews(context.packageName, R.layout.view_daily_forecast_item).apply {
                 setTextViewText(R.id.date, it.date)
                 it.weatherIcons.forEach { icon ->
-                    addView(R.id.weather_icons, RemoteViews(context.packageName, R.layout.view_weather_icon_item).apply {
+                    addViewSafely(R.id.weather_icons, RemoteViews(context.packageName, R.layout.view_weather_icon_item).apply {
                         setImageViewResource(R.id.weather_icon, icon)
                     })
                 }
