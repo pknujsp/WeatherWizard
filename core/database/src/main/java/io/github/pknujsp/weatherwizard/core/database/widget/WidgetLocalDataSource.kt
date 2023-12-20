@@ -1,5 +1,6 @@
 package io.github.pknujsp.weatherwizard.core.database.widget
 
+import io.github.pknujsp.weatherwizard.core.model.widget.WidgetStatus
 import kotlinx.coroutines.flow.Flow
 
 interface WidgetLocalDataSource {
@@ -14,4 +15,5 @@ interface WidgetLocalDataSource {
 
     suspend fun containsId(id: Int): Boolean
 
+    suspend fun updateResponseData(id: Int, status: WidgetStatus, responseData: ByteArray)
 }

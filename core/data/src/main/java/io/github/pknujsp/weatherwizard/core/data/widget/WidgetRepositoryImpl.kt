@@ -4,7 +4,7 @@ import io.github.pknujsp.weatherwizard.core.common.module.KtJson
 import io.github.pknujsp.weatherwizard.core.database.widget.WidgetDto
 import io.github.pknujsp.weatherwizard.core.database.widget.WidgetLocalDataSource
 import io.github.pknujsp.weatherwizard.core.model.JsonParser
-import io.github.pknujsp.weatherwizard.core.model.coordinate.LocationType
+import io.github.pknujsp.weatherwizard.core.model.widget.WidgetStatus
 import io.github.pknujsp.weatherwizard.core.model.widget.WidgetType
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -58,5 +58,9 @@ class WidgetRepositoryImpl @Inject constructor(
 
     override suspend fun delete(id: Int) {
         dataSource.deleteById(id)
+    }
+
+    override suspend fun updateResponseData(id: Int, status: WidgetStatus, responseData: ByteArray) {
+        dataSource.updateResponseData(id, status, responseData)
     }
 }

@@ -26,8 +26,6 @@ class NotificationServiceReceiver : BroadcastReceiver() {
             if (intent.extras == null) {
                 return
             }
-            Log.d("NotificationService", "NotificationServiceReceiver onReceive ${intent.extras}, ${intent.action}")
-
             val workRequest = when (val action = ComponentServiceAction.toInstance(intent.extras!!)) {
                 is ComponentServiceAction.OngoingNotification -> {
                     OneTimeWorkRequestBuilder<OngoingNotificationCoroutineService>().setInputData(Data.Builder()
@@ -42,6 +40,10 @@ class NotificationServiceReceiver : BroadcastReceiver() {
                 is ComponentServiceAction.LoadWidgetData -> {
                     val builder = OneTimeWorkRequestBuilder<WidgetCoroutineService>().addTag(WidgetCoroutineService.name)
                     builder.setInputData(Data.Builder().putAll(action.argument.toMap()).build()).build()
+                }
+
+                else -> {
+                    return
                 }
             }
             val workManager = WorkManager.getInstance(context)
