@@ -32,7 +32,7 @@ import io.github.pknujsp.weatherwizard.core.ui.SecondaryButton
 import io.github.pknujsp.weatherwizard.core.ui.TitleTextWithNavigation
 import io.github.pknujsp.weatherwizard.core.ui.WeatherProvidersScreen
 import io.github.pknujsp.weatherwizard.core.widgetnotification.model.ComponentServiceAction
-import io.github.pknujsp.weatherwizard.core.widgetnotification.model.WidgetServiceArgument
+import io.github.pknujsp.weatherwizard.core.widgetnotification.model.LoadWidgetDataArgument
 import io.github.pknujsp.weatherwizard.core.widgetnotification.remoteview.RemoteViewsCreatorManager
 import io.github.pknujsp.weatherwizard.feature.componentservice.ComponentPendingIntentManager
 import io.github.pknujsp.weatherwizard.feature.componentservice.RemoteViewsScreen
@@ -114,7 +114,7 @@ fun createWidgetAndFinish(activity: Activity, widgetId: Int) {
     activity.finish()
 
     ComponentPendingIntentManager.getIntent(activity.applicationContext,
-        WidgetServiceArgument(ComponentServiceAction.Widget.WidgetAction.INIT_NEW_WIDGET.name, arrayOf(widgetId))).run {
+        LoadWidgetDataArgument(LoadWidgetDataArgument.NEW_WIDGET, arrayOf(widgetId))).run {
         activity.applicationContext.sendBroadcast(this)
     }
 }

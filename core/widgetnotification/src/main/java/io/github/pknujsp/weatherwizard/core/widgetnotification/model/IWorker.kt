@@ -18,34 +18,36 @@ interface IWorker {
     val workerId: Int
 }
 
+interface AppComponentService {
+    val id: Int
+}
 
-abstract class AppComponentService<T : ComponentServiceArgument>(
+abstract class AppComponentCoroutineService<T : ComponentServiceArgument>(
     private val context: Context, params: WorkerParameters, private val iWorker: IWorker,
-) : CoroutineWorker(context, params) {
+) : CoroutineWorker(context, params), AppComponentService {
 
     open val isRequiredForegroundService: Boolean = true
+    override val id: Int = iWorker.workerId
 
     protected val appNotificationManager: AppNotificationManager by lazy { AppNotificationManager(context) }
-    private val wakeLockDuration = Duration.ofMinutes(1).toMinutes()
+    private val wakeLockDuration = Duration.ofMinutes(1).toMillis()
 
-    private var wakeLock: PowerManager.WakeLock? = (context.getSystemService(Context.POWER_SERVICE) as PowerManager).run {
-        newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "AppComponentService::${iWorker.workerId}").apply {
-            acquire(wakeLockDuration)
-        }
-    }
+    private val wakeLock: PowerManager.WakeLock
+        get() = (context.getSystemService(Context.POWER_SERVICE) as PowerManager).newWakeLock(PowerManager.PARTIAL_WAKE_LOCK,
+            "AppComponentService::${id}")
 
     override suspend fun doWork(): Result {
+        wakeLock.acquire(wakeLockDuration)
         if (isRequiredForegroundService) {
             setForeground(createForegroundInfo())
         }
         val result = doWork(context, ComponentServiceAction.toInstance(inputData.keyValueMap).argument as T)
 
-        wakeLock?.release()
-        wakeLock = null
+        wakeLock.release()
         return result
     }
 
-    abstract suspend fun doWork(context: Context, argument: T): Result
+    protected abstract suspend fun doWork(context: Context, argument: T): Result
 
     private fun createForegroundInfo(): ForegroundInfo {
         val notification = appNotificationManager.createForegroundNotification(context, NotificationType.WORKING)
@@ -56,4 +58,24 @@ abstract class AppComponentService<T : ComponentServiceArgument>(
         }
     }
 
+}
+
+abstract class AppComponentBackgroundService<T : ComponentServiceArgument>(
+    protected val context: Context
+) : AppComponentService {
+
+    private val wakeLockDuration = Duration.ofSeconds(30).toMillis()
+
+    private val wakeLock: PowerManager.WakeLock
+        get() = (context.getSystemService(Context.POWER_SERVICE) as PowerManager).newWakeLock(PowerManager.PARTIAL_WAKE_LOCK,
+            "AppComponentService::${id}")
+
+    suspend fun run(argument: T): Result<Unit> {
+        wakeLock.acquire(wakeLockDuration)
+        val result = doWork(argument)
+        wakeLock.release()
+        return result
+    }
+
+    protected abstract suspend fun doWork(argument: T): Result<Unit>
 }

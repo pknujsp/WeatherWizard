@@ -6,16 +6,13 @@ import android.content.Context
 import android.content.Context.ACTIVITY_SERVICE
 import android.content.Intent
 import android.util.Log
-import androidx.work.Constraints
 import androidx.work.Data
 import androidx.work.OneTimeWorkRequestBuilder
-import androidx.work.OutOfQuotaPolicy
 import androidx.work.WorkManager
 import io.github.pknujsp.weatherwizard.core.widgetnotification.model.ComponentServiceAction
-import io.github.pknujsp.weatherwizard.feature.componentservice.notification.daily.DailyNotificationService
-import io.github.pknujsp.weatherwizard.feature.componentservice.notification.ongoing.OngoingNotificationService
-import io.github.pknujsp.weatherwizard.feature.componentservice.widget.WidgetWorker
-import io.github.pknujsp.weatherwizard.feature.componentservice.widget.worker.WidgetDeleteWorker
+import io.github.pknujsp.weatherwizard.feature.componentservice.notification.daily.DailyNotificationCoroutineService
+import io.github.pknujsp.weatherwizard.feature.componentservice.notification.ongoing.OngoingNotificationCoroutineService
+import io.github.pknujsp.weatherwizard.feature.componentservice.widget.WidgetCoroutineService
 
 
 class NotificationServiceReceiver : BroadcastReceiver() {
@@ -33,17 +30,17 @@ class NotificationServiceReceiver : BroadcastReceiver() {
 
             val workRequest = when (val action = ComponentServiceAction.toInstance(intent.extras!!)) {
                 is ComponentServiceAction.OngoingNotification -> {
-                    OneTimeWorkRequestBuilder<OngoingNotificationService>().setInputData(Data.Builder().putAll(action.argument.toMap())
-                        .build()).addTag(OngoingNotificationService.name).build()
+                    OneTimeWorkRequestBuilder<OngoingNotificationCoroutineService>().setInputData(Data.Builder()
+                        .putAll(action.argument.toMap()).build()).addTag(OngoingNotificationCoroutineService.name).build()
                 }
 
                 is ComponentServiceAction.DailyNotification -> {
-                    OneTimeWorkRequestBuilder<DailyNotificationService>().setInputData(Data.Builder().putAll(action.argument.toMap())
-                        .build()).addTag(DailyNotificationService.name).build()
+                    OneTimeWorkRequestBuilder<DailyNotificationCoroutineService>().setInputData(Data.Builder()
+                        .putAll(action.argument.toMap()).build()).addTag(DailyNotificationCoroutineService.name).build()
                 }
 
-                is ComponentServiceAction.Widget -> {
-                    val builder = OneTimeWorkRequestBuilder<WidgetWorker>().addTag(WidgetWorker.name)
+                is ComponentServiceAction.LoadWidgetData -> {
+                    val builder = OneTimeWorkRequestBuilder<WidgetCoroutineService>().addTag(WidgetCoroutineService.name)
                     builder.setInputData(Data.Builder().putAll(action.argument.toMap()).build()).build()
                 }
             }

@@ -20,32 +20,29 @@ abstract class ComponentServiceArgument {
 
 class OngoingNotificationServiceArgument : ComponentServiceArgument()
 
-
-data class DailyNotificationServiceArgument(
+class DailyNotificationServiceArgument(
     val notificationId: Long
 ) : ComponentServiceArgument()
 
-
-data class WidgetServiceArgument(
-    val action: String,
+class WidgetDeletedArgument(
     val widgetIds: Array<Int>,
+) : ComponentServiceArgument()
+
+class WidgetOptionsChangedArgument(
+    val widgetId: Int,
+) : ComponentServiceArgument()
+
+class WidgetUpdatedArgument(
+    val widgetIds: Array<Int>,
+) : ComponentServiceArgument()
+
+class LoadWidgetDataArgument(
+    val action: Int, val widgetIds: Array<Int> = emptyArray()
 ) : ComponentServiceArgument() {
-    val actionType: ComponentServiceAction.Widget.WidgetAction
-        get() = ComponentServiceAction.Widget.WidgetAction.valueOf(action)
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (javaClass != other?.javaClass) return false
-
-        other as WidgetServiceArgument
-
-        if (action != other.action) return false
-        return widgetIds.contentEquals(other.widgetIds)
-    }
-
-    override fun hashCode(): Int {
-        var result = action.hashCode()
-        result = 31 * result + widgetIds.contentHashCode()
-        return result
+    companion object {
+        const val NEW_WIDGET = 0
+        const val UPDATE_ONLY_ON_CURRENT_LOCATION = 1
+        const val UPDATE_ALL = 2
+        const val UPDATE_ONLY_SPECIFIC_WIDGETS = 3
     }
 }

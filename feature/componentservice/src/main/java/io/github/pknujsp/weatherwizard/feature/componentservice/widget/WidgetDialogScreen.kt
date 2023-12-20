@@ -21,7 +21,7 @@ import io.github.pknujsp.weatherwizard.core.ui.PrimaryButton
 import io.github.pknujsp.weatherwizard.core.ui.SecondaryButton
 import io.github.pknujsp.weatherwizard.core.ui.ThirdButton
 import io.github.pknujsp.weatherwizard.core.widgetnotification.model.ComponentServiceAction
-import io.github.pknujsp.weatherwizard.core.widgetnotification.model.WidgetServiceArgument
+import io.github.pknujsp.weatherwizard.core.widgetnotification.model.LoadWidgetDataArgument
 import io.github.pknujsp.weatherwizard.feature.componentservice.ComponentPendingIntentManager
 import io.github.pknujsp.weatherwizard.feature.componentservice.NotificationServiceReceiver
 
@@ -41,8 +41,7 @@ fun WidgetDialogScreen() {
             }, onClickRefresh = {
                 Intent(context, NotificationServiceReceiver::class.java).run {
                     action = NotificationServiceReceiver.ACTION_PROCESS
-                    putExtras(WidgetServiceArgument(ComponentServiceAction.Widget.WidgetAction.UPDATE_ALL_WIDGETS.name,
-                        emptyArray()).toBundle())
+                    putExtras(LoadWidgetDataArgument(LoadWidgetDataArgument.UPDATE_ALL).toBundle())
                     context.sendBroadcast(this)
                 }
             }, onClickCancel = {

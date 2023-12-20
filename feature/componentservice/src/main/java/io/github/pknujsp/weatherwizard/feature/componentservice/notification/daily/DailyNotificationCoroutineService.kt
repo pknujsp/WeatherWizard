@@ -12,7 +12,7 @@ import io.github.pknujsp.weatherwizard.core.common.manager.FeatureStatusManager
 import io.github.pknujsp.weatherwizard.core.model.RemoteViewUiModel
 import io.github.pknujsp.weatherwizard.core.model.coordinate.LocationType
 import io.github.pknujsp.weatherwizard.core.resource.R
-import io.github.pknujsp.weatherwizard.core.widgetnotification.model.AppComponentService
+import io.github.pknujsp.weatherwizard.core.widgetnotification.model.AppComponentCoroutineService
 import io.github.pknujsp.weatherwizard.core.widgetnotification.model.DailyNotificationServiceArgument
 import io.github.pknujsp.weatherwizard.core.widgetnotification.model.IWorker
 import io.github.pknujsp.weatherwizard.core.widgetnotification.model.NotificationViewState
@@ -23,12 +23,12 @@ import io.github.pknujsp.weatherwizard.core.widgetnotification.remoteview.Remote
 import io.github.pknujsp.weatherwizard.core.widgetnotification.remoteview.UiStateRemoteViewCreator
 
 @HiltWorker
-class DailyNotificationService @AssistedInject constructor(
+class DailyNotificationCoroutineService @AssistedInject constructor(
     @Assisted val context: Context,
     @Assisted params: WorkerParameters,
     private val viewModel: DailyNotificationRemoteViewModel,
     private val featureStatusManager: FeatureStatusManager
-) : AppComponentService<DailyNotificationServiceArgument>(context, params, Companion) {
+) : AppComponentCoroutineService<DailyNotificationServiceArgument>(context, params, Companion) {
 
     companion object : IWorker {
         override val name: String = "DailyNotificationWorker"

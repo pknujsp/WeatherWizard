@@ -34,7 +34,7 @@ sealed interface ComponentServiceAction<T : ComponentServiceArgument> {
         fun toInstance(map: Map<String, Any>): ComponentServiceAction<out ComponentServiceArgument> = map[KEY]!!.let {
             Log.d("ComponentServiceAction", "toInstance: $map")
             when (it) {
-                WidgetServiceArgument::class.simpleName -> Widget(map.toArgument(WidgetServiceArgument::class))
+                LoadWidgetDataArgument::class.simpleName -> LoadWidgetData(map.toArgument(LoadWidgetDataArgument::class))
                 DailyNotificationServiceArgument::class.simpleName -> DailyNotification(map.toArgument(DailyNotificationServiceArgument::class))
                 OngoingNotificationServiceArgument::class.simpleName -> OngoingNotification(map.toArgument(
                     OngoingNotificationServiceArgument::class))
@@ -45,7 +45,7 @@ sealed interface ComponentServiceAction<T : ComponentServiceArgument> {
 
         fun toInstance(bundle: Bundle): ComponentServiceAction<out ComponentServiceArgument> = bundle.getString(KEY)!!.let {
             when (it) {
-                WidgetServiceArgument::class.simpleName -> Widget(bundle.toArgument(WidgetServiceArgument::class))
+                LoadWidgetDataArgument::class.simpleName -> LoadWidgetData(bundle.toArgument(LoadWidgetDataArgument::class))
                 DailyNotificationServiceArgument::class.simpleName -> DailyNotification(bundle.toArgument(DailyNotificationServiceArgument::class))
                 OngoingNotificationServiceArgument::class.simpleName -> OngoingNotification(bundle.toArgument(
                     OngoingNotificationServiceArgument::class))
@@ -55,15 +55,18 @@ sealed interface ComponentServiceAction<T : ComponentServiceArgument> {
         }
     }
 
-    data class OngoingNotification(override val argument: OngoingNotificationServiceArgument = OngoingNotificationServiceArgument()) :
+     class OngoingNotification(override val argument: OngoingNotificationServiceArgument = OngoingNotificationServiceArgument()) :
         ComponentServiceAction<OngoingNotificationServiceArgument>
 
-    data class DailyNotification(override val argument: DailyNotificationServiceArgument) :
+     class DailyNotification(override val argument: DailyNotificationServiceArgument) :
         ComponentServiceAction<DailyNotificationServiceArgument>
 
-    data class Widget(override val argument: WidgetServiceArgument) : ComponentServiceAction<WidgetServiceArgument> {
-        enum class WidgetAction {
-            INIT_NEW_WIDGET, DELETE, UPDATE_ONLY_BASED_CURRENT_LOCATION, UPDATE_ALL_WIDGETS, UPDATE_ONLY_WITH_WIDGETS
-        }
-    }
+     class LoadWidgetData(override val argument: LoadWidgetDataArgument) : ComponentServiceAction<LoadWidgetDataArgument>
+
+     class WidgetDeleted(override val argument: WidgetDeletedArgument) : ComponentServiceAction<WidgetDeletedArgument>
+
+     class WidgetUpdated(override val argument: WidgetUpdatedArgument) : ComponentServiceAction<WidgetUpdatedArgument>
+
+     class WidgetOptionsChanged(override val argument: WidgetOptionsChangedArgument) :
+        ComponentServiceAction<WidgetOptionsChangedArgument>
 }

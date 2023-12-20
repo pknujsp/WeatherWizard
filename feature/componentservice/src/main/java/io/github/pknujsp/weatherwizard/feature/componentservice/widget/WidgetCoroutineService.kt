@@ -15,10 +15,10 @@ import io.github.pknujsp.weatherwizard.core.domain.weather.WeatherResponseState
 import io.github.pknujsp.weatherwizard.core.model.RemoteViewUiModel
 import io.github.pknujsp.weatherwizard.core.model.coordinate.LocationType
 import io.github.pknujsp.weatherwizard.core.resource.R
-import io.github.pknujsp.weatherwizard.core.widgetnotification.model.AppComponentService
+import io.github.pknujsp.weatherwizard.core.widgetnotification.model.AppComponentCoroutineService
 import io.github.pknujsp.weatherwizard.core.widgetnotification.model.ComponentServiceAction
 import io.github.pknujsp.weatherwizard.core.widgetnotification.model.IWorker
-import io.github.pknujsp.weatherwizard.core.widgetnotification.model.WidgetServiceArgument
+import io.github.pknujsp.weatherwizard.core.widgetnotification.model.LoadWidgetDataArgument
 import io.github.pknujsp.weatherwizard.core.widgetnotification.remoteview.DefaultRemoteViewCreator
 import io.github.pknujsp.weatherwizard.core.widgetnotification.remoteview.RemoteViewCreator
 import io.github.pknujsp.weatherwizard.core.widgetnotification.remoteview.RemoteViewsCreatorManager
@@ -26,31 +26,30 @@ import io.github.pknujsp.weatherwizard.core.widgetnotification.remoteview.UiStat
 import io.github.pknujsp.weatherwizard.core.widgetnotification.widget.remoteview.WidgetRemoteViewsCreator
 import io.github.pknujsp.weatherwizard.feature.componentservice.ComponentPendingIntentManager
 import io.github.pknujsp.weatherwizard.feature.componentservice.widget.worker.WidgetRemoteViewModel
-import java.time.ZonedDateTime
 
 @HiltWorker
-class WidgetWorker @AssistedInject constructor(
+class WidgetCoroutineService @AssistedInject constructor(
     @Assisted val context: Context,
     @Assisted params: WorkerParameters,
     private val widgetRemoteViewModel: WidgetRemoteViewModel,
     private val featureStatusManager: FeatureStatusManager,
     private val widgetManager: WidgetManager
-) : AppComponentService<WidgetServiceArgument>(context, params, Companion) {
+) : AppComponentCoroutineService<LoadWidgetDataArgument>(context, params, Companion) {
 
     companion object : IWorker {
-        override val name: String = "WidgetWorker"
+        override val name: String = "WidgetCoroutineService"
         override val requiredFeatures: Array<FeatureType> = arrayOf(FeatureType.NETWORK)
         override val workerId: Int = name.hashCode()
     }
 
-    override suspend fun doWork(context: Context, argument: WidgetServiceArgument): Result {
+    override suspend fun doWork(context: Context, argument: LoadWidgetDataArgument): Result {
         start(context, argument)
         return Result.success()
     }
 
-    private suspend fun start(context: Context, argument: WidgetServiceArgument) {
-        val action = argument.actionType
-        val appWidgetIds = argument.widgetIds.toIntArray()
+    private suspend fun start(context: Context, argument: LoadWidgetDataArgument) {
+        val action = argument.action
+        val appWidgetIds = argument.widgetIds
         val widgetEntityList = widgetRemoteViewModel.loadWidgets()
 
         // 네트워크 연결 상태 확인, 연결이 안되어 있다면 위젯에 네트워크 연결 상태를 표시
@@ -59,7 +58,7 @@ class WidgetWorker @AssistedInject constructor(
         }
 
         var excludeLocationType: LocationType? = null
-        if (action == ComponentServiceAction.Widget.WidgetAction.UPDATE_ONLY_BASED_CURRENT_LOCATION) {
+        if (action == LoadWidgetDataArgument.UPDATE_ONLY_ON_CURRENT_LOCATION) {
             excludeLocationType = LocationType.CustomLocation
         }
 
@@ -76,7 +75,7 @@ class WidgetWorker @AssistedInject constructor(
             if (!checkFeatureStateAndUpdateWidgets(arrayOf(FeatureType.LOCATION_PERMISSION, FeatureType.LOCATION_SERVICE),
                     widgetEntityList.locationTypeGroups.getValue(LocationType.CurrentLocation).map {
                         it.id
-                    }.toIntArray(),
+                    }.toTypedArray(),
                     context)) {
                 widgetEntityList.locationTypeGroups.getValue(LocationType.CurrentLocation).forEach {
                     excludeWidgets.add(it)
@@ -89,7 +88,7 @@ class WidgetWorker @AssistedInject constructor(
             val retryPendingIntent = if (failedWidgetIds.isNotEmpty()) {
                 ComponentPendingIntentManager.getRefreshPendingIntent(context,
                     PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
-                    ComponentServiceAction.Widget(WidgetServiceArgument(ComponentServiceAction.Widget.WidgetAction.UPDATE_ONLY_WITH_WIDGETS.name,
+                    ComponentServiceAction.LoadWidgetData(LoadWidgetDataArgument(LoadWidgetDataArgument.UPDATE_ONLY_SPECIFIC_WIDGETS,
                         failedWidgetIds)))
             } else {
                 null
@@ -122,7 +121,7 @@ class WidgetWorker @AssistedInject constructor(
     }
 
 
-    private fun checkFeatureStateAndUpdateWidgets(featureTypes: Array<FeatureType>, widgetIds: IntArray, context: Context): Boolean {
+    private fun checkFeatureStateAndUpdateWidgets(featureTypes: Array<FeatureType>, widgetIds: Array<Int>, context: Context): Boolean {
         return when (val state = featureStatusManager.status(context, featureTypes)) {
             is FeatureState.Unavailable -> {
                 val remoteViews = UiStateRemoteViewCreator.createView(context,

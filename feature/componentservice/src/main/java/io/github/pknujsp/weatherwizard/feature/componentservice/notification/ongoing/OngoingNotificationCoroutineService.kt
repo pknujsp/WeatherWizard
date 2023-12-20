@@ -14,7 +14,7 @@ import io.github.pknujsp.weatherwizard.core.common.manager.FeatureStatusManager
 import io.github.pknujsp.weatherwizard.core.model.RemoteViewUiModel
 import io.github.pknujsp.weatherwizard.core.model.coordinate.LocationType
 import io.github.pknujsp.weatherwizard.core.resource.R
-import io.github.pknujsp.weatherwizard.core.widgetnotification.model.AppComponentService
+import io.github.pknujsp.weatherwizard.core.widgetnotification.model.AppComponentCoroutineService
 import io.github.pknujsp.weatherwizard.core.widgetnotification.model.IWorker
 import io.github.pknujsp.weatherwizard.core.widgetnotification.model.NotificationViewState
 import io.github.pknujsp.weatherwizard.core.widgetnotification.model.OngoingNotificationServiceArgument
@@ -29,12 +29,12 @@ import io.github.pknujsp.weatherwizard.feature.componentservice.ComponentPending
 import kotlin.properties.Delegates
 
 @HiltWorker
-class OngoingNotificationService @AssistedInject constructor(
+class OngoingNotificationCoroutineService @AssistedInject constructor(
     @Assisted val context: Context,
     @Assisted params: WorkerParameters,
     private val remoteViewsModel: OngoingNotificationRemoteViewModel,
     private val featureStatusManager: FeatureStatusManager
-) : AppComponentService<OngoingNotificationServiceArgument>(context, params, Companion) {
+) : AppComponentCoroutineService<OngoingNotificationServiceArgument>(context, params, Companion) {
 
     private var retryPendingIntent: PendingIntent by Delegates.notNull()
 
