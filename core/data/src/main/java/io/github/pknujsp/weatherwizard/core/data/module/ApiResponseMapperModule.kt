@@ -10,6 +10,7 @@ import io.github.pknujsp.weatherwizard.core.data.weather.mapper.WeatherResponseM
 import io.github.pknujsp.weatherwizard.core.data.weather.mapper.WeatherResponseMapperManagerImpl
 import io.github.pknujsp.weatherwizard.core.data.weather.metnorway.MetNorwayResponseMapper
 import io.github.pknujsp.weatherwizard.core.model.EntityModel
+import io.github.pknujsp.weatherwizard.core.model.weather.base.WeatherEntityModel
 import io.github.pknujsp.weatherwizard.core.network.api.kma.KmaCurrentWeatherResponse
 import io.github.pknujsp.weatherwizard.core.network.api.kma.KmaDailyForecastResponse
 import io.github.pknujsp.weatherwizard.core.network.api.kma.KmaHourlyForecastResponse
@@ -30,5 +31,5 @@ object ApiResponseMapperModule {
     @Singleton
     @Provides
     fun providesWeatherResponseMapperManager(
-    ): WeatherResponseMapperManager<EntityModel> = WeatherResponseMapperManagerImpl(KmaResponseMapper(), MetNorwayResponseMapper())
+    ): WeatherResponseMapperManager<WeatherEntityModel> = WeatherResponseMapperManagerImpl(KmaResponseMapper(), MetNorwayResponseMapper())
 }

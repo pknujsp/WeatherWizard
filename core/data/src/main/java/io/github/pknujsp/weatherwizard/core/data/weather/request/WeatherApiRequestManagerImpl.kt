@@ -9,6 +9,7 @@ import io.github.pknujsp.weatherwizard.core.model.weather.kma.parameter.KmaHourl
 import io.github.pknujsp.weatherwizard.core.model.weather.kma.parameter.KmaYesterdayWeatherRequestParameter
 import io.github.pknujsp.weatherwizard.core.model.weather.metnorway.parameter.MetNorwayRequestParameter
 import io.github.pknujsp.weatherwizard.core.model.ApiResponseModel
+import io.github.pknujsp.weatherwizard.core.model.JsonParser
 import io.github.pknujsp.weatherwizard.core.network.api.kma.KmaDataSource
 import io.github.pknujsp.weatherwizard.core.network.api.metnorway.MetNorwayDataSource
 import javax.inject.Inject
@@ -16,7 +17,7 @@ import javax.inject.Inject
 internal class WeatherApiRequestManagerImpl(
     private val kmaDataSource: KmaDataSource,
     private val metNorwayDataSource: MetNorwayDataSource,
-    private val weatherApiRequestPreProcessorManager: WeatherApiRequestPreProcessorManager<ApiRequestParameter>
+    private val weatherApiRequestPreProcessorManager: WeatherApiRequestPreProcessorManager<ApiRequestParameter>,
 ) : WeatherApiRequestManager<ApiResponseModel> {
 
     private suspend fun getCurrentWeather(

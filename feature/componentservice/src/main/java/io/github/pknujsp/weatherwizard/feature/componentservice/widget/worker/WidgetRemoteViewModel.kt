@@ -1,5 +1,7 @@
 package io.github.pknujsp.weatherwizard.feature.componentservice.widget.worker
 
+import io.github.pknujsp.weatherwizard.core.common.coroutines.CoDispatcher
+import io.github.pknujsp.weatherwizard.core.common.coroutines.CoDispatcherType
 import io.github.pknujsp.weatherwizard.core.data.nominatim.NominatimRepository
 import io.github.pknujsp.weatherwizard.core.data.settings.SettingsRepository
 import io.github.pknujsp.weatherwizard.core.data.widget.WidgetRepository
@@ -14,6 +16,7 @@ import io.github.pknujsp.weatherwizard.core.model.coordinate.LocationType
 import io.github.pknujsp.weatherwizard.core.model.coordinate.LocationTypeModel
 import io.github.pknujsp.weatherwizard.core.widgetnotification.remoteview.RemoteViewModel
 import io.github.pknujsp.weatherwizard.core.widgetnotification.widget.worker.model.WidgetHeaderUiModel
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.supervisorScope
@@ -26,6 +29,7 @@ class WidgetRemoteViewModel @Inject constructor(
     private val widgetRepository: WidgetRepository,
     private val getCurrentLocationUseCase: GetCurrentLocationUseCase,
     private val nominatimRepository: NominatimRepository,
+    @CoDispatcher(CoDispatcherType.MULTIPLE) private val dispatcher: CoroutineDispatcher,
     appSettingsRepository: SettingsRepository,
 ) : RemoteViewModel() {
 
@@ -54,7 +58,7 @@ class WidgetRemoteViewModel @Inject constructor(
     }
 
     private suspend fun loadWeatherData(): List<WidgetHeaderUiModel> {
-        val weatherDataRequest = WeatherDataRequest()
+        val weatherDataRequest = WeatherDataRequest(modelType = WeatherDataRequest.ModelType.BYTES)
         val responseMap = mutableMapOf<WidgetSettingsEntity, WeatherResponseState>()
         val requestMapWithRequestIdAndWidget = mutableMapOf<Long, MutableList<WidgetSettingsEntity>>()
 
@@ -107,7 +111,7 @@ class WidgetRemoteViewModel @Inject constructor(
 
         val responses = supervisorScope {
             weatherDataRequest.finalRequests.map { request ->
-                async { getWeatherDataUseCase(request, false) }
+                async(dispatcher) { getWeatherDataUseCase(request, false) }
             }
         }
 

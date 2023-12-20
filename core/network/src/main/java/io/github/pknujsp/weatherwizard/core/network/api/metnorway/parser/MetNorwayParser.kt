@@ -8,7 +8,7 @@ import io.github.pknujsp.weatherwizard.core.network.api.metnorway.response.MetNo
 import io.github.pknujsp.weatherwizard.core.network.api.metnorway.response.MetNorwayHourlyForecastResponse
 
 
-object MetNorwayParser {
+internal object MetNorwayParser {
 
     private val weatherUtil = WeatherUtil()
 

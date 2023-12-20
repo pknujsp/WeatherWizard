@@ -1,6 +1,6 @@
 package io.github.pknujsp.weatherwizard.core.network.api.aqicn
 
-import io.github.pknujsp.weatherwizard.core.model.ApiResponseModel
+import io.github.pknujsp.weatherwizard.core.network.api.AirQualityResponseModel
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -9,7 +9,7 @@ import kotlinx.serialization.Serializable
 data class AqiCnResponse(
     @SerialName("status") val status: String,
     @SerialName("data") val data: Data
-) : ApiResponseModel {
+) : AirQualityResponseModel {
 
     @Serializable
     data class Data(

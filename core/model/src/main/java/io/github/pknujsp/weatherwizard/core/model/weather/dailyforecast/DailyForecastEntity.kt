@@ -1,6 +1,7 @@
 package io.github.pknujsp.weatherwizard.core.model.weather.dailyforecast
 
 import io.github.pknujsp.weatherwizard.core.model.EntityModel
+import io.github.pknujsp.weatherwizard.core.model.weather.base.WeatherEntityModel
 import io.github.pknujsp.weatherwizard.core.model.weather.common.DateTimeValueType
 import io.github.pknujsp.weatherwizard.core.model.weather.common.PrecipitationValueType
 import io.github.pknujsp.weatherwizard.core.model.weather.common.ProbabilityValueType
@@ -12,7 +13,7 @@ import io.github.pknujsp.weatherwizard.core.model.weather.common.WindSpeedValueT
 
 data class DailyForecastEntity(
     val dayItems: List<DayItem>,
-) : EntityModel {
+) : WeatherEntityModel() {
 
     data class DayItem(
         val dateTime: DateTimeValueType,
@@ -34,3 +35,7 @@ data class DailyForecastEntity(
         )
     }
 }
+
+class DailyForecastApiResponseWrapper(
+    val byteArray: ByteArray
+) : WeatherEntityModel()

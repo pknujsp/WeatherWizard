@@ -9,6 +9,7 @@ import io.github.pknujsp.weatherwizard.core.common.coroutines.CoDispatcherType
 import io.github.pknujsp.weatherwizard.core.common.module.KtJson
 import io.github.pknujsp.weatherwizard.core.data.aqicn.AirQualityRepository
 import io.github.pknujsp.weatherwizard.core.data.aqicn.AirQualityRepositoryImpl
+import io.github.pknujsp.weatherwizard.core.data.cache.CacheManagerImpl
 import io.github.pknujsp.weatherwizard.core.data.favorite.FavoriteAreaListRepository
 import io.github.pknujsp.weatherwizard.core.data.favorite.FavoriteAreaListRepositoryImpl
 import io.github.pknujsp.weatherwizard.core.data.favorite.TargetLocationRepository
@@ -23,7 +24,6 @@ import io.github.pknujsp.weatherwizard.core.data.rainviewer.RadarTilesRepository
 import io.github.pknujsp.weatherwizard.core.data.rainviewer.RadarTilesRepositoryImpl
 import io.github.pknujsp.weatherwizard.core.data.settings.SettingsRepository
 import io.github.pknujsp.weatherwizard.core.data.settings.SettingsRepositoryImpl
-import io.github.pknujsp.weatherwizard.core.data.cache.CacheManagerImpl
 import io.github.pknujsp.weatherwizard.core.data.weather.WeatherDataRepository
 import io.github.pknujsp.weatherwizard.core.data.weather.WeatherDataRepositoryImpl
 import io.github.pknujsp.weatherwizard.core.data.weather.mapper.WeatherResponseMapperManager
@@ -36,10 +36,11 @@ import io.github.pknujsp.weatherwizard.core.database.favoritearea.FavoriteAreaLi
 import io.github.pknujsp.weatherwizard.core.database.notification.daily.DailyNotificationLocalDataSource
 import io.github.pknujsp.weatherwizard.core.database.notification.ongoing.OngoingNotificationLocalDataSource
 import io.github.pknujsp.weatherwizard.core.database.widget.WidgetLocalDataSource
-import io.github.pknujsp.weatherwizard.core.model.EntityModel
+import io.github.pknujsp.weatherwizard.core.model.ApiResponseModel
+import io.github.pknujsp.weatherwizard.core.model.JsonParser
 import io.github.pknujsp.weatherwizard.core.model.airquality.AirQualityEntity
 import io.github.pknujsp.weatherwizard.core.model.rainviewer.RadarTiles
-import io.github.pknujsp.weatherwizard.core.model.ApiResponseModel
+import io.github.pknujsp.weatherwizard.core.model.weather.base.WeatherEntityModel
 import io.github.pknujsp.weatherwizard.core.network.api.aqicn.AqiCnDataSource
 import io.github.pknujsp.weatherwizard.core.network.api.nominatim.NominatimDataSource
 import io.github.pknujsp.weatherwizard.core.network.api.rainviewer.RainViewerDataSource
@@ -54,12 +55,17 @@ object RepositoryModule {
     @Provides
     @Singleton
     internal fun providesWeatherRepositoryImpl(
-        weatherResponseMapperManager: WeatherResponseMapperManager<@JvmSuppressWildcards EntityModel>,
+        weatherResponseMapperManager: WeatherResponseMapperManager<@JvmSuppressWildcards WeatherEntityModel>,
         weatherApiRequestManager: WeatherApiRequestManager<@JvmSuppressWildcards ApiResponseModel>,
-        @CoDispatcher(CoDispatcherType.DEFAULT) dispatcher: CoroutineDispatcher
+        @CoDispatcher(CoDispatcherType.DEFAULT) dispatcher: CoroutineDispatcher,
+        @KtJson json: Json
     ): WeatherDataRepositoryImpl {
         val cacheManagerImpl = CacheManagerImpl<Int, CachedWeatherModel>(dispatcher = dispatcher)
-        return WeatherDataRepositoryImpl(weatherResponseMapperManager, weatherApiRequestManager, cacheManagerImpl, cacheManagerImpl)
+        return WeatherDataRepositoryImpl(weatherResponseMapperManager,
+            weatherApiRequestManager,
+            cacheManagerImpl,
+            cacheManagerImpl,
+            JsonParser(json))
     }
 
     @Provides
@@ -89,10 +95,10 @@ object RepositoryModule {
     @Provides
     @Singleton
     internal fun providesAirQualityRepositoryImpl(
-        aqiCnDataSource: AqiCnDataSource, @CoDispatcher(CoDispatcherType.DEFAULT) dispatcher: CoroutineDispatcher
+        aqiCnDataSource: AqiCnDataSource, @CoDispatcher(CoDispatcherType.DEFAULT) dispatcher: CoroutineDispatcher, @KtJson json: Json
     ): AirQualityRepositoryImpl {
         val cacheManagerImpl = CacheManagerImpl<Int, AirQualityEntity>(cacheMaxSize = 4, dispatcher = dispatcher)
-        return AirQualityRepositoryImpl(aqiCnDataSource, cacheManagerImpl, cacheManagerImpl)
+        return AirQualityRepositoryImpl(aqiCnDataSource, cacheManagerImpl, cacheManagerImpl, json)
     }
 
     @Provides

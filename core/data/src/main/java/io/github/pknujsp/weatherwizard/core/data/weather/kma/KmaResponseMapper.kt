@@ -3,7 +3,8 @@ package io.github.pknujsp.weatherwizard.core.data.weather.kma
 import io.github.pknujsp.weatherwizard.core.common.util.toLeastZero
 import io.github.pknujsp.weatherwizard.core.data.weather.DefaultValueUnit
 import io.github.pknujsp.weatherwizard.core.data.weather.mapper.WeatherResponseMapper
-import io.github.pknujsp.weatherwizard.core.model.EntityModel
+import io.github.pknujsp.weatherwizard.core.model.ApiResponseModel
+import io.github.pknujsp.weatherwizard.core.model.weather.base.WeatherEntityModel
 import io.github.pknujsp.weatherwizard.core.model.weather.common.DateTimeValueType
 import io.github.pknujsp.weatherwizard.core.model.weather.common.HumidityValueType
 import io.github.pknujsp.weatherwizard.core.model.weather.common.MajorWeatherEntityType
@@ -27,15 +28,13 @@ import io.github.pknujsp.weatherwizard.core.model.weather.current.CurrentWeather
 import io.github.pknujsp.weatherwizard.core.model.weather.dailyforecast.DailyForecastEntity
 import io.github.pknujsp.weatherwizard.core.model.weather.hourlyforecast.HourlyForecastEntity
 import io.github.pknujsp.weatherwizard.core.model.weather.yesterday.YesterdayWeatherEntity
-import io.github.pknujsp.weatherwizard.core.model.ApiResponseModel
 import io.github.pknujsp.weatherwizard.core.network.api.kma.KmaCurrentWeatherResponse
 import io.github.pknujsp.weatherwizard.core.network.api.kma.KmaDailyForecastResponse
 import io.github.pknujsp.weatherwizard.core.network.api.kma.KmaHourlyForecastResponse
 import io.github.pknujsp.weatherwizard.core.network.api.kma.KmaYesterdayWeatherResponse
-import javax.inject.Inject
 
 
-internal class KmaResponseMapper : WeatherResponseMapper<EntityModel> {
+internal class KmaResponseMapper : WeatherResponseMapper<WeatherEntityModel> {
 
     private companion object : DefaultValueUnit {
         val weatherConditionMap = mapOf(

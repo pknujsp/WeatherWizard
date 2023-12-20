@@ -3,25 +3,31 @@ package io.github.pknujsp.weatherwizard.core.data.aqicn
 import io.github.pknujsp.weatherwizard.core.data.RepositoryCacheManager
 import io.github.pknujsp.weatherwizard.core.data.cache.CacheCleaner
 import io.github.pknujsp.weatherwizard.core.data.cache.CacheManager
+import io.github.pknujsp.weatherwizard.core.model.JsonParser
 import io.github.pknujsp.weatherwizard.core.model.VarState
 import io.github.pknujsp.weatherwizard.core.model.airquality.AirQualityDescription
 import io.github.pknujsp.weatherwizard.core.model.airquality.AirQualityEntity
 import io.github.pknujsp.weatherwizard.core.model.weather.common.AirQualityValueType
 import io.github.pknujsp.weatherwizard.core.network.api.aqicn.AqiCnDataSource
 import io.github.pknujsp.weatherwizard.core.network.api.aqicn.AqiCnResponse
+import kotlinx.serialization.json.Json
 import java.time.LocalDate
 import java.time.ZonedDateTime
 
 internal class AirQualityRepositoryImpl(
-    private val aqiCnDataSource: AqiCnDataSource, cacheManager: CacheManager<Int, AirQualityEntity>, cacheCleaner: CacheCleaner
+    private val aqiCnDataSource: AqiCnDataSource, cacheManager: CacheManager<Int, AirQualityEntity>, cacheCleaner: CacheCleaner, json: Json
 ) : AirQualityRepository, RepositoryCacheManager<Int, AirQualityEntity>(cacheCleaner, cacheManager) {
+
+    private val jsonParser by lazy { JsonParser(json) }
+
+    private suspend fun load(latitude: Double, longitude: Double): Result<AqiCnResponse> = aqiCnDataSource.getAqiCnData(latitude, longitude)
     override suspend fun getAirQuality(latitude: Double, longitude: Double): Result<AirQualityEntity> {
         val key = toKey(latitude, longitude)
         getCache(key)?.run {
             return Result.success(this)
         }
 
-        val result = aqiCnDataSource.getAqiCnData(latitude, longitude).map { response ->
+        val result = load(latitude, longitude).map { response ->
             response.data.run {
                 val current = AirQualityEntity.Current(aqi = AirQualityValueType(value = aqi.toInt(),
                     airQualityDescription = AirQualityDescription.fromValue(aqi.toInt())),
@@ -69,6 +75,11 @@ internal class AirQualityRepositoryImpl(
             cacheManager.put(key, result.getOrThrow())
         }
         return result
+    }
+
+
+    override suspend fun getAirQualityByBytes(latitude: Double, longitude: Double): Result<ByteArray> = load(latitude, longitude).map {
+        jsonParser.parseToByteArray(it)
     }
 
     private fun String.toInt(): Int = toIntOrNull() ?: toDoubleOrNull()?.toInt() ?: 0

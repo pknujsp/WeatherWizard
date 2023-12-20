@@ -1,6 +1,7 @@
 package io.github.pknujsp.weatherwizard.core.model.weather.hourlyforecast
 
 import io.github.pknujsp.weatherwizard.core.model.EntityModel
+import io.github.pknujsp.weatherwizard.core.model.weather.base.WeatherEntityModel
 import io.github.pknujsp.weatherwizard.core.model.weather.common.DateTimeValueType
 import io.github.pknujsp.weatherwizard.core.model.weather.common.HumidityValueType
 import io.github.pknujsp.weatherwizard.core.model.weather.common.PrecipitationValueType
@@ -14,7 +15,7 @@ import io.github.pknujsp.weatherwizard.core.model.weather.common.WindSpeedValueT
 
 data class HourlyForecastEntity(
     val items: List<Item>
-) : EntityModel {
+) : WeatherEntityModel() {
     data class Item(
         val dateTime: DateTimeValueType,
         val weatherCondition: WeatherConditionValueType,
@@ -31,3 +32,7 @@ data class HourlyForecastEntity(
         val precipitationProbability: ProbabilityValueType,
     )
 }
+
+class HourlyForecastApiResponseWrapper(
+    val byteArray: ByteArray
+) : WeatherEntityModel()

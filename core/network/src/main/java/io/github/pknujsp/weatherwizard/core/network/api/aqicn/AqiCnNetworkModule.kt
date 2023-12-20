@@ -11,6 +11,7 @@ import kotlinx.serialization.json.Json
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
+import retrofit2.converter.scalars.ScalarsConverterFactory
 import javax.inject.Singleton
 
 @InstallIn(SingletonComponent::class)
@@ -21,14 +22,11 @@ object AqiCnNetworkModule {
     @Provides
     @Singleton
     fun providesNetworkApi(okHttpClient: OkHttpClient, @KtJson json: Json): AqiCnNetworkApi =
-        Retrofit.Builder().client(okHttpClient).baseUrl(URL)
-            .addCallAdapterFactory(NetworkApiCallAdapterFactory())
-            .addConverterFactory(
-                json.asConverterFactory("application/json".toMediaType())
-            ).build().create(AqiCnNetworkApi::class.java)
+        Retrofit.Builder().client(okHttpClient).baseUrl(URL).addCallAdapterFactory(NetworkApiCallAdapterFactory()).addConverterFactory(
+            ScalarsConverterFactory.create(),
+        ).addConverterFactory(json.asConverterFactory("application/json".toMediaType())).build().create(AqiCnNetworkApi::class.java)
 
     @Provides
     @Singleton
-    fun providesAqiCnDataSource(aqiCnNetworkApi: AqiCnNetworkApi): AqiCnDataSource =
-        AqiCnDataSourceImpl(aqiCnNetworkApi)
+    fun providesAqiCnDataSource(aqiCnNetworkApi: AqiCnNetworkApi): AqiCnDataSource = AqiCnDataSourceImpl(aqiCnNetworkApi)
 }

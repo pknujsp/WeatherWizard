@@ -1,14 +1,12 @@
 package io.github.pknujsp.weatherwizard.core.network.api.nominatim
 
 import io.github.pknujsp.weatherwizard.core.common.module.AppLocale
-import io.github.pknujsp.weatherwizard.core.network.api.nominatim.NominatimNetworkApi
 import io.github.pknujsp.weatherwizard.core.network.api.nominatim.response.GeoCodeResponse
 import io.github.pknujsp.weatherwizard.core.network.api.nominatim.response.ReverseGeoCodeResponse
 import io.github.pknujsp.weatherwizard.core.network.retrofit.onResult
 import java.util.Locale
-import javax.inject.Inject
 
-class NominatimDataSourceImpl @Inject constructor(
+internal class NominatimDataSourceImpl(
     private val nominatimNetworkApi: NominatimNetworkApi,
     @AppLocale locale: Locale
 ) : NominatimDataSource {

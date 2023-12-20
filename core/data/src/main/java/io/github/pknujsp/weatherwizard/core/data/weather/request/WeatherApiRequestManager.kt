@@ -5,7 +5,7 @@ import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherProvider
 import io.github.pknujsp.weatherwizard.core.model.ApiResponseModel
 
 @JvmSuppressWildcards
-interface WeatherApiRequestManager<out T : ApiResponseModel> {
+interface WeatherApiRequestManager<T : ApiResponseModel> {
 
     suspend fun get(
         latitude: Double,

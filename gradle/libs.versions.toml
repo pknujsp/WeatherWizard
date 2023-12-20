@@ -179,7 +179,8 @@ androidx-hilt-work-compiler = { module = "androidx.hilt:hilt-compiler", version.
 kotlin-stdlib-root = { module = "org.jetbrains.kotlin:kotlin-stdlib", version.ref = "kotlin" }
 kotlinx-coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "kotlinx_coroutines" }
 kotlinx-coroutines-testImplementation = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "kotlinx_coroutines" }
-kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "kotlinx_serialization_json" }
+kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinx_serialization_json" }
+kotlinx-serialization-core = { module = "org.jetbrains.kotlinx:kotlinx-serialization-core", version.ref = "kotlinx_serialization_json" }
 
 # retrofit2--------------------------------------------------------------------------------------------------------------
 retrofit-core = { group = "com.squareup.retrofit2", name = "retrofit", version.ref = "retrofit2" }
@@ -249,7 +250,7 @@ retrofit = ["retrofit-core", "retrofit-kotlinx-serialization", "retrofit-scalars
 
 navigation = ["androidx-navigation-ui-ktx", "androidx-navigation-dynamic", "androidx-navigation-compose"]
 
-kotlin = ["kotlin-stdlib-root", "kotlinx-coroutines-android", "kotlinx-serialization-json", "kotlin-reflection"]
+kotlin = ["kotlin-stdlib-root", "kotlinx-coroutines-android", "kotlinx-serialization-json", "kotlin-reflection", "kotlinx-serialization-core"]
 
 daggerhilt = ["dagger-hilt-android", "androidx-hilt-work", "androidx-hilt-navigation-compose", "androidx-hilt-common"]
 

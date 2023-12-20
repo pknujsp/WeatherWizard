@@ -14,6 +14,7 @@ import kotlinx.serialization.json.Json
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
+import retrofit2.converter.scalars.ScalarsConverterFactory
 import java.util.Locale
 import javax.inject.Singleton
 
@@ -25,11 +26,10 @@ object NominatimNetworkModule {
     @Provides
     @Singleton
     fun providesNominatimNetworkApi(okHttpClient: OkHttpClient, @KtJson json: Json): NominatimNetworkApi =
-        Retrofit.Builder().client(okHttpClient).baseUrl(nominatimUrl)
-            .addCallAdapterFactory(NetworkApiCallAdapterFactory())
+        Retrofit.Builder().client(okHttpClient).baseUrl(nominatimUrl).addCallAdapterFactory(NetworkApiCallAdapterFactory())
             .addConverterFactory(
-                json.asConverterFactory("application/json".toMediaType())
-            ).build().create(NominatimNetworkApi::class.java)
+                ScalarsConverterFactory.create(),
+            ).addConverterFactory(json.asConverterFactory("application/json".toMediaType())).build().create(NominatimNetworkApi::class.java)
 
     @Provides
     @Singleton

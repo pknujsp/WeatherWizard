@@ -8,6 +8,7 @@ import java.util.concurrent.atomic.AtomicLong
 
 class WeatherDataRequest(
     val requestedTime: ZonedDateTime = ZonedDateTime.now(),
+    private val modelType: ModelType = ModelType.NORMAL,
 ) {
     private val sameLocationMap: MutableMap<LocationTypeModel, SameLocation> = mutableMapOf()
     val finalRequests
@@ -18,6 +19,7 @@ class WeatherDataRequest(
                     location = request.location,
                     weatherProvider = it.first,
                     weatherDataMajorCategories = it.second,
+                    modelType = modelType,
                 )
             }
         }
@@ -73,5 +75,10 @@ class WeatherDataRequest(
         val location: LocationTypeModel,
         val weatherProvider: WeatherProvider,
         val weatherDataMajorCategories: Set<MajorWeatherEntityType>,
+        val modelType: ModelType,
     )
+
+    enum class ModelType {
+        NORMAL, BYTES,
+    }
 }

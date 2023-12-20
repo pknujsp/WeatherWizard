@@ -30,7 +30,6 @@ object KmaNetworkModule {
     @Singleton
     fun providesKmaDataSource(
         kmaNetworkApi: KmaNetworkApi,
-        kmaHtmlParser: KmaHtmlParser,
-    ): KmaDataSource = KmaDataSourceImpl(kmaNetworkApi, kmaHtmlParser)
+    ): KmaDataSource = KmaDataSourceImpl(kmaNetworkApi, KmaHtmlParser())
 
 }

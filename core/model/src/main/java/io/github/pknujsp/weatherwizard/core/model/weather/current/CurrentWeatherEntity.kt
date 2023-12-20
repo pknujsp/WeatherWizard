@@ -1,6 +1,7 @@
 package io.github.pknujsp.weatherwizard.core.model.weather.current
 
 import io.github.pknujsp.weatherwizard.core.model.EntityModel
+import io.github.pknujsp.weatherwizard.core.model.weather.base.WeatherEntityModel
 import io.github.pknujsp.weatherwizard.core.model.weather.common.HumidityValueType
 import io.github.pknujsp.weatherwizard.core.model.weather.common.PrecipitationValueType
 import io.github.pknujsp.weatherwizard.core.model.weather.common.TemperatureValueType
@@ -16,4 +17,8 @@ data class CurrentWeatherEntity(
     val windSpeed: WindSpeedValueType,
     val windDirection: WindDirectionValueType,
     val precipitationVolume: PrecipitationValueType,
-) : EntityModel
+) : WeatherEntityModel()
+
+class CurrentWeatherApiResponseWrapper(
+    val byteArray: ByteArray
+) : WeatherEntityModel()

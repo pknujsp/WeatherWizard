@@ -1,7 +1,6 @@
 package io.github.pknujsp.weatherwizard.core.data.weather
 
 import io.github.pknujsp.weatherwizard.core.data.weather.model.WeatherModel
-import io.github.pknujsp.weatherwizard.core.model.EntityModel
 import io.github.pknujsp.weatherwizard.core.model.weather.common.MajorWeatherEntityType
 import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherProvider
 
@@ -15,6 +14,10 @@ interface WeatherDataRepository {
      * @return 날씨 데이터
      */
     suspend fun getWeatherData(
+        requestWeatherData: RequestWeatherData, requestId: Long, bypassCache: Boolean = false
+    ): Result<WeatherModel>
+
+    suspend fun getWeatherDataByBytes(
         requestWeatherData: RequestWeatherData, requestId: Long, bypassCache: Boolean = false
     ): Result<WeatherModel>
 }

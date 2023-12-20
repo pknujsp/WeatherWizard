@@ -1,7 +1,7 @@
 package io.github.pknujsp.weatherwizard.core.model.airquality
 
-import io.github.pknujsp.weatherwizard.core.model.EntityModel
 import io.github.pknujsp.weatherwizard.core.model.VarState
+import io.github.pknujsp.weatherwizard.core.model.weather.base.WeatherEntityModel
 import io.github.pknujsp.weatherwizard.core.model.weather.common.AirQualityValueType
 import java.time.LocalDate
 import java.time.ZonedDateTime
@@ -10,7 +10,7 @@ data class AirQualityEntity(
     val current: Current,
     val info: Info,
     val dailyForecast: DailyForecast,
-) : EntityModel {
+) : WeatherEntityModel() {
 
     data class Current(
         val aqi: AirQualityValueType,
@@ -44,8 +44,7 @@ data class AirQualityEntity(
             init {
                 val avg =
                     listOf(o3, pm10, pm25).filterIsInstance<VarState.Initialized<Pollutant>>().map { it.data.avg.value }.average().toInt()
-                aqi = VarState.Initialized(AirQualityValueType(value = avg,
-                    airQualityDescription = AirQualityDescription.fromValue(avg)))
+                aqi = VarState.Initialized(AirQualityValueType(value = avg, airQualityDescription = AirQualityDescription.fromValue(avg)))
             }
 
             data class Pollutant(

@@ -10,3 +10,5 @@ interface HourlyForecastResponseModel : ApiResponseModel
 interface DailyForecastResponseModel : ApiResponseModel
 
 interface YesterdayWeatherResponseModel : ApiResponseModel
+
+interface AirQualityResponseModel : ApiResponseModel
