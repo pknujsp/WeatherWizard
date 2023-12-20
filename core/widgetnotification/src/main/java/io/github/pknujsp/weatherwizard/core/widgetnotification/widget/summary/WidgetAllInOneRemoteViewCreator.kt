@@ -4,11 +4,12 @@ import android.content.Context
 import android.widget.RemoteViews
 import io.github.pknujsp.weatherwizard.core.model.weather.common.CurrentUnits
 import io.github.pknujsp.weatherwizard.core.resource.R
+import io.github.pknujsp.weatherwizard.core.widgetnotification.remoteview.RemoteViewCreator
 import io.github.pknujsp.weatherwizard.core.widgetnotification.widget.remoteview.WidgetRemoteViewsCreator
 
-class SummaryRemoteViewCreator : WidgetRemoteViewsCreator<SummaryUiModel>() {
+class WidgetAllInOneRemoteViewCreator : WidgetRemoteViewsCreator<WidgetAllInOneRemoteViewUiModel>() {
     override fun createContentView(
-        model: SummaryUiModel, header: Header, context: Context
+        model: WidgetAllInOneRemoteViewUiModel, header: Header, context: Context
     ): RemoteViews {
         return RemoteViews(context.packageName, R.layout.summary_weather_widget).let { content ->
             model.currentWeather.let { currentWeather ->
@@ -43,7 +44,8 @@ class SummaryRemoteViewCreator : WidgetRemoteViewsCreator<SummaryUiModel>() {
                 })
             }
 
-            createBaseView(context, io.github.pknujsp.weatherwizard.core.widgetnotification.remoteview.RemoteViewCreator.ContainerType.WIDGET).apply {
+            createBaseView(context,
+                RemoteViewCreator.ContainerType.WIDGET).apply {
                 createHeaderView(this, header)
                 addView(R.id.remote_views_content_container, content)
             }
@@ -53,7 +55,8 @@ class SummaryRemoteViewCreator : WidgetRemoteViewsCreator<SummaryUiModel>() {
 
     override fun createSampleView(context: Context, units: CurrentUnits): RemoteViews {
         return RemoteViews(context.packageName, R.layout.summary_weather_widget).let {
-            createBaseView(context, io.github.pknujsp.weatherwizard.core.widgetnotification.remoteview.RemoteViewCreator.ContainerType.WIDGET).apply {
+            createBaseView(context,
+             RemoteViewCreator.ContainerType.WIDGET).apply {
                 addView(R.id.remote_views_content_container, it)
             }
         }

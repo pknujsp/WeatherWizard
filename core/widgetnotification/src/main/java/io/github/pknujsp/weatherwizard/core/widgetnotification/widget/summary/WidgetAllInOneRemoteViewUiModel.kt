@@ -1,5 +1,6 @@
 package io.github.pknujsp.weatherwizard.core.widgetnotification.widget.summary
 
+import androidx.annotation.DrawableRes
 import io.github.pknujsp.weatherwizard.core.common.util.DayNightCalculator
 import io.github.pknujsp.weatherwizard.core.common.util.toCalendar
 import io.github.pknujsp.weatherwizard.core.model.RemoteViewUiModel
@@ -11,7 +12,7 @@ import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 
-class SummaryUiModel(
+class WidgetAllInOneRemoteViewUiModel(
     currentWeatherEntity: CurrentWeatherEntity,
     hourlyForecastEntity: HourlyForecastEntity,
     dailyForecastEntity: DailyForecastEntity,
@@ -53,10 +54,10 @@ class SummaryUiModel(
     )
 
     data class HourlyForecast(
-        val temperature: String, val weatherIcon: Int, val dateTime: String
+        val temperature: String, @DrawableRes val weatherIcon: Int, val dateTime: String
     )
 
     data class DailyForecast(
-        val temperature: String, val weatherIcons: List<Int>, val date: String
+        val temperature: String, @DrawableRes val weatherIcons: List<Int>, val date: String
     )
 }

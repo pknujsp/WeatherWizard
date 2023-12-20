@@ -102,7 +102,7 @@ class WidgetWorker @AssistedInject constructor(
                             RemoteViewsCreatorManager.getByWidgetType(model.widget.widgetType)
 
                         creator.createContentView(model.map(widgetRemoteViewModel.units),
-                            DefaultRemoteViewCreator.Header("", ZonedDateTime.now()),
+                            DefaultRemoteViewCreator.Header(model.state.location.address, model.updatedTime),
                             context)
                     }
 

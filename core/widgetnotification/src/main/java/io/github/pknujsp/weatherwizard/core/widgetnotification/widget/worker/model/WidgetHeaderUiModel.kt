@@ -9,7 +9,7 @@ import io.github.pknujsp.weatherwizard.core.model.weather.current.CurrentWeather
 import io.github.pknujsp.weatherwizard.core.model.weather.dailyforecast.DailyForecastEntity
 import io.github.pknujsp.weatherwizard.core.model.weather.hourlyforecast.HourlyForecastEntity
 import io.github.pknujsp.weatherwizard.core.model.widget.WidgetType
-import io.github.pknujsp.weatherwizard.core.widgetnotification.widget.summary.SummaryUiModel
+import io.github.pknujsp.weatherwizard.core.widgetnotification.widget.summary.WidgetAllInOneRemoteViewUiModel
 import java.time.ZonedDateTime
 
 class WidgetHeaderUiModel(
@@ -26,7 +26,7 @@ class WidgetHeaderUiModel(
                 val hourlyForecastEntity = succeedState.entity.toEntity<HourlyForecastEntity>()
                 val dailyForecastEntity = succeedState.entity.toEntity<DailyForecastEntity>()
 
-                SummaryUiModel(currentWeatherEntity, hourlyForecastEntity, dailyForecastEntity, units, dayNightCalculator, updatedTime)
+                WidgetAllInOneRemoteViewUiModel(currentWeatherEntity, hourlyForecastEntity, dailyForecastEntity, units, dayNightCalculator, updatedTime)
             }
 
             else -> {

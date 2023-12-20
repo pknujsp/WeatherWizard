@@ -8,7 +8,7 @@ import io.github.pknujsp.weatherwizard.core.widgetnotification.notification.dail
 import io.github.pknujsp.weatherwizard.core.widgetnotification.notification.ongoing.OngoingNotificationRemoteViewsCreator
 import io.github.pknujsp.weatherwizard.core.widgetnotification.notification.remoteview.NotificationRemoteViewsCreator
 import io.github.pknujsp.weatherwizard.core.widgetnotification.widget.remoteview.WidgetRemoteViewsCreator
-import io.github.pknujsp.weatherwizard.core.widgetnotification.widget.summary.SummaryRemoteViewCreator
+import io.github.pknujsp.weatherwizard.core.widgetnotification.widget.summary.WidgetAllInOneRemoteViewCreator
 
 object RemoteViewsCreatorManager {
     inline fun <reified T : NotificationRemoteViewsCreator<RemoteViewUiModel>> getByDailyNotificationType(
@@ -28,7 +28,7 @@ object RemoteViewsCreatorManager {
     inline fun <reified T : WidgetRemoteViewsCreator<RemoteViewUiModel>> getByWidgetType(
         widgetType: WidgetType
     ): T = when (widgetType) {
-        WidgetType.ALL_IN_ONE -> SummaryRemoteViewCreator() as T
+        WidgetType.ALL_IN_ONE -> WidgetAllInOneRemoteViewCreator() as T
         else -> throw IllegalArgumentException("Unknown widget type: $widgetType")
     }
 }

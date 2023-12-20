@@ -1,6 +1,7 @@
 package io.github.pknujsp.weatherwizard.core.ui
 
 import androidx.navigation.NamedNavArgument
+import androidx.navigation.navArgument
 
 interface Routes {
     val route: String
@@ -15,6 +16,13 @@ abstract class RoutesWithArgument(private val baseRoute: String) : Routes {
             append("/{${argument.name}}")
         }
         toString()
+    }
+
+    fun argumentsWithDefaultValue(vararg values: Any): List<NamedNavArgument> = arguments.mapIndexed { index, it ->
+        navArgument(it.name) {
+            type = it.argument.type
+            defaultValue = values[index]
+        }
     }
 
     fun routeWithArguments(vararg values: Any): String = StringBuilder().run {

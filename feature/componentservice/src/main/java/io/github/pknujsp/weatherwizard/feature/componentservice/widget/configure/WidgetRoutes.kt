@@ -2,8 +2,12 @@ package io.github.pknujsp.weatherwizard.feature.componentservice.widget.configur
 
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
+import androidx.navigation.NamedNavArgument
+import androidx.navigation.NavType
+import androidx.navigation.navArgument
 import io.github.pknujsp.weatherwizard.core.ui.ParentRoutes
 import io.github.pknujsp.weatherwizard.core.ui.Routes
+import io.github.pknujsp.weatherwizard.core.ui.RoutesWithArgument
 
 sealed interface WidgetRoutes : Routes {
 
@@ -13,7 +17,11 @@ sealed interface WidgetRoutes : Routes {
         @StringRes override val navTitle: Int = 0
     }
 
-    data object Configure : WidgetRoutes {
-        override val route: String = "WidgetConfigure/Configure"
+    data object Configure : RoutesWithArgument("WidgetConfigure/Configure") {
+        override val arguments: List<NamedNavArgument>
+            get() = listOf(
+                navArgument("widgetId") { type = NavType.IntType },
+                navArgument("widgetType") { type = NavType.IntType },
+            )
     }
 }

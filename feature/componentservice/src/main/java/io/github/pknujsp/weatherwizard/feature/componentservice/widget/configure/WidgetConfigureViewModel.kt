@@ -3,6 +3,7 @@ package io.github.pknujsp.weatherwizard.feature.componentservice.widget.configur
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -18,30 +19,26 @@ import javax.inject.Inject
 
 @HiltViewModel
 class WidgetConfigureViewModel @Inject constructor(
-    private val widgetRepository: WidgetRepository, appSettingsRepository: SettingsRepository,
+    private val widgetRepository: WidgetRepository, appSettingsRepository: SettingsRepository, savedStateHandle: SavedStateHandle
 ) : ViewModel() {
     val units = appSettingsRepository.currentUnits.value
-    val widget = WidgetModel(save = ::save)
+    val widget = savedStateHandle.run {
+        WidgetModel(get<Int>("widgetId")!!, get<Int>("widgetType")!!, ::save)
+    }
 
     var action by mutableStateOf<ConfigureActionState?>(null)
         private set
 
-    fun load(widgetId: Int, widgetType: WidgetType) {
-        widget.apply {
-            id = widgetId
-            this.widgetType = widgetType
-        }
-    }
-
     private fun save() {
         viewModelScope.launch {
             action = null
+
             if (widget.location.locationType is LocationType.CustomLocation && widget.location.address.isEmpty()) {
                 action = ConfigureActionState.NO_LOCATION_IS_SELECTED
                 return@launch
             }
 
-            widgetRepository.add(WidgetSettingsEntity(id = widget.id,
+            widgetRepository.add(WidgetSettingsEntity(id = widget.widgetId,
                 location = widget.location,
                 weatherProvider = widget.weatherProvider,
                 widgetType = widget.widgetType))
