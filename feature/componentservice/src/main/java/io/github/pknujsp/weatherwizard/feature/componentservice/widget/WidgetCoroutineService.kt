@@ -1,6 +1,5 @@
 package io.github.pknujsp.weatherwizard.feature.componentservice.widget
 
-import android.app.PendingIntent
 import android.content.Context
 import androidx.hilt.work.HiltWorker
 import androidx.work.WorkerParameters
@@ -14,9 +13,9 @@ import io.github.pknujsp.weatherwizard.core.data.widget.WidgetSettingsEntity
 import io.github.pknujsp.weatherwizard.core.domain.weather.WeatherResponseState
 import io.github.pknujsp.weatherwizard.core.model.RemoteViewUiModel
 import io.github.pknujsp.weatherwizard.core.model.coordinate.LocationType
+import io.github.pknujsp.weatherwizard.core.model.widget.WidgetStatus
 import io.github.pknujsp.weatherwizard.core.resource.R
 import io.github.pknujsp.weatherwizard.core.widgetnotification.model.AppComponentCoroutineService
-import io.github.pknujsp.weatherwizard.core.widgetnotification.model.ComponentServiceAction
 import io.github.pknujsp.weatherwizard.core.widgetnotification.model.IWorker
 import io.github.pknujsp.weatherwizard.core.widgetnotification.model.LoadWidgetDataArgument
 import io.github.pknujsp.weatherwizard.core.widgetnotification.remoteview.DefaultRemoteViewCreator
@@ -24,7 +23,6 @@ import io.github.pknujsp.weatherwizard.core.widgetnotification.remoteview.Remote
 import io.github.pknujsp.weatherwizard.core.widgetnotification.remoteview.RemoteViewsCreatorManager
 import io.github.pknujsp.weatherwizard.core.widgetnotification.remoteview.UiStateRemoteViewCreator
 import io.github.pknujsp.weatherwizard.core.widgetnotification.widget.remoteview.WidgetRemoteViewsCreator
-import io.github.pknujsp.weatherwizard.feature.componentservice.ComponentPendingIntentManager
 import io.github.pknujsp.weatherwizard.feature.componentservice.widget.worker.WidgetRemoteViewModel
 
 @HiltWorker
@@ -48,95 +46,43 @@ class WidgetCoroutineService @AssistedInject constructor(
     }
 
     private suspend fun start(context: Context, argument: LoadWidgetDataArgument) {
-        val action = argument.action
-        val appWidgetIds = argument.widgetIds
         val widgetEntityList = widgetRemoteViewModel.loadWidgets()
 
-        // 네트워크 연결 상태 확인, 연결이 안되어 있다면 위젯에 네트워크 연결 상태를 표시
-        if (!checkFeatureStateAndUpdateWidgets(requiredFeatures, appWidgetIds, context)) {
+        if (featureStatusManager.status(context, requiredFeatures) is FeatureState.Unavailable) {
+            for (widgetId in argument.widgetIds) {
+                widgetRemoteViewModel.updateResponseData(widgetId, WidgetStatus.RESPONSE_FAILURE, byteArrayOf())
+            }
             return
         }
 
         var excludeLocationType: LocationType? = null
-        if (action == LoadWidgetDataArgument.UPDATE_ONLY_ON_CURRENT_LOCATION) {
+        if (argument.action == LoadWidgetDataArgument.UPDATE_ONLY_ON_CURRENT_LOCATION) {
             excludeLocationType = LocationType.CustomLocation
         }
 
         val excludeWidgets = mutableSetOf<WidgetSettingsEntity>()
 
-        // 위젯이 활성화되어 있지 않다면 DB에서 삭제
-        widgetEntityList.widgetSettings.forEach {
-            if (!widgetManager.isBind(it.id)) {
-                excludeWidgets.add(it)
-            }
-        }
-
         if (widgetEntityList.locationTypeGroups.getValue(LocationType.CurrentLocation).isNotEmpty()) {
-            if (!checkFeatureStateAndUpdateWidgets(arrayOf(FeatureType.LOCATION_PERMISSION, FeatureType.LOCATION_SERVICE),
-                    widgetEntityList.locationTypeGroups.getValue(LocationType.CurrentLocation).map {
-                        it.id
-                    }.toTypedArray(),
-                    context)) {
+            if (featureStatusManager.status(context,
+                    arrayOf(FeatureType.LOCATION_PERMISSION, FeatureType.LOCATION_SERVICE)) is FeatureState.Unavailable) {
                 widgetEntityList.locationTypeGroups.getValue(LocationType.CurrentLocation).forEach {
+                    widgetRemoteViewModel.updateResponseData(it.id, WidgetStatus.RESPONSE_FAILURE, byteArrayOf())
                     excludeWidgets.add(it)
                 }
             }
         }
 
         with(widgetRemoteViewModel.load(excludeWidgets, excludeLocationType)) {
-            val failedWidgetIds = filter { it.state is WeatherResponseState.Failure }.map { it.widget.id }.toTypedArray()
-            val retryPendingIntent = if (failedWidgetIds.isNotEmpty()) {
-                ComponentPendingIntentManager.getRefreshPendingIntent(context,
-                    PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
-                    ComponentServiceAction.LoadWidgetData(LoadWidgetDataArgument(LoadWidgetDataArgument.UPDATE_ONLY_SPECIFIC_WIDGETS,
-                        failedWidgetIds)))
-            } else {
-                null
-            }
-
             forEach { model ->
-                val remoteView = when (model.state) {
-                    is WeatherResponseState.Success -> {
-                        val creator: WidgetRemoteViewsCreator<RemoteViewUiModel> =
-                            RemoteViewsCreatorManager.getByWidgetType(model.widget.widgetType)
+                 when (model.state) {
+                    is WeatherResponseState.Success ->
+                        widgetRemoteViewModel.updateResponseData(model.widget.id,WidgetStatus.RESPONSE_SUCCESS, model.state.entity.)
 
-                        creator.createContentView(model.map(widgetRemoteViewModel.units),
-                            DefaultRemoteViewCreator.Header(model.state.location.address, model.updatedTime),
-                            context)
-                    }
-
-                    else -> {
-                        UiStateRemoteViewCreator.createView(context,
-                            R.string.title_failed_to_load_data,
-                            R.string.failed_to_load_data,
-                            R.string.refresh,
-                            RemoteViewCreator.ContainerType.WIDGET,
-                            pendingIntent = retryPendingIntent!!)
-                    }
+                    is WeatherResponseState.Failure -> widgetRemoteViewModel.updateResponseData(model.widget.id,WidgetStatus.RESPONSE_FAILURE, model.state.entity.)
                 }
-
-                widgetManager.updateWidget(model.widget.id, remoteView, context, WidgetActivity::class)
             }
         }
     }
 
-
-    private fun checkFeatureStateAndUpdateWidgets(featureTypes: Array<FeatureType>, widgetIds: Array<Int>, context: Context): Boolean {
-        return when (val state = featureStatusManager.status(context, featureTypes)) {
-            is FeatureState.Unavailable -> {
-                val remoteViews = UiStateRemoteViewCreator.createView(context,
-                    state.featureType.failedReason,
-                    RemoteViewCreator.ContainerType.WIDGET,
-                    pendingIntent = state.featureType.getPendingIntent(context),
-                    visibilityOfCompleteButton = true)
-                widgetIds.forEach {
-                    widgetManager.updateWidget(it, remoteViews, context, WidgetActivity::class)
-                }
-                false
-            }
-
-            else -> true
-        }
-    }
 
 }

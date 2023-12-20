@@ -14,6 +14,7 @@ import io.github.pknujsp.weatherwizard.core.domain.weather.WeatherDataRequest
 import io.github.pknujsp.weatherwizard.core.domain.weather.WeatherResponseState
 import io.github.pknujsp.weatherwizard.core.model.coordinate.LocationType
 import io.github.pknujsp.weatherwizard.core.model.coordinate.LocationTypeModel
+import io.github.pknujsp.weatherwizard.core.model.widget.WidgetStatus
 import io.github.pknujsp.weatherwizard.core.widgetnotification.remoteview.RemoteViewModel
 import io.github.pknujsp.weatherwizard.core.widgetnotification.widget.worker.model.WidgetHeaderUiModel
 import kotlinx.coroutines.CoroutineDispatcher
@@ -146,6 +147,10 @@ class WidgetRemoteViewModel @Inject constructor(
         for (appWidgetId in appWidgetIds) {
             widgetRepository.delete(appWidgetId)
         }
+    }
+
+    suspend fun updateResponseData(id: Int, status: WidgetStatus, responseData: ByteArray) {
+        widgetRepository.updateResponseData(id, status, responseData)
     }
 
 }
