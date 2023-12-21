@@ -37,13 +37,13 @@ abstract class AppComponentCoroutineService<T : ComponentServiceArgument>(
             "AppComponentService::${id}")
 
     override suspend fun doWork(): Result {
-       // wakeLock.acquire(wakeLockDuration)
+        // wakeLock.acquire(wakeLockDuration)
         if (isRequiredForegroundService) {
             setForeground(createForegroundInfo())
         }
         val result = doWork(context, ComponentServiceAction.toInstance(inputData.keyValueMap).argument as T)
 
-      //  wakeLock.release()
+        //  wakeLock.release()
         return result
     }
 
@@ -71,9 +71,9 @@ abstract class AppComponentBackgroundService<T : ComponentServiceArgument>(
             "AppComponentService::${id}")
 
     suspend fun run(argument: T): Result<Unit> {
-      //  wakeLock.acquire(wakeLockDuration)
+        //  wakeLock.acquire(wakeLockDuration)
         val result = doWork(argument)
-      //  wakeLock.release()
+        //  wakeLock.release()
         return result
     }
 

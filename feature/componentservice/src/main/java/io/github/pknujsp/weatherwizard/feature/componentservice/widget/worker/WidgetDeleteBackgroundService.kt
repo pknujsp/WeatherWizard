@@ -12,7 +12,7 @@ class WidgetDeleteBackgroundService @Inject constructor(
     @ApplicationContext context: Context, private val widgetRepository: WidgetRepository
 ) : AppComponentBackgroundService<WidgetDeletedArgument>(context) {
 
-    override val id: Int = "WidgetDeleteCoroutineService".hashCode()
+    override val id: Int = "WidgetDeleteBackgroundService".hashCode()
 
     override suspend fun doWork(argument: WidgetDeletedArgument): Result<Unit> {
         for (widgetId in argument.widgetIds) {

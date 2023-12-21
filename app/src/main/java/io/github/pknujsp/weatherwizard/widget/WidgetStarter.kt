@@ -13,7 +13,7 @@ class WidgetStarterImpl(
 ) : WidgetStarter {
 
     private suspend fun startWidget(context: Context) {
-        val widgets = widgetRepository.getAll().firstOrNull()
+        val widgets = widgetRepository.getAll()
     }
 
     override suspend fun start(context: Context) {

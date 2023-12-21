@@ -104,11 +104,16 @@ private fun MapScreen(
             }
         }
     }, onRelease = { mapView ->
-        viewModel.radarTiles.value.onSuccess { tilesOverlay ->
-            tilesOverlay.overlays.forEach { it.second.destroy() }
+        tiles.overlays.forEach {
+            it.first.onPause()
+            it.first.onDetach(mapView)
+            it.second.destroy()
         }
-        mapView.tileProvider.clearTileCache()
+
         mapView.onPause()
+        mapView.tileProvider.tileWriter?.onDetach()
+        mapView.tileProvider.clearTileCache()
+        mapView.tileProvider.tileCache.clear()
         mapView.onDetach()
     })
 

@@ -10,6 +10,7 @@ import io.github.pknujsp.weatherwizard.core.common.coroutines.CoDispatcherType
 import io.github.pknujsp.weatherwizard.core.widgetnotification.model.ComponentServiceAction
 import io.github.pknujsp.weatherwizard.core.widgetnotification.model.LoadWidgetDataArgument
 import io.github.pknujsp.weatherwizard.core.widgetnotification.model.WidgetDeletedArgument
+import io.github.pknujsp.weatherwizard.core.widgetnotification.model.WidgetUpdatedArgument
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
@@ -21,6 +22,7 @@ import javax.inject.Inject
 abstract class BaseWidgetProvider : AppWidgetProvider() {
 
     @Inject lateinit var widgetDeleteBackgroundService: WidgetDeleteBackgroundService
+    @Inject lateinit var widgetUpdateBackgroundService: WidgetUpdateBackgroundService
     @Inject @CoDispatcher(CoDispatcherType.IO) lateinit var ioDispatcher: CoroutineDispatcher
 
     protected companion object {
@@ -28,6 +30,12 @@ abstract class BaseWidgetProvider : AppWidgetProvider() {
     }
 
     override fun onUpdate(context: Context, appWidgetManager: AppWidgetManager, appWidgetIds: IntArray) {
+        if (appWidgetIds.isNotEmpty()) {
+            globalScope.launch(ioDispatcher) {
+                widgetUpdateBackgroundService.run(WidgetUpdatedArgument(WidgetUpdatedArgument.UPDATE_ONLY_SPECIFIC_WIDGETS,
+                    appWidgetIds.toTypedArray()))
+            }
+        }
     }
 
     override fun onDeleted(context: Context, appWidgetIds: IntArray) {

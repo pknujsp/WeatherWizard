@@ -6,12 +6,13 @@
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1">
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:layout_marginBottom="6dp">
 
         <ImageView
             android:id="@+id/weather_icon"
-            android:layout_width="48dp"
+            android:layout_width="52dp"
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
             android:layout_marginEnd="6dp"
@@ -76,22 +77,24 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_marginTop="4dp"
+        android:layout_gravity="center_vertical"
+        android:layout_marginBottom="6dp"
         android:layout_weight="1"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:weightSum="1">
 
         <LinearLayout
             android:id="@+id/hourly_forecast_row_1"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="1"
+            android:layout_weight="0.5"
             android:orientation="horizontal" />
 
         <LinearLayout
             android:id="@+id/hourly_forecast_row_2"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="1"
+            android:layout_weight="0.5"
             android:orientation="horizontal" />
 
     </LinearLayout>
@@ -99,9 +102,8 @@
     <LinearLayout
         android:id="@+id/daily_forecast"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_marginTop="4dp"
-        android:layout_weight="1"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
         android:orientation="horizontal" />
 
 </LinearLayout>

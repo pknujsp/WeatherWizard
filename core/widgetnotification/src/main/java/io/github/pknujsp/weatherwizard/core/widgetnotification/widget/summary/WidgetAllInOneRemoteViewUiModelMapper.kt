@@ -36,10 +36,8 @@ class WidgetAllInOneRemoteViewUiModelMapper : UiModelMapper<WidgetResponseDBEnti
 
             val dateFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("d E", Locale.getDefault())
 
-            val dailyForecast = it.toEntity<DailyForecastEntity>().dayItems.subList(0, 4).map { item ->
-                WidgetAllInOneRemoteViewUiModel.DailyForecast(temperature = "${
-                    item.minTemperature.convertUnit(units.temperatureUnit)
-                } / ${
+            val dailyForecast = it.toEntity<DailyForecastEntity>().dayItems.subList(0, 5).map { item ->
+                WidgetAllInOneRemoteViewUiModel.DailyForecast(temperature = "${item.minTemperature.convertUnit(units.temperatureUnit)}/${
                     item.maxTemperature.convertUnit(units.temperatureUnit)
                 }",
                     weatherIcons = item.items.map { dayItem -> dayItem.weatherCondition.value.dayWeatherIcon },

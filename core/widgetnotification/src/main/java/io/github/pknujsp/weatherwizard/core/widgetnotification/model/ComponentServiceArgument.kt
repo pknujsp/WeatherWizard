@@ -33,8 +33,13 @@ class WidgetOptionsChangedArgument(
 ) : ComponentServiceArgument()
 
 class WidgetUpdatedArgument(
-    val widgetIds: Array<Int>,
-) : ComponentServiceArgument()
+    val action: Int, val widgetIds: Array<Int>,
+) : ComponentServiceArgument() {
+    companion object {
+        const val UPDATE_ALL = 0
+        const val UPDATE_ONLY_SPECIFIC_WIDGETS = 1
+    }
+}
 
 class LoadWidgetDataArgument(
     val action: Int, val widgetIds: Array<Int> = emptyArray()

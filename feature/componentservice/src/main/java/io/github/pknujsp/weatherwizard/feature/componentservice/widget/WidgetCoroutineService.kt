@@ -1,6 +1,9 @@
 package io.github.pknujsp.weatherwizard.feature.componentservice.widget
 
+import android.appwidget.AppWidgetManager
 import android.content.Context
+import android.content.Intent
+import android.util.Log
 import androidx.hilt.work.HiltWorker
 import androidx.work.WorkerParameters
 import dagger.assisted.Assisted
@@ -17,6 +20,8 @@ import io.github.pknujsp.weatherwizard.core.model.widget.WidgetStatus
 import io.github.pknujsp.weatherwizard.core.widgetnotification.model.AppComponentCoroutineService
 import io.github.pknujsp.weatherwizard.core.widgetnotification.model.IWorker
 import io.github.pknujsp.weatherwizard.core.widgetnotification.model.LoadWidgetDataArgument
+import io.github.pknujsp.weatherwizard.feature.componentservice.ComponentPendingIntentManager
+import io.github.pknujsp.weatherwizard.feature.componentservice.widget.worker.SummaryWeatherWidgetProvider
 import io.github.pknujsp.weatherwizard.feature.componentservice.widget.worker.WidgetRemoteViewModel
 import kotlinx.serialization.json.Json
 
@@ -48,7 +53,7 @@ class WidgetCoroutineService @AssistedInject constructor(
 
         if (featureStatusManager.status(context, requiredFeatures) is FeatureState.Unavailable) {
             for (widgetId in argument.widgetIds) {
-                widgetRemoteViewModel.updateResponseData(widgetId, WidgetStatus.RESPONSE_FAILURE, byteArrayOf())
+                widgetRemoteViewModel.updateResponseData(widgetId, WidgetStatus.RESPONSE_FAILURE)
             }
             return
         }
@@ -64,7 +69,7 @@ class WidgetCoroutineService @AssistedInject constructor(
             if (featureStatusManager.status(context,
                     arrayOf(FeatureType.LOCATION_PERMISSION, FeatureType.LOCATION_SERVICE)) is FeatureState.Unavailable) {
                 widgetEntityList.locationTypeGroups.getValue(LocationType.CurrentLocation).forEach {
-                    widgetRemoteViewModel.updateResponseData(it.id, WidgetStatus.RESPONSE_FAILURE, byteArrayOf())
+                    widgetRemoteViewModel.updateResponseData(it.id, WidgetStatus.RESPONSE_FAILURE)
                     excludeWidgets.add(it)
                 }
             }
@@ -79,6 +84,14 @@ class WidgetCoroutineService @AssistedInject constructor(
                     state.toWidgetResponseDBModel(jsonParser).toByteArray(jsonParser))
             } else {
                 widgetRemoteViewModel.updateResponseData(state.widget.id, WidgetStatus.RESPONSE_FAILURE)
+            }
+        }
+
+        if (responses.isNotEmpty()) {
+            Intent(context, SummaryWeatherWidgetProvider::class.java).apply {
+                action = AppWidgetManager.ACTION_APPWIDGET_UPDATE
+                putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, responses.map { it.widget.id }.toIntArray())
+                context.sendBroadcast(this)
             }
         }
     }

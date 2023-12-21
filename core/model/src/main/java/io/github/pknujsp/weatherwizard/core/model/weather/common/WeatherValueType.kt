@@ -42,6 +42,7 @@ data class WeatherConditionValueType(
 ) : WeatherValueNotUnitType<WeatherConditionCategory> {
 
 }
+
 @Serializable
 data class TemperatureValueType(
     override val value: Double,
@@ -78,6 +79,7 @@ data class TemperatureValueType(
         return "${value.toInt()}${unit.symbol}"
     }
 }
+
 @Serializable
 data class WindSpeedValueType(
     override val value: Double,
@@ -136,6 +138,7 @@ data class WindSpeedValueType(
         return value == Double.MIN_VALUE
     }
 }
+
 @Serializable
 data class WindDirectionValueType(
     override val value: Int,
@@ -164,6 +167,7 @@ data class WindDirectionValueType(
         return value == Int.MIN_VALUE
     }
 }
+
 @Serializable
 data class HumidityValueType(
     override val value: Int,
@@ -233,6 +237,7 @@ data class PressureValueType(
         return value == Int.MIN_VALUE
     }
 }
+
 @Serializable
 data class VisibilityValueType(
     override val value: Double,
@@ -274,6 +279,7 @@ data class VisibilityValueType(
         return if (isNone()) "" else value.toString()
     }
 }
+
 @Serializable
 data class PrecipitationValueType(
     override val value: Double,
@@ -282,10 +288,8 @@ data class PrecipitationValueType(
 
     companion object : NoneValue<PrecipitationValueType> {
         override val none: PrecipitationValueType = PrecipitationValueType(Double.NaN, PrecipitationUnit.Millimeter)
-        private const val drop: Double = 0.1
-
-        val rainDrop = PrecipitationValueType(drop, PrecipitationUnit.Millimeter)
-        val snowDrop = PrecipitationValueType(drop, PrecipitationUnit.Millimeter)
+        val rainDrop = PrecipitationValueType(0.1, PrecipitationUnit.Millimeter)
+        val snowDrop = PrecipitationValueType(0.1, PrecipitationUnit.Millimeter)
     }
 
     override fun convertUnit(to: PrecipitationUnit): PrecipitationValueType {
@@ -307,9 +311,10 @@ data class PrecipitationValueType(
     }
 
     override fun toStringWithoutUnit(): String {
-        return if (isNone()) "" else if (value == drop) "~1" else value.toString()
+        return if (isNone()) "" else if (value == rainDrop.value) "~1" else value.toString()
     }
 }
+
 @Serializable
 data class SnowfallValueType(
     override val value: Double,
@@ -356,6 +361,7 @@ data class SnowfallValueType(
         return if (isNone()) "" else value.toString()
     }
 }
+
 @Serializable
 data class RainfallValueType(
     override val value: Double,
@@ -431,6 +437,7 @@ data class ProbabilityValueType(
         return if (isNone()) "" else value.toString()
     }
 }
+
 @Serializable
 data class AirQualityValueType(
     override val value: Int, val airQualityDescription: AirQualityDescription

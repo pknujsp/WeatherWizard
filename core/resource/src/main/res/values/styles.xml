@@ -34,7 +34,8 @@
 
     <style name="Widget.WeatherWizard.Widget.Container" parent="Widget.WeatherWizard.RemoteViews.RootContainer">
         <item name="android:background">@color/widget_background</item>
-        <item name="android:padding">16dp</item>
+        <item name="android:clickable">true</item>
+        <item name="android:padding">12dp</item>
     </style>
 
     <style name="Widget.WeatherWizard.Notification.Container" parent="Widget.WeatherWizard.RemoteViews.RootContainer" />
@@ -47,12 +48,7 @@
 
     <style name="Widget.WeatherWizard.Widget.Container.Content" parent="Widget.WeatherWizard.RemoteViews.Container.Content" />
 
-    <style name="WidgetActivity" parent="Theme.AppCompat.Dialog">
-        <item name="android:windowNoTitle">true</item>
-        <item name="android:windowFullscreen">false</item>
-        <item name="android:windowIsFloating">true</item>
-        <item name="android:backgroundDimEnabled">true</item>
-        <item name="android:backgroundDimAmount">0.6</item>
-        <item name="android:windowMinWidthMajor">0%</item>
+    <style name="WidgetActivity" parent="@android:style/Theme.Translucent.NoTitleBar">
+
     </style>
 </resources>

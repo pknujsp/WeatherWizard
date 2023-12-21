@@ -90,5 +90,7 @@ object DBDataSourceModule {
         DailyNotificationLocalDataSourceImpl(notificationDao)
 
     @Provides
-    fun providesWidgetDataSource(widgetDao: WidgetDao): WidgetLocalDataSource = WidgetLocalDataSourceImpl(widgetDao)
+    fun providesWidgetDataSource(
+        widgetDao: WidgetDao, compressionTool: CompressionTool
+    ): WidgetLocalDataSource = WidgetLocalDataSourceImpl(widgetDao, compressionTool)
 }

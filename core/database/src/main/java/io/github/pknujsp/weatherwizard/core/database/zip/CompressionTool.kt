@@ -1,36 +1,30 @@
 package io.github.pknujsp.weatherwizard.core.database.zip
 
-import net.jpountz.lz4.LZ4Compressor
-import net.jpountz.lz4.LZ4Factory
-import java.lang.ref.WeakReference
+import androidx.datastore.preferences.protobuf.Internal.toByteArray
+import java.io.ByteArrayInputStream
+import java.io.ByteArrayOutputStream
+import java.util.zip.GZIPInputStream
+import java.util.zip.GZIPOutputStream
 
 
 internal class CompressionToolImpl : CompressionTool {
 
-    private val lz4Factory = LZ4Factory.fastestInstance()
 
-    override fun compress(src: ByteArray): ByteArray? {
-        return WeakReference(src).get()?.let { weakSrc ->
-            val compressor: LZ4Compressor = lz4Factory.fastCompressor()
-            val maxCompressedLength = compressor.maxCompressedLength(weakSrc.size)
-
-            val compressed = ByteArray(maxCompressedLength)
-            val compressedLength = compressor.compress(weakSrc, 0, weakSrc.size, compressed, 0, maxCompressedLength)
-            compressed.copyOf(compressedLength)
+    override fun compress(src: ByteArray): ByteArray {
+        return ByteArrayOutputStream().use { byteArrayOutputStream ->
+            GZIPOutputStream(byteArrayOutputStream).buffered().use { it.write(src) }
+            byteArrayOutputStream.toByteArray()
         }
     }
 
-    override fun deCompress(compressed: ByteArray): ByteArray? {
-        return WeakReference(ByteArray(compressed.size * 4)).get()?.let { decomp ->
-            val decompressor = lz4Factory.safeDecompressor()
-            val decompressedLength = decompressor.decompress(compressed, decomp)
-            decomp.copyOf(decompressedLength)
+    override fun deCompress(compressed: ByteArray): ByteArray {
+        return ByteArrayInputStream(compressed).use { byteStream ->
+            GZIPInputStream(byteStream).buffered().use { it.readBytes() }
         }
     }
-
 }
 
 interface CompressionTool {
-    fun compress(src: ByteArray): ByteArray?
-    fun deCompress(compressed: ByteArray): ByteArray?
+    fun compress(src: ByteArray): ByteArray
+    fun deCompress(compressed: ByteArray): ByteArray
 }

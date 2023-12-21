@@ -10,10 +10,11 @@
         layout="@layout/big_view_header"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="2dp" />
+        android:layout_marginBottom="4dp" />
 
     <FrameLayout
         style="@style/Widget.WeatherWizard.Widget.Container.Content"
+        android:layout_gravity="center_vertical"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 

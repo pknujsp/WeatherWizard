@@ -2,11 +2,16 @@ package io.github.pknujsp.weatherwizard.core.widgetnotification.widget.summary
 
 import android.content.Context
 import android.widget.RemoteViews
+import io.github.pknujsp.weatherwizard.core.model.mock.MockDataGenerator
 import io.github.pknujsp.weatherwizard.core.model.weather.common.CurrentUnits
 import io.github.pknujsp.weatherwizard.core.resource.R
+import io.github.pknujsp.weatherwizard.core.widgetnotification.model.RemoteViewsMockGenerator
 import io.github.pknujsp.weatherwizard.core.widgetnotification.remoteview.RemoteViewCreator
 import io.github.pknujsp.weatherwizard.core.widgetnotification.remoteview.addViewSafely
 import io.github.pknujsp.weatherwizard.core.widgetnotification.widget.remoteview.WidgetRemoteViewsCreator
+import java.time.ZonedDateTime
+import java.time.format.DateTimeFormatter
+import java.util.Locale
 
 class WidgetAllInOneRemoteViewCreator : WidgetRemoteViewsCreator<WidgetAllInOneRemoteViewUiModel>() {
     override fun createContentView(
@@ -26,10 +31,10 @@ class WidgetAllInOneRemoteViewCreator : WidgetRemoteViewsCreator<WidgetAllInOneR
                 }
             }.let { remoteViews ->
                 remoteViews.subList(0, 6).forEach {
-                    content.addViewSafely(R.id.hourly_forecast_row_1, it)
+                    content.addView(R.id.hourly_forecast_row_1, it)
                 }
                 remoteViews.subList(6, 12).forEach {
-                    content.addViewSafely(R.id.hourly_forecast_row_2, it)
+                    content.addView(R.id.hourly_forecast_row_2, it)
                 }
             }
 
@@ -54,10 +59,22 @@ class WidgetAllInOneRemoteViewCreator : WidgetRemoteViewsCreator<WidgetAllInOneR
 
 
     override fun createSampleView(context: Context, units: CurrentUnits): RemoteViews {
-        return RemoteViews(context.packageName, R.layout.summary_weather_widget).let {
-            createBaseView(context, RemoteViewCreator.ContainerType.WIDGET).apply {
-                addViewSafely(R.id.remote_views_content_container, it)
-            }
-        }
+        val dateFormatter = DateTimeFormatter.ofPattern("d E", Locale.getDefault())
+        val mockModel = WidgetAllInOneRemoteViewUiModel(currentWeather = MockDataGenerator.currentWeatherEntity.run {
+            WidgetAllInOneRemoteViewUiModel.CurrentWeather(temperature.convertUnit(units.temperatureUnit).toString(),
+                feelsLikeTemperature.convertUnit(units.temperatureUnit).toString(),
+                weatherCondition.value.dayWeatherIcon)
+        }, hourlyForecast = MockDataGenerator.hourlyForecastEntity.items.map {
+            WidgetAllInOneRemoteViewUiModel.HourlyForecast(it.temperature.convertUnit(units.temperatureUnit).toString(),
+                it.weatherCondition.value.dayWeatherIcon,
+                ZonedDateTime.parse(it.dateTime.value).hour.toString())
+        }, dailyForecast = MockDataGenerator.dailyForecastEntity.dayItems.subList(0, 5).map { dayItem ->
+            WidgetAllInOneRemoteViewUiModel.DailyForecast("${dayItem.minTemperature.convertUnit(units.temperatureUnit)}/${
+                dayItem.maxTemperature.convertUnit(units.temperatureUnit)
+            }",
+                dayItem.items.map { it.weatherCondition.value.dayWeatherIcon },
+                dateFormatter.format(ZonedDateTime.parse(dayItem.dateTime.value)))
+        })
+        return createContentView(mockModel, RemoteViewsMockGenerator.header, context)
     }
 }

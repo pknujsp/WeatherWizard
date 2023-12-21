@@ -20,8 +20,6 @@ import io.github.pknujsp.weatherwizard.core.widgetnotification.widget.worker.mod
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.flow.filter
-import kotlinx.coroutines.flow.first
 import javax.inject.Inject
 import kotlin.properties.Delegates
 
@@ -38,7 +36,7 @@ class WidgetRemoteViewModel @Inject constructor(
     private var widgetSettingsEntityList: WidgetSettingsEntityList by Delegates.notNull()
 
     suspend fun loadWidgets(widgetIds: Array<Int>): WidgetSettingsEntityList {
-        widgetSettingsEntityList = widgetRepository.getAll().first()
+        widgetSettingsEntityList = widgetRepository.getAll()
         if (widgetIds.isNotEmpty()) {
             widgetSettingsEntityList = WidgetSettingsEntityList(widgetSettingsEntityList.widgetSettings.filter { it.id in widgetIds })
         }
@@ -152,7 +150,7 @@ class WidgetRemoteViewModel @Inject constructor(
         }
     }
 
-    suspend fun updateResponseData(id: Int, status: WidgetStatus, responseData: ByteArray = byteArrayOf()) {
+    suspend fun updateResponseData(id: Int, status: WidgetStatus, responseData: ByteArray? = null) {
         widgetRepository.updateResponseData(id, status, responseData)
     }
 }
