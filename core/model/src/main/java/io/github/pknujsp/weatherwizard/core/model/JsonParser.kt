@@ -1,5 +1,6 @@
 package io.github.pknujsp.weatherwizard.core.model
 
+import io.github.pknujsp.weatherwizard.core.model.weather.base.WeatherEntityModel
 import kotlinx.serialization.BinaryFormat
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.InternalSerializationApi

@@ -1,6 +1,9 @@
-package io.github.pknujsp.weatherwizard.model
+package io.github.pknujsp.weatherwizard.feature
 
 import io.github.pknujsp.weatherwizard.core.common.module.UtilsModule
+import io.github.pknujsp.weatherwizard.core.common.util.DayNightCalculator
+import io.github.pknujsp.weatherwizard.core.data.widget.WidgetSettingsEntity
+import io.github.pknujsp.weatherwizard.core.domain.weather.WeatherResponseEntity
 import io.github.pknujsp.weatherwizard.core.model.JsonParser
 import io.github.pknujsp.weatherwizard.core.model.weather.common.DateTimeValueType
 import io.github.pknujsp.weatherwizard.core.model.weather.common.HumidityValueType
@@ -17,7 +20,9 @@ import io.github.pknujsp.weatherwizard.core.model.weather.common.WindDirectionVa
 import io.github.pknujsp.weatherwizard.core.model.weather.common.WindSpeedValueType
 import io.github.pknujsp.weatherwizard.core.model.weather.current.CurrentWeatherEntity
 import io.github.pknujsp.weatherwizard.core.model.weather.hourlyforecast.HourlyForecastEntity
-import org.junit.Assert.assertTrue
+import io.github.pknujsp.weatherwizard.core.model.widget.WidgetType
+import io.github.pknujsp.weatherwizard.core.widgetnotification.widget.worker.model.WidgetRemoteViewUiState
+import org.junit.Assert
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -68,8 +73,21 @@ class SerializationTest {
         val byteArray2 = jsonParser.parseToByteArray(hourlyForecastEntity)
         val parsedWeatherEntity: CurrentWeatherEntity = jsonParser.parse(byteArray)
         val parsedHourlyForecast: HourlyForecastEntity = jsonParser.parse(byteArray2)
-        assertTrue(currentWeatherEntity == parsedWeatherEntity)
-        assertTrue(hourlyForecastEntity == parsedHourlyForecast)
+        Assert.assertTrue(currentWeatherEntity == parsedWeatherEntity)
+        Assert.assertTrue(hourlyForecastEntity == parsedHourlyForecast)
+
+        val state = WidgetRemoteViewUiState(widget = WidgetSettingsEntity(1, widgetType = WidgetType.ALL_IN_ONE),
+            lastUpdated = null,
+            isSuccessful = true,
+            address = "address",
+            model = WeatherResponseEntity(
+                weatherDataMajorCategories = WidgetType.ALL_IN_ONE.categories.toSet(),
+                responses = listOf(currentWeatherEntity, hourlyForecastEntity),
+                dayNightCalculator = DayNightCalculator(0.0, 0.0),
+            ))
+
+        val dbModel = state.toWidgetResponseDBModel(jsonParser)
+        dbModel.entities
     }
 
 }

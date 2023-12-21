@@ -9,6 +9,7 @@ interface WidgetLocalDataSource {
 
     fun getAll(): Flow<List<WidgetDto>>
 
+
     suspend fun getById(id: Int): WidgetDto
 
     suspend fun deleteById(id: Int)

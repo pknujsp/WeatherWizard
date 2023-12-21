@@ -34,10 +34,10 @@ class WidgetAllInOneRemoteViewCreator : WidgetRemoteViewsCreator<WidgetAllInOneR
             }
 
             model.dailyForecast.forEach {
-                content.addViewSafely(R.id.daily_forecast, RemoteViews(context.packageName, R.layout.view_daily_forecast_item).apply {
+                content.addView(R.id.daily_forecast, RemoteViews(context.packageName, R.layout.view_daily_forecast_item).apply {
                     setTextViewText(R.id.date, it.date)
                     it.weatherIcons.forEach { icon ->
-                        addViewSafely(R.id.weather_icons, RemoteViews(context.packageName, R.layout.view_weather_icon_item).apply {
+                        addView(R.id.weather_icons, RemoteViews(context.packageName, R.layout.view_weather_icon_item).apply {
                             setImageViewResource(R.id.weather_icon, icon)
                         })
                     }

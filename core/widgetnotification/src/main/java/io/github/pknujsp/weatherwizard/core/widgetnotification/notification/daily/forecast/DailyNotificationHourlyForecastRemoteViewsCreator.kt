@@ -42,7 +42,7 @@ class DailyNotificationHourlyForecastRemoteViewsCreator :
         context: Context
     ) {
         model.hourlyForecast.forEach {
-            addViewSafely(R.id.hourly_forecast, RemoteViews(context.packageName, R.layout.view_hourly_forecast_item).apply {
+            addView(R.id.hourly_forecast, RemoteViews(context.packageName, R.layout.view_hourly_forecast_item).apply {
                 setTextViewText(R.id.time, it.dateTime)
                 setImageViewResource(R.id.weather_icon, it.weatherIcon)
                 setTextViewText(R.id.temperature, it.temperature)
@@ -56,10 +56,10 @@ class DailyNotificationHourlyForecastRemoteViewsCreator :
         context: Context
     ) {
         model.dailyForecast.forEach {
-            addViewSafely(R.id.daily_forecast, RemoteViews(context.packageName, R.layout.view_daily_forecast_item).apply {
+            addView(R.id.daily_forecast, RemoteViews(context.packageName, R.layout.view_daily_forecast_item).apply {
                 setTextViewText(R.id.date, it.date)
                 it.weatherIcons.forEach { icon ->
-                    addViewSafely(R.id.weather_icons, RemoteViews(context.packageName, R.layout.view_weather_icon_item).apply {
+                    addView(R.id.weather_icons, RemoteViews(context.packageName, R.layout.view_weather_icon_item).apply {
                         setImageViewResource(R.id.weather_icon, icon)
                     })
                 }

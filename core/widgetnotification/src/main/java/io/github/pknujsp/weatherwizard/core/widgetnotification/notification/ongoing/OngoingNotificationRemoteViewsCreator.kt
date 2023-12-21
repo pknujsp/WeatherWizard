@@ -62,7 +62,7 @@ class OngoingNotificationRemoteViewsCreator : NotificationRemoteViewsCreator<Ong
                 setImageViewResource(R.id.weather_icon, it.weatherIcon)
                 setTextViewText(R.id.temperature, it.temperature)
             }.also {
-                addViewSafely(R.id.hourly_forecast, it)
+                addView(R.id.hourly_forecast, it)
             }
         }
     }

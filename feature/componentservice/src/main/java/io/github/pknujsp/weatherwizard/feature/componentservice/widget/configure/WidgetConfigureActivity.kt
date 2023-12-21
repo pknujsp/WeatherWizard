@@ -2,6 +2,7 @@ package io.github.pknujsp.weatherwizard.feature.componentservice.widget.configur
 
 import android.appwidget.AppWidgetManager
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.core.os.bundleOf
@@ -26,6 +27,7 @@ class WidgetConfigureActivity : ComponentActivity() {
             WidgetType.fromProvider(it.provider).key
         }
 
+        Log.d("WidgetConfigureActivity", "widgetId: $widgetId, widgetType: $widgetType")
         val argumentsOfStartDestination = WidgetRoutes.Configure.argumentsWithDefaultValue(widgetId, widgetType)
 
         setContent {

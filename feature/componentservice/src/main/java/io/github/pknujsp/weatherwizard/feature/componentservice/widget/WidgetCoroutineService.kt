@@ -11,21 +11,12 @@ import io.github.pknujsp.weatherwizard.core.common.manager.FeatureStatusManager
 import io.github.pknujsp.weatherwizard.core.common.manager.WidgetManager
 import io.github.pknujsp.weatherwizard.core.common.module.KtJson
 import io.github.pknujsp.weatherwizard.core.data.widget.WidgetSettingsEntity
-import io.github.pknujsp.weatherwizard.core.domain.weather.WeatherResponseState
 import io.github.pknujsp.weatherwizard.core.model.JsonParser
-import io.github.pknujsp.weatherwizard.core.model.RemoteViewUiModel
 import io.github.pknujsp.weatherwizard.core.model.coordinate.LocationType
 import io.github.pknujsp.weatherwizard.core.model.widget.WidgetStatus
-import io.github.pknujsp.weatherwizard.core.resource.R
 import io.github.pknujsp.weatherwizard.core.widgetnotification.model.AppComponentCoroutineService
 import io.github.pknujsp.weatherwizard.core.widgetnotification.model.IWorker
 import io.github.pknujsp.weatherwizard.core.widgetnotification.model.LoadWidgetDataArgument
-import io.github.pknujsp.weatherwizard.core.widgetnotification.remoteview.DefaultRemoteViewCreator
-import io.github.pknujsp.weatherwizard.core.widgetnotification.remoteview.RemoteViewCreator
-import io.github.pknujsp.weatherwizard.core.widgetnotification.remoteview.RemoteViewsCreatorManager
-import io.github.pknujsp.weatherwizard.core.widgetnotification.remoteview.UiStateRemoteViewCreator
-import io.github.pknujsp.weatherwizard.core.widgetnotification.widget.remoteview.WidgetRemoteViewsCreator
-import io.github.pknujsp.weatherwizard.core.widgetnotification.widget.worker.model.WidgetResponseDBModel
 import io.github.pknujsp.weatherwizard.feature.componentservice.widget.worker.WidgetRemoteViewModel
 import kotlinx.serialization.json.Json
 
@@ -53,7 +44,7 @@ class WidgetCoroutineService @AssistedInject constructor(
     }
 
     private suspend fun start(context: Context, argument: LoadWidgetDataArgument) {
-        val widgetEntityList = widgetRemoteViewModel.loadWidgets()
+        val widgetEntityList = widgetRemoteViewModel.loadWidgets(argument.widgetIds)
 
         if (featureStatusManager.status(context, requiredFeatures) is FeatureState.Unavailable) {
             for (widgetId in argument.widgetIds) {
