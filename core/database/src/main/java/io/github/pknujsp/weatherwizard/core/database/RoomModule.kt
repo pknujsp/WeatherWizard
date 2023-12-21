@@ -23,6 +23,8 @@ import io.github.pknujsp.weatherwizard.core.database.searchhistory.SearchHistory
 import io.github.pknujsp.weatherwizard.core.database.widget.WidgetDao
 import io.github.pknujsp.weatherwizard.core.database.widget.WidgetLocalDataSource
 import io.github.pknujsp.weatherwizard.core.database.widget.WidgetLocalDataSourceImpl
+import io.github.pknujsp.weatherwizard.core.database.zip.CompressionTool
+import io.github.pknujsp.weatherwizard.core.database.zip.CompressionToolImpl
 import javax.inject.Singleton
 
 @Module
@@ -43,6 +45,10 @@ object RoomModule {
             context, NotPretainedRoomDb::class.java, "not_pretained.db",
         ).build()
     }
+
+    @Provides
+    @Singleton
+    fun providesCompressionTool(): CompressionTool = CompressionToolImpl()
 }
 
 @Module
@@ -68,26 +74,23 @@ object DaoModule {
 @InstallIn(SingletonComponent::class)
 object DBDataSourceModule {
     @Provides
-    @Singleton
     fun providesFavoriteAreaListDataSource(favoriteAreaListDao: FavoriteAreaListDao): FavoriteAreaListDataSource =
         FavoriteAreaListDataSourceImpl(favoriteAreaListDao)
 
     @Provides
-    @Singleton
     fun providesSearchHistoryDataSource(searchHistoryDao: SearchHistoryDao): SearchHistoryLocalDataSource =
         SearchHistoryLocalDataSourceImpl(searchHistoryDao)
 
     @Provides
-    @Singleton
     fun providesOngoingNotificationDataSource(notificationDao: NotificationDao): OngoingNotificationLocalDataSource =
         OngoingNotificationLocalDataSourceImpl(notificationDao)
 
     @Provides
-    @Singleton
     fun providesDailyNotificationDataSource(notificationDao: NotificationDao): DailyNotificationLocalDataSource =
         DailyNotificationLocalDataSourceImpl(notificationDao)
 
     @Provides
-    @Singleton
-    fun providesWidgetDataSource(widgetDao: WidgetDao): WidgetLocalDataSource = WidgetLocalDataSourceImpl(widgetDao)
+    fun providesWidgetDataSource(
+        widgetDao: WidgetDao, compressionTool: CompressionTool
+    ): WidgetLocalDataSource = WidgetLocalDataSourceImpl(widgetDao, compressionTool)
 }

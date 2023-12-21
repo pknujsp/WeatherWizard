@@ -3,7 +3,7 @@ package io.github.pknujsp.weatherwizard.core.model
 import io.github.pknujsp.core.annotation.KBindFunc
 import io.github.pknujsp.weatherwizard.core.common.FeatureType
 import io.github.pknujsp.weatherwizard.core.common.manager.FailedReason
-import io.github.pknujsp.weatherwizard.core.common.manager.FeatureState
+import kotlinx.serialization.Serializable
 
 @KBindFunc
 sealed interface UiState<out T> {
@@ -13,15 +13,16 @@ sealed interface UiState<out T> {
     data class Failure(val featureType: FeatureType) : UiState<Nothing>
 }
 
-
+@Serializable
 @KBindFunc
 sealed interface VarState<out T> {
     fun valueNotNull(): T
 
+    @Serializable
     data object Uninitialized : VarState<Nothing> {
         override fun valueNotNull(): Nothing = throw NullPointerException("Value is not initialized.")
     }
-
+    @Serializable
     data class Initialized<out T>(val data: T) : VarState<T> {
         override fun valueNotNull(): T = data
     }

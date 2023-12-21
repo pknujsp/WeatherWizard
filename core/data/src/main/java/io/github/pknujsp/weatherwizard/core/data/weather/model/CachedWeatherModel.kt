@@ -1,26 +1,24 @@
 package io.github.pknujsp.weatherwizard.core.data.weather.model
 
 import io.github.pknujsp.weatherwizard.core.model.EntityModel
+import io.github.pknujsp.weatherwizard.core.model.weather.base.WeatherEntityModel
 import io.github.pknujsp.weatherwizard.core.model.weather.common.MajorWeatherEntityType
-import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherProvider
 import java.util.concurrent.ConcurrentHashMap
 
 class CachedWeatherModel : EntityModel {
-    private val dataMap = ConcurrentHashMap<MajorWeatherEntityType, EntityModel>()
+    private val dataMap = mutableMapOf<MajorWeatherEntityType, WeatherEntityModel>()
 
-    fun <T : EntityModel> put(majorWeatherEntityType: MajorWeatherEntityType, value: T) {
+    fun <T : WeatherEntityModel> put(majorWeatherEntityType: MajorWeatherEntityType, value: T) {
         dataMap[majorWeatherEntityType] = value
     }
 
-    fun export(majorWeatherEntityTypes: Set<MajorWeatherEntityType>): WeatherModel {
-        val valueList = mutableListOf<EntityModel>()
+    fun export(majorWeatherEntityTypes: Set<MajorWeatherEntityType>): List<Pair<MajorWeatherEntityType, WeatherEntityModel>> {
+        val valueList = mutableListOf<Pair<MajorWeatherEntityType, WeatherEntityModel>>()
         for (majorWeatherEntityType in majorWeatherEntityTypes) {
-            dataMap[majorWeatherEntityType]?.let {
-                valueList.add(it)
-            }
+            valueList.add(majorWeatherEntityType to dataMap[majorWeatherEntityType]!!)
         }
 
-        return WeatherModel(valueList)
+        return valueList
     }
 
 }

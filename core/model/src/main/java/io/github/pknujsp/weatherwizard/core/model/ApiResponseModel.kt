@@ -1,3 +1,3 @@
 package io.github.pknujsp.weatherwizard.core.model
 
-interface ApiResponseModel
+interface ApiResponseModel : Model

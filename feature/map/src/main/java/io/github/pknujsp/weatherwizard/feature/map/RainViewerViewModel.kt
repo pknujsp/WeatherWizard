@@ -4,37 +4,43 @@ import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import io.github.pknujsp.weatherwizard.core.common.coroutines.CoDispatcher
+import io.github.pknujsp.weatherwizard.core.common.coroutines.CoDispatcherType
 import io.github.pknujsp.weatherwizard.core.data.rainviewer.RadarTilesRepository
 import io.github.pknujsp.weatherwizard.core.model.UiState
 import io.github.pknujsp.weatherwizard.core.model.onSuccess
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class RainViewerViewModel @Inject constructor(
     private val radarTilesRepository: RadarTilesRepository,
+    @CoDispatcher(CoDispatcherType.DEFAULT) private val dispatcher: CoroutineDispatcher
 ) : ViewModel(), RadarController {
     private val playDelay: Long = 1000L
-    private val playCounts = 20
+    private val playCounts = 15
 
     private val _playing = MutableStateFlow(false)
-    override val playing: StateFlow<Boolean> = _playing
+    override val playing: StateFlow<Boolean> = _playing.asStateFlow()
 
     private val _time: MutableStateFlow<String> = MutableStateFlow("")
-    override val time: StateFlow<String> = _time
+    override val time: StateFlow<String> = _time.asStateFlow()
 
     private var playingJob: Job? = null
 
     private val _raderTiles: MutableStateFlow<UiState<RadarTilesOverlay>> = MutableStateFlow(UiState.Loading)
-    val radarTiles: StateFlow<UiState<RadarTilesOverlay>> = _raderTiles
+    val radarTiles: StateFlow<UiState<RadarTilesOverlay>> = _raderTiles.asStateFlow()
 
     private val _timePosition = MutableStateFlow(-1)
-    val timePosition: StateFlow<Int> = _timePosition
+    val timePosition: StateFlow<Int> = _timePosition.asStateFlow()
 
     private val optionTileSize = 512 // can be 256 or 512.
     private val optionColorScheme = 3 // from 0 to 8. Check the https://rainviewer.com/api/color-schemes.html for additional information
@@ -45,7 +51,7 @@ class RainViewerViewModel @Inject constructor(
     val maxZoomLevel: Float = 19f
 
     fun load(context: Context) {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(dispatcher) {
             _raderTiles.value = UiState.Loading
 
             radarTilesRepository.getTiles().onSuccess {
@@ -58,6 +64,7 @@ class RainViewerViewModel @Inject constructor(
                     optionSmoothData = optionSmoothData,
                     optionSnowColors = optionSnowColors,
                     requestTime = it.requestTime)
+
                 _raderTiles.value = UiState.Success(radarTilesOverlay)
                 _timePosition.emit(it.currentIndex)
                 _time.value = radarTilesOverlay.times[it.currentIndex]
@@ -97,7 +104,7 @@ class RainViewerViewModel @Inject constructor(
     override fun play() {
         viewModelScope.launch {
             if (!stop()) {
-                playingJob = launch {
+                playingJob = launch(SupervisorJob()) {
                     _playing.value = true
                     radarTiles.value.onSuccess { radarTiles ->
                         repeat(playCounts) {

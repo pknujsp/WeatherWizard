@@ -19,7 +19,7 @@ import io.github.pknujsp.weatherwizard.core.model.weather.current.CurrentWeather
 
 object NotificationIconGenerator {
 
-    private const val TEXT_SIZE = 22f
+    private const val TEXT_SIZE = 23f
     private const val ICON_SIZE = 26f
     private const val FONT_FAMILY = "sans-serif-condensed"
 
@@ -31,6 +31,7 @@ object NotificationIconGenerator {
         textAlign = Paint.Align.CENTER
         isAntiAlias = true
         textSize = NotificationIconGenerator.textSize
+        textScaleX = 0.93f
     }
 
     private fun createTemperatureIcon(temperature: String): IconCompat {
@@ -41,7 +42,7 @@ object NotificationIconGenerator {
 
         val canvas = Canvas(iconBitmap)
         val x = canvas.width / 2f
-        val y = (canvas.height / 2f) - ((textPaint.descent() + textPaint.ascent()) / 2f)
+        val y = (canvas.height / 2f) + (textRect.height() / 2f)
 
         canvas.drawText(temperature, x, y, textPaint)
 

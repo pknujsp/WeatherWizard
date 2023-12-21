@@ -6,22 +6,21 @@ import org.osmdroid.config.Configuration
 import java.util.concurrent.atomic.AtomicBoolean
 
 
-class MapInitializer {
+object MapInitializer {
 
-    companion object {
-        private val initialized = AtomicBoolean(false)
+    private val isInitialized = AtomicBoolean(false)
 
-        fun initialize(context: Context) {
-            if (!initialized.get()) {
-                initialized.getAndSet(true)
-                Configuration.getInstance().load(context, PreferenceManager.getDefaultSharedPreferences(context))
-                Configuration.getInstance().apply {
-                    animationSpeedShort = 200
-                    animationSpeedDefault = 200
-                    cacheMapTileOvershoot = (12).toShort()
-                    cacheMapTileCount = (12).toShort()
-                    isMapViewHardwareAccelerated = true
-                }
+    fun initialize(context: Context) {
+        if (!isInitialized.get()) {
+            isInitialized.getAndSet(true)
+
+            Configuration.getInstance().load(context, PreferenceManager.getDefaultSharedPreferences(context))
+            Configuration.getInstance().apply {
+                animationSpeedShort = 200
+                animationSpeedDefault = 200
+                cacheMapTileOvershoot = (12).toShort()
+                cacheMapTileCount = (12).toShort()
+                isMapViewHardwareAccelerated = true
             }
         }
     }

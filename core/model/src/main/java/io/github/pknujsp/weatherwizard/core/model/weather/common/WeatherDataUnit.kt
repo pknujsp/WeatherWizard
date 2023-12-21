@@ -1,5 +1,6 @@
 package io.github.pknujsp.weatherwizard.core.model.weather.common
 
+import kotlinx.serialization.Serializable
 
 interface WeatherDataUnit {
     val symbol: String
@@ -14,6 +15,7 @@ interface UnitPreference {
 
 }
 
+@Serializable
 sealed class TemperatureUnit(override val symbol: String) : WeatherDataUnit {
 
     companion object : UnitPreference {
@@ -30,13 +32,15 @@ sealed class TemperatureUnit(override val symbol: String) : WeatherDataUnit {
         }
     }
 
+    @Serializable
     data object Celsius : TemperatureUnit("℃")
 
+    @Serializable
     data object Fahrenheit : TemperatureUnit("℉")
 
 }
 
-
+@Serializable
 sealed class WindSpeedUnit(override val symbol: String) : WeatherDataUnit {
 
     companion object : UnitPreference {
@@ -53,13 +57,16 @@ sealed class WindSpeedUnit(override val symbol: String) : WeatherDataUnit {
         }
     }
 
+    @Serializable
     data object KilometerPerHour : WindSpeedUnit("km/h")
 
+    @Serializable
     data object MeterPerSecond : WindSpeedUnit("m/s")
 
 
 }
 
+@Serializable
 sealed class PrecipitationUnit(override val symbol: String) : WeatherDataUnit {
 
     companion object : UnitPreference {
@@ -75,30 +82,33 @@ sealed class PrecipitationUnit(override val symbol: String) : WeatherDataUnit {
         }
     }
 
+    @Serializable
     data object Millimeter : PrecipitationUnit("mm")
 
+    @Serializable
     data object Centimeter : PrecipitationUnit("cm")
 }
 
-
+@Serializable
 sealed class VisibilityUnit(override val symbol: String) : WeatherDataUnit {
-
+    @Serializable
     data object Kilometer : VisibilityUnit("km")
 
 }
 
+@Serializable
 sealed class PressureUnit(override val symbol: String) : WeatherDataUnit {
-
+    @Serializable
     data object Hectopascal : PressureUnit("hPa")
 }
 
-
+@Serializable
 sealed class WindDirectionUnit(override val symbol: String) : WeatherDataUnit {
-
+    @Serializable
     data object Degree : WindDirectionUnit("°")
 }
 
+@Serializable
 data object PercentageUnit : WeatherDataUnit {
-
-    override val symbol: String = "%"
+    @Serializable override val symbol: String = "%"
 }

@@ -1,7 +1,6 @@
 package io.github.pknujsp.weatherwizard.core.common.manager
 
 import android.Manifest
-import android.annotation.TargetApi
 import android.app.Activity
 import android.content.Context
 import android.content.pm.PackageManager
@@ -75,47 +74,50 @@ fun PermissionManager(
 }
 
 
-enum class PermissionType(val permissions: Array<String>) {
-    LOCATION(
-        arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION).let {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                it + Manifest.permission.ACCESS_BACKGROUND_LOCATION
-            } else {
-                it
-            }
-        },
-    ),
-    STORAGE(
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            arrayOf(
-                Manifest.permission.READ_MEDIA_IMAGES,
-            )
-        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            arrayOf(
-                Manifest.permission.READ_EXTERNAL_STORAGE,
-            )
+enum class PermissionType(val permissions: Array<String>, val isUnrelatedSdkDevice: Boolean) {
+    LOCATION(arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION).let {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            it + Manifest.permission.ACCESS_BACKGROUND_LOCATION
         } else {
-            arrayOf(
-                Manifest.permission.READ_EXTERNAL_STORAGE,
-                Manifest.permission.WRITE_EXTERNAL_STORAGE,
-            )
-        },
-    ),
+            it
+        }
+    }, isUnrelatedSdkDevice = false),
+
+    STORAGE(if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        arrayOf(
+            Manifest.permission.READ_MEDIA_IMAGES,
+        )
+    } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+        arrayOf(
+            Manifest.permission.READ_EXTERNAL_STORAGE,
+        )
+    } else {
+        arrayOf(
+            Manifest.permission.READ_EXTERNAL_STORAGE,
+            Manifest.permission.WRITE_EXTERNAL_STORAGE,
+        )
+    }, isUnrelatedSdkDevice = false),
 
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
-    POST_NOTIFICATIONS(arrayOf(Manifest.permission.POST_NOTIFICATIONS)),
+    POST_NOTIFICATIONS(arrayOf(Manifest.permission.POST_NOTIFICATIONS),
+        isUnrelatedSdkDevice = Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU),
 
     @RequiresApi(Build.VERSION_CODES.S)
-    SCHEDULE_EXACT_ALARM_ON_SDK_31_AND_32(
-        arrayOf(
-            Manifest.permission.SCHEDULE_EXACT_ALARM,
-        ),
-    );
+    SCHEDULE_EXACT_ALARM_ON_SDK_31_AND_32(arrayOf(
+        Manifest.permission.SCHEDULE_EXACT_ALARM,
+    ), isUnrelatedSdkDevice = Build.VERSION.SDK_INT < Build.VERSION_CODES.S || Build.VERSION.SDK_INT > Build.VERSION_CODES.S_V2);
 }
 
-fun Activity.shouldShowRequestPermissionRationale(permissionType: PermissionType): Boolean =
-    permissionType.permissions.all { ActivityCompat.shouldShowRequestPermissionRationale(this, it) }
+
+private fun Activity.shouldShowRequestPermissionRationale(permissionType: PermissionType): Boolean =
+    permissionType.isUnrelatedSdkDevice or permissionType.permissions.all { ActivityCompat.shouldShowRequestPermissionRationale(this, it) }
 
 
+/**
+ * 해당 권한을 고려할 필요가 없는 SDK 버전이라면 즉시 true를 반환
+ * @return 권한이 허용되었는지 여부
+ */
 fun Context.checkSelfPermission(permissionType: PermissionType): Boolean =
-    permissionType.permissions.all { ContextCompat.checkSelfPermission(this, it) == PackageManager.PERMISSION_GRANTED }
+    permissionType.isUnrelatedSdkDevice or permissionType.permissions.all {
+        ContextCompat.checkSelfPermission(this, it) == PackageManager.PERMISSION_GRANTED
+    }

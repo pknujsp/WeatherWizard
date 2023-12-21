@@ -9,6 +9,7 @@ import io.github.pknujsp.weatherwizard.core.model.airquality.AirQualityDescripti
 import io.github.pknujsp.weatherwizard.core.model.airquality.AirQualityDescription.UNHEALTHY
 import io.github.pknujsp.weatherwizard.core.model.airquality.AirQualityDescription.UNHEALTHY_FOR_SENSITIVE_GROUPS
 import io.github.pknujsp.weatherwizard.core.model.airquality.AirQualityDescription.VERY_UNHEALTHY
+import kotlinx.serialization.Serializable
 
 
 /**
@@ -23,6 +24,7 @@ import io.github.pknujsp.weatherwizard.core.model.airquality.AirQualityDescripti
  * @property VERY_UNHEALTHY 매우 나쁨
  * @property HAZARDOUS 최악
  */
+@Serializable
 enum class AirQualityDescription(@StringRes val descriptionStringId: Int, val color: Color, val range: IntRange) {
     GOOD(R.string.airquality_0_good, Color(0xFF009865), 0..50),
     MODERATE(R.string.airquality_1_moderate, Color(0xfffede33), 51..100),

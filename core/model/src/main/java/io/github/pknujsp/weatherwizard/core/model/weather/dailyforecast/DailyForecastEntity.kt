@@ -1,6 +1,6 @@
 package io.github.pknujsp.weatherwizard.core.model.weather.dailyforecast
 
-import io.github.pknujsp.weatherwizard.core.model.EntityModel
+import io.github.pknujsp.weatherwizard.core.model.weather.base.WeatherEntityModel
 import io.github.pknujsp.weatherwizard.core.model.weather.common.DateTimeValueType
 import io.github.pknujsp.weatherwizard.core.model.weather.common.PrecipitationValueType
 import io.github.pknujsp.weatherwizard.core.model.weather.common.ProbabilityValueType
@@ -9,11 +9,13 @@ import io.github.pknujsp.weatherwizard.core.model.weather.common.SnowfallValueTy
 import io.github.pknujsp.weatherwizard.core.model.weather.common.TemperatureValueType
 import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherConditionValueType
 import io.github.pknujsp.weatherwizard.core.model.weather.common.WindSpeedValueType
+import kotlinx.serialization.Serializable
 
+@Serializable
 data class DailyForecastEntity(
     val dayItems: List<DayItem>,
-) : EntityModel {
-
+) : WeatherEntityModel() {
+    @Serializable
     data class DayItem(
         val dateTime: DateTimeValueType,
         val minTemperature: TemperatureValueType,
@@ -22,7 +24,7 @@ data class DailyForecastEntity(
         val windMaxSpeed: WindSpeedValueType = WindSpeedValueType.none,
         val items: List<Item>,
     ) {
-
+        @Serializable
         data class Item(
             val weatherCondition: WeatherConditionValueType,
             val rainfallVolume: RainfallValueType = RainfallValueType.none,

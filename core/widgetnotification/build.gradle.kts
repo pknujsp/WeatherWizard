@@ -4,7 +4,6 @@ plugins {
 
 android {
     namespace = "io.github.pknujsp.weatherwizard.core.widgetnotification"
-    applyCompose(this)
 }
 
 dependencies {
@@ -15,8 +14,6 @@ dependencies {
     implementation(project(":core:data"))
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
+    implementation(libs.bundles.lifecycle)
     implementation(libs.material)
-    debugImplementation(libs.bundles.compose.debug)
-    implementation(platform(libs.androidx.compose.bom))
-    implementation(libs.bundles.compose.bom)
 }

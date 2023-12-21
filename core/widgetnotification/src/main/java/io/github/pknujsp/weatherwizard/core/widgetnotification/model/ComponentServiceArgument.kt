@@ -1,19 +1,53 @@
 package io.github.pknujsp.weatherwizard.core.widgetnotification.model
 
-import io.github.pknujsp.weatherwizard.core.widgetnotification.widget.WidgetManager
+import androidx.core.os.bundleOf
+import kotlin.reflect.full.declaredMemberProperties
+import kotlin.reflect.full.primaryConstructor
 
-interface ComponentServiceArgument
 
-class OngoingNotificationServiceArgument : ComponentServiceArgument
+abstract class ComponentServiceArgument {
 
-data class DailyNotificationServiceArgument(
+    private val parametersInConstructor = this::class.primaryConstructor!!.parameters.map { it.name!! }.toSet()
+
+    fun toMap() = this::class.declaredMemberProperties.filter { it.name in parametersInConstructor }.associate {
+        it.name to it.getter.call(this)!!
+    }.plus("KEY" to this::class.simpleName!!)
+
+    fun toBundle() = bundleOf(*this@ComponentServiceArgument::class.declaredMemberProperties.filter {
+        it.name in parametersInConstructor
+    }.map { it.name to it.getter.call(this)!! }.plus("KEY" to this::class.simpleName!!).toTypedArray())
+}
+
+class OngoingNotificationServiceArgument : ComponentServiceArgument()
+
+class DailyNotificationServiceArgument(
     val notificationId: Long
-) : ComponentServiceArgument
+) : ComponentServiceArgument()
 
-class WidgetServiceArgument(
-    val action: String,
-    val widgetIds: IntArray,
-) : ComponentServiceArgument {
-    val actionType: WidgetManager.Action
-        get() = WidgetManager.Action.valueOf(action)
+class WidgetDeletedArgument(
+    val widgetIds: Array<Int>,
+) : ComponentServiceArgument()
+
+class WidgetOptionsChangedArgument(
+    val widgetId: Int,
+) : ComponentServiceArgument()
+
+class WidgetUpdatedArgument(
+    val action: Int, val widgetIds: Array<Int>,
+) : ComponentServiceArgument() {
+    companion object {
+        const val UPDATE_ALL = 0
+        const val UPDATE_ONLY_SPECIFIC_WIDGETS = 1
+    }
+}
+
+class LoadWidgetDataArgument(
+    val action: Int, val widgetIds: Array<Int> = emptyArray()
+) : ComponentServiceArgument() {
+    companion object {
+        const val NEW_WIDGET = 0
+        const val UPDATE_ONLY_ON_CURRENT_LOCATION = 1
+        const val UPDATE_ALL = 2
+        const val UPDATE_ONLY_SPECIFIC_WIDGETS = 3
+    }
 }

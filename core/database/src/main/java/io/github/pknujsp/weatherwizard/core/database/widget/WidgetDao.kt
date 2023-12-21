@@ -4,6 +4,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import io.github.pknujsp.weatherwizard.core.model.widget.WidgetStatus
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -13,15 +14,21 @@ interface WidgetDao {
     suspend fun insert(widgetDto: WidgetDto): Long
 
     @Query("SELECT * FROM widgets ORDER BY id DESC")
-    fun getAll(): Flow<List<WidgetDto>>
+    suspend fun getAll(): List<WidgetDto>
+
+    @Query("SELECT id, widget_type, content, status, updated_at FROM widgets ORDER BY id DESC")
+    suspend fun getAllWithoutResponseData(): List<WidgetDto>
 
     @Query("SELECT * FROM widgets WHERE id = :id")
-    suspend fun getById(id: Int): WidgetDto
+    suspend fun getById(id: Int): WidgetDto?
 
     @Query("DELETE FROM widgets WHERE id = :id")
     suspend fun deleteById(id: Int)
 
     @Query("SELECT EXISTS(SELECT * FROM widgets WHERE id = :id)")
     suspend fun containsId(id: Int): Boolean
+
+    @Query("UPDATE widgets SET response_data = :responseData, updated_at = :updatedAt, status = :status WHERE id = :id")
+    suspend fun updateResponseData(id: Int, status: WidgetStatus, responseData: ByteArray?, updatedAt: String)
 
 }

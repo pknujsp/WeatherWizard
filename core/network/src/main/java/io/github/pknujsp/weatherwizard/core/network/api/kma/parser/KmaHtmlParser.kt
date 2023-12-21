@@ -8,11 +8,8 @@ import java.time.LocalDate
 import java.time.LocalTime
 import java.time.ZoneId
 import java.time.ZonedDateTime
-import javax.inject.Inject
-import javax.inject.Singleton
 
-@Singleton
-class KmaHtmlParser @Inject constructor() {
+internal class KmaHtmlParser {
 
     private val zoneId = ZoneId.of("Asia/Seoul")
     private val degree = "℃"
@@ -501,8 +498,7 @@ class KmaHtmlParser @Inject constructor() {
     private fun String.toWindSpeed(): Double = replace(mPerS, "").toDoubleOrNull() ?: 0.0
 
     private fun String.toPrecipitationVolume(): Double =
-        replace("0.0", "").replace(mm, "").replace(cm, "").toDoubleOrNull() ?: PrecipitationValueType.none
-            .value
+        replace("0.0", "").replace(mm, "").replace(cm, "").toDoubleOrNull() ?: PrecipitationValueType.none.value
 
     private fun String.toPop(): Int = replace(percent, "").toIntOrNull() ?: ProbabilityValueType.none.value
 }

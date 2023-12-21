@@ -4,6 +4,7 @@ import androidx.compose.runtime.Stable
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import org.osmdroid.api.IMapController
 import org.osmdroid.views.MapView
@@ -12,7 +13,7 @@ import org.osmdroid.views.MapView
 class SimpleMapController {
     private var iMapController: IMapController? = null
     private val _time: MutableStateFlow<String> = MutableStateFlow("")
-    val time: StateFlow<String> = _time
+    val time: StateFlow<String> = _time.asStateFlow()
 
     fun init(mapView: MapView) {
         iMapController = mapView.controller
@@ -49,10 +50,10 @@ class RadarAdapter {
     private var radarController: RadarController? = null
 
     private val _time = MutableStateFlow("")
-    val time: StateFlow<String> = _time
+    val time: StateFlow<String> = _time.asStateFlow()
 
     private val _playing = MutableStateFlow(false)
-    val playing: StateFlow<Boolean> = _playing
+    val playing: StateFlow<Boolean> = _playing.asStateFlow()
 
     fun setRadarController(scope: CoroutineScope, radarController: RadarController) {
         this.radarController = radarController

@@ -7,18 +7,13 @@ import retrofit2.http.GET
 import retrofit2.http.Query
 
 interface KmaNetworkApi {
-    @GET("current-weather.do")
+    @GET("current-weather.do?unit=m%2Fs&aws=N")
     suspend fun getCurrentWeather(
-        @Query(encoded = true, value = "unit") unit: String = "m%2Fs",
-        @Query(encoded = true, value = "aws") aws: String = "N",
         @Query(encoded = true, value = "code") code: String,
     ): NetworkApiResult<String>
 
-    @GET("digital-forecast.do")
+    @GET("digital-forecast.do?unit=m%2Fs&hr1=Y&ext=N")
     suspend fun getHourlyAndDailyForecast(
-        @Query(encoded = true, value = "unit") unit: String = "m%2Fs",
-        @Query(encoded = true, value = "hr1") hr1: String = "Y",
-        @Query(encoded = true, value = "ext") ext: String = "N",
         @Query(encoded = true, value = "code") code: String,
     ): NetworkApiResult<String>
 }

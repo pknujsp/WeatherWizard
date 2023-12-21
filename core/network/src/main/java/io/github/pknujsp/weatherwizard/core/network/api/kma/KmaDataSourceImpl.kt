@@ -16,9 +16,8 @@ import org.jsoup.Jsoup
 import java.lang.ref.WeakReference
 import java.time.ZoneId
 import java.time.ZonedDateTime
-import javax.inject.Inject
 
-class KmaDataSourceImpl @Inject constructor(
+internal class KmaDataSourceImpl(
     private val kmaNetworkApi: KmaNetworkApi,
     private val kmaHtmlParser: KmaHtmlParser,
 ) : KmaDataSource {

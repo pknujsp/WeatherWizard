@@ -6,7 +6,6 @@ import android.view.View
 import android.widget.RemoteViews
 import androidx.annotation.LayoutRes
 import androidx.annotation.StringRes
-import io.github.pknujsp.weatherwizard.core.common.FeatureType
 import io.github.pknujsp.weatherwizard.core.common.manager.FailedReason
 import io.github.pknujsp.weatherwizard.core.resource.R
 
@@ -42,7 +41,7 @@ object UiStateRemoteViewCreator : RemoteViewCreator {
         setOnClickPendingIntent(R.id.action_button, pendingIntent)
 
         createBaseView(context, containerType, false).also {
-            it.addView(R.id.remote_views_content_container, this)
+            it.addViewSafely(R.id.remote_views_content_container, this)
         }
     }
 

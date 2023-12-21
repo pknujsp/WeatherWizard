@@ -29,32 +29,26 @@ internal class AppLocationManagerImpl(context: Context) : AppLocationManager {
 
     @SuppressLint("MissingPermission")
     override suspend fun getCurrentLocation(): AppLocationManager.LocationResult {
+        Log.d("AppLocationManagerImpl", "getCurrentLocation")
         return findCurrentLocation().first()?.let {
-            Log.d("AppLocationManagerImpl", "getCurrentLocation: $it")
+            Log.d("AppLocationManagerImpl", "getCurrentLocation Result: $it")
             AppLocationManager.LocationResult.Success(it)
         } ?: run {
-            Log.d("AppLocationManagerImpl", "getCurrentLocation: null")
+            Log.d("AppLocationManagerImpl", "getCurrentLocation Result: null")
             AppLocationManager.LocationResult.Failure
         }
     }
 
     @SuppressLint("MissingPermission")
     private fun findCurrentLocation() = callbackFlow {
-        fusedLocationProvider.getCurrentLocation(Priority.PRIORITY_BALANCED_POWER_ACCURACY, CancellationTokenSource().token)
+        fusedLocationProvider.getCurrentLocation(Priority.PRIORITY_HIGH_ACCURACY, CancellationTokenSource().token)
             .addOnFailureListener {
-                launch {
-                    send(null)
-                }
+                trySend(null)
             }.addOnCanceledListener {
-                launch {
-                    send(null)
-                }
+                trySend(null)
             }.addOnSuccessListener {
-                launch {
-                    send(it)
-                }
+                trySend(it ?: null)
             }
-
         awaitClose { }
     }
 

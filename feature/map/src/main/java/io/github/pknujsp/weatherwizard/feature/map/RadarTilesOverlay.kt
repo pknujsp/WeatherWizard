@@ -11,6 +11,7 @@ import org.osmdroid.util.MapTileIndex
 import org.osmdroid.views.overlay.TilesOverlay
 import java.time.Instant
 import java.time.ZonedDateTime
+import java.time.format.DateTimeFormatter
 
 class RadarTilesOverlay(
     context: Context,
@@ -25,9 +26,12 @@ class RadarTilesOverlay(
     val currentIndex: Int = radarTiles.currentIndex
 ) {
 
+    private companion object {
+        val dateTimeFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("M/d E HH:mm")
+    }
+
     val times: List<String> = radarTiles.radar.run {
         val timeZone = requestTime.zone
-        val dateTimeFormatter = java.time.format.DateTimeFormatter.ofPattern("M/d E HH:mm")
         val past = context.getString(R.string.past)
         val now = context.getString(R.string.now)
         val future = context.getString(R.string.future)
@@ -35,9 +39,13 @@ class RadarTilesOverlay(
         var pointInTime: String
         mapIndexed { index, it ->
             ZonedDateTime.ofInstant(Instant.ofEpochSecond(it.time.toLong()), timeZone).let { time ->
-                pointInTime = if (index == currentIndex) now
-                else if (time.isAfter(requestTime)) future
-                else past
+                pointInTime = if (index == currentIndex) {
+                    now
+                } else if (time.isAfter(requestTime)) {
+                    future
+                } else {
+                    past
+                }
                 "$pointInTime ${time.format(dateTimeFormatter)}"
             }
         }
@@ -49,22 +57,21 @@ class RadarTilesOverlay(
             val tileSourceName = "RadarTiles_$index"
 
             val tileProvider = MapTileProviderBasic(context,
-                object : OnlineTileSourceBase(tileSourceName, minZoomLevel.toInt(), maxZoomLevel.toInt(), optionTileSize, "",
-                    emptyArray()) {
+                object :
+                    OnlineTileSourceBase(tileSourceName, minZoomLevel.toInt(), maxZoomLevel.toInt(), optionTileSize, "", emptyArray()) {
                     override fun getTileURLString(pMapTileIndex: Long): String {
                         val x = MapTileIndex.getX(pMapTileIndex)
                         val y = MapTileIndex.getY(pMapTileIndex)
                         val z = MapTileIndex.getZoom(pMapTileIndex)
                         return "$host${it.path}/$optionTileSize/$z/$x/$y/$optionColorScheme/${optionSmoothData}_$optionSnowColors.png"
                     }
-                }, SqlTileWriter().apply {
+                },
+                SqlTileWriter().apply {
                     purgeCache(tileSourceName)
                 }).apply {
                 setOfflineFirst(false)
                 tileCache.setStressedMemory(true)
-                tileRequestCompleteHandlers.add(
-                    handler
-                )
+                tileRequestCompleteHandlers.add(handler)
             }
             TilesOverlay(tileProvider, context).apply {
                 loadingBackgroundColor = Color.TRANSPARENT

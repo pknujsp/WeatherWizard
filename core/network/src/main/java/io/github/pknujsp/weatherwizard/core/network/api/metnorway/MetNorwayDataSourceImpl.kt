@@ -11,9 +11,8 @@ import io.github.pknujsp.weatherwizard.core.network.api.onResponse
 import io.github.pknujsp.weatherwizard.core.network.retrofit.onResult
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
-import javax.inject.Inject
 
-class MetNorwayDataSourceImpl @Inject constructor(
+internal class MetNorwayDataSourceImpl(
     private val metNorwayNetworkApi: MetNorwayNetworkApi
 ) : MetNorwayDataSource {
 

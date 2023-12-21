@@ -2,7 +2,8 @@ package io.github.pknujsp.weatherwizard.core.data.weather.metnorway
 
 import io.github.pknujsp.weatherwizard.core.data.weather.DefaultValueUnit
 import io.github.pknujsp.weatherwizard.core.data.weather.mapper.WeatherResponseMapper
-import io.github.pknujsp.weatherwizard.core.model.EntityModel
+import io.github.pknujsp.weatherwizard.core.model.ApiResponseModel
+import io.github.pknujsp.weatherwizard.core.model.weather.base.WeatherEntityModel
 import io.github.pknujsp.weatherwizard.core.model.weather.common.MajorWeatherEntityType
 import io.github.pknujsp.weatherwizard.core.model.weather.common.PrecipitationUnit
 import io.github.pknujsp.weatherwizard.core.model.weather.common.PressureUnit
@@ -16,14 +17,12 @@ import io.github.pknujsp.weatherwizard.core.model.weather.common.WindSpeedUnit
 import io.github.pknujsp.weatherwizard.core.model.weather.current.CurrentWeatherEntity
 import io.github.pknujsp.weatherwizard.core.model.weather.dailyforecast.DailyForecastEntity
 import io.github.pknujsp.weatherwizard.core.model.weather.hourlyforecast.HourlyForecastEntity
-import io.github.pknujsp.weatherwizard.core.model.ApiResponseModel
 import io.github.pknujsp.weatherwizard.core.network.api.metnorway.response.MetNorwayCurrentWeatherResponse
 import io.github.pknujsp.weatherwizard.core.network.api.metnorway.response.MetNorwayDailyForecastResponse
 import io.github.pknujsp.weatherwizard.core.network.api.metnorway.response.MetNorwayHourlyForecastResponse
-import javax.inject.Inject
 
 
-internal class MetNorwayResponseMapper : WeatherResponseMapper<EntityModel> {
+internal class MetNorwayResponseMapper : WeatherResponseMapper<WeatherEntityModel> {
 
     private companion object : DefaultValueUnit {
         override val DEFAULT_TEMPERATURE_UNIT = TemperatureUnit.Celsius

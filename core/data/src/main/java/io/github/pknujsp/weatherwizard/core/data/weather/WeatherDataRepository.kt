@@ -1,7 +1,6 @@
 package io.github.pknujsp.weatherwizard.core.data.weather
 
 import io.github.pknujsp.weatherwizard.core.data.weather.model.WeatherModel
-import io.github.pknujsp.weatherwizard.core.model.EntityModel
 import io.github.pknujsp.weatherwizard.core.model.weather.common.MajorWeatherEntityType
 import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherProvider
 
@@ -17,6 +16,7 @@ interface WeatherDataRepository {
     suspend fun getWeatherData(
         requestWeatherData: RequestWeatherData, requestId: Long, bypassCache: Boolean = false
     ): Result<WeatherModel>
+
 }
 
 class RequestWeatherData(
@@ -27,6 +27,7 @@ class RequestWeatherData(
 ) {
     override fun hashCode(): Int {
         var result = latitude.hashCode()
+
         result = 31 * result + longitude.hashCode()
         result = 31 * result + weatherProvider.hashCode()
         return result

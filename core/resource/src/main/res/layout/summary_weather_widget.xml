@@ -1,95 +1,87 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    style="@style/Widget.WeatherWizard.Widget.Container.Content"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+    android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <FrameLayout
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center_vertical"
-        android:layout_marginTop="4dp">
+        android:layout_marginBottom="6dp">
 
-        <LinearLayout
+        <ImageView
+            android:id="@+id/weather_icon"
+            android:layout_width="52dp"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginEnd="6dp"
+            android:adjustViewBounds="true"
+            android:contentDescription="@string/weather_icon"
+            android:scaleType="fitCenter"
+            android:src="@drawable/ic_sun" />
+
+        <RelativeLayout
+            android:id="@+id/temperature_container"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="start|center_vertical"
-            android:gravity="center_vertical"
-            android:orientation="horizontal">
+            android:layout_centerVertical="true"
+            android:layout_toEndOf="@id/weather_icon">
 
-            <ImageView
-                android:id="@+id/weather_icon"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:layout_gravity="center_vertical"
-                android:layout_marginEnd="6dp"
-                android:contentDescription="@string/weather_icon"
-                android:scaleType="centerInside"
-                android:src="@drawable/ic_sun" />
-
-            <RelativeLayout
+            <TextView
+                android:id="@+id/temperature"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical">
+                android:gravity="center_vertical"
+                android:includeFontPadding="false"
+                android:text="12"
+                android:textColor="@android:color/black"
+                android:textSize="27sp" />
 
-                <TextView
-                    android:id="@+id/temperature"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:gravity="center_vertical"
-                    android:includeFontPadding="false"
-                    android:text="12"
-                    android:textColor="@android:color/black"
-                    android:textSize="27sp" />
+            <TextView
+                android:id="@+id/feels_like_temperature_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignBaseline="@id/temperature"
+                android:layout_marginStart="4dp"
+                android:layout_toEndOf="@id/temperature"
+                android:includeFontPadding="false"
+                android:text="@string/feels_like_temperature"
+                android:textSize="14sp" />
 
-                <TextView
-                    android:id="@+id/feels_like_temperature_label"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignBaseline="@id/temperature"
-                    android:layout_marginStart="4dp"
-                    android:layout_toEndOf="@id/temperature"
-                    android:includeFontPadding="false"
-                    android:text="@string/feels_like_temperature"
-                    android:textColor="@android:color/black"
-                    android:textSize="14sp" />
+            <TextView
+                android:id="@+id/feels_like_temperature"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignBaseline="@id/temperature"
+                android:layout_marginStart="4dp"
+                android:layout_toEndOf="@id/feels_like_temperature_label"
+                android:includeFontPadding="false"
+                android:text="12"
+                android:textSize="17sp" />
 
-                <TextView
-                    android:id="@+id/feels_like_temperature"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignBaseline="@id/temperature"
-                    android:layout_marginStart="4dp"
-                    android:layout_toEndOf="@id/feels_like_temperature_label"
-                    android:includeFontPadding="false"
-                    android:text="12"
-                    android:textColor="@android:color/black"
-                    android:textSize="17sp" />
+            <TextView
+                android:id="@+id/weather_condition"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/temperature"
+                android:fontFamily="sans-serif-condensed"
+                android:includeFontPadding="false"
+                android:text="@string/clear"
+                android:textColor="@android:color/black"
+                android:textSize="13sp" />
+        </RelativeLayout>
 
-                <TextView
-                    android:id="@+id/weather_condition"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_below="@id/temperature"
-                    android:fontFamily="sans-serif-condensed"
-                    android:includeFontPadding="false"
-                    android:text="@string/clear"
-                    android:textColor="@android:color/black"
-                    android:textSize="13sp" />
-            </RelativeLayout>
-
-        </LinearLayout>
-
-    </FrameLayout>
+    </RelativeLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_marginTop="4dp"
+        android:layout_gravity="center_vertical"
+        android:layout_marginBottom="6dp"
         android:layout_weight="1"
         android:orientation="vertical"
-        android:weightSum="1.0">
+        android:weightSum="1">
 
         <LinearLayout
             android:id="@+id/hourly_forecast_row_1"
@@ -110,10 +102,8 @@
     <LinearLayout
         android:id="@+id/daily_forecast"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_marginTop="4dp"
-        android:layout_weight="1"
-        android:gravity="center"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
         android:orientation="horizontal" />
 
 </LinearLayout>

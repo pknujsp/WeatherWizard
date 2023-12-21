@@ -10,7 +10,7 @@ import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
-class UtilsModule {
+object UtilsModule {
 
     @Provides
     @Singleton
@@ -21,6 +21,7 @@ class UtilsModule {
         coerceInputValues = true
         encodeDefaults = true
         prettyPrint = true
+        allowSpecialFloatingPointValues = true
     }
 
 }

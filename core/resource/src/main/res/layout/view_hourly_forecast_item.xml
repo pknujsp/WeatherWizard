@@ -1,12 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="0dp"
-    android:layout_height="wrap_content"
+    android:layout_height="match_parent"
     android:layout_weight="1"
     android:gravity="center"
     android:orientation="vertical"
-    android:paddingHorizontal="4dp"
-    android:paddingVertical="8dp">
+    android:paddingVertical="6dp">
 
     <TextView
         android:id="@+id/time"
@@ -19,8 +18,9 @@
 
     <ImageView
         android:id="@+id/weather_icon"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
         android:adjustViewBounds="true"
         android:contentDescription="@string/weather_icon"
         android:scaleType="fitCenter"
@@ -33,6 +33,6 @@
         android:gravity="center"
         android:text="12"
         android:textColor="@android:color/black"
-        android:textSize="15sp" />
+        android:textSize="14sp" />
 
 </LinearLayout>

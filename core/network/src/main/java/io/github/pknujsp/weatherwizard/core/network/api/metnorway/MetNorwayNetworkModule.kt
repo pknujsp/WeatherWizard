@@ -11,6 +11,7 @@ import kotlinx.serialization.json.Json
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
+import retrofit2.converter.scalars.ScalarsConverterFactory
 import javax.inject.Singleton
 
 @InstallIn(SingletonComponent::class)
@@ -23,6 +24,9 @@ object MetNorwayNetworkModule {
     fun providesNetworkApi(okHttpClient: OkHttpClient, @KtJson json: Json): MetNorwayNetworkApi =
         Retrofit.Builder().client(okHttpClient).baseUrl(URL)
             .addCallAdapterFactory(NetworkApiCallAdapterFactory())
+            .addConverterFactory(
+                ScalarsConverterFactory.create()
+            )
             .addConverterFactory(
                 json.asConverterFactory("application/json".toMediaType())
             ).build().create(MetNorwayNetworkApi::class.java)
