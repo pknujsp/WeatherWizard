@@ -21,6 +21,7 @@ object UtilsModule {
         coerceInputValues = true
         encodeDefaults = true
         prettyPrint = true
+        allowSpecialFloatingPointValues = true
     }
 
 }
