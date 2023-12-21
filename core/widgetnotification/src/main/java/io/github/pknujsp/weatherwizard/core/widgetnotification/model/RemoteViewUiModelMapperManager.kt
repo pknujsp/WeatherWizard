@@ -8,6 +8,7 @@ import io.github.pknujsp.weatherwizard.core.model.notification.enums.OngoingNoti
 import io.github.pknujsp.weatherwizard.core.model.widget.WidgetType
 import io.github.pknujsp.weatherwizard.core.widgetnotification.notification.daily.forecast.DailyNotificationForecastUiModelMapper
 import io.github.pknujsp.weatherwizard.core.widgetnotification.notification.ongoing.model.mapper.OngoingNotificationRemoteViewUiModelMapper
+import io.github.pknujsp.weatherwizard.core.widgetnotification.widget.summary.WidgetAllInOneRemoteViewUiModelMapper
 
 object RemoteViewUiModelMapperManager {
     fun getByDailyNotificationType(
@@ -27,7 +28,7 @@ object RemoteViewUiModelMapperManager {
     fun getByWidgetType(
         widgetType: WidgetType
     ): UiModelMapper<WeatherResponseEntity, out RemoteViewUiModel> = when (widgetType) {
-        WidgetType.ALL_IN_ONE -> OngoingNotificationRemoteViewUiModelMapper()
+        WidgetType.ALL_IN_ONE -> WidgetAllInOneRemoteViewUiModelMapper()
         else -> throw IllegalArgumentException("Unknown widget type: $widgetType")
     }
 }

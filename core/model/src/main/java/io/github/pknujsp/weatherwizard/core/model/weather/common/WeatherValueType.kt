@@ -4,6 +4,7 @@ package io.github.pknujsp.weatherwizard.core.model.weather.common
 import android.content.Context
 import io.github.pknujsp.weatherwizard.core.resource.R
 import io.github.pknujsp.weatherwizard.core.model.airquality.AirQualityDescription
+import kotlinx.serialization.Serializable
 
 interface NoneValue<T> {
     val none: T
@@ -24,7 +25,7 @@ interface WeatherValueUnitType<T : Any, U : WeatherDataUnit> : WeatherValueType<
 
 interface WeatherValueNotUnitType<out T : Any> : WeatherValueType<T>
 
-
+@Serializable
 data class DateTimeValueType(
     override val value: String,
 ) : WeatherValueNotUnitType<String> {
@@ -35,13 +36,13 @@ data class DateTimeValueType(
 
 }
 
-
+@Serializable
 data class WeatherConditionValueType(
     override val value: WeatherConditionCategory,
 ) : WeatherValueNotUnitType<WeatherConditionCategory> {
 
 }
-
+@Serializable
 data class TemperatureValueType(
     override val value: Double,
     override val unit: TemperatureUnit,
@@ -77,7 +78,7 @@ data class TemperatureValueType(
         return "${value.toInt()}${unit.symbol}"
     }
 }
-
+@Serializable
 data class WindSpeedValueType(
     override val value: Double,
     override val unit: WindSpeedUnit,
@@ -135,7 +136,7 @@ data class WindSpeedValueType(
         return value == Double.MIN_VALUE
     }
 }
-
+@Serializable
 data class WindDirectionValueType(
     override val value: Int,
     override val unit: WindDirectionUnit,
@@ -163,7 +164,7 @@ data class WindDirectionValueType(
         return value == Int.MIN_VALUE
     }
 }
-
+@Serializable
 data class HumidityValueType(
     override val value: Int,
     override val unit: PercentageUnit,
@@ -190,7 +191,7 @@ data class HumidityValueType(
     }
 }
 
-
+@Serializable
 data class PressureValueType(
     override val value: Int,
     override val unit: PressureUnit,
@@ -232,7 +233,7 @@ data class PressureValueType(
         return value == Int.MIN_VALUE
     }
 }
-
+@Serializable
 data class VisibilityValueType(
     override val value: Double,
     override val unit: VisibilityUnit,
@@ -273,7 +274,7 @@ data class VisibilityValueType(
         return if (isNone()) "" else value.toString()
     }
 }
-
+@Serializable
 data class PrecipitationValueType(
     override val value: Double,
     override val unit: PrecipitationUnit,
@@ -309,7 +310,7 @@ data class PrecipitationValueType(
         return if (isNone()) "" else if (value == drop) "~1" else value.toString()
     }
 }
-
+@Serializable
 data class SnowfallValueType(
     override val value: Double,
     override val unit: PrecipitationUnit,
@@ -355,7 +356,7 @@ data class SnowfallValueType(
         return if (isNone()) "" else value.toString()
     }
 }
-
+@Serializable
 data class RainfallValueType(
     override val value: Double,
     override val unit: PrecipitationUnit,
@@ -404,7 +405,7 @@ data class RainfallValueType(
     }
 }
 
-
+@Serializable
 data class ProbabilityValueType(
     override val value: Int,
     override val unit: PercentageUnit,
@@ -430,7 +431,7 @@ data class ProbabilityValueType(
         return if (isNone()) "" else value.toString()
     }
 }
-
+@Serializable
 data class AirQualityValueType(
     override val value: Int, val airQualityDescription: AirQualityDescription
 ) : WeatherValueNotUnitType<Int> {

@@ -17,9 +17,6 @@ interface WeatherDataRepository {
         requestWeatherData: RequestWeatherData, requestId: Long, bypassCache: Boolean = false
     ): Result<WeatherModel>
 
-    suspend fun getWeatherDataByBytes(
-        requestWeatherData: RequestWeatherData, requestId: Long, bypassCache: Boolean = false
-    ): Result<WeatherModel>
 }
 
 class RequestWeatherData(
@@ -30,6 +27,7 @@ class RequestWeatherData(
 ) {
     override fun hashCode(): Int {
         var result = latitude.hashCode()
+
         result = 31 * result + longitude.hashCode()
         result = 31 * result + weatherProvider.hashCode()
         return result

@@ -9,8 +9,10 @@ import io.github.pknujsp.weatherwizard.core.common.FeatureType
 import io.github.pknujsp.weatherwizard.core.common.manager.FeatureState
 import io.github.pknujsp.weatherwizard.core.common.manager.FeatureStatusManager
 import io.github.pknujsp.weatherwizard.core.common.manager.WidgetManager
+import io.github.pknujsp.weatherwizard.core.common.module.KtJson
 import io.github.pknujsp.weatherwizard.core.data.widget.WidgetSettingsEntity
 import io.github.pknujsp.weatherwizard.core.domain.weather.WeatherResponseState
+import io.github.pknujsp.weatherwizard.core.model.JsonParser
 import io.github.pknujsp.weatherwizard.core.model.RemoteViewUiModel
 import io.github.pknujsp.weatherwizard.core.model.coordinate.LocationType
 import io.github.pknujsp.weatherwizard.core.model.widget.WidgetStatus
@@ -23,7 +25,9 @@ import io.github.pknujsp.weatherwizard.core.widgetnotification.remoteview.Remote
 import io.github.pknujsp.weatherwizard.core.widgetnotification.remoteview.RemoteViewsCreatorManager
 import io.github.pknujsp.weatherwizard.core.widgetnotification.remoteview.UiStateRemoteViewCreator
 import io.github.pknujsp.weatherwizard.core.widgetnotification.widget.remoteview.WidgetRemoteViewsCreator
+import io.github.pknujsp.weatherwizard.core.widgetnotification.widget.worker.model.WidgetResponseDBModel
 import io.github.pknujsp.weatherwizard.feature.componentservice.widget.worker.WidgetRemoteViewModel
+import kotlinx.serialization.json.Json
 
 @HiltWorker
 class WidgetCoroutineService @AssistedInject constructor(
@@ -31,8 +35,11 @@ class WidgetCoroutineService @AssistedInject constructor(
     @Assisted params: WorkerParameters,
     private val widgetRemoteViewModel: WidgetRemoteViewModel,
     private val featureStatusManager: FeatureStatusManager,
-    private val widgetManager: WidgetManager
+    private val widgetManager: WidgetManager,
+    @KtJson json: Json
 ) : AppComponentCoroutineService<LoadWidgetDataArgument>(context, params, Companion) {
+
+    private val jsonParser by lazy { JsonParser(json) }
 
     companion object : IWorker {
         override val name: String = "WidgetCoroutineService"
@@ -72,17 +79,16 @@ class WidgetCoroutineService @AssistedInject constructor(
             }
         }
 
-        with(widgetRemoteViewModel.load(excludeWidgets, excludeLocationType)) {
-            forEach { model ->
-                 when (model.state) {
-                    is WeatherResponseState.Success ->
-                        widgetRemoteViewModel.updateResponseData(model.widget.id,WidgetStatus.RESPONSE_SUCCESS, model.state.entity.)
+        val responses = widgetRemoteViewModel.load(excludeWidgets, excludeLocationType)
 
-                    is WeatherResponseState.Failure -> widgetRemoteViewModel.updateResponseData(model.widget.id,WidgetStatus.RESPONSE_FAILURE, model.state.entity.)
-                }
+        responses.forEach { state ->
+            if (state.isSuccessful) {
+                widgetRemoteViewModel.updateResponseData(state.widget.id,
+                    WidgetStatus.RESPONSE_SUCCESS,
+                    state.toWidgetResponseDBModel(jsonParser).toByteArray(jsonParser))
+            } else {
+                widgetRemoteViewModel.updateResponseData(state.widget.id, WidgetStatus.RESPONSE_FAILURE)
             }
         }
     }
-
-
 }

@@ -16,23 +16,14 @@ class GetWeatherDataUseCase @Inject constructor(
         val requestWeatherData = request.run {
             RequestWeatherData(weatherDataMajorCategories, location.latitude, location.longitude, weatherProvider)
         }
-
-        return when (request.modelType) {
-            WeatherDataRequest.ModelType.BYTES -> weatherDataRepository.getWeatherDataByBytes(requestWeatherData,
-                request.requestId,
-                bypassCache)
-
-            WeatherDataRequest.ModelType.NORMAL -> weatherDataRepository.getWeatherData(requestWeatherData, request.requestId, bypassCache)
-        }
+        return weatherDataRepository.getWeatherData(requestWeatherData, request.requestId, bypassCache)
     }
 
     suspend operator fun invoke(
         request: WeatherDataRequest.Request, bypassCache: Boolean = false
     ): WeatherResponseState {
         return request.run {
-            val response = load(this, bypassCache)
-
-            response.fold(onSuccess = {
+            load(this, bypassCache).fold(onSuccess = {
                 WeatherResponseState.Success(requestId,
                     location,
                     weatherProvider,
@@ -45,7 +36,6 @@ class GetWeatherDataUseCase @Inject constructor(
                 )
             })
         }
-
     }
 
 }

@@ -11,7 +11,7 @@ import kotlinx.coroutines.flow.Flow
 interface WidgetDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insert(widgetDto: WidgetDto): Int
+    suspend fun insert(widgetDto: WidgetDto): Long
 
     @Query("SELECT * FROM widgets ORDER BY id DESC")
     fun getAll(): Flow<List<WidgetDto>>

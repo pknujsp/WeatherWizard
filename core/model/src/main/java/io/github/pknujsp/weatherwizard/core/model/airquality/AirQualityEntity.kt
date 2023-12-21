@@ -3,15 +3,18 @@ package io.github.pknujsp.weatherwizard.core.model.airquality
 import io.github.pknujsp.weatherwizard.core.model.VarState
 import io.github.pknujsp.weatherwizard.core.model.weather.base.WeatherEntityModel
 import io.github.pknujsp.weatherwizard.core.model.weather.common.AirQualityValueType
+import kotlinx.serialization.Serializable
 import java.time.LocalDate
 import java.time.ZonedDateTime
 
+@Serializable
 data class AirQualityEntity(
     val current: Current,
     val info: Info,
     val dailyForecast: DailyForecast,
 ) : WeatherEntityModel() {
 
+    @Serializable
     data class Current(
         val aqi: AirQualityValueType,
         val co: AirQualityValueType,
@@ -22,8 +25,9 @@ data class AirQualityEntity(
         val so2: AirQualityValueType,
     )
 
+    @Serializable
     data class Info(
-        val dataMeasurementTime: ZonedDateTime,
+        val dataMeasurementTime: String,
         val dataSourceName: String,
         val dataSourceWebsiteUrl: String,
         val stationLatitude: Double,
@@ -31,29 +35,26 @@ data class AirQualityEntity(
         val stationName: String,
     )
 
+    @Serializable
     class DailyForecast(val items: List<Item>) {
-
+        @Serializable
         data class Item(
-            val date: LocalDate,
+            val date: String,
             val o3: VarState<Pollutant> = VarState.Uninitialized,
             val pm10: VarState<Pollutant> = VarState.Uninitialized,
             val pm25: VarState<Pollutant> = VarState.Uninitialized,
         ) {
-            val aqi: VarState<AirQualityValueType>
 
-            init {
+            fun getAqi(): VarState<AirQualityValueType> {
                 val avg =
                     listOf(o3, pm10, pm25).filterIsInstance<VarState.Initialized<Pollutant>>().map { it.data.avg.value }.average().toInt()
-                aqi = VarState.Initialized(AirQualityValueType(value = avg, airQualityDescription = AirQualityDescription.fromValue(avg)))
+                return VarState.Initialized(AirQualityValueType(value = avg, airQualityDescription = AirQualityDescription.fromValue(avg)))
             }
 
+            @Serializable
             data class Pollutant(
-                val avg: AirQualityValueType,
-                val max: AirQualityValueType,
-                val min: AirQualityValueType,
-            ) {
-                val aqi: AirQualityValueType = avg
-            }
+                val avg: AirQualityValueType, val max: AirQualityValueType, val min: AirQualityValueType, val aqi: AirQualityValueType = avg
+            )
         }
     }
 }

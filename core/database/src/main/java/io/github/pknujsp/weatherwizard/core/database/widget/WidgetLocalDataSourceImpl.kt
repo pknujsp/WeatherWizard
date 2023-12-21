@@ -10,7 +10,7 @@ class WidgetLocalDataSourceImpl @Inject constructor(
     private val widgetDao: WidgetDao
 ) : WidgetLocalDataSource {
 
-    override suspend fun add(widgetDto: WidgetDto): Int = widgetDao.insert(widgetDto)
+    override suspend fun add(widgetDto: WidgetDto): Int = widgetDao.insert(widgetDto).toInt()
 
     override fun getAll(): Flow<List<WidgetDto>> = widgetDao.getAll().onEmpty {
         emit(emptyList())

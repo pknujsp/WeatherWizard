@@ -58,14 +58,14 @@ object RepositoryModule {
         weatherResponseMapperManager: WeatherResponseMapperManager<@JvmSuppressWildcards WeatherEntityModel>,
         weatherApiRequestManager: WeatherApiRequestManager<@JvmSuppressWildcards ApiResponseModel>,
         @CoDispatcher(CoDispatcherType.DEFAULT) dispatcher: CoroutineDispatcher,
-        @KtJson json: Json
     ): WeatherDataRepositoryImpl {
         val cacheManagerImpl = CacheManagerImpl<Int, CachedWeatherModel>(dispatcher = dispatcher)
-        return WeatherDataRepositoryImpl(weatherResponseMapperManager,
+        return WeatherDataRepositoryImpl(
+            weatherResponseMapperManager,
             weatherApiRequestManager,
             cacheManagerImpl,
             cacheManagerImpl,
-            JsonParser(json))
+        )
     }
 
     @Provides

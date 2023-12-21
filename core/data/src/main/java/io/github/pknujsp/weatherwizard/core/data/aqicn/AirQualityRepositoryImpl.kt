@@ -21,6 +21,7 @@ internal class AirQualityRepositoryImpl(
     private val jsonParser by lazy { JsonParser(json) }
 
     private suspend fun load(latitude: Double, longitude: Double): Result<AqiCnResponse> = aqiCnDataSource.getAqiCnData(latitude, longitude)
+
     override suspend fun getAirQuality(latitude: Double, longitude: Double): Result<AirQualityEntity> {
         val key = toKey(latitude, longitude)
         getCache(key)?.run {
@@ -44,7 +45,7 @@ internal class AirQualityRepositoryImpl(
                     so2 = AirQualityValueType(value = iaqi.so2.v.toInt(),
                         airQualityDescription = AirQualityDescription.fromValue(iaqi.so2.v.toInt())))
 
-                val info = AirQualityEntity.Info(dataMeasurementTime = ZonedDateTime.parse(time.iso),
+                val info = AirQualityEntity.Info(dataMeasurementTime = ZonedDateTime.parse(time.iso).toString(),
                     dataSourceName = attributions.first().name,
                     dataSourceWebsiteUrl = attributions.first().url,
                     stationLatitude = city.geo[0].toDouble(),
@@ -59,7 +60,7 @@ internal class AirQualityRepositoryImpl(
                     (o3.keys + pm10.keys + pm25.keys).toSortedSet { d1, d2 ->
                         d1.compareTo(d2)
                     }.map { date ->
-                        AirQualityEntity.DailyForecast.Item(date = date,
+                        AirQualityEntity.DailyForecast.Item(date = date.toString(),
                             o3 = o3[date]?.run { VarState.Initialized(this) } ?: VarState.Uninitialized,
                             pm10 = pm10[date]?.run { VarState.Initialized(this) } ?: VarState.Uninitialized,
                             pm25 = pm25[date]?.run { VarState.Initialized(this) } ?: VarState.Uninitialized)
@@ -77,10 +78,6 @@ internal class AirQualityRepositoryImpl(
         return result
     }
 
-
-    override suspend fun getAirQualityByBytes(latitude: Double, longitude: Double): Result<ByteArray> = load(latitude, longitude).map {
-        jsonParser.parseToByteArray(it)
-    }
 
     private fun String.toInt(): Int = toIntOrNull() ?: toDoubleOrNull()?.toInt() ?: 0
 

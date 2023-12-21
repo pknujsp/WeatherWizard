@@ -1,6 +1,5 @@
 package io.github.pknujsp.weatherwizard.core.model.weather.current
 
-import io.github.pknujsp.weatherwizard.core.model.EntityModel
 import io.github.pknujsp.weatherwizard.core.model.weather.base.WeatherEntityModel
 import io.github.pknujsp.weatherwizard.core.model.weather.common.HumidityValueType
 import io.github.pknujsp.weatherwizard.core.model.weather.common.PrecipitationValueType
@@ -8,7 +7,9 @@ import io.github.pknujsp.weatherwizard.core.model.weather.common.TemperatureValu
 import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherConditionValueType
 import io.github.pknujsp.weatherwizard.core.model.weather.common.WindDirectionValueType
 import io.github.pknujsp.weatherwizard.core.model.weather.common.WindSpeedValueType
+import kotlinx.serialization.Serializable
 
+@Serializable
 data class CurrentWeatherEntity(
     val weatherCondition: WeatherConditionValueType,
     val temperature: TemperatureValueType,
@@ -17,8 +18,4 @@ data class CurrentWeatherEntity(
     val windSpeed: WindSpeedValueType,
     val windDirection: WindDirectionValueType,
     val precipitationVolume: PrecipitationValueType,
-) : WeatherEntityModel()
-
-class CurrentWeatherApiResponseWrapper(
-    val byteArray: ByteArray
 ) : WeatherEntityModel()
