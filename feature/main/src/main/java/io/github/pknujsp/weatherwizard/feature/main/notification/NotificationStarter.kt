@@ -30,7 +30,6 @@ class NotificationStarterImpl(
 
     private suspend fun getDailyNotifications() = dailyNotificationRepository.getDailyNotifications().firstOrNull()
 
-
     private suspend fun startOngoingNotification(context: Context) {
         getOngoingNotification()?.let {
             if (it.enabled && !appNotificationManager.isActiveNotification(NotificationType.ONGOING)) {
@@ -49,28 +48,16 @@ class NotificationStarterImpl(
     }
 
     private suspend fun startDailyNotifications(context: Context) {
-        getDailyNotifications()?.let {
-            it.forEach { dailyNotification ->
-                if (dailyNotification.enabled) {
-                    if (!notificationAlarmManager.isScheduled(context, dailyNotification.id)) {
-                        notificationAlarmManager.schedule(context,
-                            dailyNotification.id,
-                            dailyNotification.data.hour,
-                            dailyNotification.data.minute)
-                    }
-                }
+        getDailyNotifications()?.forEach { dailyNotification ->
+            if (dailyNotification.enabled && !notificationAlarmManager.isScheduled(context, dailyNotification.id)) {
+                notificationAlarmManager.schedule(context, dailyNotification.id, dailyNotification.data.hour, dailyNotification.data.minute)
             }
         }
     }
 
     override suspend fun start(context: Context) {
-        supervisorScope {
-            val ongoing = async { startOngoingNotification(context) }
-            val daily = async { startDailyNotifications(context) }
-
-            ongoing.await()
-            daily.await()
-        }
+        startOngoingNotification(context)
+        startDailyNotifications(context)
     }
 }
 

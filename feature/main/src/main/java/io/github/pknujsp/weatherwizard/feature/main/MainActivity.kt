@@ -14,8 +14,11 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import dagger.hilt.android.AndroidEntryPoint
 import io.github.pknujsp.weatherwizard.core.common.FeatureType
 import io.github.pknujsp.weatherwizard.core.common.coroutines.CoDispatcher
@@ -27,6 +30,11 @@ import io.github.pknujsp.weatherwizard.core.ui.theme.AppColorScheme
 import io.github.pknujsp.weatherwizard.core.ui.theme.MainTheme
 import io.github.pknujsp.weatherwizard.feature.map.MapInitializer
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.supervisorScope
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 
@@ -35,21 +43,27 @@ class MainActivity : ComponentActivity() {
 
     private val viewModel: ActivityViewModel by viewModels()
 
-    @Inject @CoDispatcher(CoDispatcherType.DEFAULT) lateinit var dispatcher: CoroutineDispatcher
+    @Inject @CoDispatcher(CoDispatcherType.SINGLE) lateinit var dispatcher: CoroutineDispatcher
     @Inject lateinit var appNetworkManager: AppNetworkManager
+    @Inject lateinit var widgetStarter: WidgetStarter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         setContent {
+            LaunchedEffect(Unit) {
+                launch(dispatcher) {
+                    MapInitializer.initialize(applicationContext)
+                    viewModel.notificationStarter.start(applicationContext)
+                    widgetStarter.start(applicationContext)
+                    Log.d("MainActivity", "initialized map, notification, widget")
+                }
+            }
+
             MainTheme {
                 Surface(modifier = Modifier.fillMaxSize(), color = AppColorScheme.background) {
                     var isNetworkAvailable by remember { mutableStateOf(appNetworkManager.isNetworkAvailable()) }
                     var openNetworkSettings by remember { mutableStateOf(false) }
-
-                    LaunchedEffect(Unit) {
-                        MapInitializer.initialize(applicationContext)
-                        viewModel.notificationStarter.start(applicationContext)
-                    }
 
                     DisposableEffect(appNetworkManager) {
                         appNetworkManager.registerNetworkCallback(object : ConnectivityManager.NetworkCallback() {

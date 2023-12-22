@@ -1,14 +1,10 @@
-package io.github.pknujsp.weatherwizard.widget
+package io.github.pknujsp.weatherwizard.feature.main
 
 import android.appwidget.AppWidgetManager
 import android.content.Context
 import android.content.Intent
+import androidx.core.os.bundleOf
 import io.github.pknujsp.weatherwizard.core.common.manager.WidgetManager
-import io.github.pknujsp.weatherwizard.core.data.widget.WidgetRepository
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.firstOrNull
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.supervisorScope
 
 class WidgetStarterImpl(
     private val widgetManager: WidgetManager
@@ -20,21 +16,17 @@ class WidgetStarterImpl(
             return
         }
 
-        widgetManager.getProviderByWidgetId(installedWidgetIds.first())?.let { widgetProvider ->
-            Intent(context, widgetProvider.javaClass).apply {
+        widgetManager.getProviderByWidgetId(installedWidgetIds.first())?.let { componentName ->
+            val intent = Intent(context, componentName.javaClass).apply {
                 action = AppWidgetManager.ACTION_APPWIDGET_UPDATE
                 putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, installedWidgetIds.toTypedArray())
-                context.sendBroadcast(this)
             }
+            context.sendBroadcast(intent)
         }
     }
 
     override suspend fun start(context: Context) {
-        supervisorScope {
-            launch {
-                //startWidget(context)
-            }
-        }
+        startWidget(context)
     }
 
 }

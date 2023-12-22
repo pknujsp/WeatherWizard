@@ -3,7 +3,6 @@ package io.github.pknujsp.weatherwizard.feature.componentservice.widget
 import android.appwidget.AppWidgetManager
 import android.content.Context
 import android.content.Intent
-import android.util.Log
 import androidx.hilt.work.HiltWorker
 import androidx.work.WorkerParameters
 import dagger.assisted.Assisted
@@ -20,8 +19,6 @@ import io.github.pknujsp.weatherwizard.core.model.widget.WidgetStatus
 import io.github.pknujsp.weatherwizard.core.widgetnotification.model.AppComponentCoroutineService
 import io.github.pknujsp.weatherwizard.core.widgetnotification.model.IWorker
 import io.github.pknujsp.weatherwizard.core.widgetnotification.model.LoadWidgetDataArgument
-import io.github.pknujsp.weatherwizard.feature.componentservice.ComponentPendingIntentManager
-import io.github.pknujsp.weatherwizard.feature.componentservice.widget.worker.SummaryWeatherWidgetProvider
 import io.github.pknujsp.weatherwizard.feature.componentservice.widget.worker.WidgetRemoteViewModel
 import kotlinx.serialization.json.Json
 

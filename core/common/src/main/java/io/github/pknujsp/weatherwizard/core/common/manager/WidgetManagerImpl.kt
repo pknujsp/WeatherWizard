@@ -5,15 +5,19 @@ import android.appwidget.AppWidgetManager
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
+import android.content.res.Resources
 import android.widget.RemoteViews
 import io.github.pknujsp.weatherwizard.core.common.enum.pendingIntentRequestFactory
 import kotlin.reflect.KClass
 
 class WidgetManagerImpl(context: Context) : WidgetManager {
     private val appWidgetManager: AppWidgetManager = AppWidgetManager.getInstance(context)
+    val packageName: String = context.packageName
 
     override val installedAllWidgetIds: List<Int>
-        get() = appWidgetManager.installedProviders.flatMap { providerInfo ->
+        get() = appWidgetManager.installedProviders.filter {
+            it.provider.packageName == packageName
+        }.flatMap { providerInfo ->
             appWidgetManager.getAppWidgetIds(providerInfo.provider).toList()
         }
 
