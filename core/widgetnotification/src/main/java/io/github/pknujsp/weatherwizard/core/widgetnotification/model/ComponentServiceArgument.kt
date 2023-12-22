@@ -28,9 +28,6 @@ class WidgetDeletedArgument(
     val widgetIds: Array<Int>,
 ) : ComponentServiceArgument()
 
-class WidgetOptionsChangedArgument(
-    val widgetId: Int,
-) : ComponentServiceArgument()
 
 class WidgetUpdatedArgument(
     val action: Int, val widgetIds: Array<Int>,

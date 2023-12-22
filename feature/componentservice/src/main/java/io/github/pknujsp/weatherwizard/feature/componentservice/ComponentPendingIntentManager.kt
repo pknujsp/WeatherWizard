@@ -12,11 +12,15 @@ object ComponentPendingIntentManager {
 
     val mainActivityIntent: Intent
         get() = Intent().apply {
-            val packageName = "io.github.pknujsp.weatherwizard.feature.main"
-            val className = "MainActivity"
+            val packageName = "io.github.pknujsp.wyther"
+            val className = "io.github.pknujsp.weatherwizard.feature.main.MainActivity"
             setClassName(packageName, className)
-            flags = Intent.FLAG_ACTIVITY_NEW_TASK
+            flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
         }
+
+    //io.github.pknujsp.weatherwizard.feature.main.MainActivity@fc02654,
+    //package: io.github.pknujsp.wyther,
+    //componentName: ComponentInfo{io.github.pknujsp.wyther/io.github.pknujsp.weatherwizard.feature.main.MainActivity}
 
 
     fun <A : ComponentServiceAction<out ComponentServiceArgument>> getRefreshPendingIntent(

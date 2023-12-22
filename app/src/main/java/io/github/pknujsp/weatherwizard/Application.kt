@@ -7,8 +7,6 @@ import dagger.hilt.android.HiltAndroidApp
 import io.github.pknujsp.weatherwizard.core.common.coroutines.CoDispatcher
 import io.github.pknujsp.weatherwizard.core.common.coroutines.CoDispatcherType
 import io.github.pknujsp.weatherwizard.core.data.settings.SettingsRepository
-import io.github.pknujsp.weatherwizard.feature.map.MapInitializer
-import io.github.pknujsp.weatherwizard.feature.main.notification.NotificationStarter
 import io.github.pknujsp.weatherwizard.widget.WidgetStarter
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
@@ -18,8 +16,8 @@ import javax.inject.Inject
 @HiltAndroidApp
 class Application : Application(), Configuration.Provider {
     @Inject lateinit var workerFactory: HiltWorkerFactory
+    @Inject @CoDispatcher(CoDispatcherType.SINGLE) lateinit var dispatcher: CoroutineDispatcher
     @Inject lateinit var appSettingsRepository: SettingsRepository
-    @Inject @CoDispatcher(CoDispatcherType.IO) lateinit var ioDispatcher: CoroutineDispatcher
     @Inject lateinit var widgetStarter: WidgetStarter
 
     override val workManagerConfiguration: Configuration
@@ -28,7 +26,7 @@ class Application : Application(), Configuration.Provider {
     override fun onCreate() {
         super.onCreate()
 
-        CoroutineScope(ioDispatcher).launch {
+        CoroutineScope(dispatcher).launch {
             appSettingsRepository.init()
             widgetStarter.start(this@Application)
         }

@@ -3,12 +3,12 @@ package io.github.pknujsp.weatherwizard.feature.componentservice.widget.worker
 import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProvider
 import android.content.Context
+import android.content.Intent
 import android.os.Bundle
-import android.widget.RemoteViews
+import android.util.Log
 import dagger.hilt.android.AndroidEntryPoint
 import io.github.pknujsp.weatherwizard.core.common.coroutines.CoDispatcher
 import io.github.pknujsp.weatherwizard.core.common.coroutines.CoDispatcherType
-import io.github.pknujsp.weatherwizard.core.model.widget.WidgetType
 import io.github.pknujsp.weatherwizard.core.widgetnotification.model.WidgetDeletedArgument
 import io.github.pknujsp.weatherwizard.core.widgetnotification.model.WidgetUpdatedArgument
 import kotlinx.coroutines.CoroutineDispatcher
@@ -23,7 +23,7 @@ abstract class BaseWidgetProvider : AppWidgetProvider() {
 
     @Inject lateinit var widgetDeleteBackgroundService: WidgetDeleteBackgroundService
     @Inject lateinit var widgetUpdateBackgroundService: WidgetUpdateBackgroundService
-    @Inject @CoDispatcher(CoDispatcherType.SINGLE) lateinit var dispatcher: CoroutineDispatcher
+    @Inject @CoDispatcher(CoDispatcherType.MULTIPLE) lateinit var dispatcher: CoroutineDispatcher
 
     protected companion object {
         val globalScope get() = GlobalScope
@@ -53,6 +53,22 @@ abstract class BaseWidgetProvider : AppWidgetProvider() {
     }
 
     override fun onAppWidgetOptionsChanged(context: Context?, appWidgetManager: AppWidgetManager?, appWidgetId: Int, newOptions: Bundle?) {
+        globalScope.launch(dispatcher) {
+            widgetUpdateBackgroundService.run(WidgetUpdatedArgument(WidgetUpdatedArgument.UPDATE_ONLY_SPECIFIC_WIDGETS,
+                arrayOf(appWidgetId)))
+        }
     }
 
+    override fun onReceive(context: Context?, intent: Intent?) {
+        super.onReceive(context, intent)
+        if (intent != null) {
+            if (intent.action == Intent.ACTION_BOOT_COMPLETED) {
+                globalScope.launch(dispatcher) {
+                    widgetUpdateBackgroundService.run(WidgetUpdatedArgument(WidgetUpdatedArgument.UPDATE_ALL, arrayOf()))
+                }
+            }
+        }
+        Log.d("WidgetProvider",
+            "scope: ${globalScope}, dispatcher: $dispatcher, widgetUpdateBackgroundService: $widgetUpdateBackgroundService")
+    }
 }

@@ -5,7 +5,7 @@
 
     <ImageView
         android:layout_width="wrap_content"
-        android:layout_height="13dp"
+        android:layout_height="16dp"
         android:layout_gravity="top|start"
         android:adjustViewBounds="true"
         android:scaleType="fitCenter"

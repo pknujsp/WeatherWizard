@@ -88,10 +88,12 @@ class WidgetCoroutineService @AssistedInject constructor(
         }
 
         if (responses.isNotEmpty()) {
-            Intent(context, SummaryWeatherWidgetProvider::class.java).apply {
-                action = AppWidgetManager.ACTION_APPWIDGET_UPDATE
-                putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, responses.map { it.widget.id }.toIntArray())
-                context.sendBroadcast(this)
+            widgetManager.getProviderByWidgetId(responses.first().widget.id)?.let { widgetProvider ->
+                Intent(context, widgetProvider.javaClass).apply {
+                    action = AppWidgetManager.ACTION_APPWIDGET_UPDATE
+                    putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, responses.map { it.widget.id }.toIntArray())
+                    context.sendBroadcast(this)
+                }
             }
         }
     }

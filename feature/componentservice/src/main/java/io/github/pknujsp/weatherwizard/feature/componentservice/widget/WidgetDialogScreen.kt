@@ -43,15 +43,17 @@ fun WidgetDialogScreen() {
             val context = LocalContext.current
 
             Content(onClickLaunchApp = {
+                startActivity(context, ComponentPendingIntentManager.mainActivityIntent, null)
                 context as Activity
                 context.finish()
-                startActivity(context, ComponentPendingIntentManager.mainActivityIntent, null)
             }, onClickRefresh = {
                 Intent(context, NotificationServiceReceiver::class.java).run {
                     action = NotificationServiceReceiver.ACTION_PROCESS
                     putExtras(LoadWidgetDataArgument(LoadWidgetDataArgument.UPDATE_ALL).toBundle())
                     context.sendBroadcast(this)
                 }
+                context as Activity
+                context.finish()
             }, onClickCancel = {
                 context as Activity
                 context.finish()
@@ -65,11 +67,11 @@ fun WidgetDialogScreen() {
 @Composable
 fun Content(onClickLaunchApp: () -> Unit = {}, onClickRefresh: () -> Unit = {}, onClickCancel: () -> Unit = {}) {
     Column(horizontalAlignment = androidx.compose.ui.Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(8.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp),
         modifier = Modifier.padding(horizontal = 42.dp, vertical = 36.dp)) {
-        AsyncImage(model = ImageRequest.Builder(LocalContext.current).data(R.mipmap.ic_launcher_foreground).build(),
+        AsyncImage(model = ImageRequest.Builder(LocalContext.current).data(R.drawable.textlogo_small).build(),
             contentDescription = null,
-            modifier = Modifier.size(28.dp))
+            modifier = Modifier.height(20.dp))
         PrimaryButton(text = stringResource(id = R.string.launch_app)) {
             onClickLaunchApp()
         }
