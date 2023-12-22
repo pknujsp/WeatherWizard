@@ -3,10 +3,13 @@ package io.github.pknujsp.weatherwizard.feature.componentservice.widget.worker
 import android.content.Context
 import dagger.hilt.android.qualifiers.ApplicationContext
 import io.github.pknujsp.weatherwizard.core.common.FeatureType
+import io.github.pknujsp.weatherwizard.core.common.coroutines.CoDispatcher
+import io.github.pknujsp.weatherwizard.core.common.coroutines.CoDispatcherType
 import io.github.pknujsp.weatherwizard.core.common.manager.FailedReason
 import io.github.pknujsp.weatherwizard.core.common.manager.FeatureState
 import io.github.pknujsp.weatherwizard.core.common.manager.FeatureStatusManager
 import io.github.pknujsp.weatherwizard.core.common.manager.WidgetManager
+import io.github.pknujsp.weatherwizard.core.data.cache.CacheManager
 import io.github.pknujsp.weatherwizard.core.data.settings.SettingsRepository
 import io.github.pknujsp.weatherwizard.core.data.widget.WidgetRepository
 import io.github.pknujsp.weatherwizard.core.data.widget.WidgetResponseDBEntity
@@ -23,19 +26,24 @@ import io.github.pknujsp.weatherwizard.core.widgetnotification.remoteview.Remote
 import io.github.pknujsp.weatherwizard.core.widgetnotification.remoteview.UiStateRemoteViewCreator
 import io.github.pknujsp.weatherwizard.core.widgetnotification.widget.remoteview.WidgetRemoteViewsCreator
 import io.github.pknujsp.weatherwizard.feature.componentservice.widget.WidgetActivity
+import kotlinx.coroutines.CoroutineDispatcher
+import okhttp3.internal.cacheGet
 import javax.inject.Inject
+import javax.inject.Singleton
 
+@Singleton
 class WidgetUpdateBackgroundService @Inject constructor(
     @ApplicationContext context: Context,
+    @CoDispatcher(CoDispatcherType.SINGLE) private val dispatcher: CoroutineDispatcher,
     private val widgetRepository: WidgetRepository,
     private val featureStatusManager: FeatureStatusManager,
     private val widgetManager: WidgetManager,
     appSettingsRepository: SettingsRepository,
 ) : AppComponentBackgroundService<WidgetUpdatedArgument>(context) {
 
+    private val remoteViewsCacheManager = WidgetViewCacheManagerFactory.getInstance(dispatcher)
     private val units = appSettingsRepository.currentUnits.value
-
-    override val id: Int = workerId
+    override val id: Int get() = workerId
 
     companion object : IWorker {
         override val name: String = "WidgetUpdateBackgroundService"
@@ -60,7 +68,18 @@ class WidgetUpdateBackgroundService @Inject constructor(
 
             widgetRepository.get(bindedWidgetIds, false)
         } else {
-            widgetRepository.get(null, true)
+            val unLoadedWidgetIds = widgetManager.installedAllWidgetIds.filter { id ->
+                val isLoaded = when (val cache = remoteViewsCacheManager.get(id)) {
+                    is CacheManager.CacheState.Hit -> {
+                        widgetManager.updateWidget(id, cache.value, context, WidgetActivity::class)
+                        true
+                    }
+
+                    else -> false
+                }
+                !isLoaded
+            }.toTypedArray()
+            widgetRepository.get(unLoadedWidgetIds, false)
         }
 
         if (!widgets.checkPrimaryRequiredFeatures(requiredFeatures)) {
@@ -86,7 +105,9 @@ class WidgetUpdateBackgroundService @Inject constructor(
 
                 creator.createContentView(uiModelManager.mapToUiModel(widget, units),
                     DefaultRemoteViewCreator.Header(widget.address, widget.updatedAt),
-                    context)
+                    context).also { finalRemoteView ->
+                    remoteViewsCacheManager.put(widget.id, finalRemoteView)
+                }
             } else {
                 UiStateRemoteViewCreator.createView(context,
                     FailedReason.SERVER_ERROR,

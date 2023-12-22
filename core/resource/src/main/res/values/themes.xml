@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="Theme.WeatherWizard" parent="Theme.Material3.Light.NoActionBar" />
+
+    <style name="Theme.AppWidget.RootContainer" parent="Theme.WeatherWizard">
+        <item name="appWidgetRadius">16dp</item>
+        <item name="appWidgetInnerRadius">8dp</item>
+    </style>
+
+    <style name="Theme.AppWidget.Container" parent="Theme.AppWidget.RootContainer">
+        <item name="appWidgetPadding">16dp</item>
+    </style>
+
+    <style name="Theme.WidgetActivity" parent="@android:style/Theme.Translucent.NoTitleBar">
+
+    </style>
+</resources>

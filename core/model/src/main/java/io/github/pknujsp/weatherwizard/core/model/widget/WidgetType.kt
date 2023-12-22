@@ -31,6 +31,7 @@ enum class WidgetType(val categories: Array<MajorWeatherEntityType>) : IEnum {
         override val title: Int = io.github.pknujsp.weatherwizard.core.resource.R.string.all_in_one
     };
 
+
     companion object : BaseEnum<WidgetType> {
         override val default: WidgetType = ALL_IN_ONE
         override val key: String = "WidgetType"

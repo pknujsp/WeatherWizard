@@ -30,6 +30,7 @@ class ApplicationConventionPlugin : Plugin<Project> {
                 "kapt"(libs.findLibrary("androidx.lifecycle.compiler").get())
                 "implementation"(libs.findLibrary("material").get())
                 "implementation"(libs.findLibrary("androidx.startup").get())
+                "implementation"(libs.findLibrary("androidx.core.remoteviews").get())
 
                 "testImplementation"(libs.findBundle("test.local").get())
                 "androidTestImplementation"(libs.findBundle("test.android").get())
