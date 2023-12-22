@@ -120,7 +120,6 @@
 
     <string name="notification_working_title">작업 진행 중</string>
     <string name="notification_working_text">작업이 진행 중입니다</string>
-    <string name="set_as_complete">수정완료</string>
 
     <string name="weather_info_head_info_update_time">업데이트</string>
     <string name="weather_icon_description">현재 날씨 상태</string>
@@ -257,7 +256,7 @@
     <string name="title_weather_condition_animation">날씨 상태 효과</string>
     <string name="description_weather_condition_animation">날씨 상태에 따라 애니메이션 효과를 표시합니다.</string>
     <string name="title_refresh_widget">위젯 새로고침</string>
-    <string name="description_refresh_widget">위젯을 새로고침합니다.</string>
+    <string name="description_refresh_widget">위젯 UI가 제대로 보이지 않으면 탭하여 위젯을 새로 고칩니다.</string>
 
     <string name="title_temperature_unit">온도 단위</string>
     <string name="title_wind_speed_unit">풍속 단위</string>

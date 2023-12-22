@@ -31,6 +31,7 @@ import io.github.pknujsp.weatherwizard.core.widgetnotification.remoteview.UiStat
 import io.github.pknujsp.weatherwizard.core.widgetnotification.widget.remoteview.WidgetRemoteViewsCreator
 import io.github.pknujsp.weatherwizard.feature.componentservice.ComponentPendingIntentManager
 import io.github.pknujsp.weatherwizard.feature.componentservice.widget.WidgetActivity
+import io.github.pknujsp.weatherwizard.feature.componentservice.widget.isInProgress
 import kotlinx.coroutines.CoroutineDispatcher
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -56,34 +57,37 @@ class WidgetUpdateBackgroundService @Inject constructor(
     }
 
     override suspend fun doWork(argument: WidgetUpdatedArgument): Result<Unit> {
-        val widgets = if (argument.action == WidgetUpdatedArgument.UPDATE_ONLY_SPECIFIC_WIDGETS) {
-            var bindedWidgetIds = arrayOf<Int>()
-            for (widgetId in argument.widgetIds) {
-                if (widgetManager.isBind(widgetId)) {
-                    bindedWidgetIds = bindedWidgetIds.plus(widgetId)
-                } else {
-                    widgetRepository.delete(widgetId)
-                }
-            }
-
-            if (bindedWidgetIds.isEmpty()) {
-                return Result.success(Unit)
-            }
-
-            widgetRepository.get(bindedWidgetIds, false)
-        } else {
-            val unLoadedWidgetIds = widgetManager.installedAllWidgetIds.filter { id ->
-                val isLoaded = when (val cache = remoteViewsCacheManager.get(id)) {
-                    is CacheManager.CacheState.Hit -> {
-                        widgetManager.updateWidget(id, cache.value, context, WidgetActivity::class)
-                        true
+        val widgets = argument.run {
+            val widgets = if (argument.action == WidgetUpdatedArgument.UPDATE_ONLY_SPECIFIC_WIDGETS) {
+                var bindedWidgetIds = arrayOf<Int>()
+                for (widgetId in argument.widgetIds) {
+                    if (widgetManager.isBind(widgetId)) {
+                        bindedWidgetIds = bindedWidgetIds.plus(widgetId)
+                    } else {
+                        widgetRepository.delete(widgetId)
                     }
-
-                    else -> false
                 }
-                !isLoaded
-            }.toTypedArray()
-            widgetRepository.get(unLoadedWidgetIds, false)
+
+                if (bindedWidgetIds.isEmpty()) {
+                    return Result.success(Unit)
+                }
+
+                widgetRepository.get(bindedWidgetIds, false)
+            } else {
+                val unLoadedWidgetIds = widgetManager.installedAllWidgetIds.filter { id ->
+                    val isLoaded = when (val cache = remoteViewsCacheManager.get(id)) {
+                        is CacheManager.CacheState.Hit -> {
+                            widgetManager.updateWidget(id, cache.value, context, WidgetActivity::class)
+                            true
+                        }
+
+                        else -> false
+                    }
+                    !isLoaded
+                }.toTypedArray()
+                widgetRepository.get(unLoadedWidgetIds, false)
+            }
+            widgets.filterNot { isInProgress(it.id) }
         }
 
         if (!widgets.checkPrimaryRequiredFeatures(requiredFeatures)) {

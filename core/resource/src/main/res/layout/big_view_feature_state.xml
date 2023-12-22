@@ -54,7 +54,7 @@
                 android:layout_marginHorizontal="6dp"
                 android:paddingHorizontal="14dp"
                 android:paddingVertical="8dp"
-                android:text="@string/set_as_complete"
+                android:text="@string/refresh"
                 android:textSize="14sp" />
         </LinearLayout>
     </LinearLayout>

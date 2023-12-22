@@ -1,14 +1,18 @@
 package io.github.pknujsp.weatherwizard.feature.settings
 
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import io.github.pknujsp.weatherwizard.core.common.coroutines.CoDispatcher
+import io.github.pknujsp.weatherwizard.core.common.coroutines.CoDispatcherType
 import io.github.pknujsp.weatherwizard.core.data.settings.SettingsRepository
 import io.github.pknujsp.weatherwizard.core.model.weather.common.PrecipitationUnit
 import io.github.pknujsp.weatherwizard.core.model.weather.common.TemperatureUnit
 import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherProvider
 import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherDataUnit
 import io.github.pknujsp.weatherwizard.core.model.weather.common.WindSpeedUnit
+import io.github.pknujsp.weatherwizard.feature.componentservice.widget.WidgetStarter
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -16,7 +20,9 @@ import javax.inject.Inject
 
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
-    private val settingsRepository: SettingsRepository
+    private val settingsRepository: SettingsRepository,
+    private val widgetStarter: WidgetStarter,
+    @CoDispatcher(CoDispatcherType.IO) private val ioDispatcher: kotlinx.coroutines.CoroutineDispatcher
 ) : ViewModel() {
 
     private val _windSpeedUnit = MutableStateFlow<WindSpeedUnit>(WindSpeedUnit.default)
@@ -65,6 +71,12 @@ class SettingsViewModel @Inject constructor(
         viewModelScope.launch {
             _weatherProvider.value = provider
             settingsRepository.setWeatherDataProvider(provider)
+        }
+    }
+
+    fun refreshWidgets(context: Context) {
+        viewModelScope.launch(ioDispatcher) {
+            widgetStarter.start(context)
         }
     }
 }

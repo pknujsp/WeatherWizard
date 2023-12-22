@@ -20,7 +20,10 @@ import io.github.pknujsp.weatherwizard.core.widgetnotification.model.AppComponen
 import io.github.pknujsp.weatherwizard.core.widgetnotification.model.IWorker
 import io.github.pknujsp.weatherwizard.core.widgetnotification.model.LoadWidgetDataArgument
 import io.github.pknujsp.weatherwizard.feature.componentservice.widget.worker.WidgetRemoteViewModel
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.serialization.json.Json
+import java.util.concurrent.ConcurrentHashMap
 
 @HiltWorker
 class WidgetCoroutineService @AssistedInject constructor(
@@ -52,11 +55,15 @@ class WidgetCoroutineService @AssistedInject constructor(
             return
         }
 
+        WidgetsInProgress.addAll(widgetEntityList.widgetSettings.map { it.id })
+
         if (featureStatusManager.status(context, requiredFeatures) is FeatureState.Unavailable) {
             for (widget in widgetEntityList.widgetSettings) {
                 widgetRemoteViewModel.updateResponseData(widget.id, WidgetStatus.RESPONSE_FAILURE)
             }
-            sendBroadcast(widgetEntityList.widgetSettings.map { it.id })
+            val failedWidgetIds = widgetEntityList.widgetSettings.map { it.id }
+            WidgetsInProgress.removeAll(failedWidgetIds)
+            sendBroadcast(failedWidgetIds)
             return
         }
 
@@ -68,6 +75,7 @@ class WidgetCoroutineService @AssistedInject constructor(
                 widgetRemoteViewModel.updateResponseData(it.id, WidgetStatus.RESPONSE_FAILURE)
                 failedWidgetIds.add(it.id)
             }
+            WidgetsInProgress.removeAll(failedWidgetIds)
             sendBroadcast(failedWidgetIds)
 
             if (widgetEntityList.widgetSettings.size == failedWidgetIds.size) {
@@ -86,7 +94,9 @@ class WidgetCoroutineService @AssistedInject constructor(
             }
         }
 
-        sendBroadcast(responses.map { it.widget.id })
+        val completedWidgetIds = responses.map { it.widget.id }
+        WidgetsInProgress.removeAll(completedWidgetIds)
+        sendBroadcast(completedWidgetIds)
     }
 
     private fun sendBroadcast(widgetIds: List<Int>) {
@@ -100,3 +110,30 @@ class WidgetCoroutineService @AssistedInject constructor(
         }
     }
 }
+
+private object WidgetsInProgress {
+    private val mutex = Mutex()
+    private val widgetsInProgress = mutableSetOf<Int>()
+
+    suspend fun contains(widgetId: Int): Boolean = mutex.withLock {
+        widgetId in widgetsInProgress
+    }
+
+    suspend fun add(widgetId: Int): Boolean = mutex.withLock {
+        widgetsInProgress.add(widgetId)
+    }
+
+    suspend fun addAll(widgetIds: List<Int>): Boolean = mutex.withLock {
+        widgetsInProgress.addAll(widgetIds)
+    }
+
+    suspend fun remove(widgetId: Int): Boolean = mutex.withLock {
+        widgetsInProgress.remove(widgetId)
+    }
+
+    suspend fun removeAll(widgetIds: List<Int>): Boolean = mutex.withLock {
+        widgetsInProgress.removeAll(widgetIds.toSet())
+    }
+}
+
+internal suspend fun isInProgress(widgetId: Int): Boolean = WidgetsInProgress.contains(widgetId)

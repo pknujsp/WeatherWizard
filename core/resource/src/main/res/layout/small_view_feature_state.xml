@@ -34,7 +34,7 @@
         android:layout_height="wrap_content"
         android:paddingHorizontal="10dp"
         android:paddingVertical="6dp"
-        android:text="@string/set_as_complete"
+        android:text="@string/refresh"
         android:textSize="14sp" />
 
 </LinearLayout>

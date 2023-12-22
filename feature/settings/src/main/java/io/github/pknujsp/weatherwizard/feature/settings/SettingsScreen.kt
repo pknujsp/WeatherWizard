@@ -20,10 +20,12 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import io.github.pknujsp.weatherwizard.core.resource.R
 import io.github.pknujsp.weatherwizard.core.ui.ButtonSettingItem
 import io.github.pknujsp.weatherwizard.core.ui.CheckBoxSettingItem
+import io.github.pknujsp.weatherwizard.core.ui.ClickableSettingItem
 import io.github.pknujsp.weatherwizard.core.ui.TextValueSettingItem
-import io.github.pknujsp.weatherwizard.core.resource.R
+
 @Composable
 fun SettingsScreen(navController: NavController, viewModel: SettingsViewModel) {
     val weatherDataProvider by viewModel.weatherProvider.collectAsStateWithLifecycle()
@@ -32,10 +34,11 @@ fun SettingsScreen(navController: NavController, viewModel: SettingsViewModel) {
 
     Column {
         ButtonSettingItem(title = stringResource(id = R.string.title_value_unit),
-            description = stringResource(id = R.string.description_value_unit), onClick = {
+            description = stringResource(id = R.string.description_value_unit),
+            onClick = {
                 navController.navigate(SettingsRoutes.ValueUnit.route)
             }) {
-            Icon(painterResource(id = io.github.pknujsp.weatherwizard.core.resource.R.drawable.ic_forward), contentDescription = "navigate")
+            Icon(painterResource(id = R.drawable.ic_forward), contentDescription = "navigate")
         }
 
         TextValueSettingItem(title = stringResource(id = R.string.title_weather_data_provider), value = {
@@ -43,9 +46,15 @@ fun SettingsScreen(navController: NavController, viewModel: SettingsViewModel) {
         }) {
             displayValuesBottomSheet = true
         }
-        CheckBoxSettingItem(title = stringResource(id = R.string.title_weather_condition_animation), description =
-        stringResource(id = R.string.description_weather_condition_animation), checked = true) {
+        CheckBoxSettingItem(title = stringResource(id = R.string.title_weather_condition_animation),
+            description = stringResource(id = R.string.description_weather_condition_animation),
+            checked = true) {
 
+        }
+
+        ClickableSettingItem(title = stringResource(id = R.string.title_refresh_widget),
+            description = stringResource(id = R.string.description_refresh_widget)) {
+            viewModel.refreshWidgets(context)
         }
     }
 
@@ -67,7 +76,9 @@ fun HostSettingsScreen() {
     val window = (LocalContext.current as Activity).window
     WindowCompat.getInsetsController(window, window.decorView).isAppearanceLightNavigationBars = true
 
-    NavHost(navController = navController, route = SettingsRoutes.route, startDestination = SettingsRoutes.Main.route,
+    NavHost(navController = navController,
+        route = SettingsRoutes.route,
+        startDestination = SettingsRoutes.Main.route,
         modifier = Modifier.navigationBarsPadding()) {
         composable(SettingsRoutes.Main.route) { SettingsScreen(navController, viewModel) }
         composable(SettingsRoutes.ValueUnit.route) { ValueUnitScreen(navController, viewModel) }

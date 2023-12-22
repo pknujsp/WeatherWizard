@@ -2,8 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:weightSum="1">
+    android:orientation="vertical">
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -13,7 +12,7 @@
 
         <ImageView
             android:id="@+id/weather_icon"
-            android:layout_width="46dp"
+            android:layout_width="44dp"
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
             android:layout_marginEnd="6dp"
@@ -58,7 +57,7 @@
                 android:layout_toEndOf="@id/feels_like_temperature_label"
                 android:includeFontPadding="false"
                 android:text="12"
-                android:textSize="16sp" />
+                android:textSize="15sp" />
 
             <TextView
                 android:id="@+id/weather_condition"
@@ -79,7 +78,7 @@
         android:layout_height="0dp"
         android:layout_gravity="center_vertical"
         android:layout_marginBottom="4dp"
-        android:layout_weight="0.55"
+        android:layout_weight="1"
         android:orientation="vertical"
         android:weightSum="1">
 
@@ -102,9 +101,8 @@
     <LinearLayout
         android:id="@+id/daily_forecast"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
+        android:layout_height="wrap_content"
         android:layout_gravity="center_vertical"
-        android:layout_weight="0.45"
         android:orientation="horizontal" />
 
 </LinearLayout>

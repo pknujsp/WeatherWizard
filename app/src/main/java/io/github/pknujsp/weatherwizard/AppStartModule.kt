@@ -14,8 +14,8 @@ import io.github.pknujsp.weatherwizard.core.widgetnotification.notification.AppN
 import io.github.pknujsp.weatherwizard.feature.componentservice.notification.manager.NotificationAlarmManager
 import io.github.pknujsp.weatherwizard.feature.main.notification.NotificationStarter
 import io.github.pknujsp.weatherwizard.feature.main.notification.NotificationStarterImpl
-import io.github.pknujsp.weatherwizard.feature.main.WidgetStarter
-import io.github.pknujsp.weatherwizard.feature.main.WidgetStarterImpl
+import io.github.pknujsp.weatherwizard.feature.componentservice.widget.WidgetStarter
+import io.github.pknujsp.weatherwizard.feature.componentservice.widget.WidgetStarterImpl
 
 @Module
 @InstallIn(SingletonComponent::class)

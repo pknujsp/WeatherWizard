@@ -38,8 +38,10 @@
         android:requestLegacyExternalStorage="true"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="false"
+        android:enableOnBackInvokedCallback="true"
         android:theme="@style/Theme.WeatherWizard"
         android:usesCleartextTraffic="true">
+
         <activity
             android:name=".feature.main.MainActivity"
             android:exported="true"

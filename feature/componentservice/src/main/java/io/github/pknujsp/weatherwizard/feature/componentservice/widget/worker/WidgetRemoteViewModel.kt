@@ -57,7 +57,7 @@ class WidgetRemoteViewModel @Inject constructor(
         val responseMap = mutableMapOf<WidgetSettingsEntity, WeatherResponseState>()
         val requestMapWithRequestIdAndWidget = mutableMapOf<Long, MutableList<WidgetSettingsEntity>>()
 
-        widgetSettingsEntityList.locationTypeGroups.getValue(LocationType.CurrentLocation).let { entities ->
+        widgetSettingsEntityList.locationTypeGroups[LocationType.CurrentLocation]?.let { entities ->
             if (entities.isNotEmpty()) {
                 when (val currentLocation = getCurrentLocationUseCase()) {
                     is CurrentLocationResultState.Success -> {
@@ -95,7 +95,7 @@ class WidgetRemoteViewModel @Inject constructor(
             }
         }
 
-        widgetSettingsEntityList.locationTypeGroups.getValue(LocationType.CustomLocation).forEach {
+        widgetSettingsEntityList.locationTypeGroups[LocationType.CustomLocation]?.forEach {
             val requestId = weatherDataRequest.addRequest(
                 it.location,
                 it.widgetType.categories.toSet(),
