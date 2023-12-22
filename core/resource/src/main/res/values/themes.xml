@@ -9,7 +9,8 @@
         <item name="appWidgetPadding">16dp</item>
     </style>
 
-    <style name="Theme.AppWidget.Container" parent="Theme.AppWidget.RootContainer"></style>
+    <style name="Theme.AppWidget.Container" parent="Theme.AppWidget.RootContainer">
+    </style>
 
     <style name="Theme.WidgetActivity" parent="@android:style/Theme.Translucent.NoTitleBar">
 

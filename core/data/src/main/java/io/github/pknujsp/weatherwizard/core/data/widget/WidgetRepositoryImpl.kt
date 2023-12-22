@@ -23,6 +23,7 @@ class WidgetRepositoryImpl @Inject constructor(
             WidgetSettingsEntity(id = dto.id,
                 location = jsonEntity.getLocation(),
                 weatherProvider = jsonEntity.getWeatherProvider(),
+                status = dto.status,
                 widgetType = WidgetType.fromKey(dto.widgetType))
         }
 
@@ -49,6 +50,7 @@ class WidgetRepositoryImpl @Inject constructor(
 
         return WidgetSettingsEntity(id = dto.id,
             location = jsonEntity.getLocation(),
+            status = dto.status,
             weatherProvider = jsonEntity.getWeatherProvider(),
             widgetType = WidgetType.fromKey(dto.widgetType))
     }

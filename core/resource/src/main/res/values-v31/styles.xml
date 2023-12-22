@@ -10,7 +10,7 @@
     </style>
 
     <style name="Widget.WeatherWizard.AppWidget.Container.Content" parent="android:Widget">
-        <item name="android:clipToOutline">true</item>
+        <item name="android:clipToOutline">false</item>
         <item name="android:id">@id/remote_views_content_container</item>
         <item name="android:background">@drawable/app_widget_inner_view_background</item>
     </style>

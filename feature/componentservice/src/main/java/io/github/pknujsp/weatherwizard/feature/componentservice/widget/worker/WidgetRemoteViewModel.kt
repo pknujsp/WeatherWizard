@@ -1,9 +1,6 @@
 package io.github.pknujsp.weatherwizard.feature.componentservice.widget.worker
 
-import io.github.pknujsp.weatherwizard.core.common.coroutines.CoDispatcher
-import io.github.pknujsp.weatherwizard.core.common.coroutines.CoDispatcherType
 import io.github.pknujsp.weatherwizard.core.data.nominatim.NominatimRepository
-import io.github.pknujsp.weatherwizard.core.data.settings.SettingsRepository
 import io.github.pknujsp.weatherwizard.core.data.widget.WidgetRepository
 import io.github.pknujsp.weatherwizard.core.data.widget.WidgetSettingsEntity
 import io.github.pknujsp.weatherwizard.core.data.widget.WidgetSettingsEntityList
@@ -15,9 +12,9 @@ import io.github.pknujsp.weatherwizard.core.domain.weather.WeatherResponseState
 import io.github.pknujsp.weatherwizard.core.model.coordinate.LocationType
 import io.github.pknujsp.weatherwizard.core.model.coordinate.LocationTypeModel
 import io.github.pknujsp.weatherwizard.core.model.widget.WidgetStatus
+import io.github.pknujsp.weatherwizard.core.widgetnotification.model.LoadWidgetDataArgument
 import io.github.pknujsp.weatherwizard.core.widgetnotification.remoteview.RemoteViewModel
 import io.github.pknujsp.weatherwizard.core.widgetnotification.widget.worker.model.WidgetRemoteViewUiState
-import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import javax.inject.Inject
@@ -28,32 +25,28 @@ class WidgetRemoteViewModel @Inject constructor(
     private val widgetRepository: WidgetRepository,
     private val getCurrentLocationUseCase: GetCurrentLocationUseCase,
     private val nominatimRepository: NominatimRepository,
-    @CoDispatcher(CoDispatcherType.MULTIPLE) private val dispatcher: CoroutineDispatcher,
-    appSettingsRepository: SettingsRepository,
 ) : RemoteViewModel() {
 
-    val units = appSettingsRepository.currentUnits.value
     private var widgetSettingsEntityList: WidgetSettingsEntityList by Delegates.notNull()
 
-    suspend fun loadWidgets(widgetIds: Array<Int>): WidgetSettingsEntityList {
+    suspend fun loadWidgets(widgetId: Int, requestedAction: Int): WidgetSettingsEntityList {
         widgetSettingsEntityList = widgetRepository.getAll()
-        if (widgetIds.isNotEmpty()) {
-            widgetSettingsEntityList = WidgetSettingsEntityList(widgetSettingsEntityList.widgetSettings.filter { it.id in widgetIds })
+
+        val filteredList = when (requestedAction) {
+            LoadWidgetDataArgument.NEW_WIDGET -> widgetSettingsEntityList.widgetSettings.filter { it.id == widgetId }
+            LoadWidgetDataArgument.UPDATE_ONLY_FAILED -> widgetSettingsEntityList.widgetSettings.filter { it.status == WidgetStatus.RESPONSE_FAILURE }
+            else -> widgetSettingsEntityList.widgetSettings
         }
+
+        widgetSettingsEntityList = WidgetSettingsEntityList(filteredList)
         return widgetSettingsEntityList
     }
 
     suspend fun load(
-        excludeWidgets: Set<WidgetSettingsEntity>, excludeLocationType: LocationType? = null
+        excludeWidgets: List<Int>
     ): List<WidgetRemoteViewUiState> {
-        if (excludeLocationType != null) {
-            widgetSettingsEntityList = WidgetSettingsEntityList(widgetSettingsEntityList.widgetSettings.filter { entity ->
-                entity.location.locationType != excludeLocationType
-            })
-        }
         if (excludeWidgets.isNotEmpty()) {
-            widgetSettingsEntityList = WidgetSettingsEntityList(widgetSettingsEntityList.widgetSettings.filter { it !in excludeWidgets })
-            deleteWidgets(excludeWidgets.map { it.id }.toIntArray())
+            widgetSettingsEntityList = WidgetSettingsEntityList(widgetSettingsEntityList.widgetSettings.filter { it.id !in excludeWidgets })
         }
 
         return loadWeatherData()
@@ -113,7 +106,7 @@ class WidgetRemoteViewModel @Inject constructor(
 
         val responses = coroutineScope {
             weatherDataRequest.finalRequests.map { request ->
-                async(dispatcher) { getWeatherDataUseCase(request, false) }
+                async { getWeatherDataUseCase(request, false) }
             }
         }
 
@@ -141,12 +134,6 @@ class WidgetRemoteViewModel @Inject constructor(
                 latitude = response.location.latitude,
                 longitude = response.location.longitude,
             )
-        }
-    }
-
-    private suspend fun deleteWidgets(appWidgetIds: IntArray) {
-        for (appWidgetId in appWidgetIds) {
-            widgetRepository.delete(appWidgetId)
         }
     }
 

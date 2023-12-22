@@ -39,12 +39,11 @@ class WidgetUpdatedArgument(
 }
 
 class LoadWidgetDataArgument(
-    val action: Int, val widgetIds: Array<Int> = emptyArray()
+    val action: Int, val widgetId: Int = 0
 ) : ComponentServiceArgument() {
     companion object {
         const val NEW_WIDGET = 0
-        const val UPDATE_ONLY_ON_CURRENT_LOCATION = 1
         const val UPDATE_ALL = 2
-        const val UPDATE_ONLY_SPECIFIC_WIDGETS = 3
+        const val UPDATE_ONLY_FAILED = 3
     }
 }

@@ -23,7 +23,7 @@ abstract class BaseWidgetProvider : AppWidgetProvider() {
 
     @Inject lateinit var widgetDeleteBackgroundService: WidgetDeleteBackgroundService
     @Inject lateinit var widgetUpdateBackgroundService: WidgetUpdateBackgroundService
-    @Inject @CoDispatcher(CoDispatcherType.MULTIPLE) lateinit var dispatcher: CoroutineDispatcher
+    @Inject @CoDispatcher(CoDispatcherType.IO) lateinit var dispatcher: CoroutineDispatcher
 
     protected companion object {
         val globalScope get() = GlobalScope
@@ -31,6 +31,7 @@ abstract class BaseWidgetProvider : AppWidgetProvider() {
 
     override fun onUpdate(context: Context, appWidgetManager: AppWidgetManager, appWidgetIds: IntArray) {
         if (appWidgetIds.isNotEmpty()) {
+            Log.d("WidgetProvider", "onUpdate: $appWidgetIds")
             globalScope.launch(dispatcher) {
                 widgetUpdateBackgroundService.run(WidgetUpdatedArgument(WidgetUpdatedArgument.UPDATE_ONLY_SPECIFIC_WIDGETS,
                     appWidgetIds.toTypedArray()))

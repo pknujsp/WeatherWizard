@@ -109,7 +109,7 @@ fun WidgetConfigureScreen(
 
 fun createWidgetAndFinish(activity: Activity, widgetId: Int) {
     val newWidgetIntent = ComponentPendingIntentManager.getIntent(activity.applicationContext,
-        LoadWidgetDataArgument(LoadWidgetDataArgument.NEW_WIDGET, arrayOf(widgetId)))
+        LoadWidgetDataArgument(LoadWidgetDataArgument.NEW_WIDGET, widgetId))
     activity.sendBroadcast(newWidgetIntent)
 
     val result = Intent().putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, widgetId)
