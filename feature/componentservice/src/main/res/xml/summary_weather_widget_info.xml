@@ -2,11 +2,10 @@
 <appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
     android:configure="io.github.pknujsp.weatherwizard.feature.componentservice.widget.configure.WidgetConfigureActivity"
     android:description="@string/summary_weather_widget_description"
-    android:initialKeyguardLayout="@layout/summary_weather_widget"
-    android:initialLayout="@layout/summary_weather_widget"
+    android:initialLayout="@layout/view_loading_widget"
     android:minWidth="320dp"
-    android:minHeight="180dp"
+    android:minHeight="200dp"
     android:previewImage="@drawable/example_appwidget_preview"
     android:resizeMode="horizontal|vertical"
     android:updatePeriodMillis="0"
-    android:widgetCategory="home_screen|keyguard" />
+    android:widgetCategory="home_screen" />

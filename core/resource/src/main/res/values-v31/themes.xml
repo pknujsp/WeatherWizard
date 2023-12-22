@@ -1,8 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <style name="Theme.AppWidget.RootContainer" parent="Theme.WeatherWizard">
+    <style name="Theme.AppWidget.RootContainer" parent="Theme.Material3.Light">
         <item name="appWidgetRadius">@android:dimen/system_app_widget_background_radius</item>
         <item name="appWidgetInnerRadius">@android:dimen/system_app_widget_inner_radius</item>
+        <item name="appWidgetPadding">16dp</item>
+    </style>
+
+    <style name="Theme.AppWidget.Container" parent="Theme.AppWidget.RootContainer">
     </style>
 </resources>
