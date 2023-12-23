@@ -2,8 +2,11 @@
 <ImageView xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/weather_icon"
     android:layout_width="0dp"
-    android:layout_height="wrap_content"
-    android:adjustViewBounds="true"
+    android:layout_height="match_parent"
     android:layout_weight="1"
+    android:adjustViewBounds="true"
     android:contentDescription="@string/weather_icon"
+    android:gravity="center"
+    android:minWidth="18dp"
+    android:minHeight="18dp"
     android:scaleType="fitCenter" />

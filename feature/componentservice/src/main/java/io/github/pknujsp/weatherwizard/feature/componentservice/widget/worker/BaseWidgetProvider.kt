@@ -31,7 +31,7 @@ abstract class BaseWidgetProvider : AppWidgetProvider() {
 
     override fun onUpdate(context: Context, appWidgetManager: AppWidgetManager, appWidgetIds: IntArray) {
         if (appWidgetIds.isNotEmpty()) {
-            Log.d("WidgetProvider", "onUpdate: $appWidgetIds")
+            Log.d("WidgetProvider", "onUpdate: ${appWidgetIds.contentToString()}")
             globalScope.launch(dispatcher) {
                 widgetUpdateBackgroundService.run(WidgetUpdatedArgument(WidgetUpdatedArgument.UPDATE_ONLY_SPECIFIC_WIDGETS,
                     appWidgetIds.toTypedArray()))
@@ -41,6 +41,7 @@ abstract class BaseWidgetProvider : AppWidgetProvider() {
 
     override fun onDeleted(context: Context, appWidgetIds: IntArray) {
         if (appWidgetIds.isNotEmpty()) {
+            Log.d("WidgetProvider", "onDeleted: ${appWidgetIds.contentToString()}")
             globalScope.launch(dispatcher) {
                 widgetDeleteBackgroundService.run(WidgetDeletedArgument(appWidgetIds.toTypedArray()))
             }
@@ -48,6 +49,7 @@ abstract class BaseWidgetProvider : AppWidgetProvider() {
     }
 
     override fun onEnabled(context: Context) {
+
     }
 
     override fun onDisabled(context: Context) {
@@ -55,6 +57,7 @@ abstract class BaseWidgetProvider : AppWidgetProvider() {
 
     override fun onAppWidgetOptionsChanged(context: Context?, appWidgetManager: AppWidgetManager?, appWidgetId: Int, newOptions: Bundle?) {
         globalScope.launch(dispatcher) {
+            Log.d("WidgetProvider", "onAppWidgetOptionsChanged: $appWidgetId")
             widgetUpdateBackgroundService.run(WidgetUpdatedArgument(WidgetUpdatedArgument.UPDATE_ONLY_SPECIFIC_WIDGETS,
                 arrayOf(appWidgetId)))
         }
@@ -65,11 +68,10 @@ abstract class BaseWidgetProvider : AppWidgetProvider() {
         if (intent != null) {
             if (intent.action == Intent.ACTION_BOOT_COMPLETED) {
                 globalScope.launch(dispatcher) {
-                    widgetUpdateBackgroundService.run(WidgetUpdatedArgument(WidgetUpdatedArgument.UPDATE_ALL, arrayOf()))
+                    widgetUpdateBackgroundService.run(WidgetUpdatedArgument(WidgetUpdatedArgument.UPDATE_ALL))
                 }
             }
         }
-        Log.d("WidgetProvider",
-            "scope: ${globalScope}, dispatcher: $dispatcher, widgetUpdateBackgroundService: $widgetUpdateBackgroundService")
+        Log.d("WidgetProvider", "onReceive: ${intent?.action}")
     }
 }

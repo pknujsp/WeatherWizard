@@ -43,11 +43,10 @@ class WidgetUpdateBackgroundService @Inject constructor(
     private val widgetRepository: WidgetRepository,
     private val featureStatusManager: FeatureStatusManager,
     private val widgetManager: WidgetManager,
-    appSettingsRepository: SettingsRepository,
+    private val appSettingsRepository: SettingsRepository,
 ) : AppComponentBackgroundService<WidgetUpdatedArgument>(context) {
 
     private val remoteViewsCacheManager = WidgetViewCacheManagerFactory.getInstance(dispatcher)
-    private val units = appSettingsRepository.currentUnits.value
     override val id: Int get() = workerId
 
     companion object : IWorker {
@@ -59,20 +58,7 @@ class WidgetUpdateBackgroundService @Inject constructor(
     override suspend fun doWork(argument: WidgetUpdatedArgument): Result<Unit> {
         val widgets = argument.run {
             val widgets = if (argument.action == WidgetUpdatedArgument.UPDATE_ONLY_SPECIFIC_WIDGETS) {
-                var bindedWidgetIds = arrayOf<Int>()
-                for (widgetId in argument.widgetIds) {
-                    if (widgetManager.isBind(widgetId)) {
-                        bindedWidgetIds = bindedWidgetIds.plus(widgetId)
-                    } else {
-                        widgetRepository.delete(widgetId)
-                    }
-                }
-
-                if (bindedWidgetIds.isEmpty()) {
-                    return Result.success(Unit)
-                }
-
-                widgetRepository.get(bindedWidgetIds, false)
+                widgetRepository.get(argument.widgetIds, false)
             } else {
                 val unLoadedWidgetIds = widgetManager.installedAllWidgetIds.filter { id ->
                     val isLoaded = when (val cache = remoteViewsCacheManager.get(id)) {
@@ -111,6 +97,7 @@ class WidgetUpdateBackgroundService @Inject constructor(
         }.mapValues {
             RemoteViewsCreatorManager.getByWidgetType(it.key)
         }
+        val units = appSettingsRepository.currentUnits.value
 
         for (widget in widgets) {
             if (widget in updatedWidgetsCompletely) {

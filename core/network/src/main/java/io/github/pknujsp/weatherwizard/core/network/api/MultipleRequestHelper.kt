@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.coroutines.coroutineContext
 
 internal class MultipleRequestHelper<T : Any>(
@@ -21,16 +22,16 @@ internal class MultipleRequestHelper<T : Any>(
         if (requestId in requestMap) {
             false
         } else {
-            Log.d("MultipleRequestHelper", "added $requestId")
             val newFlow = MutableStateFlow<RequestState<T>>(RequestState.Waiting)
             requestMap[requestId] = newFlow
 
             CoroutineScope(SupervisorJob()).launch {
-                var addedCollector = false
+                val addedCollector = AtomicBoolean(false)
                 newFlow.subscriptionCount.collect {
-                    if (!addedCollector && it > 0) {
-                        addedCollector = true
-                    } else if (addedCollector && it == 0) {
+                    if (!addedCollector.get() && it > 0) {
+                        Log.d("MultipleRequestHelper", "added $requestId")
+                        addedCollector.getAndSet(true)
+                    } else if (addedCollector.get() && it == 0) {
                         mutex.withLock {
                             requestMap.remove(requestId)
                         }

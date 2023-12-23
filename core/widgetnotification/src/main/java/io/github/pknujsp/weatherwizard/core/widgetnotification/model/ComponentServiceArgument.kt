@@ -30,7 +30,7 @@ class WidgetDeletedArgument(
 
 
 class WidgetUpdatedArgument(
-    val action: Int, val widgetIds: Array<Int>,
+    val action: Int, val widgetIds: Array<Int> = emptyArray(),
 ) : ComponentServiceArgument() {
     companion object {
         const val UPDATE_ALL = 0

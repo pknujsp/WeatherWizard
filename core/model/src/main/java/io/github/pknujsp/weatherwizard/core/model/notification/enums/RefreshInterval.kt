@@ -9,6 +9,10 @@ enum class RefreshInterval(val interval: Long) : IEnum {
         override val key: Int = ordinal
         override val title: Int = io.github.pknujsp.weatherwizard.core.resource.R.string.manual
     },
+    MIN_5(java.time.Duration.ofMinutes(15).toMillis()) {
+        override val key: Int = ordinal
+        override val title: Int = io.github.pknujsp.weatherwizard.core.resource.R.string.min_5
+    },
     MIN_15(java.time.Duration.ofMinutes(15).toMillis()) {
         override val key: Int = ordinal
         override val title: Int = io.github.pknujsp.weatherwizard.core.resource.R.string.min_15
@@ -38,6 +42,5 @@ enum class RefreshInterval(val interval: Long) : IEnum {
         override val default: RefreshInterval = MANUAL
         override val key: String get() = "RefreshInterval"
         override val enums: Array<RefreshInterval> get() = entries.toTypedArray()
-
     }
 }

@@ -1,13 +1,13 @@
 package io.github.pknujsp.weatherwizard.feature.componentservice.widget
 
-import android.app.PendingIntent
 import android.appwidget.AppWidgetManager
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
+import android.os.Bundle
 import android.util.Log
-import io.github.pknujsp.weatherwizard.core.common.enum.pendingIntentRequestFactory
 import io.github.pknujsp.weatherwizard.core.common.manager.WidgetManager
-import io.github.pknujsp.weatherwizard.feature.componentservice.ComponentPendingIntentManager
+import io.github.pknujsp.weatherwizard.feature.componentservice.widget.worker.SummaryWeatherWidgetProvider
 
 class WidgetStarterImpl(
     private val widgetManager: WidgetManager
@@ -20,15 +20,13 @@ class WidgetStarterImpl(
         }
 
         widgetManager.getProviderByWidgetId(installedWidgetIds.first())?.let { widgetProvider ->
-            val intent = Intent(context, widgetProvider.javaClass).apply {
+            val intent = Intent().apply {
                 action = AppWidgetManager.ACTION_APPWIDGET_UPDATE
-                putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, installedWidgetIds.toTypedArray())
+                component = widgetProvider
+                putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, installedWidgetIds.toIntArray())
             }
-            PendingIntent.getBroadcast(context,
-                pendingIntentRequestFactory.requestId(intent.hashCode()),
-                intent,
-                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE).send()
-            Log.d("WidgetStarterImpl", "sendBroadcast: $installedWidgetIds")
+            context.sendBroadcast(intent)
+            Log.d("WidgetStarterImpl", "sendBroadcast: $installedWidgetIds, $widgetProvider")
         }
     }
 
