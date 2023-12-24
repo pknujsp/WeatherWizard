@@ -27,9 +27,7 @@ class WidgetUpdateBackgroundService @Inject constructor(
     private val appAlarmManager: AppAlarmManager
 ) : AppComponentBackgroundService<WidgetUpdatedArgument>(context) {
 
-    override val id: Int = "WidgetUpdateBackgroundService".hashCode()
-
-    private val appWidgetViewUpdater = AppWidgetViewUpdater.getInstance(widgetManager,
+    private val updateAppWidgetViews = AppWidgetViewUpdater(widgetManager,
         widgetRepository,
         featureStatusManager,
         appSettingsRepository,
@@ -40,11 +38,16 @@ class WidgetUpdateBackgroundService @Inject constructor(
             WidgetUpdatedArgument.SCHEDULE_TO_AUTO_REFRESH -> {
                 val autoRefreshInterval = RefreshInterval.default
                 AppWidgetAutoRefreshScheduler(widgetManager).scheduleAutoRefresh(context, appAlarmManager, autoRefreshInterval)
-                return Result.success(Unit)
             }
 
             WidgetUpdatedArgument.UPDATE_ALL, WidgetUpdatedArgument.UPDATE_ONLY_SPECIFIC_WIDGETS -> {
-                appWidgetViewUpdater.run(argument, context)
+                updateAppWidgetViews(argument, context)
+            }
+
+            WidgetUpdatedArgument.DELETE -> {
+                for (widgetId in argument.widgetIds) {
+                    widgetRepository.delete(widgetId)
+                }
             }
         }
 

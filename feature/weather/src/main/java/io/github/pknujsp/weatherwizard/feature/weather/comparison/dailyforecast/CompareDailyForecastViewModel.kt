@@ -56,7 +56,7 @@ class CompareDailyForecastViewModel @Inject constructor(
                         }
                         list.toTypedArray()
                     }
-                    val units = settingsRepository.currentUnits.value
+                    val units = settingsRepository.settings.value.units
 
                     val items = entity.items.map { (provider, entity) ->
                         val firstIndex = entity.dayItems.indexOfFirst { ZonedDateTime.parse(it.dateTime.value).toLocalDate() == firstDate }

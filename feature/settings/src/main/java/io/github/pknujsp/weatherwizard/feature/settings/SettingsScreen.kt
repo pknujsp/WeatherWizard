@@ -20,7 +20,9 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import io.github.pknujsp.weatherwizard.core.model.notification.enums.RefreshInterval
 import io.github.pknujsp.weatherwizard.core.resource.R
+import io.github.pknujsp.weatherwizard.core.ui.BottomSheetSettingItem
 import io.github.pknujsp.weatherwizard.core.ui.ButtonSettingItem
 import io.github.pknujsp.weatherwizard.core.ui.CheckBoxSettingItem
 import io.github.pknujsp.weatherwizard.core.ui.ClickableSettingItem
@@ -30,6 +32,7 @@ import io.github.pknujsp.weatherwizard.core.ui.TextValueSettingItem
 fun SettingsScreen(navController: NavController, viewModel: SettingsViewModel) {
     val weatherDataProvider by viewModel.weatherProvider.collectAsStateWithLifecycle()
     var displayValuesBottomSheet by remember { mutableStateOf(false) }
+    var displayValuesBottomSheet2 by remember { mutableStateOf(false) }
     val context = LocalContext.current
 
     Column {
@@ -51,7 +54,14 @@ fun SettingsScreen(navController: NavController, viewModel: SettingsViewModel) {
             checked = true) {
 
         }
-
+        BottomSheetSettingItem(title = stringResource(id = R.string.title_widget_auto_refresh_interval),
+            selectedItem = viewModel.widgetAutoRefreshInterval,
+            onSelectedItem = {
+                it?.run {
+                    viewModel.updateWidgetAutoRefreshInterval(this)
+                }
+            },
+            enums = RefreshInterval.enums)
         ClickableSettingItem(title = stringResource(id = R.string.title_refresh_widget),
             description = stringResource(id = R.string.description_refresh_widget)) {
             viewModel.refreshWidgets(context)
@@ -66,6 +76,7 @@ fun SettingsScreen(navController: NavController, viewModel: SettingsViewModel) {
             }
         }
     }
+
 }
 
 

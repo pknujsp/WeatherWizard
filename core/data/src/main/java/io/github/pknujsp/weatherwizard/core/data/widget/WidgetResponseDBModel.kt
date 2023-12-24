@@ -11,7 +11,6 @@ import io.github.pknujsp.weatherwizard.core.model.weather.hourlyforecast.HourlyF
 import io.github.pknujsp.weatherwizard.core.model.weather.yesterday.YesterdayWeatherEntity
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import java.time.ZonedDateTime
 
 @Serializable
 class WidgetResponseDBModel(

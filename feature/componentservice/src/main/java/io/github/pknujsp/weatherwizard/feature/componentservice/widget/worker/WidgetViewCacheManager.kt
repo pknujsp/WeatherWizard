@@ -11,7 +11,7 @@ object WidgetViewCacheManagerFactory {
 
     fun getInstance(dispatcher: CoroutineDispatcher): CacheManager<Int, RemoteViews> {
         return synchronized(this) {
-            cacheManager ?: CacheManagerImpl<Int, RemoteViews>(cacheExpiryTime = Duration.ofSeconds(20), dispatcher = dispatcher).also {
+            cacheManager ?: CacheManagerImpl<Int, RemoteViews>(cacheExpiryTime = Duration.ofSeconds(30), dispatcher = dispatcher).also {
                 cacheManager = it
             }
         }

@@ -1,10 +1,7 @@
 package io.github.pknujsp.weatherwizard.core.model.weather.dailyforecast
 
 import io.github.pknujsp.weatherwizard.core.model.UiModel
-import io.github.pknujsp.weatherwizard.core.model.weather.common.CurrentUnits
-import io.github.pknujsp.weatherwizard.core.model.weather.common.ProbabilityValueType
-import io.github.pknujsp.weatherwizard.core.model.weather.common.TemperatureValueType
-import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherConditionValueType
+import io.github.pknujsp.weatherwizard.core.model.settings.CurrentUnits
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 

@@ -4,7 +4,7 @@ import android.content.Context
 import android.view.View
 import android.widget.RemoteViews
 import androidx.annotation.LayoutRes
-import io.github.pknujsp.weatherwizard.core.model.weather.common.CurrentUnits
+import io.github.pknujsp.weatherwizard.core.model.settings.CurrentUnits
 import io.github.pknujsp.weatherwizard.core.resource.R
 import io.github.pknujsp.weatherwizard.core.widgetnotification.remoteview.RemoteViewCreator.Companion.lastUpdatedTimeFormat
 import java.time.ZonedDateTime

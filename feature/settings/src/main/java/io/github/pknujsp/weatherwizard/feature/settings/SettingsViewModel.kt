@@ -1,12 +1,16 @@
 package io.github.pknujsp.weatherwizard.feature.settings
 
 import android.content.Context
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.github.pknujsp.weatherwizard.core.common.coroutines.CoDispatcher
 import io.github.pknujsp.weatherwizard.core.common.coroutines.CoDispatcherType
 import io.github.pknujsp.weatherwizard.core.data.settings.SettingsRepository
+import io.github.pknujsp.weatherwizard.core.model.notification.enums.RefreshInterval
 import io.github.pknujsp.weatherwizard.core.model.weather.common.PrecipitationUnit
 import io.github.pknujsp.weatherwizard.core.model.weather.common.TemperatureUnit
 import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherProvider
@@ -36,6 +40,9 @@ class SettingsViewModel @Inject constructor(
 
     private val _weatherProvider = MutableStateFlow<WeatherProvider>(WeatherProvider.default)
     val weatherProvider: StateFlow<WeatherProvider> = _weatherProvider
+
+    var widgetAutoRefreshInterval by mutableStateOf(RefreshInterval.default)
+        private set
 
     init {
         viewModelScope.launch {
@@ -77,6 +84,13 @@ class SettingsViewModel @Inject constructor(
     fun refreshWidgets(context: Context) {
         viewModelScope.launch(ioDispatcher) {
             widgetStarter.start(context)
+        }
+    }
+
+    fun updateWidgetAutoRefreshInterval(interval: RefreshInterval) {
+        viewModelScope.launch {
+            widgetAutoRefreshInterval = interval
+            settingsRepository.setWidgetAutoRefreshInterval(interval)
         }
     }
 }

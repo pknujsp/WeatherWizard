@@ -24,10 +24,6 @@ class DailyNotificationServiceArgument(
     val notificationId: Long
 ) : ComponentServiceArgument()
 
-class WidgetDeletedArgument(
-    val widgetIds: Array<Int>,
-) : ComponentServiceArgument()
-
 
 class WidgetUpdatedArgument(
     val action: Int, val widgetIds: Array<Int> = emptyArray(),
@@ -36,6 +32,7 @@ class WidgetUpdatedArgument(
         const val UPDATE_ALL = 0
         const val UPDATE_ONLY_SPECIFIC_WIDGETS = 1
         const val SCHEDULE_TO_AUTO_REFRESH = 2
+        const val DELETE = 3
     }
 }
 

@@ -4,22 +4,18 @@ import android.app.PendingIntent
 import android.content.Context
 import android.widget.RemoteViews
 import io.github.pknujsp.weatherwizard.core.common.FeatureType
-import io.github.pknujsp.weatherwizard.core.common.manager.AppAlarmManager
 import io.github.pknujsp.weatherwizard.core.common.manager.FailedReason
 import io.github.pknujsp.weatherwizard.core.common.manager.FeatureState
 import io.github.pknujsp.weatherwizard.core.common.manager.FeatureStatusManager
 import io.github.pknujsp.weatherwizard.core.common.manager.WidgetManager
 import io.github.pknujsp.weatherwizard.core.data.cache.CacheManager
 import io.github.pknujsp.weatherwizard.core.data.settings.SettingsRepository
+import io.github.pknujsp.weatherwizard.core.data.widget.SavedWidgetContentState
 import io.github.pknujsp.weatherwizard.core.data.widget.WidgetRepository
-import io.github.pknujsp.weatherwizard.core.data.widget.WidgetResponseDBEntity
 import io.github.pknujsp.weatherwizard.core.model.RemoteViewUiModel
 import io.github.pknujsp.weatherwizard.core.model.coordinate.LocationType
-import io.github.pknujsp.weatherwizard.core.model.notification.enums.RefreshInterval
-import io.github.pknujsp.weatherwizard.core.model.widget.WidgetStatus
 import io.github.pknujsp.weatherwizard.core.model.widget.WidgetType
 import io.github.pknujsp.weatherwizard.core.widgetnotification.model.ComponentServiceAction
-import io.github.pknujsp.weatherwizard.core.widgetnotification.model.IWorker
 import io.github.pknujsp.weatherwizard.core.widgetnotification.model.LoadWidgetDataArgument
 import io.github.pknujsp.weatherwizard.core.widgetnotification.model.RemoteViewUiModelMapperManager
 import io.github.pknujsp.weatherwizard.core.widgetnotification.model.WidgetUpdatedArgument
@@ -33,44 +29,22 @@ import io.github.pknujsp.weatherwizard.feature.componentservice.widget.WidgetAct
 import io.github.pknujsp.weatherwizard.feature.componentservice.widget.isInProgress
 
 
-class AppWidgetViewUpdater private constructor(
+class AppWidgetViewUpdater(
     private val widgetManager: WidgetManager,
     private val widgetRepository: WidgetRepository,
     private val featureStatusManager: FeatureStatusManager,
     private val appSettingsRepository: SettingsRepository,
     private val remoteViewsCacheManager: CacheManager<Int, RemoteViews>
 ) {
-    companion object {
-        private val requiredFeatures: Array<FeatureType> = arrayOf(FeatureType.NETWORK)
+    private val requiredFeatures: Array<FeatureType> = arrayOf(FeatureType.NETWORK)
 
-        @Volatile private var instance: AppWidgetViewUpdater? = null
-
-        fun getInstance(
-            widgetManager: WidgetManager,
-            widgetRepository: WidgetRepository,
-            featureStatusManager: FeatureStatusManager,
-            appSettingsRepository: SettingsRepository,
-            remoteViewsCacheManager: CacheManager<Int, RemoteViews>
-        ): AppWidgetViewUpdater {
-            return synchronized(this) {
-                instance ?: AppWidgetViewUpdater(widgetManager,
-                    widgetRepository,
-                    featureStatusManager,
-                    appSettingsRepository,
-                    remoteViewsCacheManager).also {
-                    instance = it
-                }
-            }
-        }
-    }
-
-    suspend fun run(argument: WidgetUpdatedArgument, context: Context) {
+    suspend operator fun invoke(argument: WidgetUpdatedArgument, context: Context) {
         val widgets = argument.run {
-            val widgets = if (argument.action == WidgetUpdatedArgument.UPDATE_ONLY_SPECIFIC_WIDGETS) {
-                widgetRepository.get(argument.widgetIds, false)
+            val widgetsIds = if (argument.action == WidgetUpdatedArgument.UPDATE_ONLY_SPECIFIC_WIDGETS) {
+                argument.widgetIds.toList()
             } else {
-                val unLoadedWidgetIds = widgetManager.installedAllWidgetIds.filter { id ->
-                    val isLoaded = when (val cache = remoteViewsCacheManager.get(id)) {
+                val unLoadedWidgetIds = widgetManager.installedAllWidgetIds.filterNot { id ->
+                    when (val cache = remoteViewsCacheManager.get(id)) {
                         is CacheManager.CacheState.Hit -> {
                             widgetManager.updateWidget(id, cache.value, context, WidgetActivity::class)
                             true
@@ -78,22 +52,19 @@ class AppWidgetViewUpdater private constructor(
 
                         else -> false
                     }
-                    !isLoaded
-                }.toTypedArray()
-                widgetRepository.get(unLoadedWidgetIds, false)
+                }
+                unLoadedWidgetIds
             }
-            widgets.filterNot { isInProgress(it.id) }
+            widgetsIds.filterNot { isInProgress(it) }.run { widgetRepository.get(this) }.filterNot { it is SavedWidgetContentState.Pending }
         }
 
         if (!widgets.checkPrimaryRequiredFeatures(requiredFeatures, context)) {
             return
         }
 
-        val updatedWidgetsCompletely = mutableSetOf<WidgetResponseDBEntity>()
+        val updatedWidgetsCompletely = mutableSetOf<SavedWidgetContentState>()
         widgets.filter { it.locationType is LocationType.CurrentLocation }.let { filtered ->
-            val areEnabledFeatures =
-                filtered.checkPrimaryRequiredFeatures(arrayOf(FeatureType.LOCATION_PERMISSION, FeatureType.LOCATION_SERVICE), context)
-            if (!areEnabledFeatures) {
+            if (!filtered.checkPrimaryRequiredFeatures(arrayOf(FeatureType.LOCATION_PERMISSION, FeatureType.LOCATION_SERVICE), context)) {
                 updatedWidgetsCompletely.addAll(filtered)
             }
         }
@@ -105,13 +76,13 @@ class AppWidgetViewUpdater private constructor(
         }.mapValues {
             RemoteViewsCreatorManager.getByWidgetType(it.key)
         }
-        val units = appSettingsRepository.currentUnits.value
+        val units = appSettingsRepository.settings.value.units
 
         for (widget in widgets) {
             if (widget in updatedWidgetsCompletely) {
                 continue
             }
-            val remoteView = if (widget.status == WidgetStatus.RESPONSE_SUCCESS) {
+            val remoteView = if (widget is SavedWidgetContentState.Success) {
                 val uiModelManager = RemoteViewUiModelMapperManager.getByWidgetType(widget.widgetType)
 
                 remoteViewsCreatorMap.getValue(widget.widgetType).createContentView(uiModelManager.mapToUiModel(widget, units),
@@ -140,7 +111,7 @@ class AppWidgetViewUpdater private constructor(
 
     }
 
-    private fun List<WidgetResponseDBEntity>.checkPrimaryRequiredFeatures(
+    private fun List<SavedWidgetContentState>.checkPrimaryRequiredFeatures(
         requiredFeatures: Array<FeatureType>, context: Context
     ): Boolean {
         if (isEmpty()) {

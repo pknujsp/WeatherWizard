@@ -63,33 +63,43 @@ class WidgetRepositoryImpl @Inject constructor(
         dataSource.updateResponseData(id, status, responseData)
     }
 
-    override suspend fun get(widgetIds: Array<Int>?, all: Boolean): List<WidgetResponseDBEntity> {
-        val dtoList = if (all || widgetIds == null) {
-            dataSource.getAll(false)
-        } else {
-            widgetIds.mapNotNull { dataSource.getById(it) }
-        }
-
-        val dbEntities = dtoList.filter { it.status != WidgetStatus.PENDING }.map { dto ->
+    override suspend fun get(widgetIds: List<Int>): List<SavedWidgetContentState> {
+        return dataSource.getAll(false).filter { it.status != WidgetStatus.PENDING }.map { dto ->
             val jsonEntity = jsonParser.parse<WidgetSettingsJsonEntity>(dto.content)
             val location = jsonEntity.getLocation()
-            val responseData = dto.responseData?.let {
-                jsonParser.parse<WidgetResponseDBModel>(it)
-            }
 
-            WidgetResponseDBEntity(id = dto.id,
-                weatherProvider = jsonEntity.getWeatherProvider(),
-                widgetType = WidgetType.fromKey(dto.widgetType),
-                address = responseData?.address ?: "",
-                latitude = responseData?.latitude ?: 0.0,
-                longitude = responseData?.longitude ?: 0.0,
-                updatedAt = ZonedDateTime.parse(dto.updatedAt),
-                status = if (responseData == null) WidgetStatus.RESPONSE_FAILURE else dto.status,
-                locationType = location.locationType,
-                entities = responseData?.entities?.map {
-                    it.toWeatherEntity(jsonParser)
-                } ?: emptyList())
+            if (dto.status == WidgetStatus.RESPONSE_SUCCESS) {
+                val responseData = dto.responseData?.let {
+                    try {
+                        jsonParser.parse<WidgetResponseDBModel>(it)
+                    } catch (e: Exception) {
+                        null
+                    }
+                }
+                if (responseData == null) {
+                    dataSource.deleteById(dto.id)
+                    SavedWidgetContentState.Failure(id = dto.id,
+                        widgetType = WidgetType.fromKey(dto.widgetType),
+                        updatedAt = ZonedDateTime.parse(dto.updatedAt),
+                        locationType = location.locationType)
+                } else {
+                    SavedWidgetContentState.Success(id = dto.id,
+                        widgetType = WidgetType.fromKey(dto.widgetType),
+                        updatedAt = ZonedDateTime.parse(dto.updatedAt),
+                        locationType = location.locationType,
+                        address = responseData.address,
+                        latitude = responseData.latitude,
+                        longitude = responseData.longitude,
+                        entities = responseData.entities.map {
+                            it.toWeatherEntity(jsonParser)
+                        })
+                }
+            } else {
+                SavedWidgetContentState.Failure(id = dto.id,
+                    widgetType = WidgetType.fromKey(dto.widgetType),
+                    updatedAt = ZonedDateTime.parse(dto.updatedAt),
+                    locationType = location.locationType)
+            }
         }
-        return dbEntities
     }
 }

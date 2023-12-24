@@ -2,9 +2,9 @@ package io.github.pknujsp.weatherwizard.core.widgetnotification.widget.summary
 
 import io.github.pknujsp.weatherwizard.core.common.util.DayNightCalculator
 import io.github.pknujsp.weatherwizard.core.common.util.toCalendar
-import io.github.pknujsp.weatherwizard.core.data.widget.WidgetResponseDBEntity
+import io.github.pknujsp.weatherwizard.core.data.widget.SavedWidgetContentState
 import io.github.pknujsp.weatherwizard.core.model.mapper.UiModelMapper
-import io.github.pknujsp.weatherwizard.core.model.weather.common.CurrentUnits
+import io.github.pknujsp.weatherwizard.core.model.settings.CurrentUnits
 import io.github.pknujsp.weatherwizard.core.model.weather.current.CurrentWeatherEntity
 import io.github.pknujsp.weatherwizard.core.model.weather.dailyforecast.DailyForecastEntity
 import io.github.pknujsp.weatherwizard.core.model.weather.hourlyforecast.HourlyForecastEntity
@@ -12,8 +12,8 @@ import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 
-class WidgetAllInOneRemoteViewUiModelMapper : UiModelMapper<WidgetResponseDBEntity, WidgetAllInOneRemoteViewUiModel> {
-    override fun mapToUiModel(model: WidgetResponseDBEntity, units: CurrentUnits): WidgetAllInOneRemoteViewUiModel {
+class WidgetAllInOneRemoteViewUiModelMapper : UiModelMapper<SavedWidgetContentState.Success, WidgetAllInOneRemoteViewUiModel> {
+    override fun mapToUiModel(model: SavedWidgetContentState.Success, units: CurrentUnits): WidgetAllInOneRemoteViewUiModel {
         return model.let {
             val dayNightCalculator = DayNightCalculator(it.latitude, it.longitude)
 

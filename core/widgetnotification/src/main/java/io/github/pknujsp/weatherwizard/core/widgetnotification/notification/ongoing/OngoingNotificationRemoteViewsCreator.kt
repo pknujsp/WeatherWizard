@@ -2,7 +2,7 @@ package io.github.pknujsp.weatherwizard.core.widgetnotification.notification.ong
 
 import android.content.Context
 import android.widget.RemoteViews
-import io.github.pknujsp.weatherwizard.core.model.weather.common.CurrentUnits
+import io.github.pknujsp.weatherwizard.core.model.settings.CurrentUnits
 import io.github.pknujsp.weatherwizard.core.model.weather.common.TemperatureUnit
 import io.github.pknujsp.weatherwizard.core.model.weather.common.TemperatureValueType
 import io.github.pknujsp.weatherwizard.core.resource.R

@@ -1,6 +1,6 @@
 package io.github.pknujsp.weatherwizard.core.widgetnotification.model
 
-import io.github.pknujsp.weatherwizard.core.data.widget.WidgetResponseDBEntity
+import io.github.pknujsp.weatherwizard.core.data.widget.SavedWidgetContentState
 import io.github.pknujsp.weatherwizard.core.domain.weather.WeatherResponseEntity
 import io.github.pknujsp.weatherwizard.core.model.RemoteViewUiModel
 import io.github.pknujsp.weatherwizard.core.model.mapper.UiModelMapper
@@ -28,7 +28,7 @@ object RemoteViewUiModelMapperManager {
 
     fun getByWidgetType(
         widgetType: WidgetType
-    ): UiModelMapper<WidgetResponseDBEntity, out RemoteViewUiModel> = when (widgetType) {
+    ): UiModelMapper<SavedWidgetContentState.Success, out RemoteViewUiModel> = when (widgetType) {
         WidgetType.ALL_IN_ONE -> WidgetAllInOneRemoteViewUiModelMapper()
         else -> throw IllegalArgumentException("Unknown widget type: $widgetType")
     }

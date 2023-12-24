@@ -88,7 +88,7 @@
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
                 <action android:name="android.intent.action.LOCKED_BOOT_COMPLETED" />
-                <action android:name="wyther.intent.action.SCHEDULE_TO_REPEAT" />
+                <action android:name="wyther.intent.action.SCHEDULE_TO_AUTO_REFRESH" />
             </intent-filter>
 
             <meta-data

@@ -24,7 +24,7 @@ class OngoingNotificationViewModel @Inject constructor(
     appSettingsRepository: SettingsRepository,
 ) : ViewModel() {
 
-    val units = appSettingsRepository.currentUnits.value
+    val units = appSettingsRepository.settings.value.units
 
     private val _ongoingNotificationUiState = MutableOngoingNotificationUiState(
         ongoingNotificationSettings = OngoingNotificationSettingsEntity().let {

@@ -9,8 +9,6 @@ import android.util.Log
 import dagger.hilt.android.AndroidEntryPoint
 import io.github.pknujsp.weatherwizard.core.common.coroutines.CoDispatcher
 import io.github.pknujsp.weatherwizard.core.common.coroutines.CoDispatcherType
-import io.github.pknujsp.weatherwizard.core.model.intent.IntentAction
-import io.github.pknujsp.weatherwizard.core.widgetnotification.model.WidgetDeletedArgument
 import io.github.pknujsp.weatherwizard.core.widgetnotification.model.WidgetUpdatedArgument
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.DelicateCoroutinesApi
@@ -22,14 +20,13 @@ import javax.inject.Inject
 @AndroidEntryPoint
 abstract class BaseWidgetProvider : AppWidgetProvider() {
 
-    @Inject lateinit var widgetDeleteBackgroundService: WidgetDeleteBackgroundService
     @Inject lateinit var widgetUpdateBackgroundService: WidgetUpdateBackgroundService
-    @Inject @CoDispatcher(CoDispatcherType.IO) lateinit var dispatcher: CoroutineDispatcher
+    @Inject @CoDispatcher(CoDispatcherType.MULTIPLE) lateinit var dispatcher: CoroutineDispatcher
 
     companion object {
         private val globalScope get() = GlobalScope
-        const val ACTION_SCHEDULE_TO_REPEAT = "wyther.intent.action.SCHEDULE_TO_REPEAT"
-        private val specialActions = setOf(ACTION_SCHEDULE_TO_REPEAT, Intent.ACTION_BOOT_COMPLETED)
+        const val ACTION_SCHEDULE_TO_AUTO_REFRESH = "wyther.intent.action.SCHEDULE_TO_AUTO_REFRESH"
+        private val specialActions = setOf(ACTION_SCHEDULE_TO_AUTO_REFRESH, Intent.ACTION_BOOT_COMPLETED)
     }
 
     override fun onUpdate(context: Context, appWidgetManager: AppWidgetManager, appWidgetIds: IntArray) {
@@ -46,7 +43,7 @@ abstract class BaseWidgetProvider : AppWidgetProvider() {
         if (appWidgetIds.isNotEmpty()) {
             Log.d("WidgetProvider", "onDeleted: ${appWidgetIds.contentToString()}")
             globalScope.launch(dispatcher) {
-                widgetDeleteBackgroundService.run(WidgetDeletedArgument(appWidgetIds.toTypedArray()))
+                widgetUpdateBackgroundService.run(WidgetUpdatedArgument(WidgetUpdatedArgument.DELETE, appWidgetIds.toTypedArray()))
             }
         }
     }
@@ -68,14 +65,13 @@ abstract class BaseWidgetProvider : AppWidgetProvider() {
 
     override fun onReceive(context: Context?, intent: Intent?) {
         super.onReceive(context, intent)
-
         intent?.action?.also { action ->
             if (action in specialActions) {
                 globalScope.launch(dispatcher) {
                     if (action == Intent.ACTION_BOOT_COMPLETED) {
                         widgetUpdateBackgroundService.run(WidgetUpdatedArgument(WidgetUpdatedArgument.UPDATE_ALL))
-                    } else if (action == ACTION_SCHEDULE_TO_REPEAT) {
-                        widgetUpdateBackgroundService.run(WidgetUpdatedArgument(WidgetUpdatedArgument.UPDATE_ALL))
+                    } else if (action == ACTION_SCHEDULE_TO_AUTO_REFRESH) {
+                        widgetUpdateBackgroundService.run(WidgetUpdatedArgument(WidgetUpdatedArgument.SCHEDULE_TO_AUTO_REFRESH))
                     }
                 }
             }

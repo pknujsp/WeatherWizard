@@ -14,7 +14,7 @@ import io.github.pknujsp.weatherwizard.core.common.util.DayNightCalculator
 import io.github.pknujsp.weatherwizard.core.common.util.toCalendar
 import io.github.pknujsp.weatherwizard.core.domain.weather.WeatherResponseEntity
 import io.github.pknujsp.weatherwizard.core.model.notification.enums.NotificationIconType
-import io.github.pknujsp.weatherwizard.core.model.weather.common.CurrentUnits
+import io.github.pknujsp.weatherwizard.core.model.settings.CurrentUnits
 import io.github.pknujsp.weatherwizard.core.model.weather.current.CurrentWeatherEntity
 
 object NotificationIconGenerator {

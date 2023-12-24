@@ -21,7 +21,7 @@ import javax.inject.Inject
 class WidgetConfigureViewModel @Inject constructor(
     private val widgetRepository: WidgetRepository, appSettingsRepository: SettingsRepository, savedStateHandle: SavedStateHandle
 ) : ViewModel() {
-    val units = appSettingsRepository.currentUnits.value
+    val units = appSettingsRepository.settings.value.units
     val widget = savedStateHandle.run {
         WidgetModel(get<Int>("widgetId")!!, get<Int>("widgetType")!!, ::save)
     }
