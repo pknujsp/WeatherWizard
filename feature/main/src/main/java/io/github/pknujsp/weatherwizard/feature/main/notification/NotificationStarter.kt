@@ -12,9 +12,7 @@ import io.github.pknujsp.weatherwizard.core.widgetnotification.model.OngoingNoti
 import io.github.pknujsp.weatherwizard.core.widgetnotification.notification.AppNotificationManager
 import io.github.pknujsp.weatherwizard.feature.componentservice.ComponentPendingIntentManager
 import io.github.pknujsp.weatherwizard.feature.componentservice.notification.manager.NotificationAlarmManager
-import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.firstOrNull
-import kotlinx.coroutines.supervisorScope
 
 class NotificationStarterImpl(
     private val ongoingNotificationRepository: OngoingNotificationRepository,
@@ -36,12 +34,15 @@ class NotificationStarterImpl(
                 context.sendBroadcast(ComponentPendingIntentManager.getIntent(context, OngoingNotificationServiceArgument()))
 
                 if (it.data.refreshInterval != RefreshInterval.MANUAL) {
-                    val pendingIntent = ComponentPendingIntentManager.getRefreshPendingIntent(context,
-                        PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
-                        ComponentServiceAction.OngoingNotification())
-
-                    appAlarmManager.unScheduleRepeat(pendingIntent)
-                    appAlarmManager.scheduleRepeat(it.data.refreshInterval.interval, pendingIntent)
+                    val action = ComponentServiceAction.OngoingNotification()
+                    if (ComponentPendingIntentManager.getRefreshPendingIntent(context,
+                            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_NO_CREATE,
+                            action) == null) {
+                        val pendingIntentToSchedule = ComponentPendingIntentManager.getRefreshPendingIntent(context,
+                            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
+                            action)!!
+                        appAlarmManager.scheduleRepeat(it.data.refreshInterval.interval, pendingIntentToSchedule)
+                    }
                 }
             }
         }

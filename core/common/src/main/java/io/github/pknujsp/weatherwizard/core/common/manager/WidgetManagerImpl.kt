@@ -12,7 +12,7 @@ import kotlin.reflect.KClass
 
 class WidgetManagerImpl(context: Context) : WidgetManager {
     private val appWidgetManager: AppWidgetManager = AppWidgetManager.getInstance(context)
-    val packageName: String = context.packageName
+    private val packageName: String = context.packageName
 
     override val installedAllWidgetIds: List<Int>
         get() = appWidgetManager.installedProviders.filter {

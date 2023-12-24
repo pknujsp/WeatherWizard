@@ -35,6 +35,7 @@ class WidgetUpdatedArgument(
     companion object {
         const val UPDATE_ALL = 0
         const val UPDATE_ONLY_SPECIFIC_WIDGETS = 1
+        const val SCHEDULE_TO_AUTO_REFRESH = 2
     }
 }
 

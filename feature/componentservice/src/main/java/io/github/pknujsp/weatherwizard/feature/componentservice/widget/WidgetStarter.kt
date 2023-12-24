@@ -20,6 +20,7 @@ class WidgetStarterImpl(
         }
 
         widgetManager.getProviderByWidgetId(installedWidgetIds.first())?.let { widgetProvider ->
+            // 위젯 업데이트
             val intent = Intent().apply {
                 action = AppWidgetManager.ACTION_APPWIDGET_UPDATE
                 component = widgetProvider
@@ -27,6 +28,8 @@ class WidgetStarterImpl(
             }
             context.sendBroadcast(intent)
             Log.d("WidgetStarterImpl", "sendBroadcast: $installedWidgetIds, $widgetProvider")
+
+            // 위젯 자동 업데이트 예약
         }
     }
 

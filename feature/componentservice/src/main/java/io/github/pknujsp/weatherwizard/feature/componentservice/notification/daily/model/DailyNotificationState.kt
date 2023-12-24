@@ -19,7 +19,7 @@ class DailyNotificationState(
 ) {
 
     var showSearch by mutableStateOf(false)
-    var isScheduleExactAlarmPermissionGranted by mutableStateOf(context.checkSelfPermission(PermissionType.SCHEDULE_EXACT_ALARM_ON_SDK_31_AND_32))
+    var isScheduleExactAlarmPermissionGranted by mutableStateOf(context.checkSelfPermission(PermissionType.SCHEDULE_EXACT_ALARM_ABOVE_EQUALS_ON_SDK_31))
     var openPermissionSettings by mutableStateOf(false)
 
     fun onChangedSettings(context: Context) {

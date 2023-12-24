@@ -103,9 +103,18 @@ enum class PermissionType(val permissions: Array<String>, val isUnrelatedSdkDevi
         isUnrelatedSdkDevice = Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU),
 
     @RequiresApi(Build.VERSION_CODES.S)
-    SCHEDULE_EXACT_ALARM_ON_SDK_31_AND_32(arrayOf(
-        Manifest.permission.SCHEDULE_EXACT_ALARM,
-    ), isUnrelatedSdkDevice = Build.VERSION.SDK_INT < Build.VERSION_CODES.S || Build.VERSION.SDK_INT > Build.VERSION_CODES.S_V2);
+    SCHEDULE_EXACT_ALARM_ABOVE_EQUALS_ON_SDK_31(if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        arrayOf(
+            Manifest.permission.SCHEDULE_EXACT_ALARM,
+            Manifest.permission.USE_EXACT_ALARM,
+        )
+    } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+        arrayOf(
+            Manifest.permission.SCHEDULE_EXACT_ALARM,
+        )
+    } else {
+        emptyArray()
+    }, isUnrelatedSdkDevice = Build.VERSION.SDK_INT < Build.VERSION_CODES.S);
 }
 
 

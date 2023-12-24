@@ -8,19 +8,20 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.LocalContext
 import io.github.pknujsp.weatherwizard.core.common.FeatureType
 import io.github.pknujsp.weatherwizard.core.common.manager.PermissionManager
 import io.github.pknujsp.weatherwizard.core.common.manager.PermissionType
+import io.github.pknujsp.weatherwizard.core.common.manager.checkSelfPermission
 import io.github.pknujsp.weatherwizard.core.ui.feature.UnavailableFeatureScreen
 import io.github.pknujsp.weatherwizard.core.ui.feature.OpenAppSettingsActivity
 
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
 @Composable
 fun NotificationPermissionCheckingScreen(onPermissionGranted: () -> Unit) {
-    var permissionGranted by remember { mutableStateOf(false) }
+    val context = LocalContext.current
+    var permissionGranted by remember { mutableStateOf(context.checkSelfPermission(PermissionType.POST_NOTIFICATIONS)) }
     var openPermissionActivity by remember { mutableStateOf(false) }
-
-    var unavailable by remember { mutableStateOf(false) }
     var refreshKey by remember { mutableIntStateOf(0) }
 
     if (permissionGranted) {
@@ -28,21 +29,17 @@ fun NotificationPermissionCheckingScreen(onPermissionGranted: () -> Unit) {
     } else {
         PermissionManager(PermissionType.POST_NOTIFICATIONS, onPermissionGranted = {
             openPermissionActivity = false
-            unavailable = false
             permissionGranted = true
         }, onPermissionDenied = {
-            unavailable = true
+            permissionGranted = false
         }, onShouldShowRationale = {
-            unavailable = true
+            permissionGranted = false
         }, onNeverAskAgain = {
-            unavailable = true
+            permissionGranted = false
         }, refreshKey)
 
-        if (unavailable) {
-            UnavailableFeatureScreen(
-                featureType = FeatureType.POST_NOTIFICATION_PERMISSION) {
-                openPermissionActivity = true
-            }
+        UnavailableFeatureScreen(featureType = FeatureType.POST_NOTIFICATION_PERMISSION) {
+            openPermissionActivity = true
         }
         if (openPermissionActivity) {
             OpenAppSettingsActivity(FeatureType.POST_NOTIFICATION_PERMISSION) {
@@ -50,6 +47,5 @@ fun NotificationPermissionCheckingScreen(onPermissionGranted: () -> Unit) {
                 refreshKey++
             }
         }
-
     }
 }

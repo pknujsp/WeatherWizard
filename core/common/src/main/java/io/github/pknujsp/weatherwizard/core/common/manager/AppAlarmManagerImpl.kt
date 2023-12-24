@@ -4,35 +4,40 @@ import android.annotation.SuppressLint
 import android.app.AlarmManager
 import android.app.PendingIntent
 import android.content.Context
+import android.content.Intent
 import android.os.SystemClock
 
 internal class AppAlarmManagerImpl(context: Context) : AppAlarmManager {
     private val alarmManager: AlarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
 
     @SuppressLint("MissingPermission")
-    override fun schedule(timeInMillis: Long, pendingIntent: PendingIntent) {
-        alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, timeInMillis, pendingIntent)
+    override fun scheduleExact(triggerAtMillis: Long, pendingIntent: PendingIntent) {
+        alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, triggerAtMillis, pendingIntent)
     }
 
-    override fun unSchedule(pendingIntent: PendingIntent) {
+    override fun scheduleRepeat(intervalMillis: Long, pendingIntent: PendingIntent) {
+        alarmManager.setRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, SystemClock.elapsedRealtime() - 500L, intervalMillis, pendingIntent)
+    }
+
+    override fun unschedule(pendingIntent: PendingIntent) {
         alarmManager.cancel(pendingIntent)
+        pendingIntent.cancel()
     }
 
-    override fun scheduleRepeat(intervalInMillis: Long, pendingIntent: PendingIntent) {
-        alarmManager.setRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP,
-            SystemClock.elapsedRealtime() - 100L,
-            intervalInMillis,
-            pendingIntent)
-    }
-
-    override fun unScheduleRepeat(pendingIntent: PendingIntent) {
-        alarmManager.cancel(pendingIntent)
-    }
+    override fun isScheduled(context: Context, requestId: Int, intent: Intent): AppAlarmManager.ScheduledState =
+        PendingIntent.getBroadcast(context, requestId, intent, PendingIntent.FLAG_NO_CREATE or PendingIntent.FLAG_IMMUTABLE)?.run {
+            AppAlarmManager.ScheduledState.Scheduled(this)
+        } ?: AppAlarmManager.ScheduledState.NotScheduled
 }
 
 interface AppAlarmManager {
-    fun schedule(timeInMillis: Long, pendingIntent: PendingIntent)
-    fun unSchedule(pendingIntent: PendingIntent)
-    fun scheduleRepeat(intervalInMillis: Long, pendingIntent: PendingIntent)
-    fun unScheduleRepeat(pendingIntent: PendingIntent)
+    fun scheduleExact(triggerAtMillis: Long, pendingIntent: PendingIntent)
+    fun scheduleRepeat(intervalMillis: Long, pendingIntent: PendingIntent)
+    fun unschedule(pendingIntent: PendingIntent)
+    fun isScheduled(context: Context, requestId: Int, intent: Intent): ScheduledState
+
+    sealed interface ScheduledState {
+        class Scheduled(val pendingIntent: PendingIntent) : ScheduledState
+        data object NotScheduled : ScheduledState
+    }
 }

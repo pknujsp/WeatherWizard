@@ -22,16 +22,19 @@ object ComponentPendingIntentManager {
     //package: io.github.pknujsp.wyther,
     //componentName: ComponentInfo{io.github.pknujsp.wyther/io.github.pknujsp.weatherwizard.feature.main.MainActivity}
 
-
     fun <A : ComponentServiceAction<out ComponentServiceArgument>> getRefreshPendingIntent(
         context: Context, flags: Int, action: A
-    ): PendingIntent = PendingIntent.getBroadcast(context,
+    ): PendingIntent? = PendingIntent.getBroadcast(context,
         pendingIntentRequestFactory.requestId(action::class),
         Intent(context, NotificationServiceReceiver::class.java).apply {
             this.action = NotificationServiceReceiver.ACTION_PROCESS
             putExtras(action.argument.toBundle())
         },
         flags)
+
+    fun getPendingIntent(
+        context: Context, flags: Int, requestId: Int, intent: Intent
+    ): PendingIntent? = PendingIntent.getBroadcast(context, pendingIntentRequestFactory.requestId(requestId), intent, flags)
 
     fun <A : ComponentServiceArgument> getIntent(
         context: Context, argument: A

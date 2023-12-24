@@ -63,7 +63,4 @@ sealed interface ComponentServiceAction<T : ComponentServiceArgument> {
 
      class LoadWidgetData(override val argument: LoadWidgetDataArgument) : ComponentServiceAction<LoadWidgetDataArgument>
 
-     class WidgetDeleted(override val argument: WidgetDeletedArgument) : ComponentServiceAction<WidgetDeletedArgument>
-
-     class WidgetUpdated(override val argument: WidgetUpdatedArgument) : ComponentServiceAction<WidgetUpdatedArgument>
 }

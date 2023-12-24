@@ -9,6 +9,7 @@ import android.util.Log
 import dagger.hilt.android.AndroidEntryPoint
 import io.github.pknujsp.weatherwizard.core.common.coroutines.CoDispatcher
 import io.github.pknujsp.weatherwizard.core.common.coroutines.CoDispatcherType
+import io.github.pknujsp.weatherwizard.core.model.intent.IntentAction
 import io.github.pknujsp.weatherwizard.core.widgetnotification.model.WidgetDeletedArgument
 import io.github.pknujsp.weatherwizard.core.widgetnotification.model.WidgetUpdatedArgument
 import kotlinx.coroutines.CoroutineDispatcher
@@ -25,8 +26,10 @@ abstract class BaseWidgetProvider : AppWidgetProvider() {
     @Inject lateinit var widgetUpdateBackgroundService: WidgetUpdateBackgroundService
     @Inject @CoDispatcher(CoDispatcherType.IO) lateinit var dispatcher: CoroutineDispatcher
 
-    protected companion object {
-        val globalScope get() = GlobalScope
+    companion object {
+        private val globalScope get() = GlobalScope
+        const val ACTION_SCHEDULE_TO_REPEAT = "wyther.intent.action.SCHEDULE_TO_REPEAT"
+        private val specialActions = setOf(ACTION_SCHEDULE_TO_REPEAT, Intent.ACTION_BOOT_COMPLETED)
     }
 
     override fun onUpdate(context: Context, appWidgetManager: AppWidgetManager, appWidgetIds: IntArray) {
@@ -65,13 +68,19 @@ abstract class BaseWidgetProvider : AppWidgetProvider() {
 
     override fun onReceive(context: Context?, intent: Intent?) {
         super.onReceive(context, intent)
-        if (intent != null) {
-            if (intent.action == Intent.ACTION_BOOT_COMPLETED) {
+
+        intent?.action?.also { action ->
+            if (action in specialActions) {
                 globalScope.launch(dispatcher) {
-                    widgetUpdateBackgroundService.run(WidgetUpdatedArgument(WidgetUpdatedArgument.UPDATE_ALL))
+                    if (action == Intent.ACTION_BOOT_COMPLETED) {
+                        widgetUpdateBackgroundService.run(WidgetUpdatedArgument(WidgetUpdatedArgument.UPDATE_ALL))
+                    } else if (action == ACTION_SCHEDULE_TO_REPEAT) {
+                        widgetUpdateBackgroundService.run(WidgetUpdatedArgument(WidgetUpdatedArgument.UPDATE_ALL))
+                    }
                 }
             }
         }
+
         Log.d("WidgetProvider", "onReceive: ${intent?.action}")
     }
 }
