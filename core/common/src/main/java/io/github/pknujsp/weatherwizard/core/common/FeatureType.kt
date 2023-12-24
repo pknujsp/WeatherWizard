@@ -24,8 +24,22 @@ enum class FeatureType(
 
         override fun getIntent(context: Context): Intent {
             return Intent(intentAction).apply {
-                val uri = Uri.fromParts("package", context.packageName, null)
-                data = uri
+                data = Uri.fromParts("package", context.packageName, null)
+            }
+        }
+    },
+    BACKGROUND_LOCATION_PERMISSION(FailedReason.BACKGROUND_LOCATION_PERMISSION_DENIED, Settings.ACTION_APPLICATION_DETAILS_SETTINGS) {
+
+        override fun getPendingIntent(context: Context): PendingIntent {
+            return PendingIntent.getActivity(context,
+                pendingIntentRequestFactory.requestId(this::class),
+                getIntent(context),
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
+        }
+
+        override fun getIntent(context: Context): Intent {
+            return Intent(intentAction).apply {
+                data = Uri.fromParts("package", context.packageName, null)
             }
         }
     },

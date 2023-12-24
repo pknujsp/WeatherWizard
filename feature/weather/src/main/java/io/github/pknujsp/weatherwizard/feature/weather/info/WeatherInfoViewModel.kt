@@ -66,7 +66,7 @@ class WeatherInfoViewModel @Inject constructor(
         viewModelScope.launch(dispatcher) {
             _uiState.processState = ProcessState.Running
             val location = targetLocationRepository.getTargetLocation()
-            val weatherProvider = settingsRepository.getWeatherDataProvider()
+            val weatherProvider = settingsRepository.settings.value.weatherProvider
 
             if (location.locationType is LocationType.CurrentLocation) {
                 when (val currentLocation = getCurrentLocationUseCase()) {
@@ -99,7 +99,7 @@ class WeatherInfoViewModel @Inject constructor(
                 targetLocation.onFailure {
                     _uiState.processState = ProcessState.Failed(FailedReason.UNKNOWN)
                 }.onSuccess {
-                    _uiState.args = RequestWeatherArguments(weatherProvider = settingsRepository.getWeatherDataProvider(),
+                    _uiState.args = RequestWeatherArguments(weatherProvider = settingsRepository.settings.value.weatherProvider,
                         location = LocationTypeModel(
                             locationType = LocationType.CustomLocation,
                             latitude = it.latitude,
@@ -118,7 +118,7 @@ class WeatherInfoViewModel @Inject constructor(
     fun updateWeatherDataProvider(weatherProvider: WeatherProvider) {
         viewModelScope.launch {
             _uiState.processState = ProcessState.Running
-            settingsRepository.setWeatherDataProvider(weatherProvider)
+            settingsRepository.update(WeatherProvider, weatherProvider)
             _uiState.args = _uiState.args.copy(weatherProvider = weatherProvider)
         }
     }

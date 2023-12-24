@@ -64,7 +64,9 @@ class AppWidgetViewUpdater(
 
         val updatedWidgetsCompletely = mutableSetOf<SavedWidgetContentState>()
         widgets.filter { it.locationType is LocationType.CurrentLocation }.let { filtered ->
-            if (!filtered.checkPrimaryRequiredFeatures(arrayOf(FeatureType.LOCATION_PERMISSION, FeatureType.LOCATION_SERVICE), context)) {
+            if (!filtered.checkPrimaryRequiredFeatures(arrayOf(FeatureType.LOCATION_PERMISSION,
+                    FeatureType.LOCATION_SERVICE,
+                    FeatureType.BACKGROUND_LOCATION_PERMISSION), context)) {
                 updatedWidgetsCompletely.addAll(filtered)
             }
         }

@@ -21,6 +21,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import io.github.pknujsp.weatherwizard.core.model.notification.enums.RefreshInterval
+import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherProvider
 import io.github.pknujsp.weatherwizard.core.resource.R
 import io.github.pknujsp.weatherwizard.core.ui.BottomSheetSettingItem
 import io.github.pknujsp.weatherwizard.core.ui.ButtonSettingItem
@@ -29,11 +30,9 @@ import io.github.pknujsp.weatherwizard.core.ui.ClickableSettingItem
 import io.github.pknujsp.weatherwizard.core.ui.TextValueSettingItem
 
 @Composable
-fun SettingsScreen(navController: NavController, viewModel: SettingsViewModel) {
-    val weatherDataProvider by viewModel.weatherProvider.collectAsStateWithLifecycle()
-    var displayValuesBottomSheet by remember { mutableStateOf(false) }
-    var displayValuesBottomSheet2 by remember { mutableStateOf(false) }
+fun SettingsScreen(navController: NavController, viewModel: SettingsViewModel = hiltViewModel()) {
     val context = LocalContext.current
+    val settingsUiState = viewModel.mainSettingsUiState
 
     Column {
         ButtonSettingItem(title = stringResource(id = R.string.title_value_unit),
@@ -44,46 +43,38 @@ fun SettingsScreen(navController: NavController, viewModel: SettingsViewModel) {
             Icon(painterResource(id = R.drawable.ic_forward), contentDescription = "navigate")
         }
 
-        TextValueSettingItem(title = stringResource(id = R.string.title_weather_data_provider), value = {
-            context.getString(weatherDataProvider.name)
-        }) {
-            displayValuesBottomSheet = true
-        }
+        BottomSheetSettingItem(title = stringResource(id = R.string.title_weather_data_provider),
+            selectedItem = settingsUiState.weatherProvider,
+            onSelectedItem = {
+                it?.run {
+                    settingsUiState.updatePreference(WeatherProvider, this)
+                }
+            },
+            enums = WeatherProvider.enums)
         CheckBoxSettingItem(title = stringResource(id = R.string.title_weather_condition_animation),
             description = stringResource(id = R.string.description_weather_condition_animation),
             checked = true) {
 
         }
         BottomSheetSettingItem(title = stringResource(id = R.string.title_widget_auto_refresh_interval),
-            selectedItem = viewModel.widgetAutoRefreshInterval,
+            selectedItem = settingsUiState.widgetAutoRefreshInterval,
             onSelectedItem = {
                 it?.run {
-                    viewModel.updateWidgetAutoRefreshInterval(this)
+                    settingsUiState.updatePreference(RefreshInterval, this)
                 }
             },
             enums = RefreshInterval.enums)
         ClickableSettingItem(title = stringResource(id = R.string.title_refresh_widget),
             description = stringResource(id = R.string.description_refresh_widget)) {
-            viewModel.refreshWidgets(context)
+            viewModel.reDrawAppWidgets(context)
         }
     }
-
-    if (displayValuesBottomSheet) {
-        WeatherDataProviderBottomSheet(weatherDataProvider) {
-            displayValuesBottomSheet = false
-            it?.run {
-                viewModel.updateWeatherDataProvider(this)
-            }
-        }
-    }
-
 }
 
 
 @Composable
 fun HostSettingsScreen() {
     val navController = rememberNavController()
-    val viewModel = hiltViewModel<SettingsViewModel>()
     val window = (LocalContext.current as Activity).window
     WindowCompat.getInsetsController(window, window.decorView).isAppearanceLightNavigationBars = true
 
@@ -91,7 +82,7 @@ fun HostSettingsScreen() {
         route = SettingsRoutes.route,
         startDestination = SettingsRoutes.Main.route,
         modifier = Modifier.navigationBarsPadding()) {
-        composable(SettingsRoutes.Main.route) { SettingsScreen(navController, viewModel) }
-        composable(SettingsRoutes.ValueUnit.route) { ValueUnitScreen(navController, viewModel) }
+        composable(SettingsRoutes.Main.route) { SettingsScreen(navController) }
+        composable(SettingsRoutes.ValueUnit.route) { ValueUnitScreen(navController) }
     }
 }

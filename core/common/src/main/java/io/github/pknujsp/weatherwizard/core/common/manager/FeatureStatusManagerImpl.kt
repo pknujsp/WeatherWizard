@@ -41,6 +41,9 @@ internal class FeatureStatusManagerImpl(
         FeatureType.LOCATION_PERMISSION to AvailableChecker { context ->
             context.checkSelfPermission(PermissionType.LOCATION)
         },
+        FeatureType.BACKGROUND_LOCATION_PERMISSION to AvailableChecker { context ->
+            context.checkSelfPermission(PermissionType.BACKGROUND_LOCATION)
+        },
     )
 
     override fun status(context: Context, featureTypes: Array<FeatureType>): FeatureState {
@@ -74,6 +77,11 @@ enum class FailedReason(@StringRes val title: Int, @StringRes val message: Int, 
     LOCATION_PERMISSION_DENIED(
         R.string.location_permission,
         R.string.location_permission_denied,
+        R.string.open_settings_for_permission,
+    ),
+    BACKGROUND_LOCATION_PERMISSION_DENIED(
+        R.string.background_location_permission,
+        R.string.background_location_permission_denied,
         R.string.open_settings_for_permission,
     ),
     STORAGE_PERMISSION_DENIED(

@@ -7,18 +7,12 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import io.github.pknujsp.weatherwizard.core.common.coroutines.CoDispatcher
-import io.github.pknujsp.weatherwizard.core.common.coroutines.CoDispatcherType
 import io.github.pknujsp.weatherwizard.core.data.settings.SettingsRepository
 import io.github.pknujsp.weatherwizard.core.model.notification.enums.RefreshInterval
-import io.github.pknujsp.weatherwizard.core.model.weather.common.PrecipitationUnit
-import io.github.pknujsp.weatherwizard.core.model.weather.common.TemperatureUnit
+import io.github.pknujsp.weatherwizard.core.model.settings.BasePreferenceModel
+import io.github.pknujsp.weatherwizard.core.model.settings.PreferenceModel
 import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherProvider
-import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherDataUnit
-import io.github.pknujsp.weatherwizard.core.model.weather.common.WindSpeedUnit
 import io.github.pknujsp.weatherwizard.feature.componentservice.widget.WidgetStarter
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -26,71 +20,60 @@ import javax.inject.Inject
 class SettingsViewModel @Inject constructor(
     private val settingsRepository: SettingsRepository,
     private val widgetStarter: WidgetStarter,
-    @CoDispatcher(CoDispatcherType.IO) private val ioDispatcher: kotlinx.coroutines.CoroutineDispatcher
 ) : ViewModel() {
 
-    private val _windSpeedUnit = MutableStateFlow<WindSpeedUnit>(WindSpeedUnit.default)
-    val windSpeedUnit: StateFlow<WindSpeedUnit> = _windSpeedUnit
-
-    private val _temperatureUnit = MutableStateFlow<TemperatureUnit>(TemperatureUnit.default)
-    val temperatureUnit: StateFlow<TemperatureUnit> = _temperatureUnit
-
-    private val _precipitationUnit = MutableStateFlow<PrecipitationUnit>(PrecipitationUnit.default)
-    val precipitationUnit: StateFlow<PrecipitationUnit> = _precipitationUnit
-
-    private val _weatherProvider = MutableStateFlow<WeatherProvider>(WeatherProvider.default)
-    val weatherProvider: StateFlow<WeatherProvider> = _weatherProvider
-
-    var widgetAutoRefreshInterval by mutableStateOf(RefreshInterval.default)
-        private set
+    private val mutableMainSettingsUiState = MutableMainSettingsUiState(update = ::updatePreference)
+    val mainSettingsUiState: MainSettingsUiState = mutableMainSettingsUiState
 
     init {
         viewModelScope.launch {
-            _windSpeedUnit.value = settingsRepository.getWindSpeedUnit()
-            _temperatureUnit.value = settingsRepository.getTemperatureUnit()
-            _precipitationUnit.value = settingsRepository.getPrecipitationUnit()
-            _weatherProvider.value = settingsRepository.getWeatherDataProvider()
-        }
-    }
-
-    fun updateUnit(unit: WeatherDataUnit) {
-        viewModelScope.launch {
-            when (unit) {
-                is WindSpeedUnit -> {
-                    _windSpeedUnit.value = unit
-                    settingsRepository.setWindSpeedUnit(unit)
-                }
-
-                is TemperatureUnit -> {
-                    _temperatureUnit.value = unit
-                    settingsRepository.setTemperatureUnit(unit)
-                }
-
-                is PrecipitationUnit -> {
-                    _precipitationUnit.value = unit
-                    settingsRepository.setPrecipitationUnit(unit)
+            settingsRepository.settings.value.let {
+                mutableMainSettingsUiState.run {
+                    weatherProvider = it.weatherProvider
+                    widgetAutoRefreshInterval = it.widgetAutoRefreshInterval
                 }
             }
         }
     }
 
-    fun updateWeatherDataProvider(provider: WeatherProvider) {
+    private fun updatePreference(type: BasePreferenceModel<out PreferenceModel>, value: PreferenceModel) {
         viewModelScope.launch {
-            _weatherProvider.value = provider
-            settingsRepository.setWeatherDataProvider(provider)
+            when (type) {
+                RefreshInterval -> {
+                    settingsRepository.update(RefreshInterval, value as RefreshInterval)
+                }
+
+                WeatherProvider -> {
+                    settingsRepository.update(WeatherProvider, value as WeatherProvider)
+                }
+            }
         }
     }
 
-    fun refreshWidgets(context: Context) {
-        viewModelScope.launch(ioDispatcher) {
+    fun reDrawAppWidgets(context: Context) {
+        viewModelScope.launch {
             widgetStarter.start(context)
         }
     }
+}
 
-    fun updateWidgetAutoRefreshInterval(interval: RefreshInterval) {
-        viewModelScope.launch {
-            widgetAutoRefreshInterval = interval
-            settingsRepository.setWidgetAutoRefreshInterval(interval)
+private class MutableMainSettingsUiState(
+    private val update: (BasePreferenceModel<out PreferenceModel>, PreferenceModel) -> Unit
+) : MainSettingsUiState {
+
+    override var weatherProvider: WeatherProvider by mutableStateOf(WeatherProvider.default)
+    override var widgetAutoRefreshInterval: RefreshInterval by mutableStateOf(RefreshInterval.default)
+
+    override fun <V : PreferenceModel> updatePreference(type: BasePreferenceModel<V>, value: V) {
+        update(type, value)
+        when (type) {
+            RefreshInterval -> {
+                widgetAutoRefreshInterval = value as RefreshInterval
+            }
+
+            WeatherProvider -> {
+                weatherProvider = value as WeatherProvider
+            }
         }
     }
 }

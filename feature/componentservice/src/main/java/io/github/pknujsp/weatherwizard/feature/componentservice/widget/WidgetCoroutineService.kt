@@ -70,7 +70,9 @@ class WidgetCoroutineService @AssistedInject constructor(
         val failedWidgetIds = mutableListOf<Int>()
 
         if (LocationType.CurrentLocation in widgetEntityList.locationTypeGroups && featureStatusManager.status(context,
-                arrayOf(FeatureType.LOCATION_PERMISSION, FeatureType.LOCATION_SERVICE)) is FeatureState.Unavailable) {
+                arrayOf(FeatureType.LOCATION_PERMISSION,
+                    FeatureType.LOCATION_SERVICE,
+                    FeatureType.BACKGROUND_LOCATION_PERMISSION)) is FeatureState.Unavailable) {
             widgetEntityList.locationTypeGroups.getValue(LocationType.CurrentLocation).forEach {
                 widgetRemoteViewModel.updateResponseData(it.id, WidgetStatus.RESPONSE_FAILURE)
                 failedWidgetIds.add(it.id)

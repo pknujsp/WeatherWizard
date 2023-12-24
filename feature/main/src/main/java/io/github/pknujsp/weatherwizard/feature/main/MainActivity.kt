@@ -112,6 +112,11 @@ class MainActivity : ComponentActivity() {
     private fun setWindowStyle() {
         window.run {
             WindowCompat.setDecorFitsSystemWindows(this, false)
+            WindowCompat.getInsetsController(this, decorView).run {
+                isAppearanceLightStatusBars = true
+                isAppearanceLightNavigationBars = true
+            }
+
             statusBarColor = Color.TRANSPARENT
             navigationBarColor = Color.TRANSPARENT
 

@@ -30,8 +30,7 @@ class NotificationAlarmManager(
 
     fun unSchedule(context: Context, notificationId: Long) {
         getPendingIntent(notificationId, context, PendingIntent.FLAG_NO_CREATE or PendingIntent.FLAG_IMMUTABLE)?.run {
-            appAlarmManager.unScheduleExact(this)
-            cancel()
+            appAlarmManager.unschedule(this)
         }
     }
 

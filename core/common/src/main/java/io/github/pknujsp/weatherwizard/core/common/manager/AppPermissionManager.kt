@@ -1,6 +1,8 @@
 package io.github.pknujsp.weatherwizard.core.common.manager
 
 import android.Manifest
+import android.Manifest.permission.POST_NOTIFICATIONS
+import android.Manifest.permission_group.STORAGE
 import android.app.Activity
 import android.content.Context
 import android.content.pm.PackageManager
@@ -48,26 +50,17 @@ fun PermissionManager(
             if (activity.shouldShowRequestPermissionRationale(permissionType)) {
                 permissionState[2]()
             } else {
-                if (requestPermission) {
-                    permissionState[3]()
-                } else {
-                    permissionState[1]()
-                }
+                permissionState[1]()
             }
         }
     }
 
     LaunchedEffect(refreshKey) {
-        permissionType.permissions.map { permission -> ContextCompat.checkSelfPermission(context, permission) }.run {
-            if (any { it != PackageManager.PERMISSION_GRANTED }) {
-                if (activity.shouldShowRequestPermissionRationale(permissionType)) {
-                    permissionState[2]()
-                } else {
-                    requestPermission = false
-                    permissionLauncher.launch(permissionType.permissions)
-                }
-            } else {
+        permissionType.permissions.map { permission -> ContextCompat.checkSelfPermission(context, permission) }.let { result ->
+            if (result.all { it == PackageManager.PERMISSION_GRANTED }) {
                 permissionState[0]()
+            } else {
+                permissionLauncher.launch(permissionType.permissions)
             }
         }
     }
@@ -75,14 +68,12 @@ fun PermissionManager(
 
 
 enum class PermissionType(val permissions: Array<String>, val isUnrelatedSdkDevice: Boolean) {
-    LOCATION(arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION).let {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            it + Manifest.permission.ACCESS_BACKGROUND_LOCATION
-        } else {
-            it
-        }
-    }, isUnrelatedSdkDevice = false),
-
+    LOCATION(arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION), isUnrelatedSdkDevice = false),
+    BACKGROUND_LOCATION(if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+        arrayOf(Manifest.permission.ACCESS_BACKGROUND_LOCATION)
+    } else {
+        emptyArray()
+    }, isUnrelatedSdkDevice = Build.VERSION.SDK_INT < Build.VERSION_CODES.Q),
     STORAGE(if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
         arrayOf(
             Manifest.permission.READ_MEDIA_IMAGES,
@@ -119,7 +110,7 @@ enum class PermissionType(val permissions: Array<String>, val isUnrelatedSdkDevi
 
 
 private fun Activity.shouldShowRequestPermissionRationale(permissionType: PermissionType): Boolean =
-    permissionType.isUnrelatedSdkDevice or permissionType.permissions.all { ActivityCompat.shouldShowRequestPermissionRationale(this, it) }
+    permissionType.isUnrelatedSdkDevice or permissionType.permissions.any { ActivityCompat.shouldShowRequestPermissionRationale(this, it) }
 
 
 /**

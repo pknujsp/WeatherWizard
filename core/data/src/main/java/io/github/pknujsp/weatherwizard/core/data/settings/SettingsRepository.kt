@@ -8,7 +8,5 @@ import kotlinx.coroutines.flow.StateFlow
 interface SettingsRepository {
     val settings: StateFlow<SettingsEntity>
 
-    suspend fun <V : PreferenceModel> update(
-        preference: BasePreferenceModel<V>, value: V
-    )
+    suspend fun <V : PreferenceModel> update(type: BasePreferenceModel<V>, value: V)
 }

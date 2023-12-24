@@ -5,6 +5,7 @@ import android.content.Context
 import android.widget.Toast
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -21,6 +22,7 @@ class DailyNotificationState(
     var showSearch by mutableStateOf(false)
     var isScheduleExactAlarmPermissionGranted by mutableStateOf(context.checkSelfPermission(PermissionType.SCHEDULE_EXACT_ALARM_ABOVE_EQUALS_ON_SDK_31))
     var openPermissionSettings by mutableStateOf(false)
+    var refreshKey by mutableIntStateOf(0)
 
     fun onChangedSettings(context: Context) {
         dailyNotificationUiState.run {

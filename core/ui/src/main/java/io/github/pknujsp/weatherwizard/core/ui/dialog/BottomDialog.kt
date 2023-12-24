@@ -139,12 +139,11 @@ fun BottomSheet(
 
     val window = (LocalContext.current as Activity).window
     DisposableEffect(Unit) {
-        var firstState = false
-        val windowInsetsController: WindowInsetsControllerCompat =
-            WindowCompat.getInsetsController(window, window.decorView).apply {
-                firstState = isAppearanceLightNavigationBars
-                isAppearanceLightNavigationBars = false
-            }
+        val firstState: Boolean
+        val windowInsetsController: WindowInsetsControllerCompat = WindowCompat.getInsetsController(window, window.decorView).apply {
+            firstState = isAppearanceLightNavigationBars
+            isAppearanceLightNavigationBars = false
+        }
         onDispose {
             windowInsetsController.isAppearanceLightNavigationBars = firstState
         }
@@ -157,10 +156,7 @@ fun BottomSheet(
     }
 }
 
-@Deprecated(
-    message = "Use ModalBottomSheet overload with windowInset parameter.",
-    level = DeprecationLevel.HIDDEN
-)
+@Deprecated(message = "Use ModalBottomSheet overload with windowInset parameter.", level = DeprecationLevel.HIDDEN)
 @Composable
 @ExperimentalMaterial3Api
 fun BottomSheet(
@@ -210,13 +206,9 @@ fun rememberSheetState(
     initialValue: SheetValue = Hidden,
     skipHiddenState: Boolean = false,
 ): SheetState {
-    return rememberSaveable(
-        skipPartiallyExpanded, confirmValueChange,
-        saver = SheetState.Saver(
-            skipPartiallyExpanded = skipPartiallyExpanded,
-            confirmValueChange = confirmValueChange
-        )
-    ) {
+    return rememberSaveable(skipPartiallyExpanded,
+        confirmValueChange,
+        saver = SheetState.Saver(skipPartiallyExpanded = skipPartiallyExpanded, confirmValueChange = confirmValueChange)) {
         SheetState(skipPartiallyExpanded, initialValue, confirmValueChange, skipHiddenState)
     }
 }
@@ -227,20 +219,17 @@ private fun Scrim(
     onDismissRequest: () -> Unit,
 ) {
     if (color.isSpecified) {
-        val dismissSheet =
-            Modifier
-                .pointerInput(onDismissRequest) {
-                    detectTapGestures {
-                        onDismissRequest()
-                    }
+        val dismissSheet = Modifier
+            .pointerInput(onDismissRequest) {
+                detectTapGestures {
+                    onDismissRequest()
                 }
-                .clearAndSetSemantics {}
+            }
+            .clearAndSetSemantics {}
 
-        Canvas(
-            Modifier
-                .fillMaxSize()
-                .then(dismissSheet)
-        ) {
+        Canvas(Modifier
+            .fillMaxSize()
+            .then(dismissSheet)) {
             drawRect(color = color, alpha = 1f)
         }
     }
@@ -260,24 +249,15 @@ internal fun ModalBottomSheetPopup(
     val parentComposition = rememberCompositionContext()
     val currentContent by rememberUpdatedState(content)
     val modalBottomSheetWindow = remember {
-        ModalBottomSheetWindow(
-            onDismissRequest = onDismissRequest,
-            composeView = view,
-            saveId = id
-        ).apply {
-            setCustomContent(
-                parent = parentComposition,
-                content = {
-                    Box(
-                        Modifier
-                            .semantics { this.popup() }
-                            .windowInsetsPadding(windowInsets)
-                            .imePadding()
-                    ) {
-                        currentContent()
-                    }
+        ModalBottomSheetWindow(onDismissRequest = onDismissRequest, composeView = view, saveId = id).apply {
+            setCustomContent(parent = parentComposition, content = {
+                Box(Modifier
+                    .semantics { this.popup() }
+                    .windowInsetsPadding(windowInsets)
+                    .imePadding()) {
+                    currentContent()
                 }
-            )
+            })
         }
     }
 
@@ -295,10 +275,7 @@ private class ModalBottomSheetWindow(
     private var onDismissRequest: () -> Unit,
     private val composeView: View,
     saveId: UUID,
-) :
-    AbstractComposeView(composeView.context),
-    ViewTreeObserver.OnGlobalLayoutListener,
-    ViewRootForInspector {
+) : AbstractComposeView(composeView.context), ViewTreeObserver.OnGlobalLayoutListener, ViewRootForInspector {
     init {
         id = android.R.id.content
         // Set up view owners
@@ -310,8 +287,7 @@ private class ModalBottomSheetWindow(
         clipChildren = false
     }
 
-    private val windowManager =
-        composeView.context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
+    private val windowManager = composeView.context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
 
     private val displayWidth: Int
         get() {
@@ -319,31 +295,27 @@ private class ModalBottomSheetWindow(
             return (context.resources.configuration.screenWidthDp * density).roundToInt()
         }
 
-    private val params: WindowManager.LayoutParams =
-        WindowManager.LayoutParams().apply {
-            // Position bottom sheet from the bottom of the screen
-            gravity = Gravity.BOTTOM or Gravity.START
-            // Application panel window
-            type = WindowManager.LayoutParams.TYPE_APPLICATION_PANEL
-            // Fill up the entire app view
-            width = displayWidth
-            height = WindowManager.LayoutParams.MATCH_PARENT
+    private val params: WindowManager.LayoutParams = WindowManager.LayoutParams().apply {
+        // Position bottom sheet from the bottom of the screen
+        gravity = Gravity.BOTTOM or Gravity.START
+        // Application panel window
+        type = WindowManager.LayoutParams.TYPE_APPLICATION_PANEL
+        // Fill up the entire app view
+        width = displayWidth
+        height = WindowManager.LayoutParams.MATCH_PARENT
 
-            // Format of screen pixels
-            format = PixelFormat.TRANSLUCENT
-            // Title used as fallback for a11y services
-            title = "Popup-Window"
-            // Get the Window token from the parent view
-            token = composeView.applicationWindowToken
+        // Format of screen pixels
+        format = PixelFormat.TRANSLUCENT
+        // Title used as fallback for a11y services
+        title = "Popup-Window"
+        // Get the Window token from the parent view
+        token = composeView.applicationWindowToken
 
-            // Flags specific to modal bottom sheet.
-            flags = flags and (
-                    WindowManager.LayoutParams.FLAG_IGNORE_CHEEK_PRESSES or
-                            WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM
-                    ).inv()
+        // Flags specific to modal bottom sheet.
+        flags = flags and (WindowManager.LayoutParams.FLAG_IGNORE_CHEEK_PRESSES or WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM).inv()
 
-            flags = flags or WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS
-        }
+        flags = flags or WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS
+    }
 
     private var content: @Composable () -> Unit by mutableStateOf({})
 
@@ -356,8 +328,7 @@ private class ModalBottomSheetWindow(
     }
 
     fun setCustomContent(
-        parent: CompositionContext? = null,
-        content: @Composable () -> Unit
+        parent: CompositionContext? = null, content: @Composable () -> Unit
     ) {
         parent?.let { setParentCompositionContext(it) }
         this.content = content

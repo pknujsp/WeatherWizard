@@ -291,5 +291,7 @@
     <string name="hectopascal">hPa</string>
     <string name="degree">°</string>
     <string name="percentage">%</string>
+    <string name="background_location_permission">백그라운드 위치 권한</string>
+    <string name="background_location_permission_denied">백그라운드 위치 권한이 허용되어 있지 않아 진행이 불가능 합니다.</string>
 
 </resources>

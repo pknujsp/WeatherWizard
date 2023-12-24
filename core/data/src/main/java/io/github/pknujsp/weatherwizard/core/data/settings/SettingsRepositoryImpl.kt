@@ -22,8 +22,17 @@ class SettingsRepositoryImpl(
     private val mutableSettings = MutableStateFlow(SettingsEntity())
     override val settings: StateFlow<SettingsEntity> = mutableSettings.asStateFlow()
 
-    override suspend fun <V : PreferenceModel> update(preference: BasePreferenceModel<V>, value: V) {
-        appDataStore.save(preference.key, value.key)
+    private companion object {
+        val preferences = arrayOf(TemperatureUnit.Companion,
+            WindSpeedUnit.Companion,
+            PrecipitationUnit.Companion,
+            WeatherProvider.Companion,
+            RefreshInterval.Companion)
+    }
+
+    override suspend fun <V : PreferenceModel> update(type: BasePreferenceModel<V>, value: V) {
+        appDataStore.save(type.key, value.key)
+        init()
     }
 
     override suspend fun init() {
@@ -36,11 +45,7 @@ class SettingsRepositoryImpl(
         }
     }
 
-    private suspend fun load(): Map<BasePreferenceModel<out PreferenceModel>, PreferenceModel> = arrayOf(TemperatureUnit.Companion,
-        WindSpeedUnit.Companion,
-        PrecipitationUnit.Companion,
-        WeatherProvider.Companion,
-        RefreshInterval.Companion).associateWith { preference ->
+    private suspend fun load(): Map<BasePreferenceModel<out PreferenceModel>, PreferenceModel> = preferences.associateWith { preference ->
         when (val value = appDataStore.readAsInt(preference.key)) {
             is DBEntityState.Exists -> preference.fromKey(value.data)
             is DBEntityState.NotExists -> preference.default
