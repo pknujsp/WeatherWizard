@@ -40,7 +40,7 @@ fun SettingsScreen(navController: NavController, viewModel: SettingsViewModel = 
             onClick = {
                 navController.navigate(SettingsRoutes.ValueUnit.route)
             }) {
-            Icon(painterResource(id = R.drawable.ic_forward), contentDescription = "navigate")
+            Icon(painterResource(id = R.drawable.ic_forward), contentDescription = null)
         }
 
         BottomSheetSettingItem(title = stringResource(id = R.string.title_weather_data_provider),
