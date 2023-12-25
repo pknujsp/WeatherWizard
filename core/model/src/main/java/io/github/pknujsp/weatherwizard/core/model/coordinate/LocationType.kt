@@ -1,8 +1,8 @@
 package io.github.pknujsp.weatherwizard.core.model.coordinate
 
 import androidx.annotation.DrawableRes
-import io.github.pknujsp.weatherwizard.core.common.enum.BaseEnum
-import io.github.pknujsp.weatherwizard.core.common.enum.IEnum
+import io.github.pknujsp.weatherwizard.core.model.settings.BaseEnum
+import io.github.pknujsp.weatherwizard.core.model.settings.IEnum
 
 sealed interface LocationType : IEnum {
     data object CurrentLocation : LocationType {

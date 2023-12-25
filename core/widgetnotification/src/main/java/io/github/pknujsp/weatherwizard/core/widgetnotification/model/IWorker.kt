@@ -64,6 +64,7 @@ abstract class AppComponentBackgroundService<T : ComponentServiceArgument>(
     protected val context: Context
 ) : AppComponentService {
 
+    override val id: Int = this::class.simpleName.hashCode()
     private val wakeLockDuration = Duration.ofSeconds(30).toMillis()
 
     private val wakeLock: PowerManager.WakeLock

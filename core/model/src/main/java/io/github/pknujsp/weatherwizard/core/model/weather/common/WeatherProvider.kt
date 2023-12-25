@@ -2,15 +2,17 @@ package io.github.pknujsp.weatherwizard.core.model.weather.common
 
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
-import io.github.pknujsp.weatherwizard.core.common.enum.BaseEnum
-import io.github.pknujsp.weatherwizard.core.common.enum.IEnum
+import io.github.pknujsp.weatherwizard.core.model.settings.BaseEnum
+import io.github.pknujsp.weatherwizard.core.model.settings.BasePreferenceModel
+import io.github.pknujsp.weatherwizard.core.model.settings.IEnum
+import io.github.pknujsp.weatherwizard.core.model.settings.PreferenceModel
 
-sealed interface WeatherProvider : IEnum {
+sealed interface WeatherProvider : PreferenceModel {
     val name: Int
     val logo: Int
     val majorWeatherEntityTypes: Set<MajorWeatherEntityType>
 
-    companion object : BaseEnum<WeatherProvider> {
+    companion object : BasePreferenceModel<WeatherProvider> {
         override val enums: Array<WeatherProvider> get() = arrayOf(Kma, MetNorway)
         override val key: String get() = "WeatherDataProvider"
         override val default: WeatherProvider get() = Kma

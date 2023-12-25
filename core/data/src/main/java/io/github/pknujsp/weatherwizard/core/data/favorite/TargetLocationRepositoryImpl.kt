@@ -5,7 +5,7 @@ import io.github.pknujsp.weatherwizard.core.model.DBEntityState
 import io.github.pknujsp.weatherwizard.core.model.coordinate.LocationType
 import javax.inject.Inject
 
-class TargetLocationRepositoryImpl @Inject constructor(
+class TargetLocationRepositoryImpl(
     private val appDataStore: AppDataStore
 ) : TargetLocationRepository {
 

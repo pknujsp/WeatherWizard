@@ -1,7 +1,7 @@
 package io.github.pknujsp.weatherwizard.core.model.widget
 
-import io.github.pknujsp.weatherwizard.core.common.enum.BaseEnum
-import io.github.pknujsp.weatherwizard.core.common.enum.IEnum
+import io.github.pknujsp.weatherwizard.core.model.settings.BaseEnum
+import io.github.pknujsp.weatherwizard.core.model.settings.IEnum
 import io.github.pknujsp.weatherwizard.core.model.weather.common.MajorWeatherEntityType
 
 enum class WidgetType(val categories: Array<MajorWeatherEntityType>) : IEnum {
@@ -30,6 +30,7 @@ enum class WidgetType(val categories: Array<MajorWeatherEntityType>) : IEnum {
         override val key: Int = ordinal
         override val title: Int = io.github.pknujsp.weatherwizard.core.resource.R.string.all_in_one
     };
+
 
     companion object : BaseEnum<WidgetType> {
         override val default: WidgetType = ALL_IN_ONE

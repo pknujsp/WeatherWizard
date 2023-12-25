@@ -24,30 +24,24 @@ class DailyNotificationServiceArgument(
     val notificationId: Long
 ) : ComponentServiceArgument()
 
-class WidgetDeletedArgument(
-    val widgetIds: Array<Int>,
-) : ComponentServiceArgument()
-
-class WidgetOptionsChangedArgument(
-    val widgetId: Int,
-) : ComponentServiceArgument()
 
 class WidgetUpdatedArgument(
-    val action: Int, val widgetIds: Array<Int>,
+    val action: Int, val widgetIds: Array<Int> = emptyArray(),
 ) : ComponentServiceArgument() {
     companion object {
         const val UPDATE_ALL = 0
         const val UPDATE_ONLY_SPECIFIC_WIDGETS = 1
+        const val SCHEDULE_TO_AUTO_REFRESH = 2
+        const val DELETE = 3
     }
 }
 
 class LoadWidgetDataArgument(
-    val action: Int, val widgetIds: Array<Int> = emptyArray()
+    val action: Int, val widgetId: Int = 0
 ) : ComponentServiceArgument() {
     companion object {
         const val NEW_WIDGET = 0
-        const val UPDATE_ONLY_ON_CURRENT_LOCATION = 1
         const val UPDATE_ALL = 2
-        const val UPDATE_ONLY_SPECIFIC_WIDGETS = 3
+        const val UPDATE_ONLY_FAILED = 3
     }
 }

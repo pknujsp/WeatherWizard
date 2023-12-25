@@ -33,11 +33,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import io.github.pknujsp.weatherwizard.core.common.enum.IEnum
-import io.github.pknujsp.weatherwizard.core.resource.R
+import io.github.pknujsp.weatherwizard.core.model.settings.IEnum
 import io.github.pknujsp.weatherwizard.core.model.coordinate.LocationType
 import io.github.pknujsp.weatherwizard.core.model.coordinate.LocationTypeModel
 import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherProvider
+import io.github.pknujsp.weatherwizard.core.resource.R
 import io.github.pknujsp.weatherwizard.core.ui.dialog.BottomSheet
 
 
@@ -63,6 +63,11 @@ private fun SettingItem(
             Spacer(modifier = Modifier.width(10.dp))
         }
     }
+}
+
+@Composable
+fun ClickableSettingItem(title: String, description: String? = null, onClick: () -> Unit) {
+    SettingItem(title = title, description = description, onClick = onClick)
 }
 
 @Composable

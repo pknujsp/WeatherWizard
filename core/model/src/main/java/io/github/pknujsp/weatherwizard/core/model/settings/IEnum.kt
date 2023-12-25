@@ -1,4 +1,4 @@
-package io.github.pknujsp.weatherwizard.core.common.enum
+package io.github.pknujsp.weatherwizard.core.model.settings
 
 import androidx.annotation.StringRes
 
@@ -9,8 +9,9 @@ interface IEnum {
 
 interface BaseEnum<T : IEnum> {
     val default: T
-    val key: String
     val enums: Array<T>
+    val key: String
+
     fun fromKey(key: Int): T {
         return enums.firstOrNull { it.key == key } ?: default
     }

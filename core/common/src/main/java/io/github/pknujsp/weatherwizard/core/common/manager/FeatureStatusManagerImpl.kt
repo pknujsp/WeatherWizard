@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Build
 import android.os.PowerManager
-import androidx.annotation.RequiresApi
 import androidx.annotation.StringRes
 import io.github.pknujsp.weatherwizard.core.common.FeatureType
 import io.github.pknujsp.weatherwizard.core.resource.R
@@ -37,10 +36,13 @@ internal class FeatureStatusManagerImpl(
             context.checkSelfPermission(PermissionType.POST_NOTIFICATIONS)
         },
         FeatureType.SCHEDULE_EXACT_ALARM_PERMISSION to AvailableChecker { context ->
-            context.checkSelfPermission(PermissionType.SCHEDULE_EXACT_ALARM_ON_SDK_31_AND_32)
+            context.checkSelfPermission(PermissionType.SCHEDULE_EXACT_ALARM_ABOVE_EQUALS_ON_SDK_31)
         },
         FeatureType.LOCATION_PERMISSION to AvailableChecker { context ->
             context.checkSelfPermission(PermissionType.LOCATION)
+        },
+        FeatureType.BACKGROUND_LOCATION_PERMISSION to AvailableChecker { context ->
+            context.checkSelfPermission(PermissionType.BACKGROUND_LOCATION)
         },
     )
 
@@ -75,6 +77,11 @@ enum class FailedReason(@StringRes val title: Int, @StringRes val message: Int, 
     LOCATION_PERMISSION_DENIED(
         R.string.location_permission,
         R.string.location_permission_denied,
+        R.string.open_settings_for_permission,
+    ),
+    BACKGROUND_LOCATION_PERMISSION_DENIED(
+        R.string.background_location_permission,
+        R.string.background_location_permission_denied,
         R.string.open_settings_for_permission,
     ),
     STORAGE_PERMISSION_DENIED(

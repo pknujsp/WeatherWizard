@@ -43,27 +43,29 @@ class OngoingNotificationState(
     private fun switchNotification(
         context: Context
     ) {
-        val pendingIntent = ComponentPendingIntentManager.getRefreshPendingIntent(context,
-            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
-            ComponentServiceAction.OngoingNotification())
-
-        if (ongoingNotificationUiState.ongoingNotificationSettings.refreshInterval != RefreshInterval.MANUAL) {
-            appAlarmManager.unScheduleRepeat(pendingIntent)
-        }
+        val action = ComponentServiceAction.OngoingNotification()
+        ComponentPendingIntentManager.getRefreshPendingIntent(context, PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_NO_CREATE, action)
+            ?.let { pendingIntentToCancel ->
+                appAlarmManager.unschedule(pendingIntentToCancel)
+                pendingIntentToCancel.cancel()
+            }
 
         if (ongoingNotificationUiState.isEnabled) {
-            val intent = Intent(context, NotificationServiceReceiver::class.java).apply {
-                action = NotificationServiceReceiver.ACTION_PROCESS
+            Intent(context, NotificationServiceReceiver::class.java).run {
+                this.action = NotificationServiceReceiver.ACTION_PROCESS
                 putExtras(OngoingNotificationServiceArgument().toBundle())
+                context.sendBroadcast(this)
             }
-            context.sendBroadcast(intent)
+
             if (ongoingNotificationUiState.ongoingNotificationSettings.refreshInterval != RefreshInterval.MANUAL) {
+                val pendingIntentToSchedule = ComponentPendingIntentManager.getRefreshPendingIntent(context,
+                    PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
+                    action)!!
                 appAlarmManager.scheduleRepeat(ongoingNotificationUiState.ongoingNotificationSettings.refreshInterval.interval,
-                    pendingIntent)
+                    pendingIntentToSchedule)
             }
         } else {
             appNotificationManager.cancelNotification(NotificationType.ONGOING)
-            pendingIntent.cancel()
         }
     }
 }

@@ -30,7 +30,7 @@ class ConfigDailyNotificationViewModel @Inject constructor(
     val notificationAlarmManager = NotificationAlarmManager(appAlarmManager)
     private val notificationId = savedStateHandle.get<Long>(NotificationRoutes.AddOrEditDaily.arguments.first().name) ?: -1L
     private val isNew get() = notificationId == -1L
-    val units = appSettingsRepository.currentUnits.value
+    val units = appSettingsRepository.settings.value.units
 
     private val _dailyNoficationUiState =
         MutableDailyNotificationUiState(dailyNotificationSettings = DailyNotificationSettingsEntity().let {

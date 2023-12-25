@@ -55,7 +55,7 @@ class DailyNotificationCoroutineService @AssistedInject constructor(
         val notificationEntity = viewModel.loadNotification(notificationId)
 
         if (notificationEntity.location.locationType is LocationType.CurrentLocation && !checkFeatureStateAndNotify(arrayOf(FeatureType.LOCATION_PERMISSION,
-                FeatureType.LOCATION_SERVICE), context)) {
+                FeatureType.LOCATION_SERVICE, FeatureType.BACKGROUND_LOCATION_PERMISSION), context)) {
             return
         }
 

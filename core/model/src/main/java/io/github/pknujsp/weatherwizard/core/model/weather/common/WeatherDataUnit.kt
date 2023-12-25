@@ -1,67 +1,61 @@
 package io.github.pknujsp.weatherwizard.core.model.weather.common
 
+import io.github.pknujsp.weatherwizard.core.model.settings.BasePreferenceModel
+import io.github.pknujsp.weatherwizard.core.model.settings.PreferenceModel
 import kotlinx.serialization.Serializable
 
-interface WeatherDataUnit {
+interface WeatherDataUnit : PreferenceModel {
     val symbol: String
 }
 
-interface UnitPreference {
-    val key: String
-    val default: WeatherDataUnit
-    val units: Array<out WeatherDataUnit>
-
-    fun getUnit(symbol: String): WeatherDataUnit
+interface UnitPreference<T : WeatherDataUnit> : BasePreferenceModel<T> {
 
 }
 
 @Serializable
 sealed class TemperatureUnit(override val symbol: String) : WeatherDataUnit {
 
-    companion object : UnitPreference {
+    companion object : UnitPreference<TemperatureUnit> {
         override val key: String = "temperature_unit"
         override val default get() = Celsius
-        override val units: Array<TemperatureUnit> get() = arrayOf(Celsius, Fahrenheit)
-
-        override fun getUnit(symbol: String): TemperatureUnit {
-            return when (symbol) {
-                Celsius.symbol -> Celsius
-                Fahrenheit.symbol -> Fahrenheit
-                else -> Celsius
-            }
-        }
+        override val enums: Array<TemperatureUnit> get() = arrayOf(Celsius, Fahrenheit)
     }
 
     @Serializable
-    data object Celsius : TemperatureUnit("℃")
+    data object Celsius : TemperatureUnit("℃") {
+        override val title: Int = io.github.pknujsp.weatherwizard.core.resource.R.string.celsius
+        override val key: Int = 0
+
+    }
 
     @Serializable
-    data object Fahrenheit : TemperatureUnit("℉")
+    data object Fahrenheit : TemperatureUnit("℉") {
+        override val title: Int = io.github.pknujsp.weatherwizard.core.resource.R.string.fahrenheit
+        override val key: Int = 1
+    }
 
 }
 
 @Serializable
 sealed class WindSpeedUnit(override val symbol: String) : WeatherDataUnit {
 
-    companion object : UnitPreference {
+    companion object : UnitPreference<WindSpeedUnit> {
         override val key: String = "wind_speed_unit"
         override val default get() = MeterPerSecond
-        override val units: Array<WindSpeedUnit> get() = arrayOf(KilometerPerHour, MeterPerSecond)
-
-        override fun getUnit(symbol: String): WindSpeedUnit {
-            return when (symbol) {
-                KilometerPerHour.symbol -> KilometerPerHour
-                MeterPerSecond.symbol -> MeterPerSecond
-                else -> KilometerPerHour
-            }
-        }
+        override val enums: Array<WindSpeedUnit> get() = arrayOf(KilometerPerHour, MeterPerSecond)
     }
 
     @Serializable
-    data object KilometerPerHour : WindSpeedUnit("km/h")
+    data object KilometerPerHour : WindSpeedUnit("km/h") {
+        override val title: Int = io.github.pknujsp.weatherwizard.core.resource.R.string.kilometer_per_hour
+        override val key: Int = 0
+    }
 
     @Serializable
-    data object MeterPerSecond : WindSpeedUnit("m/s")
+    data object MeterPerSecond : WindSpeedUnit("m/s") {
+        override val title: Int = io.github.pknujsp.weatherwizard.core.resource.R.string.meter_per_second
+        override val key: Int = 1
+    }
 
 
 }
@@ -69,46 +63,73 @@ sealed class WindSpeedUnit(override val symbol: String) : WeatherDataUnit {
 @Serializable
 sealed class PrecipitationUnit(override val symbol: String) : WeatherDataUnit {
 
-    companion object : UnitPreference {
+    companion object : UnitPreference<PrecipitationUnit> {
         override val key: String = "precipitation_unit"
         override val default get() = Millimeter
-        override val units: Array<PrecipitationUnit> get() = arrayOf(Millimeter, Centimeter)
-        override fun getUnit(symbol: String): PrecipitationUnit {
-            return when (symbol) {
-                Millimeter.symbol -> Millimeter
-                Centimeter.symbol -> Centimeter
-                else -> Millimeter
-            }
-        }
+        override val enums: Array<PrecipitationUnit> get() = arrayOf(Millimeter, Centimeter)
     }
 
     @Serializable
-    data object Millimeter : PrecipitationUnit("mm")
+    data object Millimeter : PrecipitationUnit("mm") {
+        override val title: Int = io.github.pknujsp.weatherwizard.core.resource.R.string.millimeter
+        override val key: Int = 0
+    }
 
     @Serializable
-    data object Centimeter : PrecipitationUnit("cm")
+    data object Centimeter : PrecipitationUnit("cm") {
+        override val title: Int = io.github.pknujsp.weatherwizard.core.resource.R.string.centimeter
+        override val key: Int = 1
+    }
 }
 
 @Serializable
 sealed class VisibilityUnit(override val symbol: String) : WeatherDataUnit {
-    @Serializable
-    data object Kilometer : VisibilityUnit("km")
+    companion object : UnitPreference<VisibilityUnit> {
+        override val key: String = "visibility_unit"
+        override val default get() = Kilometer
+        override val enums: Array<VisibilityUnit> get() = arrayOf(Kilometer)
+    }
 
+    @Serializable
+    data object Kilometer : VisibilityUnit("km") {
+        override val title: Int = io.github.pknujsp.weatherwizard.core.resource.R.string.kilometer
+        override val key: Int = 0
+    }
 }
 
 @Serializable
 sealed class PressureUnit(override val symbol: String) : WeatherDataUnit {
+    companion object : UnitPreference<PressureUnit> {
+        override val key: String = "pressure_unit"
+        override val default get() = Hectopascal
+        override val enums: Array<PressureUnit> get() = arrayOf(Hectopascal)
+    }
+
     @Serializable
-    data object Hectopascal : PressureUnit("hPa")
+    data object Hectopascal : PressureUnit("hPa") {
+        override val title: Int = io.github.pknujsp.weatherwizard.core.resource.R.string.hectopascal
+        override val key: Int = 0
+    }
 }
 
 @Serializable
 sealed class WindDirectionUnit(override val symbol: String) : WeatherDataUnit {
+    companion object : UnitPreference<WindDirectionUnit> {
+        override val key: String = "wind_direction_unit"
+        override val default get() = Degree
+        override val enums: Array<WindDirectionUnit> get() = arrayOf(Degree)
+    }
+
     @Serializable
-    data object Degree : WindDirectionUnit("°")
+    data object Degree : WindDirectionUnit("°") {
+        override val title: Int = io.github.pknujsp.weatherwizard.core.resource.R.string.degree
+        override val key: Int = 0
+    }
 }
 
 @Serializable
 data object PercentageUnit : WeatherDataUnit {
-    @Serializable override val symbol: String = "%"
+    override val title: Int = io.github.pknujsp.weatherwizard.core.resource.R.string.percentage
+    override val key: Int = 0
+    override val symbol: String = "%"
 }

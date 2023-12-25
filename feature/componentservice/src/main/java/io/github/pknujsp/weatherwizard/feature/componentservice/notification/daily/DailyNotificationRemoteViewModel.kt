@@ -21,7 +21,7 @@ class DailyNotificationRemoteViewModel @Inject constructor(
     appSettingsRepository: SettingsRepository,
 ) : io.github.pknujsp.weatherwizard.core.widgetnotification.remoteview.RemoteViewModel() {
 
-    val units = appSettingsRepository.currentUnits.value
+    val units = appSettingsRepository.settings.value.units
 
 
     suspend fun loadNotification(notificationId: Long): DailyNotificationSettingsEntity {

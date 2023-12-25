@@ -3,7 +3,7 @@ package io.github.pknujsp.weatherwizard.core.widgetnotification.widget.summary
 import android.content.Context
 import android.widget.RemoteViews
 import io.github.pknujsp.weatherwizard.core.model.mock.MockDataGenerator
-import io.github.pknujsp.weatherwizard.core.model.weather.common.CurrentUnits
+import io.github.pknujsp.weatherwizard.core.model.settings.CurrentUnits
 import io.github.pknujsp.weatherwizard.core.resource.R
 import io.github.pknujsp.weatherwizard.core.widgetnotification.model.RemoteViewsMockGenerator
 import io.github.pknujsp.weatherwizard.core.widgetnotification.remoteview.RemoteViewCreator

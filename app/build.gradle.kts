@@ -9,7 +9,7 @@ android {
     namespace = "io.github.pknujsp.weatherwizard"
 
     defaultConfig {
-        applicationId = "io.github.pknujsp.weatherwizard"
+        applicationId = "io.github.pknujsp.wyther"
         versionCode = 1
         versionName = "1.0"
 

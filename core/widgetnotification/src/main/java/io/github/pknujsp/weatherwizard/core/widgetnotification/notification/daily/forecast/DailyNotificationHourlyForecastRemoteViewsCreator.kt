@@ -2,7 +2,7 @@ package io.github.pknujsp.weatherwizard.core.widgetnotification.notification.dai
 
 import android.content.Context
 import android.widget.RemoteViews
-import io.github.pknujsp.weatherwizard.core.model.weather.common.CurrentUnits
+import io.github.pknujsp.weatherwizard.core.model.settings.CurrentUnits
 import io.github.pknujsp.weatherwizard.core.resource.R
 import io.github.pknujsp.weatherwizard.core.widgetnotification.remoteview.addViewSafely
 

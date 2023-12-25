@@ -12,10 +12,10 @@
         style="@style/Button.TextWithDrawable.Round"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="4dp"
         android:gravity="center"
         android:orientation="horizontal"
         android:paddingHorizontal="7dp"
-        android:layout_marginBottom="4dp"
         android:paddingVertical="3dp">
 
         <TextView
@@ -57,9 +57,9 @@
             android:id="@+id/address"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:ellipsize="end"
             android:includeFontPadding="false"
             android:maxLines="1"
-            android:ellipsize="end"
             android:text="@string/address"
             android:textColor="@color/black"
             android:textSize="12sp" />

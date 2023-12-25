@@ -12,9 +12,7 @@ import io.github.pknujsp.weatherwizard.core.widgetnotification.model.OngoingNoti
 import io.github.pknujsp.weatherwizard.core.widgetnotification.notification.AppNotificationManager
 import io.github.pknujsp.weatherwizard.feature.componentservice.ComponentPendingIntentManager
 import io.github.pknujsp.weatherwizard.feature.componentservice.notification.manager.NotificationAlarmManager
-import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.firstOrNull
-import kotlinx.coroutines.supervisorScope
 
 class NotificationStarterImpl(
     private val ongoingNotificationRepository: OngoingNotificationRepository,
@@ -30,47 +28,37 @@ class NotificationStarterImpl(
 
     private suspend fun getDailyNotifications() = dailyNotificationRepository.getDailyNotifications().firstOrNull()
 
-
     private suspend fun startOngoingNotification(context: Context) {
         getOngoingNotification()?.let {
             if (it.enabled && !appNotificationManager.isActiveNotification(NotificationType.ONGOING)) {
                 context.sendBroadcast(ComponentPendingIntentManager.getIntent(context, OngoingNotificationServiceArgument()))
 
                 if (it.data.refreshInterval != RefreshInterval.MANUAL) {
-                    val pendingIntent = ComponentPendingIntentManager.getRefreshPendingIntent(context,
-                        PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
-                        ComponentServiceAction.OngoingNotification())
-
-                    appAlarmManager.unScheduleRepeat(pendingIntent)
-                    appAlarmManager.scheduleRepeat(it.data.refreshInterval.interval, pendingIntent)
-                }
-            }
-        }
-    }
-
-    private suspend fun startDailyNotifications(context: Context) {
-        getDailyNotifications()?.let {
-            it.forEach { dailyNotification ->
-                if (dailyNotification.enabled) {
-                    if (!notificationAlarmManager.isScheduled(context, dailyNotification.id)) {
-                        notificationAlarmManager.schedule(context,
-                            dailyNotification.id,
-                            dailyNotification.data.hour,
-                            dailyNotification.data.minute)
+                    val action = ComponentServiceAction.OngoingNotification()
+                    if (ComponentPendingIntentManager.getRefreshPendingIntent(context,
+                            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_NO_CREATE,
+                            action) == null) {
+                        val pendingIntentToSchedule = ComponentPendingIntentManager.getRefreshPendingIntent(context,
+                            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
+                            action)!!
+                        appAlarmManager.scheduleRepeat(it.data.refreshInterval.interval, pendingIntentToSchedule)
                     }
                 }
             }
         }
     }
 
-    override suspend fun start(context: Context) {
-        supervisorScope {
-            val ongoing = async { startOngoingNotification(context) }
-            val daily = async { startDailyNotifications(context) }
-
-            ongoing.await()
-            daily.await()
+    private suspend fun startDailyNotifications(context: Context) {
+        getDailyNotifications()?.forEach { dailyNotification ->
+            if (dailyNotification.enabled && !notificationAlarmManager.isScheduled(context, dailyNotification.id)) {
+                notificationAlarmManager.schedule(context, dailyNotification.id, dailyNotification.data.hour, dailyNotification.data.minute)
+            }
         }
+    }
+
+    override suspend fun start(context: Context) {
+        startOngoingNotification(context)
+        startDailyNotifications(context)
     }
 }
 

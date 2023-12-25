@@ -2,13 +2,11 @@ package io.github.pknujsp.weatherwizard.feature.componentservice.notification.ma
 
 import android.app.PendingIntent
 import android.content.Context
-import android.content.Intent
 import io.github.pknujsp.weatherwizard.core.common.NotificationType
 import io.github.pknujsp.weatherwizard.core.common.enum.pendingIntentRequestFactory
 import io.github.pknujsp.weatherwizard.core.common.manager.AppAlarmManager
 import io.github.pknujsp.weatherwizard.core.widgetnotification.model.DailyNotificationServiceArgument
 import io.github.pknujsp.weatherwizard.feature.componentservice.ComponentPendingIntentManager
-import io.github.pknujsp.weatherwizard.feature.componentservice.NotificationServiceReceiver
 import java.time.ZonedDateTime
 import kotlin.random.Random
 
@@ -26,14 +24,13 @@ class NotificationAlarmManager(
         }.withHour(hour).withMinute(minute).withSecond(Random(System.currentTimeMillis()).nextInt(0, 10))
 
         getPendingIntent(notificationId, context, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)?.run {
-            appAlarmManager.schedule(now.toInstant().toEpochMilli(), this)
+            appAlarmManager.scheduleExact(now.toInstant().toEpochMilli(), this)
         }
     }
 
     fun unSchedule(context: Context, notificationId: Long) {
         getPendingIntent(notificationId, context, PendingIntent.FLAG_NO_CREATE or PendingIntent.FLAG_IMMUTABLE)?.run {
-            appAlarmManager.unSchedule(this)
-            cancel()
+            appAlarmManager.unschedule(this)
         }
     }
 

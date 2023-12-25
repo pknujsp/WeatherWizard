@@ -1,12 +1,7 @@
 package io.github.pknujsp.weatherwizard.core.model.weather.dailyforecast
 
 import io.github.pknujsp.weatherwizard.core.model.UiModel
-import io.github.pknujsp.weatherwizard.core.model.weather.common.CurrentUnits
-import io.github.pknujsp.weatherwizard.core.model.weather.common.ProbabilityValueType
-import io.github.pknujsp.weatherwizard.core.model.weather.common.TemperatureValueType
-import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherConditionValueType
-import java.time.ZonedDateTime
-import java.time.format.DateTimeFormatter
+import io.github.pknujsp.weatherwizard.core.model.settings.CurrentUnits
 
 class CompareDailyForecast(
     dayItems: List<DailyForecastEntity.DayItem>,

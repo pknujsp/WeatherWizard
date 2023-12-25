@@ -66,7 +66,7 @@ class WeatherInfoViewModel @Inject constructor(
         viewModelScope.launch(dispatcher) {
             _uiState.processState = ProcessState.Running
             val location = targetLocationRepository.getTargetLocation()
-            val weatherProvider = settingsRepository.getWeatherDataProvider()
+            val weatherProvider = settingsRepository.settings.value.weatherProvider
 
             if (location.locationType is LocationType.CurrentLocation) {
                 when (val currentLocation = getCurrentLocationUseCase()) {
@@ -99,7 +99,7 @@ class WeatherInfoViewModel @Inject constructor(
                 targetLocation.onFailure {
                     _uiState.processState = ProcessState.Failed(FailedReason.UNKNOWN)
                 }.onSuccess {
-                    _uiState.args = RequestWeatherArguments(weatherProvider = settingsRepository.getWeatherDataProvider(),
+                    _uiState.args = RequestWeatherArguments(weatherProvider = settingsRepository.settings.value.weatherProvider,
                         location = LocationTypeModel(
                             locationType = LocationType.CustomLocation,
                             latitude = it.latitude,
@@ -118,7 +118,7 @@ class WeatherInfoViewModel @Inject constructor(
     fun updateWeatherDataProvider(weatherProvider: WeatherProvider) {
         viewModelScope.launch {
             _uiState.processState = ProcessState.Running
-            settingsRepository.setWeatherDataProvider(weatherProvider)
+            settingsRepository.update(WeatherProvider, weatherProvider)
             _uiState.args = _uiState.args.copy(weatherProvider = weatherProvider)
         }
     }
@@ -178,7 +178,7 @@ class WeatherInfoViewModel @Inject constructor(
         currentWeatherEntity: CurrentWeatherEntity, dayNightCalculator: DayNightCalculator, currentCalendar: java.util.Calendar
     ): CurrentWeather {
         return currentWeatherEntity.run {
-            val unit = settingsRepository.currentUnits.value
+            val unit = settingsRepository.settings.value.units
             CurrentWeather(weatherCondition = weatherCondition,
                 temperature = temperature.convertUnit(unit.temperatureUnit),
                 feelsLikeTemperature = feelsLikeTemperature.convertUnit(unit.temperatureUnit),
@@ -194,7 +194,7 @@ class WeatherInfoViewModel @Inject constructor(
     private fun createSimpleHourlyForecastUiModel(
         hourlyForecastEntity: HourlyForecastEntity, dayNightCalculator: DayNightCalculator
     ): SimpleHourlyForecast {
-        val unit = settingsRepository.currentUnits.value
+        val unit = settingsRepository.settings.value.units
         val simpleHourlyForecast = hourlyForecastEntity.items.mapIndexed { i, it ->
             SimpleHourlyForecast.Item(
                 id = i,
@@ -220,7 +220,7 @@ class WeatherInfoViewModel @Inject constructor(
     private fun createDetailHourlyForecastUiModel(
         hourlyForecastEntity: HourlyForecastEntity, dayNightCalculator: DayNightCalculator
     ): DetailHourlyForecast {
-        val unit = settingsRepository.currentUnits.value
+        val unit = settingsRepository.settings.value.units
         val formatter = DateTimeFormatter.ofPattern("M.d EEE")
         val detailHourlyForecast = hourlyForecastEntity.items.groupBy { ZonedDateTime.parse(it.dateTime.value).dayOfYear }.map {
             ZonedDateTime.parse(it.value.first().dateTime.value).format(formatter) to it.value.mapIndexed { i, item ->
@@ -245,16 +245,16 @@ class WeatherInfoViewModel @Inject constructor(
 
     private fun createSimpleDailyForecastUiModel(
         dailyForecastEntity: DailyForecastEntity
-    ) = SimpleDailyForecast(dailyForecastEntity, settingsRepository.currentUnits.value)
+    ) = SimpleDailyForecast(dailyForecastEntity, settingsRepository.settings.value.units)
 
     private fun createDetailDailyForecastUiModel(
         dailyForecastEntity: DailyForecastEntity
-    ) = DetailDailyForecast(dailyForecastEntity, settingsRepository.currentUnits.value)
+    ) = DetailDailyForecast(dailyForecastEntity, settingsRepository.settings.value.units)
 
     private fun createYesterdayWeatherUiModel(
         yesterdayWeatherEntity: YesterdayWeatherEntity
     ): YesterdayWeather {
-        val temperatureUnit = settingsRepository.currentUnits.value.temperatureUnit
+        val temperatureUnit = settingsRepository.settings.value.units.temperatureUnit
         return YesterdayWeather(temperature = yesterdayWeatherEntity.temperature.convertUnit(temperatureUnit))
     }
 

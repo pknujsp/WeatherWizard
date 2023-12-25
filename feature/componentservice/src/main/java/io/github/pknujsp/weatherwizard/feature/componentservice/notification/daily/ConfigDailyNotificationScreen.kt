@@ -23,6 +23,8 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import io.github.pknujsp.weatherwizard.core.common.FeatureType
+import io.github.pknujsp.weatherwizard.core.common.manager.PermissionManager
+import io.github.pknujsp.weatherwizard.core.common.manager.PermissionType
 import io.github.pknujsp.weatherwizard.core.model.coordinate.LocationType
 import io.github.pknujsp.weatherwizard.core.model.coordinate.LocationTypeModel
 import io.github.pknujsp.weatherwizard.core.model.notification.enums.DailyNotificationType
@@ -104,13 +106,25 @@ fun ConfigDailyNotificationScreen(navController: NavController, viewModel: Confi
                 }
             }
         }
-    } else if (notification.openPermissionSettings) {
-        OpenAppSettingsActivity(FeatureType.SCHEDULE_EXACT_ALARM_PERMISSION) {
-            notification.openPermissionSettings = false
-        }
     } else {
+        PermissionManager(PermissionType.LOCATION, onPermissionGranted = {
+            notification.isScheduleExactAlarmPermissionGranted = true
+        }, onPermissionDenied = {
+            notification.isScheduleExactAlarmPermissionGranted = false
+        }, onShouldShowRationale = {
+            notification.isScheduleExactAlarmPermissionGranted = false
+        }, onNeverAskAgain = {
+            notification.isScheduleExactAlarmPermissionGranted = false
+        }, notification.refreshKey)
+
         UnavailableFeatureScreen(featureType = FeatureType.SCHEDULE_EXACT_ALARM_PERMISSION) {
             notification.openPermissionSettings = true
+        }
+        if (notification.openPermissionSettings) {
+            OpenAppSettingsActivity(FeatureType.SCHEDULE_EXACT_ALARM_PERMISSION) {
+                notification.openPermissionSettings = true
+                notification.refreshKey++
+            }
         }
     }
 }

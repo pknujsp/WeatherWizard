@@ -86,8 +86,8 @@ class AppNotificationManager(context: Context) {
     fun notifyLoadingNotification(notificationType: NotificationType, context: Context) {
         val notificationBulder = createNotification(notificationType, context)
 
-        notificationBulder.setSmallIcon(R.drawable.ic_refresh).setContent(RemoteViews(context.packageName, R.layout.view_loading))
-            .setCustomContentView(RemoteViews(context.packageName, R.layout.view_loading))
+        notificationBulder.setSmallIcon(R.drawable.ic_refresh).setContent(RemoteViews(context.packageName, R.layout.view_loading_notification))
+            .setCustomContentView(RemoteViews(context.packageName, R.layout.view_loading_notification))
         NotificationManagerCompat.from(context).notify(notificationType.notificationId, notificationBulder.build())
     }
 }

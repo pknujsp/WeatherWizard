@@ -137,6 +137,7 @@ class CacheManagerImpl<K, V>(
             override fun process(cacheMap: LruCache<K, Cache<V>>) {
                 val cacheState = cacheMap[key]?.run {
                     if (isExpired()) {
+                        cacheMap.remove(key)
                         CacheState.Miss
                     } else {
                         CacheState.Hit(value)

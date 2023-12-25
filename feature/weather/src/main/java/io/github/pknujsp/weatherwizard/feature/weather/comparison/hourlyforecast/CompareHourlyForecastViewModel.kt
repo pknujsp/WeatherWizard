@@ -63,7 +63,7 @@ class CompareHourlyForecastViewModel @Inject constructor(
                         time = time.plusHours(1)
                     }
 
-                    val units = settingsRepository.currentUnits.value
+                    val units = settingsRepository.settings.value.units
                     val entities = mutableListOf<Pair<WeatherProvider, List<ToCompareHourlyForecastEntity.Item>>>()
 
                     val items = entity.items.map { (provider, items) ->

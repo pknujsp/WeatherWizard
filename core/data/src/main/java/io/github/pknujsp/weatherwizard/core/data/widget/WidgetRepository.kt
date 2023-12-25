@@ -6,7 +6,7 @@ interface WidgetRepository {
 
     suspend fun getAll(): WidgetSettingsEntityList
 
-    suspend fun get(widgetIds: Array<Int>?, all: Boolean): List<WidgetResponseDBEntity>
+    suspend fun get(widgetIds: List<Int>): List<SavedWidgetContentState>
 
     suspend fun get(id: Int): WidgetSettingsEntity?
 

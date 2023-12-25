@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <style name="Theme.WeatherWizard" parent="Theme.Material3.Light.NoActionBar" />
-
     <style name="Button.Default" parent="">
         <item name="android:background">@drawable/background_button</item>
         <item name="android:clickable">true</item>
@@ -32,23 +30,24 @@
         <item name="android:id">@id/remote_views_root_container</item>
     </style>
 
-    <style name="Widget.WeatherWizard.Widget.Container" parent="Widget.WeatherWizard.RemoteViews.RootContainer">
-        <item name="android:background">@color/widget_background</item>
-        <item name="android:clickable">true</item>
-        <item name="android:padding">12dp</item>
-    </style>
-
-    <style name="Widget.WeatherWizard.Notification.Container" parent="Widget.WeatherWizard.RemoteViews.RootContainer" />
-
     <style name="Widget.WeatherWizard.RemoteViews.Container.Content" parent="">
         <item name="android:id">@id/remote_views_content_container</item>
     </style>
 
+    <style name="Widget.WeatherWizard.Notification.Container" parent="Widget.WeatherWizard.RemoteViews.RootContainer" />
+
     <style name="Widget.WeatherWizard.Notification.Container.Content" parent="Widget.WeatherWizard.RemoteViews.Container.Content" />
 
-    <style name="Widget.WeatherWizard.Widget.Container.Content" parent="Widget.WeatherWizard.RemoteViews.Container.Content" />
-
-    <style name="WidgetActivity" parent="@android:style/Theme.Translucent.NoTitleBar">
-
+    <style name="Widget.WeatherWizard.AppWidget.Container" parent="android:Widget">
+        <item name="android:clickable">true</item>
+        <item name="android:padding">?attr/appWidgetPadding</item>
+        <item name="android:id">@android:id/background</item>
+        <item name="android:background">@drawable/app_widget_background</item>
     </style>
+
+    <style name="Widget.WeatherWizard.AppWidget.Container.Content" parent="android:Widget">
+        <item name="android:id">@id/remote_views_content_container</item>
+        <item name="android:background">@drawable/app_widget_inner_view_background</item>
+    </style>
+
 </resources>

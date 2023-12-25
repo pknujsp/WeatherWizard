@@ -1,7 +1,7 @@
 package io.github.pknujsp.weatherwizard.core.model.notification.enums
 
-import io.github.pknujsp.weatherwizard.core.common.enum.BaseEnum
-import io.github.pknujsp.weatherwizard.core.common.enum.IEnum
+import io.github.pknujsp.weatherwizard.core.model.settings.BaseEnum
+import io.github.pknujsp.weatherwizard.core.model.settings.IEnum
 import io.github.pknujsp.weatherwizard.core.model.weather.common.MajorWeatherEntityType
 
 enum class DailyNotificationType(val categories: Array<MajorWeatherEntityType>) : IEnum {

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <resources>
-    <string name="app_name">WeatherWizard</string>
+    <string name="app_name">Wyther</string>
     <string name="clear">맑음</string>
     <string name="partly_cloudy">구름 조금</string>
     <string name="mostly_cloudy">구름 많음</string>
@@ -120,7 +120,6 @@
 
     <string name="notification_working_title">작업 진행 중</string>
     <string name="notification_working_text">작업이 진행 중입니다</string>
-    <string name="set_as_complete">수정완료</string>
 
     <string name="weather_info_head_info_update_time">업데이트</string>
     <string name="weather_icon_description">현재 날씨 상태</string>
@@ -257,7 +256,7 @@
     <string name="title_weather_condition_animation">날씨 상태 효과</string>
     <string name="description_weather_condition_animation">날씨 상태에 따라 애니메이션 효과를 표시합니다.</string>
     <string name="title_refresh_widget">위젯 새로고침</string>
-    <string name="description_refresh_widget">위젯을 새로고침합니다.</string>
+    <string name="description_refresh_widget">위젯 UI가 제대로 보이지 않으면 탭하여 위젯을 새로 고칩니다.</string>
 
     <string name="title_temperature_unit">온도 단위</string>
     <string name="title_wind_speed_unit">풍속 단위</string>
@@ -280,5 +279,19 @@
     <string name="added_widget">위젯 추가 완료</string>
     <string name="battery_optimization">배터리 최적화 켜져있음</string>
     <string name="battery_optimization_enabled">앱이 배터리 최적화 대상으로 지정되어 있어 알림/위젯 작업이 불안정할 수 있습니다. 앱을 배터리 최적화에서 제외시켜주세요.</string>
+    <string name="min_5">5분</string>
+    <string name="title_widget_auto_refresh_interval">위젯 자동 업데이트 주기</string>
+    <string name="celsius">℃</string>
+    <string name="fahrenheit">℉</string>
+    <string name="kilometer_per_hour">km/h</string>
+    <string name="meter_per_second">m/s</string>
+    <string name="millimeter">mm</string>
+    <string name="centimeter">cm</string>
+    <string name="kilometer">km</string>
+    <string name="hectopascal">hPa</string>
+    <string name="degree">°</string>
+    <string name="percentage">%</string>
+    <string name="background_location_permission">백그라운드 위치 권한</string>
+    <string name="background_location_permission_denied">백그라운드 위치 권한이 허용되어 있지 않아 진행이 불가능 합니다.</string>
 
 </resources>

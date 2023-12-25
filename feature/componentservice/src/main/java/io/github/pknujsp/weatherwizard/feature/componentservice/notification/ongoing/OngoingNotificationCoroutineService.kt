@@ -26,7 +26,6 @@ import io.github.pknujsp.weatherwizard.core.widgetnotification.remoteview.Remote
 import io.github.pknujsp.weatherwizard.core.widgetnotification.remoteview.RemoteViewsCreatorManager
 import io.github.pknujsp.weatherwizard.core.widgetnotification.remoteview.UiStateRemoteViewCreator
 import io.github.pknujsp.weatherwizard.feature.componentservice.ComponentPendingIntentManager
-import kotlin.properties.Delegates
 
 @HiltWorker
 class OngoingNotificationCoroutineService @AssistedInject constructor(
@@ -36,7 +35,13 @@ class OngoingNotificationCoroutineService @AssistedInject constructor(
     private val featureStatusManager: FeatureStatusManager
 ) : AppComponentCoroutineService<OngoingNotificationServiceArgument>(context, params, Companion) {
 
-    private var retryPendingIntent: PendingIntent by Delegates.notNull()
+    private val pendingIntentToRefresh: PendingIntent by lazy {
+        ComponentPendingIntentManager.getRefreshPendingIntent(
+            context,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
+            ComponentServiceAction.OngoingNotification(),
+        )!!
+    }
 
     companion object : IWorker {
         override val name: String = "OngoingNotificationWorker"
@@ -53,12 +58,6 @@ class OngoingNotificationCoroutineService @AssistedInject constructor(
     }
 
     private suspend fun start(context: Context, argument: OngoingNotificationServiceArgument) {
-        retryPendingIntent = ComponentPendingIntentManager.getRefreshPendingIntent(
-            context,
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
-            ComponentServiceAction.OngoingNotification(),
-        )
-
         if (!checkFeatureStateAndNotify(requiredFeatures, context)) {
             return
         }
@@ -66,7 +65,8 @@ class OngoingNotificationCoroutineService @AssistedInject constructor(
         val notificationEntity = remoteViewsModel.loadNotification()
 
         if (notificationEntity.location.locationType is LocationType.CurrentLocation && !checkFeatureStateAndNotify(arrayOf(FeatureType.LOCATION_PERMISSION,
-                FeatureType.LOCATION_SERVICE), context)) {
+                FeatureType.LOCATION_SERVICE,
+                FeatureType.BACKGROUND_LOCATION_PERMISSION), context)) {
             return
         }
 
@@ -88,8 +88,11 @@ class OngoingNotificationCoroutineService @AssistedInject constructor(
                 notificationType = NotificationType.ONGOING,
                 smallContentRemoteViews = smallRemoteView,
                 bigContentRemoteViews = bigRemoteView,
-                icon = NotificationIconGenerator.createIcon(context, uiState.notificationIconType!!, uiState.model!!, remoteViewsModel.units),
-                refreshPendingIntent = retryPendingIntent)
+                icon = NotificationIconGenerator.createIcon(context,
+                    uiState.notificationIconType!!,
+                    uiState.model!!,
+                    remoteViewsModel.units),
+                refreshPendingIntent = pendingIntentToRefresh)
         } else {
             NotificationViewState(false,
                 smallFailedContentRemoteViews = UiStateRemoteViewCreator.createView(
@@ -99,7 +102,7 @@ class OngoingNotificationCoroutineService @AssistedInject constructor(
                     R.string.refresh,
                     RemoteViewCreator.ContainerType.NOTIFICATION_SMALL,
                     UiStateRemoteViewCreator.ViewSizeType.SMALL,
-                    retryPendingIntent,
+                    pendingIntentToRefresh,
                 ),
                 bigFailedContentRemoteViews = UiStateRemoteViewCreator.createView(
                     context,
@@ -108,10 +111,10 @@ class OngoingNotificationCoroutineService @AssistedInject constructor(
                     R.string.refresh,
                     RemoteViewCreator.ContainerType.NOTIFICATION_BIG,
                     UiStateRemoteViewCreator.ViewSizeType.BIG,
-                    retryPendingIntent,
+                    pendingIntentToRefresh,
                 ),
                 notificationType = NotificationType.ONGOING,
-                refreshPendingIntent = retryPendingIntent)
+                refreshPendingIntent = pendingIntentToRefresh)
         }
         appNotificationManager.notifyNotification(NotificationType.ONGOING, context, notificationState)
         Log.d("OngoingNotificationService", "notify $notificationState")
@@ -137,7 +140,7 @@ class OngoingNotificationCoroutineService @AssistedInject constructor(
                     smallFailedContentRemoteViews = smallRemoteViews,
                     bigFailedContentRemoteViews = bigRemoteViews,
                     notificationType = NotificationType.ONGOING,
-                    refreshPendingIntent = retryPendingIntent)
+                    refreshPendingIntent = pendingIntentToRefresh)
                 appNotificationManager.notifyNotification(NotificationType.ONGOING, context, notificationViewState)
                 false
             }

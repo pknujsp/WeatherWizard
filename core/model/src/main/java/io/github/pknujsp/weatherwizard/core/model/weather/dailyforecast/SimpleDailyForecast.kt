@@ -4,10 +4,8 @@ import androidx.annotation.DrawableRes
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import io.github.pknujsp.weatherwizard.core.model.UiModel
-import io.github.pknujsp.weatherwizard.core.model.weather.common.CurrentUnits
-import io.github.pknujsp.weatherwizard.core.model.weather.common.ProbabilityValueType
+import io.github.pknujsp.weatherwizard.core.model.settings.CurrentUnits
 import io.github.pknujsp.weatherwizard.core.model.weather.common.TemperatureValueType
-import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherConditionValueType
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 

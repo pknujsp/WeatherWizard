@@ -3,7 +3,7 @@
 
 kotlin = "1.9.21"
 kotlin_compiler_extension = "1.5.7"
-kotlinx_coroutines = "1.8.0-RC"
+kotlinx_coroutines = "1.8.0-RC2"
 kotlinx_serialization_json = "1.6.2"
 ksp = "1.9.21-1.0.16"
 
@@ -24,6 +24,7 @@ androidx_preference_ktx = "1.2.1"
 androidx_compose_constraintlayout = "1.0.1"
 androidx_hilt = "1.1.0"
 androidx_windowmanager = "1.0.0"
+androidx_remoteviews = "1.0.0"
 androidx_paging = "3.2.1"
 accompanist = "0.32.0"
 dagger = "2.50"
@@ -117,6 +118,7 @@ androidx-preference-ktx = { group = "androidx.preference", name = "preference-kt
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "androidx_core" }
 androidx-activity = { group = "androidx.activity", name = "activity-ktx", version.ref = "androidx_activity" }
 androidx-startup = { module = "androidx.startup:startup-runtime", version.ref = "androidx_start_up" }
+androidx-core-remoteviews = { module = "androidx.core:core-remoteviews", version.ref = "androidx_remoteviews" }
 
 androidx-paging-runtime = { module = "androidx.paging:paging-runtime", version.ref = "androidx_paging" }
 androidx-paging-compose = { module = "androidx.paging:paging-compose", version.ref = "androidx_paging" }

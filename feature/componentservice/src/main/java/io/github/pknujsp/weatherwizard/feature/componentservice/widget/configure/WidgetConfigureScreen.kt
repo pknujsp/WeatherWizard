@@ -108,15 +108,13 @@ fun WidgetConfigureScreen(
 
 
 fun createWidgetAndFinish(activity: Activity, widgetId: Int) {
-    activity.setResult(Activity.RESULT_OK, Intent().apply {
-        putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, widgetId)
-    })
-    activity.finish()
+    val newWidgetIntent = ComponentPendingIntentManager.getIntent(activity.applicationContext,
+        LoadWidgetDataArgument(LoadWidgetDataArgument.NEW_WIDGET, widgetId))
+    activity.sendBroadcast(newWidgetIntent)
 
-    ComponentPendingIntentManager.getIntent(activity.applicationContext,
-        LoadWidgetDataArgument(LoadWidgetDataArgument.NEW_WIDGET, arrayOf(widgetId))).run {
-        activity.applicationContext.sendBroadcast(this)
-    }
+    val result = Intent().putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, widgetId)
+    activity.setResult(Activity.RESULT_OK, result)
+    activity.finish()
 }
 
 enum class ConfigureActionState : ActionState {

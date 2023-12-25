@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="widget_background">#E6EDEDED</color>
-    <color name="remoteview_icon_color">#E68F8F8F</color>
+    <color name="widget_background">#DCFBFBFB</color>
+    <color name="remoteview_icon_color">#838383</color>
     <color name="progress_indicator">#FFD9D9D9</color>
     <color name="purple_200">#FFBB86FC</color>
     <color name="purple_500">#FF6200EE</color>

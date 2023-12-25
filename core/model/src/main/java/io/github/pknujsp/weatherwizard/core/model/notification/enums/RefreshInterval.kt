@@ -1,13 +1,19 @@
 package io.github.pknujsp.weatherwizard.core.model.notification.enums
 
-import io.github.pknujsp.weatherwizard.core.common.enum.BaseEnum
-import io.github.pknujsp.weatherwizard.core.common.enum.IEnum
+import io.github.pknujsp.weatherwizard.core.model.settings.BaseEnum
+import io.github.pknujsp.weatherwizard.core.model.settings.BasePreferenceModel
+import io.github.pknujsp.weatherwizard.core.model.settings.IEnum
+import io.github.pknujsp.weatherwizard.core.model.settings.PreferenceModel
 
 
-enum class RefreshInterval(val interval: Long) : IEnum {
+enum class RefreshInterval(val interval: Long) : PreferenceModel {
     MANUAL(0L) {
         override val key: Int = ordinal
         override val title: Int = io.github.pknujsp.weatherwizard.core.resource.R.string.manual
+    },
+    MIN_5(java.time.Duration.ofMinutes(15).toMillis()) {
+        override val key: Int = ordinal
+        override val title: Int = io.github.pknujsp.weatherwizard.core.resource.R.string.min_5
     },
     MIN_15(java.time.Duration.ofMinutes(15).toMillis()) {
         override val key: Int = ordinal
@@ -34,10 +40,9 @@ enum class RefreshInterval(val interval: Long) : IEnum {
         override val title: Int = io.github.pknujsp.weatherwizard.core.resource.R.string.hour_6
     };
 
-    companion object : BaseEnum<RefreshInterval> {
+    companion object : BasePreferenceModel<RefreshInterval> {
         override val default: RefreshInterval = MANUAL
         override val key: String get() = "RefreshInterval"
         override val enums: Array<RefreshInterval> get() = entries.toTypedArray()
-
     }
 }

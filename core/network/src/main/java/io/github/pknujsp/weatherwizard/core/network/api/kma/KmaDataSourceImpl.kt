@@ -26,40 +26,34 @@ internal class KmaDataSourceImpl(
     private val requestHelper = MultipleRequestHelper<Response>()
 
     override suspend fun getCurrentWeather(parameter: KmaCurrentWeatherRequestParameter): Result<KmaCurrentWeatherResponse> {
-        println("getCurrentWeather")
-        request(parameter.code, parameter.requestId)
-        return requestHelper.get(parameter.requestId)?.filter { it !is RequestState.Waiting }?.first()?.onResponse()
+        request(parameter.code)
+        return requestHelper.get(parameter.code.toLong())?.filter { it !is RequestState.Waiting }?.first()?.onResponse()
             ?.map { it.currentWeather } ?: Result.failure(Throwable("Unknown error"))
     }
 
     override suspend fun getHourlyForecast(parameter: KmaHourlyForecastRequestParameter): Result<KmaHourlyForecastResponse> {
-        println("getHourlyForecast")
-        request(parameter.code, parameter.requestId)
-        return requestHelper.get(parameter.requestId)?.filter { it !is RequestState.Waiting }?.first()?.onResponse()
+        request(parameter.code)
+        return requestHelper.get(parameter.code.toLong())?.filter { it !is RequestState.Waiting }?.first()?.onResponse()
             ?.map { it.hourlyForecasts } ?: Result.failure(Throwable("Unknown error"))
     }
 
     override suspend fun getDailyForecast(parameter: KmaDailyForecastRequestParameter): Result<KmaDailyForecastResponse> {
-        println("getDailyForecast")
-        request(parameter.code, parameter.requestId)
-        return requestHelper.get(parameter.requestId)?.filter { it !is RequestState.Waiting }?.first()?.onResponse()
+        request(parameter.code)
+        return requestHelper.get(parameter.code.toLong())?.filter { it !is RequestState.Waiting }?.first()?.onResponse()
             ?.map { it.dailyForecasts } ?: Result.failure(Throwable("Unknown error"))
     }
 
     override suspend fun getYesterdayWeather(parameter: KmaYesterdayWeatherRequestParameter): Result<KmaYesterdayWeatherResponse> {
-        println("getYesterdayWeather")
-        request(parameter.code, parameter.requestId)
-        return requestHelper.get(parameter.requestId)?.filter { it !is RequestState.Waiting }?.first()?.onResponse()
+        request(parameter.code)
+        return requestHelper.get(parameter.code.toLong())?.filter { it !is RequestState.Waiting }?.first()?.onResponse()
             ?.map { it.yesterdayWeather } ?: Result.failure(Throwable("Unknown error"))
     }
 
 
-    private suspend fun request(code: String, requestId: Long) {
-        if (!requestHelper.add(requestId)) {
+    private suspend fun request(code: String) {
+        if (!requestHelper.add(code.toLong())) {
             return
         }
-        Log.d("KmaDataSourceImpl", "request $requestId, code $code")
-
         val currentResponse = kmaNetworkApi.getCurrentWeather(code = code).onResult().fold(
             onSuccess = {
                 val parsed = kmaHtmlParser.parseCurrentConditions(
@@ -112,7 +106,7 @@ internal class KmaDataSourceImpl(
             )
         }
 
-        requestHelper.update(requestId, result)
+        requestHelper.update(code.toLong(), result)
     }
 
     private data class Response(

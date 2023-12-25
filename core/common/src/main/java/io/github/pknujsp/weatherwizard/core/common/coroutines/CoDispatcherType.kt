@@ -10,10 +10,10 @@ import javax.inject.Qualifier
 
 @Qualifier
 @Retention(AnnotationRetention.RUNTIME)
-annotation class CoDispatcher(val coDispatcherType: CoDispatcherType, val limitedParallelism: Int = 2)
+annotation class CoDispatcher(val coDispatcherType: CoDispatcherType)
 
 enum class CoDispatcherType {
-    DEFAULT, IO, MAIN, MULTIPLE
+    DEFAULT, IO, MAIN, MULTIPLE, SINGLE
 }
 
 @Module
@@ -29,9 +29,13 @@ object CoDispatcherModule {
 
     @Provides
     @CoDispatcher(CoDispatcherType.MAIN)
-    fun providesMainDispatcher(): CoroutineDispatcher = Dispatchers.Main
+    fun providesMainDispatcher(): CoroutineDispatcher = Dispatchers.Main.immediate
 
     @Provides
     @CoDispatcher(CoDispatcherType.MULTIPLE)
     fun providesMultipleDispatcher(): CoroutineDispatcher = Dispatchers.Default.limitedParallelism(2)
+
+    @Provides
+    @CoDispatcher(CoDispatcherType.SINGLE)
+    fun providesSingleDispatcher(): CoroutineDispatcher = Dispatchers.Default.limitedParallelism(1)
 }

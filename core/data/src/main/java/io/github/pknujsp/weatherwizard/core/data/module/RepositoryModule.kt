@@ -1,5 +1,6 @@
 package io.github.pknujsp.weatherwizard.core.data.module
 
+import dagger.Binds
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -7,6 +8,7 @@ import dagger.hilt.components.SingletonComponent
 import io.github.pknujsp.weatherwizard.core.common.coroutines.CoDispatcher
 import io.github.pknujsp.weatherwizard.core.common.coroutines.CoDispatcherType
 import io.github.pknujsp.weatherwizard.core.common.module.KtJson
+import io.github.pknujsp.weatherwizard.core.data.RepositoryInitializer
 import io.github.pknujsp.weatherwizard.core.data.aqicn.AirQualityRepository
 import io.github.pknujsp.weatherwizard.core.data.aqicn.AirQualityRepositoryImpl
 import io.github.pknujsp.weatherwizard.core.data.cache.CacheManagerImpl
@@ -118,7 +120,10 @@ object RepositoryModule {
 
     @Singleton
     @Provides
-    fun providesSettingsRepository(appDataStore: AppDataStore): SettingsRepository = SettingsRepositoryImpl(appDataStore)
+    internal fun providesSettingsRepositoryImpl(appDataStore: AppDataStore): SettingsRepositoryImpl = SettingsRepositoryImpl(appDataStore)
+
+    @Provides
+    internal fun providesSettingsRepository(settingsRepositoryImpl: SettingsRepositoryImpl): SettingsRepository = settingsRepositoryImpl
 
     @Singleton
     @Provides

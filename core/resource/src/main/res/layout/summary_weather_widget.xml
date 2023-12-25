@@ -8,11 +8,11 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center_vertical"
-        android:layout_marginBottom="6dp">
+        android:layout_marginBottom="4dp">
 
         <ImageView
             android:id="@+id/weather_icon"
-            android:layout_width="52dp"
+            android:layout_width="44dp"
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
             android:layout_marginEnd="6dp"
@@ -32,11 +32,10 @@
                 android:id="@+id/temperature"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:gravity="center_vertical"
                 android:includeFontPadding="false"
                 android:text="12"
                 android:textColor="@android:color/black"
-                android:textSize="27sp" />
+                android:textSize="24sp" />
 
             <TextView
                 android:id="@+id/feels_like_temperature_label"
@@ -58,14 +57,14 @@
                 android:layout_toEndOf="@id/feels_like_temperature_label"
                 android:includeFontPadding="false"
                 android:text="12"
-                android:textSize="17sp" />
+                android:textSize="15sp" />
 
             <TextView
                 android:id="@+id/weather_condition"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_below="@id/temperature"
-                android:fontFamily="sans-serif-condensed"
+                android:layout_marginTop="-5sp"
                 android:includeFontPadding="false"
                 android:text="@string/clear"
                 android:textColor="@android:color/black"
@@ -78,8 +77,8 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_gravity="center_vertical"
-        android:layout_marginBottom="6dp"
-        android:layout_weight="1"
+        android:layout_marginBottom="4dp"
+        android:layout_weight="2"
         android:orientation="vertical"
         android:weightSum="1">
 
@@ -102,8 +101,9 @@
     <LinearLayout
         android:id="@+id/daily_forecast"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="0dp"
         android:layout_gravity="center_vertical"
+        android:layout_weight="1"
         android:orientation="horizontal" />
 
 </LinearLayout>
