@@ -6,10 +6,12 @@ import io.github.pknujsp.weatherwizard.core.model.settings.IEnum
 enum class NotificationIconType : IEnum {
     TEMPERATURE {
         override val title: Int = io.github.pknujsp.weatherwizard.core.resource.R.string.temperature_icon
+        override val icon: Int? = null
         override val key: Int = ordinal
     },
     ICON {
         override val title: Int = io.github.pknujsp.weatherwizard.core.resource.R.string.weather_condition_icon
+        override val icon: Int? = null
         override val key: Int = ordinal
     };
 

@@ -83,20 +83,6 @@ fun WeatherContentScreen(arguments: ContentArguments, weatherInfoViewModel: Weat
     var onClickedWeatherProviderButton by remember { mutableStateOf(false) }
 
     Box {
-        AsyncImage(
-            modifier = Modifier.fillMaxSize(),
-            contentScale = ContentScale.Crop,
-            alignment = Alignment.Center,
-            model = ImageRequest.Builder(LocalContext.current).run {
-                crossfade(200)
-                if (arguments.backgroundImageUrl.isEmpty()) data(R.drawable.bg_grad)
-                else data(arguments.backgroundImageUrl)
-                build()
-            },
-            contentDescription = stringResource(io.github.pknujsp.weatherwizard.core.resource.R.string.background_image),
-            filterQuality = FilterQuality.High,
-        )
-
         when (arguments.uiState.processState) {
             is ProcessState.Running -> {
                 NonCancellableLoadingScreen(stringResource(id = R.string.loading_weather_data)) {
@@ -105,6 +91,20 @@ fun WeatherContentScreen(arguments: ContentArguments, weatherInfoViewModel: Weat
             }
 
             is ProcessState.Succeed -> {
+                AsyncImage(
+                    modifier = Modifier.fillMaxSize(),
+                    contentScale = ContentScale.Crop,
+                    alignment = Alignment.Center,
+                    model = ImageRequest.Builder(LocalContext.current).run {
+                        crossfade(200)
+                        if (arguments.backgroundImageUrl.isEmpty()) data(R.drawable.bg_grad)
+                        else data(arguments.backgroundImageUrl)
+                        build()
+                    },
+                    contentDescription = stringResource(io.github.pknujsp.weatherwizard.core.resource.R.string.background_image),
+                    filterQuality = FilterQuality.High,
+                )
+
                 Scaffold(modifier = Modifier.nestedScroll(arguments.scrollBehavior.nestedScrollConnection),
                     containerColor = Color.Black.copy(alpha = 0.17f),
                     topBar = {
@@ -183,13 +183,13 @@ fun WeatherContentScreen(arguments: ContentArguments, weatherInfoViewModel: Weat
                                         arguments.run {
                                             AsyncImage(
                                                 model = ImageRequest.Builder(LocalContext.current)
-                                                    .data(arguments.uiState.args.weatherProvider.logo).crossfade(false).build(),
+                                                    .data(arguments.uiState.args.weatherProvider.icon).crossfade(false).build(),
                                                 contentDescription = stringResource(id = io.github.pknujsp.weatherwizard.core.resource.R.string.weather_provider),
                                                 modifier = Modifier.size(16.dp),
                                             )
                                             Spacer(modifier = Modifier.width(4.dp))
                                             Text(
-                                                text = stringResource(id = arguments.uiState.args.weatherProvider.name),
+                                                text = stringResource(id = arguments.uiState.args.weatherProvider.title),
                                                 fontSize = 14.sp,
                                                 color = Color.White,
                                                 style = LocalTextStyle.current.merge(outlineTextStyle),

@@ -108,7 +108,7 @@ fun WeatherProviderDialog(currentProvider: WeatherProvider, onClick: (WeatherPro
             onClick(null)
         },
     ) {
-        Column(modifier = Modifier.padding(vertical = 16.dp)) {
+        Column(modifier = Modifier) {
             TitleTextWithoutNavigation(title = stringResource(id = R.string.weather_provider))
             WeatherProvider.enums.forEach { weatherDataProvider ->
                 Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier
@@ -117,14 +117,14 @@ fun WeatherProviderDialog(currentProvider: WeatherProvider, onClick: (WeatherPro
                     }
                     .fillMaxWidth()) {
                     AsyncImage(
-                        model = ImageRequest.Builder(LocalContext.current).data(weatherDataProvider.logo).crossfade(false).build(),
+                        model = ImageRequest.Builder(LocalContext.current).data(weatherDataProvider.icon).crossfade(false).build(),
                         contentDescription = stringResource(id = R.string.weather_provider),
                         modifier = Modifier
                             .size(34.dp)
                             .padding(start = 12.dp),
                     )
                     Spacer(modifier = Modifier.width(4.dp))
-                    Text(text = stringResource(id = weatherDataProvider.name),
+                    Text(text = stringResource(id = weatherDataProvider.title),
                         fontSize = 14.sp,
                         color = Color.Black,
                         modifier = Modifier.weight(1f))

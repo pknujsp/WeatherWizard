@@ -9,10 +9,13 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
@@ -25,7 +28,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.HorizontalAlignmentLine
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.TextStyle
@@ -33,6 +39,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil.compose.AsyncImage
+import coil.request.ImageRequest
 import io.github.pknujsp.weatherwizard.core.model.settings.IEnum
 import io.github.pknujsp.weatherwizard.core.model.coordinate.LocationType
 import io.github.pknujsp.weatherwizard.core.model.coordinate.LocationTypeModel
@@ -113,7 +121,12 @@ fun <E : IEnum> DropDownMenuSettingItem(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun <E : IEnum> BottomSheetSettingItem(
-    title: String, description: String? = null, selectedItem: E, onSelectedItem: (E?) -> Unit, enums: Array<E>
+    modifier: Modifier = Modifier,
+    title: String,
+    description: String? = null,
+    selectedItem: E,
+    onSelectedItem: (E?) -> Unit,
+    enums: Array<E>
 ) {
     var expanded by remember { mutableStateOf(false) }
     SettingItem(title = title, description = description, onClick = { expanded = true }) {
@@ -128,28 +141,35 @@ fun <E : IEnum> BottomSheetSettingItem(
                 expanded = false
             },
         ) {
-            Column(modifier = Modifier.padding(vertical = 16.dp)) {
+            Column {
                 TitleTextWithoutNavigation(title = title)
-                enums.forEach { enum ->
-                    Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier
-                        .clickable {
-                            expanded = false
-                            onSelectedItem(enum)
+                Column(modifier = modifier.verticalScroll(rememberScrollState(), true)) {
+                    enums.forEach { enum ->
+                        Row(verticalAlignment = Alignment.CenterVertically, modifier = modifier
+                            .clickable {
+                                onSelectedItem(enum)
+                                expanded = false
+                            }
+                            .fillMaxWidth()) {
+                            enum.icon?.let { icon ->
+                                AsyncImage(model = ImageRequest.Builder(LocalContext.current).data(icon).crossfade(false).build(),
+                                    modifier = modifier.size(32.dp).padding(start = 12.dp),
+                                    contentDescription = null)
+                            }
+                            Text(text = stringResource(id = enum.title),
+                                fontSize = 14.sp,
+                                color = Color.Black,
+                                modifier = modifier
+                                    .weight(1f)
+                                    .padding(start = 12.dp))
+                            RadioButton(selected = selectedItem == enum, onClick = {
+                                onSelectedItem(enum)
+                                expanded = false
+                            }, modifier = modifier.padding(end = 12.dp))
                         }
-                        .fillMaxWidth()) {
-                        Text(text = stringResource(id = enum.title),
-                            fontSize = 14.sp,
-                            color = Color.Black,
-                            modifier = Modifier
-                                .weight(1f)
-                                .padding(start = 12.dp))
-                        RadioButton(selected = selectedItem == enum, onClick = {
-                            expanded = false
-                            onSelectedItem(enum)
-                        }, modifier = Modifier.padding(end = 12.dp))
                     }
-                }
 
+                }
             }
         }
     }
@@ -185,6 +205,7 @@ fun BottomSheetSettingItem(
     description: String? = null,
     currentData: String,
     isBottomSheetExpanded: Boolean,
+    limitHeight: Boolean = true,
     onDismissRequest: () -> Unit,
     onClick: () -> Unit,
     content: @Composable () -> Unit
@@ -197,6 +218,7 @@ fun BottomSheetSettingItem(
     if (isBottomSheetExpanded) {
         BottomSheet(
             onDismissRequest = onDismissRequest,
+            limitHeight = limitHeight,
         ) {
             content()
         }

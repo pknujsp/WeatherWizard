@@ -135,11 +135,16 @@ fun TimeItem(entity: DailyNotificationSettings) {
     var time by remember { mutableStateOf(entity.hour to entity.minute) }
     var expanded by remember { mutableStateOf(false) }
 
-    BottomSheetSettingItem(title = stringResource(id = R.string.notification_time), isBottomSheetExpanded = expanded, onClick = {
-        expanded = true
-    }, onDismissRequest = {
-        expanded = false
-    }, currentData = entity.timeText) {
+    BottomSheetSettingItem(title = stringResource(id = R.string.notification_time),
+        isBottomSheetExpanded = expanded,
+        limitHeight = false,
+        onClick = {
+            expanded = true
+        },
+        onDismissRequest = {
+            expanded = false
+        },
+        currentData = entity.timeText) {
         val timePickerState = rememberTimePickerState(initialHour = time.first, initialMinute = time.second, is24Hour = false)
 
         DialogScreen(title = stringResource(id = R.string.notification_time),

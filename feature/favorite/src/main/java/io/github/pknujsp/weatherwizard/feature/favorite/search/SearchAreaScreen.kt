@@ -38,53 +38,71 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
+import io.github.pknujsp.weatherwizard.core.common.FeatureType
 import io.github.pknujsp.weatherwizard.core.ui.MainRoutes
 import io.github.pknujsp.weatherwizard.core.ui.RootNavControllerViewModel
 import io.github.pknujsp.weatherwizard.core.ui.TitleTextWithNavigation
 import io.github.pknujsp.weatherwizard.core.resource.R
+import io.github.pknujsp.weatherwizard.core.ui.feature.OpenAppSettingsActivity
+import io.github.pknujsp.weatherwizard.core.ui.feature.UnavailableFeatureScreen
+import io.github.pknujsp.weatherwizard.core.ui.feature.rememberAppNetworkState
 
 @Composable
-fun SearchAreaScreen(navController: NavController) {
-    Column(modifier = Modifier
-        .fillMaxSize()) {
-        val searchAreaViewModel: SearchAreaViewModel = hiltViewModel()
-        val searchResult by searchAreaViewModel.searchResult.collectAsStateWithLifecycle()
-        val uiAction by searchAreaViewModel.uiAction.collectAsStateWithLifecycle()
-        val rootNavControllerViewModel: RootNavControllerViewModel = hiltViewModel(viewModelStoreOwner =
-        (LocalContext.current as ComponentActivity))
-
+fun SearchAreaScreen(
+    navController: NavController,
+    searchAreaViewModel: SearchAreaViewModel = hiltViewModel(),
+    rootNavControllerViewModel: RootNavControllerViewModel = hiltViewModel(viewModelStoreOwner = (LocalContext.current as ComponentActivity))
+) {
+    val uiAction by searchAreaViewModel.uiAction.collectAsStateWithLifecycle()
+    LaunchedEffect(uiAction) {
         uiAction.onOnSelectedArea {
             rootNavControllerViewModel.navigate(MainRoutes.Weather)
         }
+    }
 
-        var query by remember { mutableStateOf("" to 0L) }
-        var showSearchHistory by remember { mutableStateOf(true) }
+    val networkUiState = rememberAppNetworkState(searchAreaViewModel.appNetworkManager)
+    var showSearchHistory by remember { mutableStateOf(true) }
 
+    Column(modifier = Modifier.fillMaxSize()) {
         TitleTextWithNavigation(title = stringResource(id = io.github.pknujsp.weatherwizard.core.resource.R.string.add_new_area)) {
-            if (showSearchHistory) {
+            if (showSearchHistory || !networkUiState.isNetworkAvailable) {
                 navController.popBackStack()
             } else {
-                showSearchHistory = false
-            }
-        }
-        SearchBar(Modifier.padding(horizontal = 16.dp), query, onChangeQuery = {
-            if (it.isEmpty()) {
                 showSearchHistory = true
             }
-        }) {
-            showSearchHistory = false
-            searchAreaViewModel.search(it)
         }
 
-        if (showSearchHistory) {
-            SearchHistoryScreen {
-                searchAreaViewModel.search(it)
-                query = it to System.currentTimeMillis()
+        if (networkUiState.isNetworkAvailable) {
+            val searchResult by searchAreaViewModel.searchResult.collectAsStateWithLifecycle()
+            var query by remember { mutableStateOf("" to 0L) }
+
+            SearchBar(Modifier.padding(horizontal = 16.dp), query, onChangeQuery = {
+                if (it.isEmpty()) {
+                    showSearchHistory = true
+                }
+            }) {
                 showSearchHistory = false
+                searchAreaViewModel.search(it)
+            }
+
+            if (showSearchHistory) {
+                SearchHistoryScreen {
+                    searchAreaViewModel.search(it)
+                    query = it to System.currentTimeMillis()
+                    showSearchHistory = false
+                }
+            } else {
+                SearchResultScreen(searchResult) {
+                    showSearchHistory = true
+                }
+            }
+        } else if (networkUiState.isOpenAppSettings) {
+            OpenAppSettingsActivity(featureType = FeatureType.NETWORK) {
+                networkUiState.isOpenAppSettings = false
             }
         } else {
-            SearchResultScreen(searchResult) {
-                showSearchHistory = true
+            UnavailableFeatureScreen(featureType = FeatureType.NETWORK) {
+                networkUiState.isOpenAppSettings = true
             }
         }
     }
@@ -96,7 +114,8 @@ fun SearchBar(modifier: Modifier, query: Pair<String, Long>, onChangeQuery: (Str
     Row(modifier = modifier
         .fillMaxWidth()
         .background(Color.Transparent, shape = RectangleShape)
-        .padding(horizontal = 12.dp, vertical = 4.dp), verticalAlignment = Alignment.CenterVertically,
+        .padding(horizontal = 12.dp, vertical = 4.dp),
+        verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(8.dp)) {
 
         val context = LocalContext.current
@@ -108,15 +127,15 @@ fun SearchBar(modifier: Modifier, query: Pair<String, Long>, onChangeQuery: (Str
             text = query.first
         }
 
-        Icon(imageVector = Icons.Rounded.Search,
-            contentDescription = stringResource(R.string.search), tint = Color.Black)
-        TextField(value = text, label = { Text(text = stringResource(id = R.string.search_area)) }, onValueChange = {
-            text = it
-            onChangeQuery(it)
-        },
+        Icon(imageVector = Icons.Rounded.Search, contentDescription = stringResource(R.string.search), tint = Color.Black)
+        TextField(value = text,
+            label = { Text(text = stringResource(id = R.string.search_area)) },
+            onValueChange = {
+                text = it
+                onChangeQuery(it)
+            },
             singleLine = true,
-            modifier = Modifier
-                .fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth(),
             colors = TextFieldDefaults.colors(
                 unfocusedContainerColor = Color.Transparent,
                 focusedContainerColor = Color.Transparent,
@@ -126,27 +145,23 @@ fun SearchBar(modifier: Modifier, query: Pair<String, Long>, onChangeQuery: (Str
             ),
             shape = RectangleShape,
             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
-            keyboardActions = KeyboardActions(
-                onSearch = {
-                    if (text.isNotEmpty()) {
-                        keyboardController?.hide()
-                        onSendQuery(text)
-                    } else {
-                        Toast.makeText(context, messageIfEmpty, Toast.LENGTH_SHORT).show()
-                    }
+            keyboardActions = KeyboardActions(onSearch = {
+                if (text.isNotEmpty()) {
+                    keyboardController?.hide()
+                    onSendQuery(text)
+                } else {
+                    Toast.makeText(context, messageIfEmpty, Toast.LENGTH_SHORT).show()
                 }
-            ),
+            }),
             trailingIcon = {
                 if (text.isNotEmpty()) {
                     IconButton(onClick = {
                         text = ""
                         onChangeQuery("")
                     }) {
-                        Icon(imageVector = Icons.Rounded.Clear, contentDescription =
-                        stringResource(id = R.string.clear_query))
+                        Icon(imageVector = Icons.Rounded.Clear, contentDescription = stringResource(id = R.string.clear_query))
                     }
                 }
-            }
-        )
+            })
     }
 }

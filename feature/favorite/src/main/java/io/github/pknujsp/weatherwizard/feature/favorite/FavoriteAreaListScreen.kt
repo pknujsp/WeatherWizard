@@ -26,6 +26,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
@@ -49,6 +50,7 @@ import io.github.pknujsp.weatherwizard.core.ui.list.EmptyListScreen
 import io.github.pknujsp.weatherwizard.core.ui.theme.AppShapes
 import kotlinx.coroutines.flow.filter
 import io.github.pknujsp.weatherwizard.core.resource.R
+import kotlinx.coroutines.launch
 
 @Composable
 fun FavoriteAreaListScreen(navController: NavController, viewModel: FavoriteAreaViewModel = hiltViewModel()) {
@@ -56,10 +58,12 @@ fun FavoriteAreaListScreen(navController: NavController, viewModel: FavoriteArea
     val targetLocation by viewModel.targetLocation.collectAsStateWithLifecycle()
     val rootNavControllerViewModel: RootNavControllerViewModel =
         hiltViewModel(viewModelStoreOwner = (LocalContext.current as ComponentActivity))
-
+    val scope = rememberCoroutineScope()
     LaunchedEffect(Unit) {
-        viewModel.onChanged.filter { it }.collect {
-            rootNavControllerViewModel.navigate(MainRoutes.Weather)
+        scope.launch {
+            viewModel.onChanged.filter { it }.collect {
+                rootNavControllerViewModel.navigate(MainRoutes.Weather)
+            }
         }
     }
 

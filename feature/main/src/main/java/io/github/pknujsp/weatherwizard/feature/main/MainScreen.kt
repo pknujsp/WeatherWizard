@@ -17,6 +17,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -39,22 +40,27 @@ import io.github.pknujsp.weatherwizard.feature.componentservice.notification.Hos
 import io.github.pknujsp.weatherwizard.feature.favorite.HostFavoriteScreen
 import io.github.pknujsp.weatherwizard.feature.settings.HostSettingsScreen
 import io.github.pknujsp.weatherwizard.feature.weather.HostWeatherScreen
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.launch
 
 
 @Composable
 fun MainScreen() {
     val rootNavController = rememberNavController()
     val backStackEntry by rootNavController.currentBackStackEntryAsState()
-    val rootNavControllerViewModel: RootNavControllerViewModel = hiltViewModel(viewModelStoreOwner =
-    (LocalContext.current as ComponentActivity))
+    val rootNavControllerViewModel: RootNavControllerViewModel =
+        hiltViewModel(viewModelStoreOwner = (LocalContext.current as ComponentActivity))
+    val scope = rememberCoroutineScope()
 
     LaunchedEffect(Unit) {
-        rootNavControllerViewModel.requestedRoute.collect { newRoute ->
-            rootNavController.navigate(newRoute.route) {
-                launchSingleTop = true
-                backStackEntry?.destination?.route?.let {
-                    popUpTo(it) {
-                        inclusive = true
+        scope.launch {
+            rootNavControllerViewModel.requestedRoute.distinctUntilChanged().collect { newRoute ->
+                rootNavController.navigate(newRoute.route) {
+                    launchSingleTop = true
+                    backStackEntry?.destination?.route?.let {
+                        popUpTo(it) {
+                            inclusive = true
+                        }
                     }
                 }
             }
@@ -100,7 +106,7 @@ private fun TopNavBar(
 }
 
 @Composable
-private fun RowScope.TopNavBarItem(
+private fun TopNavBarItem(
     route: MainRoutes, backStackEntry: NavBackStackEntry?, navController: NavHostController
 ) {
     TextButton(onClick = {
@@ -116,15 +122,9 @@ private fun RowScope.TopNavBarItem(
         }
     },
         border = null,
-        contentPadding = PaddingValues(
-            start = 6.dp,
-            top = 16.dp,
-            end = 6.dp,
-            bottom = 16.dp
-        ),
-        colors = ButtonDefaults.textButtonColors(contentColor = if (backStackEntry?.destination?.route == route.route) Color.Black else Color
-            (0xFF666666),
-            containerColor = Color.Transparent)) {
+        contentPadding = PaddingValues(start = 6.dp, top = 14.dp, end = 4.dp, bottom = 14.dp),
+        colors = ButtonDefaults.textButtonColors(contentColor = if (backStackEntry?.destination?.route == route.route) Color.Black else Color(
+            0xFF666666), containerColor = Color.Transparent)) {
         Text(text = stringResource(id = route.navTitle),
             fontSize = 19.sp,
             fontWeight = FontWeight(400),

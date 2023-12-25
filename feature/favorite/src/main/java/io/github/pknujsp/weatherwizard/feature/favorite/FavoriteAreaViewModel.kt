@@ -6,6 +6,8 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import io.github.pknujsp.weatherwizard.core.data.favorite.FavoriteAreaListRepository
 import io.github.pknujsp.weatherwizard.core.data.favorite.SelectedLocationModel
 import io.github.pknujsp.weatherwizard.core.data.favorite.TargetLocationRepository
+import io.github.pknujsp.weatherwizard.core.data.nominatim.NominatimRepository
+import io.github.pknujsp.weatherwizard.core.domain.location.GetCurrentLocationUseCase
 import io.github.pknujsp.weatherwizard.core.model.favorite.FavoriteArea
 import io.github.pknujsp.weatherwizard.core.model.coordinate.LocationType
 import kotlinx.coroutines.Dispatchers
@@ -22,7 +24,10 @@ import javax.inject.Inject
 
 @HiltViewModel
 class FavoriteAreaViewModel @Inject constructor(
-    favoriteAreaRepository: FavoriteAreaListRepository, private val targetLocationRepository: TargetLocationRepository
+    favoriteAreaRepository: FavoriteAreaListRepository,
+    private val targetLocationRepository: TargetLocationRepository,
+    private val getCurrentLocationUseCase: GetCurrentLocationUseCase,
+    private val nominatimRepository: NominatimRepository,
 ) : ViewModel() {
 
     private val _targetLocation = MutableStateFlow<SelectedLocationModel?>(null)

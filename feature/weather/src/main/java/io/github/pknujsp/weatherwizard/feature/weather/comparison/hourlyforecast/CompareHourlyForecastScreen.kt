@@ -174,13 +174,13 @@ internal fun WeatherDataProviderInfo(weatherProvider: WeatherProvider, height: D
             .height(height)
             .padding(start = 12.dp)) {
         AsyncImage(
-            model = ImageRequest.Builder(LocalContext.current).data(weatherProvider.logo).crossfade(false).build(),
+            model = ImageRequest.Builder(LocalContext.current).data(weatherProvider.icon).crossfade(false).build(),
             contentDescription = stringResource(id = R.string.weather_provider),
             modifier = Modifier.size(18.dp),
         )
         Spacer(modifier = Modifier.width(4.dp))
         Text(
-            text = stringResource(id = weatherProvider.name),
+            text = stringResource(id = weatherProvider.title),
             fontSize = 15.sp,
             color = Color.White,
         )

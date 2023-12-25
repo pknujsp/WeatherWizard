@@ -7,8 +7,6 @@ import android.view.KeyEvent
 import android.view.View
 import android.view.ViewTreeObserver
 import android.view.WindowManager
-import androidx.compose.animation.core.TweenSpec
-import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
@@ -23,16 +21,11 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.requiredHeightIn
 import androidx.compose.foundation.layout.windowInsetsPadding
-import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.SheetState
-import androidx.compose.material3.SheetValue
 import androidx.compose.material3.SheetValue.Expanded
 import androidx.compose.material3.SheetValue.Hidden
 import androidx.compose.material3.Surface
@@ -54,7 +47,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
-import androidx.compose.ui.graphics.isSpecified
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.AbstractComposeView
 import androidx.compose.ui.platform.LocalContext
@@ -80,21 +72,21 @@ import kotlinx.coroutines.launch
 import java.util.UUID
 import kotlin.math.roundToInt
 
+
 @Composable
 @ExperimentalMaterial3Api
 fun BottomSheet(
-    consumedNavigationBar: Boolean = false,
+    modifier: Modifier = Modifier,
     onDismissRequest: () -> Unit,
     navigationBarHeight: Dp = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding(),
-    modifier: Modifier = Modifier,
     sheetState: SheetState = rememberModalBottomSheetState(),
     shape: Shape = AppShapes.large,
     containerColor: Color = BottomSheetDefaults.ContainerColor,
     contentColor: Color = contentColorFor(containerColor),
     tonalElevation: Dp = BottomSheetDefaults.Elevation,
     scrimColor: Color = BottomSheetDefaults.ScrimColor,
-    dragHandle: @Composable (() -> Unit)? = { BottomSheetDefaults.DragHandle() },
     windowInsets: WindowInsets = WindowInsets(0, 0, 0, 0),
+    limitHeight: Boolean = true,
     content: @Composable ColumnScope.() -> Unit,
 ) {
     val scope = rememberCoroutineScope()
@@ -120,13 +112,12 @@ fun BottomSheet(
     ) {
         BoxWithConstraints(Modifier.fillMaxSize()) {
             val density = LocalDensity.current.density
-            val minHeightDp = 0.dp
-            val maxHeightDp = ((constraints.maxHeight / density) * 0.45).roundToInt().dp
+            val ratio = if (limitHeight) 0.45 else 0.9
+            val maxHeightDp = ((constraints.maxHeight / density) * ratio).roundToInt().dp
 
             Scrim(
                 color = scrimColor,
                 onDismissRequest = animateToDismiss,
-                visible = sheetState.targetValue != Hidden,
             )
             Surface(
                 modifier = modifier
@@ -135,7 +126,7 @@ fun BottomSheet(
                         start = 12.dp,
                         end = 12.dp,
                     )
-                    .heightIn(min = minHeightDp, max = maxHeightDp)
+                    .heightIn(min = 0.dp, max = maxHeightDp)
                     .fillMaxWidth()
                     .align(Alignment.BottomCenter),
                 shape = shape,
@@ -199,64 +190,23 @@ fun BottomSheet(
     content = content,
 )
 
-/**
- * Create and [remember] a [SheetState] for [BottomSheet].
- *
- * @param skipPartiallyExpanded Whether the partially expanded state, if the sheet is tall enough,
- * should be skipped. If true, the sheet will always expand to the [Expanded] state and move to the
- * [Hidden] state when hiding the sheet, either programmatically or by user interaction.
- * @param confirmValueChange Optional callback invoked to confirm or veto a pending state change.
- */
-@Composable
-@ExperimentalMaterial3Api
-fun rememberModalBottomSheetState(
-    skipPartiallyExpanded: Boolean = false,
-    confirmValueChange: (SheetValue) -> Boolean = { true },
-) = rememberSheetState(skipPartiallyExpanded, confirmValueChange, Hidden)
-
-@Composable
-@ExperimentalMaterial3Api
-fun rememberSheetState(
-    skipPartiallyExpanded: Boolean = false,
-    confirmValueChange: (SheetValue) -> Boolean = { true },
-    initialValue: SheetValue = Hidden,
-    skipHiddenState: Boolean = false,
-): SheetState {
-    return rememberSaveable(skipPartiallyExpanded,
-        confirmValueChange,
-        saver = SheetState.Saver(skipPartiallyExpanded = skipPartiallyExpanded, confirmValueChange = confirmValueChange)) {
-        SheetState(skipPartiallyExpanded, initialValue, confirmValueChange, skipHiddenState)
-    }
-}
 
 @Composable
 private fun Scrim(
     color: Color,
     onDismissRequest: () -> Unit,
-    visible: Boolean,
 ) {
-    if (color.isSpecified) {
-        val alpha by animateFloatAsState(
-            targetValue = if (visible) 1f else 0f,
-            animationSpec = TweenSpec(),
-            label = "FloatAnimation",
-        )
-        val dismissSheet = if (visible) {
-            Modifier
-                .pointerInput(onDismissRequest) {
-                    detectTapGestures {
-                        onDismissRequest()
-                    }
-                }
-                .clearAndSetSemantics {}
-        } else {
-            Modifier
+    val dismissSheet = Modifier
+        .pointerInput(onDismissRequest) {
+            detectTapGestures {
+                onDismissRequest()
+            }
         }
-        Canvas(Modifier
-            .fillMaxSize()
-            .then(dismissSheet)) {
-            drawRect(color = color, alpha = alpha)
-        }
+        .clearAndSetSemantics {}
+    Canvas(Modifier
+        .fillMaxSize()
+        .then(dismissSheet)) {
+        drawRect(color = color, alpha = 1f)
     }
 }
 
