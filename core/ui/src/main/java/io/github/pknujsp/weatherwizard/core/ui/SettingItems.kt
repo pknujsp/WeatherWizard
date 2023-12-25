@@ -124,8 +124,8 @@ fun <E : IEnum> BottomSheetSettingItem(
     if (expanded) {
         BottomSheet(
             onDismissRequest = {
-                expanded = false
                 onSelectedItem(null)
+                expanded = false
             },
         ) {
             Column(modifier = Modifier.padding(vertical = 16.dp)) {

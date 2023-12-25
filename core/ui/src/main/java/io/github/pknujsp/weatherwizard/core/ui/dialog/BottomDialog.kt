@@ -1,6 +1,5 @@
 package io.github.pknujsp.weatherwizard.core.ui.dialog
 
-import android.app.Activity
 import android.content.Context
 import android.graphics.PixelFormat
 import android.view.Gravity
@@ -8,6 +7,8 @@ import android.view.KeyEvent
 import android.view.View
 import android.view.ViewTreeObserver
 import android.view.WindowManager
+import androidx.compose.animation.core.TweenSpec
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
@@ -18,10 +19,15 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.requiredHeightIn
 import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ModalBottomSheet
@@ -52,6 +58,7 @@ import androidx.compose.ui.graphics.isSpecified
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.AbstractComposeView
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.ViewRootForInspector
 import androidx.compose.ui.semantics.clearAndSetSemantics
@@ -67,6 +74,7 @@ import androidx.lifecycle.setViewTreeLifecycleOwner
 import androidx.lifecycle.setViewTreeViewModelStoreOwner
 import androidx.savedstate.findViewTreeSavedStateRegistryOwner
 import androidx.savedstate.setViewTreeSavedStateRegistryOwner
+import io.github.pknujsp.weatherwizard.core.ui.lottie.asActivity
 import io.github.pknujsp.weatherwizard.core.ui.theme.AppShapes
 import kotlinx.coroutines.launch
 import java.util.UUID
@@ -85,6 +93,7 @@ fun BottomSheet(
     contentColor: Color = contentColorFor(containerColor),
     tonalElevation: Dp = BottomSheetDefaults.Elevation,
     scrimColor: Color = BottomSheetDefaults.ScrimColor,
+    dragHandle: @Composable (() -> Unit)? = { BottomSheetDefaults.DragHandle() },
     windowInsets: WindowInsets = WindowInsets(0, 0, 0, 0),
     content: @Composable ColumnScope.() -> Unit,
 ) {
@@ -110,19 +119,23 @@ fun BottomSheet(
         windowInsets = windowInsets,
     ) {
         BoxWithConstraints(Modifier.fillMaxSize()) {
-            val fullHeight = constraints.maxHeight
+            val density = LocalDensity.current.density
+            val minHeightDp = 0.dp
+            val maxHeightDp = ((constraints.maxHeight / density) * 0.45).roundToInt().dp
+
             Scrim(
                 color = scrimColor,
                 onDismissRequest = animateToDismiss,
+                visible = sheetState.targetValue != Hidden,
             )
-
             Surface(
                 modifier = modifier
                     .padding(
                         bottom = 10.dp + navigationBarHeight,
-                        start = 10.dp,
-                        end = 10.dp,
+                        start = 12.dp,
+                        end = 12.dp,
                     )
+                    .heightIn(min = minHeightDp, max = maxHeightDp)
                     .fillMaxWidth()
                     .align(Alignment.BottomCenter),
                 shape = shape,
@@ -130,22 +143,25 @@ fun BottomSheet(
                 contentColor = contentColor,
                 tonalElevation = tonalElevation,
             ) {
-                Column(Modifier.fillMaxWidth()) {
+                Column(modifier
+                    .fillMaxWidth()
+                    .padding(8.dp)) {
                     content()
                 }
             }
         }
     }
 
-    val window = (LocalContext.current as Activity).window
-    DisposableEffect(Unit) {
-        val firstState: Boolean
-        val windowInsetsController: WindowInsetsControllerCompat = WindowCompat.getInsetsController(window, window.decorView).apply {
-            firstState = isAppearanceLightNavigationBars
-            isAppearanceLightNavigationBars = false
-        }
-        onDispose {
-            windowInsetsController.isAppearanceLightNavigationBars = firstState
+    LocalContext.current.asActivity()?.window?.let { window ->
+        DisposableEffect(Unit) {
+            val firstState: Boolean
+            val windowInsetsController: WindowInsetsControllerCompat = WindowCompat.getInsetsController(window, window.decorView).apply {
+                firstState = isAppearanceLightNavigationBars
+                isAppearanceLightNavigationBars = false
+            }
+            onDispose {
+                windowInsetsController.isAppearanceLightNavigationBars = firstState
+            }
         }
     }
 
@@ -217,20 +233,29 @@ fun rememberSheetState(
 private fun Scrim(
     color: Color,
     onDismissRequest: () -> Unit,
+    visible: Boolean,
 ) {
     if (color.isSpecified) {
-        val dismissSheet = Modifier
-            .pointerInput(onDismissRequest) {
-                detectTapGestures {
-                    onDismissRequest()
+        val alpha by animateFloatAsState(
+            targetValue = if (visible) 1f else 0f,
+            animationSpec = TweenSpec(),
+            label = "FloatAnimation",
+        )
+        val dismissSheet = if (visible) {
+            Modifier
+                .pointerInput(onDismissRequest) {
+                    detectTapGestures {
+                        onDismissRequest()
+                    }
                 }
-            }
-            .clearAndSetSemantics {}
-
+                .clearAndSetSemantics {}
+        } else {
+            Modifier
+        }
         Canvas(Modifier
             .fillMaxSize()
             .then(dismissSheet)) {
-            drawRect(color = color, alpha = 1f)
+            drawRect(color = color, alpha = alpha)
         }
     }
 }
