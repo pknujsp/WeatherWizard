@@ -17,8 +17,6 @@ import io.github.pknujsp.weatherwizard.feature.componentservice.notification.ong
 @Composable
 fun HostNotificationScreen() {
     val navController = rememberNavController()
-    val window = (LocalContext.current as Activity).window
-    WindowCompat.getInsetsController(window, window.decorView).isAppearanceLightNavigationBars = true
 
     NavHost(navController = navController, route = NotificationRoutes.route, startDestination = NotificationRoutes.Main.route,
         modifier = Modifier.navigationBarsPadding()) {

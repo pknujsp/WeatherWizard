@@ -91,19 +91,7 @@ fun WeatherContentScreen(arguments: ContentArguments, weatherInfoViewModel: Weat
             }
 
             is ProcessState.Succeed -> {
-                AsyncImage(
-                    modifier = Modifier.fillMaxSize(),
-                    contentScale = ContentScale.Crop,
-                    alignment = Alignment.Center,
-                    model = ImageRequest.Builder(LocalContext.current).run {
-                        crossfade(200)
-                        if (arguments.backgroundImageUrl.isEmpty()) data(R.drawable.bg_grad)
-                        else data(arguments.backgroundImageUrl)
-                        build()
-                    },
-                    contentDescription = stringResource(io.github.pknujsp.weatherwizard.core.resource.R.string.background_image),
-                    filterQuality = FilterQuality.High,
-                )
+
 
                 Scaffold(modifier = Modifier.nestedScroll(arguments.scrollBehavior.nestedScrollConnection),
                     containerColor = Color.Black.copy(alpha = 0.17f),

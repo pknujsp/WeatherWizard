@@ -69,13 +69,11 @@ fun SettingsScreen(navController: NavController, viewModel: SettingsViewModel = 
 @Composable
 fun HostSettingsScreen() {
     val navController = rememberNavController()
-    val window = (LocalContext.current as Activity).window
-    WindowCompat.getInsetsController(window, window.decorView).isAppearanceLightNavigationBars = true
 
     NavHost(navController = navController,
         route = SettingsRoutes.route,
         startDestination = SettingsRoutes.Main.route,
-        modifier = Modifier.navigationBarsPadding()) {
+        modifier = Modifier) {
         composable(SettingsRoutes.Main.route) { SettingsScreen(navController) }
         composable(SettingsRoutes.ValueUnit.route) { ValueUnitScreen(navController) }
     }

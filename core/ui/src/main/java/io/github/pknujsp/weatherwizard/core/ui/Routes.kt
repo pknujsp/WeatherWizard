@@ -1,5 +1,6 @@
 package io.github.pknujsp.weatherwizard.core.ui
 
+import androidx.annotation.StringRes
 import androidx.navigation.NamedNavArgument
 import androidx.navigation.navArgument
 
@@ -41,7 +42,7 @@ interface NestedRoutes {
 interface ParentRoutes {
     val route: String
     val navIcon: Int
-    val navTitle: Int
+    @get:StringRes val navTitle: Int
 }
 
 interface NestedParentRoutes {
