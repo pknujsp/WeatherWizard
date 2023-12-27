@@ -54,7 +54,7 @@ fun MainScreen() {
 
     LaunchedEffect(Unit) {
         scope.launch {
-            rootNavControllerViewModel.requestedRoute.distinctUntilChanged().collect { newRoute ->
+            rootNavControllerViewModel.requestedRoute.collect { newRoute ->
                 rootNavController.navigate(newRoute.route) {
                     launchSingleTop = true
                     backStackEntry?.destination?.route?.let {

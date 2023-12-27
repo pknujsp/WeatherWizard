@@ -293,5 +293,7 @@
     <string name="percentage">%</string>
     <string name="background_location_permission">백그라운드 위치 권한</string>
     <string name="background_location_permission_denied">백그라운드 위치 권한이 허용되어 있지 않아 진행이 불가능 합니다.</string>
+    <string name="reverse_geocode_error_title">현재위치주소 로드 오류</string>
+    <string name="reverse_geocode_error_message">현재 위치의 주소를 불러오는데 실패하였습니다</string>
 
 </resources>

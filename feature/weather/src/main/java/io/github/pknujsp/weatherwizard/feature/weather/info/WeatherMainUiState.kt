@@ -39,7 +39,6 @@ import kotlinx.coroutines.flow.asStateFlow
 
 @Stable
 interface WeatherMainUiState {
-    val isGpsEnabled: Boolean
     val processState: ProcessState
     val args: RequestWeatherArguments
     val lastUpdatedTime: String

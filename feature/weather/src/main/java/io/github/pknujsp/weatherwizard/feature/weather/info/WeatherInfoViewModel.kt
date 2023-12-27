@@ -71,7 +71,6 @@ class WeatherInfoViewModel @Inject constructor(
             if (location.locationType is LocationType.CurrentLocation) {
                 when (val currentLocation = getCurrentLocationUseCase()) {
                     is CurrentLocationResultState.Success -> {
-                        _uiState.isGpsEnabled = true
                         val targetLocation = nominatimRepository.reverseGeoCode(currentLocation.latitude, currentLocation.longitude)
                         targetLocation.onSuccess {
                             _uiState.args = RequestWeatherArguments(weatherProvider = weatherProvider,
@@ -89,7 +88,6 @@ class WeatherInfoViewModel @Inject constructor(
                     }
 
                     is CurrentLocationResultState.Failure -> {
-                        _uiState.isGpsEnabled = false
                         _uiState.processState = ProcessState.Failed(currentLocation.reason)
                     }
 
@@ -270,7 +268,6 @@ class WeatherInfoViewModel @Inject constructor(
 
 private class MutableWeatherMainUiState(
 ) : WeatherMainUiState {
-    override var isGpsEnabled by mutableStateOf(false)
     override var processState: ProcessState by mutableStateOf(ProcessState.Idle)
     override var args: RequestWeatherArguments by Delegates.notNull()
     override var flickrRequestParameters: FlickrRequestParameters? by mutableStateOf(null)

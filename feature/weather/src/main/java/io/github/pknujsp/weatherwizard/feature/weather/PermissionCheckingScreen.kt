@@ -2,6 +2,7 @@ package io.github.pknujsp.weatherwizard.feature.weather
 
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -28,31 +29,19 @@ fun PermissionCheckingScreen(navController: NavController, mainViewModel: Weathe
     val locationType by mainViewModel.locationType.collectAsStateWithLifecycle()
     locationType?.run {
         val context = LocalContext.current
-        var locationPermissionGranted by remember { mutableStateOf(context.checkSelfPermission(PermissionType.LOCATION)) }
         var openLocationPermissionActivity by remember { mutableStateOf(false) }
-        var refreshKey by remember { mutableIntStateOf(0) }
+        var locationPermissionGranted by remember { mutableStateOf(context.checkSelfPermission(PermissionType.LOCATION)) }
 
         if (locationPermissionGranted || locationType is LocationType.CustomLocation) {
             navigateToInfo(navController)
         } else {
-            PermissionManager(PermissionType.LOCATION, onPermissionGranted = {
-                openLocationPermissionActivity = false
-                locationPermissionGranted = true
-            }, onPermissionDenied = {
-                locationPermissionGranted = false
-            }, onShouldShowRationale = {
-                locationPermissionGranted = false
-            }, onNeverAskAgain = {
-                locationPermissionGranted = false
-            }, refreshKey)
-
             UnavailableFeatureScreen(featureType = FeatureType.LOCATION_PERMISSION) {
                 openLocationPermissionActivity = true
+                locationPermissionGranted = context.checkSelfPermission(PermissionType.LOCATION)
             }
             if (openLocationPermissionActivity) {
                 OpenAppSettingsActivity(FeatureType.LOCATION_PERMISSION) {
                     openLocationPermissionActivity = false
-                    refreshKey++
                 }
             }
         }
