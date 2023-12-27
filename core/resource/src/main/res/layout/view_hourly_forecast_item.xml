@@ -26,7 +26,7 @@
         android:minWidth="18dp"
         android:minHeight="18dp"
         android:scaleType="fitCenter"
-        android:src="@drawable/ic_sun" />
+        android:src="@drawable/ic_weather_clear" />
 
     <TextView
         android:id="@+id/temperature"

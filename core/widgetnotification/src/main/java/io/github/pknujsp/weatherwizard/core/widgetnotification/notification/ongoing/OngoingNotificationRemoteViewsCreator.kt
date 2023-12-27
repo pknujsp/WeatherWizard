@@ -14,7 +14,7 @@ import io.github.pknujsp.weatherwizard.core.widgetnotification.remoteview.addVie
 class OngoingNotificationRemoteViewsCreator : NotificationRemoteViewsCreator<OngoingNotificationRemoteViewUiModel>() {
     override fun createSampleView(context: Context, units: CurrentUnits): RemoteViews {
         val contentView = RemoteViews(context.packageName, R.layout.notification_ongoing_small).apply {
-            setImageViewResource(R.id.weather_icon, R.drawable.ic_sun)
+            setImageViewResource(R.id.weather_icon, R.drawable.ic_weather_clear)
             setTextViewText(R.id.temperature,
                 TemperatureValueType(16.0, TemperatureUnit.Celsius).convertUnit(units.temperatureUnit).toString())
             setTextViewText(R.id.feels_like_temperature,
