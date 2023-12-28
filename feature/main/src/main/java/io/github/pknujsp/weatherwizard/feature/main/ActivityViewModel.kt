@@ -20,4 +20,5 @@ class ActivityViewModel @Inject constructor(
         globalRepositoryCacheManager.stopCacheCleaner()
     }
 
+
 }

@@ -1,5 +1,6 @@
 package io.github.pknujsp.weatherwizard.feature.weather.info
 
+import androidx.activity.ComponentActivity
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -30,6 +31,7 @@ import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -51,6 +53,7 @@ import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import io.github.pknujsp.weatherwizard.core.common.FeatureType
@@ -63,6 +66,7 @@ import io.github.pknujsp.weatherwizard.core.ui.feature.FailedScreen
 import io.github.pknujsp.weatherwizard.core.ui.feature.OpenAppSettingsActivity
 import io.github.pknujsp.weatherwizard.core.ui.feature.UnavailableFeatureScreen
 import io.github.pknujsp.weatherwizard.core.ui.lottie.NonCancellableLoadingScreen
+import io.github.pknujsp.weatherwizard.core.ui.main.MainViewModel
 import io.github.pknujsp.weatherwizard.core.ui.theme.notIncludeTextPaddingStyle
 import io.github.pknujsp.weatherwizard.core.ui.theme.outlineTextStyle
 import io.github.pknujsp.weatherwizard.feature.airquality.AirQualityScreen
@@ -86,13 +90,10 @@ fun WeatherContentScreen(arguments: ContentArguments, weatherInfoViewModel: Weat
         when (arguments.uiState.processState) {
             is ProcessState.Running -> {
                 NonCancellableLoadingScreen(stringResource(id = R.string.loading_weather_data)) {
-
                 }
             }
 
             is ProcessState.Succeed -> {
-
-
                 Scaffold(modifier = Modifier.nestedScroll(arguments.scrollBehavior.nestedScrollConnection),
                     containerColor = Color.Black.copy(alpha = 0.17f),
                     topBar = {
@@ -202,7 +203,6 @@ fun WeatherContentScreen(arguments: ContentArguments, weatherInfoViewModel: Weat
                             modifier = Modifier.background(brush = shardowBox()),
                             windowInsets = WindowInsets(0.dp, 0.dp, 0.dp, 0.dp))
                     }) { innerPadding ->
-
                     Column(
                         modifier = Modifier
                             .fillMaxSize()
@@ -218,12 +218,9 @@ fun WeatherContentScreen(arguments: ContentArguments, weatherInfoViewModel: Weat
                             SimpleMapScreen(arguments.uiState.args)
                             AirQualityScreen(arguments.uiState.args)
                             SimpleSunSetRiseScreen(arguments.uiState.args)
-                            FlickrImageItemScreen(arguments.uiState.flickrRequestParameters!!) {
-                                arguments.onChangedBackgroundImageUrl(it)
-                            }
+                            FlickrImageItemScreen(arguments.uiState.flickrRequestParameters!!, arguments.onDayChanged)
                             Spacer(modifier = Modifier.height(innerPadding.calculateBottomPadding()))
                         }
-
                     }
                 }
             }
@@ -284,8 +281,7 @@ class ContentArguments @OptIn(ExperimentalMaterial3Api::class) constructor(
     val uiState: WeatherMainUiState,
     val scrollState: ScrollState,
     val scrollBehavior: TopAppBarScrollBehavior,
-    var backgroundImageUrl: String,
     val navigate: (NestedWeatherRoutes) -> Unit,
     val reload: () -> Unit,
-    val onChangedBackgroundImageUrl: (String) -> Unit,
+    val onDayChanged: (Boolean) -> Unit,
 )

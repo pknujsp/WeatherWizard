@@ -1,5 +1,6 @@
 package io.github.pknujsp.weatherwizard.feature.flickr
 
+import androidx.activity.ComponentActivity
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
@@ -11,7 +12,6 @@ import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
@@ -26,15 +26,17 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import io.github.pknujsp.weatherwizard.core.resource.R
 import io.github.pknujsp.weatherwizard.core.model.flickr.FlickrRequestParameters
-import io.github.pknujsp.weatherwizard.core.model.onError
-import io.github.pknujsp.weatherwizard.core.model.onLoading
-import io.github.pknujsp.weatherwizard.core.model.onSuccess
+import io.github.pknujsp.weatherwizard.core.ui.main.MainViewModel
 import io.github.pknujsp.weatherwizard.core.ui.theme.outlineTextStyle
 
 @Composable
 fun FlickrImageItemScreen(
-    requestParameter: FlickrRequestParameters, viewModel: FlickrImageViewModel = hiltViewModel(), onLoadedImage: (String) -> Unit
+    requestParameter: FlickrRequestParameters,
+    onDayStateChanged: (Boolean) -> Unit,
+    viewModel: FlickrImageViewModel = hiltViewModel(),
 ) {
+    val mainViewModel: MainViewModel = hiltViewModel(viewModelStoreOwner = (LocalContext.current as ComponentActivity))
+
     LaunchedEffect(requestParameter) {
         viewModel.initialize(requestParameter)
     }
@@ -43,9 +45,10 @@ fun FlickrImageItemScreen(
 
     LaunchedEffect(uiState) {
         if (uiState.isLoaded) {
-            onLoadedImage(uiState.url)
+            mainViewModel.updateImageUrl(uiState.url)
+            onDayStateChanged(requestParameter.isDay())
         } else {
-            onLoadedImage("")
+            mainViewModel.updateImageUrl(null)
         }
     }
 

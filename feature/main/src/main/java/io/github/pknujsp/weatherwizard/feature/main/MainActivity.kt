@@ -54,7 +54,6 @@ class MainActivity : ComponentActivity() {
                     MapInitializer.initialize(applicationContext)
                     viewModel.notificationStarter.start(applicationContext)
                     widgetStarter.start(applicationContext)
-                    Log.d("MainActivity", "initialized map, notification, widget")
                 }
             }
 
@@ -83,10 +82,9 @@ class MainActivity : ComponentActivity() {
                 isAppearanceLightStatusBars = true
                 isAppearanceLightNavigationBars = true
             }
-
             statusBarColor = Color.TRANSPARENT
             navigationBarColor = Color.TRANSPARENT
-
+            
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                 isStatusBarContrastEnforced = false
                 isNavigationBarContrastEnforced = false

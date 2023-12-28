@@ -42,15 +42,15 @@ fun DetailHourlyForecastScreen(hourlyForecast: DetailHourlyForecast, popBackStac
     BackHandler {
         popBackStack()
     }
-    Column {
+    Column(modifier = Modifier
+        .fillMaxWidth()
+        .background(Color.White)) {
         TitleTextWithNavigation(title = stringResource(io.github.pknujsp.weatherwizard.core.resource.R.string.hourly_forecast)) {
             popBackStack()
         }
         LazyColumn(
             state = rememberLazyListState(),
-            modifier = Modifier
-                .fillMaxWidth()
-                .navigationBarsPadding(),
+            modifier = Modifier.fillMaxWidth(),
         ) {
             hourlyForecast.items.forEach { pair ->
                 stickyHeader(key = pair.first) {

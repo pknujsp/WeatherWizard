@@ -22,7 +22,6 @@ import androidx.core.view.WindowCompat
 import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import io.github.pknujsp.weatherwizard.core.model.ProcessState
-import io.github.pknujsp.weatherwizard.core.model.UiState
 import io.github.pknujsp.weatherwizard.core.model.flickr.FlickrRequestParameters
 import io.github.pknujsp.weatherwizard.core.model.weather.RequestWeatherArguments
 import io.github.pknujsp.weatherwizard.core.model.weather.current.CurrentWeather
@@ -32,9 +31,7 @@ import io.github.pknujsp.weatherwizard.core.model.weather.hourlyforecast.DetailH
 import io.github.pknujsp.weatherwizard.core.model.weather.hourlyforecast.SimpleHourlyForecast
 import io.github.pknujsp.weatherwizard.core.model.weather.yesterday.YesterdayWeather
 import io.github.pknujsp.weatherwizard.feature.weather.NestedWeatherRoutes
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import java.util.concurrent.atomic.AtomicBoolean
 
 
 @Stable
@@ -63,18 +60,32 @@ data class WeatherMainState @OptIn(ExperimentalMaterial3Api::class) constructor(
     val scrollBehavior: TopAppBarScrollBehavior,
 ) {
     val nestedRoutes = mutableStateOf(NestedWeatherRoutes.startDestination)
-    var backgroundImageUrl by mutableStateOf("")
     var reload by mutableIntStateOf(0)
         private set
     private val windowInsetsController = WindowCompat.getInsetsController(window, window.decorView)
+    private val mainAppearanceLightWindowBars = AtomicBoolean(true)
 
     fun navigate(nestedRoutes: NestedWeatherRoutes) {
         this.nestedRoutes.value = nestedRoutes
-        windowInsetsController.isAppearanceLightNavigationBars = nestedRoutes !is NestedWeatherRoutes.Main
+        val isAppearanceLight = if (nestedRoutes is NestedWeatherRoutes.Main) mainAppearanceLightWindowBars.get()
+        else false
+        updateWindowInsetByTime(isAppearanceLight)
     }
 
     fun reload() {
         reload++
+    }
+
+    fun updateWindowInsetByTime(isNight: Boolean) {
+        mainAppearanceLightWindowBars.getAndSet(isNight)
+        updateWindowInset(isNight)
+    }
+
+    private fun updateWindowInset(isAppearanceLight: Boolean) {
+        windowInsetsController.run {
+            isAppearanceLightStatusBars = isAppearanceLight
+            isAppearanceLightNavigationBars = isAppearanceLight
+        }
     }
 }
 

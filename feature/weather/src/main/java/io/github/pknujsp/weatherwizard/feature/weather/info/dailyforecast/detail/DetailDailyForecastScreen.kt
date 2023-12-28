@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
@@ -47,7 +48,11 @@ fun DetailDailyForecastScreen(dailyForecast: DetailDailyForecast, popBackStack: 
     BackHandler {
         popBackStack()
     }
-    Column {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.White)
+    ) {
         TitleTextWithNavigation(title = stringResource(R.string.daily_forecast)) {
             popBackStack()
         }
@@ -55,7 +60,6 @@ fun DetailDailyForecastScreen(dailyForecast: DetailDailyForecast, popBackStack: 
             state = rememberLazyListState(),
             modifier = Modifier
                 .fillMaxWidth()
-                .navigationBarsPadding(),
         ) {
             itemsIndexed(dailyForecast.items) { i, item ->
                 Item(

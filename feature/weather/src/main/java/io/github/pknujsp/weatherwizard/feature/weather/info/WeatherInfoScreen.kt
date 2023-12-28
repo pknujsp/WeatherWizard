@@ -1,7 +1,6 @@
 package io.github.pknujsp.weatherwizard.feature.weather.info
 
 
-import android.app.Activity
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -10,20 +9,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.Saver
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -31,17 +21,15 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.view.WindowCompat
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherProvider
+import io.github.pknujsp.weatherwizard.core.resource.R
 import io.github.pknujsp.weatherwizard.core.ui.TitleTextWithoutNavigation
 import io.github.pknujsp.weatherwizard.core.ui.dialog.BottomSheet
 import io.github.pknujsp.weatherwizard.feature.weather.NestedWeatherRoutes
-import io.github.pknujsp.weatherwizard.core.resource.R
 import io.github.pknujsp.weatherwizard.feature.weather.comparison.dailyforecast.CompareDailyForecastScreen
 import io.github.pknujsp.weatherwizard.feature.weather.comparison.hourlyforecast.CompareHourlyForecastScreen
 import io.github.pknujsp.weatherwizard.feature.weather.info.dailyforecast.detail.DetailDailyForecastScreen
@@ -58,19 +46,20 @@ fun WeatherInfoScreen(navController: NavController, viewModel: WeatherInfoViewMo
 
     when (mainState.nestedRoutes.value) {
         is NestedWeatherRoutes.Main -> {
-            val contentArguments = ContentArguments(mainState.weatherMainUiState,
+            val contentArguments = ContentArguments(
+                mainState.weatherMainUiState,
                 mainState.scrollState,
                 mainState.scrollBehavior,
-                mainState.backgroundImageUrl,
                 navigate = {
                     mainState.navigate(it)
                 },
                 reload = {
                     mainState.reload()
                 },
-                onChangedBackgroundImageUrl = {
-                    mainState.backgroundImageUrl = it
-                })
+                onDayChanged = { isDay ->
+                    mainState.updateWindowInsetByTime(isDay)
+                },
+            )
             WeatherContentScreen(contentArguments, viewModel)
         }
 

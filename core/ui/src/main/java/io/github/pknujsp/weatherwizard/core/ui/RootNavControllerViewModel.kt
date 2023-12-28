@@ -19,12 +19,10 @@ class RootNavControllerViewModel @Inject constructor(
     private val _requestedRoute = MutableSharedFlow<MainRoutes>(replay = 0, extraBufferCapacity = 1)
     val requestedRoute: SharedFlow<MainRoutes> = _requestedRoute.asSharedFlow()
 
-    var imageUrl: String? by mutableStateOf(null)
-        private set
-
     fun navigate(route: MainRoutes) {
         viewModelScope.launch {
             _requestedRoute.emit(route)
         }
     }
+
 }
