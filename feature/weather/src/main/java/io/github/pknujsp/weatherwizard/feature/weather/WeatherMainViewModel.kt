@@ -1,5 +1,8 @@
 package io.github.pknujsp.weatherwizard.feature.weather
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -15,12 +18,12 @@ class WeatherMainViewModel @Inject constructor(
     private val targetLocationRepository: TargetLocationRepository,
 ) : ViewModel() {
 
-    private val _locationType = MutableStateFlow<LocationType?>(null)
-    val locationType : StateFlow<LocationType?> = _locationType
+    var locationType: LocationType? by mutableStateOf(null)
+        private set
 
     init {
         viewModelScope.launch {
-            _locationType.value = targetLocationRepository.getTargetLocation().locationType
+            locationType = targetLocationRepository.getTargetLocation().locationType
         }
     }
 }

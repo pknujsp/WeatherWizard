@@ -1,4 +1,4 @@
-package io.github.pknujsp.weatherwizard.feature.weather
+package io.github.pknujsp.weatherwizard.feature.weather.route
 
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
@@ -18,7 +18,7 @@ sealed interface WeatherRoutes : Routes {
         override val route: String = "Weather/Main"
     }
 
-    data object Info : WeatherRoutes{
+    data object Info : WeatherRoutes {
         override val route: String = "Weather/Info"
     }
 }

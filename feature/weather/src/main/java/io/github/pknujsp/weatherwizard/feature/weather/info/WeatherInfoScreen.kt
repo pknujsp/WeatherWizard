@@ -29,7 +29,7 @@ import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherProvider
 import io.github.pknujsp.weatherwizard.core.resource.R
 import io.github.pknujsp.weatherwizard.core.ui.TitleTextWithoutNavigation
 import io.github.pknujsp.weatherwizard.core.ui.dialog.BottomSheet
-import io.github.pknujsp.weatherwizard.feature.weather.NestedWeatherRoutes
+import io.github.pknujsp.weatherwizard.feature.weather.route.NestedWeatherRoutes
 import io.github.pknujsp.weatherwizard.feature.weather.comparison.dailyforecast.CompareDailyForecastScreen
 import io.github.pknujsp.weatherwizard.feature.weather.comparison.hourlyforecast.CompareHourlyForecastScreen
 import io.github.pknujsp.weatherwizard.feature.weather.info.dailyforecast.detail.DetailDailyForecastScreen
@@ -38,7 +38,7 @@ import io.github.pknujsp.weatherwizard.feature.weather.info.hourlyforecast.detai
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun WeatherInfoScreen(navController: NavController, viewModel: WeatherInfoViewModel = hiltViewModel()) {
-    val mainState = rememberWeatherMainState(weatherMainUiState = viewModel.uiState)
+    val mainState = rememberWeatherMainState(weatherContentUiState = viewModel.uiState)
 
     LaunchedEffect(mainState.reload) {
         viewModel.initialize()
@@ -47,7 +47,7 @@ fun WeatherInfoScreen(navController: NavController, viewModel: WeatherInfoViewMo
     when (mainState.nestedRoutes.value) {
         is NestedWeatherRoutes.Main -> {
             val contentArguments = ContentArguments(
-                mainState.weatherMainUiState,
+                mainState.weatherContentUiState,
                 mainState.scrollState,
                 mainState.scrollBehavior,
                 navigate = {
@@ -64,25 +64,25 @@ fun WeatherInfoScreen(navController: NavController, viewModel: WeatherInfoViewMo
         }
 
         is NestedWeatherRoutes.DetailHourlyForecast -> {
-            DetailHourlyForecastScreen(mainState.weatherMainUiState.weather!!.detailHourlyForecast) {
+            DetailHourlyForecastScreen(mainState.weatherContentUiState.weather!!.detailHourlyForecast) {
                 mainState.navigate(NestedWeatherRoutes.Main)
             }
         }
 
         is NestedWeatherRoutes.DetailDailyForecast -> {
-            DetailDailyForecastScreen(mainState.weatherMainUiState.weather!!.detailDailyForecast) {
+            DetailDailyForecastScreen(mainState.weatherContentUiState.weather!!.detailDailyForecast) {
                 mainState.navigate(NestedWeatherRoutes.Main)
             }
         }
 
         is NestedWeatherRoutes.ComparisonDailyForecast -> {
-            CompareDailyForecastScreen(mainState.weatherMainUiState.args) {
+            CompareDailyForecastScreen(mainState.weatherContentUiState.args) {
                 mainState.navigate(NestedWeatherRoutes.Main)
             }
         }
 
         is NestedWeatherRoutes.ComparisonHourlyForecast -> {
-            CompareHourlyForecastScreen(mainState.weatherMainUiState.args, mainState.viewModelStoreOwner!!) {
+            CompareHourlyForecastScreen(mainState.weatherContentUiState.args, mainState.viewModelStoreOwner!!) {
                 mainState.navigate(NestedWeatherRoutes.Main)
             }
         }

@@ -5,10 +5,10 @@ import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.view.WindowCompat
 import io.github.pknujsp.weatherwizard.core.ui.MainRoutes
@@ -17,11 +17,9 @@ import io.github.pknujsp.weatherwizard.feature.componentservice.widget.asActivit
 import io.github.pknujsp.weatherwizard.feature.favorite.HostFavoriteScreen
 import io.github.pknujsp.weatherwizard.feature.settings.HostSettingsScreen
 import io.github.pknujsp.weatherwizard.feature.weather.HostWeatherScreen
-import io.github.pknujsp.weatherwizard.feature.weather.NestedWeatherRoutes
 import kotlinx.coroutines.flow.SharedFlow
-import kotlinx.coroutines.launch
 
-
+@Stable
 interface MainUiState {
     val tabs: Array<Pair<MainRoutes, @Composable () -> Unit>>
     @OptIn(ExperimentalFoundationApi::class) val pagerState: PagerState
@@ -52,25 +50,20 @@ fun rememberMainState(requestedRoutes: SharedFlow<MainRoutes>): MainUiState {
         MutableMainUiState(tabs, pagerState, selectedTabIndex)
     }
 
-    val scope = rememberCoroutineScope()
     val window = (LocalContext.current.asActivity())!!.window
     val windowInsetController = remember { WindowCompat.getInsetsController(window, window.decorView) }
 
     LaunchedEffect(Unit) {
-        scope.launch {
-            requestedRoutes.collect { newRoute ->
-                pagerState.animateScrollToPage(state.tabIndices[newRoute]!!)
-            }
+        requestedRoutes.collect { newRoute ->
+            pagerState.animateScrollToPage(state.tabIndices[newRoute]!!)
         }
     }
 
     LaunchedEffect(selectedTabIndex.value) {
-        if (tabs[selectedTabIndex.value].first !is MainRoutes.Weather) {
-            val appearance = tabs[selectedTabIndex.value].first.isAppearanceLightStatusBars
-            windowInsetController.run {
-                isAppearanceLightStatusBars = appearance
-                isAppearanceLightNavigationBars = appearance
-            }
+        val appearance = tabs[selectedTabIndex.value].first.isAppearanceLightSystemBars
+        windowInsetController.run {
+            isAppearanceLightStatusBars = appearance
+            isAppearanceLightNavigationBars = appearance
         }
     }
 

@@ -1,15 +1,11 @@
 package io.github.pknujsp.weatherwizard.feature.weather.info.dailyforecast.simple
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.res.stringResource
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import io.github.pknujsp.weatherwizard.core.model.onSuccess
 import io.github.pknujsp.weatherwizard.core.model.weather.dailyforecast.SimpleDailyForecast
 import io.github.pknujsp.weatherwizard.core.ui.weather.item.CardInfo
 import io.github.pknujsp.weatherwizard.core.ui.weather.item.SimpleWeatherScreenBackground
-import io.github.pknujsp.weatherwizard.feature.weather.NestedWeatherRoutes
-import io.github.pknujsp.weatherwizard.feature.weather.info.WeatherInfoViewModel
+import io.github.pknujsp.weatherwizard.feature.weather.route.NestedWeatherRoutes
 
 @Composable
 fun SimpleDailyForecastScreen(dailyForecast: SimpleDailyForecast, navigate: (NestedWeatherRoutes) -> Unit) {

@@ -1,6 +1,5 @@
 package io.github.pknujsp.weatherwizard.feature.weather.info
 
-import androidx.activity.ComponentActivity
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -31,7 +30,6 @@ import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -53,7 +51,6 @@ import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import io.github.pknujsp.weatherwizard.core.common.FeatureType
@@ -66,7 +63,6 @@ import io.github.pknujsp.weatherwizard.core.ui.feature.FailedScreen
 import io.github.pknujsp.weatherwizard.core.ui.feature.OpenAppSettingsActivity
 import io.github.pknujsp.weatherwizard.core.ui.feature.UnavailableFeatureScreen
 import io.github.pknujsp.weatherwizard.core.ui.lottie.NonCancellableLoadingScreen
-import io.github.pknujsp.weatherwizard.core.ui.main.MainViewModel
 import io.github.pknujsp.weatherwizard.core.ui.theme.notIncludeTextPaddingStyle
 import io.github.pknujsp.weatherwizard.core.ui.theme.outlineTextStyle
 import io.github.pknujsp.weatherwizard.feature.airquality.AirQualityScreen
@@ -75,7 +71,7 @@ import io.github.pknujsp.weatherwizard.feature.map.SimpleMapScreen
 import io.github.pknujsp.weatherwizard.feature.sunsetrise.SimpleSunSetRiseScreen
 import io.github.pknujsp.weatherwizard.feature.weather.CustomTopAppBar
 import io.github.pknujsp.weatherwizard.feature.weather.CustomTopAppBarColors
-import io.github.pknujsp.weatherwizard.feature.weather.NestedWeatherRoutes
+import io.github.pknujsp.weatherwizard.feature.weather.route.NestedWeatherRoutes
 import io.github.pknujsp.weatherwizard.feature.weather.info.currentweather.simple.CurrentWeatherScreen
 import io.github.pknujsp.weatherwizard.feature.weather.info.dailyforecast.simple.SimpleDailyForecastScreen
 import io.github.pknujsp.weatherwizard.feature.weather.info.hourlyforecast.simple.HourlyForecastScreen
@@ -94,6 +90,16 @@ fun WeatherContentScreen(arguments: ContentArguments, weatherInfoViewModel: Weat
             }
 
             is ProcessState.Succeed -> {
+                if (arguments.uiState.flickrRequestParameters != null){
+                    AsyncImage(
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.Crop,
+                        alignment = Alignment.Center,
+                        model = ImageRequest.Builder(LocalContext.current).crossfade(100).data(mainViewModel.imageUrl).build(),
+                        contentDescription = stringResource(R.string.background_image),
+                        filterQuality = FilterQuality.High,
+                    )
+                }
                 Scaffold(modifier = Modifier.nestedScroll(arguments.scrollBehavior.nestedScrollConnection),
                     containerColor = Color.Black.copy(alpha = 0.17f),
                     topBar = {
@@ -200,7 +206,7 @@ fun WeatherContentScreen(arguments: ContentArguments, weatherInfoViewModel: Weat
                                 navigationIconContentColor = Color.White,
                                 actionIconContentColor = Color.White,
                             ),
-                            modifier = Modifier.background(brush = shardowBox()),
+                            modifier = Modifier.background(brush = shadowBox()),
                             windowInsets = WindowInsets(0.dp, 0.dp, 0.dp, 0.dp))
                     }) { innerPadding ->
                     Column(
@@ -269,7 +275,7 @@ fun WeatherContentScreen(arguments: ContentArguments, weatherInfoViewModel: Weat
 }
 
 @Stable
-fun shardowBox(
+fun shadowBox(
 ): Brush = Brush.linearGradient(0.0f to Color.Black.copy(alpha = 0.5f),
     1.0f to Color.Transparent,
     start = Offset(0.0f, 0f),
@@ -278,7 +284,7 @@ fun shardowBox(
 
 @Stable
 class ContentArguments @OptIn(ExperimentalMaterial3Api::class) constructor(
-    val uiState: WeatherMainUiState,
+    val uiState: WeatherContentUiState,
     val scrollState: ScrollState,
     val scrollBehavior: TopAppBarScrollBehavior,
     val navigate: (NestedWeatherRoutes) -> Unit,

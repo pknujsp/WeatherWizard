@@ -61,7 +61,7 @@ private val topAppBarTitleInset = 16.dp - topAppBarHorizontalPadding
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CustomTopAppBar(
+internal fun CustomTopAppBar(
     modifier: Modifier = Modifier,
     bigTitle: @Composable (() -> Unit)? = null,
     bigTitleTextStyle: TextStyle = Typography().titleLarge,

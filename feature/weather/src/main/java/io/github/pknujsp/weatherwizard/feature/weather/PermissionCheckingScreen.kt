@@ -2,31 +2,28 @@ package io.github.pknujsp.weatherwizard.feature.weather
 
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import io.github.pknujsp.weatherwizard.core.common.FeatureType
-import io.github.pknujsp.weatherwizard.core.common.manager.PermissionManager
 import io.github.pknujsp.weatherwizard.core.common.manager.PermissionType
 import io.github.pknujsp.weatherwizard.core.common.manager.checkSelfPermission
 import io.github.pknujsp.weatherwizard.core.model.coordinate.LocationType
 import io.github.pknujsp.weatherwizard.core.ui.feature.OpenAppSettingsActivity
 import io.github.pknujsp.weatherwizard.core.ui.feature.UnavailableFeatureScreen
 import io.github.pknujsp.weatherwizard.feature.weather.info.WeatherInfoScreen
+import io.github.pknujsp.weatherwizard.feature.weather.route.WeatherRoutes
 
 @Composable
 fun PermissionCheckingScreen(navController: NavController, mainViewModel: WeatherMainViewModel = hiltViewModel()) {
-    val locationType by mainViewModel.locationType.collectAsStateWithLifecycle()
+    val locationType = mainViewModel.locationType
     locationType?.run {
         val context = LocalContext.current
         var openLocationPermissionActivity by remember { mutableStateOf(false) }

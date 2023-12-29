@@ -1,4 +1,4 @@
-package io.github.pknujsp.weatherwizard.feature.weather
+package io.github.pknujsp.weatherwizard.feature.weather.route
 
 import io.github.pknujsp.weatherwizard.core.ui.NestedParentRoutes
 import io.github.pknujsp.weatherwizard.core.ui.NestedRoutes

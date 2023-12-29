@@ -59,8 +59,8 @@ class WeatherInfoViewModel @Inject constructor(
     @CoDispatcher(CoDispatcherType.IO) private val dispatcher: CoroutineDispatcher
 ) : ViewModel() {
 
-    private val _uiState = MutableWeatherMainUiState()
-    val uiState: WeatherMainUiState by mutableStateOf(_uiState)
+    private val _uiState = MutableWeatherContentUiState()
+    val uiState: WeatherContentUiState = _uiState
 
     fun initialize() {
         viewModelScope.launch(dispatcher) {
@@ -255,22 +255,12 @@ class WeatherInfoViewModel @Inject constructor(
         val temperatureUnit = settingsRepository.settings.value.units.temperatureUnit
         return YesterdayWeather(temperature = yesterdayWeatherEntity.temperature.convertUnit(temperatureUnit))
     }
-
-    private fun createFlickrRequestParameter(
-        weatherCondition: WeatherConditionCategory, latitude: Double, longitude: Double, requestDateTime: ZonedDateTime
-    ): FlickrRequestParameters = FlickrRequestParameters(
-        weatherCondition = weatherCondition,
-        latitude = latitude,
-        longitude = longitude,
-        refreshDateTime = requestDateTime,
-    )
 }
 
-private class MutableWeatherMainUiState(
-) : WeatherMainUiState {
+private class MutableWeatherContentUiState(
+) : WeatherContentUiState {
     override var processState: ProcessState by mutableStateOf(ProcessState.Idle)
-    override var args: RequestWeatherArguments by Delegates.notNull()
-    override var flickrRequestParameters: FlickrRequestParameters? by mutableStateOf(null)
+    override var args: RequestWeatherArguments? = null
     override var lastUpdatedTime: String = ""
         private set
 

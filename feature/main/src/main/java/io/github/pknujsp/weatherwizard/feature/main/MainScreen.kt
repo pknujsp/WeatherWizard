@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
@@ -30,6 +31,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.FilterQuality
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
@@ -60,14 +62,7 @@ fun MainScreen() {
     }) { _ ->
         Box {
             if (mainViewModel.imageUrl != null && mainUiState.tabs[mainUiState.pagerState.currentPage].first.isFullScreen) {
-                AsyncImage(
-                    modifier = Modifier.fillMaxSize(),
-                    contentScale = ContentScale.Crop,
-                    alignment = Alignment.Center,
-                    model = ImageRequest.Builder(LocalContext.current).crossfade(200).data(mainViewModel.imageUrl).build(),
-                    contentDescription = stringResource(R.string.background_image),
-                    filterQuality = FilterQuality.High,
-                )
+
             }
             Column(modifier = Modifier.fillMaxSize()) {
                 HorizontalPager(state = mainUiState.pagerState,
@@ -79,20 +74,23 @@ fun MainScreen() {
                         mainUiState.tabs[page].second()
                     }
                 }
-                TabRow(selectedTabIndex = mainUiState.selectedTabIndex.value,
+                TabRow(
+                    selectedTabIndex = mainUiState.selectedTabIndex.value,
                     modifier = Modifier.fillMaxWidth(),
-                    containerColor = Color.Transparent) {
+                    divider = {},
+                ) {
                     mainUiState.tabs.forEachIndexed { index, currentTab ->
                         Tab(selected = mainUiState.selectedTabIndex.value == index,
-                            selectedContentColor = Color.Black,
+                            selectedContentColor = Color.Blue,
                             unselectedContentColor = Color.Gray,
-                            modifier = Modifier
-                                .background(Color.White, RoundedCornerShape(12.dp))
-                                .padding(8.dp),
                             onClick = {
                                 scope.launch {
                                     mainUiState.pagerState.animateScrollToPage(index)
                                 }
+                            },
+                            icon = {
+                                Icon(painter = painterResource(id = currentTab.first.navIcon),
+                                    contentDescription = stringResource(id = currentTab.first.navTitle))
                             },
                             text = { Text(text = stringResource(id = currentTab.first.navTitle)) })
                     }
