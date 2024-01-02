@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -44,21 +45,18 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun DetailHourlyForecastScreen(hourlyForecast: DetailHourlyForecast, popBackStack: () -> Unit) {
-    val popBackStackState by rememberUpdatedState(popBackStack)
     val coroutineScope = rememberCoroutineScope()
     var showDialogWithListIndex by remember { mutableStateOf(false to -1) }
 
     BackHandler {
-        popBackStackState()
+        popBackStack()
     }
-
-
 
     Column(modifier = Modifier
         .fillMaxSize()
-        .background(Color.White)) {
+        .systemBarsPadding()) {
         TitleTextWithNavigation(title = stringResource(io.github.pknujsp.weatherwizard.core.resource.R.string.hourly_forecast)) {
-            popBackStackState()
+            popBackStack()
         }
         LazyColumn(
             state = rememberLazyListState(),
@@ -94,7 +92,7 @@ fun DetailHourlyForecastScreen(hourlyForecast: DetailHourlyForecast, popBackStac
 
     if (showDialogWithListIndex.first) {
         AlertDialog(onDismissRequest = { showDialogWithListIndex = false to -1 }) {
-            
+
         }
     }
 }

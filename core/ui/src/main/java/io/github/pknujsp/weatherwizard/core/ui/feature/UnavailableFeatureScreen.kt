@@ -34,16 +34,6 @@ fun UnavailableFeatureScreen(featureType: FeatureType, onClick: () -> Unit) {
 
 @Composable
 fun FailedScreen(@StringRes title: Int, @StringRes alertMessage: Int, @StringRes actionMessage: Int, onClick: () -> Unit) {
-    val window = (LocalContext.current.asActivity())?.window
-    window?.let {
-        LaunchedEffect(Unit) {
-            WindowCompat.getInsetsController(it, it.decorView).run {
-                isAppearanceLightStatusBars = true
-                isAppearanceLightNavigationBars = true
-            }
-        }
-    }
-
     Column(modifier = Modifier
         .fillMaxSize(), verticalArrangement = Arrangement.Center) {
         Text(text = stringResource(title), style = TextStyle(fontSize = 24.sp, color = Color.Black))

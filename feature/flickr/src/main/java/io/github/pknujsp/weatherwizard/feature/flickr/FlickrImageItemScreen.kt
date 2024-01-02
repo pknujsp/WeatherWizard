@@ -1,6 +1,5 @@
 package io.github.pknujsp.weatherwizard.feature.flickr
 
-import androidx.activity.ComponentActivity
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
@@ -24,19 +23,16 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
-import io.github.pknujsp.weatherwizard.core.resource.R
 import io.github.pknujsp.weatherwizard.core.model.flickr.FlickrRequestParameters
-import io.github.pknujsp.weatherwizard.core.ui.main.MainViewModel
+import io.github.pknujsp.weatherwizard.core.resource.R
 import io.github.pknujsp.weatherwizard.core.ui.theme.outlineTextStyle
 
 @Composable
 fun FlickrImageItemScreen(
     requestParameter: FlickrRequestParameters,
-    onDayStateChanged: (Boolean) -> Unit,
+    onImageUrlChanged: (String) -> Unit,
     viewModel: FlickrImageViewModel = hiltViewModel(),
 ) {
-    val mainViewModel: MainViewModel = hiltViewModel(viewModelStoreOwner = (LocalContext.current as ComponentActivity))
-
     LaunchedEffect(requestParameter) {
         viewModel.initialize(requestParameter)
     }
@@ -45,10 +41,9 @@ fun FlickrImageItemScreen(
 
     LaunchedEffect(uiState) {
         if (uiState.isLoaded) {
-            mainViewModel.updateImageUrl(uiState.url)
-            onDayStateChanged(requestParameter.isDay())
+            onImageUrlChanged(uiState.url)
         } else {
-            mainViewModel.updateImageUrl(null)
+            onImageUrlChanged("")
         }
     }
 

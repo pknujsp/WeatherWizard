@@ -72,8 +72,8 @@ internal fun CustomTopAppBar(
     actions: @Composable RowScope.() -> Unit,
     windowInsets: WindowInsets = TopAppBarDefaults.windowInsets,
     colors: CustomTopAppBarColors,
-    maxHeight: Dp = 150.dp,
-    pinnedHeight: Dp = 56.dp,
+    maxHeight: Dp = 170.dp,
+    pinnedHeight: Dp = 86.dp,
     scrollBehavior: TopAppBarScrollBehavior
 ) {
     if (maxHeight <= pinnedHeight) {

@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -30,6 +31,7 @@ import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -53,16 +55,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
-import io.github.pknujsp.weatherwizard.core.common.FeatureType
-import io.github.pknujsp.weatherwizard.core.resource.R
-import io.github.pknujsp.weatherwizard.core.common.manager.FailedReason
 import io.github.pknujsp.weatherwizard.core.common.util.AStyle
 import io.github.pknujsp.weatherwizard.core.common.util.toAnnotated
-import io.github.pknujsp.weatherwizard.core.model.ProcessState
-import io.github.pknujsp.weatherwizard.core.ui.feature.FailedScreen
-import io.github.pknujsp.weatherwizard.core.ui.feature.OpenAppSettingsActivity
-import io.github.pknujsp.weatherwizard.core.ui.feature.UnavailableFeatureScreen
-import io.github.pknujsp.weatherwizard.core.ui.lottie.NonCancellableLoadingScreen
+import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherProvider
+import io.github.pknujsp.weatherwizard.core.resource.R
 import io.github.pknujsp.weatherwizard.core.ui.theme.notIncludeTextPaddingStyle
 import io.github.pknujsp.weatherwizard.core.ui.theme.outlineTextStyle
 import io.github.pknujsp.weatherwizard.feature.airquality.AirQualityScreen
@@ -71,223 +67,229 @@ import io.github.pknujsp.weatherwizard.feature.map.SimpleMapScreen
 import io.github.pknujsp.weatherwizard.feature.sunsetrise.SimpleSunSetRiseScreen
 import io.github.pknujsp.weatherwizard.feature.weather.CustomTopAppBar
 import io.github.pknujsp.weatherwizard.feature.weather.CustomTopAppBarColors
-import io.github.pknujsp.weatherwizard.feature.weather.route.NestedWeatherRoutes
 import io.github.pknujsp.weatherwizard.feature.weather.info.currentweather.simple.CurrentWeatherScreen
 import io.github.pknujsp.weatherwizard.feature.weather.info.dailyforecast.simple.SimpleDailyForecastScreen
 import io.github.pknujsp.weatherwizard.feature.weather.info.hourlyforecast.simple.HourlyForecastScreen
+import io.github.pknujsp.weatherwizard.feature.weather.route.NestedWeatherRoutes
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun WeatherContentScreen(arguments: ContentArguments, weatherInfoViewModel: WeatherInfoViewModel) {
-    var openLocationSettings by remember { mutableStateOf(false) }
+fun WeatherContentScreen(
+    scrollState: ScrollState,
+    scrollBehavior: TopAppBarScrollBehavior,
+    navigate: (NestedWeatherRoutes) -> Unit,
+    reload: () -> Unit,
+    updateWeatherDataProvider: (WeatherProvider) -> Unit,
+    uiState: WeatherContentUiState.Success
+) {
     var onClickedWeatherProviderButton by remember { mutableStateOf(false) }
+    val coroutineScope = rememberCoroutineScope()
+    var imageUrl by remember { mutableStateOf("") }
+    val weather = uiState.weather
 
-    Box {
-        when (arguments.uiState.processState) {
-            is ProcessState.Running -> {
-                NonCancellableLoadingScreen(stringResource(id = R.string.loading_weather_data)) {
-                }
-            }
+    AsyncImage(
+        modifier = Modifier.fillMaxSize(),
+        contentScale = ContentScale.Crop,
+        alignment = Alignment.Center,
+        model = ImageRequest.Builder(LocalContext.current).crossfade(200).data(imageUrl).build(),
+        contentDescription = stringResource(R.string.background_image),
+        filterQuality = FilterQuality.High,
+    )
 
-            is ProcessState.Succeed -> {
-                if (arguments.uiState.flickrRequestParameters != null){
-                    AsyncImage(
-                        modifier = Modifier.fillMaxSize(),
-                        contentScale = ContentScale.Crop,
-                        alignment = Alignment.Center,
-                        model = ImageRequest.Builder(LocalContext.current).crossfade(100).data(mainViewModel.imageUrl).build(),
-                        contentDescription = stringResource(R.string.background_image),
-                        filterQuality = FilterQuality.High,
+    Scaffold(modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
+        containerColor = Color.Black.copy(alpha = 0.12f),
+        topBar = {
+            CustomTopAppBar(smallTitle = {
+                Column(modifier = Modifier.statusBarsPadding(),
+                    horizontalAlignment = Alignment.Start,
+                    verticalArrangement = Arrangement.Center) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(imageVector = Icons.Rounded.Place,
+                            contentDescription = null,
+                            tint = Color.White,
+                            modifier = Modifier
+                                .size(15.dp)
+                                .padding(end = 4.dp))
+                        Text(
+                            text = uiState.args.location.address,
+                            color = Color.White,
+                            fontSize = 14.sp,
+                            style = LocalTextStyle.current.merge(notIncludeTextPaddingStyle).merge(outlineTextStyle),
+                        )
+                    }
+                    Text(
+                        text = uiState.dateTime.toString(),
+                        fontSize = TextUnit(11f, TextUnitType.Sp),
+                        color = Color.White,
+                        style = LocalTextStyle.current.merge(notIncludeTextPaddingStyle).merge(outlineTextStyle),
                     )
                 }
-                Scaffold(modifier = Modifier.nestedScroll(arguments.scrollBehavior.nestedScrollConnection),
-                    containerColor = Color.Black.copy(alpha = 0.17f),
-                    topBar = {
-                        CustomTopAppBar(smallTitle = {
-                            Column(horizontalAlignment = Alignment.Start, verticalArrangement = Arrangement.Center) {
-                                Row(verticalAlignment = Alignment.CenterVertically) {
-                                    Icon(imageVector = Icons.Rounded.Place,
-                                        contentDescription = null,
-                                        tint = Color.White,
-                                        modifier = Modifier
-                                            .size(15.dp)
-                                            .padding(end = 4.dp))
-                                    Text(
-                                        text = arguments.uiState.args.location.address,
-                                        color = Color.White,
-                                        fontSize = 14.sp,
-                                        style = LocalTextStyle.current.merge(notIncludeTextPaddingStyle).merge(outlineTextStyle),
-                                    )
-                                }
-                                Text(
-                                    text = arguments.uiState.lastUpdatedTime,
-                                    fontSize = TextUnit(11f, TextUnitType.Sp),
-                                    color = Color.White,
-                                    style = LocalTextStyle.current.merge(notIncludeTextPaddingStyle).merge(outlineTextStyle),
-                                )
-
-                            }
-                        },
-                            bigTitle = {
-                                Column(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(end = 60.dp),
-                                ) {
-
-                                    Text(
-                                        text = listOf(
-                                            AStyle(
-                                                "${arguments.uiState.args.location.country}\n",
-                                                span = SpanStyle(
-                                                    fontSize = 18.sp,
-                                                ),
-                                            ),
-                                            AStyle(arguments.uiState.args.location.address, span = SpanStyle(fontSize = 24.sp)),
-                                        ).toAnnotated(),
-                                        textAlign = TextAlign.Start,
-                                        fontWeight = FontWeight.Bold,
-                                        color = Color.White,
-                                        lineHeight = 28.sp,
-                                        style = LocalTextStyle.current.merge(outlineTextStyle),
-                                    )
-                                    Spacer(modifier = Modifier.height(4.dp))
-                                    Row(
-                                        horizontalArrangement = Arrangement.Start,
-                                        verticalAlignment = Alignment.CenterVertically,
-                                    ) {
-                                        AsyncImage(
-                                            model = ImageRequest.Builder(LocalContext.current).data(R.drawable.ic_time).crossfade(false)
-                                                .build(),
-                                            contentDescription = stringResource(id = io.github.pknujsp.weatherwizard.core.resource.R.string.weather_info_head_info_update_time),
-                                            colorFilter = ColorFilter.tint(Color.White),
-                                            modifier = Modifier.size(16.dp),
-                                        )
-                                        Spacer(modifier = Modifier.width(4.dp))
-                                        Text(
-                                            text = arguments.uiState.lastUpdatedTime,
-                                            fontSize = 14.sp,
-                                            color = Color.White, style = LocalTextStyle.current.merge(outlineTextStyle),
-                                        )
-                                    }
-                                    Row(horizontalArrangement = Arrangement.Start,
-                                        verticalAlignment = Alignment.CenterVertically,
-                                        modifier = Modifier.clickable {
-                                            onClickedWeatherProviderButton = true
-                                        }) {
-                                        arguments.run {
-                                            AsyncImage(
-                                                model = ImageRequest.Builder(LocalContext.current)
-                                                    .data(arguments.uiState.args.weatherProvider.icon).crossfade(false).build(),
-                                                contentDescription = stringResource(id = io.github.pknujsp.weatherwizard.core.resource.R.string.weather_provider),
-                                                modifier = Modifier.size(16.dp),
-                                            )
-                                            Spacer(modifier = Modifier.width(4.dp))
-                                            Text(
-                                                text = stringResource(id = arguments.uiState.args.weatherProvider.title),
-                                                fontSize = 14.sp,
-                                                color = Color.White,
-                                                style = LocalTextStyle.current.merge(outlineTextStyle),
-                                            )
-                                        }
-                                    }
-                                }
-                            },
-                            actions = {
-                                IconButton(onClick = { arguments.reload() }) {
-                                    Icon(painter = painterResource(id = R.drawable.ic_refresh), contentDescription = null)
-                                }
-                            },
-                            scrollBehavior = arguments.scrollBehavior,
-                            colors = CustomTopAppBarColors(
-                                containerColor = Color.Transparent,
-                                scrolledContainerColor = Color.Transparent,
-                                titleContentColor = Color.White,
-                                navigationIconContentColor = Color.White,
-                                actionIconContentColor = Color.White,
-                            ),
-                            modifier = Modifier.background(brush = shadowBox()),
-                            windowInsets = WindowInsets(0.dp, 0.dp, 0.dp, 0.dp))
-                    }) { innerPadding ->
+            },
+                bigTitle = {
                     Column(
                         modifier = Modifier
-                            .fillMaxSize()
-                            .padding(horizontal = 12.dp)
-                            .verticalScroll(arguments.scrollState),
-                        verticalArrangement = Arrangement.spacedBy(20.dp),
+                            .fillMaxWidth()
+                            .statusBarsPadding()
+                            .padding(end = 60.dp),
                     ) {
-                        arguments.uiState.weather?.run {
-                            Spacer(modifier = Modifier.height(innerPadding.calculateTopPadding()))
-                            CurrentWeatherScreen(currentWeather, yesterdayWeather)
-                            HourlyForecastScreen(simpleHourlyForecast, arguments.navigate)
-                            SimpleDailyForecastScreen(simpleDailyForecast, arguments.navigate)
-                            SimpleMapScreen(arguments.uiState.args)
-                            AirQualityScreen(arguments.uiState.args)
-                            SimpleSunSetRiseScreen(arguments.uiState.args)
-                            FlickrImageItemScreen(arguments.uiState.flickrRequestParameters!!, arguments.onDayChanged)
-                            Spacer(modifier = Modifier.height(innerPadding.calculateBottomPadding()))
+
+                        Text(
+                            text = listOf(
+                                AStyle(
+                                    "${uiState.args.location.country}\n",
+                                    span = SpanStyle(
+                                        fontSize = 18.sp,
+                                    ),
+                                ),
+                                AStyle(uiState.args.location.address, span = SpanStyle(fontSize = 24.sp)),
+                            ).toAnnotated(),
+                            textAlign = TextAlign.Start,
+                            fontWeight = FontWeight.Bold,
+                            color = Color.White,
+                            lineHeight = 28.sp,
+                            style = LocalTextStyle.current.merge(outlineTextStyle),
+                        )
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Row(
+                            horizontalArrangement = Arrangement.Start,
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            AsyncImage(
+                                model = ImageRequest.Builder(LocalContext.current).data(R.drawable.ic_time).crossfade(false).build(),
+                                contentDescription = stringResource(id = io.github.pknujsp.weatherwizard.core.resource.R.string.weather_info_head_info_update_time),
+                                colorFilter = ColorFilter.tint(Color.White),
+                                modifier = Modifier.size(16.dp),
+                            )
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Text(
+                                text = uiState.dateTime.toString(),
+                                fontSize = 14.sp,
+                                color = Color.White, style = LocalTextStyle.current.merge(outlineTextStyle),
+                            )
+                        }
+                        Row(horizontalArrangement = Arrangement.Start,
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.clickable {
+                                onClickedWeatherProviderButton = true
+                            }) {
+                            AsyncImage(
+                                model = ImageRequest.Builder(LocalContext.current).data(uiState.args.weatherProvider.icon).crossfade(false)
+                                    .build(),
+                                contentDescription = stringResource(id = io.github.pknujsp.weatherwizard.core.resource.R.string.weather_provider),
+                                modifier = Modifier.size(16.dp),
+                            )
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Text(
+                                text = stringResource(id = uiState.args.weatherProvider.title),
+                                fontSize = 14.sp,
+                                color = Color.White,
+                                style = LocalTextStyle.current.merge(outlineTextStyle),
+                            )
+
                         }
                     }
+                },
+                actions = {
+                    IconButton(modifier = Modifier.statusBarsPadding(), onClick = { coroutineScope.launch { reload() } }) {
+                        Icon(painter = painterResource(id = R.drawable.ic_refresh), contentDescription = null)
+                    }
+                },
+                scrollBehavior = scrollBehavior,
+                colors = CustomTopAppBarColors(
+                    containerColor = Color.Transparent,
+                    scrolledContainerColor = Color.Transparent,
+                    titleContentColor = Color.White,
+                    navigationIconContentColor = Color.White,
+                    actionIconContentColor = Color.White,
+                ),
+                modifier = Modifier.background(brush = shadowBox()),
+                windowInsets = WindowInsets(0.dp, 0.dp, 0.dp, 0.dp))
+        }) { innerPadding ->
+        Box {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = 12.dp)
+                    .verticalScroll(scrollState),
+                verticalArrangement = Arrangement.spacedBy(20.dp),
+            ) {
+                weather.run {
+                    Spacer(modifier = Modifier.height(innerPadding.calculateTopPadding()))
+                    CurrentWeatherScreen(currentWeather, yesterdayWeather)
+                    HourlyForecastScreen(simpleHourlyForecast, navigate)
+                    SimpleDailyForecastScreen(simpleDailyForecast, navigate)
+                    SimpleMapScreen(uiState.args)
+                    AirQualityScreen(uiState.args)
+                    SimpleSunSetRiseScreen(uiState.args)
+                    FlickrImageItemScreen(requestParameter = uiState.weather.flickrRequestParameters, onImageUrlChanged = {
+                        coroutineScope.launch {
+                            imageUrl = it
+                        }
+                    })
+                    Spacer(modifier = Modifier.height(innerPadding.calculateBottomPadding()))
                 }
             }
-
-            is ProcessState.Failed -> {
-                when (val reason = (arguments.uiState.processState as ProcessState.Failed).reason) {
-                    FailedReason.LOCATION_PROVIDER_DISABLED -> {
-                        UnavailableFeatureScreen(featureType = FeatureType.LOCATION_SERVICE) {
-                            openLocationSettings = true
-                        }
-                        if (openLocationSettings) {
-                            OpenAppSettingsActivity(featureType = FeatureType.LOCATION_SERVICE) {
-                                arguments.reload()
-                                openLocationSettings = false
-                            }
-                        }
-                    }
-
-                    else -> {
-                        FailedScreen(R.string.title_failed_to_load_weather_data, reason.message, R.string.reload) {
-                            arguments.reload()
-                        }
-                    }
-                }
-            }
-
-            else -> {
-
-
-            }
-
+            Box(modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .fillMaxWidth()
+                .height(innerPadding.calculateBottomPadding())
+                .background(brush = shadowBox(ShadowDirection.UP)))
         }
-    }
 
-    if (onClickedWeatherProviderButton) {
-        WeatherProviderDialog(arguments.uiState.args.weatherProvider) {
-            onClickedWeatherProviderButton = false
-            it?.let {
-                if (arguments.uiState.args.weatherProvider != it) {
-                    weatherInfoViewModel.updateWeatherDataProvider(it)
-                    arguments.reload()
+        if (onClickedWeatherProviderButton) {
+            WeatherProviderDialog(uiState.args.weatherProvider) {
+                onClickedWeatherProviderButton = false
+                it?.let {
+                    if (uiState.args.weatherProvider != it) {
+                        coroutineScope.launch {
+                            updateWeatherDataProvider(it)
+                            reload()
+                        }
+                    }
                 }
             }
         }
+
+
     }
 }
 
+/**
 @Stable
 fun shadowBox(
 ): Brush = Brush.linearGradient(0.0f to Color.Black.copy(alpha = 0.5f),
-    1.0f to Color.Transparent,
-    start = Offset(0.0f, 0f),
-    end = Offset(0.0f, Float.POSITIVE_INFINITY),
-    tileMode = TileMode.Clamp)
+1.0f to Color.Transparent,
+start = Offset(0.0f, 0f),
+end = Offset(0.0f, Float.POSITIVE_INFINITY),
+tileMode = TileMode.Clamp)
+ */
 
 @Stable
-class ContentArguments @OptIn(ExperimentalMaterial3Api::class) constructor(
-    val uiState: WeatherContentUiState,
-    val scrollState: ScrollState,
-    val scrollBehavior: TopAppBarScrollBehavior,
-    val navigate: (NestedWeatherRoutes) -> Unit,
-    val reload: () -> Unit,
-    val onDayChanged: (Boolean) -> Unit,
-)
+private fun shadowBox(
+    direction: ShadowDirection = ShadowDirection.DOWN
+): Brush = Brush.linearGradient(colorStops = direction.colorStops, start = direction.start, end = direction.end, tileMode = TileMode.Clamp)
+
+
+private enum class ShadowDirection(
+    val colorStops: Array<Pair<Float, Color>>,
+    val start: Offset = Offset.Zero,
+    val end: Offset = Offset.Infinite,
+) {
+    UP(
+        colorStops = arrayOf(
+            0.0f to Color.Black.copy(alpha = 0.8f),
+            1.0f to Color.Transparent,
+        ),
+        end = Offset(0.0f, 0f),
+        start = Offset(0.0f, Float.POSITIVE_INFINITY),
+    ),
+    DOWN(
+        colorStops = arrayOf(
+            0.0f to Color.Black.copy(alpha = 0.8f),
+            1.0f to Color.Transparent,
+        ),
+        start = Offset(0.0f, 0f),
+        end = Offset(0.0f, Float.POSITIVE_INFINITY),
+    ),
+}

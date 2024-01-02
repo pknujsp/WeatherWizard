@@ -1,69 +1,72 @@
 package io.github.pknujsp.weatherwizard.feature.main
 
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.pager.PagerState
-import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Stable
-import androidx.compose.runtime.State
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsControllerCompat
+import androidx.navigation.NavController
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 import io.github.pknujsp.weatherwizard.core.ui.MainRoutes
-import io.github.pknujsp.weatherwizard.feature.componentservice.notification.HostNotificationScreen
 import io.github.pknujsp.weatherwizard.feature.componentservice.widget.asActivity
-import io.github.pknujsp.weatherwizard.feature.favorite.HostFavoriteScreen
-import io.github.pknujsp.weatherwizard.feature.settings.HostSettingsScreen
-import io.github.pknujsp.weatherwizard.feature.weather.HostWeatherScreen
 import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.filter
 
 @Stable
 interface MainUiState {
-    val tabs: Array<Pair<MainRoutes, @Composable () -> Unit>>
-    @OptIn(ExperimentalFoundationApi::class) val pagerState: PagerState
-    val selectedTabIndex: State<Int>
-    val tabIndices: Map<MainRoutes, Int>
+    val tabs: Map<String, MainRoutes>
+    val currentRoute: String
+    val navController: NavHostController
+    fun navigate(route: MainRoutes, force: Boolean = false)
 }
 
-private class MutableMainUiState @OptIn(ExperimentalFoundationApi::class) constructor(
-    override val tabs: Array<Pair<MainRoutes, @Composable () -> Unit>>,
-    @OptIn(ExperimentalFoundationApi::class) override val pagerState: PagerState,
-    override val selectedTabIndex: State<Int>,
+private class MutableMainUiState(
+    override val tabs: Map<String, MainRoutes>,
+    override val navController: NavHostController,
 ) : MainUiState {
-    override val tabIndices = tabs.mapIndexed { index, route -> route.first to index }.toMap()
-}
+    override val currentRoute: String
+        get() = navController.currentBackStackEntry?.destination?.route ?: ""
 
-@OptIn(ExperimentalFoundationApi::class)
-@Composable
-fun rememberMainState(requestedRoutes: SharedFlow<MainRoutes>): MainUiState {
-    val tabs: Array<Pair<MainRoutes, @Composable () -> Unit>> = remember {
-        arrayOf(MainRoutes.Weather to { HostWeatherScreen() },
-            MainRoutes.Favorite to { HostFavoriteScreen() },
-            MainRoutes.Notification to { HostNotificationScreen() },
-            MainRoutes.Settings to { HostSettingsScreen() })
-    }
-    val pagerState = rememberPagerState(pageCount = { tabs.size })
-    val selectedTabIndex = remember { derivedStateOf { pagerState.currentPage } }
-    val state: MainUiState = remember {
-        MutableMainUiState(tabs, pagerState, selectedTabIndex)
-    }
+    override fun navigate(route: MainRoutes, force: Boolean) {
+        val backStackEntry = navController.currentBackStackEntry
+        if (!force && (backStackEntry?.destination?.route == route.route)) {
+            return
+        }
 
-    val window = (LocalContext.current.asActivity())!!.window
-    val windowInsetController = remember { WindowCompat.getInsetsController(window, window.decorView) }
-
-    LaunchedEffect(Unit) {
-        requestedRoutes.collect { newRoute ->
-            pagerState.animateScrollToPage(state.tabIndices[newRoute]!!)
+        navController.navigate(route.route) {
+            launchSingleTop = true
+            backStackEntry?.destination?.route?.let {
+                popUpTo(it) {
+                    inclusive = true
+                }
+            }
         }
     }
 
-    LaunchedEffect(selectedTabIndex.value) {
-        val appearance = tabs[selectedTabIndex.value].first.isAppearanceLightSystemBars
-        windowInsetController.run {
-            isAppearanceLightStatusBars = appearance
-            isAppearanceLightNavigationBars = appearance
+}
+
+@Composable
+fun rememberMainState(requestedRoutes: SharedFlow<MainRoutes>, navController: NavHostController = rememberNavController()): MainUiState {
+    val tabs = remember {
+        mapOf(MainRoutes.Weather.route to MainRoutes.Weather,
+            MainRoutes.Favorite.route to MainRoutes.Favorite,
+            MainRoutes.Settings.route to MainRoutes.Settings,
+            MainRoutes.Notification.route to MainRoutes.Notification)
+    }
+
+    val state: MainUiState = remember {
+        MutableMainUiState(tabs, navController)
+    }
+
+    LaunchedEffect(Unit) {
+        requestedRoutes.collect { newRoute ->
+            if (navController.currentBackStackEntry?.destination?.route != newRoute.route) {
+                state.navigate(newRoute)
+            }
         }
     }
 

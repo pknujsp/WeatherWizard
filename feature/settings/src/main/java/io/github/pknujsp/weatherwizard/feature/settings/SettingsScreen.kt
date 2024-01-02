@@ -3,6 +3,7 @@ package io.github.pknujsp.weatherwizard.feature.settings
 import android.app.Activity
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -73,7 +74,7 @@ fun HostSettingsScreen() {
     NavHost(navController = navController,
         route = SettingsRoutes.route,
         startDestination = SettingsRoutes.Main.route,
-        modifier = Modifier) {
+        modifier = Modifier.systemBarsPadding()) {
         composable(SettingsRoutes.Main.route) { SettingsScreen(navController) }
         composable(SettingsRoutes.ValueUnit.route) { ValueUnitScreen(navController) }
     }

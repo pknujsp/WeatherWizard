@@ -2,6 +2,7 @@ package io.github.pknujsp.weatherwizard.feature.componentservice.notification
 
 import android.app.Activity
 import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -19,7 +20,7 @@ fun HostNotificationScreen() {
     val navController = rememberNavController()
 
     NavHost(navController = navController, route = NotificationRoutes.route, startDestination = NotificationRoutes.Main.route,
-        modifier = Modifier.navigationBarsPadding()) {
+        modifier = Modifier.systemBarsPadding()) {
         composable(NotificationRoutes.Main.route) {
             NotificationMainScreen(navController = navController)
         }

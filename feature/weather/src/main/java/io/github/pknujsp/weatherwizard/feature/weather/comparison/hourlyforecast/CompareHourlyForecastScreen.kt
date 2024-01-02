@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyListState
@@ -30,6 +31,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -67,12 +69,11 @@ import io.github.pknujsp.weatherwizard.core.resource.R
 
 @Composable
 fun CompareHourlyForecastScreen(
-    args: RequestWeatherArguments, viewModelStoreOwner: ViewModelStoreOwner, popBackStack: () -> Unit
+    args: RequestWeatherArguments, viewModel: CompareHourlyForecastViewModel = hiltViewModel(), popBackStack: () -> Unit
 ) {
     BackHandler {
         popBackStack()
     }
-    val viewModel: CompareHourlyForecastViewModel = hiltViewModel(viewModelStoreOwner)
 
     LaunchedEffect(Unit) {
         viewModel.load(args)
@@ -81,7 +82,7 @@ fun CompareHourlyForecastScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .navigationBarsPadding()
+            .systemBarsPadding()
             .verticalScroll(rememberScrollState()),
     ) {
         TitleTextWithNavigation(title = stringResource(id = io.github.pknujsp.weatherwizard.core.resource.R.string.title_comparison_hourly_forecast)) {
@@ -220,11 +221,9 @@ private fun ReportScreen(hourlyForecastViewModel: CompareHourlyForecastViewModel
     report.onSuccess { model ->
         Column {
             TitleTextWithoutNavigation(title = stringResource(id = R.string.title_comparison_report))
-            Row(
-                verticalAlignment = Alignment.Top,
+            Row(verticalAlignment = Alignment.Top,
                 horizontalArrangement = Arrangement.Start,
-                modifier = Modifier.horizontalScroll(rememberScrollState())
-            ) {
+                modifier = Modifier.horizontalScroll(rememberScrollState())) {
                 model.commonForecasts.forEach { entry ->
                     Column(
                         modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
