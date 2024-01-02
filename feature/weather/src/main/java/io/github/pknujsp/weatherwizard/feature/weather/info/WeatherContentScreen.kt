@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Menu
 import androidx.compose.material.icons.rounded.Place
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -27,7 +28,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.Stable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -35,12 +36,9 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.FilterQuality
-import androidx.compose.ui.graphics.TileMode
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -59,8 +57,10 @@ import io.github.pknujsp.weatherwizard.core.common.util.AStyle
 import io.github.pknujsp.weatherwizard.core.common.util.toAnnotated
 import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherProvider
 import io.github.pknujsp.weatherwizard.core.resource.R
+import io.github.pknujsp.weatherwizard.core.ui.theme.ShadowDirection
 import io.github.pknujsp.weatherwizard.core.ui.theme.notIncludeTextPaddingStyle
 import io.github.pknujsp.weatherwizard.core.ui.theme.outlineTextStyle
+import io.github.pknujsp.weatherwizard.core.ui.theme.shadowBox
 import io.github.pknujsp.weatherwizard.feature.airquality.AirQualityScreen
 import io.github.pknujsp.weatherwizard.feature.flickr.FlickrImageItemScreen
 import io.github.pknujsp.weatherwizard.feature.map.SimpleMapScreen
@@ -81,12 +81,20 @@ fun WeatherContentScreen(
     navigate: (NestedWeatherRoutes) -> Unit,
     reload: () -> Unit,
     updateWeatherDataProvider: (WeatherProvider) -> Unit,
-    uiState: WeatherContentUiState.Success
+    updateWindowInset: () -> Unit,
+    uiState: WeatherContentUiState.Success,
+    openDrawer: () -> Unit,
 ) {
     var onClickedWeatherProviderButton by remember { mutableStateOf(false) }
     val coroutineScope = rememberCoroutineScope()
     var imageUrl by remember { mutableStateOf("") }
     val weather = uiState.weather
+
+    LaunchedEffect(imageUrl) {
+        if (imageUrl.isNotEmpty()) {
+            updateWindowInset()
+        }
+    }
 
     AsyncImage(
         modifier = Modifier.fillMaxSize(),
@@ -130,16 +138,14 @@ fun WeatherContentScreen(
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .statusBarsPadding()
-                            .padding(end = 60.dp),
+                            .padding(end = 62.dp),
                     ) {
-
                         Text(
                             text = listOf(
                                 AStyle(
                                     "${uiState.args.location.country}\n",
                                     span = SpanStyle(
-                                        fontSize = 18.sp,
+                                        fontSize = 17.sp,
                                     ),
                                 ),
                                 AStyle(uiState.args.location.address, span = SpanStyle(fontSize = 24.sp)),
@@ -150,7 +156,7 @@ fun WeatherContentScreen(
                             lineHeight = 28.sp,
                             style = LocalTextStyle.current.merge(outlineTextStyle),
                         )
-                        Spacer(modifier = Modifier.height(4.dp))
+                        Spacer(modifier = Modifier.height(6.dp))
                         Row(
                             horizontalArrangement = Arrangement.Start,
                             verticalAlignment = Alignment.CenterVertically,
@@ -191,7 +197,7 @@ fun WeatherContentScreen(
                     }
                 },
                 actions = {
-                    IconButton(modifier = Modifier.statusBarsPadding(), onClick = { coroutineScope.launch { reload() } }) {
+                    IconButton(modifier = Modifier.statusBarsPadding(), onClick = { reload() }) {
                         Icon(painter = painterResource(id = R.drawable.ic_refresh), contentDescription = null)
                     }
                 },
@@ -204,7 +210,12 @@ fun WeatherContentScreen(
                     actionIconContentColor = Color.White,
                 ),
                 modifier = Modifier.background(brush = shadowBox()),
-                windowInsets = WindowInsets(0.dp, 0.dp, 0.dp, 0.dp))
+                windowInsets = WindowInsets(0.dp, 0.dp, 0.dp, 0.dp),
+                navigationIcon = {
+                    IconButton(modifier = Modifier.statusBarsPadding(), onClick = openDrawer) {
+                        Icon(Icons.Rounded.Menu, contentDescription = null)
+                    }
+                })
         }) { innerPadding ->
         Box {
             Column(
@@ -242,10 +253,8 @@ fun WeatherContentScreen(
                 onClickedWeatherProviderButton = false
                 it?.let {
                     if (uiState.args.weatherProvider != it) {
-                        coroutineScope.launch {
-                            updateWeatherDataProvider(it)
-                            reload()
-                        }
+                        updateWeatherDataProvider(it)
+                        reload()
                     }
                 }
             }
@@ -253,43 +262,4 @@ fun WeatherContentScreen(
 
 
     }
-}
-
-/**
-@Stable
-fun shadowBox(
-): Brush = Brush.linearGradient(0.0f to Color.Black.copy(alpha = 0.5f),
-1.0f to Color.Transparent,
-start = Offset(0.0f, 0f),
-end = Offset(0.0f, Float.POSITIVE_INFINITY),
-tileMode = TileMode.Clamp)
- */
-
-@Stable
-private fun shadowBox(
-    direction: ShadowDirection = ShadowDirection.DOWN
-): Brush = Brush.linearGradient(colorStops = direction.colorStops, start = direction.start, end = direction.end, tileMode = TileMode.Clamp)
-
-
-private enum class ShadowDirection(
-    val colorStops: Array<Pair<Float, Color>>,
-    val start: Offset = Offset.Zero,
-    val end: Offset = Offset.Infinite,
-) {
-    UP(
-        colorStops = arrayOf(
-            0.0f to Color.Black.copy(alpha = 0.8f),
-            1.0f to Color.Transparent,
-        ),
-        end = Offset(0.0f, 0f),
-        start = Offset(0.0f, Float.POSITIVE_INFINITY),
-    ),
-    DOWN(
-        colorStops = arrayOf(
-            0.0f to Color.Black.copy(alpha = 0.8f),
-            1.0f to Color.Transparent,
-        ),
-        start = Offset(0.0f, 0f),
-        end = Offset(0.0f, Float.POSITIVE_INFINITY),
-    ),
 }

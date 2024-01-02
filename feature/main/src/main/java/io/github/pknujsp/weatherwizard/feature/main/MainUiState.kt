@@ -15,6 +15,7 @@ import io.github.pknujsp.weatherwizard.feature.componentservice.widget.asActivit
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.launch
 
 @Stable
 interface MainUiState {
@@ -39,9 +40,10 @@ private class MutableMainUiState(
 
         navController.navigate(route.route) {
             launchSingleTop = true
+            restoreState = true
             backStackEntry?.destination?.route?.let {
                 popUpTo(it) {
-                    inclusive = true
+                    inclusive = false
                 }
             }
         }
@@ -57,15 +59,28 @@ fun rememberMainState(requestedRoutes: SharedFlow<MainRoutes>, navController: Na
             MainRoutes.Settings.route to MainRoutes.Settings,
             MainRoutes.Notification.route to MainRoutes.Notification)
     }
-
+    val window = LocalContext.current.asActivity()!!.window
+    val windowInsetsControllerCompat = remember {
+        WindowInsetsControllerCompat(window, window.decorView)
+    }
     val state: MainUiState = remember {
         MutableMainUiState(tabs, navController)
     }
 
     LaunchedEffect(Unit) {
-        requestedRoutes.collect { newRoute ->
-            if (navController.currentBackStackEntry?.destination?.route != newRoute.route) {
-                state.navigate(newRoute)
+        launch {
+            navController.currentBackStackEntryFlow.filter { it.destination.route != MainRoutes.Weather.route }.collectLatest {
+                windowInsetsControllerCompat.run {
+                    isAppearanceLightStatusBars = true
+                    isAppearanceLightNavigationBars = true
+                }
+            }
+        }
+        launch {
+            requestedRoutes.collect { newRoute ->
+                if (navController.currentBackStackEntry?.destination?.route != newRoute.route) {
+                    state.navigate(newRoute)
+                }
             }
         }
     }

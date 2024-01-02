@@ -69,7 +69,7 @@ class WeatherMainState @OptIn(ExperimentalMaterial3Api::class) constructor(
         private set
 
     init {
-        updateWindowInset(false)
+        updateWindowInset(true)
     }
 
 
@@ -84,7 +84,7 @@ class WeatherMainState @OptIn(ExperimentalMaterial3Api::class) constructor(
         reload++
     }
 
-    private fun updateWindowInset(isAppearanceLight: Boolean) {
+    fun updateWindowInset(isAppearanceLight: Boolean) {
         windowInsetsController.run {
             isAppearanceLightStatusBars = isAppearanceLight
             isAppearanceLightNavigationBars = isAppearanceLight

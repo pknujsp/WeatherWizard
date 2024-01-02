@@ -1,11 +1,22 @@
 package io.github.pknujsp.weatherwizard.feature.weather
 
 
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.systemBarsPadding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Menu
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
@@ -21,8 +32,9 @@ import io.github.pknujsp.weatherwizard.core.ui.feature.UnavailableFeatureScreen
 import io.github.pknujsp.weatherwizard.feature.weather.info.WeatherInfoScreen
 import io.github.pknujsp.weatherwizard.feature.weather.route.WeatherRoutes
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PermissionCheckingScreen(navController: NavController, mainViewModel: WeatherMainViewModel = hiltViewModel()) {
+fun PermissionCheckingScreen(navController: NavController, openDrawer: () -> Unit, mainViewModel: WeatherMainViewModel = hiltViewModel()) {
     val locationType = mainViewModel.locationType
     locationType?.run {
         val context = LocalContext.current
@@ -32,9 +44,21 @@ fun PermissionCheckingScreen(navController: NavController, mainViewModel: Weathe
         if (locationPermissionGranted || locationType is LocationType.CustomLocation) {
             navigateToInfo(navController)
         } else {
-            UnavailableFeatureScreen(featureType = FeatureType.LOCATION_PERMISSION) {
-                openLocationPermissionActivity = true
-                locationPermissionGranted = context.checkSelfPermission(PermissionType.LOCATION)
+            Column(modifier = Modifier.systemBarsPadding()) {
+                TopAppBar(title = {},
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = Color.Transparent,
+                        scrolledContainerColor = Color.Transparent,
+                    ),
+                    navigationIcon = {
+                        IconButton(onClick = openDrawer) {
+                            Icon(Icons.Rounded.Menu, contentDescription = null)
+                        }
+                    })
+                UnavailableFeatureScreen(featureType = FeatureType.LOCATION_PERMISSION) {
+                    openLocationPermissionActivity = true
+                    locationPermissionGranted = context.checkSelfPermission(PermissionType.LOCATION)
+                }
             }
             if (openLocationPermissionActivity) {
                 OpenAppSettingsActivity(FeatureType.LOCATION_PERMISSION) {
@@ -53,16 +77,17 @@ private fun navigateToInfo(navController: NavController) {
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HostWeatherScreen() {
+fun HostWeatherScreen(openDrawer: () -> Unit) {
     val navController = rememberNavController()
 
     NavHost(navController = navController, route = WeatherRoutes.route, startDestination = WeatherRoutes.Main.route) {
         composable(WeatherRoutes.Main.route) {
-            PermissionCheckingScreen(navController)
+            PermissionCheckingScreen(navController, openDrawer)
         }
         composable(WeatherRoutes.Info.route) {
-            WeatherInfoScreen(navController)
+            WeatherInfoScreen(navController, openDrawer)
         }
     }
 

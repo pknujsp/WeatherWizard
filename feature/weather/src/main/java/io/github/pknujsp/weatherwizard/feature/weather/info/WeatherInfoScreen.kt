@@ -9,10 +9,17 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.width
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Menu
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -33,6 +40,8 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import io.github.pknujsp.weatherwizard.core.common.FeatureType
 import io.github.pknujsp.weatherwizard.core.common.manager.FailedReason
+import io.github.pknujsp.weatherwizard.core.common.manager.PermissionType
+import io.github.pknujsp.weatherwizard.core.common.manager.checkSelfPermission
 import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherProvider
 import io.github.pknujsp.weatherwizard.core.resource.R
 import io.github.pknujsp.weatherwizard.core.ui.TitleTextWithoutNavigation
@@ -50,13 +59,12 @@ import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun WeatherInfoScreen(navController: NavController, viewModel: WeatherInfoViewModel = hiltViewModel()) {
+fun WeatherInfoScreen(navController: NavController, openDrawer: () -> Unit, viewModel: WeatherInfoViewModel = hiltViewModel()) {
     val mainState = rememberWeatherMainState()
     val uiState = viewModel.uiState
     val coroutineScope = rememberCoroutineScope()
 
     LaunchedEffect(mainState.reload) {
-        Log.d("WeatherInfoScreen", mainState.reload.toString())
         viewModel.initialize()
     }
 
@@ -64,7 +72,9 @@ fun WeatherInfoScreen(navController: NavController, viewModel: WeatherInfoViewMo
         is NestedWeatherRoutes.Main -> {
             when (uiState) {
                 is WeatherContentUiState.Loading -> {
-                    NonCancellableLoadingScreen(stringResource(id = R.string.loading_weather_data)) {}
+                    TopAppBarScreen(openDrawer) {
+                        NonCancellableLoadingScreen(stringResource(id = R.string.loading_weather_data)) {}
+                    }
                 }
 
                 is WeatherContentUiState.Success -> {
@@ -81,13 +91,20 @@ fun WeatherInfoScreen(navController: NavController, viewModel: WeatherInfoViewMo
                             viewModel.updateWeatherDataProvider(it)
                             mainState.reload()
                         }
-                    }, uiState)
+                    },updateWindowInset ={
+                        coroutineScope.launch {
+                            mainState.updateWindowInset(false)
+                        }
+                    } ,uiState, openDrawer)
                 }
 
                 is WeatherContentUiState.Error -> {
-                    ErrorScreen(failedReason = uiState.message) {
-                        coroutineScope.launch {
-                            mainState.reload()
+                    mainState.updateWindowInset(true)
+                    TopAppBarScreen(openDrawer) {
+                        ErrorScreen(failedReason = uiState.message) {
+                            coroutineScope.launch {
+                                mainState.reload()
+                            }
                         }
                     }
                 }
@@ -117,6 +134,24 @@ fun WeatherInfoScreen(navController: NavController, viewModel: WeatherInfoViewMo
                 mainState.navigate(NestedWeatherRoutes.Main)
             }
         }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun TopAppBarScreen(openDrawer: () -> Unit, content: @Composable () -> Unit) {
+    Column(modifier = Modifier.systemBarsPadding()) {
+        TopAppBar(title = {},
+            colors = TopAppBarDefaults.topAppBarColors(
+                containerColor = Color.Transparent,
+                scrolledContainerColor = Color.Transparent,
+            ),
+            navigationIcon = {
+                IconButton(onClick = openDrawer) {
+                    Icon(Icons.Rounded.Menu, contentDescription = null)
+                }
+            })
+        content()
     }
 }
 
