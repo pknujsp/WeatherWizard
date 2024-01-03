@@ -1,6 +1,7 @@
 package io.github.pknujsp.weatherwizard.feature.componentservice.notification
 
 import android.annotation.SuppressLint
+import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -30,6 +31,7 @@ import io.github.pknujsp.weatherwizard.core.common.FeatureType
 import io.github.pknujsp.weatherwizard.core.common.manager.PermissionType
 import io.github.pknujsp.weatherwizard.core.common.manager.checkSelfPermission
 import io.github.pknujsp.weatherwizard.core.resource.R
+import io.github.pknujsp.weatherwizard.core.ui.TitleTextWithNavigation
 import io.github.pknujsp.weatherwizard.core.ui.feature.OpenAppSettingsActivity
 import io.github.pknujsp.weatherwizard.core.ui.feature.UnavailableFeatureScreen
 
@@ -66,50 +68,45 @@ fun NotificationMainScreen(navController: NavController) {
     var openBatteryOptimizationSettings by remember { mutableStateOf(false) }
     var permissionGranted by remember { mutableStateOf(context.checkSelfPermission(PermissionType.POST_NOTIFICATIONS)) }
     val ignoredBatteryOptimization by remember {
-        derivedStateOf {
-            true
-            /**
-            if (!openBatteryOptimizationSettings) {
-            FeatureType.BATTERY_OPTIMIZATION.isAvailable(context)
-            } else {
-            false
-            }
-             */
-        }
+        mutableStateOf(true)
     }
 
-    if (permissionGranted and ignoredBatteryOptimization) {
-        Column {
-            NotificationItem(title = stringResource(id = R.string.title_ongoing_notification),
-                description = null,
-                onClick = {
+    val onBackPressedDispatcherOwner = LocalOnBackPressedDispatcherOwner.current
+    val backDispatcher = remember {
+        onBackPressedDispatcherOwner?.onBackPressedDispatcher
+    }
+
+    Column {
+        TitleTextWithNavigation(title = stringResource(id = R.string.nav_notification), onClickNavigation = {
+            backDispatcher?.onBackPressed()
+        })
+        if (permissionGranted and ignoredBatteryOptimization) {
+            Column {
+                NotificationItem(title = stringResource(id = R.string.title_ongoing_notification), description = null, onClick = {
                     navController.navigate(NotificationRoutes.Ongoing.route)
                 }) {
-                Icon(painterResource(id = R.drawable.ic_forward),
-                    contentDescription = "navigate")
-            }
-            NotificationItem(title = stringResource(id = R.string.title_daily_notification),
-                description = null,
-                onClick = {
+                    Icon(painterResource(id = R.drawable.ic_forward), contentDescription = "navigate")
+                }
+                NotificationItem(title = stringResource(id = R.string.title_daily_notification), description = null, onClick = {
                     navController.navigate(NotificationRoutes.Daily.route)
                 }) {
-                Icon(painterResource(id = R.drawable.ic_forward),
-                    contentDescription = "navigate")
+                    Icon(painterResource(id = R.drawable.ic_forward), contentDescription = "navigate")
+                }
             }
-        }
-    } else if (!permissionGranted) {
-        NotificationPermissionCheckingScreen {
-            permissionGranted = true
-        }
-    } else {
-        if (openBatteryOptimizationSettings) {
-            OpenAppSettingsActivity(FeatureType.BATTERY_OPTIMIZATION) {
-                openBatteryOptimizationSettings = false
+        } else if (!permissionGranted) {
+            NotificationPermissionCheckingScreen {
+                permissionGranted = true
             }
-        }
-        if (!ignoredBatteryOptimization) {
-            UnavailableFeatureScreen(featureType = FeatureType.BATTERY_OPTIMIZATION) {
-                openBatteryOptimizationSettings = true
+        } else {
+            if (openBatteryOptimizationSettings) {
+                OpenAppSettingsActivity(FeatureType.BATTERY_OPTIMIZATION) {
+                    openBatteryOptimizationSettings = false
+                }
+            }
+            if (!ignoredBatteryOptimization) {
+                UnavailableFeatureScreen(featureType = FeatureType.BATTERY_OPTIMIZATION) {
+                    openBatteryOptimizationSettings = true
+                }
             }
         }
     }

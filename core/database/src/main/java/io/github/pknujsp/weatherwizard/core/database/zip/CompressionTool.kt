@@ -1,6 +1,5 @@
 package io.github.pknujsp.weatherwizard.core.database.zip
 
-import androidx.datastore.preferences.protobuf.Internal.toByteArray
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.util.zip.GZIPInputStream
@@ -8,7 +7,6 @@ import java.util.zip.GZIPOutputStream
 
 
 internal class CompressionToolImpl : CompressionTool {
-
 
     override fun compress(src: ByteArray): ByteArray {
         return ByteArrayOutputStream().use { byteArrayOutputStream ->

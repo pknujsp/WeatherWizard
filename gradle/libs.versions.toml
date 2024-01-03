@@ -62,7 +62,6 @@ retrofit2 = "2.9.0"
 retrofit2_kotlinx_serialization_json = "1.0.0"
 
 okhttp3 = "4.12.0"
-lz4 = "1.8.0"
 
 compile_sdk = "34"
 target_sdk = "34"
@@ -79,7 +78,7 @@ detekt = "1.23.4"
 jsoup = "1.17.1"
 sunrisesunsetcalculator = "1.2"
 
-osmdroid = "6.1.17"
+osmdroid = "6.1.18"
 uiautomator = "2.2.0"
 benchmark-macro-junit4 = "1.2.2"
 constraintlayout = "2.1.4"
@@ -228,7 +227,7 @@ ksp = { module = "com.google.devtools.ksp:symbol-processing-api", version.ref = 
 uiautomator = { group = "androidx.test.uiautomator", name = "uiautomator", version.ref = "uiautomator" }
 benchmark-macro-junit4 = { group = "androidx.benchmark", name = "benchmark-macro-junit4", version.ref = "benchmark-macro-junit4" }
 constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayout" }
-lz4 = { module = "org.lz4:lz4-java", version.ref = "lz4" }
+
 [bundles]
 compose-debug = ["androidx-compose-ui-test-manifest", "androidx-compose-ui-tooling"]
 

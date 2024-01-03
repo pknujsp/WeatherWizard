@@ -1,7 +1,8 @@
 package io.github.pknujsp.weatherwizard.feature.favorite
 
-import android.util.Log
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.BackHandler
+import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -15,12 +16,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.LocationOn
 import androidx.compose.material.icons.rounded.MoreVert
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Icon
@@ -31,7 +30,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -45,24 +43,22 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import io.github.pknujsp.weatherwizard.core.common.manager.FailedReason
 import io.github.pknujsp.weatherwizard.core.data.favorite.SelectedLocationModel
-import io.github.pknujsp.weatherwizard.core.model.favorite.FavoriteArea
 import io.github.pknujsp.weatherwizard.core.model.coordinate.LocationType
+import io.github.pknujsp.weatherwizard.core.model.favorite.FavoriteArea
+import io.github.pknujsp.weatherwizard.core.resource.R
 import io.github.pknujsp.weatherwizard.core.ui.MainRoutes
+import io.github.pknujsp.weatherwizard.core.ui.PrimaryButton
 import io.github.pknujsp.weatherwizard.core.ui.RootNavControllerViewModel
 import io.github.pknujsp.weatherwizard.core.ui.SecondaryButton
+import io.github.pknujsp.weatherwizard.core.ui.TitleTextWithNavigation
+import io.github.pknujsp.weatherwizard.core.ui.feature.OpenAppSettingsActivity
 import io.github.pknujsp.weatherwizard.core.ui.list.EmptyListScreen
 import io.github.pknujsp.weatherwizard.core.ui.theme.AppShapes
-import kotlinx.coroutines.flow.filter
-import io.github.pknujsp.weatherwizard.core.resource.R
-import io.github.pknujsp.weatherwizard.core.ui.PrimaryButton
-import io.github.pknujsp.weatherwizard.core.ui.feature.OpenAppSettingsActivity
 import io.github.pknujsp.weatherwizard.feature.favorite.model.LoadCurrentLocationState
 import io.github.pknujsp.weatherwizard.feature.favorite.model.TargetLocationUiState
-import kotlinx.coroutines.launch
 
 @Composable
 fun FavoriteAreaListScreen(navController: NavController, viewModel: FavoriteAreaViewModel = hiltViewModel()) {
@@ -73,8 +69,12 @@ fun FavoriteAreaListScreen(navController: NavController, viewModel: FavoriteArea
     val rootNavControllerViewModel: RootNavControllerViewModel =
         hiltViewModel(viewModelStoreOwner = (LocalContext.current as ComponentActivity))
 
+    val onBackPressedDispatcherOwner = LocalOnBackPressedDispatcherOwner.current
+    val backDispatcher = remember {
+        onBackPressedDispatcherOwner?.onBackPressedDispatcher
+    }
+
     LaunchedEffect(targetLocation.isChanged) {
-        Log.d("FavoriteAreaListScreen", "targetLocation.isChanged: ${targetLocation.isChanged}, $rootNavControllerViewModel")
         if (targetLocation.isChanged) {
             rootNavControllerViewModel.navigate(MainRoutes.Weather)
         }
@@ -89,6 +89,11 @@ fun FavoriteAreaListScreen(navController: NavController, viewModel: FavoriteArea
 
     Column(modifier = Modifier.fillMaxSize()) {
         LazyColumn(modifier = Modifier.weight(1f), state = rememberLazyListState()) {
+            item {
+                TitleTextWithNavigation(title = stringResource(id = R.string.nav_favorite_areas), onClickNavigation = {
+                    backDispatcher?.onBackPressed()
+                })
+            }
             item {
                 CurrentLocationItem(targetLocation, onClick = {
                     viewModel.updateTargetLocation(SelectedLocationModel(LocationType.CurrentLocation))

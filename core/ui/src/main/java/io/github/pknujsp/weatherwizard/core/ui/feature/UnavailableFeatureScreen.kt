@@ -35,6 +35,7 @@ fun UnavailableFeatureScreen(featureType: FeatureType, onClick: () -> Unit) {
 @Composable
 fun FailedScreen(@StringRes title: Int, @StringRes alertMessage: Int, @StringRes actionMessage: Int, onClick: () -> Unit) {
     Column(modifier = Modifier
+        .padding(horizontal = 16.dp)
         .fillMaxSize(), verticalArrangement = Arrangement.Center) {
         Text(text = stringResource(title), style = TextStyle(fontSize = 24.sp, color = Color.Black))
         Spacer(modifier = Modifier.height(16.dp))

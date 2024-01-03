@@ -5,9 +5,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
-import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsControllerCompat
-import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import io.github.pknujsp.weatherwizard.core.ui.MainRoutes
@@ -20,7 +18,6 @@ import kotlinx.coroutines.launch
 @Stable
 interface MainUiState {
     val tabs: Map<String, MainRoutes>
-    val currentRoute: String
     val navController: NavHostController
     fun navigate(route: MainRoutes, force: Boolean = false)
 }
@@ -29,9 +26,6 @@ private class MutableMainUiState(
     override val tabs: Map<String, MainRoutes>,
     override val navController: NavHostController,
 ) : MainUiState {
-    override val currentRoute: String
-        get() = navController.currentBackStackEntry?.destination?.route ?: ""
-
     override fun navigate(route: MainRoutes, force: Boolean) {
         val backStackEntry = navController.currentBackStackEntry
         if (!force && (backStackEntry?.destination?.route == route.route)) {
@@ -48,7 +42,6 @@ private class MutableMainUiState(
             }
         }
     }
-
 }
 
 @Composable

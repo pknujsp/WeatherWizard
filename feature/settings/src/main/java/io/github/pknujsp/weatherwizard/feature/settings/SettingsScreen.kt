@@ -1,16 +1,15 @@
 package io.github.pknujsp.weatherwizard.feature.settings
 
-import android.app.Activity
+import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.core.view.WindowCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
@@ -23,13 +22,22 @@ import io.github.pknujsp.weatherwizard.core.ui.BottomSheetSettingItem
 import io.github.pknujsp.weatherwizard.core.ui.ButtonSettingItem
 import io.github.pknujsp.weatherwizard.core.ui.CheckBoxSettingItem
 import io.github.pknujsp.weatherwizard.core.ui.ClickableSettingItem
+import io.github.pknujsp.weatherwizard.core.ui.TitleTextWithNavigation
 
 @Composable
 fun SettingsScreen(navController: NavController, viewModel: SettingsViewModel = hiltViewModel()) {
     val context = LocalContext.current
     val settingsUiState = viewModel.mainSettingsUiState
 
+    val onBackPressedDispatcherOwner = LocalOnBackPressedDispatcherOwner.current
+    val backDispatcher = remember {
+        onBackPressedDispatcherOwner?.onBackPressedDispatcher
+    }
+
     Column {
+        TitleTextWithNavigation(title = stringResource(id = R.string.nav_settings), onClickNavigation = {
+            backDispatcher?.onBackPressed()
+        })
         ButtonSettingItem(title = stringResource(id = R.string.title_value_unit),
             description = stringResource(id = R.string.description_value_unit),
             onClick = {

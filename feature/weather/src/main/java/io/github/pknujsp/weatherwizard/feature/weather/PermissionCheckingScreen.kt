@@ -77,7 +77,6 @@ private fun navigateToInfo(navController: NavController) {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HostWeatherScreen(openDrawer: () -> Unit) {
     val navController = rememberNavController()
