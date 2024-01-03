@@ -153,7 +153,9 @@ fun <E : IEnum> BottomSheetSettingItem(
                             .fillMaxWidth()) {
                             enum.icon?.let { icon ->
                                 AsyncImage(model = ImageRequest.Builder(LocalContext.current).data(icon).crossfade(false).build(),
-                                    modifier = modifier.size(32.dp).padding(start = 12.dp),
+                                    modifier = modifier
+                                        .size(32.dp)
+                                        .padding(start = 12.dp),
                                     contentDescription = null)
                             }
                             Text(text = stringResource(id = enum.title),
@@ -165,6 +167,61 @@ fun <E : IEnum> BottomSheetSettingItem(
                             RadioButton(selected = selectedItem == enum, onClick = {
                                 onSelectedItem(enum)
                                 expanded = false
+                            }, modifier = modifier.padding(end = 12.dp))
+                        }
+                    }
+
+                }
+            }
+        }
+    }
+}
+
+@Composable
+@OptIn(ExperimentalMaterial3Api::class)
+fun <E : IEnum> BottomSheetDialog(
+    modifier: Modifier = Modifier,
+    title: String,
+    description: String? = null,
+    selectedItem: E,
+    onSelectedItem: (E?) -> Unit,
+    enums: Array<E>,
+    expanded: () -> Boolean,
+    onDismissRequest: () -> Unit
+) {
+    if (expanded()) {
+        BottomSheet(
+            onDismissRequest = {
+                onSelectedItem(null)
+                onDismissRequest()
+            },
+        ) {
+            Column {
+                TitleTextWithoutNavigation(title = title)
+                Column(modifier = modifier.verticalScroll(rememberScrollState(), true)) {
+                    enums.forEach { enum ->
+                        Row(verticalAlignment = Alignment.CenterVertically, modifier = modifier
+                            .clickable {
+                                onSelectedItem(enum)
+                                onDismissRequest()
+                            }
+                            .fillMaxWidth()) {
+                            enum.icon?.let { icon ->
+                                AsyncImage(model = ImageRequest.Builder(LocalContext.current).data(icon).crossfade(false).build(),
+                                    modifier = modifier
+                                        .size(32.dp)
+                                        .padding(start = 12.dp),
+                                    contentDescription = null)
+                            }
+                            Text(text = stringResource(id = enum.title),
+                                fontSize = 14.sp,
+                                color = Color.Black,
+                                modifier = modifier
+                                    .weight(1f)
+                                    .padding(start = 12.dp))
+                            RadioButton(selected = selectedItem == enum, onClick = {
+                                onSelectedItem(enum)
+                                onDismissRequest()
                             }, modifier = modifier.padding(end = 12.dp))
                         }
                     }

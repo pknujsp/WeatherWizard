@@ -35,9 +35,17 @@ sealed interface WeatherContentUiState {
 
     data class Error(val message: FailedReason) : WeatherContentUiState
 
-    data class Success(
-        val args: RequestWeatherArguments, val weather: Weather, val dateTime: ZonedDateTime
-    ) : WeatherContentUiState
+    class Success(
+        val args: RequestWeatherArguments, val weather: Weather, dateTime: ZonedDateTime
+    ) : WeatherContentUiState {
+
+        val dateTime: String = dateTime.format(dateTimeFormatter)
+
+        private companion object {
+            private const val DATETIME_FORMAT = "MM.dd HH:mm"
+            private val dateTimeFormatter = java.time.format.DateTimeFormatter.ofPattern(DATETIME_FORMAT)
+        }
+    }
 }
 
 class Weather(

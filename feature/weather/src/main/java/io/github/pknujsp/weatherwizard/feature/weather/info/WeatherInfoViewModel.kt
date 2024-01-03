@@ -1,6 +1,7 @@
 package io.github.pknujsp.weatherwizard.feature.weather.info
 
 
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -63,6 +64,7 @@ class WeatherInfoViewModel @Inject constructor(
             uiState = WeatherContentUiState.Loading
             val location = targetLocationRepository.getTargetLocation()
             val weatherProvider = settingsRepository.settings.value.weatherProvider
+            Log.d("initialize", "initialize: $location, $weatherProvider")
 
             if (location.locationType is LocationType.CurrentLocation) {
                 when (val currentLocation = getCurrentLocationUseCase()) {
@@ -110,7 +112,9 @@ class WeatherInfoViewModel @Inject constructor(
 
     fun updateWeatherDataProvider(weatherProvider: WeatherProvider) {
         viewModelScope.launch {
+            Log.d("updateWeatherDataProvider", "updateWeatherDataProvider: $weatherProvider")
             settingsRepository.update(WeatherProvider, weatherProvider)
+            initialize()
         }
     }
 
