@@ -92,7 +92,8 @@ fun WeatherContentScreen(
                 openDrawer = openDrawer,
                 reload = reload,
                 onClickedWeatherProviderButton = { onClickedWeatherProviderButton = true },
-                scrollBehavior = scrollBehavior)
+                scrollBehavior = scrollBehavior,
+                scrollState = scrollState)
         }) { _ ->
         Box {
             val systemBarsPadding = with(LocalDensity.current) {

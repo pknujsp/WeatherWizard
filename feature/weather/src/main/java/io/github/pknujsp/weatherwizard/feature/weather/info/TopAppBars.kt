@@ -1,7 +1,9 @@
 package io.github.pknujsp.weatherwizard.feature.weather.info
 
+import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.scrollBy
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -23,6 +25,7 @@ import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -47,6 +50,7 @@ import io.github.pknujsp.weatherwizard.core.ui.theme.outlineTextStyle
 import io.github.pknujsp.weatherwizard.core.ui.theme.shadowBox
 import io.github.pknujsp.weatherwizard.feature.weather.CustomTopAppBar
 import io.github.pknujsp.weatherwizard.feature.weather.CustomTopAppBarColors
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -55,8 +59,10 @@ fun TopAppBars(
     openDrawer: () -> Unit,
     reload: () -> Unit,
     onClickedWeatherProviderButton: () -> Unit,
-    scrollBehavior:  TopAppBarScrollBehavior
+    scrollBehavior:  TopAppBarScrollBehavior,
+    scrollState: ScrollState,
 ) {
+    val coroutineScope = rememberCoroutineScope()
     CustomTopAppBar(smallTitle = {
         Column(modifier = Modifier.statusBarsPadding(), horizontalAlignment = Alignment.Start, verticalArrangement = Arrangement.Center) {
             Row(verticalAlignment = Alignment.CenterVertically) {
@@ -160,6 +166,10 @@ fun TopAppBars(
         navigationIcon = {
             IconButton(modifier = Modifier.statusBarsPadding(), onClick = openDrawer) {
                 Icon(Icons.Rounded.Menu, contentDescription = null)
+            }
+        }, onDragging = {
+            coroutineScope.launch {
+                scrollState.scrollBy(it)
             }
         })
 }

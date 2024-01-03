@@ -6,7 +6,11 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.TopAppBarScrollBehavior
+import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -14,7 +18,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.dp
 import androidx.core.view.WindowInsetsControllerCompat
 import io.github.pknujsp.weatherwizard.core.common.manager.FailedReason
 import io.github.pknujsp.weatherwizard.core.model.flickr.FlickrRequestParameters
@@ -27,6 +35,9 @@ import io.github.pknujsp.weatherwizard.core.model.weather.hourlyforecast.SimpleH
 import io.github.pknujsp.weatherwizard.core.model.weather.yesterday.YesterdayWeather
 import io.github.pknujsp.weatherwizard.core.ui.lottie.asActivity
 import io.github.pknujsp.weatherwizard.feature.weather.route.NestedWeatherRoutes
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
 import java.time.ZonedDateTime
 
 
@@ -105,9 +116,15 @@ class WeatherMainState @OptIn(ExperimentalMaterial3Api::class) constructor(
 @Composable
 fun rememberWeatherMainState(
     scrollState: ScrollState = rememberScrollState(),
-    scrollBehavior: TopAppBarScrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(),
+    density: Density = LocalDensity.current,
 ): WeatherMainState {
     val window = LocalContext.current.asActivity()!!.window
+    val initialHeightOffsetLimit = remember {
+        with(density) { -48.dp.toPx() }
+    }
+    val scrollBehavior: TopAppBarScrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(state = rememberTopAppBarState(
+        initialHeightOffsetLimit = initialHeightOffsetLimit,
+    ))
     val state = remember {
         WeatherMainState(scrollState, scrollBehavior, WindowInsetsControllerCompat(window, window.decorView))
     }
@@ -115,5 +132,6 @@ fun rememberWeatherMainState(
         restore = { mutableStateOf(NestedWeatherRoutes.getRoute(it)) })) {
         state.nestedRoutes
     }
+
     return state
 }

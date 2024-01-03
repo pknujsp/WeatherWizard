@@ -1,5 +1,6 @@
 package io.github.pknujsp.weatherwizard.feature.weather
 
+import android.util.Log
 import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.core.AnimationState
 import androidx.compose.animation.core.CubicBezierEasing
@@ -29,6 +30,7 @@ import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
@@ -50,7 +52,6 @@ import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
 import kotlin.math.abs
 import kotlin.math.max
-import kotlin.math.min
 import kotlin.math.roundToInt
 
 
@@ -66,6 +67,7 @@ internal fun CustomTopAppBar(
     smallTitle: @Composable () -> Unit,
     navigationIcon: @Composable (() -> Unit)? = null,
     actions: @Composable RowScope.() -> Unit,
+    onDragging: (Float) -> Unit,
     windowInsets: WindowInsets = TopAppBarDefaults.windowInsets,
     colors: CustomTopAppBarColors,
     maxHeight: Dp = 220.dp,
@@ -76,26 +78,13 @@ internal fun CustomTopAppBar(
     val pinnedHeightPx: Float = remember { pinnedHeight.value * density.density }
     val maxHeightPx: Float = remember { maxHeight.value * density.density }
 
-    SideEffect {
-        if (scrollBehavior.state.heightOffsetLimit != pinnedHeightPx - maxHeightPx) {
-            scrollBehavior.state.heightOffsetLimit = pinnedHeightPx - maxHeightPx
-        }
-    }
-
-    val colorTransitionFraction = scrollBehavior.state.collapsedFraction
-    val appBarContainerColor by rememberUpdatedState(colors.containerColor(colorTransitionFraction))
-
     val actionsRow = @Composable {
         Row(horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically, content = actions)
     }
-    val topTitleAlpha = topTitleAlphaEasing.transform(colorTransitionFraction)
-    val bottomTitleAlpha = 1f - colorTransitionFraction
-    val hideTopRowSemantics = colorTransitionFraction < 0.5f
-    val hideBottomRowSemantics = !hideTopRowSemantics
 
     val appBarDragModifier = if (!scrollBehavior.isPinned) {
         Modifier.draggable(orientation = Orientation.Vertical, state = rememberDraggableState { delta ->
-            scrollBehavior.state.heightOffset = scrollBehavior.state.heightOffset + delta
+            scrollBehavior.state.heightOffset += delta
         }, onDragStopped = { velocity ->
             settleAppBar(scrollBehavior.state, velocity, scrollBehavior.flingAnimationSpec, scrollBehavior.snapAnimationSpec)
         })
@@ -103,15 +92,16 @@ internal fun CustomTopAppBar(
         Modifier
     }
 
-    Surface(modifier = modifier.then(appBarDragModifier), color = appBarContainerColor) {
+    Surface(modifier = modifier.then(appBarDragModifier), color = Color.Transparent) {
         Box {
-            var barHeight by remember { mutableIntStateOf(0) }
-            BarHeight(modifier = Modifier.windowInsetsPadding(windowInsets),
-                navigationIcon = navigationIcon,
-                actions = actionsRow) { height ->
-                barHeight = height
-            }
+            val barHeight = calculateBarHeight(windowInsets = windowInsets, navigationIcon = navigationIcon, actions = actionsRow)
             if (barHeight > 0) {
+                val colorTransitionFraction = scrollBehavior.state.collapsedFraction
+                val topTitleAlpha = topTitleAlphaEasing.transform(colorTransitionFraction)
+                val bottomTitleAlpha = 1f - colorTransitionFraction
+                val hideTopRowSemantics = colorTransitionFraction < 0.5f
+                val hideBottomRowSemantics = !hideTopRowSemantics
+
                 TopAppBarLayout(
                     modifier = Modifier.windowInsetsPadding(windowInsets),
                     heightPx = pinnedHeightPx,
@@ -299,6 +289,18 @@ private suspend fun settleAppBar(
     return Velocity(0f, remainingVelocity)
 }
 
+@Composable
+private fun calculateBarHeight(
+    windowInsets: WindowInsets,
+    navigationIcon: @Composable (() -> Unit)? = null,
+    actions: @Composable (() -> Unit)? = null,
+): Int {
+    var barHeight by remember { mutableIntStateOf(0) }
+    BarHeight(modifier = Modifier.windowInsetsPadding(windowInsets), navigationIcon = navigationIcon, actions = actions) { height ->
+        barHeight = height
+    }
+    return barHeight
+}
 
 @ExperimentalMaterial3Api
 @Stable
