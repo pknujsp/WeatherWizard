@@ -5,11 +5,15 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
@@ -28,6 +32,7 @@ import androidx.compose.ui.graphics.FilterQuality
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
@@ -46,6 +51,7 @@ import io.github.pknujsp.weatherwizard.feature.weather.info.dailyforecast.simple
 import io.github.pknujsp.weatherwizard.feature.weather.info.hourlyforecast.simple.HourlyForecastScreen
 import io.github.pknujsp.weatherwizard.feature.weather.route.NestedWeatherRoutes
 import kotlinx.coroutines.launch
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -83,12 +89,16 @@ fun WeatherContentScreen(
         containerColor = Color.Black.copy(alpha = 0.13f),
         topBar = {
             TopAppBars(uiState = uiState,
-                openDrawer = { openDrawer() },
-                reload = { reload() },
+                openDrawer = openDrawer,
+                reload = reload,
                 onClickedWeatherProviderButton = { onClickedWeatherProviderButton = true },
                 scrollBehavior = scrollBehavior)
-        }) { innerPadding ->
+        }) { _ ->
         Box {
+            val systemBarsPadding = with(LocalDensity.current) {
+                PaddingValues(top = WindowInsets.statusBars.getTop(this).toDp(),
+                    bottom = WindowInsets.navigationBars.getBottom(this).toDp())
+            }
             Column(
                 modifier = Modifier
                     .fillMaxSize()
@@ -97,7 +107,7 @@ fun WeatherContentScreen(
                 verticalArrangement = Arrangement.spacedBy(20.dp),
             ) {
                 weather.run {
-                    Spacer(modifier = Modifier.height(innerPadding.calculateTopPadding()))
+                    Spacer(modifier = Modifier.height(systemBarsPadding.calculateTopPadding()))
                     CurrentWeatherScreen(currentWeather, yesterdayWeather)
                     HourlyForecastScreen(simpleHourlyForecast, navigate)
                     SimpleDailyForecastScreen(simpleDailyForecast, navigate)
@@ -107,13 +117,13 @@ fun WeatherContentScreen(
                     FlickrImageItemScreen(requestParameter = uiState.weather.flickrRequestParameters, onImageUrlChanged = {
                         imageUrl = it
                     })
-                    Spacer(modifier = Modifier.height(innerPadding.calculateBottomPadding()))
+                    Spacer(modifier = Modifier.height(systemBarsPadding.calculateBottomPadding()))
                 }
             }
             Box(modifier = Modifier
                 .align(Alignment.BottomCenter)
                 .fillMaxWidth()
-                .height(innerPadding.calculateBottomPadding())
+                .height(systemBarsPadding.calculateBottomPadding())
                 .background(brush = shadowBox(ShadowDirection.UP)))
         }
 

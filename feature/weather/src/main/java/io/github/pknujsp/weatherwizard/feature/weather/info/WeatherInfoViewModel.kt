@@ -62,13 +62,10 @@ class WeatherInfoViewModel @Inject constructor(
     var uiState: WeatherContentUiState by mutableStateOf(WeatherContentUiState.Loading)
         private set
 
-    private val mutex = Mutex()
     private var job: Job? = null
 
-    suspend fun initialize() {
-        mutex.withLock {
-            job?.cancel()
-        }
+    fun initialize() {
+        job?.cancel()
         job = viewModelScope.launch(dispatcher) {
             uiState = WeatherContentUiState.Loading
             val location = targetLocationRepository.getTargetLocation()
@@ -120,9 +117,7 @@ class WeatherInfoViewModel @Inject constructor(
     fun cancelLoading() {
         viewModelScope.launch {
             if (uiState is WeatherContentUiState.Loading) {
-                mutex.withLock {
-                    job?.cancel()
-                }
+                job?.cancel()
                 uiState = WeatherContentUiState.Error(FailedReason.CANCELED)
             }
         }
@@ -130,7 +125,6 @@ class WeatherInfoViewModel @Inject constructor(
 
     fun updateWeatherDataProvider(weatherProvider: WeatherProvider) {
         viewModelScope.launch {
-            Log.d("updateWeatherDataProvider", "updateWeatherDataProvider: $weatherProvider")
             settingsRepository.update(WeatherProvider, weatherProvider)
             initialize()
         }

@@ -45,7 +45,6 @@ fun WeatherInfoScreen(navController: NavController, openDrawer: () -> Unit, view
     val coroutineScope = rememberCoroutineScope()
 
     LaunchedEffect(mainState.reload) {
-        Log.d("WeatherInfoScreen", "reload")
         viewModel.initialize()
     }
 
@@ -59,7 +58,7 @@ fun WeatherInfoScreen(navController: NavController, openDrawer: () -> Unit, view
                 }
 
                 is WeatherContentUiState.Success -> {
-                    WeatherContentScreen(mainState.scrollState, scrollBehavior = mainState.scrollBehavior, navigate = {
+                    WeatherContentScreen(mainState.scrollState, mainState.scrollBehavior, navigate = {
                         coroutineScope.launch {
                             mainState.navigate(it)
                         }

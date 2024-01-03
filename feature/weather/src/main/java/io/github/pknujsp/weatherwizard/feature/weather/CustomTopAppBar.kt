@@ -44,6 +44,7 @@ import androidx.compose.ui.layout.layoutId
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.unit.Constraints
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
@@ -69,17 +70,11 @@ internal fun CustomTopAppBar(
     colors: CustomTopAppBarColors,
     maxHeight: Dp = 220.dp,
     pinnedHeight: Dp = 86.dp,
-    scrollBehavior: TopAppBarScrollBehavior
+    scrollBehavior: TopAppBarScrollBehavior,
+    density: Density = LocalDensity.current
 ) {
-    if (maxHeight <= pinnedHeight) {
-        throw IllegalArgumentException("A TwoRowsTopAppBar max height should be greater than its pinned height")
-    }
-    val pinnedHeightPx: Float
-    val maxHeightPx: Float
-    LocalDensity.current.run {
-        pinnedHeightPx = pinnedHeight.toPx()
-        maxHeightPx = maxHeight.toPx()
-    }
+    val pinnedHeightPx: Float = remember { pinnedHeight.value * density.density }
+    val maxHeightPx: Float = remember { maxHeight.value * density.density }
 
     SideEffect {
         if (scrollBehavior.state.heightOffsetLimit != pinnedHeightPx - maxHeightPx) {

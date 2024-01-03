@@ -51,12 +51,11 @@ import io.github.pknujsp.weatherwizard.feature.weather.CustomTopAppBarColors
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TopAppBars(
-    modifier: Modifier = Modifier,
-    uiState: WeatherContentUiState.Success,
+    uiState:  WeatherContentUiState.Success,
     openDrawer: () -> Unit,
     reload: () -> Unit,
     onClickedWeatherProviderButton: () -> Unit,
-    scrollBehavior: TopAppBarScrollBehavior
+    scrollBehavior:  TopAppBarScrollBehavior
 ) {
     CustomTopAppBar(smallTitle = {
         Column(modifier = Modifier.statusBarsPadding(), horizontalAlignment = Alignment.Start, verticalArrangement = Arrangement.Center) {
