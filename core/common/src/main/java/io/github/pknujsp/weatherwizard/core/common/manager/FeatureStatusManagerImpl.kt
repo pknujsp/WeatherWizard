@@ -101,5 +101,10 @@ enum class FailedReason(
         R.string.exact_alarm_permission,
         R.string.exact_alarm_permission_denied,
         R.string.open_settings_for_permission,
+    ),
+    CANCELED(
+        R.string.title_canceled_work,
+        R.string.message_canceled_work,
+        R.string.reload,
     );
 }

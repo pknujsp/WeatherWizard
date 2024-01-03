@@ -98,7 +98,7 @@ fun ConfigDailyNotificationScreen(navController: NavController, viewModel: Confi
                     }
 
                     Box(modifier = Modifier.padding(12.dp)) {
-                        SecondaryButton(text = stringResource(id = io.github.pknujsp.weatherwizard.core.resource.R.string.save),
+                        SecondaryButton(text = stringResource(id = R.string.save),
                             modifier = Modifier.fillMaxWidth()) {
                             dailyNotificationUiState.update()
                         }

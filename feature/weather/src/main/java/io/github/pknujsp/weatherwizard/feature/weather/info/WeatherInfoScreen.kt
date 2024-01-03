@@ -29,7 +29,7 @@ import io.github.pknujsp.weatherwizard.core.resource.R
 import io.github.pknujsp.weatherwizard.core.ui.feature.FailedScreen
 import io.github.pknujsp.weatherwizard.core.ui.feature.OpenAppSettingsActivity
 import io.github.pknujsp.weatherwizard.core.ui.feature.UnavailableFeatureScreen
-import io.github.pknujsp.weatherwizard.core.ui.lottie.NonCancellableLoadingScreen
+import io.github.pknujsp.weatherwizard.core.ui.lottie.CancellableLoadingScreen
 import io.github.pknujsp.weatherwizard.feature.weather.comparison.dailyforecast.CompareDailyForecastScreen
 import io.github.pknujsp.weatherwizard.feature.weather.comparison.hourlyforecast.CompareHourlyForecastScreen
 import io.github.pknujsp.weatherwizard.feature.weather.info.dailyforecast.detail.DetailDailyForecastScreen
@@ -53,8 +53,8 @@ fun WeatherInfoScreen(navController: NavController, openDrawer: () -> Unit, view
         is NestedWeatherRoutes.Main -> {
             when (uiState) {
                 is WeatherContentUiState.Loading -> {
-                    TopAppBarScreen(openDrawer) {
-                        NonCancellableLoadingScreen(stringResource(id = R.string.loading_weather_data)) {}
+                    CancellableLoadingScreen(stringResource(id = R.string.loading_weather_data)) {
+                        viewModel.cancelLoading()
                     }
                 }
 

@@ -2,7 +2,6 @@ package io.github.pknujsp.weatherwizard.core.ui.dialog
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -35,9 +34,8 @@ fun DialogScreen(
         content?.invoke()
         Row(modifier = Modifier.align(Alignment.End), verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            SecondaryButton(text = negative, onClick = onClickNegative, contentPadding = PaddingValues(horizontal = 24.dp, vertical = 12
-                .dp))
-            PrimaryButton(text = positive, onClick = onClickPositive, contentPadding = PaddingValues(horizontal = 24.dp, vertical = 12.dp))
+            SecondaryButton(text = negative, onClick = onClickNegative)
+            PrimaryButton(text = positive, onClick = onClickPositive)
         }
     }
 }

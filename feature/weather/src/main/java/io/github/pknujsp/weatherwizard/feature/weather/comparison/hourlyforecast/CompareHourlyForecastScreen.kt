@@ -54,11 +54,13 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import io.github.pknujsp.weatherwizard.core.common.util.AStyle
 import io.github.pknujsp.weatherwizard.core.common.util.toAnnotated
+import io.github.pknujsp.weatherwizard.core.model.UiState
 import io.github.pknujsp.weatherwizard.core.model.onLoading
 import io.github.pknujsp.weatherwizard.core.model.onSuccess
 import io.github.pknujsp.weatherwizard.core.model.weather.RequestWeatherArguments
 import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherProvider
 import io.github.pknujsp.weatherwizard.core.model.weather.hourlyforecast.CompareHourlyForecast
+import io.github.pknujsp.weatherwizard.core.model.weather.hourlyforecast.HourlyForecastComparisonReport
 import io.github.pknujsp.weatherwizard.core.ui.DynamicDateTime
 import io.github.pknujsp.weatherwizard.core.ui.TitleTextWithNavigation
 import io.github.pknujsp.weatherwizard.core.ui.TitleTextWithoutNavigation
@@ -79,34 +81,39 @@ fun CompareHourlyForecastScreen(
         viewModel.load(args)
     }
 
+    val hourlyForecast by viewModel.hourlyForecast.collectAsStateWithLifecycle()
+    val hourlyForecastComparisonReport by viewModel.report.collectAsStateWithLifecycle()
+    val compareForecastCard = remember {
+        CompareForecastCard()
+    }
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .systemBarsPadding()
-            .verticalScroll(rememberScrollState()),
+            .systemBarsPadding(),
     ) {
-        TitleTextWithNavigation(title = stringResource(id = io.github.pknujsp.weatherwizard.core.resource.R.string.title_comparison_hourly_forecast)) {
+        TitleTextWithNavigation(title = stringResource(id = R.string.title_comparison_hourly_forecast)) {
             popBackStack()
         }
-        val compareForecastCard = remember {
-            CompareForecastCard()
-        }
-        compareForecastCard.CompareCardSurface {
-            val hourlyForecast by viewModel.hourlyForecast.collectAsStateWithLifecycle()
-            hourlyForecast.onLoading {
-                CancellableLoadingScreen {
-
-                }
-            }.onSuccess {
-                Column(verticalArrangement = Arrangement.spacedBy(4.dp), modifier = Modifier.padding(vertical = 16.dp)) {
-                    val mainLazyListState = rememberLazyListState()
-                    DynamicDateTime(it.dateTimeInfo, mainLazyListState)
-                    Content(it, mainLazyListState)
+        Column(modifier = Modifier
+            .fillMaxWidth()
+            .weight(1f)
+            .verticalScroll(rememberScrollState())) {
+            compareForecastCard.CompareCardSurface {
+                hourlyForecast.onLoading {
+                    CancellableLoadingScreen(stringResource(id = R.string.loading_daily_forecast_data)) {
+                        popBackStack()
+                    }
+                }.onSuccess {
+                    Column(verticalArrangement = Arrangement.spacedBy(4.dp), modifier = Modifier.padding(vertical = 16.dp)) {
+                        val mainLazyListState = rememberLazyListState()
+                        DynamicDateTime(it.dateTimeInfo, mainLazyListState)
+                        Content(it, mainLazyListState)
+                    }
                 }
             }
+            Spacer(modifier = Modifier.height(16.dp))
+            ReportScreen(hourlyForecastComparisonReport)
         }
-        Spacer(modifier = Modifier.height(16.dp))
-        ReportScreen(viewModel)
     }
 }
 
@@ -216,9 +223,8 @@ private fun Item(
 }
 
 @Composable
-private fun ReportScreen(hourlyForecastViewModel: CompareHourlyForecastViewModel) {
-    val report by hourlyForecastViewModel.report.collectAsStateWithLifecycle()
-    report.onSuccess { model ->
+private fun ReportScreen(uiState: UiState<HourlyForecastComparisonReport>) {
+    uiState.onSuccess { model ->
         Column {
             TitleTextWithoutNavigation(title = stringResource(id = R.string.title_comparison_report))
             Row(verticalAlignment = Alignment.Top,

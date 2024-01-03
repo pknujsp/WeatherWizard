@@ -31,7 +31,6 @@ class CompareDailyForecastViewModel @Inject constructor(
     override fun load(args: RequestWeatherArguments) {
         viewModelScope.launch(Dispatchers.IO) {
             args.run {
-
                 val weatherDataRequest = WeatherDataRequest()
                 weatherProviders.forEach {
                     weatherDataRequest.addRequest(args.location,

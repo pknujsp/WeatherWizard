@@ -17,6 +17,8 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -40,6 +42,7 @@ import coil.request.ImageRequest
 import io.github.pknujsp.weatherwizard.core.model.onLoading
 import io.github.pknujsp.weatherwizard.core.model.onSuccess
 import io.github.pknujsp.weatherwizard.core.model.weather.RequestWeatherArguments
+import io.github.pknujsp.weatherwizard.core.resource.R
 import io.github.pknujsp.weatherwizard.core.ui.TitleTextWithNavigation
 import io.github.pknujsp.weatherwizard.core.ui.lottie.CancellableLoadingScreen
 import io.github.pknujsp.weatherwizard.feature.weather.comparison.hourlyforecast.CompareForecastCard
@@ -55,26 +58,29 @@ fun CompareDailyForecastScreen(
     LaunchedEffect(Unit) {
         viewModel.load(args)
     }
-
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .systemBarsPadding()
-    ) {
+    val forecast by viewModel.dailyForecast.collectAsStateWithLifecycle()
+    val compareForecastCard = remember {
+        CompareForecastCard()
+    }
+    Column(modifier = Modifier
+        .fillMaxSize()
+        .systemBarsPadding()) {
         TitleTextWithNavigation(title = stringResource(id = io.github.pknujsp.weatherwizard.core.resource.R.string.title_comparison_daily_forecast)) {
             popBackStack()
         }
-        val compareForecastCard = remember {
-            CompareForecastCard()
-        }
-        compareForecastCard.CompareCardSurface {
-            val forecast by viewModel.dailyForecast.collectAsStateWithLifecycle()
-            forecast.onLoading {
-                CancellableLoadingScreen {
 
+        compareForecastCard.CompareCardSurface {
+            forecast.onLoading {
+                CancellableLoadingScreen(stringResource(id = R.string.loading_hourly_forecast_data)) {
+                    popBackStack()
                 }
             }.onSuccess {
-                Column(verticalArrangement = Arrangement.Center, modifier = Modifier.padding(vertical = 16.dp)) {
+                Column(verticalArrangement = Arrangement.Center,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1f)
+                        .verticalScroll(rememberScrollState())
+                        .padding(vertical = 16.dp)) {
                     Content(it)
                 }
             }
@@ -111,7 +117,7 @@ fun Content(compareDailyForecastInfo: CompareDailyForecastInfo) {
                         Text(text = compareDailyForecastInfo.dates[i],
                             style = TextStyle(fontSize = 13.sp, color = Color.White, textAlign = TextAlign.Center),
                             modifier = Modifier.height(dateTextHeight))
-                        compareDailyForecastInfo.items[i].forEachIndexed { c, item ->
+                        compareDailyForecastInfo.items[i].forEach { item ->
                             Item(item, itemModifier) { conditions ->
                                 Toast.makeText(context, conditions.joinToString(",") { context.getString(it) }, Toast.LENGTH_SHORT).show()
                             }

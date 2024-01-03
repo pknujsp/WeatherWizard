@@ -40,7 +40,10 @@ import io.github.pknujsp.weatherwizard.core.model.weather.yesterday.YesterdayWea
 import io.github.pknujsp.weatherwizard.core.model.weather.yesterday.YesterdayWeatherEntity
 import io.github.pknujsp.weatherwizard.core.ui.weather.item.DynamicDateTimeUiCreator
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import javax.inject.Inject
@@ -59,12 +62,17 @@ class WeatherInfoViewModel @Inject constructor(
     var uiState: WeatherContentUiState by mutableStateOf(WeatherContentUiState.Loading)
         private set
 
-    fun initialize() {
-        viewModelScope.launch(dispatcher) {
+    private val mutex = Mutex()
+    private var job: Job? = null
+
+    suspend fun initialize() {
+        mutex.withLock {
+            job?.cancel()
+        }
+        job = viewModelScope.launch(dispatcher) {
             uiState = WeatherContentUiState.Loading
             val location = targetLocationRepository.getTargetLocation()
             val weatherProvider = settingsRepository.settings.value.weatherProvider
-            Log.d("initialize", "initialize: $location, $weatherProvider")
 
             if (location.locationType is LocationType.CurrentLocation) {
                 when (val currentLocation = getCurrentLocationUseCase()) {
@@ -109,6 +117,16 @@ class WeatherInfoViewModel @Inject constructor(
         }
     }
 
+    fun cancelLoading() {
+        viewModelScope.launch {
+            if (uiState is WeatherContentUiState.Loading) {
+                mutex.withLock {
+                    job?.cancel()
+                }
+                uiState = WeatherContentUiState.Error(FailedReason.CANCELED)
+            }
+        }
+    }
 
     fun updateWeatherDataProvider(weatherProvider: WeatherProvider) {
         viewModelScope.launch {
@@ -118,50 +136,48 @@ class WeatherInfoViewModel @Inject constructor(
         }
     }
 
-    private fun loadAllWeatherData(args: RequestWeatherArguments) {
-        viewModelScope.launch(dispatcher) {
-            args.run {
-                val weatherDataRequest = WeatherDataRequest()
-                weatherDataRequest.addRequest(location, weatherProvider.majorWeatherEntityTypes, weatherProvider)
+    private suspend fun loadAllWeatherData(args: RequestWeatherArguments) {
+        args.run {
+            val weatherDataRequest = WeatherDataRequest()
+            weatherDataRequest.addRequest(location, weatherProvider.majorWeatherEntityTypes, weatherProvider)
 
-                val entity = when (val result = getWeatherDataUseCase(weatherDataRequest.finalRequests[0], false)) {
-                    is WeatherResponseState.Success -> result.entity
-                    is WeatherResponseState.Failure -> {
-                        uiState = WeatherContentUiState.Error(FailedReason.SERVER_ERROR)
-                        return@launch
-                    }
+            val entity = when (val result = getWeatherDataUseCase(weatherDataRequest.finalRequests[0], false)) {
+                is WeatherResponseState.Success -> result.entity
+                is WeatherResponseState.Failure -> {
+                    uiState = WeatherContentUiState.Error(FailedReason.SERVER_ERROR)
+                    return
                 }
-                val requestDateTime = ZonedDateTime.now()
-                val dayNightCalculator = DayNightCalculator(location.latitude, location.longitude, requestDateTime.toTimeZone())
-
-                val currentWeatherEntity = entity.toEntity<CurrentWeatherEntity>()
-                val hourlyForecastEntity = entity.toEntity<HourlyForecastEntity>()
-                val dailyForecastEntity = entity.toEntity<DailyForecastEntity>()
-
-                val currentWeather = createCurrentWeatherUiModel(currentWeatherEntity, dayNightCalculator, requestDateTime.toCalendar())
-                val simpleHourlyForecast = createSimpleHourlyForecastUiModel(hourlyForecastEntity, dayNightCalculator)
-                val detailHourlyForecast = createDetailHourlyForecastUiModel(hourlyForecastEntity, dayNightCalculator)
-                val simpleDailyForecast = createSimpleDailyForecastUiModel(dailyForecastEntity)
-                val detailDailyForecast = createDetailDailyForecastUiModel(dailyForecastEntity)
-
-                val yesterdayWeather = if (entity.weatherDataMajorCategories.contains(MajorWeatherEntityType.YESTERDAY_WEATHER)) {
-                    val yesterdayWeatherEntity = entity.toEntity<YesterdayWeatherEntity>()
-                    createYesterdayWeatherUiModel(yesterdayWeatherEntity)
-                } else {
-                    null
-                }
-
-                val weather = Weather(currentWeather,
-                    simpleHourlyForecast,
-                    detailHourlyForecast,
-                    simpleDailyForecast,
-                    detailDailyForecast,
-                    yesterdayWeather,
-                    location.latitude,
-                    location.longitude,
-                    requestDateTime)
-                uiState = WeatherContentUiState.Success(args, weather, requestDateTime)
             }
+            val requestDateTime = ZonedDateTime.now()
+            val dayNightCalculator = DayNightCalculator(location.latitude, location.longitude, requestDateTime.toTimeZone())
+
+            val currentWeatherEntity = entity.toEntity<CurrentWeatherEntity>()
+            val hourlyForecastEntity = entity.toEntity<HourlyForecastEntity>()
+            val dailyForecastEntity = entity.toEntity<DailyForecastEntity>()
+
+            val currentWeather = createCurrentWeatherUiModel(currentWeatherEntity, dayNightCalculator, requestDateTime.toCalendar())
+            val simpleHourlyForecast = createSimpleHourlyForecastUiModel(hourlyForecastEntity, dayNightCalculator)
+            val detailHourlyForecast = createDetailHourlyForecastUiModel(hourlyForecastEntity, dayNightCalculator)
+            val simpleDailyForecast = createSimpleDailyForecastUiModel(dailyForecastEntity)
+            val detailDailyForecast = createDetailDailyForecastUiModel(dailyForecastEntity)
+
+            val yesterdayWeather = if (entity.weatherDataMajorCategories.contains(MajorWeatherEntityType.YESTERDAY_WEATHER)) {
+                val yesterdayWeatherEntity = entity.toEntity<YesterdayWeatherEntity>()
+                createYesterdayWeatherUiModel(yesterdayWeatherEntity)
+            } else {
+                null
+            }
+
+            val weather = Weather(currentWeather,
+                simpleHourlyForecast,
+                detailHourlyForecast,
+                simpleDailyForecast,
+                detailDailyForecast,
+                yesterdayWeather,
+                location.latitude,
+                location.longitude,
+                requestDateTime)
+            uiState = WeatherContentUiState.Success(args, weather, requestDateTime)
         }
     }
 

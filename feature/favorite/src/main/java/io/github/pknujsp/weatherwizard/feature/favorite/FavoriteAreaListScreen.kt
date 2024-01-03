@@ -49,6 +49,7 @@ import io.github.pknujsp.weatherwizard.core.data.favorite.SelectedLocationModel
 import io.github.pknujsp.weatherwizard.core.model.coordinate.LocationType
 import io.github.pknujsp.weatherwizard.core.model.favorite.FavoriteArea
 import io.github.pknujsp.weatherwizard.core.resource.R
+import io.github.pknujsp.weatherwizard.core.ui.ButtonSize
 import io.github.pknujsp.weatherwizard.core.ui.MainRoutes
 import io.github.pknujsp.weatherwizard.core.ui.PrimaryButton
 import io.github.pknujsp.weatherwizard.core.ui.RootNavControllerViewModel
@@ -247,18 +248,18 @@ private fun CurrentLocationItem(
 
 @Composable
 private fun LoadCurrentLocationFailureScreen(failedReason: FailedReason, onClickRetry: () -> Unit, onClickAction: () -> Unit) {
-    val buttonPaddingValues = remember { PaddingValues(horizontal = 12.dp, vertical = 8.dp) }
+    val buttonSize = remember { ButtonSize.SMALL }
     Column(verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.Start) {
         Text(text = stringResource(id = failedReason.message),
             style = TextStyle(fontSize = 14.sp, color = Color.Black, textAlign = TextAlign.Left))
         Spacer(modifier = Modifier.size(8.dp))
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End)) {
             if (failedReason.hasRepairAction) {
-                SecondaryButton(text = stringResource(id = failedReason.action), contentPadding = buttonPaddingValues) {
+                SecondaryButton(text = stringResource(id = failedReason.action), buttonSize = buttonSize) {
                     onClickAction()
                 }
             }
-            PrimaryButton(text = stringResource(id = R.string.reload), contentPadding = buttonPaddingValues) {
+            PrimaryButton(text = stringResource(id = R.string.reload), buttonSize = buttonSize) {
                 onClickRetry()
             }
         }
