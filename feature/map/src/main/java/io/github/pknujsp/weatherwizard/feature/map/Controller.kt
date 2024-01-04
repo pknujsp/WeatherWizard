@@ -6,6 +6,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.supervisorScope
 import org.osmdroid.api.IMapController
 import org.osmdroid.views.MapView
 
@@ -43,47 +44,4 @@ interface RadarController {
 
     fun play()
     fun currentRadar()
-}
-
-@Stable
-class RadarAdapter {
-    private var radarController: RadarController? = null
-
-    private val _time = MutableStateFlow("")
-    val time: StateFlow<String> = _time.asStateFlow()
-
-    private val _playing = MutableStateFlow(false)
-    val playing: StateFlow<Boolean> = _playing.asStateFlow()
-
-    fun setRadarController(scope: CoroutineScope, radarController: RadarController) {
-        this.radarController = radarController
-        scope.apply {
-            launch {
-                radarController.playing.collect {
-                    _playing.value = it
-                }
-            }
-            launch {
-                radarController.time.collect {
-                    _time.value = it
-                }
-            }
-        }
-    }
-
-    fun beforeRadar() {
-        radarController?.beforeRadar()
-    }
-
-    fun nextRadar() {
-        radarController?.nextRadar()
-    }
-
-    fun play() {
-        radarController?.play()
-    }
-
-    fun currentRadar() {
-        radarController?.currentRadar()
-    }
 }
