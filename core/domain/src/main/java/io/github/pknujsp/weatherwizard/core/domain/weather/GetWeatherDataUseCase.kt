@@ -16,7 +16,11 @@ class GetWeatherDataUseCase @Inject constructor(
         val requestWeatherData = request.run {
             RequestWeatherData(weatherDataMajorCategories, location.latitude, location.longitude, weatherProvider)
         }
-        return weatherDataRepository.getWeatherData(requestWeatherData, request.requestId, bypassCache)
+        return try {
+            weatherDataRepository.getWeatherData(requestWeatherData, request.requestId, bypassCache)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
     }
 
     suspend operator fun invoke(

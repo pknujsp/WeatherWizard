@@ -11,7 +11,7 @@ import io.github.pknujsp.weatherwizard.core.model.ApiResponseModel
 import io.github.pknujsp.weatherwizard.core.model.weather.base.WeatherEntityModel
 import io.github.pknujsp.weatherwizard.core.model.weather.common.MajorWeatherEntityType
 import kotlinx.coroutines.async
-import kotlinx.coroutines.supervisorScope
+import kotlinx.coroutines.coroutineScope
 
 internal class WeatherDataRepositoryImpl(
     private val weatherResponseMapperManager: WeatherResponseMapperManager<WeatherEntityModel>,
@@ -38,7 +38,7 @@ internal class WeatherDataRepositoryImpl(
             }
         }
 
-        val responses = supervisorScope {
+        val responses = coroutineScope {
             requestWeatherData.weatherProvider.majorWeatherEntityTypes.map { majorWeatherEntityType ->
                 async {
                     majorWeatherEntityType to weatherApiRequestManager.get(requestWeatherData.latitude,

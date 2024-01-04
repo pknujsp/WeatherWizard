@@ -1,12 +1,9 @@
 package io.github.pknujsp.weatherwizard.feature.map
 
 import androidx.compose.runtime.Stable
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.supervisorScope
 import org.osmdroid.api.IMapController
 import org.osmdroid.views.MapView
 

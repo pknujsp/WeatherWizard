@@ -1,6 +1,7 @@
 package io.github.pknujsp.weatherwizard.feature.weather.info
 
 
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -22,7 +23,6 @@ import io.github.pknujsp.weatherwizard.core.domain.location.GetCurrentLocationUs
 import io.github.pknujsp.weatherwizard.core.domain.weather.GetWeatherDataUseCase
 import io.github.pknujsp.weatherwizard.core.domain.weather.WeatherDataRequest
 import io.github.pknujsp.weatherwizard.core.domain.weather.WeatherResponseState
-import io.github.pknujsp.weatherwizard.core.model.airquality.AirQualityEntity
 import io.github.pknujsp.weatherwizard.core.model.coordinate.LocationType
 import io.github.pknujsp.weatherwizard.core.model.coordinate.LocationTypeModel
 import io.github.pknujsp.weatherwizard.core.model.weather.RequestWeatherArguments
@@ -40,6 +40,7 @@ import io.github.pknujsp.weatherwizard.core.model.weather.yesterday.YesterdayWea
 import io.github.pknujsp.weatherwizard.core.model.weather.yesterday.YesterdayWeatherEntity
 import io.github.pknujsp.weatherwizard.core.ui.weather.item.DynamicDateTimeUiCreator
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import java.time.ZonedDateTime
@@ -63,9 +64,14 @@ class WeatherInfoViewModel @Inject constructor(
 
     private var job: Job? = null
 
+    private val exceptionHandler = CoroutineExceptionHandler { _, throwable ->
+        Log.d("WeatherInfoViewModel", "exceptionHandler: $throwable")
+        uiState = WeatherContentUiState.Error(FailedReason.SERVER_ERROR)
+    }
+
     fun initialize() {
         job?.cancel()
-        job = viewModelScope.launch(dispatcher) {
+        job = viewModelScope.launch(dispatcher + exceptionHandler) {
             uiState = WeatherContentUiState.Loading
             val location = targetLocationRepository.getTargetLocation()
             val weatherProvider = settingsRepository.settings.value.weatherProvider
@@ -176,9 +182,7 @@ class WeatherInfoViewModel @Inject constructor(
 
 
     private fun createCurrentWeatherUiModel(
-        currentWeatherEntity: CurrentWeatherEntity,
-        dayNightCalculator: DayNightCalculator,
-        currentCalendar: Calendar
+        currentWeatherEntity: CurrentWeatherEntity, dayNightCalculator: DayNightCalculator, currentCalendar: Calendar
     ): CurrentWeather {
         return currentWeatherEntity.run {
             val unit = settingsRepository.settings.value.units
