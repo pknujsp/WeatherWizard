@@ -34,10 +34,9 @@ private class MutableMainUiState(
 
         navController.navigate(route.route) {
             launchSingleTop = true
-            restoreState = true
             backStackEntry?.destination?.route?.let {
                 popUpTo(it) {
-                    inclusive = false
+                    inclusive = false || route is MainRoutes.Weather
                 }
             }
         }

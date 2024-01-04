@@ -12,7 +12,9 @@ import io.github.pknujsp.weatherwizard.core.model.airquality.SimpleAirQuality
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.time.LocalDate
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
@@ -25,7 +27,7 @@ class AirQualityViewModel @Inject constructor(
 ) : ViewModel() {
 
     private val _airQuality: MutableStateFlow<UiState<SimpleAirQuality>> = MutableStateFlow(UiState.Loading)
-    val airQuality: StateFlow<UiState<SimpleAirQuality>> = _airQuality
+    val airQuality: StateFlow<UiState<SimpleAirQuality>> = _airQuality.asStateFlow()
 
     private var latitude: Double = 0.0
     private var longitude: Double = 0.0

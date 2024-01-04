@@ -12,7 +12,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -22,13 +24,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import io.github.pknujsp.weatherwizard.core.resource.R
 import io.github.pknujsp.weatherwizard.core.model.airquality.AirPollutants
 import io.github.pknujsp.weatherwizard.core.model.airquality.SimpleAirQuality
 import io.github.pknujsp.weatherwizard.core.model.onError
-import io.github.pknujsp.weatherwizard.core.model.onLoading
 import io.github.pknujsp.weatherwizard.core.model.onSuccess
 import io.github.pknujsp.weatherwizard.core.model.weather.RequestWeatherArguments
+import io.github.pknujsp.weatherwizard.core.model.weather.common.AirQualityValueType
+import io.github.pknujsp.weatherwizard.core.resource.R
 import io.github.pknujsp.weatherwizard.core.ui.theme.AppShapes
 import io.github.pknujsp.weatherwizard.core.ui.weather.item.CardInfo
 import io.github.pknujsp.weatherwizard.core.ui.weather.item.SimpleWeatherFailedBox
@@ -36,14 +38,20 @@ import io.github.pknujsp.weatherwizard.core.ui.weather.item.SimpleWeatherScreenB
 
 
 @Composable
-fun AirQualityScreen(requestWeatherArguments: RequestWeatherArguments, viewModel: AirQualityViewModel = hiltViewModel()) {
+fun AirQualityScreen(
+    requestWeatherArguments: RequestWeatherArguments,
+    onAirQualityLoaded: (AirQualityValueType) -> Unit,
+    viewModel: AirQualityViewModel = hiltViewModel()
+) {
     val airQuality by viewModel.airQuality.collectAsStateWithLifecycle()
+    val airQualityCallback by rememberUpdatedState(onAirQualityLoaded)
 
-    airQuality.onLoading {
-        requestWeatherArguments.run {
-            viewModel.loadAirQuality(requestWeatherArguments.location.latitude, requestWeatherArguments.location.longitude)
-        }
-    }.onSuccess {
+    LaunchedEffect(requestWeatherArguments) {
+        viewModel.loadAirQuality(requestWeatherArguments.location.latitude, requestWeatherArguments.location.longitude)
+    }
+
+    airQuality.onSuccess {
+        airQualityCallback(it.current.aqi)
         SimpleWeatherScreenBackground(CardInfo(title = stringResource(io.github.pknujsp.weatherwizard.core.resource.R.string.air_quality_index),
             content = {
                 Column(

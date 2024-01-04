@@ -1,14 +1,12 @@
 package io.github.pknujsp.weatherwizard.feature.favorite
 
 import androidx.activity.ComponentActivity
-import androidx.activity.compose.BackHandler
 import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -158,7 +156,7 @@ private fun FavoriteLocationItem(
             Column(modifier = Modifier
                 .weight(1f)
                 .clickable {
-                    if (targetLocationId == null) {
+                    if (targetLocationId == null || targetLocationId != favoriteLocation.id) {
                         onClick()
                     }
                 }, verticalArrangement = Arrangement.Center) {
@@ -166,7 +164,7 @@ private fun FavoriteLocationItem(
                 Text(text = favoriteLocation.areaName, style = TextStyle(fontSize = 15.sp, color = Color.Black))
             }
             Checkbox(checked = targetLocationId == favoriteLocation.id, onCheckedChange = {
-                if (targetLocationId == null) {
+                if (targetLocationId == null || targetLocationId != favoriteLocation.id) {
                     onClick()
                 }
             })

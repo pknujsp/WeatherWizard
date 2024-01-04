@@ -123,7 +123,9 @@ fun WeatherContentScreen(
                     HourlyForecastScreen(simpleHourlyForecast, navigate)
                     SimpleDailyForecastScreen(simpleDailyForecast, navigate)
                     SimpleMapScreen(uiState.args)
-                    AirQualityScreen(uiState.args)
+                    AirQualityScreen(uiState.args, onAirQualityLoaded = { aqi ->
+                        weather.currentWeather.airQuality = aqi
+                    })
                     SimpleSunSetRiseScreen(uiState.args)
                     FlickrImageItemScreen(requestParameter = uiState.weather.flickrRequestParameters, onImageUrlChanged = {
                         imageUrl = it

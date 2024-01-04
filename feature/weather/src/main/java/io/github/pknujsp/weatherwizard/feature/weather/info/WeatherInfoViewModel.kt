@@ -1,7 +1,6 @@
 package io.github.pknujsp.weatherwizard.feature.weather.info
 
 
-import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -23,6 +22,7 @@ import io.github.pknujsp.weatherwizard.core.domain.location.GetCurrentLocationUs
 import io.github.pknujsp.weatherwizard.core.domain.weather.GetWeatherDataUseCase
 import io.github.pknujsp.weatherwizard.core.domain.weather.WeatherDataRequest
 import io.github.pknujsp.weatherwizard.core.domain.weather.WeatherResponseState
+import io.github.pknujsp.weatherwizard.core.model.airquality.AirQualityEntity
 import io.github.pknujsp.weatherwizard.core.model.coordinate.LocationType
 import io.github.pknujsp.weatherwizard.core.model.coordinate.LocationTypeModel
 import io.github.pknujsp.weatherwizard.core.model.weather.RequestWeatherArguments
@@ -42,10 +42,9 @@ import io.github.pknujsp.weatherwizard.core.ui.weather.item.DynamicDateTimeUiCre
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
+import java.util.Calendar
 import javax.inject.Inject
 
 @HiltViewModel
@@ -177,7 +176,9 @@ class WeatherInfoViewModel @Inject constructor(
 
 
     private fun createCurrentWeatherUiModel(
-        currentWeatherEntity: CurrentWeatherEntity, dayNightCalculator: DayNightCalculator, currentCalendar: java.util.Calendar
+        currentWeatherEntity: CurrentWeatherEntity,
+        dayNightCalculator: DayNightCalculator,
+        currentCalendar: Calendar
     ): CurrentWeather {
         return currentWeatherEntity.run {
             val unit = settingsRepository.settings.value.units
