@@ -23,6 +23,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
+import kotlin.text.Typography.times
 
 @HiltViewModel
 class RainViewerViewModel @Inject constructor(
@@ -108,9 +109,9 @@ class RainViewerViewModel @Inject constructor(
             if (!stop()) {
                 playingJob = launch(SupervisorJob()) {
                     mutablePlaying.value = true
-                    radarUiState.value.onSuccess { radarTiles ->
+                    radarUiState.value.onSuccess {  radarUiState ->
                         repeat(playCounts) {
-                            mutableTimePosition.value = (timePosition.value + 1).calibrateTimePosition(radarTiles.times.lastIndex)
+                            mutableTimePosition.value = (timePosition.value + 1).calibrateTimePosition(radarUiState.times.lastIndex)
                             delay(playDelay)
                         }
                     }
@@ -132,7 +133,7 @@ class RainViewerViewModel @Inject constructor(
         viewModelScope.launch {
             stop()
             radarUiState.value.onSuccess {
-                mutableTimePosition.emit(it.defaultIndex)
+                mutableTimePosition.value = it.defaultIndex
             }
         }
     }

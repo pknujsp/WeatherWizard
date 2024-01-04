@@ -35,6 +35,7 @@ class SimpleMapController {
 
 }
 
+@Stable
 interface RadarController {
     val playing: StateFlow<Boolean>
     val time: StateFlow<String>

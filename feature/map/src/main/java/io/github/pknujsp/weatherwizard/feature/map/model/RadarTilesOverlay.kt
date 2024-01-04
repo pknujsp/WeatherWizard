@@ -10,6 +10,7 @@ import org.osmdroid.tileprovider.modules.SqlTileWriter
 import org.osmdroid.tileprovider.tilesource.OnlineTileSourceBase
 import org.osmdroid.util.MapTileIndex
 import org.osmdroid.views.overlay.TilesOverlay
+import org.osmdroid.views.overlay.TilesOverlay.INVERT_COLORS
 
 @Stable
 class RadarTilesOverlay(
@@ -24,16 +25,16 @@ class RadarTilesOverlay(
 
             val tileProvider = MapTileProviderBasic(context,
                 object : OnlineTileSourceBase(tileSourceName,
-                    MapSettingsDefault.minZoomLevel.toInt(),
-                    MapSettingsDefault.maxZoomLevel.toInt(),
-                    RadarTileSettingsDefault.optionTileSize,
+                    MapSettingsDefault.MIN_ZOOM_LEVEL.toInt(),
+                    MapSettingsDefault.MAX_ZOOM_LEVEL.toInt(),
+                    RadarTileSettingsDefault.TILE_SIZE,
                     "",
                     emptyArray()) {
                     override fun getTileURLString(pMapTileIndex: Long): String {
                         val x = MapTileIndex.getX(pMapTileIndex)
                         val y = MapTileIndex.getY(pMapTileIndex)
                         val z = MapTileIndex.getZoom(pMapTileIndex)
-                        return "$host${it.path}/${RadarTileSettingsDefault.optionTileSize}/$z/$x/$y/${RadarTileSettingsDefault.optionColorScheme}/${RadarTileSettingsDefault.optionSmoothData}_${RadarTileSettingsDefault.optionSnowColors}.png"
+                        return "$host${it.path}/${RadarTileSettingsDefault.TILE_SIZE}/$z/$x/$y/${RadarTileSettingsDefault.COLOR_SCHEME}/${RadarTileSettingsDefault.SMOOTH_DATA}_${RadarTileSettingsDefault.SNOW_COLORS}.png"
                     }
                 },
                 SqlTileWriter().apply {
@@ -45,6 +46,7 @@ class RadarTilesOverlay(
             }
             TilesOverlay(tileProvider, context).apply {
                 loadingBackgroundColor = Color.TRANSPARENT
+                setColorFilter(RadarTileSettingsDefault.ALPHA)
             } to handler
         }
     }

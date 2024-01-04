@@ -1,5 +1,8 @@
 package io.github.pknujsp.weatherwizard.feature.map.model
 
+import android.graphics.ColorFilter
+import android.graphics.ColorMatrix
+import android.graphics.ColorMatrixColorFilter
 import androidx.compose.runtime.Stable
 import io.github.pknujsp.weatherwizard.core.model.UiModel
 import java.time.Duration
@@ -40,13 +43,19 @@ class RadarUiState(
 }
 
 internal object MapSettingsDefault {
-    const val minZoomLevel = 2.0
-    const val maxZoomLevel = 19.0
+    const val MIN_ZOOM_LEVEL = 2.0
+    const val MAX_ZOOM_LEVEL = 19.0
 }
 
 internal object RadarTileSettingsDefault {
-    const val optionTileSize = 512 // can be 256 or 512.
-    const val optionColorScheme = 3
-    const val optionSmoothData = 1 // 0 - not smooth, 1 - smooth
-    const val optionSnowColors = 1 // 0 - do not show snow colors, 1 - show snow colors
+    const val TILE_SIZE = 512 // can be 256 or 512.
+    const val COLOR_SCHEME = 3
+    const val SMOOTH_DATA = 1 // 0 - not smooth, 1 - smooth
+    const val SNOW_COLORS = 1 // 0 - do not show snow colors, 1 - show snow colors
+
+    private val matrix = ColorMatrix().apply {
+        setScale(1f, 1f, 1f, 0.75f) // Red, Green, Blue, Alpha
+    }
+
+    val ALPHA: ColorFilter = ColorMatrixColorFilter(matrix)
 }

@@ -21,7 +21,6 @@ import androidx.compose.material3.IconToggleButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -58,6 +57,7 @@ import io.github.pknujsp.weatherwizard.core.resource.R
 import io.github.pknujsp.weatherwizard.feature.map.model.MapSettingsDefault
 import io.github.pknujsp.weatherwizard.feature.map.model.RadarTilesOverlay
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.StateFlow
 
 private const val POI_MARKER_ID = "poi"
 
@@ -67,7 +67,7 @@ private fun MapScreen(
     latitude: Double,
     longitude: Double,
     tiles: RadarTilesOverlay,
-    viewModel: RainViewerViewModel,
+    timePosition: StateFlow<Int>,
     simpleMapController: SimpleMapController,
     radarScope: CoroutineScope = rememberCoroutineScope(),
     density: Density = LocalDensity.current,
@@ -81,8 +81,8 @@ private fun MapScreen(
             tileProvider.tileCache.setStressedMemory(true)
             tileProvider.tileCache.setAutoEnsureCapacity(true)
 
-            maxZoomLevel = MapSettingsDefault.maxZoomLevel
-            minZoomLevel = MapSettingsDefault.minZoomLevel
+            maxZoomLevel = MapSettingsDefault.MAX_ZOOM_LEVEL
+            minZoomLevel = MapSettingsDefault.MIN_ZOOM_LEVEL
             setMultiTouchControls(true)
             zoomController.setVisibility(org.osmdroid.views.CustomZoomButtonsController.Visibility.NEVER)
 
@@ -102,7 +102,7 @@ private fun MapScreen(
     }, update = { mapView ->
         mapView.onResume()
         radarScope.launch {
-            viewModel.timePosition.filter { time -> time != -1 }.collect { time ->
+            timePosition.filter { time -> time != -1 }.collect { time ->
                 if (!(mapView.overlays.isNotEmpty() and mapView.overlays.contains(tiles.overlays[time].first))) {
                     mapView.overlays.removeIf { it !is Marker }
                     mapView.overlays.add(tiles.overlays[time].let {
@@ -164,14 +164,12 @@ fun SimpleMapScreen(
                     MapScreen(requestWeatherArguments.location.latitude,
                         requestWeatherArguments.location.longitude,
                         overlays,
-                        viewModel,
+                        viewModel.timePosition,
                         simpleMapController)
                     MapControllerScreen(simpleMapController, iconSize = 32.dp, bottomSpace = 20.dp)
                 }
 
-                RadarControllerScreen(viewModel as RadarController) {
-
-                }
+                RadarControllerScreen(viewModel as RadarController)
             }
         })
     }.onError {
@@ -184,13 +182,12 @@ fun SimpleMapScreen(
 }
 
 @Composable
-private fun RadarControllerScreen(controller: RadarController, onChangedPlay: (Boolean) -> Unit) {
+private fun RadarControllerScreen(controller: RadarController) {
     Row(horizontalArrangement = Arrangement.spacedBy(8.dp),
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
             .fillMaxWidth()
-            .wrapContentSize()) {
-        val time by controller.time.collectAsStateWithLifecycle()
+            .wrapContentHeight()) {
         val playing by controller.playing.collectAsStateWithLifecycle()
 
         IconToggleButton(
@@ -206,19 +203,15 @@ private fun RadarControllerScreen(controller: RadarController, onChangedPlay: (B
         ) {
             val playIcon by remember {
                 derivedStateOf {
-                    (if (playing) {
+                    if (playing) {
                         R.drawable.ic_pause
                     } else {
                         R.drawable.ic_play
-                    }) to playing
+                    }
                 }
             }
 
-            LaunchedEffect(playing) {
-                onChangedPlay(playing)
-            }
-
-            Icon(painter = painterResource(playIcon.first), contentDescription = stringResource(id = R.string.play_all_radars))
+            Icon(painter = painterResource(playIcon), contentDescription = stringResource(id = R.string.play_all_radars))
         }
 
         Column(
@@ -227,6 +220,7 @@ private fun RadarControllerScreen(controller: RadarController, onChangedPlay: (B
                 .weight(1f),
             verticalArrangement = Arrangement.spacedBy(2.dp),
         ) {
+            val time by controller.time.collectAsStateWithLifecycle()
             Text(text = time, color = Color.White, fontSize = 13.sp)
             if (playing) {
                 LinearProgressIndicator()
