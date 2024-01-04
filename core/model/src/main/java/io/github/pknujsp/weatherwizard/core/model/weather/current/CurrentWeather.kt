@@ -1,8 +1,13 @@
 package io.github.pknujsp.weatherwizard.core.model.weather.current
 
 import androidx.annotation.DrawableRes
+import androidx.compose.runtime.Stable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import io.github.pknujsp.weatherwizard.core.common.util.DayNightCalculator
 import io.github.pknujsp.weatherwizard.core.model.UiModel
+import io.github.pknujsp.weatherwizard.core.model.weather.common.AirQualityValueType
 import io.github.pknujsp.weatherwizard.core.model.weather.common.HumidityValueType
 import io.github.pknujsp.weatherwizard.core.model.weather.common.PrecipitationValueType
 import io.github.pknujsp.weatherwizard.core.model.weather.common.TemperatureValueType
@@ -11,6 +16,7 @@ import io.github.pknujsp.weatherwizard.core.model.weather.common.WindDirectionVa
 import io.github.pknujsp.weatherwizard.core.model.weather.common.WindSpeedValueType
 import java.util.Calendar
 
+@Stable
 class CurrentWeather(
     val weatherCondition: WeatherConditionValueType,
     val temperature: TemperatureValueType,
@@ -24,4 +30,6 @@ class CurrentWeather(
 ) : UiModel {
     @DrawableRes val weatherIcon: Int =
         weatherCondition.value.getWeatherIconByTimeOfDay(dayNightCalculator.calculate(currentCalendar) == DayNightCalculator.DayNight.DAY)
+
+    var airQuality: AirQualityValueType? by mutableStateOf(null)
 }

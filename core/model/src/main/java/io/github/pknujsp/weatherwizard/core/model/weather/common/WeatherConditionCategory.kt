@@ -46,7 +46,7 @@ sealed class WeatherConditionCategory(
     @Serializable
     data object Clear : WeatherConditionCategory(
         io.github.pknujsp.weatherwizard.core.resource.R.string.clear,
-        io.github.pknujsp.weatherwizard.core.resource.R.drawable.ic_sun,
+        io.github.pknujsp.weatherwizard.core.resource.R.drawable.ic_weather_clear,
         io.github.pknujsp.weatherwizard.core.resource.R.drawable.ic_full_moon,
         FlickrGalleryId.Clear,
     )

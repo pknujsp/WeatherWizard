@@ -1,12 +1,14 @@
 package io.github.pknujsp.weatherwizard.feature.favorite
 
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -16,7 +18,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.LocationOn
 import androidx.compose.material.icons.rounded.MoreVert
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Icon
@@ -25,62 +26,96 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
+import io.github.pknujsp.weatherwizard.core.common.manager.FailedReason
 import io.github.pknujsp.weatherwizard.core.data.favorite.SelectedLocationModel
-import io.github.pknujsp.weatherwizard.core.model.favorite.FavoriteArea
 import io.github.pknujsp.weatherwizard.core.model.coordinate.LocationType
+import io.github.pknujsp.weatherwizard.core.model.favorite.FavoriteArea
+import io.github.pknujsp.weatherwizard.core.resource.R
+import io.github.pknujsp.weatherwizard.core.ui.ButtonSize
 import io.github.pknujsp.weatherwizard.core.ui.MainRoutes
+import io.github.pknujsp.weatherwizard.core.ui.PrimaryButton
 import io.github.pknujsp.weatherwizard.core.ui.RootNavControllerViewModel
 import io.github.pknujsp.weatherwizard.core.ui.SecondaryButton
+import io.github.pknujsp.weatherwizard.core.ui.TitleTextWithNavigation
+import io.github.pknujsp.weatherwizard.core.ui.feature.OpenAppSettingsActivity
 import io.github.pknujsp.weatherwizard.core.ui.list.EmptyListScreen
 import io.github.pknujsp.weatherwizard.core.ui.theme.AppShapes
-import kotlinx.coroutines.flow.filter
-import io.github.pknujsp.weatherwizard.core.resource.R
+import io.github.pknujsp.weatherwizard.feature.favorite.model.LoadCurrentLocationState
+import io.github.pknujsp.weatherwizard.feature.favorite.model.TargetLocationUiState
 
 @Composable
 fun FavoriteAreaListScreen(navController: NavController, viewModel: FavoriteAreaViewModel = hiltViewModel()) {
-    val favoriteAreaList by viewModel.favoriteLocationList.collectAsStateWithLifecycle()
-    val targetLocation by viewModel.targetLocation.collectAsStateWithLifecycle()
+    val favoriteLocations = viewModel.favoriteLocationsUiState
+    val targetLocation = viewModel.targetLocationUiState
+    var showSettingsActivity by remember { mutableStateOf(false) }
+
     val rootNavControllerViewModel: RootNavControllerViewModel =
         hiltViewModel(viewModelStoreOwner = (LocalContext.current as ComponentActivity))
 
-    LaunchedEffect(Unit) {
-        viewModel.onChanged.filter { it }.collect {
+    val onBackPressedDispatcherOwner = LocalOnBackPressedDispatcherOwner.current
+    val backDispatcher = remember {
+        onBackPressedDispatcherOwner?.onBackPressedDispatcher
+    }
+
+    LaunchedEffect(targetLocation.isChanged) {
+        if (targetLocation.isChanged) {
             rootNavControllerViewModel.navigate(MainRoutes.Weather)
+        }
+    }
+
+    if (showSettingsActivity) {
+        OpenAppSettingsActivity(featureType = (targetLocation.loadCurrentLocationState as LoadCurrentLocationState.Failed).featureType!!) {
+            showSettingsActivity = false
+            viewModel.loadCurrentLocation()
         }
     }
 
     Column(modifier = Modifier.fillMaxSize()) {
         LazyColumn(modifier = Modifier.weight(1f), state = rememberLazyListState()) {
             item {
-                if (targetLocation != null) {
-                    CurrentLocationItem(targetLocation!!) {
-                        viewModel.updateTargetLocation(SelectedLocationModel(LocationType.CurrentLocation))
-                    }
-                }
+                TitleTextWithNavigation(title = stringResource(id = R.string.nav_favorite_areas), onClickNavigation = {
+                    backDispatcher?.onBackPressed()
+                })
             }
-            if (favoriteAreaList.isEmpty()) {
-                item {
-                    EmptyListScreen(message = R.string.no_favorite_location)
-                }
-            } else {
-                if (targetLocation != null) {
-                    items(favoriteAreaList) { favoriteLocation ->
-                        FavoriteLocationItem(favoriteLocation, targetLocation!!, onClick = {
-                            viewModel.updateTargetLocation(SelectedLocationModel(LocationType.CustomLocation, favoriteLocation.id))
+            item {
+                CurrentLocationItem(targetLocation, onClick = {
+                    viewModel.updateTargetLocation(SelectedLocationModel(LocationType.CurrentLocation))
+                }, onClickAction = {
+                    showSettingsActivity = true
+                }, onClickRetry = {
+                    viewModel.loadCurrentLocation()
+                })
+            }
+            favoriteLocations.favoriteLocations?.let { list ->
+                if (list.isEmpty()) {
+                    item {
+                        EmptyListScreen(message = R.string.no_favorite_location)
+                    }
+                } else {
+                    items(
+                        items = list,
+                        key = { item ->
+                            item.id
+                        },
+                    ) { item ->
+                        FavoriteLocationItem(item, targetLocation.locationId, onClick = {
+                            viewModel.updateTargetLocation(SelectedLocationModel(LocationType.CustomLocation, item.id))
                         }, onClickMore = {
 
                         })
@@ -101,15 +136,8 @@ fun FavoriteAreaListScreen(navController: NavController, viewModel: FavoriteArea
 
 @Composable
 private fun FavoriteLocationItem(
-    favoriteLocation: FavoriteArea, currentLocationModel: SelectedLocationModel, onClick: () -> Unit, onClickMore: () -> Unit
+    favoriteLocation: FavoriteArea, targetLocationId: Long?, onClick: () -> Unit, onClickMore: () -> Unit
 ) {
-    val isCurrentLocation = remember {
-        if (currentLocationModel.locationType is LocationType.CustomLocation) {
-            currentLocationModel.locationId == favoriteLocation.id
-        } else {
-            false
-        }
-    }
     Box(modifier = Modifier
         .fillMaxWidth()
         .wrapContentHeight()
@@ -128,15 +156,15 @@ private fun FavoriteLocationItem(
             Column(modifier = Modifier
                 .weight(1f)
                 .clickable {
-                    if (!isCurrentLocation) {
+                    if (targetLocationId == null || targetLocationId != favoriteLocation.id) {
                         onClick()
                     }
                 }, verticalArrangement = Arrangement.Center) {
                 Text(text = favoriteLocation.countryName, style = TextStyle(fontSize = 12.sp, color = Color.Gray))
                 Text(text = favoriteLocation.areaName, style = TextStyle(fontSize = 15.sp, color = Color.Black))
             }
-            Checkbox(checked = isCurrentLocation, onCheckedChange = {
-                if (!isCurrentLocation) {
+            Checkbox(checked = targetLocationId == favoriteLocation.id, onCheckedChange = {
+                if (targetLocationId == null || targetLocationId != favoriteLocation.id) {
                     onClick()
                 }
             })
@@ -146,36 +174,92 @@ private fun FavoriteLocationItem(
 
 
 @Composable
-private fun CurrentLocationItem(currentLocationModel: SelectedLocationModel, onClick: () -> Unit) {
+private fun CurrentLocationItem(
+    targetLocationUiState: TargetLocationUiState, onClickRetry: () -> Unit, onClickAction: () -> Unit, onClick: () -> Unit
+) {
     Box(modifier = Modifier
         .fillMaxWidth()
         .wrapContentHeight()
         .padding(horizontal = 16.dp, vertical = 8.dp)) {
         Row(modifier = Modifier
             .fillMaxWidth()
-            .wrapContentHeight()
             .clickable {
-                if (currentLocationModel.locationType !is LocationType.CurrentLocation) {
+                if (targetLocationUiState.locationType !is LocationType.CurrentLocation) {
                     onClick()
                 }
             }
             .shadow(elevation = 4.dp, shape = AppShapes.large)
             .background(color = Color.White, shape = AppShapes.large)
-            .padding(horizontal = 8.dp, vertical = 6.dp),
+            .padding(horizontal = 12.dp, vertical = 8.dp),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween) {
-            Icon(imageVector = Icons.Rounded.LocationOn,
-                contentDescription = stringResource(id = io.github.pknujsp.weatherwizard.core.resource.R.string.current_location),
-                tint = Color.Blue,
-                modifier = Modifier.size(16.dp))
-            Text(text = stringResource(id = io.github.pknujsp.weatherwizard.core.resource.R.string.current_location),
-                style = TextStyle(fontSize = 16.sp, color = Color.Blue, textAlign = TextAlign.Left),
-                modifier = Modifier.weight(1f))
-            Checkbox(checked = currentLocationModel.locationType is LocationType.CurrentLocation, onCheckedChange = {
-                if (currentLocationModel.locationType !is LocationType.CurrentLocation) {
+            horizontalArrangement = Arrangement.Start) {
+            Icon(
+                painter = painterResource(id = R.drawable.ic_location),
+                contentDescription = stringResource(id = R.string.current_location),
+                modifier = Modifier.size(24.dp),
+            )
+            Column(modifier = Modifier
+                .weight(1f)
+                .padding(horizontal = 12.dp),
+                horizontalAlignment = Alignment.Start,
+                verticalArrangement = Arrangement.Center) {
+                Text(
+                    text = stringResource(id = R.string.current_location),
+                    style = TextStyle(fontSize = 17.sp, color = Color.Gray),
+                )
+
+                if (targetLocationUiState.isLoading) {
+                    Text(
+                        text = stringResource(id = R.string.finding_current_location),
+                        style = TextStyle(fontSize = 15.sp, color = Color.Black),
+                    )
+                } else {
+
+                    when (val state = targetLocationUiState.loadCurrentLocationState) {
+                        is LoadCurrentLocationState.Success -> {
+                            Text(
+                                text = state.addressName,
+                                style = TextStyle(fontSize = 15.sp, color = Color.Black),
+                            )
+                        }
+
+                        is LoadCurrentLocationState.Failed -> {
+                            LoadCurrentLocationFailureScreen(state.failedReason ?: state.featureType!!.failedReason, onClickRetry = {
+                                onClickRetry()
+                            }, onClickAction = {
+                                onClickAction()
+                            })
+                        }
+
+                        else -> {}
+                    }
+                }
+            }
+            Checkbox(checked = targetLocationUiState.locationType is LocationType.CurrentLocation, onCheckedChange = {
+                if (targetLocationUiState.locationType !is LocationType.CurrentLocation) {
                     onClick()
                 }
             })
+        }
+    }
+}
+
+@Composable
+private fun LoadCurrentLocationFailureScreen(failedReason: FailedReason, onClickRetry: () -> Unit, onClickAction: () -> Unit) {
+    val buttonSize = remember { ButtonSize.SMALL }
+    Column(verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.Start) {
+        Text(text = stringResource(id = failedReason.message),
+            style = TextStyle(fontSize = 14.sp, color = Color.Black, textAlign = TextAlign.Left))
+        Spacer(modifier = Modifier.size(8.dp))
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End)) {
+            if (failedReason.hasRepairAction) {
+                SecondaryButton(text = stringResource(id = failedReason.action), buttonSize = buttonSize) {
+                    onClickAction()
+                }
+            }
+            PrimaryButton(text = stringResource(id = R.string.reload), buttonSize = buttonSize) {
+                onClickRetry()
+            }
         }
     }
 }

@@ -12,32 +12,33 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.IconToggleButton
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.graphics.drawable.toBitmap
-import androidx.core.graphics.scale
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.pknujsp.weatherwizard.core.model.onError
@@ -53,26 +54,35 @@ import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.Marker
 import io.github.pknujsp.weatherwizard.core.resource.R
+import io.github.pknujsp.weatherwizard.feature.map.model.MapSettingsDefault
+import io.github.pknujsp.weatherwizard.feature.map.model.RadarTilesOverlay
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.StateFlow
 
 private const val POI_MARKER_ID = "poi"
 
 @SuppressLint("ClickableViewAccessibility")
 @Composable
 private fun MapScreen(
-    latitude: Double, longitude: Double, tiles: RadarTilesOverlay, viewModel: RainViewerViewModel, simpleMapController: SimpleMapController
+    latitude: Double,
+    longitude: Double,
+    tiles: RadarTilesOverlay,
+    timePosition: StateFlow<Int>,
+    simpleMapController: SimpleMapController,
+    radarScope: CoroutineScope = rememberCoroutineScope(),
+    density: Density = LocalDensity.current,
 ) {
-    val radarScope = rememberCoroutineScope()
     AndroidView(modifier = Modifier.fillMaxSize(), factory = { context ->
         MapView(context).apply {
             clipToOutline = true
             setBackgroundResource(R.drawable.map_background)
-            setTileSource(TileSourceFactory.MAPNIK)
+            setTileSource(TileSourceFactory.DEFAULT_TILE_SOURCE)
 
             tileProvider.tileCache.setStressedMemory(true)
-            tileProvider.tileCache.ensureCapacity(100)
+            tileProvider.tileCache.setAutoEnsureCapacity(true)
 
-            maxZoomLevel = viewModel.maxZoomLevel.toDouble()
-            minZoomLevel = viewModel.minZoomLevel.toDouble()
+            maxZoomLevel = MapSettingsDefault.MAX_ZOOM_LEVEL
+            minZoomLevel = MapSettingsDefault.MIN_ZOOM_LEVEL
             setMultiTouchControls(true)
             zoomController.setVisibility(org.osmdroid.views.CustomZoomButtonsController.Visibility.NEVER)
 
@@ -85,14 +95,14 @@ private fun MapScreen(
                 false
             }
 
-            poiOnMap(latitude, longitude, 18.dp)
-            controller.animateTo(GeoPoint(latitude, longitude), 6.0, 0)
+            addCurrentLocationPoiMarker(latitude, longitude, density)
+            controller.animateTo(GeoPoint(latitude, longitude), 7.0, 0)
             simpleMapController.init(this)
         }
     }, update = { mapView ->
         mapView.onResume()
         radarScope.launch {
-            viewModel.timePosition.filter { time -> time != -1 }.collect { time ->
+            timePosition.filter { time -> time != -1 }.collect { time ->
                 if (!(mapView.overlays.isNotEmpty() and mapView.overlays.contains(tiles.overlays[time].first))) {
                     mapView.overlays.removeIf { it !is Marker }
                     mapView.overlays.add(tiles.overlays[time].let {
@@ -119,15 +129,14 @@ private fun MapScreen(
 
 }
 
-private fun MapView.poiOnMap(latitude: Double, longitude: Double, iconSize: Dp) {
-    Marker(this).apply {
+private fun MapView.addCurrentLocationPoiMarker(latitude: Double, longitude: Double, density: Density) {
+    Marker(this).run {
         id = POI_MARKER_ID
         position = GeoPoint(latitude, longitude)
         setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_CENTER)
-        icon = ResourcesCompat.getDrawable(resources, R.drawable.ic_my_location, null)!!.toBitmap()
-            .scale(iconSize.value.toInt(), iconSize.value.toInt(), true).run {
-                BitmapDrawable(resources, this)
-            }
+        val iconSize = with(density) { 7.dp.toPx().toInt() }
+        icon = BitmapDrawable(resources,
+            ResourcesCompat.getDrawable(resources, R.drawable.ic_my_location, null)!!.toBitmap(iconSize, iconSize))
         overlays.add(this)
     }
 }
@@ -137,58 +146,49 @@ fun SimpleMapScreen(
     requestWeatherArguments: RequestWeatherArguments, viewModel: RainViewerViewModel = hiltViewModel()
 ) {
     val context = LocalContext.current
-    val tiles by viewModel.radarTiles.collectAsStateWithLifecycle()
+    val uiState by viewModel.radarUiState.collectAsStateWithLifecycle()
 
-    LaunchedEffect(Unit) {
-        viewModel.load(context)
-    }
-
-    tiles.onSuccess {
+    uiState.onSuccess {
         SimpleWeatherScreenBackground(CardInfo(title = stringResource(id = R.string.radar)) {
             Column(modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                val adapterScope = rememberCoroutineScope()
-                val radarAdapter = remember {
-                    RadarAdapter().apply {
-                        setRadarController(adapterScope, viewModel)
-                    }
+                val overlays = remember {
+                    RadarTilesOverlay(context, it.host, it.radarTileEntities)
                 }
+                val simpleMapController = remember { SimpleMapController() }
 
                 Box(modifier = Modifier
                     .fillMaxWidth()
                     .height(240.dp)) {
-                    val simpleMapController = remember { SimpleMapController() }
                     MapScreen(requestWeatherArguments.location.latitude,
                         requestWeatherArguments.location.longitude,
-                        it,
-                        viewModel,
+                        overlays,
+                        viewModel.timePosition,
                         simpleMapController)
                     MapControllerScreen(simpleMapController, iconSize = 32.dp, bottomSpace = 20.dp)
                 }
 
-                RadarControllerScreen(radarAdapter) {
-
-                }
+                RadarControllerScreen(viewModel as RadarController)
             }
         })
     }.onError {
         SimpleWeatherFailedBox(title = stringResource(id = R.string.radar),
             description = stringResource(id = R.string.failed_to_load_radar)) {
-            viewModel.load(context)
+            viewModel.load()
         }
     }
 
 }
 
 @Composable
-private fun RadarControllerScreen(radarAdapter: RadarAdapter, onChangedPlay: (Boolean) -> Unit) {
+private fun RadarControllerScreen(controller: RadarController) {
     Row(horizontalArrangement = Arrangement.spacedBy(8.dp),
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
             .fillMaxWidth()
-            .wrapContentSize()) {
-        val time by radarAdapter.time.collectAsStateWithLifecycle()
+            .wrapContentHeight()) {
+        val playing by controller.playing.collectAsStateWithLifecycle()
 
         IconToggleButton(
             modifier = Modifier.size(36.dp),
@@ -198,28 +198,38 @@ private fun RadarControllerScreen(radarAdapter: RadarAdapter, onChangedPlay: (Bo
                 contentColor = Color.White,
                 checkedContentColor = Color.Transparent),
             onCheckedChange = {
-                radarAdapter.play()
+                controller.play()
             },
         ) {
-            var playIcon by remember {
-                mutableStateOf(R.drawable.ic_play to false)
+            val playIcon by remember {
+                derivedStateOf {
+                    if (playing) {
+                        R.drawable.ic_pause
+                    } else {
+                        R.drawable.ic_play
+                    }
+                }
             }
 
-            val playing by radarAdapter.playing.collectAsStateWithLifecycle()
-
-            LaunchedEffect(playing) {
-                onChangedPlay(playing)
-                playIcon = (if (playing) R.drawable.ic_pause else R.drawable.ic_play) to playing
-            }
-
-            Icon(painter = painterResource(playIcon.first), contentDescription = stringResource(id = R.string.play_all_radars))
+            Icon(painter = painterResource(playIcon), contentDescription = stringResource(id = R.string.play_all_radars))
         }
 
-        Text(text = time, color = Color.White, fontSize = 13.sp, modifier = Modifier.weight(1f))
+        Column(
+            modifier = Modifier
+                .wrapContentHeight()
+                .weight(1f),
+            verticalArrangement = Arrangement.spacedBy(2.dp),
+        ) {
+            val time by controller.time.collectAsStateWithLifecycle()
+            Text(text = time, color = Color.White, fontSize = 13.sp)
+            if (playing) {
+                LinearProgressIndicator()
+            }
+        }
 
         IconButton(
             onClick = {
-                radarAdapter.beforeRadar()
+                controller.beforeRadar()
             },
             modifier = Modifier.size(30.dp),
             colors = IconButtonDefaults.iconButtonColors(containerColor = Color.Transparent, contentColor = Color.White),
@@ -229,7 +239,7 @@ private fun RadarControllerScreen(radarAdapter: RadarAdapter, onChangedPlay: (Bo
         }
         IconButton(
             onClick = {
-                radarAdapter.nextRadar()
+                controller.nextRadar()
             },
             modifier = Modifier.size(30.dp),
             colors = IconButtonDefaults.iconButtonColors(
@@ -245,7 +255,6 @@ private fun RadarControllerScreen(radarAdapter: RadarAdapter, onChangedPlay: (Bo
 
 @Composable
 private fun BoxScope.MapControllerScreen(simpleMapController: SimpleMapController, iconSize: Dp, bottomSpace: Dp) {
-    // zoom in, zoom out
     Column(horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(4.dp),
         modifier = Modifier

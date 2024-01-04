@@ -1,19 +1,21 @@
 package io.github.pknujsp.weatherwizard.core.ui
 
-import android.content.res.Resources
-import android.util.TypedValue
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.drawText
 import androidx.compose.ui.text.rememberTextMeasurer
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import io.github.pknujsp.weatherwizard.core.model.weather.hourlyforecast.SimpleHourlyForecast
@@ -26,23 +28,12 @@ val space = 2.dp
 fun DynamicDateTime(
     dateTimeInfo: SimpleHourlyForecast.DateTimeInfo, lazyListState: LazyListState
 ) {
-    DateTime(dateTimeInfo, lazyListState.firstVisibleItemScrollOffset, lazyListState.firstVisibleItemIndex)
-}
-
-@Composable
-fun DynamicDateTime(
-    dateTimeInfo: SimpleHourlyForecast.DateTimeInfo,
-    offset: Int,
-    index: Int
-) {
-    DateTime(dateTimeInfo, offset, index)
+    DateTime(dateTimeInfo, lazyListState)
 }
 
 @Composable
 private fun DateTime(
-    dateTimeInfo: SimpleHourlyForecast.DateTimeInfo,
-    offset: Int,
-    index: Int
+    dateTimeInfo: SimpleHourlyForecast.DateTimeInfo, lazyListState: LazyListState, density: Density = LocalDensity.current
 ) {
     val textMeasurer = rememberTextMeasurer()
     val textStyle = remember {
@@ -52,17 +43,23 @@ private fun DateTime(
         textMeasurer.measure(dateTimeInfo.items.first().date, textStyle)
     }
     val columnWidthPx = remember {
-        TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, SimpleHourlyForecast.itemWidth.value, Resources.getSystem().displayMetrics)
-            .toInt()
+        with(density) {
+            SimpleHourlyForecast.itemWidth.toPx().toInt()
+        }
     }
-    val height = remember { (textLayoutResult.size.height / Resources.getSystem().displayMetrics.density).dp + (space * 2) }
+    val height = remember {
+        (textLayoutResult.size.height / density.density).dp + (space * 2)
+    }
+
+    val leftOnBoxInRow by remember {
+        derivedStateOf {
+            lazyListState.firstVisibleItemIndex * columnWidthPx + lazyListState.firstVisibleItemScrollOffset
+        }
+    }
 
     Canvas(modifier = Modifier
         .fillMaxWidth()
         .height(height)) {
-        println("Recompositioning DynamicDateTime")
-
-        val leftOnBoxInRow = index * columnWidthPx + offset
         val y = (size.height / 2) - (textLayoutResult.size.height / 2)
         val rightOnBoxInRow = leftOnBoxInRow + size.width
         var amountX: Int

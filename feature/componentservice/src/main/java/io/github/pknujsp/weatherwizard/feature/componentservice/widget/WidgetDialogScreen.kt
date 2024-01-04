@@ -60,10 +60,10 @@ fun Content(onClickLaunchApp: () -> Unit = {}, onClickRefresh: () -> Unit = {}, 
         PrimaryButton(text = stringResource(id = R.string.launch_app)) {
             onClickLaunchApp()
         }
-        SecondaryButton(text = stringResource(id = io.github.pknujsp.weatherwizard.core.resource.R.string.refresh)) {
+        SecondaryButton(text = stringResource(id = R.string.refresh)) {
             onClickRefresh()
         }
-        ThirdButton(text = stringResource(id = io.github.pknujsp.weatherwizard.core.resource.R.string.cancel)) {
+        ThirdButton(text = stringResource(id = R.string.cancel)) {
             onClickCancel()
         }
     }

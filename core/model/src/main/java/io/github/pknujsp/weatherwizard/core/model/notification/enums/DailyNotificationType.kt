@@ -7,14 +7,17 @@ import io.github.pknujsp.weatherwizard.core.model.weather.common.MajorWeatherEnt
 enum class DailyNotificationType(val categories: Array<MajorWeatherEntityType>) : IEnum {
     CURRENT(categories = arrayOf(MajorWeatherEntityType.CURRENT_CONDITION)) {
         override val title: Int = io.github.pknujsp.weatherwizard.core.resource.R.string.current_weather
+        override val icon: Int? = null
         override val key: Int = ordinal
     },
     AIR_QUALITY(categories = arrayOf(MajorWeatherEntityType.AIR_QUALITY)) {
         override val title: Int = io.github.pknujsp.weatherwizard.core.resource.R.string.air_quality
+        override val icon: Int? = null
         override val key: Int = ordinal
     },
     FORECAST(categories = arrayOf(MajorWeatherEntityType.HOURLY_FORECAST, MajorWeatherEntityType.DAILY_FORECAST)) {
         override val title: Int = io.github.pknujsp.weatherwizard.core.resource.R.string.hourly_and_daily_forecast
+        override val icon: Int? = null
         override val key: Int = ordinal
     };
 

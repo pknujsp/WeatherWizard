@@ -1,6 +1,5 @@
 package io.github.pknujsp.weatherwizard.core.ui.dialog
 
-import android.app.Activity
 import android.content.Context
 import android.graphics.PixelFormat
 import android.view.Gravity
@@ -18,6 +17,7 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
@@ -26,7 +26,6 @@ import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.SheetState
-import androidx.compose.material3.SheetValue
 import androidx.compose.material3.SheetValue.Expanded
 import androidx.compose.material3.SheetValue.Hidden
 import androidx.compose.material3.Surface
@@ -48,10 +47,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
-import androidx.compose.ui.graphics.isSpecified
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.AbstractComposeView
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.ViewRootForInspector
 import androidx.compose.ui.semantics.clearAndSetSemantics
@@ -67,18 +66,19 @@ import androidx.lifecycle.setViewTreeLifecycleOwner
 import androidx.lifecycle.setViewTreeViewModelStoreOwner
 import androidx.savedstate.findViewTreeSavedStateRegistryOwner
 import androidx.savedstate.setViewTreeSavedStateRegistryOwner
+import io.github.pknujsp.weatherwizard.core.ui.lottie.asActivity
 import io.github.pknujsp.weatherwizard.core.ui.theme.AppShapes
 import kotlinx.coroutines.launch
 import java.util.UUID
 import kotlin.math.roundToInt
 
+
 @Composable
 @ExperimentalMaterial3Api
 fun BottomSheet(
-    consumedNavigationBar: Boolean = false,
+    modifier: Modifier = Modifier,
     onDismissRequest: () -> Unit,
     navigationBarHeight: Dp = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding(),
-    modifier: Modifier = Modifier,
     sheetState: SheetState = rememberModalBottomSheetState(),
     shape: Shape = AppShapes.large,
     containerColor: Color = BottomSheetDefaults.ContainerColor,
@@ -86,6 +86,7 @@ fun BottomSheet(
     tonalElevation: Dp = BottomSheetDefaults.Elevation,
     scrimColor: Color = BottomSheetDefaults.ScrimColor,
     windowInsets: WindowInsets = WindowInsets(0, 0, 0, 0),
+    limitHeight: Boolean = true,
     content: @Composable ColumnScope.() -> Unit,
 ) {
     val scope = rememberCoroutineScope()
@@ -110,19 +111,22 @@ fun BottomSheet(
         windowInsets = windowInsets,
     ) {
         BoxWithConstraints(Modifier.fillMaxSize()) {
-            val fullHeight = constraints.maxHeight
+            val density = LocalDensity.current.density
+            val ratio = if (limitHeight) 0.45 else 0.9
+            val maxHeightDp = ((constraints.maxHeight / density) * ratio).roundToInt().dp
+
             Scrim(
                 color = scrimColor,
                 onDismissRequest = animateToDismiss,
             )
-
             Surface(
                 modifier = modifier
                     .padding(
                         bottom = 10.dp + navigationBarHeight,
-                        start = 10.dp,
-                        end = 10.dp,
+                        start = 12.dp,
+                        end = 12.dp,
                     )
+                    .heightIn(min = 0.dp, max = maxHeightDp)
                     .fillMaxWidth()
                     .align(Alignment.BottomCenter),
                 shape = shape,
@@ -130,22 +134,25 @@ fun BottomSheet(
                 contentColor = contentColor,
                 tonalElevation = tonalElevation,
             ) {
-                Column(Modifier.fillMaxWidth()) {
+                Column(modifier
+                    .fillMaxWidth()
+                    .padding(8.dp)) {
                     content()
                 }
             }
         }
     }
 
-    val window = (LocalContext.current as Activity).window
-    DisposableEffect(Unit) {
-        val firstState: Boolean
-        val windowInsetsController: WindowInsetsControllerCompat = WindowCompat.getInsetsController(window, window.decorView).apply {
-            firstState = isAppearanceLightNavigationBars
-            isAppearanceLightNavigationBars = false
-        }
-        onDispose {
-            windowInsetsController.isAppearanceLightNavigationBars = firstState
+    LocalContext.current.asActivity()?.window?.let { window ->
+        DisposableEffect(Unit) {
+            val firstState: Boolean
+            val windowInsetsController: WindowInsetsControllerCompat = WindowCompat.getInsetsController(window, window.decorView).apply {
+                firstState = isAppearanceLightNavigationBars
+                isAppearanceLightNavigationBars = false
+            }
+            onDispose {
+                windowInsetsController.isAppearanceLightNavigationBars = firstState
+            }
         }
     }
 
@@ -183,55 +190,23 @@ fun BottomSheet(
     content = content,
 )
 
-/**
- * Create and [remember] a [SheetState] for [BottomSheet].
- *
- * @param skipPartiallyExpanded Whether the partially expanded state, if the sheet is tall enough,
- * should be skipped. If true, the sheet will always expand to the [Expanded] state and move to the
- * [Hidden] state when hiding the sheet, either programmatically or by user interaction.
- * @param confirmValueChange Optional callback invoked to confirm or veto a pending state change.
- */
-@Composable
-@ExperimentalMaterial3Api
-fun rememberModalBottomSheetState(
-    skipPartiallyExpanded: Boolean = false,
-    confirmValueChange: (SheetValue) -> Boolean = { true },
-) = rememberSheetState(skipPartiallyExpanded, confirmValueChange, Hidden)
-
-@Composable
-@ExperimentalMaterial3Api
-fun rememberSheetState(
-    skipPartiallyExpanded: Boolean = false,
-    confirmValueChange: (SheetValue) -> Boolean = { true },
-    initialValue: SheetValue = Hidden,
-    skipHiddenState: Boolean = false,
-): SheetState {
-    return rememberSaveable(skipPartiallyExpanded,
-        confirmValueChange,
-        saver = SheetState.Saver(skipPartiallyExpanded = skipPartiallyExpanded, confirmValueChange = confirmValueChange)) {
-        SheetState(skipPartiallyExpanded, initialValue, confirmValueChange, skipHiddenState)
-    }
-}
 
 @Composable
 private fun Scrim(
     color: Color,
     onDismissRequest: () -> Unit,
 ) {
-    if (color.isSpecified) {
-        val dismissSheet = Modifier
-            .pointerInput(onDismissRequest) {
-                detectTapGestures {
-                    onDismissRequest()
-                }
+    val dismissSheet = Modifier
+        .pointerInput(onDismissRequest) {
+            detectTapGestures {
+                onDismissRequest()
             }
-            .clearAndSetSemantics {}
-
-        Canvas(Modifier
-            .fillMaxSize()
-            .then(dismissSheet)) {
-            drawRect(color = color, alpha = 1f)
         }
+        .clearAndSetSemantics {}
+    Canvas(Modifier
+        .fillMaxSize()
+        .then(dismissSheet)) {
+        drawRect(color = color, alpha = 1f)
     }
 }
 

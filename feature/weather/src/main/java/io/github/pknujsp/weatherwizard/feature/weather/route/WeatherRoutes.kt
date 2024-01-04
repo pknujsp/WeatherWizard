@@ -1,4 +1,4 @@
-package io.github.pknujsp.weatherwizard.feature.weather
+package io.github.pknujsp.weatherwizard.feature.weather.route
 
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
@@ -10,15 +10,15 @@ sealed interface WeatherRoutes : Routes {
 
     companion object : ParentRoutes {
         override val route: String = "Weather"
-        @DrawableRes override val navIcon: Int = R.drawable.ic_sun
-        @StringRes override val navTitle: Int = io.github.pknujsp.weatherwizard.core.resource.R.string.nav_weather
+        @DrawableRes override val navIcon: Int = R.drawable.ic_weather_clear
+        @StringRes override val navTitle: Int = R.string.nav_weather
     }
 
     data object Main : WeatherRoutes {
         override val route: String = "Weather/Main"
     }
 
-    data object Info : WeatherRoutes{
+    data object Info : WeatherRoutes {
         override val route: String = "Weather/Info"
     }
 }

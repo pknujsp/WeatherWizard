@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyListState
@@ -30,6 +31,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -52,11 +54,13 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import io.github.pknujsp.weatherwizard.core.common.util.AStyle
 import io.github.pknujsp.weatherwizard.core.common.util.toAnnotated
+import io.github.pknujsp.weatherwizard.core.model.UiState
 import io.github.pknujsp.weatherwizard.core.model.onLoading
 import io.github.pknujsp.weatherwizard.core.model.onSuccess
 import io.github.pknujsp.weatherwizard.core.model.weather.RequestWeatherArguments
 import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherProvider
 import io.github.pknujsp.weatherwizard.core.model.weather.hourlyforecast.CompareHourlyForecast
+import io.github.pknujsp.weatherwizard.core.model.weather.hourlyforecast.HourlyForecastComparisonReport
 import io.github.pknujsp.weatherwizard.core.ui.DynamicDateTime
 import io.github.pknujsp.weatherwizard.core.ui.TitleTextWithNavigation
 import io.github.pknujsp.weatherwizard.core.ui.TitleTextWithoutNavigation
@@ -67,45 +71,49 @@ import io.github.pknujsp.weatherwizard.core.resource.R
 
 @Composable
 fun CompareHourlyForecastScreen(
-    args: RequestWeatherArguments, viewModelStoreOwner: ViewModelStoreOwner, popBackStack: () -> Unit
+    args: RequestWeatherArguments, viewModel: CompareHourlyForecastViewModel = hiltViewModel(), popBackStack: () -> Unit
 ) {
     BackHandler {
         popBackStack()
     }
-    val viewModel: CompareHourlyForecastViewModel = hiltViewModel(viewModelStoreOwner)
 
     LaunchedEffect(Unit) {
         viewModel.load(args)
     }
 
+    val hourlyForecast by viewModel.hourlyForecast.collectAsStateWithLifecycle()
+    val hourlyForecastComparisonReport by viewModel.report.collectAsStateWithLifecycle()
+    val compareForecastCard = remember {
+        CompareForecastCard()
+    }
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .navigationBarsPadding()
-            .verticalScroll(rememberScrollState()),
+            .systemBarsPadding(),
     ) {
-        TitleTextWithNavigation(title = stringResource(id = io.github.pknujsp.weatherwizard.core.resource.R.string.title_comparison_hourly_forecast)) {
+        TitleTextWithNavigation(title = stringResource(id = R.string.title_comparison_hourly_forecast)) {
             popBackStack()
         }
-        val compareForecastCard = remember {
-            CompareForecastCard()
-        }
-        compareForecastCard.CompareCardSurface {
-            val hourlyForecast by viewModel.hourlyForecast.collectAsStateWithLifecycle()
-            hourlyForecast.onLoading {
-                CancellableLoadingScreen {
-
-                }
-            }.onSuccess {
-                Column(verticalArrangement = Arrangement.spacedBy(4.dp), modifier = Modifier.padding(vertical = 16.dp)) {
-                    val mainLazyListState = rememberLazyListState()
-                    DynamicDateTime(it.dateTimeInfo, mainLazyListState)
-                    Content(it, mainLazyListState)
+        Column(modifier = Modifier
+            .fillMaxWidth()
+            .weight(1f)
+            .verticalScroll(rememberScrollState())) {
+            compareForecastCard.CompareCardSurface {
+                hourlyForecast.onLoading {
+                    CancellableLoadingScreen(stringResource(id = R.string.loading_daily_forecast_data)) {
+                        popBackStack()
+                    }
+                }.onSuccess {
+                    Column(verticalArrangement = Arrangement.spacedBy(4.dp), modifier = Modifier.padding(vertical = 16.dp)) {
+                        val mainLazyListState = rememberLazyListState()
+                        DynamicDateTime(it.dateTimeInfo, mainLazyListState)
+                        Content(it, mainLazyListState)
+                    }
                 }
             }
+            Spacer(modifier = Modifier.height(16.dp))
+            ReportScreen(hourlyForecastComparisonReport)
         }
-        Spacer(modifier = Modifier.height(16.dp))
-        ReportScreen(viewModel)
     }
 }
 
@@ -174,13 +182,13 @@ internal fun WeatherDataProviderInfo(weatherProvider: WeatherProvider, height: D
             .height(height)
             .padding(start = 12.dp)) {
         AsyncImage(
-            model = ImageRequest.Builder(LocalContext.current).data(weatherProvider.logo).crossfade(false).build(),
+            model = ImageRequest.Builder(LocalContext.current).data(weatherProvider.icon).crossfade(false).build(),
             contentDescription = stringResource(id = R.string.weather_provider),
             modifier = Modifier.size(18.dp),
         )
         Spacer(modifier = Modifier.width(4.dp))
         Text(
-            text = stringResource(id = weatherProvider.name),
+            text = stringResource(id = weatherProvider.title),
             fontSize = 15.sp,
             color = Color.White,
         )
@@ -215,16 +223,13 @@ private fun Item(
 }
 
 @Composable
-private fun ReportScreen(hourlyForecastViewModel: CompareHourlyForecastViewModel) {
-    val report by hourlyForecastViewModel.report.collectAsStateWithLifecycle()
-    report.onSuccess { model ->
+private fun ReportScreen(uiState: UiState<HourlyForecastComparisonReport>) {
+    uiState.onSuccess { model ->
         Column {
             TitleTextWithoutNavigation(title = stringResource(id = R.string.title_comparison_report))
-            Row(
-                verticalAlignment = Alignment.Top,
+            Row(verticalAlignment = Alignment.Top,
                 horizontalArrangement = Arrangement.Start,
-                modifier = Modifier.horizontalScroll(rememberScrollState())
-            ) {
+                modifier = Modifier.horizontalScroll(rememberScrollState())) {
                 model.commonForecasts.forEach { entry ->
                     Column(
                         modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),

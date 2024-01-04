@@ -26,6 +26,7 @@ import io.github.pknujsp.weatherwizard.core.common.coroutines.CoDispatcherType
 import io.github.pknujsp.weatherwizard.core.common.manager.AppNetworkManager
 import io.github.pknujsp.weatherwizard.core.ui.feature.OpenAppSettingsActivity
 import io.github.pknujsp.weatherwizard.core.ui.feature.UnavailableFeatureScreen
+import io.github.pknujsp.weatherwizard.core.ui.feature.rememberAppNetworkState
 import io.github.pknujsp.weatherwizard.core.ui.theme.AppColorScheme
 import io.github.pknujsp.weatherwizard.core.ui.theme.MainTheme
 import io.github.pknujsp.weatherwizard.feature.componentservice.widget.WidgetStarter
@@ -41,7 +42,6 @@ class MainActivity : ComponentActivity() {
     private val viewModel: ActivityViewModel by viewModels()
 
     @Inject @CoDispatcher(CoDispatcherType.SINGLE) lateinit var dispatcher: CoroutineDispatcher
-    @Inject lateinit var appNetworkManager: AppNetworkManager
     @Inject lateinit var widgetStarter: WidgetStarter
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -54,46 +54,12 @@ class MainActivity : ComponentActivity() {
                     MapInitializer.initialize(applicationContext)
                     viewModel.notificationStarter.start(applicationContext)
                     widgetStarter.start(applicationContext)
-                    Log.d("MainActivity", "initialized map, notification, widget")
                 }
             }
 
             MainTheme {
                 Surface(modifier = Modifier.fillMaxSize(), color = AppColorScheme.background) {
-                    var isNetworkAvailable by remember { mutableStateOf(appNetworkManager.isNetworkAvailable()) }
-                    var openNetworkSettings by remember { mutableStateOf(false) }
-
-                    DisposableEffect(appNetworkManager) {
-                        appNetworkManager.registerNetworkCallback(object : ConnectivityManager.NetworkCallback() {
-                            override fun onAvailable(network: Network) {
-                                super.onAvailable(network)
-                                isNetworkAvailable = true
-                            }
-
-                            override fun onLost(network: Network) {
-                                super.onLost(network)
-                                isNetworkAvailable = appNetworkManager.isNetworkAvailable()
-                            }
-                        })
-
-                        onDispose {
-                            appNetworkManager.unregisterNetworkCallback()
-                        }
-                    }
-
-                    if (isNetworkAvailable) {
-                        MainScreen()
-                    } else {
-                        UnavailableFeatureScreen(featureType = FeatureType.NETWORK) {
-                            openNetworkSettings = true
-                        }
-                    }
-
-                    if (openNetworkSettings) {
-                        OpenAppSettingsActivity(featureType = FeatureType.NETWORK) {
-                            openNetworkSettings = false
-                        }
-                    }
+                    MainScreen()
                 }
             }
         }
@@ -116,10 +82,9 @@ class MainActivity : ComponentActivity() {
                 isAppearanceLightStatusBars = true
                 isAppearanceLightNavigationBars = true
             }
-
             statusBarColor = Color.TRANSPARENT
             navigationBarColor = Color.TRANSPARENT
-
+            
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                 isStatusBarContrastEnforced = false
                 isNavigationBarContrastEnforced = false

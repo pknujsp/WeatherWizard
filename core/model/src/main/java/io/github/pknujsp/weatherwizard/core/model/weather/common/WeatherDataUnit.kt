@@ -25,12 +25,13 @@ sealed class TemperatureUnit(override val symbol: String) : WeatherDataUnit {
     data object Celsius : TemperatureUnit("℃") {
         override val title: Int = io.github.pknujsp.weatherwizard.core.resource.R.string.celsius
         override val key: Int = 0
-
+        override val icon: Int? = null
     }
 
     @Serializable
     data object Fahrenheit : TemperatureUnit("℉") {
         override val title: Int = io.github.pknujsp.weatherwizard.core.resource.R.string.fahrenheit
+        override val icon: Int? = null
         override val key: Int = 1
     }
 
@@ -48,11 +49,13 @@ sealed class WindSpeedUnit(override val symbol: String) : WeatherDataUnit {
     @Serializable
     data object KilometerPerHour : WindSpeedUnit("km/h") {
         override val title: Int = io.github.pknujsp.weatherwizard.core.resource.R.string.kilometer_per_hour
+        override val icon: Int? = null
         override val key: Int = 0
     }
 
     @Serializable
     data object MeterPerSecond : WindSpeedUnit("m/s") {
+        override val icon: Int? = null
         override val title: Int = io.github.pknujsp.weatherwizard.core.resource.R.string.meter_per_second
         override val key: Int = 1
     }
@@ -71,12 +74,14 @@ sealed class PrecipitationUnit(override val symbol: String) : WeatherDataUnit {
 
     @Serializable
     data object Millimeter : PrecipitationUnit("mm") {
+        override val icon: Int? = null
         override val title: Int = io.github.pknujsp.weatherwizard.core.resource.R.string.millimeter
         override val key: Int = 0
     }
 
     @Serializable
     data object Centimeter : PrecipitationUnit("cm") {
+        override val icon: Int? = null
         override val title: Int = io.github.pknujsp.weatherwizard.core.resource.R.string.centimeter
         override val key: Int = 1
     }
@@ -92,6 +97,7 @@ sealed class VisibilityUnit(override val symbol: String) : WeatherDataUnit {
 
     @Serializable
     data object Kilometer : VisibilityUnit("km") {
+        override val icon: Int? = null
         override val title: Int = io.github.pknujsp.weatherwizard.core.resource.R.string.kilometer
         override val key: Int = 0
     }
@@ -107,6 +113,7 @@ sealed class PressureUnit(override val symbol: String) : WeatherDataUnit {
 
     @Serializable
     data object Hectopascal : PressureUnit("hPa") {
+        override val icon: Int? = null
         override val title: Int = io.github.pknujsp.weatherwizard.core.resource.R.string.hectopascal
         override val key: Int = 0
     }
@@ -123,6 +130,7 @@ sealed class WindDirectionUnit(override val symbol: String) : WeatherDataUnit {
     @Serializable
     data object Degree : WindDirectionUnit("°") {
         override val title: Int = io.github.pknujsp.weatherwizard.core.resource.R.string.degree
+        override val icon: Int? = null
         override val key: Int = 0
     }
 }
@@ -131,5 +139,6 @@ sealed class WindDirectionUnit(override val symbol: String) : WeatherDataUnit {
 data object PercentageUnit : WeatherDataUnit {
     override val title: Int = io.github.pknujsp.weatherwizard.core.resource.R.string.percentage
     override val key: Int = 0
+    override val icon: Int? = null
     override val symbol: String = "%"
 }

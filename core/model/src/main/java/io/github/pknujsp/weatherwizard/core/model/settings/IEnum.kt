@@ -1,9 +1,11 @@
 package io.github.pknujsp.weatherwizard.core.model.settings
 
+import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 
 interface IEnum {
     @get:StringRes val title: Int
+    @get:DrawableRes val icon: Int?
     val key: Int
 }
 

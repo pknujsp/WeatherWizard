@@ -73,13 +73,12 @@ internal class KmaDataSourceImpl(
                     ).get()!!,
                 )
 
-                var parsedDailyForecast = kmaHtmlParser.parseDailyForecasts(
+                val parsedDailyForecast = kmaHtmlParser.parseDailyForecasts(
                     document = WeakReference(
                         Jsoup.parse(it),
                     ).get()!!,
                 )
-                parsedDailyForecast = kmaHtmlParser.makeExtendedDailyForecasts(parsedHourlyForecast, parsedDailyForecast.toMutableList())
-                Result.success(parsedHourlyForecast to parsedDailyForecast)
+                Result.success(parsedHourlyForecast to kmaHtmlParser.makeExtendedDailyForecasts(parsedHourlyForecast, parsedDailyForecast))
             },
             onFailure = {
                 Result.failure(it)

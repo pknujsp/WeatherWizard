@@ -2,23 +2,16 @@ package io.github.pknujsp.weatherwizard.feature.settings
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import io.github.pknujsp.weatherwizard.core.model.weather.common.PrecipitationUnit
 import io.github.pknujsp.weatherwizard.core.model.weather.common.TemperatureUnit
 import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherDataUnit
-import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherProvider
 import io.github.pknujsp.weatherwizard.core.model.weather.common.WindSpeedUnit
-import io.github.pknujsp.weatherwizard.core.ui.TextValueSettingItem
-import io.github.pknujsp.weatherwizard.core.ui.TitleTextWithNavigation
 import io.github.pknujsp.weatherwizard.core.resource.R
 import io.github.pknujsp.weatherwizard.core.ui.BottomSheetSettingItem
+import io.github.pknujsp.weatherwizard.core.ui.TitleTextWithNavigation
 
 @Composable
 fun ValueUnitScreen(navController: NavController, viewModel: UnitSettingsViewModel = hiltViewModel()) {

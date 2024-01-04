@@ -308,7 +308,7 @@ internal class KmaHtmlParser {
         return parsedKmaHourlyForecasts
     }
 
-    fun parseDailyForecasts(document: Document): List<ParsedKmaDailyForecast> {
+    fun parseDailyForecasts(document: Document): MutableList<ParsedKmaDailyForecast> {
         val elements = document.getElementsByClass("slide-wrap")
         //이후 10일
         val slides = elements.select("div.slide.day-ten div.daily")

@@ -21,6 +21,7 @@ object MapInitializer {
                 cacheMapTileOvershoot = (12).toShort()
                 cacheMapTileCount = (12).toShort()
                 isMapViewHardwareAccelerated = true
+                isDebugMode = false
             }
         }
     }

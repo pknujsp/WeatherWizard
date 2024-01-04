@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -21,7 +20,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import io.github.pknujsp.weatherwizard.core.ui.PrimaryButton
-import io.github.pknujsp.weatherwizard.core.ui.theme.AppColorScheme
+import io.github.pknujsp.weatherwizard.core.ui.SecondaryButton
 
 
 @Composable
@@ -44,10 +43,7 @@ fun PermissionDialog(onDismissRequest: () -> Unit, onGrantPermission: () -> Unit
             Row(modifier = Modifier
                 .align(Alignment.CenterHorizontally)
                 .fillMaxWidth(), horizontalArrangement = Arrangement.End) {
-                PrimaryButton(colors = ButtonDefaults.buttonColors(
-                    containerColor = Color.White,
-                    contentColor = AppColorScheme.primary
-                ), text = stringResource(id = io.github.pknujsp.weatherwizard.core.resource.R.string.close), onClick = onDismissRequest)
+                SecondaryButton(text = stringResource(id = io.github.pknujsp.weatherwizard.core.resource.R.string.close), onClick = onDismissRequest)
                 PrimaryButton(text = stringResource(id = io.github.pknujsp.weatherwizard.core.resource.R.string.grant_permissions),
                     onClick = onGrantPermission)
             }

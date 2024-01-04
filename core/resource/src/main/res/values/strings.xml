@@ -150,7 +150,7 @@
     <string name="moonset">달지는 시간</string>
     <string name="weather_condition">현재 날씨 상태</string>
 
-    <string name="wind_strength_0">바람이 없음</string>
+    <string name="wind_strength_0">무풍</string>
     <string name="wind_strength_1">가벼운 바람</string>
     <string name="wind_strength_2">약한 바람</string>
     <string name="wind_strength_3">부드러운 바람</string>
@@ -293,5 +293,12 @@
     <string name="percentage">%</string>
     <string name="background_location_permission">백그라운드 위치 권한</string>
     <string name="background_location_permission_denied">백그라운드 위치 권한이 허용되어 있지 않아 진행이 불가능 합니다.</string>
+    <string name="reverse_geocode_error_title">현재위치주소 로드 오류</string>
+    <string name="reverse_geocode_error_message">현재 위치의 주소를 불러오는데 실패하였습니다</string>
+    <string name="title_canceled_work">작업 취소</string>
+    <string name="message_canceled_work">작업이 취소되었습니다</string>
+    <string name="loading_hourly_forecast_data">시간별 예보 불러오는 중</string>
+    <string name="loading_daily_forecast_data">일별 예보 불러오는 중</string>
+    <string name="no_data">자료 없음</string>
 
 </resources>

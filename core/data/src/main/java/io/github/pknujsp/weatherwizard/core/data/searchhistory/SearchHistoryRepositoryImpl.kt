@@ -5,7 +5,7 @@ import io.github.pknujsp.weatherwizard.core.model.searchhistory.SearchHistory
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
-class SearchHistoryRepositoryImpl @Inject constructor(
+class SearchHistoryRepositoryImpl(
     private val searchHistoryLocalDataSource: SearchHistoryLocalDataSource
 ) : SearchHistoryRepository {
     override suspend fun insert(query: String) {

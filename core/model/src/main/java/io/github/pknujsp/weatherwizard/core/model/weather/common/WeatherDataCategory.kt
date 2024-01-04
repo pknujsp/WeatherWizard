@@ -56,7 +56,7 @@ enum class WeatherDataCategory(@StringRes val stringId: Int) {
     // 오존 농도
     OZONE(R.string.ozone),
 
-    // 대기질 지수
+    // 대기질
     AIR_QUALITY_INDEX(R.string.air_quality_index),
 
     // 미세먼지(PM2.5) 농도

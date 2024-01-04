@@ -11,7 +11,6 @@ import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
@@ -24,16 +23,15 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
-import io.github.pknujsp.weatherwizard.core.resource.R
 import io.github.pknujsp.weatherwizard.core.model.flickr.FlickrRequestParameters
-import io.github.pknujsp.weatherwizard.core.model.onError
-import io.github.pknujsp.weatherwizard.core.model.onLoading
-import io.github.pknujsp.weatherwizard.core.model.onSuccess
+import io.github.pknujsp.weatherwizard.core.resource.R
 import io.github.pknujsp.weatherwizard.core.ui.theme.outlineTextStyle
 
 @Composable
 fun FlickrImageItemScreen(
-    requestParameter: FlickrRequestParameters, viewModel: FlickrImageViewModel = hiltViewModel(), onLoadedImage: (String) -> Unit
+    requestParameter: FlickrRequestParameters,
+    onImageUrlChanged: (String) -> Unit,
+    viewModel: FlickrImageViewModel = hiltViewModel(),
 ) {
     LaunchedEffect(requestParameter) {
         viewModel.initialize(requestParameter)
@@ -43,9 +41,9 @@ fun FlickrImageItemScreen(
 
     LaunchedEffect(uiState) {
         if (uiState.isLoaded) {
-            onLoadedImage(uiState.url)
+            onImageUrlChanged(uiState.url)
         } else {
-            onLoadedImage("")
+            onImageUrlChanged("")
         }
     }
 

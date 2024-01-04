@@ -64,10 +64,13 @@ interface FeatureStatusManager {
 }
 
 
-enum class FailedReason(@StringRes val title: Int, @StringRes val message: Int, @StringRes val action: Int) {
+enum class FailedReason(
+    @StringRes val title: Int, @StringRes val message: Int, @StringRes val action: Int, val hasRepairAction: Boolean = true
+) {
     NETWORK_DISABLED(R.string.network, R.string.network_unavailable, R.string.open_settings_for_network),
-    SERVER_ERROR(R.string.server_error_title, R.string.server_error_message, R.string.reload),
-    UNKNOWN(R.string.unknown_error_title, R.string.unknown_error_message, R.string.reload),
+    SERVER_ERROR(R.string.server_error_title, R.string.server_error_message, R.string.reload, false),
+    UNKNOWN(R.string.unknown_error_title, R.string.unknown_error_message, R.string.reload, false),
+    REVERSE_GEOCODE_ERROR(R.string.reverse_geocode_error_title, R.string.reverse_geocode_error_message, R.string.reload, false),
     LOCATION_PROVIDER_DISABLED(R.string.location_service, R.string.location_service_disabled, R.string.open_settings_for_location_service),
     ENABLED_BATTERY_OPTIMIZATION(
         R.string.battery_optimization,
@@ -98,5 +101,10 @@ enum class FailedReason(@StringRes val title: Int, @StringRes val message: Int, 
         R.string.exact_alarm_permission,
         R.string.exact_alarm_permission_denied,
         R.string.open_settings_for_permission,
+    ),
+    CANCELED(
+        R.string.title_canceled_work,
+        R.string.message_canceled_work,
+        R.string.reload,
     );
 }
