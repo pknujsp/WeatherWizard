@@ -7,6 +7,7 @@ import androidx.compose.foundation.gestures.scrollBy
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -21,8 +22,10 @@ import androidx.compose.material.icons.rounded.Place
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LargeTopAppBar
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
@@ -55,38 +58,40 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TopAppBars(
-    uiState:  WeatherContentUiState.Success,
+    modifier: Modifier = Modifier,
+    uiState: WeatherContentUiState.Success,
     openDrawer: () -> Unit,
     reload: () -> Unit,
     onClickedWeatherProviderButton: () -> Unit,
-    scrollBehavior:  TopAppBarScrollBehavior,
-    scrollState: ScrollState,
+    scrollBehavior: TopAppBarScrollBehavior,
 ) {
-    val coroutineScope = rememberCoroutineScope()
-    CustomTopAppBar(smallTitle = {
-        Column(modifier = Modifier.statusBarsPadding(), horizontalAlignment = Alignment.Start, verticalArrangement = Arrangement.Center) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(imageVector = Icons.Rounded.Place,
-                    contentDescription = null,
-                    tint = Color.White,
-                    modifier = Modifier
-                        .size(15.dp)
-                        .padding(end = 4.dp))
+    CustomTopAppBar(
+        smallTitle = {
+            Column(modifier = modifier,
+                horizontalAlignment = Alignment.Start,
+                verticalArrangement = Arrangement.Center) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(imageVector = Icons.Rounded.Place,
+                        contentDescription = null,
+                        tint = Color.White,
+                        modifier = Modifier
+                            .size(15.dp)
+                            .padding(end = 4.dp))
+                    Text(
+                        text = uiState.args.location.address,
+                        color = Color.White,
+                        fontSize = 14.sp,
+                        style = LocalTextStyle.current.merge(notIncludeTextPaddingStyle).merge(outlineTextStyle),
+                    )
+                }
                 Text(
-                    text = uiState.args.location.address,
+                    text = uiState.dateTime,
+                    fontSize = TextUnit(11f, TextUnitType.Sp),
                     color = Color.White,
-                    fontSize = 14.sp,
                     style = LocalTextStyle.current.merge(notIncludeTextPaddingStyle).merge(outlineTextStyle),
                 )
             }
-            Text(
-                text = uiState.dateTime,
-                fontSize = TextUnit(11f, TextUnitType.Sp),
-                color = Color.White,
-                style = LocalTextStyle.current.merge(notIncludeTextPaddingStyle).merge(outlineTextStyle),
-            )
-        }
-    },
+        },
         bigTitle = {
             Column(
                 modifier = Modifier
@@ -95,21 +100,21 @@ fun TopAppBars(
             ) {
                 Text(
                     text = listOf(
+                        AStyle("${uiState.args.location.address}\n", span = SpanStyle(fontSize = 25.sp)),
                         AStyle(
-                            "${uiState.args.location.country}\n",
+                            uiState.args.location.country,
                             span = SpanStyle(
-                                fontSize = 17.sp,
+                                fontSize = 16.sp,
                             ),
                         ),
-                        AStyle(uiState.args.location.address, span = SpanStyle(fontSize = 24.sp)),
                     ).toAnnotated(),
                     textAlign = TextAlign.Start,
                     fontWeight = FontWeight.Bold,
                     color = Color.White,
-                    lineHeight = 28.sp,
+                    lineHeight = 30.sp,
                     style = LocalTextStyle.current.merge(outlineTextStyle),
                 )
-                Spacer(modifier = Modifier.height(6.dp))
+                Spacer(modifier = Modifier.height(8.dp))
                 Row(
                     horizontalArrangement = Arrangement.Start,
                     verticalAlignment = Alignment.CenterVertically,
@@ -149,7 +154,7 @@ fun TopAppBars(
             }
         },
         actions = {
-            IconButton(modifier = Modifier.statusBarsPadding(), onClick = { reload() }) {
+            IconButton(modifier = modifier, onClick = { reload() }) {
                 Icon(painter = painterResource(id = R.drawable.ic_refresh), contentDescription = null)
             }
         },
@@ -161,15 +166,12 @@ fun TopAppBars(
             navigationIconContentColor = Color.White,
             actionIconContentColor = Color.White,
         ),
-        modifier = Modifier.background(brush = shadowBox()),
+        modifier = modifier.background(brush = shadowBox()).statusBarsPadding(),
         windowInsets = WindowInsets(0.dp, 0.dp, 0.dp, 0.dp),
         navigationIcon = {
-            IconButton(modifier = Modifier.statusBarsPadding(), onClick = openDrawer) {
+            IconButton(modifier = modifier, onClick = openDrawer) {
                 Icon(Icons.Rounded.Menu, contentDescription = null)
             }
-        }, onDragging = {
-            coroutineScope.launch {
-                scrollState.scrollBy(it)
-            }
-        })
+        },
+    )
 }
