@@ -1,9 +1,7 @@
 package io.github.pknujsp.weatherwizard.feature.weather.info
 
-import android.util.Log
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
-import androidx.compose.foundation.gestures.scrollBy
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -15,14 +13,12 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -32,14 +28,13 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.FilterQuality
-import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import coil.request.CachePolicy
 import coil.request.ImageRequest
 import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherProvider
 import io.github.pknujsp.weatherwizard.core.resource.R
@@ -79,26 +74,38 @@ fun WeatherContentScreen(
             updateWindowInset()
         }
     }
+    LaunchedEffect(Unit) {
+        val heightOffsetLimit = -scrollBehavior.state.heightOffsetLimit
+        val collapsedHeightOffset = scrollBehavior.state.heightOffsetLimit
+
+        snapshotFlow {
+            scrollState.value
+        }.collect { y ->
+            if (y <= heightOffsetLimit) {
+                scrollBehavior.state.heightOffset = -y.toFloat()
+            } else if (scrollBehavior.state.heightOffset != collapsedHeightOffset) {
+                scrollBehavior.state.heightOffset = collapsedHeightOffset
+            }
+        }
+    }
 
     AsyncImage(
         modifier = Modifier.fillMaxSize(),
         contentScale = ContentScale.Crop,
         alignment = Alignment.Center,
-        model = ImageRequest.Builder(LocalContext.current).crossfade(200).data(imageUrl).build(),
+        model = ImageRequest.Builder(LocalContext.current).diskCachePolicy(CachePolicy.ENABLED).crossfade(250).data(imageUrl).build(),
         contentDescription = stringResource(R.string.background_image),
     )
 
-    Scaffold(modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
-        containerColor = Color.Black.copy(alpha = 0.1f),
-        topBar = {
-            TopAppBars(
-                uiState = uiState,
-                openDrawer = openDrawer,
-                reload = reload,
-                onClickedWeatherProviderButton = { onClickedWeatherProviderButton = true },
-                scrollBehavior = scrollBehavior,
-            )
-        }) { _ ->
+    Scaffold(containerColor = Color.Black.copy(alpha = 0.1f), topBar = {
+        TopAppBars(
+            uiState = uiState,
+            openDrawer = openDrawer,
+            reload = reload,
+            onClickedWeatherProviderButton = { onClickedWeatherProviderButton = true },
+            scrollBehavior = scrollBehavior,
+        )
+    }) { _ ->
         val systemBarsPadding = with(LocalDensity.current) {
             PaddingValues(top = 200.dp, bottom = WindowInsets.navigationBars.getBottom(this).toDp())
         }
@@ -107,8 +114,7 @@ fun WeatherContentScreen(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(horizontal = 12.dp)
-                    .verticalScroll(scrollState)
-                    .nestedScroll(scrollBehavior.nestedScrollConnection),
+                    .verticalScroll(scrollState),
                 verticalArrangement = Arrangement.spacedBy(20.dp),
             ) {
                 weather.run {

@@ -14,12 +14,12 @@ fun shadowBox(
 
 enum class ShadowDirection(
     val colorStops: Array<Pair<Float, Color>>,
-    val start: Offset = Offset.Zero,
-    val end: Offset = Offset.Infinite,
+    val start: Offset,
+    val end: Offset,
 ) {
     UP(
         colorStops = arrayOf(
-            0.0f to Color.Black.copy(alpha = 0.7f),
+            0.0f to Color.Black.copy(alpha = 0.65f),
             1.0f to Color.Transparent,
         ),
         end = Offset(0.0f, 0f),
@@ -27,7 +27,7 @@ enum class ShadowDirection(
     ),
     DOWN(
         colorStops = arrayOf(
-            0.0f to Color.Black.copy(alpha = 0.7f),
+            0.0f to Color.Black.copy(alpha = 0.65f),
             1.0f to Color.Transparent,
         ),
         start = Offset(0.0f, 0f),

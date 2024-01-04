@@ -67,6 +67,7 @@ internal fun CustomTopAppBar(
         Row(horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically, content = actions)
     }
 
+    /**
     val appBarDragModifier = if (!scrollBehavior.isPinned) {
         Modifier.draggable(orientation = Orientation.Vertical, state = rememberDraggableState { delta ->
             scrollBehavior.state.heightOffset += delta
@@ -76,8 +77,9 @@ internal fun CustomTopAppBar(
     } else {
         Modifier
     }
+    **/
 
-    Surface(modifier = modifier.then(appBarDragModifier), color = Color.Transparent) {
+    Surface(modifier = modifier, color = Color.Transparent) {
         Box {
             val colorTransitionFraction = scrollBehavior.state.collapsedFraction
             val smallTitleAlpha = topTitleAlphaEasing.transform(colorTransitionFraction)
