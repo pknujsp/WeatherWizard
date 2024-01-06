@@ -36,7 +36,7 @@ internal class NominatimRepositoryImpl(
                         placeId = feature.properties.placeId,
                         category = feature.properties.category,
                         osmType = feature.properties.osmType,
-                        saddle = feature.properties.address.saddle,
+                        natural = feature.properties.address.natural,
                     )
                 }
                 geoCodeCacheMap.put(query, mapped)
@@ -73,7 +73,7 @@ internal class NominatimRepositoryImpl(
                         quarter = properties.address.quarter,
                         state = properties.address.state,
                         suburb = properties.address.suburb,
-                        saddle = properties.address.saddle,
+                        natural = properties.address.natural,
                     )
                 }
                 reverseCodeCacheMap.put(key, result)

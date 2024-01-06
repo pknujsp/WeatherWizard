@@ -26,8 +26,10 @@ class SearchLocationViewModel @Inject constructor(
     private val _uiAction = MutableStateFlow<Action>(Action.Default)
     val uiAction: StateFlow<Action> = _uiAction
 
-    private val osmTypeFilters = arrayOf("node", "way", "relation")
-    private val countryCodeFilters = arrayOf("kr")
+    private companion object {
+        val osmTypeFilters = arrayOf("node", "way", "relation")
+        val countryCodeFilters = arrayOf("kr")
+    }
 
     fun search(query: String) {
         viewModelScope.launch(Dispatchers.IO) {

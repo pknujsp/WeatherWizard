@@ -54,7 +54,7 @@ data class GeoCodeResponse(
                 @SerialName("suburb") val suburb: String = "", // 동인천동
                 @SerialName("village") val village: String = "", // 내동
                 @SerialName("road") val road: String = "", // 구지로
-                @SerialName("saddle") val saddle: String = "" // 고개
+                @SerialName("natural") val natural: String = "" // 자연
             )
         }
     }

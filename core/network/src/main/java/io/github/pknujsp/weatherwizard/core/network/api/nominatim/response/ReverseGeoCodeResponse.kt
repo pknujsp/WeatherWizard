@@ -54,7 +54,7 @@ data class ReverseGeoCodeResponse(
                 @SerialName("suburb") val suburb: String = "", // Marconi
                 @SerialName("province") val province: String = "", // Bologna
                 @SerialName("quarter") val quarter: String = "", // Porto-Saragozza
-                @SerialName("saddle") val saddle: String = "" // 고개
+                @SerialName("natural") val natural: String = ""
             )
         }
     }
