@@ -11,6 +11,7 @@ dependencies {
     ksp(libs.ksealedbinding.compiler)
     implementation(libs.androidx.activity)
     implementation(project(":core:data"))
+    implementation(project(":core:domain"))
     implementation(project(":core:widgetnotification"))
     implementation(project(":feature:weather"))
     implementation(project(":feature:settings"))
