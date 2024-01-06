@@ -12,7 +12,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -22,7 +21,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavController
 import io.github.pknujsp.weatherwizard.core.common.FeatureType
 import io.github.pknujsp.weatherwizard.core.common.manager.FailedReason
 import io.github.pknujsp.weatherwizard.core.resource.R
@@ -39,14 +37,10 @@ import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun WeatherInfoScreen(navController: NavController, openDrawer: () -> Unit, viewModel: WeatherInfoViewModel = hiltViewModel()) {
+fun WeatherInfoScreen(openDrawer: () -> Unit, viewModel: WeatherInfoViewModel = hiltViewModel()) {
     val mainState = rememberWeatherMainState()
     val uiState = viewModel.uiState
     val coroutineScope = rememberCoroutineScope()
-
-    LaunchedEffect(mainState.reload) {
-        viewModel.initialize()
-    }
 
     when (mainState.nestedRoutes.value) {
         is NestedWeatherRoutes.Main -> {
@@ -63,9 +57,8 @@ fun WeatherInfoScreen(navController: NavController, openDrawer: () -> Unit, view
                             mainState.navigate(it)
                         }
                     }, reload = {
-                        coroutineScope.launch {
-                            mainState.reload()
-                        }
+                        Log.d("WeatherContentScreen", "initialize")
+                        viewModel.initialize(null)
                     }, updateWeatherDataProvider = {
                         coroutineScope.launch {
                             viewModel.updateWeatherDataProvider(it)
@@ -81,9 +74,8 @@ fun WeatherInfoScreen(navController: NavController, openDrawer: () -> Unit, view
                     mainState.updateWindowInset(true)
                     TopAppBarScreen(openDrawer) {
                         ErrorScreen(failedReason = uiState.message) {
-                            coroutineScope.launch {
-                                mainState.reload()
-                            }
+                            Log.d("ErrorScreen", "initialize")
+                            viewModel.initialize(null)
                         }
                     }
                 }

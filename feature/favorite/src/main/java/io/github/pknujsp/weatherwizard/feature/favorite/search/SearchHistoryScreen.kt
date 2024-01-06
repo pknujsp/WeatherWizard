@@ -31,21 +31,19 @@ import io.github.pknujsp.weatherwizard.core.ui.list.EmptyListScreen
 
 @Composable
 internal fun SearchHistoryScreen(
+    viewModel: SearchHistoryViewModel = hiltViewModel(),
     onSearchHistoryItemClicked: (String) -> Unit,
 ) {
-    val viewModel: SearchHistoryViewModel = hiltViewModel()
     val history by viewModel.history.collectAsStateWithLifecycle()
 
     LazyColumn(modifier = Modifier.fillMaxSize()) {
-        history.onSuccess {
-            if (it.isEmpty()) {
-                item {
-                    EmptyListScreen(message = io.github.pknujsp.weatherwizard.core.resource.R.string.no_search_history)
-                }
-            } else {
-                items(items = it, key = { history -> history.id }) { history ->
-                    SearchHistoryItem(history, onSearchHistoryItemClicked)
-                }
+        if (history.isEmpty()) {
+            item {
+                EmptyListScreen(message = io.github.pknujsp.weatherwizard.core.resource.R.string.no_search_history)
+            }
+        } else {
+            items(items = history, key = { history -> history.id }) { history ->
+                SearchHistoryItem(history, onSearchHistoryItemClicked)
             }
         }
     }
@@ -54,14 +52,12 @@ internal fun SearchHistoryScreen(
 
 @Composable
 private fun SearchHistoryItem(history: SearchHistory, onSearchHistoryItemClicked: (String) -> Unit) {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .wrapContentHeight()
-            .clickable {
-                onSearchHistoryItemClicked(history.query)
-            }
-    ) {
+    Box(modifier = Modifier
+        .fillMaxWidth()
+        .wrapContentHeight()
+        .clickable {
+            onSearchHistoryItemClicked(history.query)
+        }) {
         Row(verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
                 .fillMaxWidth()

@@ -21,13 +21,13 @@ import io.github.pknujsp.weatherwizard.feature.favorite.search.SearchBar
 import io.github.pknujsp.weatherwizard.feature.favorite.search.SearchResultScreen
 
 @Composable
-fun SearchLocationScreen(onSelectedLocation: (PickedLocation?) -> Unit, popBackStack: () -> Unit) {
+fun SearchLocationScreen(
+    searchAreaViewModel: SearchLocationViewModel = hiltViewModel(), onSelectedLocation: (PickedLocation?) -> Unit, popBackStack: () -> Unit
+) {
     BackHandler {
         popBackStack()
     }
-    Column(modifier = Modifier
-        .fillMaxSize()) {
-        val searchAreaViewModel: SearchLocationViewModel = hiltViewModel()
+    Column(modifier = Modifier.fillMaxSize()) {
         val searchResult by searchAreaViewModel.searchResult.collectAsStateWithLifecycle()
         val uiAction by searchAreaViewModel.uiAction.collectAsStateWithLifecycle()
 
@@ -35,13 +35,9 @@ fun SearchLocationScreen(onSelectedLocation: (PickedLocation?) -> Unit, popBackS
         var showSearchHistory by remember { mutableStateOf(true) }
 
         LaunchedEffect(uiAction) {
-            when (uiAction) {
-                is Action.OnSelectedArea -> {
-                    onSelectedLocation((uiAction as Action.OnSelectedArea).location)
-                    popBackStack()
-                }
-                else -> {
-                }
+            uiAction.onOnSelectedArea {
+                onSelectedLocation(it)
+                popBackStack()
             }
         }
 
@@ -61,9 +57,7 @@ fun SearchLocationScreen(onSelectedLocation: (PickedLocation?) -> Unit, popBackS
             searchAreaViewModel.search(it)
         }
 
-        if (showSearchHistory) {
-
-        } else {
+        if (!showSearchHistory) {
             SearchResultScreen(searchResult) {
                 showSearchHistory = true
             }

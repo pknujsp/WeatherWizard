@@ -86,7 +86,7 @@ fun HostWeatherScreen(openDrawer: () -> Unit) {
             PermissionCheckingScreen(navController, openDrawer)
         }
         composable(WeatherRoutes.Info.route) {
-            WeatherInfoScreen(navController, openDrawer)
+            WeatherInfoScreen(openDrawer)
         }
     }
 

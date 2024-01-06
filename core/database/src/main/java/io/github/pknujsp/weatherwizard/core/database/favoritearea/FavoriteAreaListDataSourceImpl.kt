@@ -1,6 +1,8 @@
 package io.github.pknujsp.weatherwizard.core.database.favoritearea
 
 import io.github.pknujsp.weatherwizard.core.model.DBEntityState
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.onEmpty
 import javax.inject.Inject
 
 class FavoriteAreaListDataSourceImpl @Inject constructor(
@@ -9,6 +11,8 @@ class FavoriteAreaListDataSourceImpl @Inject constructor(
     override suspend fun getAll(): List<FavoriteAreaListDto> {
         return favoriteAreaListDao.getAll()
     }
+
+    override fun getAllOnFlow(): Flow<List<FavoriteAreaListDto>> = favoriteAreaListDao.getAllByFlow().onEmpty { emit(emptyList()) }
 
     override suspend fun getByAreaName(areaName: String): DBEntityState<FavoriteAreaListDto> {
         return favoriteAreaListDao.getByAreaName(areaName)?.let {

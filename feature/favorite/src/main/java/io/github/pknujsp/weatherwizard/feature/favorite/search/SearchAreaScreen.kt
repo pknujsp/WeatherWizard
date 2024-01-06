@@ -39,10 +39,10 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import io.github.pknujsp.weatherwizard.core.common.FeatureType
+import io.github.pknujsp.weatherwizard.core.resource.R
 import io.github.pknujsp.weatherwizard.core.ui.MainRoutes
 import io.github.pknujsp.weatherwizard.core.ui.RootNavControllerViewModel
 import io.github.pknujsp.weatherwizard.core.ui.TitleTextWithNavigation
-import io.github.pknujsp.weatherwizard.core.resource.R
 import io.github.pknujsp.weatherwizard.core.ui.feature.OpenAppSettingsActivity
 import io.github.pknujsp.weatherwizard.core.ui.feature.UnavailableFeatureScreen
 import io.github.pknujsp.weatherwizard.core.ui.feature.rememberAppNetworkState
@@ -123,7 +123,7 @@ fun SearchBar(modifier: Modifier, query: Pair<String, Long>, onChangeQuery: (Str
         val keyboardController = LocalSoftwareKeyboardController.current
         var text by remember { mutableStateOf(query.first) }
 
-        LaunchedEffect(query.second) {
+        LaunchedEffect(query) {
             text = query.first
         }
 

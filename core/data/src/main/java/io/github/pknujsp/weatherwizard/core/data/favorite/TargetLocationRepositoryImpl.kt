@@ -3,14 +3,20 @@ package io.github.pknujsp.weatherwizard.core.data.favorite
 import io.github.pknujsp.weatherwizard.core.database.AppDataStore
 import io.github.pknujsp.weatherwizard.core.model.DBEntityState
 import io.github.pknujsp.weatherwizard.core.model.coordinate.LocationType
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.zip
 import javax.inject.Inject
 
 class TargetLocationRepositoryImpl(
     private val appDataStore: AppDataStore
 ) : TargetLocationRepository {
 
-    private val targetAreaKey = "targetAreaKey"
-    private val customLocationIdKey = "customLocationIdKey"
+    private companion object {
+        private const val targetAreaKey = "targetAreaKey"
+        private const val customLocationIdKey = "customLocationIdKey"
+    }
 
     override suspend fun getTargetLocation(): SelectedLocationModel {
         val selectedLocationType = appDataStore.readAsInt(targetAreaKey).run {
@@ -29,6 +35,12 @@ class TargetLocationRepositoryImpl(
         }
 
         return SelectedLocationModel(selectedLocationType, selectedLocationId)
+    }
+
+    override fun observeTargetLocation(): Flow<SelectedLocationModel> = appDataStore.observeInt(targetAreaKey).filterNotNull().map {
+        LocationType.fromKey(it)
+    }.zip(appDataStore.observeLong(customLocationIdKey).filterNotNull()) { locationType, locationId ->
+        SelectedLocationModel(locationType, locationId)
     }
 
     override suspend fun updateTargetLocation(newModel: SelectedLocationModel) {

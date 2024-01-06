@@ -1,10 +1,13 @@
 package io.github.pknujsp.weatherwizard.core.database.favoritearea
 
 import io.github.pknujsp.weatherwizard.core.model.DBEntityState
+import kotlinx.coroutines.flow.Flow
 
 interface FavoriteAreaListDataSource {
 
     suspend fun getAll(): List<FavoriteAreaListDto>
+
+    fun getAllOnFlow(): Flow<List<FavoriteAreaListDto>>
 
     suspend fun getById(id: Long): DBEntityState<FavoriteAreaListDto>
 

@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.width
@@ -23,7 +22,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -42,6 +40,7 @@ import coil.request.ImageRequest
 import io.github.pknujsp.weatherwizard.core.model.onLoading
 import io.github.pknujsp.weatherwizard.core.model.onSuccess
 import io.github.pknujsp.weatherwizard.core.model.weather.RequestWeatherArguments
+import io.github.pknujsp.weatherwizard.core.model.weather.dailyforecast.CompareDailyForecast
 import io.github.pknujsp.weatherwizard.core.resource.R
 import io.github.pknujsp.weatherwizard.core.ui.TitleTextWithNavigation
 import io.github.pknujsp.weatherwizard.core.ui.lottie.CancellableLoadingScreen
@@ -59,9 +58,7 @@ fun CompareDailyForecastScreen(
         viewModel.load(args)
     }
     val forecast by viewModel.dailyForecast.collectAsStateWithLifecycle()
-    val compareForecastCard = remember {
-        CompareForecastCard()
-    }
+
     Column(modifier = Modifier
         .fillMaxSize()
         .systemBarsPadding()) {
@@ -69,9 +66,9 @@ fun CompareDailyForecastScreen(
             popBackStack()
         }
 
-        compareForecastCard.CompareCardSurface {
+        CompareForecastCard.CompareCardSurface {
             forecast.onLoading {
-                CancellableLoadingScreen(stringResource(id = R.string.loading_hourly_forecast_data)) {
+                CancellableLoadingScreen(stringResource(id = R.string.loading_daily_forecast_data)) {
                     popBackStack()
                 }
             }.onSuccess {
@@ -152,15 +149,14 @@ fun Content(compareDailyForecastInfo: CompareDailyForecastInfo) {
 
 @Composable
 private fun Item(
-    item: io.github.pknujsp.weatherwizard.core.model.weather.dailyforecast.CompareDailyForecast.Item,
+    item: CompareDailyForecast.Item,
     modifier: Modifier,
     onClick: (List<Int>) -> Unit
 ) {
     // 날짜, 아이콘, 강수확률, 강수량
     item.run {
         Column(
-            modifier = Modifier
-                .width(CompareDailyForecastInfo.itemWidth)
+            modifier = modifier
                 .clickable {
                     onClick(weatherConditions)
                 },

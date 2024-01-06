@@ -15,6 +15,7 @@ import io.github.pknujsp.weatherwizard.core.common.util.DayNightCalculator
 import io.github.pknujsp.weatherwizard.core.common.util.toCalendar
 import io.github.pknujsp.weatherwizard.core.common.util.toTimeZone
 import io.github.pknujsp.weatherwizard.core.data.favorite.FavoriteAreaListRepository
+import io.github.pknujsp.weatherwizard.core.data.favorite.SelectedLocationModel
 import io.github.pknujsp.weatherwizard.core.data.favorite.TargetLocationRepository
 import io.github.pknujsp.weatherwizard.core.data.nominatim.NominatimRepository
 import io.github.pknujsp.weatherwizard.core.data.settings.SettingsRepository
@@ -42,7 +43,14 @@ import io.github.pknujsp.weatherwizard.core.ui.weather.item.DynamicDateTimeUiCre
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import java.util.Calendar
@@ -65,22 +73,26 @@ class WeatherInfoViewModel @Inject constructor(
     private var job: Job? = null
 
     private val exceptionHandler = CoroutineExceptionHandler { _, throwable ->
-        Log.d("WeatherInfoViewModel", "exceptionHandler: $throwable")
         uiState = WeatherContentUiState.Error(FailedReason.SERVER_ERROR)
     }
 
-    fun initialize() {
-        job?.cancel()
-        job = viewModelScope.launch(dispatcher + exceptionHandler) {
-            uiState = WeatherContentUiState.Loading
-            val location = targetLocationRepository.getTargetLocation()
-            val weatherProvider = settingsRepository.settings.value.weatherProvider
+    private val targetLocationFlow = targetLocationRepository.observeTargetLocation().onEach { location ->
+        Log.d("WeatherInfoViewModel", "initialize from targetLocationFlow: $location")
+        initialize(location)
+    }.stateIn(viewModelScope, SharingStarted.Eagerly, null)
 
-            if (location.locationType is LocationType.CurrentLocation) {
+    fun initialize(location: SelectedLocationModel?) {
+        job?.cancel()
+        job = viewModelScope.launch(exceptionHandler) {
+            uiState = WeatherContentUiState.Loading
+            val weatherProvider = settingsRepository.settings.value.weatherProvider
+            val targetLocation = location ?: targetLocationFlow.value!!
+
+            if (targetLocation.locationType is LocationType.CurrentLocation) {
                 when (val currentLocation = getCurrentLocationUseCase()) {
                     is CurrentLocationResultState.Success -> {
-                        nominatimRepository.reverseGeoCode(currentLocation.latitude, currentLocation.longitude).onSuccess {
-                            val args = RequestWeatherArguments(weatherProvider = weatherProvider,
+                        nominatimRepository.reverseGeoCode(currentLocation.latitude, currentLocation.longitude).map {
+                            RequestWeatherArguments(weatherProvider = weatherProvider,
                                 location = LocationTypeModel(
                                     locationType = LocationType.CurrentLocation,
                                     latitude = currentLocation.latitude,
@@ -88,7 +100,10 @@ class WeatherInfoViewModel @Inject constructor(
                                     address = it.simpleDisplayName,
                                     country = it.country,
                                 ))
-                            loadAllWeatherData(args)
+                        }.onSuccess { args ->
+                            withContext(dispatcher) {
+                                loadAllWeatherData(args)
+                            }
                         }.onFailure {
                             uiState = WeatherContentUiState.Error(FailedReason.SERVER_ERROR)
                         }
@@ -100,19 +115,20 @@ class WeatherInfoViewModel @Inject constructor(
 
                 }
             } else {
-                val targetLocation = favoriteAreaListRepository.getById(location.locationId)
-                targetLocation.onFailure {
+                favoriteAreaListRepository.getById(targetLocation.locationId).onFailure {
                     uiState = WeatherContentUiState.Error(FailedReason.UNKNOWN)
                 }.onSuccess {
-                    val args = RequestWeatherArguments(weatherProvider = settingsRepository.settings.value.weatherProvider,
-                        location = LocationTypeModel(
-                            locationType = LocationType.CustomLocation,
-                            latitude = it.latitude,
-                            longitude = it.longitude,
-                            address = it.areaName,
-                            country = it.countryName,
-                        ))
-                    loadAllWeatherData(args)
+                    withContext(dispatcher) {
+                        val args = RequestWeatherArguments(weatherProvider = settingsRepository.settings.value.weatherProvider,
+                            location = LocationTypeModel(
+                                locationType = LocationType.CustomLocation,
+                                latitude = it.latitude,
+                                longitude = it.longitude,
+                                address = it.areaName,
+                                country = it.countryName,
+                            ))
+                        loadAllWeatherData(args)
+                    }
                 }
 
             }
@@ -131,7 +147,7 @@ class WeatherInfoViewModel @Inject constructor(
     fun updateWeatherDataProvider(weatherProvider: WeatherProvider) {
         viewModelScope.launch {
             settingsRepository.update(WeatherProvider, weatherProvider)
-            initialize()
+            initialize(null)
         }
     }
 

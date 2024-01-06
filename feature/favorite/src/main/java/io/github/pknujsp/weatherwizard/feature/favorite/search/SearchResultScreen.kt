@@ -73,8 +73,7 @@ fun SearchResultItem(geoCode: GeoCode) {
             .fillMaxWidth()
             .align(Alignment.CenterStart)
             .padding(horizontal = 16.dp, vertical = 8.dp)) {
-            Text(text = geoCode.country, fontSize = 13.sp, color = Color.Gray,
-                modifier = Modifier.padding(bottom = 2.dp))
+            Text(text = geoCode.country, fontSize = 13.sp, color = Color.Gray, modifier = Modifier.padding(bottom = 2.dp))
             Text(text = geoCode.displayName, fontSize = 16.sp, color = Color.Black)
             if (geoCode.isAdded) {
                 Text(text = stringResource(id = R.string.already_added_areas), fontSize = 12.sp, color = Color.Blue)

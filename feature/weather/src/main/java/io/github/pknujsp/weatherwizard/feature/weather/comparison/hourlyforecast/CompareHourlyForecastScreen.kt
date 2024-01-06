@@ -83,9 +83,7 @@ fun CompareHourlyForecastScreen(
 
     val hourlyForecast by viewModel.hourlyForecast.collectAsStateWithLifecycle()
     val hourlyForecastComparisonReport by viewModel.report.collectAsStateWithLifecycle()
-    val compareForecastCard = remember {
-        CompareForecastCard()
-    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -98,9 +96,9 @@ fun CompareHourlyForecastScreen(
             .fillMaxWidth()
             .weight(1f)
             .verticalScroll(rememberScrollState())) {
-            compareForecastCard.CompareCardSurface {
+            CompareForecastCard.CompareCardSurface {
                 hourlyForecast.onLoading {
-                    CancellableLoadingScreen(stringResource(id = R.string.loading_daily_forecast_data)) {
+                    CancellableLoadingScreen(stringResource(id = R.string.loading_hourly_forecast_data)) {
                         popBackStack()
                     }
                 }.onSuccess {
@@ -120,7 +118,7 @@ fun CompareHourlyForecastScreen(
 @Composable
 fun Content(compareHourlyForecastInfo: CompareHourlyForecastInfo, lazyListState: LazyListState) {
     val itemsCount = compareHourlyForecastInfo.items.size
-    val itemModifier = Modifier.width(CompareHourlyForecastInfo.itemWidth)
+    val itemModifier = remember { Modifier.width(CompareHourlyForecastInfo.itemWidth) }
     val context = LocalContext.current
     val weatherDataProviderInfoHeight = 36.dp
     val weatherDataProviderInfoHeightPx = with(LocalDensity.current) {
@@ -275,8 +273,8 @@ private fun ReportScreen(uiState: UiState<HourlyForecastComparisonReport>) {
     }
 }
 
-@Stable
-class CompareForecastCard {
+
+object CompareForecastCard {
     private val surfaceModifier = Modifier
         .fillMaxWidth()
         .wrapContentHeight()
