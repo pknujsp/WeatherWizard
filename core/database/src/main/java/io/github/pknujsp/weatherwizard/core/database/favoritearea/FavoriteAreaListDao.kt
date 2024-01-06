@@ -4,11 +4,15 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Transaction
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 abstract class FavoriteAreaListDao {
     @Query("SELECT * FROM favorite_area_list")
     abstract suspend fun getAll(): List<FavoriteAreaListDto>
+
+    @Query("SELECT * FROM favorite_area_list")
+    abstract fun getAllByFlow(): Flow<List<FavoriteAreaListDto>>
 
     @Query("SELECT * FROM favorite_area_list WHERE id = :id")
     abstract suspend fun getById(id: Long): FavoriteAreaListDto?

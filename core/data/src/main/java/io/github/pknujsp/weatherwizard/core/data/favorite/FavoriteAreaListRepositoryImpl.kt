@@ -4,6 +4,8 @@ import io.github.pknujsp.weatherwizard.core.database.favoritearea.FavoriteAreaLi
 import io.github.pknujsp.weatherwizard.core.database.favoritearea.FavoriteAreaListDto
 import io.github.pknujsp.weatherwizard.core.model.DBEntityState
 import io.github.pknujsp.weatherwizard.core.model.favorite.FavoriteAreaListEntity
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
 class FavoriteAreaListRepositoryImpl @Inject constructor(
@@ -17,24 +19,30 @@ class FavoriteAreaListRepositoryImpl @Inject constructor(
                 countryName = it.countryName,
                 latitude = it.latitude,
                 longitude = it.longitude,
-                placeId = it.placeId
-            )
+                placeId = it.placeId)
+        }
+    }
+
+    override fun getAllByFlow(): Flow<List<FavoriteAreaListEntity>> = favoriteAreaListDataSource.getAllOnFlow().map { list ->
+        list.map {
+            FavoriteAreaListEntity(id = it.id,
+                areaName = it.areaName,
+                countryName = it.countryName,
+                latitude = it.latitude,
+                longitude = it.longitude,
+                placeId = it.placeId)
         }
     }
 
     override suspend fun getById(id: Long): Result<FavoriteAreaListEntity> {
         return favoriteAreaListDataSource.getById(id).let {
             when (it) {
-                is DBEntityState.Exists -> Result.success(
-                    FavoriteAreaListEntity(
-                        id = it.data.id,
-                        areaName = it.data.areaName,
-                        countryName = it.data.countryName,
-                        latitude = it.data.latitude,
-                        longitude = it.data.longitude,
-                        placeId = it.data.placeId
-                    )
-                )
+                is DBEntityState.Exists -> Result.success(FavoriteAreaListEntity(id = it.data.id,
+                    areaName = it.data.areaName,
+                    countryName = it.data.countryName,
+                    latitude = it.data.latitude,
+                    longitude = it.data.longitude,
+                    placeId = it.data.placeId))
 
                 else -> Result.failure(Exception("No data"))
             }
@@ -43,15 +51,11 @@ class FavoriteAreaListRepositoryImpl @Inject constructor(
 
 
     override suspend fun insert(favoriteAreaListEntity: FavoriteAreaListEntity): Long {
-        return favoriteAreaListDataSource.insert(
-            FavoriteAreaListDto(
-                areaName = favoriteAreaListEntity.areaName,
-                countryName = favoriteAreaListEntity.countryName,
-                latitude = favoriteAreaListEntity.latitude,
-                longitude = favoriteAreaListEntity.longitude,
-                placeId = favoriteAreaListEntity.placeId
-            )
-        )
+        return favoriteAreaListDataSource.insert(FavoriteAreaListDto(areaName = favoriteAreaListEntity.areaName,
+            countryName = favoriteAreaListEntity.countryName,
+            latitude = favoriteAreaListEntity.latitude,
+            longitude = favoriteAreaListEntity.longitude,
+            placeId = favoriteAreaListEntity.placeId))
     }
 
     override suspend fun deleteById(id: Long) {

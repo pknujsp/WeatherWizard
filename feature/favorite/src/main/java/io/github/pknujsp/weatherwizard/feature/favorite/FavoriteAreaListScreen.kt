@@ -18,13 +18,16 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Delete
 import androidx.compose.material.icons.rounded.MoreVert
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -40,19 +43,24 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.util.fastAny
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import io.github.pknujsp.weatherwizard.core.common.manager.FailedReason
 import io.github.pknujsp.weatherwizard.core.data.favorite.SelectedLocationModel
 import io.github.pknujsp.weatherwizard.core.model.coordinate.LocationType
 import io.github.pknujsp.weatherwizard.core.model.favorite.FavoriteArea
 import io.github.pknujsp.weatherwizard.core.resource.R
+import io.github.pknujsp.weatherwizard.core.ui.BottomSheetDialog
 import io.github.pknujsp.weatherwizard.core.ui.ButtonSize
 import io.github.pknujsp.weatherwizard.core.ui.MainRoutes
 import io.github.pknujsp.weatherwizard.core.ui.PrimaryButton
 import io.github.pknujsp.weatherwizard.core.ui.RootNavControllerViewModel
 import io.github.pknujsp.weatherwizard.core.ui.SecondaryButton
 import io.github.pknujsp.weatherwizard.core.ui.TitleTextWithNavigation
+import io.github.pknujsp.weatherwizard.core.ui.dialog.BottomSheet
+import io.github.pknujsp.weatherwizard.core.ui.dialog.DialogScreen
 import io.github.pknujsp.weatherwizard.core.ui.feature.OpenAppSettingsActivity
 import io.github.pknujsp.weatherwizard.core.ui.list.EmptyListScreen
 import io.github.pknujsp.weatherwizard.core.ui.theme.AppShapes
@@ -61,9 +69,10 @@ import io.github.pknujsp.weatherwizard.feature.favorite.model.TargetLocationUiSt
 
 @Composable
 fun FavoriteAreaListScreen(navController: NavController, viewModel: FavoriteAreaViewModel = hiltViewModel()) {
-    val favoriteLocations = viewModel.favoriteLocationsUiState
+    val favoriteLocations by viewModel.favoriteLocations.collectAsStateWithLifecycle()
     val targetLocation = viewModel.targetLocationUiState
     var showSettingsActivity by remember { mutableStateOf(false) }
+    var selectedLocationToDelete by remember { mutableStateOf<FavoriteArea?>(null) }
 
     val rootNavControllerViewModel: RootNavControllerViewModel =
         hiltViewModel(viewModelStoreOwner = (LocalContext.current as ComponentActivity))
@@ -71,6 +80,12 @@ fun FavoriteAreaListScreen(navController: NavController, viewModel: FavoriteArea
     val onBackPressedDispatcherOwner = LocalOnBackPressedDispatcherOwner.current
     val backDispatcher = remember {
         onBackPressedDispatcherOwner?.onBackPressedDispatcher
+    }
+
+    LaunchedEffect(favoriteLocations) {
+        if (favoriteLocations.isEmpty() && selectedLocationToDelete != null) {
+            selectedLocationToDelete = null
+        }
     }
 
     LaunchedEffect(targetLocation.isChanged) {
@@ -102,24 +117,22 @@ fun FavoriteAreaListScreen(navController: NavController, viewModel: FavoriteArea
                     viewModel.loadCurrentLocation()
                 })
             }
-            favoriteLocations.favoriteLocations?.let { list ->
-                if (list.isEmpty()) {
-                    item {
-                        EmptyListScreen(message = R.string.no_favorite_location)
-                    }
-                } else {
-                    items(
-                        items = list,
-                        key = { item ->
-                            item.id
-                        },
-                    ) { item ->
-                        FavoriteLocationItem(item, targetLocation.locationId, onClick = {
-                            viewModel.updateTargetLocation(SelectedLocationModel(LocationType.CustomLocation, item.id))
-                        }, onClickMore = {
-
-                        })
-                    }
+            if (favoriteLocations.isEmpty()) {
+                item {
+                    EmptyListScreen(message = R.string.no_favorite_location)
+                }
+            } else {
+                items(
+                    items = favoriteLocations,
+                    key = { item ->
+                        item.id
+                    },
+                ) { item ->
+                    FavoriteLocationItem(item, targetLocation.locationId, onClick = {
+                        viewModel.updateTargetLocation(SelectedLocationModel(LocationType.CustomLocation, item.id))
+                    }, onClickDelete = {
+                        selectedLocationToDelete = item
+                    })
                 }
             }
         }
@@ -131,12 +144,25 @@ fun FavoriteAreaListScreen(navController: NavController, viewModel: FavoriteArea
         }
     }
 
+    val openDeleteDialog by remember {
+        derivedStateOf {
+            selectedLocationToDelete != null && favoriteLocations.any { it.id == selectedLocationToDelete?.id }
+        }
+    }
+    if (openDeleteDialog) {
+        DeleteDialog(address = selectedLocationToDelete!!.areaName,
+            onDismissRequest = { selectedLocationToDelete = null },
+            onConfirmation = {
+                viewModel.deleteFavoriteLocation(selectedLocationToDelete!!.id)
+                selectedLocationToDelete = null
+            })
+    }
 }
 
 
 @Composable
 private fun FavoriteLocationItem(
-    favoriteLocation: FavoriteArea, targetLocationId: Long?, onClick: () -> Unit, onClickMore: () -> Unit
+    favoriteLocation: FavoriteArea, targetLocationId: Long?, onClick: () -> Unit, onClickDelete: (Long) -> Unit
 ) {
     Box(modifier = Modifier
         .fillMaxWidth()
@@ -150,8 +176,10 @@ private fun FavoriteLocationItem(
             .padding(horizontal = 8.dp, vertical = 6.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween) {
-            IconButton(onClick = onClickMore) {
-                Icon(imageVector = Icons.Rounded.MoreVert, contentDescription = null)
+            IconButton(onClick = {
+                onClickDelete(favoriteLocation.id)
+            }) {
+                Icon(imageVector = Icons.Rounded.Delete, contentDescription = null)
             }
             Column(modifier = Modifier
                 .weight(1f)
@@ -261,5 +289,32 @@ private fun LoadCurrentLocationFailureScreen(failedReason: FailedReason, onClick
                 onClickRetry()
             }
         }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun DeleteDialog(
+    address: String, onDismissRequest: () -> Unit,
+    onConfirmation: () -> Unit,
+) {
+    BottomSheet(
+        onDismissRequest = {
+            onDismissRequest()
+        },
+    ) {
+        val message = stringResource(id = R.string.delete_favorite_location_message).let {
+            "$it\n$address"
+        }
+        DialogScreen(title = stringResource(id = R.string.delete_favorite_location_title),
+            message = message,
+            negative = stringResource(id = R.string.cancel),
+            positive = stringResource(id = R.string.delete),
+            onClickNegative = {
+                onDismissRequest()
+            },
+            onClickPositive = {
+                onConfirmation()
+            })
     }
 }

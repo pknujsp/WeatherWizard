@@ -10,18 +10,23 @@ import io.github.pknujsp.weatherwizard.core.common.FeatureType
 import io.github.pknujsp.weatherwizard.core.common.coroutines.CoDispatcher
 import io.github.pknujsp.weatherwizard.core.common.coroutines.CoDispatcherType
 import io.github.pknujsp.weatherwizard.core.common.manager.FailedReason
-import io.github.pknujsp.weatherwizard.core.common.manager.FeatureState
 import io.github.pknujsp.weatherwizard.core.data.favorite.FavoriteAreaListRepository
 import io.github.pknujsp.weatherwizard.core.data.favorite.SelectedLocationModel
 import io.github.pknujsp.weatherwizard.core.data.favorite.TargetLocationRepository
 import io.github.pknujsp.weatherwizard.core.data.nominatim.NominatimRepository
 import io.github.pknujsp.weatherwizard.core.domain.location.CurrentLocationResultState
 import io.github.pknujsp.weatherwizard.core.domain.location.GetCurrentLocationUseCase
-import io.github.pknujsp.weatherwizard.core.model.favorite.FavoriteArea
 import io.github.pknujsp.weatherwizard.core.model.coordinate.LocationType
+import io.github.pknujsp.weatherwizard.core.model.favorite.FavoriteArea
 import io.github.pknujsp.weatherwizard.feature.favorite.model.LoadCurrentLocationState
 import io.github.pknujsp.weatherwizard.feature.favorite.model.TargetLocationUiState
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -32,19 +37,25 @@ class FavoriteAreaViewModel @Inject constructor(
     private val targetLocationRepository: TargetLocationRepository,
     private val getCurrentLocationUseCase: GetCurrentLocationUseCase,
     private val nominatimRepository: NominatimRepository,
-    @CoDispatcher(CoDispatcherType.IO) private val ioDispatcher: kotlinx.coroutines.CoroutineDispatcher
+    @CoDispatcher(CoDispatcherType.IO) private val ioDispatcher: CoroutineDispatcher
 ) : ViewModel() {
-
-    private val mutableFavoriteLocationsUiState = MutableFavoriteListUiState()
-    val favoriteLocationsUiState: FavoriteListUiState = mutableFavoriteLocationsUiState
 
     private val mutableTargetLocationUiState: MutableTargetLocationUiState = MutableTargetLocationUiState()
     val targetLocationUiState: TargetLocationUiState = mutableTargetLocationUiState
 
+    val favoriteLocations = flow {
+        favoriteAreaRepository.getAllByFlow().map { list ->
+            list.map {
+                FavoriteArea(it.id, it.placeId, it.areaName, it.countryName)
+            }
+        }.collect {
+            emit(it)
+        }
+    }.flowOn(ioDispatcher).stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
+
     init {
         loadTargetLocation()
         loadCurrentLocation()
-        loadFavoriteLocations()
     }
 
     private fun loadTargetLocation() {
@@ -90,31 +101,26 @@ class FavoriteAreaViewModel @Inject constructor(
         }
     }
 
-    private fun loadFavoriteLocations() {
-        viewModelScope.launch {
-            val favoriteLocations = favoriteAreaRepository.getAll().map {
-                FavoriteArea(it.id, it.placeId, it.areaName, it.countryName)
-            }
-            mutableFavoriteLocationsUiState.favoriteLocations = favoriteLocations
-        }
-    }
 
     fun updateTargetLocation(newModel: SelectedLocationModel) {
         viewModelScope.launch {
             targetLocationRepository.updateTargetLocation(newModel)
-            while (true) {
-                delay(20)
-                if (targetLocationRepository.getTargetLocation() == newModel) break
-            }
             mutableTargetLocationUiState.isChanged = true
+        }
+    }
+
+    fun deleteFavoriteLocation(id: Long) {
+        viewModelScope.launch {
+            favoriteLocations.value.run {
+                if (size == 1 || (targetLocationUiState.locationType is LocationType.CustomLocation && targetLocationUiState.locationId == id)) {
+                    targetLocationRepository.updateTargetLocation(SelectedLocationModel(LocationType.CurrentLocation))
+                }
+            }
+            favoriteAreaRepository.deleteById(id)
         }
     }
 }
 
-
-private class MutableFavoriteListUiState : FavoriteListUiState {
-    override var favoriteLocations: List<FavoriteArea>? by mutableStateOf(null)
-}
 
 private class MutableTargetLocationUiState : TargetLocationUiState {
     override var locationType: LocationType by mutableStateOf(LocationType.default)

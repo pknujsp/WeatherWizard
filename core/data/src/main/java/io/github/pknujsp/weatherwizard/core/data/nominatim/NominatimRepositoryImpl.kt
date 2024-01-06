@@ -33,9 +33,10 @@ internal class NominatimRepositoryImpl(
                         quarter = feature.properties.address.quarter,
                         state = feature.properties.address.state,
                         suburb = feature.properties.address.suburb,
-                        placeId = feature.properties.placeId.toLong(),
+                        placeId = feature.properties.placeId,
                         category = feature.properties.category,
                         osmType = feature.properties.osmType,
+                        saddle = feature.properties.address.saddle,
                     )
                 }
                 geoCodeCacheMap.put(query, mapped)
@@ -72,6 +73,7 @@ internal class NominatimRepositoryImpl(
                         quarter = properties.address.quarter,
                         state = properties.address.state,
                         suburb = properties.address.suburb,
+                        saddle = properties.address.saddle,
                     )
                 }
                 reverseCodeCacheMap.put(key, result)
