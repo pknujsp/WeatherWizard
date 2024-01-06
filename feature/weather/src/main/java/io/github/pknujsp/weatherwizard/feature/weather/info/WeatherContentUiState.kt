@@ -84,8 +84,6 @@ class WeatherMainState @OptIn(ExperimentalMaterial3Api::class) constructor(
     private val windowInsetsController: WindowInsetsControllerCompat
 ) {
     val nestedRoutes = mutableStateOf(NestedWeatherRoutes.startDestination)
-    var reload by mutableIntStateOf(0)
-        private set
 
     init {
         updateWindowInset(true)
@@ -98,10 +96,6 @@ class WeatherMainState @OptIn(ExperimentalMaterial3Api::class) constructor(
         updateWindowInset(nestedRoutes !is NestedWeatherRoutes.Main)
     }
 
-    fun reload() {
-        Log.d("WeatherMainState", "reload: $reload")
-        reload++
-    }
 
     fun updateWindowInset(isAppearanceLight: Boolean) {
         windowInsetsController.run {

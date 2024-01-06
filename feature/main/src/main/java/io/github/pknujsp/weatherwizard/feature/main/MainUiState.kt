@@ -46,8 +46,7 @@ private class MutableMainUiState(
 @Composable
 fun rememberMainState(requestedRoutes: SharedFlow<MainRoutes>, navController: NavHostController = rememberNavController()): MainUiState {
     val tabs = remember {
-        mapOf(MainRoutes.Weather.route to MainRoutes.Weather,
-            MainRoutes.Favorite.route to MainRoutes.Favorite,
+        mapOf(MainRoutes.Favorite.route to MainRoutes.Favorite,
             MainRoutes.Settings.route to MainRoutes.Settings,
             MainRoutes.Notification.route to MainRoutes.Notification)
     }

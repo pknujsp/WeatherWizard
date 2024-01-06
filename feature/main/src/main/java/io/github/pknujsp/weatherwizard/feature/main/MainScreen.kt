@@ -1,13 +1,10 @@
 package io.github.pknujsp.weatherwizard.feature.main
 
-import android.view.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBarsPadding
-import androidx.compose.material3.DismissibleDrawerSheet
-import androidx.compose.material3.DismissibleNavigationDrawer
 import androidx.compose.material3.Divider
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.Icon
@@ -24,7 +21,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -36,9 +32,9 @@ import coil.request.ImageRequest
 import io.github.pknujsp.weatherwizard.core.ui.MainRoutes
 import io.github.pknujsp.weatherwizard.core.ui.RootNavControllerViewModel
 import io.github.pknujsp.weatherwizard.core.ui.theme.AppColorScheme
-import io.github.pknujsp.weatherwizard.core.ui.theme.AppShapes
 import io.github.pknujsp.weatherwizard.feature.componentservice.notification.HostNotificationScreen
 import io.github.pknujsp.weatherwizard.feature.favorite.HostFavoriteScreen
+import io.github.pknujsp.weatherwizard.feature.main.sidebar.favorites.FavoriteLocationsScreen
 import io.github.pknujsp.weatherwizard.feature.settings.HostSettingsScreen
 import io.github.pknujsp.weatherwizard.feature.weather.HostWeatherScreen
 import kotlinx.coroutines.launch
@@ -73,6 +69,16 @@ private fun WeatherMainScreen(mainUiState: MainUiState) {
 
     ModalNavigationDrawer(drawerState = drawerState, gesturesEnabled = true, drawerContent = {
         ModalDrawerSheet(drawerContainerColor = AppColorScheme.surface.copy(alpha = 0.97f), modifier = Modifier.systemBarsPadding()) {
+            FavoriteLocationsScreen(onChangedLocation = {
+                scope.launch {
+                    drawerState.close()
+                }
+            }, onClickedShowMore = {
+                scope.launch {
+                    mainUiState.navigate(MainRoutes.Favorite)
+                    drawerState.close()
+                }
+            })
             mainUiState.tabs.values.forEach {
                 DrawerRouteItem(it) {
                     scope.launch {

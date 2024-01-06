@@ -104,7 +104,7 @@ class FavoriteLocationsViewModel @Inject constructor(
     fun updateTargetLocation(newModel: SelectedLocationModel) {
         viewModelScope.launch {
             targetLocationRepository.updateTargetLocation(newModel)
-            mutableTargetLocationUiState.isChanged = true
+            mutableTargetLocationUiState.isChanged = true to System.currentTimeMillis()
         }
     }
 }
@@ -113,8 +113,12 @@ private class MutableTargetLocationUiState : TargetLocationUiState {
     override var locationType: LocationType by mutableStateOf(LocationType.default)
     override var locationId: Long? by mutableStateOf(null)
     override var loadCurrentLocationState: LoadCurrentLocationState by mutableStateOf(LoadCurrentLocationState.Loading)
-    override var isChanged: Boolean by mutableStateOf(false)
+    override var isChanged: Pair<Boolean, Long> by mutableStateOf(false to 0)
     override var isLoading: Boolean by mutableStateOf(true)
+
+    override fun onChanged() {
+        isChanged = false to 0
+    }
 }
 
 private class MutableFavoriteLocationsUiState(

@@ -8,11 +8,11 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import dagger.hilt.android.qualifiers.ApplicationContext
 import io.github.pknujsp.weatherwizard.core.model.DBEntityState
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
-import javax.inject.Inject
 
-class DataStoreImpl @Inject constructor(
+class DataStoreImpl(
     @ApplicationContext private val context: Context
 ) : AppDataStore {
     private val Context.dataStore by preferencesDataStore(name = "preferences")
@@ -76,6 +76,24 @@ class DataStoreImpl @Inject constructor(
         context.dataStore.edit {
             it.remove(stringPreferencesKey(key))
         }
+    }
+
+    override fun observeInt(key: String) = context.dataStore.data.filter {
+        it.contains(intPreferencesKey(key))
+    }.map { preferences ->
+        preferences[intPreferencesKey(key)]
+    }
+
+    override fun observeLong(key: String) = context.dataStore.data.filter {
+        it.contains(longPreferencesKey(key))
+    }.map { preferences ->
+        preferences[longPreferencesKey(key)]
+    }
+
+    override fun observeString(key: String) = context.dataStore.data.filter {
+        it.contains(stringPreferencesKey(key))
+    }.map { preferences ->
+        preferences[stringPreferencesKey(key)]
     }
 
 }
