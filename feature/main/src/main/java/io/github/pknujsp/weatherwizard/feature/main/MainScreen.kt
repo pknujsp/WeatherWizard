@@ -69,7 +69,7 @@ private fun WeatherMainScreen(mainUiState: MainUiState) {
 
     ModalNavigationDrawer(drawerState = drawerState, gesturesEnabled = true, drawerContent = {
         ModalDrawerSheet(drawerContainerColor = AppColorScheme.surface.copy(alpha = 0.97f), modifier = Modifier.systemBarsPadding()) {
-            FavoriteLocationsScreen(onChangedLocation = {
+            FavoriteLocationsScreen(closeDrawer = {
                 scope.launch {
                     drawerState.close()
                 }

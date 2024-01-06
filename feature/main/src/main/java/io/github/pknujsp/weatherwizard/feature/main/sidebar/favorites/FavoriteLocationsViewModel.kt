@@ -20,9 +20,9 @@ import io.github.pknujsp.weatherwizard.core.model.favorite.FavoriteArea
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -34,22 +34,27 @@ class FavoriteLocationsViewModel @Inject constructor(
     private val targetLocationRepository: TargetLocationRepository,
     private val getCurrentLocationUseCase: GetCurrentLocationUseCase,
     private val nominatimRepository: NominatimRepository,
-    @CoDispatcher(CoDispatcherType.IO) private val ioDispatcher: CoroutineDispatcher
+    @CoDispatcher(CoDispatcherType.IO) private val ioDispatcher: CoroutineDispatcher,
+    @CoDispatcher(CoDispatcherType.MAIN) private val mainDispatcher: CoroutineDispatcher
 ) : ViewModel() {
 
     private val mutableTargetLocationUiState: MutableTargetLocationUiState = MutableTargetLocationUiState()
     val targetLocationUiState: TargetLocationUiState = mutableTargetLocationUiState
 
-    private val favoriteLocations = flow {
-        favoriteAreaRepository.getAllByFlow().map { list ->
-            list.take(ITEMS_LIMIT).map {
-                FavoriteArea(it.id, it.placeId, it.areaName, it.countryName)
-            } to (list.size > ITEMS_LIMIT)
-        }.collect {
-            emit(it.first)
-            mutableFavoriteLocationsUiState.containMore = it.second
+    private val favoriteLocations = favoriteAreaRepository.getAllByFlow().onEach {
+        mutableFavoriteLocationsUiState.containMore = it.size > ITEMS_LIMIT
+    }.flowOn(mainDispatcher).map { list ->
+        list.take(ITEMS_LIMIT).map {
+            FavoriteArea(it.id, it.placeId, it.areaName, it.countryName)
         }
-    }.flowOn(ioDispatcher).stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
+    }.flowOn(ioDispatcher).stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
+
+    private val targetLocationFlow = targetLocationRepository.observeTargetLocation().onEach { targetLocation ->
+        mutableTargetLocationUiState.run {
+            locationType = targetLocation.locationType
+            locationId = if (targetLocation.locationType is LocationType.CustomLocation) targetLocation.locationId else null
+        }
+    }.stateIn(viewModelScope, SharingStarted.Eagerly, null)
 
     private val mutableFavoriteLocationsUiState: MutableFavoriteLocationsUiState = MutableFavoriteLocationsUiState(favoriteLocations)
     val favoriteLocationsUiState: FavoriteLocationsUiState = mutableFavoriteLocationsUiState
@@ -59,19 +64,7 @@ class FavoriteLocationsViewModel @Inject constructor(
     }
 
     init {
-        loadTargetLocation()
         loadCurrentLocation()
-    }
-
-    private fun loadTargetLocation() {
-        viewModelScope.launch {
-            val targetLocation = targetLocationRepository.getTargetLocation()
-
-            mutableTargetLocationUiState.run {
-                locationType = targetLocation.locationType
-                locationId = if (targetLocation.locationType is LocationType.CustomLocation) targetLocation.locationId else null
-            }
-        }
     }
 
     private fun loadCurrentLocation() {
@@ -104,7 +97,6 @@ class FavoriteLocationsViewModel @Inject constructor(
     fun updateTargetLocation(newModel: SelectedLocationModel) {
         viewModelScope.launch {
             targetLocationRepository.updateTargetLocation(newModel)
-            mutableTargetLocationUiState.isChanged = true to System.currentTimeMillis()
         }
     }
 }
@@ -113,12 +105,7 @@ private class MutableTargetLocationUiState : TargetLocationUiState {
     override var locationType: LocationType by mutableStateOf(LocationType.default)
     override var locationId: Long? by mutableStateOf(null)
     override var loadCurrentLocationState: LoadCurrentLocationState by mutableStateOf(LoadCurrentLocationState.Loading)
-    override var isChanged: Pair<Boolean, Long> by mutableStateOf(false to 0)
     override var isLoading: Boolean by mutableStateOf(true)
-
-    override fun onChanged() {
-        isChanged = false to 0
-    }
 }
 
 private class MutableFavoriteLocationsUiState(

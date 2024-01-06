@@ -14,8 +14,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -37,30 +35,18 @@ import io.github.pknujsp.weatherwizard.core.ui.theme.AppColorScheme
 
 @Composable
 fun FavoriteLocationsScreen(
-    viewModel: FavoriteLocationsViewModel = hiltViewModel(), onChangedLocation: () -> Unit, onClickedShowMore: () -> Unit
+    viewModel: FavoriteLocationsViewModel = hiltViewModel(), closeDrawer: () -> Unit, onClickedShowMore: () -> Unit
 ) {
     val favoriteLocationsUiState = viewModel.favoriteLocationsUiState
     val favoriteLocations by favoriteLocationsUiState.favoriteAreas.collectAsStateWithLifecycle()
     val targetLocation = viewModel.targetLocationUiState
-
-    DisposableEffect(targetLocation.isChanged) {
-        if (targetLocation.isChanged.first) {
-            onChangedLocation()
-        }
-
-        onDispose {
-            if (targetLocation.isChanged.first) {
-                targetLocation.onChanged()
-            }
-        }
-    }
-
 
     Column(modifier = Modifier
         .fillMaxWidth()
         .wrapContentHeight()) {
         CurrentLocationItem(targetLocation, onClick = {
             viewModel.updateTargetLocation(SelectedLocationModel(LocationType.CurrentLocation))
+            closeDrawer()
         })
         if (favoriteLocations.isEmpty()) {
             Text(text = stringResource(R.string.no_favorite_location),
@@ -71,6 +57,7 @@ fun FavoriteLocationsScreen(
             for (item in favoriteLocations) {
                 FavoriteLocationItem(item, targetLocation.locationId, onClick = {
                     viewModel.updateTargetLocation(SelectedLocationModel(LocationType.CustomLocation, item.id))
+                    closeDrawer()
                 })
             }
             if (favoriteLocationsUiState.containMore) {

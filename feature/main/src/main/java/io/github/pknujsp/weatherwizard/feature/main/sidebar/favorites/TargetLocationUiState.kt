@@ -10,10 +10,7 @@ interface TargetLocationUiState {
     val locationType: LocationType
     val locationId: Long?
     val loadCurrentLocationState: LoadCurrentLocationState
-    val isChanged: Pair<Boolean, Long>
     val isLoading: Boolean
-
-    fun onChanged()
 }
 
 sealed interface LoadCurrentLocationState {
