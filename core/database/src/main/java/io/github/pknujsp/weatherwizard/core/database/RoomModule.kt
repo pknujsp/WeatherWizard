@@ -34,20 +34,19 @@ object RoomModule {
     @Singleton
     fun providesPretainedRoomDb(@ApplicationContext context: Context): PretainedRoomDb = synchronized(this) {
         Room.databaseBuilder(
-            context, PretainedRoomDb::class.java, "pretained.db",
-        ).createFromAsset("db/pretained.db").build()
+            context, PretainedRoomDb::class.java, "PretainedDB",
+        ).createFromAsset("database/koreaareas.db").build()
     }
 
     @Provides
     @Singleton
     fun providesNotPretainedRoomDb(@ApplicationContext context: Context): NotPretainedRoomDb = synchronized(this) {
         Room.databaseBuilder(
-            context, NotPretainedRoomDb::class.java, "not_pretained.db",
+            context, NotPretainedRoomDb::class.java, "NotPretainedDB",
         ).build()
     }
 
     @Provides
-    @Singleton
     fun providesCompressionTool(): CompressionTool = CompressionToolImpl()
 }
 
@@ -55,7 +54,7 @@ object RoomModule {
 @InstallIn(SingletonComponent::class)
 object DaoModule {
     @Provides
-    fun providesKorCoordinateDao(pretainedRoomDb: PretainedRoomDb) = pretainedRoomDb.korCoordinateDao()
+    fun providesKorCoordinateDao(pretainedRoomDb: PretainedRoomDb) = pretainedRoomDb.kmaAreaCodesDao()
 
     @Provides
     fun providesFavoriteAreaListDao(notPretainedRoomDb: NotPretainedRoomDb) = notPretainedRoomDb.favoriteAreaListDao()

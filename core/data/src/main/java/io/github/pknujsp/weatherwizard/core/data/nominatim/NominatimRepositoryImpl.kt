@@ -1,13 +1,11 @@
 package io.github.pknujsp.weatherwizard.core.data.nominatim
 
 import android.util.LruCache
-import io.github.pknujsp.weatherwizard.core.common.util.LocationDistance
+import io.github.pknujsp.weatherwizard.core.common.util.GeographicalDistanceCalculator
 import io.github.pknujsp.weatherwizard.core.common.util.toCoordinate
 import io.github.pknujsp.weatherwizard.core.model.nominatim.GeoCodeEntity
 import io.github.pknujsp.weatherwizard.core.model.nominatim.ReverseGeoCodeEntity
 import io.github.pknujsp.weatherwizard.core.network.api.nominatim.NominatimDataSource
-import java.util.concurrent.ConcurrentHashMap
-import javax.inject.Inject
 
 internal class NominatimRepositoryImpl(
     private val dataSource: NominatimDataSource
@@ -54,11 +52,10 @@ internal class NominatimRepositoryImpl(
         } ?: run {
             dataSource.reverseGeoCode(latitude, longitude).map {
                 val proximate = it.features.minBy { feature ->
-                    LocationDistance.distance(latitude,
+                    GeographicalDistanceCalculator.calculateDistance(latitude,
                         longitude,
                         feature.geometry.coordinates[1].toCoordinate(),
-                        feature.geometry.coordinates[0].toCoordinate(),
-                        LocationDistance.Unit.METER)
+                        feature.geometry.coordinates[0].toCoordinate())
                 }
 
                 val result = proximate.run {

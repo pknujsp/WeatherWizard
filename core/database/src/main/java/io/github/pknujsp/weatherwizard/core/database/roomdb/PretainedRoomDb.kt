@@ -2,10 +2,10 @@ package io.github.pknujsp.weatherwizard.core.database.roomdb
 
 import androidx.room.Database
 import androidx.room.RoomDatabase
-import io.github.pknujsp.weatherwizard.core.database.coordinate.KorCoordinateDao
-import io.github.pknujsp.weatherwizard.core.model.coordinate.KorCoordinateDto
+import io.github.pknujsp.weatherwizard.core.database.kma.KmaAreaCodesDao
+import io.github.pknujsp.weatherwizard.core.model.coordinate.KmaAreaCodesDto
 
-@Database(entities = [KorCoordinateDto::class], version = 1, exportSchema = false)
+@Database(entities = [KmaAreaCodesDto::class], version = 1)
 abstract class PretainedRoomDb : RoomDatabase() {
-    abstract fun korCoordinateDao(): KorCoordinateDao
+    abstract fun kmaAreaCodesDao(): KmaAreaCodesDao
 }
