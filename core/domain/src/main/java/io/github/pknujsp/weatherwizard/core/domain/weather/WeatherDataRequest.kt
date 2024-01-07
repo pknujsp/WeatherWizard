@@ -1,6 +1,6 @@
 package io.github.pknujsp.weatherwizard.core.domain.weather
 
-import io.github.pknujsp.weatherwizard.core.model.coordinate.LocationTypeModel
+import io.github.pknujsp.weatherwizard.core.model.EntityModel
 import io.github.pknujsp.weatherwizard.core.model.weather.common.MajorWeatherEntityType
 import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherProvider
 import java.time.ZonedDateTime
@@ -10,7 +10,7 @@ class WeatherDataRequest(
     val requestedTime: ZonedDateTime = ZonedDateTime.now(),
     private val modelType: ModelType = ModelType.NORMAL,
 ) {
-    private val sameLocationMap: MutableMap<LocationTypeModel, SameLocation> = mutableMapOf()
+    private val sameLocationMap: MutableMap<LocationModel, SameLocation> = mutableMapOf()
     val finalRequests
         get() = sameLocationMap.values.flatMap { request ->
             request.requests.map {
@@ -32,7 +32,7 @@ class WeatherDataRequest(
      * @return requestId
      */
     fun addRequest(
-        location: LocationTypeModel,
+        location: LocationModel,
         weatherDataCategories: Set<MajorWeatherEntityType>,
         weatherProvider: WeatherProvider,
     ): Long {
@@ -44,7 +44,7 @@ class WeatherDataRequest(
     }
 
     private data class SameLocation(
-        val location: LocationTypeModel
+        val location: LocationModel
     ) {
         private val requestMap: MutableMap<WeatherProvider, MutableSet<MajorWeatherEntityType>> = mutableMapOf()
         private val requestIdMap: MutableMap<WeatherProvider, Long> = mutableMapOf()
@@ -72,7 +72,7 @@ class WeatherDataRequest(
 
     data class Request(
         val requestId: Long,
-        val location: LocationTypeModel,
+        val location: LocationModel,
         val weatherProvider: WeatherProvider,
         val weatherDataMajorCategories: Set<MajorWeatherEntityType>,
         val modelType: ModelType,
@@ -82,3 +82,7 @@ class WeatherDataRequest(
         NORMAL, BYTES,
     }
 }
+
+data class LocationModel(
+    val latitude: Double, val longitude: Double
+) : EntityModel

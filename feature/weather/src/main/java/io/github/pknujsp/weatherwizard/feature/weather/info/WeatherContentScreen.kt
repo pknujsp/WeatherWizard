@@ -24,7 +24,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -33,6 +32,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import coil.request.CachePolicy
 import coil.request.ImageRequest
@@ -47,6 +47,8 @@ import io.github.pknujsp.weatherwizard.feature.map.SimpleMapScreen
 import io.github.pknujsp.weatherwizard.feature.sunsetrise.SimpleSunSetRiseScreen
 import io.github.pknujsp.weatherwizard.feature.weather.info.currentweather.simple.CurrentWeatherScreen
 import io.github.pknujsp.weatherwizard.feature.weather.info.dailyforecast.simple.SimpleDailyForecastScreen
+import io.github.pknujsp.weatherwizard.feature.weather.info.geocode.TargetLocationViewModel
+import io.github.pknujsp.weatherwizard.feature.weather.info.geocode.TopAppBarUiState
 import io.github.pknujsp.weatherwizard.feature.weather.info.hourlyforecast.simple.HourlyForecastScreen
 import io.github.pknujsp.weatherwizard.feature.weather.route.NestedWeatherRoutes
 import kotlinx.coroutines.launch
@@ -63,6 +65,7 @@ fun WeatherContentScreen(
     updateWindowInset: () -> Unit,
     uiState: WeatherContentUiState.Success,
     openDrawer: () -> Unit,
+    topAppBarUiState: TopAppBarUiState,
 ) {
     var onClickedWeatherProviderButton by remember { mutableStateOf(false) }
     val coroutineScope = rememberCoroutineScope()
@@ -85,7 +88,9 @@ fun WeatherContentScreen(
 
     Scaffold(containerColor = Color.Black.copy(alpha = 0.1f), topBar = {
         TopAppBars(
-            uiState = uiState,
+            topAppBarUiState = topAppBarUiState,
+            dateTime = uiState.dateTime,
+            weatherProvider = uiState.args.weatherProvider,
             openDrawer = openDrawer,
             reload = reload,
             onClickedWeatherProviderButton = { onClickedWeatherProviderButton = true },

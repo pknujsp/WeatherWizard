@@ -31,18 +31,36 @@ import io.github.pknujsp.weatherwizard.core.ui.lottie.CancellableLoadingScreen
 import io.github.pknujsp.weatherwizard.feature.weather.comparison.dailyforecast.CompareDailyForecastScreen
 import io.github.pknujsp.weatherwizard.feature.weather.comparison.hourlyforecast.CompareHourlyForecastScreen
 import io.github.pknujsp.weatherwizard.feature.weather.info.dailyforecast.detail.DetailDailyForecastScreen
+import io.github.pknujsp.weatherwizard.feature.weather.info.geocode.TargetLocationViewModel
 import io.github.pknujsp.weatherwizard.feature.weather.info.hourlyforecast.detail.DetailHourlyForecastScreen
 import io.github.pknujsp.weatherwizard.feature.weather.route.NestedWeatherRoutes
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun WeatherInfoScreen(openDrawer: () -> Unit, viewModel: WeatherInfoViewModel = hiltViewModel()) {
+fun WeatherInfoScreen(
+    openDrawer: () -> Unit,
+    viewModel: WeatherInfoViewModel = hiltViewModel(),
+    targetLocationViewModel: TargetLocationViewModel = hiltViewModel()
+) {
     val mainState = rememberWeatherMainState()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val topAppBarUiState = targetLocationViewModel.topAppBarUiState
     val isLoading = viewModel.isLoading
 
     LaunchedEffect(uiState) {
-        if (uiState is WeatherContentUiState.Success) mainState.expandAppBar()
+        if (uiState is WeatherContentUiState.Success) {
+            (uiState as WeatherContentUiState.Success).run {
+                targetLocationViewModel.setPrimaryArguments(args.weatherProvider, dateTime)
+            }
+            mainState.expandAppBar()
+        }
+    }
+    LaunchedEffect(Unit) {
+        viewModel.targetLocationUiState.collect {
+            it?.let {
+                targetLocationViewModel.setLocation(it)
+            }
+        }
     }
 
     when (mainState.nestedRoutes.value) {
@@ -57,7 +75,7 @@ fun WeatherInfoScreen(openDrawer: () -> Unit, viewModel: WeatherInfoViewModel = 
                         viewModel.updateWeatherDataProvider(it)
                     }, updateWindowInset = {
                         mainState.updateWindowInset(false)
-                    }, uiState as WeatherContentUiState.Success, openDrawer)
+                    }, uiState as WeatherContentUiState.Success, openDrawer, topAppBarUiState)
                 }
 
                 is WeatherContentUiState.Error -> {

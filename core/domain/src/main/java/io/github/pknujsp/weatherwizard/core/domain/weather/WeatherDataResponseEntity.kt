@@ -31,16 +31,16 @@ data class WeatherResponseEntity(
 
 sealed interface WeatherResponseState {
     val requestId: Long
-    val location: LocationTypeModel
+    val location: LocationModel
     val weatherProvider: WeatherProvider
 
     data class Failure(
-        override val requestId: Long, override val location: LocationTypeModel, override val weatherProvider: WeatherProvider,
+        override val requestId: Long, override val location: LocationModel, override val weatherProvider: WeatherProvider,
     ) : WeatherResponseState
 
     data class Success(
         override val requestId: Long,
-        override val location: LocationTypeModel,
+        override val location: LocationModel,
         override val weatherProvider: WeatherProvider,
         val entity: WeatherResponseEntity
     ) : WeatherResponseState

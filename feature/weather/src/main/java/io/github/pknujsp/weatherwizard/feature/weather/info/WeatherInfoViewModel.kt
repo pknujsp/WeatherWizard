@@ -17,15 +17,14 @@ import io.github.pknujsp.weatherwizard.core.common.util.toTimeZone
 import io.github.pknujsp.weatherwizard.core.data.favorite.FavoriteAreaListRepository
 import io.github.pknujsp.weatherwizard.core.data.favorite.SelectedLocationModel
 import io.github.pknujsp.weatherwizard.core.data.favorite.TargetLocationRepository
-import io.github.pknujsp.weatherwizard.core.data.nominatim.NominatimRepository
 import io.github.pknujsp.weatherwizard.core.data.settings.SettingsRepository
 import io.github.pknujsp.weatherwizard.core.domain.location.CurrentLocationResultState
 import io.github.pknujsp.weatherwizard.core.domain.location.GetCurrentLocationUseCase
 import io.github.pknujsp.weatherwizard.core.domain.weather.GetWeatherDataUseCase
+import io.github.pknujsp.weatherwizard.core.domain.weather.LocationModel
 import io.github.pknujsp.weatherwizard.core.domain.weather.WeatherDataRequest
 import io.github.pknujsp.weatherwizard.core.domain.weather.WeatherResponseState
 import io.github.pknujsp.weatherwizard.core.model.coordinate.LocationType
-import io.github.pknujsp.weatherwizard.core.model.coordinate.LocationTypeModel
 import io.github.pknujsp.weatherwizard.core.model.weather.RequestWeatherArguments
 import io.github.pknujsp.weatherwizard.core.model.weather.common.MajorWeatherEntityType
 import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherProvider
@@ -40,15 +39,15 @@ import io.github.pknujsp.weatherwizard.core.model.weather.hourlyforecast.SimpleH
 import io.github.pknujsp.weatherwizard.core.model.weather.yesterday.YesterdayWeather
 import io.github.pknujsp.weatherwizard.core.model.weather.yesterday.YesterdayWeatherEntity
 import io.github.pknujsp.weatherwizard.core.ui.weather.item.DynamicDateTimeUiCreator
+import io.github.pknujsp.weatherwizard.feature.weather.info.geocode.TargetLocationModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.flowOn
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.last
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.zip
@@ -61,18 +60,19 @@ import javax.inject.Inject
 
 @HiltViewModel
 class WeatherInfoViewModel @Inject constructor(
-    private val favoriteAreaListRepository: FavoriteAreaListRepository,
     private val settingsRepository: SettingsRepository,
     private val getCurrentLocationUseCase: GetCurrentLocationUseCase,
-    private val nominatimRepository: NominatimRepository,
     private val getWeatherDataUseCase: GetWeatherDataUseCase,
     @CoDispatcher(CoDispatcherType.IO) private val dispatcher: CoroutineDispatcher,
-    targetLocationRepository: TargetLocationRepository,
+    private val targetLocationRepository: TargetLocationRepository,
+    private val favoriteAreaListRepository: FavoriteAreaListRepository,
 ) : ViewModel() {
-    private var job: Job? = null
+    private var loadWeatherDataJob: Job? = null
+    private var targetLocationJob: Job? = null
 
     var isLoading: Boolean by mutableStateOf(true)
         private set
+
 
     private val mutableUiState = MutableStateFlow<WeatherContentUiState?>(null)
 
@@ -81,52 +81,64 @@ class WeatherInfoViewModel @Inject constructor(
         isLoading = false
     }.stateIn(viewModelScope, SharingStarted.Eagerly, null)
 
-    private val baseArguments = targetLocationRepository.targetLocation.map { location ->
-        Log.d("WeatherInfoViewModel", "baseArgumentsFlow 흐름: targetLocation $location")
-        createLocationTypeModel(location)
-    }.flowOn(dispatcher).filterNotNull().zip(settingsRepository.settings) { location, settings ->
+    private val targetLocationFlow = MutableStateFlow<TargetLocationModel?>(null)
+
+    val targetLocationUiState = targetLocationFlow.asStateFlow()
+
+    private val argumentsFlow = targetLocationFlow.asStateFlow().filterNotNull().zip(settingsRepository.settings) { location, settings ->
         Log.d("WeatherInfoViewModel", "baseArgumentsFlow 흐름: settings $settings")
-        RequestWeatherArguments(settings.weatherProvider, location)
+        RequestWeatherArguments(settings.weatherProvider, location.latitude, location.longitude)
     }.flowOn(dispatcher).onEach {
         Log.d("WeatherInfoViewModel", "baseArgumentsFlow 흐름: 날씨 데이터 로드 $it")
         loadAllWeatherData(it)
     }.stateIn(viewModelScope, SharingStarted.Eagerly, null)
 
-    fun refresh() {
-        viewModelScope.launch {
-            isLoading = true
-            loadAllWeatherData(baseArguments.value!!)
-        }
-    }
-
-    private suspend fun createLocationTypeModel(location: SelectedLocationModel): LocationTypeModel? {
-        val locationTypeModel = viewModelScope.async {
-            isLoading = true
-            createLocationModel(location)
-        }
-        return locationTypeModel.await()
-    }
-
-    private suspend fun createLocationModel(targetLocation: SelectedLocationModel): LocationTypeModel? {
-        val result = withContext(dispatcher) {
-            if (targetLocation.locationType is LocationType.CurrentLocation) {
-                loadCurrentLocation()
-            } else {
-                loadFavoriteLocation(targetLocation.locationId)
+    init {
+        viewModelScope.launch(dispatcher) {
+            targetLocationRepository.targetLocation.onEach { location ->
+                Log.d("WeatherInfoViewModel", "targetLocationRepository 흐름: targetLocation $location")
+                createLocationTypeModel(location)
             }
         }
+    }
 
-        return result.first ?: run {
-            mutableUiState.value = WeatherContentUiState.Error(result.second!!)
-            null
+
+    private suspend fun createLocationTypeModel(location: SelectedLocationModel) {
+        targetLocationJob?.cancel()
+        targetLocationJob = viewModelScope.launch {
+            isLoading = true
+            val result = withContext(dispatcher) {
+                if (location.locationType is LocationType.CurrentLocation) {
+                    loadCurrentLocation()
+                } else {
+                    val favoriteLocation = favoriteAreaListRepository.getById(location.locationId).getOrThrow()
+                    TargetLocationModel(address = favoriteLocation.areaName,
+                        country = favoriteLocation.countryName,
+                        latitude = favoriteLocation.latitude,
+                        longitude = favoriteLocation.longitude) to null
+                }
+            }
+
+            result.first?.run {
+                targetLocationFlow.value = this
+            } ?: run {
+                mutableUiState.value = WeatherContentUiState.Error(result.second!!)
+            }
         }
     }
 
-    private suspend fun loadCurrentLocation(): Pair<LocationTypeModel?, FailedReason?> {
+    fun refresh() {
+        viewModelScope.launch {
+            targetLocationRepository.targetLocation.last().let { location ->
+                createLocationTypeModel(location)
+            }
+        }
+    }
+
+    private suspend fun loadCurrentLocation(): Pair<TargetLocationModel?, FailedReason?> {
         return when (val currentLocation = getCurrentLocationUseCase()) {
             is CurrentLocationResultState.Success -> {
-                LocationTypeModel(
-                    locationType = LocationType.CurrentLocation,
+                TargetLocationModel(
                     latitude = currentLocation.latitude,
                     longitude = currentLocation.longitude,
                 ) to null
@@ -138,46 +150,16 @@ class WeatherInfoViewModel @Inject constructor(
         }
     }
 
-    private suspend fun loadFavoriteLocation(locationId: Long): Pair<LocationTypeModel?, FailedReason?> {
-        return favoriteAreaListRepository.getById(locationId).map {
-            LocationTypeModel(
-                locationType = LocationType.CustomLocation,
-                latitude = it.latitude,
-                longitude = it.longitude,
-                address = it.areaName,
-                country = it.countryName,
-            )
-        }.fold(onSuccess = { location ->
-            location to null
-        }, onFailure = {
-            null to FailedReason.UNKNOWN
-        })
-    }
 
     fun cancelLoading() {
         viewModelScope.launch {
-            if (isLoading) {
-                job?.cancel()
-                mutableUiState.value = WeatherContentUiState.Error(FailedReason.CANCELED)
-            }
+            targetLocationJob?.cancel()
+            loadWeatherDataJob?.cancel()
+            isLoading = false
+            mutableUiState.value = WeatherContentUiState.Error(FailedReason.CANCELED)
         }
     }
 
-    private suspend fun reverseGeoCode(location: SelectedLocationModel){
-        nominatimRepository.reverseGeoCode(currentLocation.latitude, currentLocation.longitude).map {
-            LocationTypeModel(
-                locationType = LocationType.CurrentLocation,
-                latitude = currentLocation.latitude,
-                longitude = currentLocation.longitude,
-                address = it.simpleDisplayName,
-                country = it.country,
-            )
-        }.fold(onSuccess = { location ->
-            location to null
-        }, onFailure = {
-            null to FailedReason.REVERSE_GEOCODE_ERROR
-        })
-    }
 
     fun updateWeatherDataProvider(weatherProvider: WeatherProvider) {
         viewModelScope.launch {
@@ -186,11 +168,11 @@ class WeatherInfoViewModel @Inject constructor(
     }
 
     private suspend fun loadAllWeatherData(args: RequestWeatherArguments) {
-        job?.cancel()
-        job = viewModelScope.launch {
+        loadWeatherDataJob?.cancel()
+        loadWeatherDataJob = viewModelScope.launch {
             val newState = withContext(dispatcher) {
                 val weatherProvider = args.weatherProvider
-                val location = args.location
+                val location = LocationModel(args.latitude, args.longitude)
 
                 val weatherDataRequest = WeatherDataRequest()
                 weatherDataRequest.addRequest(location, weatherProvider.majorWeatherEntityTypes, weatherProvider)

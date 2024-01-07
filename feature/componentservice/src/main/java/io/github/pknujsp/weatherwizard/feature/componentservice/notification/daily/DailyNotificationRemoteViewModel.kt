@@ -7,6 +7,7 @@ import io.github.pknujsp.weatherwizard.core.data.settings.SettingsRepository
 import io.github.pknujsp.weatherwizard.core.domain.location.CurrentLocationResultState
 import io.github.pknujsp.weatherwizard.core.domain.location.GetCurrentLocationUseCase
 import io.github.pknujsp.weatherwizard.core.domain.weather.GetWeatherDataUseCase
+import io.github.pknujsp.weatherwizard.core.domain.weather.LocationModel
 import io.github.pknujsp.weatherwizard.core.domain.weather.WeatherDataRequest
 import io.github.pknujsp.weatherwizard.core.domain.weather.WeatherResponseState
 import io.github.pknujsp.weatherwizard.core.model.coordinate.LocationType
@@ -44,12 +45,7 @@ class DailyNotificationRemoteViewModel @Inject constructor(
                     val address = nominatimRepository.reverseGeoCode(currentLocation.latitude, currentLocation.longitude)
                     address.fold(onSuccess = {
                         weatherDataRequest.addRequest(
-                            dailyNotificationSettingsEntity.location.copy(
-                                address = it.simpleDisplayName,
-                                country = it.country,
-                                latitude = currentLocation.latitude,
-                                longitude = currentLocation.longitude,
-                            ),
+                            LocationModel(currentLocation.latitude, currentLocation.longitude),
                             dailyNotificationSettingsEntity.type.categories.toSet(),
                             dailyNotificationSettingsEntity.weatherProvider,
                         )
@@ -71,15 +67,17 @@ class DailyNotificationRemoteViewModel @Inject constructor(
             }
         } else {
             weatherDataRequest.addRequest(
-                dailyNotificationSettingsEntity.location,
+                LocationModel(
+                    dailyNotificationSettingsEntity.location.latitude,
+                    dailyNotificationSettingsEntity.location.longitude,
+                ),
                 dailyNotificationSettingsEntity.type.categories.toSet(),
                 dailyNotificationSettingsEntity.weatherProvider,
             )
         }
 
         return when (val response = getWeatherDataUseCase(weatherDataRequest.finalRequests[0], false)) {
-            is WeatherResponseState.Success -> DailyNotificationRemoteViewUiState(
-                model = response.entity,
+            is WeatherResponseState.Success -> DailyNotificationRemoteViewUiState(model = response.entity,
                 address = response.location.address,
                 lastUpdated = weatherDataRequest.requestedTime,
                 notificationType = dailyNotificationSettingsEntity.type,

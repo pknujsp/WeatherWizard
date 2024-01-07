@@ -306,5 +306,7 @@
     <string name="title_not_selected_target_location">표시할 위치 지정되지 않음</string>
     <string name="message_not_selected_target_location">날씨 정보를 보여줄 위치가 지정되지 않았습니다</string>
     <string name="go_to_select_target_location">지정하기</string>
+    <string name="unknown_address">알수없는 주소</string>
+    <string name="unknown_country">알수없는 국가</string>
 
 </resources>
