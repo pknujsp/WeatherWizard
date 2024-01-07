@@ -166,10 +166,14 @@ fun TopAppBars(
             navigationIconContentColor = Color.White,
             actionIconContentColor = Color.White,
         ),
-        modifier = modifier.background(brush = shadowBox()).statusBarsPadding(),
+        modifier = modifier
+            .background(brush = shadowBox())
+            .statusBarsPadding(),
         windowInsets = WindowInsets(0.dp, 0.dp, 0.dp, 0.dp),
         navigationIcon = {
-            IconButton(modifier = modifier, onClick = openDrawer) {
+            IconButton(modifier = modifier, onClick = {
+                openDrawer()
+            }) {
                 Icon(Icons.Rounded.Menu, contentDescription = null)
             }
         },

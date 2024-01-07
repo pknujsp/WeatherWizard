@@ -1,7 +1,10 @@
 package io.github.pknujsp.weatherwizard.feature.weather.info
 
 import android.util.Log
+import androidx.compose.foundation.MutatePriority
 import androidx.compose.foundation.ScrollState
+import androidx.compose.foundation.gestures.scrollBy
+import androidx.compose.foundation.gestures.stopScroll
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.TopAppBarDefaults
@@ -42,8 +45,6 @@ import java.time.ZonedDateTime
 
 
 sealed interface WeatherContentUiState {
-    data object Loading : WeatherContentUiState
-
     data class Error(val message: FailedReason) : WeatherContentUiState
 
     class Success(
@@ -103,6 +104,10 @@ class WeatherMainState @OptIn(ExperimentalMaterial3Api::class) constructor(
             isAppearanceLightNavigationBars = isAppearanceLight
         }
     }
+
+    suspend fun expandAppBar() {
+        scrollState.scrollTo(0)
+    }
 }
 
 
@@ -125,6 +130,21 @@ fun rememberWeatherMainState(
     var nestedRoutes by rememberSaveable(saver = Saver(save = { it.value.route },
         restore = { mutableStateOf(NestedWeatherRoutes.getRoute(it)) })) {
         state.nestedRoutes
+    }
+
+    LaunchedEffect(Unit) {
+        val heightOffsetLimit = -scrollBehavior.state.heightOffsetLimit
+        val collapsedHeightOffset = scrollBehavior.state.heightOffsetLimit
+
+        snapshotFlow {
+            scrollState.value
+        }.collect { y ->
+            if (y <= heightOffsetLimit) {
+                scrollBehavior.state.heightOffset = -y.toFloat()
+            } else if (scrollBehavior.state.heightOffset != collapsedHeightOffset) {
+                scrollBehavior.state.heightOffset = collapsedHeightOffset
+            }
+        }
     }
 
     return state

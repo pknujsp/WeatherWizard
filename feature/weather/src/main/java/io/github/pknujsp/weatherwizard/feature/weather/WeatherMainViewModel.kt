@@ -8,8 +8,6 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.github.pknujsp.weatherwizard.core.data.favorite.TargetLocationRepository
 import io.github.pknujsp.weatherwizard.core.model.coordinate.LocationType
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -23,7 +21,7 @@ class WeatherMainViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            locationType = targetLocationRepository.getTargetLocation().locationType
+            locationType = targetLocationRepository.getCurrentTargetLocation().locationType
         }
     }
 }

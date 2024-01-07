@@ -6,9 +6,10 @@ import androidx.compose.ui.unit.Dp
 import io.github.pknujsp.weatherwizard.core.model.weather.hourlyforecast.SimpleHourlyForecast
 import io.github.pknujsp.weatherwizard.core.ui.UiComponentCreator
 import java.time.ZonedDateTime
+import java.time.format.DateTimeFormatter
 
 class DynamicDateTimeUiCreator(dates: List<String>, private val itemWidth: Dp) : UiComponentCreator {
-    private val formatter = java.time.format.DateTimeFormatter.ofPattern("M.d\nE")
+    private val formatter = DateTimeFormatter.ofPattern("M.d\nE")
     private val dates = dates.map { ZonedDateTime.parse(it).toLocalDate() }
 
     operator fun invoke(): SimpleHourlyForecast.DateTimeInfo {

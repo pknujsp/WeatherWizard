@@ -4,9 +4,9 @@ import kotlinx.coroutines.flow.Flow
 
 interface TargetLocationRepository {
 
+    val targetLocation: Flow<SelectedLocationModel>
+
+    suspend fun getCurrentTargetLocation(): SelectedLocationModel
+
     suspend fun updateTargetLocation(newModel: SelectedLocationModel)
-
-    suspend fun getTargetLocation(): SelectedLocationModel
-
-    fun observeTargetLocation(): Flow<SelectedLocationModel>
 }

@@ -41,14 +41,17 @@ import io.github.pknujsp.weatherwizard.core.model.weather.yesterday.YesterdayWea
 import io.github.pknujsp.weatherwizard.core.model.weather.yesterday.YesterdayWeatherEntity
 import io.github.pknujsp.weatherwizard.core.ui.weather.item.DynamicDateTimeUiCreator
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
+import kotlinx.coroutines.async
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.filterNotNull
-import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.zip
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.time.ZonedDateTime
@@ -60,139 +63,177 @@ import javax.inject.Inject
 class WeatherInfoViewModel @Inject constructor(
     private val favoriteAreaListRepository: FavoriteAreaListRepository,
     private val settingsRepository: SettingsRepository,
-    private val targetLocationRepository: TargetLocationRepository,
     private val getCurrentLocationUseCase: GetCurrentLocationUseCase,
     private val nominatimRepository: NominatimRepository,
     private val getWeatherDataUseCase: GetWeatherDataUseCase,
-    @CoDispatcher(CoDispatcherType.IO) private val dispatcher: CoroutineDispatcher
+    @CoDispatcher(CoDispatcherType.IO) private val dispatcher: CoroutineDispatcher,
+    targetLocationRepository: TargetLocationRepository,
 ) : ViewModel() {
-
-    var uiState: WeatherContentUiState by mutableStateOf(WeatherContentUiState.Loading)
-        private set
-
     private var job: Job? = null
 
-    private val exceptionHandler = CoroutineExceptionHandler { _, throwable ->
-        uiState = WeatherContentUiState.Error(FailedReason.SERVER_ERROR)
-    }
+    var isLoading: Boolean by mutableStateOf(true)
+        private set
 
-    private val targetLocationFlow = targetLocationRepository.observeTargetLocation().onEach { location ->
-        Log.d("WeatherInfoViewModel", "initialize from targetLocationFlow: $location")
-        initialize(location)
+    private val mutableUiState = MutableStateFlow<WeatherContentUiState?>(null)
+
+    val uiState = mutableUiState.asStateFlow().filterNotNull().onEach {
+        Log.d("WeatherInfoViewModel", "uiState 흐름: $it")
+        isLoading = false
     }.stateIn(viewModelScope, SharingStarted.Eagerly, null)
 
-    fun initialize(location: SelectedLocationModel?) {
-        job?.cancel()
-        job = viewModelScope.launch(exceptionHandler) {
-            uiState = WeatherContentUiState.Loading
-            val weatherProvider = settingsRepository.settings.value.weatherProvider
-            val targetLocation = location ?: targetLocationFlow.value!!
+    private val baseArguments = targetLocationRepository.targetLocation.map { location ->
+        Log.d("WeatherInfoViewModel", "baseArgumentsFlow 흐름: targetLocation $location")
+        createLocationTypeModel(location)
+    }.flowOn(dispatcher).filterNotNull().zip(settingsRepository.settings) { location, settings ->
+        Log.d("WeatherInfoViewModel", "baseArgumentsFlow 흐름: settings $settings")
+        RequestWeatherArguments(settings.weatherProvider, location)
+    }.flowOn(dispatcher).onEach {
+        Log.d("WeatherInfoViewModel", "baseArgumentsFlow 흐름: 날씨 데이터 로드 $it")
+        loadAllWeatherData(it)
+    }.stateIn(viewModelScope, SharingStarted.Eagerly, null)
 
+    fun refresh() {
+        viewModelScope.launch {
+            isLoading = true
+            loadAllWeatherData(baseArguments.value!!)
+        }
+    }
+
+    private suspend fun createLocationTypeModel(location: SelectedLocationModel): LocationTypeModel? {
+        val locationTypeModel = viewModelScope.async {
+            isLoading = true
+            createLocationModel(location)
+        }
+        return locationTypeModel.await()
+    }
+
+    private suspend fun createLocationModel(targetLocation: SelectedLocationModel): LocationTypeModel? {
+        val result = withContext(dispatcher) {
             if (targetLocation.locationType is LocationType.CurrentLocation) {
-                when (val currentLocation = getCurrentLocationUseCase()) {
-                    is CurrentLocationResultState.Success -> {
-                        nominatimRepository.reverseGeoCode(currentLocation.latitude, currentLocation.longitude).map {
-                            RequestWeatherArguments(weatherProvider = weatherProvider,
-                                location = LocationTypeModel(
-                                    locationType = LocationType.CurrentLocation,
-                                    latitude = currentLocation.latitude,
-                                    longitude = currentLocation.longitude,
-                                    address = it.simpleDisplayName,
-                                    country = it.country,
-                                ))
-                        }.onSuccess { args ->
-                            withContext(dispatcher) {
-                                loadAllWeatherData(args)
-                            }
-                        }.onFailure {
-                            uiState = WeatherContentUiState.Error(FailedReason.SERVER_ERROR)
-                        }
-                    }
-
-                    is CurrentLocationResultState.Failure -> {
-                        uiState = WeatherContentUiState.Error(currentLocation.reason)
-                    }
-
-                }
+                loadCurrentLocation()
             } else {
-                favoriteAreaListRepository.getById(targetLocation.locationId).onFailure {
-                    uiState = WeatherContentUiState.Error(FailedReason.UNKNOWN)
-                }.onSuccess {
-                    withContext(dispatcher) {
-                        val args = RequestWeatherArguments(weatherProvider = settingsRepository.settings.value.weatherProvider,
-                            location = LocationTypeModel(
-                                locationType = LocationType.CustomLocation,
-                                latitude = it.latitude,
-                                longitude = it.longitude,
-                                address = it.areaName,
-                                country = it.countryName,
-                            ))
-                        loadAllWeatherData(args)
-                    }
-                }
-
+                loadFavoriteLocation(targetLocation.locationId)
             }
         }
+
+        return result.first ?: run {
+            mutableUiState.value = WeatherContentUiState.Error(result.second!!)
+            null
+        }
+    }
+
+    private suspend fun loadCurrentLocation(): Pair<LocationTypeModel?, FailedReason?> {
+        return when (val currentLocation = getCurrentLocationUseCase()) {
+            is CurrentLocationResultState.Success -> {
+                LocationTypeModel(
+                    locationType = LocationType.CurrentLocation,
+                    latitude = currentLocation.latitude,
+                    longitude = currentLocation.longitude,
+                ) to null
+            }
+
+            is CurrentLocationResultState.Failure -> {
+                null to currentLocation.reason
+            }
+        }
+    }
+
+    private suspend fun loadFavoriteLocation(locationId: Long): Pair<LocationTypeModel?, FailedReason?> {
+        return favoriteAreaListRepository.getById(locationId).map {
+            LocationTypeModel(
+                locationType = LocationType.CustomLocation,
+                latitude = it.latitude,
+                longitude = it.longitude,
+                address = it.areaName,
+                country = it.countryName,
+            )
+        }.fold(onSuccess = { location ->
+            location to null
+        }, onFailure = {
+            null to FailedReason.UNKNOWN
+        })
     }
 
     fun cancelLoading() {
         viewModelScope.launch {
-            if (uiState is WeatherContentUiState.Loading) {
+            if (isLoading) {
                 job?.cancel()
-                uiState = WeatherContentUiState.Error(FailedReason.CANCELED)
+                mutableUiState.value = WeatherContentUiState.Error(FailedReason.CANCELED)
             }
         }
+    }
+
+    private suspend fun reverseGeoCode(location: SelectedLocationModel){
+        nominatimRepository.reverseGeoCode(currentLocation.latitude, currentLocation.longitude).map {
+            LocationTypeModel(
+                locationType = LocationType.CurrentLocation,
+                latitude = currentLocation.latitude,
+                longitude = currentLocation.longitude,
+                address = it.simpleDisplayName,
+                country = it.country,
+            )
+        }.fold(onSuccess = { location ->
+            location to null
+        }, onFailure = {
+            null to FailedReason.REVERSE_GEOCODE_ERROR
+        })
     }
 
     fun updateWeatherDataProvider(weatherProvider: WeatherProvider) {
         viewModelScope.launch {
             settingsRepository.update(WeatherProvider, weatherProvider)
-            initialize(null)
         }
     }
 
     private suspend fun loadAllWeatherData(args: RequestWeatherArguments) {
-        args.run {
-            val weatherDataRequest = WeatherDataRequest()
-            weatherDataRequest.addRequest(location, weatherProvider.majorWeatherEntityTypes, weatherProvider)
+        job?.cancel()
+        job = viewModelScope.launch {
+            val newState = withContext(dispatcher) {
+                val weatherProvider = args.weatherProvider
+                val location = args.location
 
-            val entity = when (val result = getWeatherDataUseCase(weatherDataRequest.finalRequests[0], false)) {
-                is WeatherResponseState.Success -> result.entity
-                is WeatherResponseState.Failure -> {
-                    uiState = WeatherContentUiState.Error(FailedReason.SERVER_ERROR)
-                    return
+                val weatherDataRequest = WeatherDataRequest()
+                weatherDataRequest.addRequest(location, weatherProvider.majorWeatherEntityTypes, weatherProvider)
+
+                val entity = when (val result = getWeatherDataUseCase(weatherDataRequest.finalRequests[0], false)) {
+                    is WeatherResponseState.Success -> result.entity
+                    is WeatherResponseState.Failure -> {
+                        return@withContext WeatherContentUiState.Error(FailedReason.SERVER_ERROR)
+                    }
                 }
+
+                val requestDateTime = ZonedDateTime.now()
+                val dayNightCalculator = DayNightCalculator(location.latitude, location.longitude, requestDateTime.toTimeZone())
+
+                val currentWeatherEntity = entity.toEntity<CurrentWeatherEntity>()
+                val hourlyForecastEntity = entity.toEntity<HourlyForecastEntity>()
+                val dailyForecastEntity = entity.toEntity<DailyForecastEntity>()
+
+                val currentWeather = createCurrentWeatherUiModel(currentWeatherEntity, dayNightCalculator, requestDateTime.toCalendar())
+                val simpleHourlyForecast = createSimpleHourlyForecastUiModel(hourlyForecastEntity, dayNightCalculator)
+                val detailHourlyForecast = createDetailHourlyForecastUiModel(hourlyForecastEntity, dayNightCalculator)
+                val simpleDailyForecast = createSimpleDailyForecastUiModel(dailyForecastEntity)
+                val detailDailyForecast = createDetailDailyForecastUiModel(dailyForecastEntity)
+
+                val yesterdayWeather = if (entity.weatherDataMajorCategories.contains(MajorWeatherEntityType.YESTERDAY_WEATHER)) {
+                    val yesterdayWeatherEntity = entity.toEntity<YesterdayWeatherEntity>()
+                    createYesterdayWeatherUiModel(yesterdayWeatherEntity)
+                } else {
+                    null
+                }
+
+                val weather = Weather(currentWeather,
+                    simpleHourlyForecast,
+                    detailHourlyForecast,
+                    simpleDailyForecast,
+                    detailDailyForecast,
+                    yesterdayWeather,
+                    location.latitude,
+                    location.longitude,
+                    requestDateTime)
+                WeatherContentUiState.Success(args, weather, requestDateTime)
             }
-            val requestDateTime = ZonedDateTime.now()
-            val dayNightCalculator = DayNightCalculator(location.latitude, location.longitude, requestDateTime.toTimeZone())
-
-            val currentWeatherEntity = entity.toEntity<CurrentWeatherEntity>()
-            val hourlyForecastEntity = entity.toEntity<HourlyForecastEntity>()
-            val dailyForecastEntity = entity.toEntity<DailyForecastEntity>()
-
-            val currentWeather = createCurrentWeatherUiModel(currentWeatherEntity, dayNightCalculator, requestDateTime.toCalendar())
-            val simpleHourlyForecast = createSimpleHourlyForecastUiModel(hourlyForecastEntity, dayNightCalculator)
-            val detailHourlyForecast = createDetailHourlyForecastUiModel(hourlyForecastEntity, dayNightCalculator)
-            val simpleDailyForecast = createSimpleDailyForecastUiModel(dailyForecastEntity)
-            val detailDailyForecast = createDetailDailyForecastUiModel(dailyForecastEntity)
-
-            val yesterdayWeather = if (entity.weatherDataMajorCategories.contains(MajorWeatherEntityType.YESTERDAY_WEATHER)) {
-                val yesterdayWeatherEntity = entity.toEntity<YesterdayWeatherEntity>()
-                createYesterdayWeatherUiModel(yesterdayWeatherEntity)
-            } else {
-                null
-            }
-
-            val weather = Weather(currentWeather,
-                simpleHourlyForecast,
-                detailHourlyForecast,
-                simpleDailyForecast,
-                detailDailyForecast,
-                yesterdayWeather,
-                location.latitude,
-                location.longitude,
-                requestDateTime)
-            uiState = WeatherContentUiState.Success(args, weather, requestDateTime)
+            mutableUiState.value = newState
         }
     }
 

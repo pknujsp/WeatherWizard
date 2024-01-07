@@ -60,12 +60,12 @@ class FavoriteAreaViewModel @Inject constructor(
 
     private fun loadTargetLocation() {
         viewModelScope.launch {
-            val targetLocation = targetLocationRepository.getTargetLocation()
-
-            mutableTargetLocationUiState.run {
-                locationType = targetLocation.locationType
-                locationId = if (targetLocation.locationType is LocationType.CustomLocation) targetLocation.locationId else null
-            }
+           targetLocationRepository.getCurrentTargetLocation()?.let { targetLocation ->
+               mutableTargetLocationUiState.run {
+                   locationType = targetLocation.locationType
+                   locationId = if (targetLocation.locationType is LocationType.CustomLocation) targetLocation.locationId else null
+               }
+           }
         }
     }
 

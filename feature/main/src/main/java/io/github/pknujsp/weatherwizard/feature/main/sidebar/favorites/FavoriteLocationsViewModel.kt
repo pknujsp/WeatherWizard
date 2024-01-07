@@ -1,5 +1,6 @@
 package io.github.pknujsp.weatherwizard.feature.main.sidebar.favorites
 
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -23,6 +24,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -49,7 +51,8 @@ class FavoriteLocationsViewModel @Inject constructor(
         }
     }.flowOn(ioDispatcher).stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
 
-    private val targetLocationFlow = targetLocationRepository.observeTargetLocation().onEach { targetLocation ->
+    private val targetLocationFlow = targetLocationRepository.targetLocation.onEach { targetLocation ->
+        Log.d("FavoriteLocationsViewModel", "TargetLocation 흐름: $targetLocation")
         mutableTargetLocationUiState.run {
             locationType = targetLocation.locationType
             locationId = if (targetLocation.locationType is LocationType.CustomLocation) targetLocation.locationId else null

@@ -74,20 +74,6 @@ fun WeatherContentScreen(
             updateWindowInset()
         }
     }
-    LaunchedEffect(Unit) {
-        val heightOffsetLimit = -scrollBehavior.state.heightOffsetLimit
-        val collapsedHeightOffset = scrollBehavior.state.heightOffsetLimit
-
-        snapshotFlow {
-            scrollState.value
-        }.collect { y ->
-            if (y <= heightOffsetLimit) {
-                scrollBehavior.state.heightOffset = -y.toFloat()
-            } else if (scrollBehavior.state.heightOffset != collapsedHeightOffset) {
-                scrollBehavior.state.heightOffset = collapsedHeightOffset
-            }
-        }
-    }
 
     AsyncImage(
         modifier = Modifier.fillMaxSize(),

@@ -1,7 +1,6 @@
 package io.github.pknujsp.weatherwizard.feature.weather.info
 
 
-import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.material.icons.Icons
@@ -12,15 +11,16 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.pknujsp.weatherwizard.core.common.FeatureType
 import io.github.pknujsp.weatherwizard.core.common.manager.FailedReason
 import io.github.pknujsp.weatherwizard.core.resource.R
@@ -33,77 +33,74 @@ import io.github.pknujsp.weatherwizard.feature.weather.comparison.hourlyforecast
 import io.github.pknujsp.weatherwizard.feature.weather.info.dailyforecast.detail.DetailDailyForecastScreen
 import io.github.pknujsp.weatherwizard.feature.weather.info.hourlyforecast.detail.DetailHourlyForecastScreen
 import io.github.pknujsp.weatherwizard.feature.weather.route.NestedWeatherRoutes
-import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun WeatherInfoScreen(openDrawer: () -> Unit, viewModel: WeatherInfoViewModel = hiltViewModel()) {
     val mainState = rememberWeatherMainState()
-    val uiState = viewModel.uiState
-    val coroutineScope = rememberCoroutineScope()
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val isLoading = viewModel.isLoading
+
+    LaunchedEffect(uiState) {
+        if (uiState is WeatherContentUiState.Success) mainState.expandAppBar()
+    }
 
     when (mainState.nestedRoutes.value) {
         is NestedWeatherRoutes.Main -> {
             when (uiState) {
-                is WeatherContentUiState.Loading -> {
-                    CancellableLoadingScreen(stringResource(id = R.string.loading_weather_data)) {
-                        viewModel.cancelLoading()
-                    }
-                }
-
                 is WeatherContentUiState.Success -> {
                     WeatherContentScreen(mainState.scrollState, mainState.scrollBehavior, navigate = {
-                        coroutineScope.launch {
-                            mainState.navigate(it)
-                        }
+                        mainState.navigate(it)
                     }, reload = {
-                        Log.d("WeatherContentScreen", "initialize")
-                        viewModel.initialize(null)
+                        viewModel.refresh()
                     }, updateWeatherDataProvider = {
-                        coroutineScope.launch {
-                            viewModel.updateWeatherDataProvider(it)
-                        }
+                        viewModel.updateWeatherDataProvider(it)
                     }, updateWindowInset = {
-                        coroutineScope.launch {
-                            mainState.updateWindowInset(false)
-                        }
-                    }, uiState, openDrawer)
+                        mainState.updateWindowInset(false)
+                    }, uiState as WeatherContentUiState.Success, openDrawer)
                 }
 
                 is WeatherContentUiState.Error -> {
                     mainState.updateWindowInset(true)
                     TopAppBarScreen(openDrawer) {
-                        ErrorScreen(failedReason = uiState.message) {
-                            Log.d("ErrorScreen", "initialize")
-                            viewModel.initialize(null)
-                        }
+                        ErrorScreen(failedReason = (uiState as WeatherContentUiState.Error).message, reload = {
+                            viewModel.refresh()
+                        })
                     }
                 }
+
+                else -> {}
             }
         }
 
         is NestedWeatherRoutes.DetailHourlyForecast -> {
-            DetailHourlyForecastScreen((viewModel.uiState as WeatherContentUiState.Success).weather.detailHourlyForecast) {
+            DetailHourlyForecastScreen((uiState as WeatherContentUiState.Success).weather.detailHourlyForecast) {
                 mainState.navigate(NestedWeatherRoutes.Main)
             }
         }
 
         is NestedWeatherRoutes.DetailDailyForecast -> {
-            DetailDailyForecastScreen((viewModel.uiState as WeatherContentUiState.Success).weather.detailDailyForecast) {
+            DetailDailyForecastScreen((uiState as WeatherContentUiState.Success).weather.detailDailyForecast) {
                 mainState.navigate(NestedWeatherRoutes.Main)
             }
         }
 
         is NestedWeatherRoutes.ComparisonDailyForecast -> {
-            CompareDailyForecastScreen((viewModel.uiState as WeatherContentUiState.Success).args) {
+            CompareDailyForecastScreen((uiState as WeatherContentUiState.Success).args) {
                 mainState.navigate(NestedWeatherRoutes.Main)
             }
         }
 
         is NestedWeatherRoutes.ComparisonHourlyForecast -> {
-            CompareHourlyForecastScreen((viewModel.uiState as WeatherContentUiState.Success).args) {
+            CompareHourlyForecastScreen((uiState as WeatherContentUiState.Success).args) {
                 mainState.navigate(NestedWeatherRoutes.Main)
             }
+        }
+    }
+
+    if (isLoading) {
+        CancellableLoadingScreen(stringResource(id = R.string.loading_weather_data)) {
+            viewModel.cancelLoading()
         }
     }
 }

@@ -1,51 +1,36 @@
 package io.github.pknujsp.weatherwizard.core.data.favorite
 
 import io.github.pknujsp.weatherwizard.core.database.AppDataStore
-import io.github.pknujsp.weatherwizard.core.model.DBEntityState
 import io.github.pknujsp.weatherwizard.core.model.coordinate.LocationType
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.zip
-import javax.inject.Inject
 
 class TargetLocationRepositoryImpl(
     private val appDataStore: AppDataStore
 ) : TargetLocationRepository {
 
     private companion object {
-        private const val targetAreaKey = "targetAreaKey"
-        private const val customLocationIdKey = "customLocationIdKey"
+        private const val TARGET_LOCATION_KEY = "TARGET_LOCATION_KEY"
     }
 
-    override suspend fun getTargetLocation(): SelectedLocationModel {
-        val selectedLocationType = appDataStore.readAsInt(targetAreaKey).run {
-            if (this is DBEntityState.Exists) {
-                LocationType.fromKey(data)
-            } else {
-                LocationType.CurrentLocation
-            }
-        }
-        val selectedLocationId = appDataStore.readAsLong(customLocationIdKey).run {
-            if (this is DBEntityState.Exists) {
-                data
-            } else {
-                0
+    override val targetLocation
+        get() = appDataStore.observeString(TARGET_LOCATION_KEY).distinctUntilChanged().map {
+            it?.run {
+                val (locationType, locationId) = split(",")
+                SelectedLocationModel(LocationType.fromKey(locationType.toInt()), locationId.toLong())
+            } ?: run {
+                val defaultLocation = SelectedLocationModel(LocationType.CurrentLocation, 0L)
+                updateTargetLocation(defaultLocation)
+                defaultLocation
             }
         }
 
-        return SelectedLocationModel(selectedLocationType, selectedLocationId)
-    }
-
-    override fun observeTargetLocation(): Flow<SelectedLocationModel> = appDataStore.observeInt(targetAreaKey).filterNotNull().map {
-        LocationType.fromKey(it)
-    }.zip(appDataStore.observeLong(customLocationIdKey).filterNotNull()) { locationType, locationId ->
-        SelectedLocationModel(locationType, locationId)
-    }
+    override suspend fun getCurrentTargetLocation() = targetLocation.first()
 
     override suspend fun updateTargetLocation(newModel: SelectedLocationModel) {
-        appDataStore.save(targetAreaKey, newModel.locationType.key)
-        appDataStore.save(customLocationIdKey, newModel.locationId)
+        val value = "${newModel.locationType.key},${if (newModel.locationType is LocationType.CustomLocation) newModel.locationId else 0L}"
+        appDataStore.save(TARGET_LOCATION_KEY, value)
     }
 
 }
