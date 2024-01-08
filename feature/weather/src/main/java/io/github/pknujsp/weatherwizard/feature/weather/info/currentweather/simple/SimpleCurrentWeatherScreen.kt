@@ -10,16 +10,13 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CardElevation
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -27,16 +24,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.FilterQuality
-import androidx.compose.ui.layout.SubcomposeLayout
-import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.TextUnitType
@@ -54,9 +48,9 @@ import io.github.pknujsp.weatherwizard.core.resource.R
 import io.github.pknujsp.weatherwizard.core.ui.textColor
 import io.github.pknujsp.weatherwizard.core.ui.theme.notIncludeTextPaddingStyle
 import io.github.pknujsp.weatherwizard.core.ui.theme.outlineTextStyle
-import kotlinx.serialization.json.JsonNull.content
 
-private const val featureItemValueTextSize = 21
+private const val MIN_AUTO_SIZING_TEXT_SIZE = 12
+private const val MAX_AUTO_SIZING_TEXT_SIZE = 30
 
 @Composable
 fun CurrentWeatherScreen(current: CurrentWeather, yesterdayWeather: YesterdayWeather?) {
@@ -121,7 +115,7 @@ fun CurrentWeatherScreen(current: CurrentWeather, yesterdayWeather: YesterdayWea
                     centerHorizontallyTo(weatherIcon)
                     bottom.linkTo(parent.bottom)
                 },
-                style = TextStyle(fontSize = TextUnit(22f, TextUnitType.Sp),
+                style = TextStyle(fontSize = 22.sp,
                     color = textColor,
                     fontWeight = FontWeight.Medium,
                     textAlign = TextAlign.Center).merge(outlineTextStyle).merge(notIncludeTextPaddingStyle),
@@ -151,12 +145,15 @@ fun FeatureItem(@StringRes label: Int, value: String) {
             containerColor = Color.White,
         ),
     ) {
-        Column(verticalArrangement = Arrangement.SpaceBetween, modifier = Modifier.padding(12.dp)) {
+        Column(modifier = Modifier.padding(12.dp)) {
             Text(text = stringResource(id = label), style = MaterialTheme.typography.labelLarge.copy(color = Color.Black))
-            AutoSizingText(
-                text = value, modifier = Modifier.fillMaxWidth(),
-                style = TextStyle(color = Color.Black, fontWeight = FontWeight.SemiBold),
-            )
+            Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.BottomStart) {
+                AutoAdjustingFontSizeText(
+                    text = value,
+                    modifier = Modifier.fillMaxWidth(),
+                    style = TextStyle(color = Color.Black, fontWeight = FontWeight.SemiBold),
+                )
+            }
         }
     }
 }
@@ -196,28 +193,51 @@ fun NonlazyGrid(
     }
 }
 
-private const val SLOT_ID = "text"
 
+/**
+ * [minFontSize] ~ [maxFontSize] 범위 내에서, [step]만큼 fontSize를 동적으로
+ * 조절하면서, [TextOverflow]가 발생하지 않도록 하는 Text Composable
+ *
+ * @param modifier
+ * @param text
+ * @param style
+ * @param overflow [TextOverflow.Ellipsis]는 사용 불가(동적 크기 조절이 이루어지지 않는다)
+ * @param minFontSize
+ * @param maxFontSize
+ * @param step
+ *
+ */
 @Composable
-fun AutoSizingText(
+fun AutoAdjustingFontSizeText(
+    modifier: Modifier = Modifier,
     text: String,
     style: TextStyle,
-    modifier: Modifier = Modifier,
-    minFontSize: Int = 12,
-    maxFontSize: Int = featureItemValueTextSize,
+    overflow: TextOverflow = TextOverflow.Clip,
+    minFontSize: Int = MIN_AUTO_SIZING_TEXT_SIZE,
+    maxFontSize: Int = MAX_AUTO_SIZING_TEXT_SIZE,
     step: Int = 1
 ) {
     BoxWithConstraints(modifier = modifier) {
-        var fontSize by remember { mutableIntStateOf(maxFontSize) }
-        val constraintsWidth = constraints.maxWidth
+        val textOverflow = remember(overflow) { if (overflow == TextOverflow.Ellipsis) TextOverflow.Clip else overflow }
+        var textStyle by remember(text) { mutableStateOf(style.copy(fontSize = maxFontSize.sp)) }
 
-        // Measure the text with the current font size
-        Text(text = text, maxLines = 1, style = style.copy(fontSize = fontSize.sp), modifier = Modifier.onSizeChanged { textSize ->
-            if (textSize.width >= constraintsWidth) {
-                fontSize = (fontSize - step).coerceAtLeast(minFontSize)
+        Text(text = text, maxLines = 1, style = textStyle, overflow = textOverflow, modifier = Modifier, onTextLayout = {
+            if (it.didOverflowWidth || it.didOverflowHeight && textStyle.fontSize.value.toInt() > minFontSize) {
+                val newFontSize = (textStyle.fontSize.value.toInt() - step).coerceAtLeast(minFontSize)
+                textStyle = textStyle.copy(fontSize = newFontSize.sp)
             }
-        }, onTextLayout = { textLayoutResult ->
-
         })
     }
 }
+
+/*
+* overflow는 무조건 clip으로 해야함
+* overflow가 ellipsis로 되어있으면, width가 충분히 크더라도 ellipsis가 되어버림
+*
+* , onTextLayout = {
+            if (it.didOverflowWidth or it.didOverflowHeight) {
+                val newFontSize = (textStyle.fontSize.value.toInt() - step).coerceAtLeast(minFontSize)
+                textStyle = textStyle.copy(fontSize = newFontSize.sp)
+            }
+        }
+* */
