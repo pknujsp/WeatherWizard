@@ -62,19 +62,19 @@ fun DetailHourlyForecastScreen(hourlyForecast: DetailHourlyForecast, popBackStac
             state = rememberLazyListState(),
             modifier = Modifier.fillMaxWidth(),
         ) {
-            hourlyForecast.items.forEach { pair ->
-                stickyHeader(key = pair.first) {
+            hourlyForecast.items.forEach { (header, items) ->
+                stickyHeader(key = header.id) {
                     Box(contentAlignment = Alignment.CenterStart,
                         modifier = Modifier
                             .background(Color.LightGray.copy(alpha = 0.8f), AppShapes.small)
                             .padding(horizontal = 16.dp, vertical = 2.dp)) {
                         Text(
-                            text = pair.first,
+                            text = header.title,
                             style = TextStyle(fontSize = 14.sp, color = Color.White),
                         )
                     }
                 }
-                itemsIndexed(pair.second, key = { _, item -> item.id }) { index, item ->
+                itemsIndexed(items, key = { _, item -> item.id }) { index, item ->
                     Item(item = item,
                         displayPrecipitationProbability = hourlyForecast.displayPrecipitationProbability,
                         displayPrecipitationVolume = hourlyForecast.displayPrecipitationVolume,

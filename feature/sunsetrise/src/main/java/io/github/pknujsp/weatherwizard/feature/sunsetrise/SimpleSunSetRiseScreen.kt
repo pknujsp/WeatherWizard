@@ -37,7 +37,7 @@ import java.time.format.DateTimeFormatter
 @Composable
 fun SimpleSunSetRiseScreen(args: RequestWeatherArguments) {
     SimpleWeatherScreenBackground(cardInfo = CardInfo(title = stringResource(io.github.pknujsp.weatherwizard.core.resource.R.string.sun_set_rise)) {
-        SunSetRiseContent(args.location.latitude, args.location.longitude)
+        SunSetRiseContent(args.latitude, args.longitude)
     })
 }
 

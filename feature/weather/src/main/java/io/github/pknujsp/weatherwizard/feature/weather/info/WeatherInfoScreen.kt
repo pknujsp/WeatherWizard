@@ -34,6 +34,7 @@ import io.github.pknujsp.weatherwizard.feature.weather.info.dailyforecast.detail
 import io.github.pknujsp.weatherwizard.feature.weather.info.geocode.TargetLocationViewModel
 import io.github.pknujsp.weatherwizard.feature.weather.info.hourlyforecast.detail.DetailHourlyForecastScreen
 import io.github.pknujsp.weatherwizard.feature.weather.route.NestedWeatherRoutes
+import kotlinx.coroutines.flow.filterNotNull
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -56,10 +57,8 @@ fun WeatherInfoScreen(
         }
     }
     LaunchedEffect(Unit) {
-        viewModel.targetLocationUiState.collect {
-            it?.let {
-                targetLocationViewModel.setLocation(it)
-            }
+        viewModel.targetLocation.filterNotNull().collect {
+            targetLocationViewModel.setLocation(it)
         }
     }
 

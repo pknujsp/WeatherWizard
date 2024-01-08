@@ -15,7 +15,7 @@ class TargetLocationRepositoryImpl(
     }
 
     override val targetLocation
-        get() = appDataStore.observeString(TARGET_LOCATION_KEY).distinctUntilChanged().map {
+        get() = appDataStore.observeString(TARGET_LOCATION_KEY).map {
             it?.run {
                 val (locationType, locationId) = split(",")
                 SelectedLocationModel(LocationType.fromKey(locationType.toInt()), locationId.toLong())

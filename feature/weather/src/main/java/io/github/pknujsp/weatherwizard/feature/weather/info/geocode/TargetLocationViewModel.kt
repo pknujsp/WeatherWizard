@@ -24,7 +24,7 @@ class TargetLocationViewModel @Inject constructor(
     private var job: Job? = null
 
     private val mutableTopAppBarUiState = MutableTopAppBarUiState()
-    var topAppBarUiState: TopAppBarUiState = mutableTopAppBarUiState
+    val topAppBarUiState: TopAppBarUiState = mutableTopAppBarUiState
 
     fun setLocation(location: TargetLocationModel) {
         job?.cancel()

@@ -1,6 +1,7 @@
 package io.github.pknujsp.weatherwizard.core.database
 
 import android.content.Context
+import android.util.Log
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.longPreferencesKey
@@ -12,6 +13,7 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.onEmpty
 
 class DataStoreImpl(
@@ -80,21 +82,15 @@ class DataStoreImpl(
         }
     }
 
-    override fun observeInt(key: String) = context.dataStore.data.filter {
-        it.contains(intPreferencesKey(key))
-    }.map { preferences ->
+    override fun observeInt(key: String) = context.dataStore.data.map { preferences ->
         preferences[intPreferencesKey(key)]
     }
 
-    override fun observeLong(key: String) = context.dataStore.data.filter {
-        it.contains(longPreferencesKey(key))
-    }.map { preferences ->
+    override fun observeLong(key: String) = context.dataStore.data.map { preferences ->
         preferences[longPreferencesKey(key)]
     }
 
-    override fun observeString(key: String) = context.dataStore.data.filter {
-        it.contains(stringPreferencesKey(key))
-    }.map { preferences ->
+    override fun observeString(key: String) = context.dataStore.data.map { preferences ->
         preferences[stringPreferencesKey(key)]
     }
 

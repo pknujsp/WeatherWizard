@@ -21,7 +21,6 @@ import io.github.pknujsp.weatherwizard.core.data.settings.SettingsRepository
 import io.github.pknujsp.weatherwizard.core.domain.location.CurrentLocationResultState
 import io.github.pknujsp.weatherwizard.core.domain.location.GetCurrentLocationUseCase
 import io.github.pknujsp.weatherwizard.core.domain.weather.GetWeatherDataUseCase
-import io.github.pknujsp.weatherwizard.core.domain.weather.LocationModel
 import io.github.pknujsp.weatherwizard.core.domain.weather.WeatherDataRequest
 import io.github.pknujsp.weatherwizard.core.domain.weather.WeatherResponseState
 import io.github.pknujsp.weatherwizard.core.model.coordinate.LocationType
@@ -45,12 +44,12 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filterNotNull
-import kotlinx.coroutines.flow.flowOn
-import kotlinx.coroutines.flow.last
+import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.flow.zip
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.time.ZonedDateTime
@@ -64,42 +63,40 @@ class WeatherInfoViewModel @Inject constructor(
     private val getCurrentLocationUseCase: GetCurrentLocationUseCase,
     private val getWeatherDataUseCase: GetWeatherDataUseCase,
     @CoDispatcher(CoDispatcherType.IO) private val dispatcher: CoroutineDispatcher,
-    private val targetLocationRepository: TargetLocationRepository,
     private val favoriteAreaListRepository: FavoriteAreaListRepository,
+    targetLocationRepository: TargetLocationRepository,
 ) : ViewModel() {
     private var loadWeatherDataJob: Job? = null
     private var targetLocationJob: Job? = null
 
+    private val units = settingsRepository.settings.replayCache.last().units
+
     var isLoading: Boolean by mutableStateOf(true)
         private set
 
+    private val mutableTargetLocations = MutableStateFlow<TargetLocationModel?>(null)
+    val targetLocation = mutableTargetLocations.asStateFlow()
 
     private val mutableUiState = MutableStateFlow<WeatherContentUiState?>(null)
 
-    val uiState = mutableUiState.asStateFlow().filterNotNull().onEach {
+    val uiState = mutableUiState.filterNotNull().onEach {
         Log.d("WeatherInfoViewModel", "uiState 흐름: $it")
         isLoading = false
-    }.stateIn(viewModelScope, SharingStarted.Eagerly, null)
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
 
-    private val targetLocationFlow = MutableStateFlow<TargetLocationModel?>(null)
-
-    val targetLocationUiState = targetLocationFlow.asStateFlow()
-
-    private val argumentsFlow = targetLocationFlow.asStateFlow().filterNotNull().zip(settingsRepository.settings) { location, settings ->
+    private val argumentsFlow = targetLocation.filterNotNull().combine(settingsRepository.settings) { location, settings ->
         Log.d("WeatherInfoViewModel", "baseArgumentsFlow 흐름: settings $settings")
         RequestWeatherArguments(settings.weatherProvider, location.latitude, location.longitude)
-    }.flowOn(dispatcher).onEach {
+    }.onEach {
         Log.d("WeatherInfoViewModel", "baseArgumentsFlow 흐름: 날씨 데이터 로드 $it")
         loadAllWeatherData(it)
     }.stateIn(viewModelScope, SharingStarted.Eagerly, null)
 
     init {
-        viewModelScope.launch(dispatcher) {
-            targetLocationRepository.targetLocation.onEach { location ->
-                Log.d("WeatherInfoViewModel", "targetLocationRepository 흐름: targetLocation $location")
-                createLocationTypeModel(location)
-            }
-        }
+        targetLocationRepository.targetLocation.distinctUntilChanged().onEach { location ->
+            Log.d("WeatherInfoViewModel", "targetLocationRepository 흐름: targetLocation $location")
+            createLocationTypeModel(location)
+        }.launchIn(viewModelScope)
     }
 
 
@@ -120,17 +117,18 @@ class WeatherInfoViewModel @Inject constructor(
             }
 
             result.first?.run {
-                targetLocationFlow.value = this
+                mutableTargetLocations.value = this
             } ?: run {
-                mutableUiState.value = WeatherContentUiState.Error(result.second!!)
+                mutableUiState.emit(WeatherContentUiState.Error(result.second!!))
             }
         }
     }
 
     fun refresh() {
         viewModelScope.launch {
-            targetLocationRepository.targetLocation.last().let { location ->
-                createLocationTypeModel(location)
+            argumentsFlow.value?.run {
+                isLoading = true
+                loadAllWeatherData(this)
             }
         }
     }
@@ -163,6 +161,7 @@ class WeatherInfoViewModel @Inject constructor(
 
     fun updateWeatherDataProvider(weatherProvider: WeatherProvider) {
         viewModelScope.launch {
+            isLoading = true
             settingsRepository.update(WeatherProvider, weatherProvider)
         }
     }
@@ -172,10 +171,10 @@ class WeatherInfoViewModel @Inject constructor(
         loadWeatherDataJob = viewModelScope.launch {
             val newState = withContext(dispatcher) {
                 val weatherProvider = args.weatherProvider
-                val location = LocationModel(args.latitude, args.longitude)
+                val coordinate = WeatherDataRequest.Coordinate(args.latitude, args.longitude)
 
                 val weatherDataRequest = WeatherDataRequest()
-                weatherDataRequest.addRequest(location, weatherProvider.majorWeatherEntityTypes, weatherProvider)
+                weatherDataRequest.addRequest(coordinate, weatherProvider.majorWeatherEntityTypes, weatherProvider)
 
                 val entity = when (val result = getWeatherDataUseCase(weatherDataRequest.finalRequests[0], false)) {
                     is WeatherResponseState.Success -> result.entity
@@ -185,7 +184,7 @@ class WeatherInfoViewModel @Inject constructor(
                 }
 
                 val requestDateTime = ZonedDateTime.now()
-                val dayNightCalculator = DayNightCalculator(location.latitude, location.longitude, requestDateTime.toTimeZone())
+                val dayNightCalculator = DayNightCalculator(coordinate.latitude, coordinate.longitude, requestDateTime.toTimeZone())
 
                 val currentWeatherEntity = entity.toEntity<CurrentWeatherEntity>()
                 val hourlyForecastEntity = entity.toEntity<HourlyForecastEntity>()
@@ -210,8 +209,8 @@ class WeatherInfoViewModel @Inject constructor(
                     simpleDailyForecast,
                     detailDailyForecast,
                     yesterdayWeather,
-                    location.latitude,
-                    location.longitude,
+                    coordinate.latitude,
+                    coordinate.longitude,
                     requestDateTime)
                 WeatherContentUiState.Success(args, weather, requestDateTime)
             }
@@ -224,7 +223,7 @@ class WeatherInfoViewModel @Inject constructor(
         currentWeatherEntity: CurrentWeatherEntity, dayNightCalculator: DayNightCalculator, currentCalendar: Calendar
     ): CurrentWeather {
         return currentWeatherEntity.run {
-            val unit = settingsRepository.settings.value.units
+            val unit = units
             CurrentWeather(weatherCondition = weatherCondition,
                 temperature = temperature.convertUnit(unit.temperatureUnit),
                 feelsLikeTemperature = feelsLikeTemperature.convertUnit(unit.temperatureUnit),
@@ -240,7 +239,7 @@ class WeatherInfoViewModel @Inject constructor(
     private fun createSimpleHourlyForecastUiModel(
         hourlyForecastEntity: HourlyForecastEntity, dayNightCalculator: DayNightCalculator
     ): SimpleHourlyForecast {
-        val unit = settingsRepository.settings.value.units
+        val unit = units
         val simpleHourlyForecast = hourlyForecastEntity.items.mapIndexed { i, it ->
             SimpleHourlyForecast.Item(
                 id = i,
@@ -266,12 +265,16 @@ class WeatherInfoViewModel @Inject constructor(
     private fun createDetailHourlyForecastUiModel(
         hourlyForecastEntity: HourlyForecastEntity, dayNightCalculator: DayNightCalculator
     ): DetailHourlyForecast {
-        val unit = settingsRepository.settings.value.units
+        val unit = units
+        var keyId = 0
         val formatter = DateTimeFormatter.ofPattern("M.d EEE")
-        val detailHourlyForecast = hourlyForecastEntity.items.groupBy { ZonedDateTime.parse(it.dateTime.value).dayOfYear }.map {
-            ZonedDateTime.parse(it.value.first().dateTime.value).format(formatter) to it.value.mapIndexed { i, item ->
+        val detailHourlyForecast = hourlyForecastEntity.items.groupBy {
+            ZonedDateTime.parse(it.dateTime.value).dayOfYear
+        }.map { (_, items) ->
+            DetailHourlyForecast.Header(id = keyId++,
+                title = ZonedDateTime.parse(items.first().dateTime.value).format(formatter)) to items.map { item ->
                 DetailHourlyForecast.Item(
-                    id = i,
+                    id = keyId++,
                     dateTime = item.dateTime,
                     weatherCondition = item.weatherCondition,
                     temperature = item.temperature.convertUnit(unit.temperatureUnit),
@@ -291,16 +294,16 @@ class WeatherInfoViewModel @Inject constructor(
 
     private fun createSimpleDailyForecastUiModel(
         dailyForecastEntity: DailyForecastEntity
-    ) = SimpleDailyForecast(dailyForecastEntity, settingsRepository.settings.value.units)
+    ) = SimpleDailyForecast(dailyForecastEntity, units)
 
     private fun createDetailDailyForecastUiModel(
         dailyForecastEntity: DailyForecastEntity
-    ) = DetailDailyForecast(dailyForecastEntity, settingsRepository.settings.value.units)
+    ) = DetailDailyForecast(dailyForecastEntity, units)
 
     private fun createYesterdayWeatherUiModel(
         yesterdayWeatherEntity: YesterdayWeatherEntity
     ): YesterdayWeather {
-        val temperatureUnit = settingsRepository.settings.value.units.temperatureUnit
+        val temperatureUnit = units.temperatureUnit
         return YesterdayWeather(temperature = yesterdayWeatherEntity.temperature.convertUnit(temperatureUnit))
     }
 }

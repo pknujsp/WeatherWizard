@@ -21,6 +21,7 @@ import io.github.pknujsp.weatherwizard.core.model.favorite.FavoriteArea
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
@@ -51,7 +52,7 @@ class FavoriteLocationsViewModel @Inject constructor(
         }
     }.flowOn(ioDispatcher).stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
 
-    private val targetLocationFlow = targetLocationRepository.targetLocation.onEach { targetLocation ->
+    private val targetLocationFlow = targetLocationRepository.targetLocation.distinctUntilChanged().onEach { targetLocation ->
         Log.d("FavoriteLocationsViewModel", "TargetLocation 흐름: $targetLocation")
         mutableTargetLocationUiState.run {
             locationType = targetLocation.locationType

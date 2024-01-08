@@ -41,7 +41,6 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import io.github.pknujsp.weatherwizard.core.common.util.AStyle
 import io.github.pknujsp.weatherwizard.core.common.util.toAnnotated
-import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherProvider
 import io.github.pknujsp.weatherwizard.core.resource.R
 import io.github.pknujsp.weatherwizard.core.ui.theme.notIncludeTextPaddingStyle
 import io.github.pknujsp.weatherwizard.core.ui.theme.outlineTextStyle
@@ -55,8 +54,7 @@ import io.github.pknujsp.weatherwizard.feature.weather.info.geocode.TopAppBarUiS
 fun TopAppBars(
     modifier: Modifier = Modifier,
     topAppBarUiState: TopAppBarUiState?,
-    dateTime: String,
-    weatherProvider: WeatherProvider,
+    weatherContentUiState: WeatherContentUiState.Success,
     openDrawer: () -> Unit,
     reload: () -> Unit,
     onClickedWeatherProviderButton: () -> Unit,
@@ -64,9 +62,7 @@ fun TopAppBars(
 ) {
     CustomTopAppBar(
         smallTitle = {
-            Column(modifier = modifier,
-                horizontalAlignment = Alignment.Start,
-                verticalArrangement = Arrangement.Center) {
+            Column(modifier = modifier, horizontalAlignment = Alignment.Start, verticalArrangement = Arrangement.Center) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(imageVector = Icons.Rounded.Place,
                         contentDescription = null,
@@ -82,7 +78,7 @@ fun TopAppBars(
                     )
                 }
                 Text(
-                    text = dateTime,
+                    text = weatherContentUiState.dateTime,
                     fontSize = TextUnit(11f, TextUnitType.Sp),
                     color = Color.White,
                     style = LocalTextStyle.current.merge(notIncludeTextPaddingStyle).merge(outlineTextStyle),
@@ -97,7 +93,8 @@ fun TopAppBars(
             ) {
                 Text(
                     text = listOf(
-                        AStyle("${topAppBarUiState?.address ?: stringResource(id = R.string.unknown_address)}\n", span = SpanStyle(fontSize = 25.sp)),
+                        AStyle("${topAppBarUiState?.address ?: stringResource(id = R.string.unknown_address)}\n",
+                            span = SpanStyle(fontSize = 25.sp)),
                         AStyle(
                             topAppBarUiState?.country ?: stringResource(id = R.string.unknown_country),
                             span = SpanStyle(
@@ -124,7 +121,7 @@ fun TopAppBars(
                     )
                     Spacer(modifier = Modifier.width(4.dp))
                     Text(
-                        text = dateTime,
+                        text = weatherContentUiState.dateTime,
                         fontSize = 14.sp,
                         color = Color.White, style = LocalTextStyle.current.merge(outlineTextStyle),
                     )
@@ -135,13 +132,14 @@ fun TopAppBars(
                         onClickedWeatherProviderButton()
                     }) {
                     AsyncImage(
-                        model = ImageRequest.Builder(LocalContext.current).data(weatherProvider.icon).crossfade(false).build(),
+                        model = ImageRequest.Builder(LocalContext.current).data(weatherContentUiState.args.weatherProvider.icon)
+                            .crossfade(false).build(),
                         contentDescription = stringResource(id = R.string.weather_provider),
                         modifier = Modifier.size(16.dp),
                     )
                     Spacer(modifier = Modifier.width(4.dp))
                     Text(
-                        text = stringResource(id = weatherProvider.title),
+                        text = stringResource(id = weatherContentUiState.args.weatherProvider.title),
                         fontSize = 14.sp,
                         color = Color.White,
                         style = LocalTextStyle.current.merge(outlineTextStyle),

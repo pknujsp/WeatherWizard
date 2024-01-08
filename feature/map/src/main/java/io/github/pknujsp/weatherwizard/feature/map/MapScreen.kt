@@ -161,8 +161,8 @@ fun SimpleMapScreen(
                 Box(modifier = Modifier
                     .fillMaxWidth()
                     .height(240.dp)) {
-                    MapScreen(requestWeatherArguments.location.latitude,
-                        requestWeatherArguments.location.longitude,
+                    MapScreen(requestWeatherArguments.latitude,
+                        requestWeatherArguments.longitude,
                         overlays,
                         viewModel.timePosition,
                         simpleMapController)

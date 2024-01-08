@@ -78,7 +78,7 @@ class AppWidgetViewUpdater(
         }.mapValues {
             RemoteViewsCreatorManager.getByWidgetType(it.key)
         }
-        val units = appSettingsRepository.settings.value.units
+        val units = appSettingsRepository.settings.replayCache.last().units
 
         for (widget in widgets) {
             if (widget in updatedWidgetsCompletely) {

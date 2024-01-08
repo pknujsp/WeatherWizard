@@ -22,7 +22,7 @@ class OngoingNotificationRemoteViewModel @Inject constructor(
     appSettingsRepository: SettingsRepository,
 ) : RemoteViewModel() {
 
-    val units = appSettingsRepository.settings.value.units
+    val units = appSettingsRepository.settings.replayCache.last().units
 
     suspend fun loadNotification(): OngoingNotificationSettingsEntity {
         val notificationEntity = ongoingNotificationRepository.getOngoingNotification()
@@ -35,14 +35,15 @@ class OngoingNotificationRemoteViewModel @Inject constructor(
 
     private suspend fun loadWeatherData(settings: OngoingNotificationSettingsEntity): OngoingNotificationRemoteViewUiState {
         val weatherDataRequest = WeatherDataRequest()
+        var addressName: String? = null
+
         if (settings.location.locationType is LocationType.CurrentLocation) {
             when (val currentLocation = getCurrentLocationUseCase()) {
                 is CurrentLocationResultState.Success -> {
                     nominatimRepository.reverseGeoCode(currentLocation.latitude, currentLocation.longitude).fold(onSuccess = {
+                        addressName = it.simpleDisplayName
                         weatherDataRequest.addRequest(
-                            settings.location.copy(
-                                address = it.simpleDisplayName,
-                                country = it.country,
+                            WeatherDataRequest.Coordinate(
                                 latitude = currentLocation.latitude,
                                 longitude = currentLocation.longitude,
                             ),
@@ -59,8 +60,14 @@ class OngoingNotificationRemoteViewModel @Inject constructor(
                 }
             }
         } else {
+            addressName = settings.location.address
             weatherDataRequest.addRequest(
-                settings.location,
+                settings.location.run {
+                    WeatherDataRequest.Coordinate(
+                        latitude = latitude,
+                        longitude = longitude,
+                    )
+                },
                 settings.type.categories.toSet(),
                 settings.weatherProvider,
             )
@@ -69,7 +76,7 @@ class OngoingNotificationRemoteViewModel @Inject constructor(
         return when (val response = getWeatherDataUseCase(weatherDataRequest.finalRequests[0], false)) {
             is WeatherResponseState.Success -> OngoingNotificationRemoteViewUiState(notificationIconType = settings.notificationIconType,
                 model = response.entity,
-                address = response.location.address,
+                address = addressName,
                 lastUpdated = weatherDataRequest.requestedTime,
                 notificationType = settings.type,
                 isSuccessful = true)

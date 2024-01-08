@@ -12,11 +12,11 @@ import io.github.pknujsp.weatherwizard.core.domain.weather.WeatherDataRequest
 import io.github.pknujsp.weatherwizard.core.domain.weather.compare.GetDailyForecastToCompareUseCase
 import io.github.pknujsp.weatherwizard.core.model.UiState
 import io.github.pknujsp.weatherwizard.core.model.weather.RequestWeatherArguments
+import io.github.pknujsp.weatherwizard.core.model.weather.common.MajorWeatherEntityType
 import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherProvider
 import io.github.pknujsp.weatherwizard.core.model.weather.dailyforecast.CompareDailyForecast
 import io.github.pknujsp.weatherwizard.feature.weather.comparison.common.CompareForecastViewModel
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -39,14 +39,14 @@ class CompareDailyForecastViewModel @Inject constructor(
     override fun load(args: RequestWeatherArguments) {
         viewModelScope.launch {
             args.run {
-                val weatherDataRequest = WeatherDataRequest()
-                weatherProviders.forEach {
-                    weatherDataRequest.addRequest(args.location,
-                        setOf(io.github.pknujsp.weatherwizard.core.model.weather.common.MajorWeatherEntityType.DAILY_FORECAST),
-                        it)
-                }
-
                 withContext(ioDispatcher) {
+                    val weatherDataRequest = WeatherDataRequest()
+                    weatherProviders.forEach {
+                        weatherDataRequest.addRequest(WeatherDataRequest.Coordinate(latitude, longitude),
+                            setOf(MajorWeatherEntityType.DAILY_FORECAST),
+                            it)
+                    }
+
                     getDailyForecastToCompareUseCase(weatherDataRequest.finalRequests).map { entity ->
                         val (firstDate, endDate) = entity.run {
                             items.maxOf { ZonedDateTime.parse(it.second.dayItems.first().dateTime.value).toLocalDate() } to items.minOf {
@@ -64,7 +64,7 @@ class CompareDailyForecastViewModel @Inject constructor(
                             }
                             list.toTypedArray()
                         }
-                        val units = settingsRepository.settings.value.units
+                        val units = settingsRepository.settings.replayCache.last().units
 
                         val items = entity.items.map { (provider, entity) ->
                             val firstIndex =

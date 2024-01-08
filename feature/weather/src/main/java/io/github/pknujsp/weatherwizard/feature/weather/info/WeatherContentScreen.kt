@@ -32,7 +32,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import coil.request.CachePolicy
 import coil.request.ImageRequest
@@ -47,7 +46,6 @@ import io.github.pknujsp.weatherwizard.feature.map.SimpleMapScreen
 import io.github.pknujsp.weatherwizard.feature.sunsetrise.SimpleSunSetRiseScreen
 import io.github.pknujsp.weatherwizard.feature.weather.info.currentweather.simple.CurrentWeatherScreen
 import io.github.pknujsp.weatherwizard.feature.weather.info.dailyforecast.simple.SimpleDailyForecastScreen
-import io.github.pknujsp.weatherwizard.feature.weather.info.geocode.TargetLocationViewModel
 import io.github.pknujsp.weatherwizard.feature.weather.info.geocode.TopAppBarUiState
 import io.github.pknujsp.weatherwizard.feature.weather.info.hourlyforecast.simple.HourlyForecastScreen
 import io.github.pknujsp.weatherwizard.feature.weather.route.NestedWeatherRoutes
@@ -89,8 +87,7 @@ fun WeatherContentScreen(
     Scaffold(containerColor = Color.Black.copy(alpha = 0.1f), topBar = {
         TopAppBars(
             topAppBarUiState = topAppBarUiState,
-            dateTime = uiState.dateTime,
-            weatherProvider = uiState.args.weatherProvider,
+            weatherContentUiState = uiState,
             openDrawer = openDrawer,
             reload = reload,
             onClickedWeatherProviderButton = { onClickedWeatherProviderButton = true },

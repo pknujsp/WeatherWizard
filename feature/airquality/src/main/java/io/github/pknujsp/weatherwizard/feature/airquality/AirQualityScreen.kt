@@ -47,7 +47,7 @@ fun AirQualityScreen(
     val airQualityCallback by rememberUpdatedState(onAirQualityLoaded)
 
     LaunchedEffect(requestWeatherArguments) {
-        viewModel.loadAirQuality(requestWeatherArguments.location.latitude, requestWeatherArguments.location.longitude)
+        viewModel.loadAirQuality(requestWeatherArguments.latitude, requestWeatherArguments.longitude)
     }
 
     airQuality.onSuccess {

@@ -26,7 +26,7 @@ class UnitSettingsViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            settingsRepository.settings.value.units.let {
+            settingsRepository.settings.replayCache.last().units.let {
                 mutableUnitSettingsUiState.run {
                     temperatureUnit = it.temperatureUnit
                     windSpeedUnit = it.windSpeedUnit

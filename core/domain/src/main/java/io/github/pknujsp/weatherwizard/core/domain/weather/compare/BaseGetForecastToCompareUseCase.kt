@@ -2,7 +2,6 @@ package io.github.pknujsp.weatherwizard.core.domain.weather.compare
 
 import io.github.pknujsp.weatherwizard.core.domain.weather.WeatherDataRequest
 import io.github.pknujsp.weatherwizard.core.model.EntityModel
-import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherProvider
 
 interface BaseGetForecastToCompareUseCase<T : EntityModel> {
 
