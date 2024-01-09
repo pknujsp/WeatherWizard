@@ -16,6 +16,8 @@ import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -29,11 +31,10 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.TextUnit
-import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
@@ -50,7 +51,7 @@ import io.github.pknujsp.weatherwizard.core.ui.theme.notIncludeTextPaddingStyle
 import io.github.pknujsp.weatherwizard.core.ui.theme.outlineTextStyle
 
 private const val MIN_AUTO_SIZING_TEXT_SIZE = 12
-private const val MAX_AUTO_SIZING_TEXT_SIZE = 30
+private const val DEFAULT_AUTO_SIZING_TEXT_SIZE = 30
 
 @Composable
 fun CurrentWeatherScreen(current: CurrentWeather, yesterdayWeather: YesterdayWeather?) {
@@ -115,10 +116,8 @@ fun CurrentWeatherScreen(current: CurrentWeather, yesterdayWeather: YesterdayWea
                     centerHorizontallyTo(weatherIcon)
                     bottom.linkTo(parent.bottom)
                 },
-                style = TextStyle(fontSize = 22.sp,
-                    color = textColor,
-                    fontWeight = FontWeight.Medium,
-                    textAlign = TextAlign.Center).merge(outlineTextStyle).merge(notIncludeTextPaddingStyle),
+                style = TextStyle(fontSize = 22.sp, color = textColor, fontWeight = FontWeight.Medium, textAlign = TextAlign.Center).merge(
+                    outlineTextStyle).merge(notIncludeTextPaddingStyle),
             )
         }
 
@@ -148,7 +147,7 @@ fun FeatureItem(@StringRes label: Int, value: String) {
         Column(modifier = Modifier.padding(12.dp)) {
             Text(text = stringResource(id = label), style = MaterialTheme.typography.labelLarge.copy(color = Color.Black))
             Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.BottomStart) {
-                AutoAdjustingFontSizeText(
+                AutoText(
                     text = value,
                     modifier = Modifier.fillMaxWidth(),
                     style = TextStyle(color = Color.Black, fontWeight = FontWeight.SemiBold),
@@ -195,7 +194,7 @@ fun NonlazyGrid(
 
 
 /**
- * [minFontSize] ~ [maxFontSize] 범위 내에서, [step]만큼 fontSize를 동적으로
+ * [minFontSize] ~ [defaultFontSize] 범위 내에서, [step]만큼 fontSize를 동적으로
  * 조절하면서, [TextOverflow]가 발생하지 않도록 하는 Text Composable
  *
  * @param modifier
@@ -203,7 +202,7 @@ fun NonlazyGrid(
  * @param style
  * @param overflow [TextOverflow.Ellipsis]는 사용 불가(동적 크기 조절이 이루어지지 않는다)
  * @param minFontSize
- * @param maxFontSize
+ * @param defaultFontSize
  * @param step
  *
  */
@@ -214,15 +213,15 @@ fun AutoAdjustingFontSizeText(
     style: TextStyle,
     overflow: TextOverflow = TextOverflow.Clip,
     minFontSize: Int = MIN_AUTO_SIZING_TEXT_SIZE,
-    maxFontSize: Int = MAX_AUTO_SIZING_TEXT_SIZE,
+    defaultFontSize: Int = DEFAULT_AUTO_SIZING_TEXT_SIZE,
     step: Int = 1
 ) {
     BoxWithConstraints(modifier = modifier) {
         val textOverflow = remember(overflow) { if (overflow == TextOverflow.Ellipsis) TextOverflow.Clip else overflow }
-        var textStyle by remember(text) { mutableStateOf(style.copy(fontSize = maxFontSize.sp)) }
+        var textStyle by remember(text) { mutableStateOf(style.copy(fontSize = defaultFontSize.sp)) }
 
         Text(text = text, maxLines = 1, style = textStyle, overflow = textOverflow, modifier = Modifier, onTextLayout = {
-            if (it.didOverflowWidth || it.didOverflowHeight && textStyle.fontSize.value.toInt() > minFontSize) {
+            if (textStyle.fontSize.value.toInt() > minFontSize && it.didOverflowWidth || it.didOverflowHeight) {
                 val newFontSize = (textStyle.fontSize.value.toInt() - step).coerceAtLeast(minFontSize)
                 textStyle = textStyle.copy(fontSize = newFontSize.sp)
             }
@@ -241,3 +240,32 @@ fun AutoAdjustingFontSizeText(
             }
         }
 * */
+
+
+@Composable
+fun AutoText(
+    modifier: Modifier = Modifier,
+    text: String,
+    style: TextStyle,
+    overflow: TextOverflow = TextOverflow.Clip,
+    minFontSize: Int = MIN_AUTO_SIZING_TEXT_SIZE,
+    defaultFontSize: Int = DEFAULT_AUTO_SIZING_TEXT_SIZE,
+    step: Int = 1
+) {
+    BoxWithConstraints(modifier = modifier) {
+        val textMeasurer = rememberTextMeasurer()
+        val textOverflow = remember(overflow) { if (overflow == TextOverflow.Ellipsis) TextOverflow.Clip else overflow }
+        var textStyle by remember(text) { mutableStateOf(style.copy(fontSize = defaultFontSize.sp)) }
+
+        LaunchedEffect(textStyle) {
+            textMeasurer.measure(text, textStyle).run {
+                if (textStyle.fontSize.value.toInt() > minFontSize && size.width >= constraints.maxWidth || size.height >= constraints.maxHeight) {
+                    val newFontSize = (textStyle.fontSize.value.toInt() - step).coerceAtLeast(minFontSize)
+                    textStyle = textStyle.copy(fontSize = newFontSize.sp)
+                }
+            }
+        }
+
+        Text(text = text, maxLines = 1, style = textStyle, overflow = textOverflow)
+    }
+}

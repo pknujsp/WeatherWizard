@@ -15,6 +15,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.drawText
 import androidx.compose.ui.text.rememberTextMeasurer
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -36,21 +37,20 @@ private fun DateTime(
     dateTimeInfo: SimpleHourlyForecast.DateTimeInfo, lazyListState: LazyListState, density: Density = LocalDensity.current
 ) {
     val textMeasurer = rememberTextMeasurer()
-    val textStyle = remember {
-        TextStyle(fontSize = textSize, textAlign = androidx.compose.ui.text.style.TextAlign.Center)
+    val textStyle = remember(dateTimeInfo.items) {
+        TextStyle(fontSize = textSize, textAlign = TextAlign.Center)
     }
-    val textLayoutResult = remember {
-        textMeasurer.measure(dateTimeInfo.items.first().date, textStyle)
+    val textLayoutResult by remember(dateTimeInfo.items) {
+        derivedStateOf { textMeasurer.measure(dateTimeInfo.items.first().date, textStyle) }
     }
     val columnWidthPx = remember {
         with(density) {
             SimpleHourlyForecast.itemWidth.toPx().toInt()
         }
     }
-    val height = remember {
-        (textLayoutResult.size.height / density.density).dp + (space * 2)
+    val height by remember {
+        derivedStateOf { (textLayoutResult.size.height / density.density).dp + (space * 2) }
     }
-
     val leftOnBoxInRow by remember {
         derivedStateOf {
             lazyListState.firstVisibleItemIndex * columnWidthPx + lazyListState.firstVisibleItemScrollOffset
