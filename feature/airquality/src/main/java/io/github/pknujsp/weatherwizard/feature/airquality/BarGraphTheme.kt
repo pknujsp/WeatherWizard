@@ -2,6 +2,7 @@ package io.github.pknujsp.weatherwizard.feature.airquality
 
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
@@ -18,18 +19,18 @@ internal enum class BarSize(val width: Dp, val height: Dp, val horizontalPadding
 
 
 private data object IndexTextStyle : Size<TextStyle> {
-    override val SMALL: TextStyle = TextStyle(fontSize = 11.sp, color = Color.White)
-    override val MEDIUM: TextStyle = TextStyle(fontSize = 13.sp, color = Color.White)
+    override val SMALL: TextStyle = TextStyle(fontSize = 11.sp, color = Color.White, textAlign = TextAlign.Center)
+    override val MEDIUM: TextStyle = TextStyle(fontSize = 13.sp, color = Color.White, textAlign = TextAlign.Center)
 }
 
 private data object DateTextStyle : Size<TextStyle> {
-    override val SMALL: TextStyle = TextStyle(fontSize = 12.sp, color = Color.White)
-    override val MEDIUM: TextStyle = TextStyle(fontSize = 13.sp, color = Color.White)
+    override val SMALL: TextStyle = TextStyle(fontSize = 12.sp, color = Color.White, textAlign = TextAlign.Center)
+    override val MEDIUM: TextStyle = TextStyle(fontSize = 13.sp, color = Color.White, textAlign = TextAlign.Center)
 }
 
 private data object DayTextStyle : Size<TextStyle> {
-    override val SMALL: TextStyle = TextStyle(fontSize = 11.sp, color = Color.White)
-    override val MEDIUM: TextStyle = TextStyle(fontSize = 12.sp, color = Color.White)
+    override val SMALL: TextStyle = TextStyle(fontSize = 11.sp, color = Color.White, textAlign = TextAlign.Center)
+    override val MEDIUM: TextStyle = TextStyle(fontSize = 12.sp, color = Color.White, textAlign = TextAlign.Center)
 
 }
 
