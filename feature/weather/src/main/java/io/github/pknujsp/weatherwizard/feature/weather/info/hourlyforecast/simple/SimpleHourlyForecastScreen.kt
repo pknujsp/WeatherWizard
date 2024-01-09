@@ -1,10 +1,6 @@
 package io.github.pknujsp.weatherwizard.feature.weather.info.hourlyforecast.simple
 
-import android.content.Context
 import android.content.res.Resources
-import android.view.WindowInsets
-import android.view.WindowManager
-import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
@@ -15,10 +11,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.onPlaced
 import androidx.compose.ui.layout.positionInWindow
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.platform.LocalView
-import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -42,8 +35,10 @@ fun HourlyForecastScreen(
     val calculatedY by rememberUpdatedState(onCalculatedY)
     val density = LocalDensity.current
     val systemBars = androidx.compose.foundation.layout.WindowInsets.systemBars
+    val localConfiguration = LocalConfiguration.current
+
     val screenHeight = remember {
-        Resources.getSystem().displayMetrics.heightPixels + systemBars.getBottom(density) + systemBars.getTop(density)
+        (localConfiguration.screenHeightDp * density.density) + systemBars.getBottom(density) + systemBars.getTop(density)
     }
 
     SimpleWeatherScreenBackground(modifier = modifier.onPlaced { coordinates ->
@@ -59,7 +54,7 @@ fun HourlyForecastScreen(
                 stringResource(id = io.github.pknujsp.weatherwizard.core.resource.R.string.comparison) to {
                     navigate(NestedWeatherRoutes.ComparisonHourlyForecast)
                 },
-                stringResource(id = io.github.pknujsp.weatherwizard.core.resource.R.string.detail) to {
+                stringResource(id = R.string.detail) to {
                     navigate(NestedWeatherRoutes.DetailHourlyForecast)
                 },
             ),

@@ -55,7 +55,7 @@ import io.github.pknujsp.weatherwizard.feature.weather.info.hourlyforecast.simpl
 import io.github.pknujsp.weatherwizard.feature.weather.route.NestedWeatherRoutes
 import kotlinx.coroutines.launch
 
-private val DEFAULT_TOP_PADDING = 16.dp
+private val DEFAULT_TOP_PADDING = 12.dp
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
