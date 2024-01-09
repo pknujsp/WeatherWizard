@@ -34,7 +34,7 @@ class RadarUiState(
                 } else if (time.isAfter(baseTime)) {
                     "+${Duration.between(baseTime, time).toMinutes()}Min "
                 } else {
-                    "-${Duration.between(baseTime, time).toMinutes()}Min "
+                    "${Duration.between(baseTime, time).toMinutes()}Min "
                 }
                 "$pointInTime${time.format(dateTimeFormatter)}"
             }

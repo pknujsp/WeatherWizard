@@ -23,7 +23,6 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
-import kotlin.text.Typography.times
 
 @HiltViewModel
 class RainViewerViewModel @Inject constructor(
@@ -54,8 +53,8 @@ class RainViewerViewModel @Inject constructor(
     }.stateIn(viewModelScope, SharingStarted.Lazily, "")
 
     companion object {
-        private const val playDelay = 1000L
-        private const val playCounts = 15
+        const val PLAY_DURATION = 1000L
+        private const val PLAY_COUNT = 15
     }
 
     init {
@@ -109,10 +108,10 @@ class RainViewerViewModel @Inject constructor(
             if (!stop()) {
                 playingJob = launch(SupervisorJob()) {
                     mutablePlaying.value = true
-                    radarUiState.value.onSuccess {  radarUiState ->
-                        repeat(playCounts) {
+                    radarUiState.value.onSuccess { radarUiState ->
+                        repeat(PLAY_COUNT) {
                             mutableTimePosition.value = (timePosition.value + 1).calibrateTimePosition(radarUiState.times.lastIndex)
-                            delay(playDelay)
+                            delay(PLAY_DURATION)
                         }
                     }
                     mutablePlaying.value = false

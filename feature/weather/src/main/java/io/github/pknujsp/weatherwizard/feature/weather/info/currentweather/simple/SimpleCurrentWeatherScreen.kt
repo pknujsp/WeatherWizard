@@ -26,6 +26,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.FilterQuality
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
@@ -51,7 +52,7 @@ import io.github.pknujsp.weatherwizard.core.ui.theme.notIncludeTextPaddingStyle
 import io.github.pknujsp.weatherwizard.core.ui.theme.outlineTextStyle
 
 private const val MIN_AUTO_SIZING_TEXT_SIZE = 12
-private const val DEFAULT_AUTO_SIZING_TEXT_SIZE = 30
+private const val DEFAULT_AUTO_SIZING_TEXT_SIZE = 18
 
 @Composable
 fun CurrentWeatherScreen(current: CurrentWeather, yesterdayWeather: YesterdayWeather?) {
@@ -59,8 +60,10 @@ fun CurrentWeatherScreen(current: CurrentWeather, yesterdayWeather: YesterdayWea
     Column {
         ConstraintLayout(modifier = Modifier
             .fillMaxWidth()
-            .padding(top = 100.dp, bottom = 12.dp)) {
+            .padding(top = 100.dp, bottom = 12.dp, start = 12.dp, end = 12.dp)) {
             val (yesterdayTemperature, weatherIcon, condition, temperature, feelsLikeTemperature) = createRefs()
+
+            // temperature
             Text(text = listOf(
                 AStyle(
                     current.temperature.value.toInt().toString(),
@@ -70,9 +73,10 @@ fun CurrentWeatherScreen(current: CurrentWeather, yesterdayWeather: YesterdayWea
                     span = SpanStyle(fontSize = 38.sp, color = textColor, fontWeight = FontWeight.Light)),
             ).toAnnotated(), modifier = Modifier.constrainAs(temperature) {
                 baseline.linkTo(feelsLikeTemperature.baseline)
-                absoluteRight.linkTo(feelsLikeTemperature.absoluteLeft, 8.dp)
+                absoluteLeft.linkTo(parent.absoluteLeft)
             }, style = LocalTextStyle.current.merge(notIncludeTextPaddingStyle).merge(outlineTextStyle))
 
+            // feels like temperature
             Text(text = listOf(
                 AStyle("${stringResource(id = WeatherDataCategory.FEELS_LIKE_TEMPERATURE.stringId)} ",
                     span = SpanStyle(fontSize = 15.sp, color = textColor, fontWeight = FontWeight.Light)),
@@ -81,40 +85,42 @@ fun CurrentWeatherScreen(current: CurrentWeather, yesterdayWeather: YesterdayWea
                 AStyle(current.feelsLikeTemperature.unit.symbol,
                     span = SpanStyle(fontSize = 22.sp, color = textColor, fontWeight = FontWeight.Light)),
             ).toAnnotated(), modifier = Modifier.constrainAs(feelsLikeTemperature) {
-                absoluteRight.linkTo(parent.absoluteRight, 12.dp)
+                absoluteRight.linkTo(parent.absoluteRight)
                 bottom.linkTo(yesterdayTemperature.top)
             }, style = LocalTextStyle.current.merge(notIncludeTextPaddingStyle).merge(outlineTextStyle))
 
+            // yesterday temperature
             yesterdayWeather?.let {
                 Text(text = it.text(current.temperature, LocalContext.current),
                     color = textColor,
                     fontSize = 14.sp,
                     modifier = Modifier.constrainAs(yesterdayTemperature) {
-                        absoluteRight.linkTo(parent.absoluteRight, 12.dp)
+                        absoluteLeft.linkTo(parent.absoluteLeft)
                         bottom.linkTo(parent.bottom)
                     },
                     style = LocalTextStyle.current.merge(notIncludeTextPaddingStyle).merge(outlineTextStyle))
             }
 
+            // weather icon
             AsyncImage(
                 model = ImageRequest.Builder(LocalContext.current).data(current.weatherIcon).crossfade(false).build(),
                 contentDescription = stringResource(
                     id = io.github.pknujsp.weatherwizard.core.resource.R.string.weather_icon_description,
                 ),
                 modifier = Modifier
-                    .size(70.dp)
+                    .size(65.dp)
                     .constrainAs(weatherIcon) {
-                        absoluteLeft.linkTo(parent.absoluteLeft, 12.dp)
-                        bottom.linkTo(condition.top)
+                        absoluteLeft.linkTo(parent.absoluteLeft)
+                        bottom.linkTo(temperature.top)
                     },
-                filterQuality = FilterQuality.High,
             )
 
+            // weather condition
             Text(
                 text = stringResource(current.weatherCondition.value.stringRes),
                 modifier = Modifier.constrainAs(condition) {
-                    centerHorizontallyTo(weatherIcon)
-                    bottom.linkTo(parent.bottom)
+                    centerVerticallyTo(weatherIcon)
+                    absoluteLeft.linkTo(weatherIcon.absoluteRight, 4.dp)
                 },
                 style = TextStyle(fontSize = 22.sp, color = textColor, fontWeight = FontWeight.Medium, textAlign = TextAlign.Center).merge(
                     outlineTextStyle).merge(notIncludeTextPaddingStyle),
@@ -139,7 +145,7 @@ fun FeatureItem(@StringRes label: Int, value: String) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .height(75.dp),
+            .height(70.dp),
         colors = CardDefaults.cardColors(
             containerColor = Color.White,
         ),
@@ -147,7 +153,7 @@ fun FeatureItem(@StringRes label: Int, value: String) {
         Column(modifier = Modifier.padding(12.dp)) {
             Text(text = stringResource(id = label), style = MaterialTheme.typography.labelLarge.copy(color = Color.Black))
             Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.BottomStart) {
-                AutoText(
+                AutoAdjustingFontSizeText(
                     text = value,
                     modifier = Modifier.fillMaxWidth(),
                     style = TextStyle(color = Color.Black, fontWeight = FontWeight.SemiBold),

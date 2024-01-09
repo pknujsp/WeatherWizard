@@ -37,23 +37,23 @@ private fun DateTime(
     dateTimeInfo: SimpleHourlyForecast.DateTimeInfo, lazyListState: LazyListState, density: Density = LocalDensity.current
 ) {
     val textMeasurer = rememberTextMeasurer()
-    val textStyle = remember(dateTimeInfo.items) {
+    val textStyle = remember {
         TextStyle(fontSize = textSize, textAlign = TextAlign.Center)
     }
-    val textLayoutResult by remember(dateTimeInfo.items) {
-        derivedStateOf { textMeasurer.measure(dateTimeInfo.items.first().date, textStyle) }
+    val textLayoutResult = remember(dateTimeInfo) {
+        textMeasurer.measure(dateTimeInfo.items.first().date, textStyle)
     }
     val columnWidthPx = remember {
         with(density) {
             SimpleHourlyForecast.itemWidth.toPx().toInt()
         }
     }
-    val height by remember {
+    val height by remember(textLayoutResult) {
         derivedStateOf { (textLayoutResult.size.height / density.density).dp + (space * 2) }
     }
     val leftOnBoxInRow by remember {
         derivedStateOf {
-            lazyListState.firstVisibleItemIndex * columnWidthPx + lazyListState.firstVisibleItemScrollOffset
+            (lazyListState.firstVisibleItemIndex * columnWidthPx) + lazyListState.firstVisibleItemScrollOffset
         }
     }
 
