@@ -38,7 +38,7 @@ import java.time.ZonedDateTime
 @Composable
 fun AirQualityScreen(
     requestWeatherArguments: RequestWeatherArguments,
-    dateTime:ZonedDateTime,
+    dateTime: ZonedDateTime,
     onAirQualityLoaded: (AirQualityValueType) -> Unit,
     viewModel: AirQualityViewModel = hiltViewModel()
 ) {
@@ -54,7 +54,9 @@ fun AirQualityScreen(
             airQualityCallback(it.current.aqi)
             SimpleWeatherScreenBackground(cardInfo = CardInfo(title = stringResource(io.github.pknujsp.weatherwizard.core.resource.R.string.air_quality_index),
                 content = {
-                    Column(verticalArrangement = Arrangement.spacedBy(12.dp), modifier = Modifier.fillMaxWidth()) {
+                    Column(modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(start = 12.dp, end = 12.dp, bottom = 8.dp)) {
                         SimpleCurrentContent(simpleAirQuality = it)
                         BarGraph(forecast = it.dailyForecast, dateTime.toLocalDate())
                     }
@@ -72,7 +74,7 @@ fun AirQualityScreen(
 @Composable
 private fun SimpleCurrentContent(simpleAirQuality: SimpleAirQuality) {
     FlowItem(pollutantStringResId = WeatherDataCategory.AIR_QUALITY_INDEX.stringId, value = simpleAirQuality.current.aqi)
-    FlowRow(maxItemsInEachRow = 3,
+    FlowRow(maxItemsInEachRow = 4,
         verticalArrangement = Arrangement.Center,
         horizontalArrangement = Arrangement.Start,
         modifier = Modifier.fillMaxWidth()) {
@@ -86,7 +88,7 @@ private fun SimpleCurrentContent(simpleAirQuality: SimpleAirQuality) {
 private fun FlowItem(modifier: Modifier = Modifier, pollutantStringResId: Int, value: AirQualityValueType) {
     Column(
         modifier = modifier.padding(vertical = 6.dp, horizontal = 8.dp),
-        verticalArrangement = Arrangement.spacedBy(6.dp),
+        verticalArrangement = Arrangement.spacedBy(4.dp),
         horizontalAlignment = Alignment.Start,
     ) {
         Text(

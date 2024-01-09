@@ -14,13 +14,13 @@ private sealed interface Size<T> {
 }
 
 internal enum class BarSize(val width: Dp, val height: Dp, val horizontalPadding: Dp) {
-    SMALL(40.dp, 100.dp, 10.dp), MEDIUM(50.dp, 160.dp, 12.dp),
+    SMALL(40.dp, 90.dp, 8.dp), MEDIUM(50.dp, 160.dp, 12.dp),
 }
 
 
 private data object IndexTextStyle : Size<TextStyle> {
     override val SMALL: TextStyle = TextStyle(fontSize = 11.sp, color = Color.White, textAlign = TextAlign.Center)
-    override val MEDIUM: TextStyle = TextStyle(fontSize = 13.sp, color = Color.White, textAlign = TextAlign.Center)
+    override val MEDIUM: TextStyle = TextStyle(fontSize = 12.sp, color = Color.White, textAlign = TextAlign.Center)
 }
 
 private data object DateTextStyle : Size<TextStyle> {
