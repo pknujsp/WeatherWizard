@@ -27,6 +27,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
@@ -52,6 +53,7 @@ import io.github.pknujsp.weatherwizard.feature.weather.route.NestedWeatherRoutes
 import kotlinx.coroutines.launch
 
 private val DEFAULT_PADDING = 12.dp
+private val COLUMN_ITEM_SPACING = 20.dp
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -97,8 +99,15 @@ fun WeatherContentScreen(
     }) { _ ->
         val systemBars = WindowInsets.systemBars
         val density = LocalDensity.current
-        var topPadding by remember(uiState) { mutableStateOf(0.dp) }
         val bottomPadding = remember { with(density) { systemBars.getBottom(this).toDp() } }
+        val localConfiguration = LocalConfiguration.current
+
+        val screenHeight = remember {
+            val height = with(density) {
+                localConfiguration.screenHeightDp + (systemBars.getBottom(this) + systemBars.getTop(this)) / this.density
+            }
+            height.dp
+        }
 
         Box {
             Column(
@@ -106,14 +115,16 @@ fun WeatherContentScreen(
                     .fillMaxSize()
                     .padding(horizontal = DEFAULT_PADDING)
                     .verticalScroll(scrollState),
-                verticalArrangement = Arrangement.spacedBy(20.dp),
+                verticalArrangement = Arrangement.spacedBy(COLUMN_ITEM_SPACING),
             ) {
-                Spacer(modifier = Modifier.height(topPadding))
-                CurrentWeatherScreen(weather.currentWeather, weather.yesterdayWeather)
-                HourlyForecastScreen(hourlyForecast = weather.simpleHourlyForecast, navigate = navigate, onCalculatedY = { diff ->
-                    topPadding = diff - DEFAULT_PADDING
-                    true
-                })
+                Box(modifier = Modifier.height(screenHeight - DEFAULT_PADDING), contentAlignment = Alignment.BottomStart) {
+                    Column(verticalArrangement = Arrangement.spacedBy(COLUMN_ITEM_SPACING)) {
+                        CurrentWeatherScreen(weather.currentWeather, weather.yesterdayWeather)
+                        HourlyForecastScreen(hourlyForecast = weather.simpleHourlyForecast, navigate = navigate, onCalculatedY = { diff ->
+                            true
+                        })
+                    }
+                }
                 SimpleDailyForecastScreen(weather.simpleDailyForecast, navigate)
                 SimpleMapScreen(uiState.args)
                 AirQualityScreen(uiState.args, uiState.lastUpdatedDateTime, onAirQualityLoaded = { aqi ->

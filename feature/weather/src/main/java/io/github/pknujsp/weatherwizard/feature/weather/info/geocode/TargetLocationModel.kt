@@ -5,4 +5,5 @@ data class TargetLocationModel(
     val country: String? = null,
     val latitude: Double,
     val longitude: Double,
+    val time: Long = 0L,
 )

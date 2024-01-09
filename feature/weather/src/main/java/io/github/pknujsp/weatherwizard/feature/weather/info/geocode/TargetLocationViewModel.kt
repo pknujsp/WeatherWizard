@@ -8,17 +8,23 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.github.pknujsp.weatherwizard.core.common.coroutines.CoDispatcher
 import io.github.pknujsp.weatherwizard.core.common.coroutines.CoDispatcherType
-import io.github.pknujsp.weatherwizard.core.data.nominatim.NominatimRepository
+import io.github.pknujsp.weatherwizard.core.domain.location.CurrentLocationResultState
+import io.github.pknujsp.weatherwizard.core.domain.location.GetCurrentLocationUseCase
 import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherProvider
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.lastOrNull
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
 class TargetLocationViewModel @Inject constructor(
-    private val nominatimRepository: NominatimRepository, @CoDispatcher(CoDispatcherType.IO) private val dispatcher: CoroutineDispatcher
+    private val getCurrentLocationUseCase: GetCurrentLocationUseCase,
+    @CoDispatcher(CoDispatcherType.IO) private val dispatcher: CoroutineDispatcher
 ) : ViewModel() {
 
     private var job: Job? = null
@@ -30,7 +36,7 @@ class TargetLocationViewModel @Inject constructor(
         job?.cancel()
         job = viewModelScope.launch {
             val result = if (location.address == null || location.country == null) {
-                reverseGeoCode(location)
+                getCurrentLocationAddress(location)
             } else {
                 LocationInfo(location.address, location.country)
             }
@@ -42,12 +48,27 @@ class TargetLocationViewModel @Inject constructor(
         }
     }
 
-    private suspend fun reverseGeoCode(location: TargetLocationModel): LocationInfo? {
+    private suspend fun getCurrentLocationAddress(location: TargetLocationModel): LocationInfo? {
         return withContext(dispatcher) {
-            nominatimRepository.reverseGeoCode(location.latitude, location.longitude).map {
-                LocationInfo(it.simpleDisplayName, it.country)
+            val cache = getCurrentLocationUseCase.currentLocationFlow.replayCache.lastOrNull { it.time > location.time }
+            if (cache != null) {
+                return@withContext if (cache is CurrentLocationResultState.SuccessWithAddress) {
+                    LocationInfo(cache.address, cache.country)
+                } else {
+                    null
+                }
             }
-        }.getOrNull()
+
+            getCurrentLocationUseCase.currentLocationFlow.filter {
+                it.time >= location.time
+            }.map {
+                if (it is CurrentLocationResultState.SuccessWithAddress) {
+                    LocationInfo(it.address, it.country)
+                } else {
+                    null
+                }
+            }.lastOrNull()
+        }
     }
 
     fun setPrimaryArguments(weatherProvider: WeatherProvider, dateTime: String) {

@@ -57,11 +57,10 @@ private const val DEFAULT_AUTO_SIZING_TEXT_SIZE = 18
 
 @Composable
 fun CurrentWeatherScreen(current: CurrentWeather, yesterdayWeather: YesterdayWeather?) {
-
     Column {
         ConstraintLayout(modifier = Modifier
             .fillMaxWidth()
-            .padding(top = 100.dp, bottom = 12.dp, start = 12.dp, end = 12.dp)) {
+            .padding(bottom = 12.dp, start = 12.dp, end = 12.dp)) {
             val (yesterdayTemperature, weatherIcon, condition, temperature, feelsLikeTemperature) = createRefs()
 
             // temperature

@@ -41,6 +41,8 @@ import io.github.pknujsp.weatherwizard.core.ui.weather.item.DynamicDateTimeUiCre
 import io.github.pknujsp.weatherwizard.feature.weather.info.geocode.TargetLocationModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
@@ -134,12 +136,11 @@ class WeatherInfoViewModel @Inject constructor(
     }
 
     private suspend fun loadCurrentLocation(): Pair<TargetLocationModel?, FailedReason?> {
-        return when (val currentLocation = getCurrentLocationUseCase()) {
+        return when (val currentLocation = getCurrentLocationUseCase(true)) {
             is CurrentLocationResultState.Success -> {
-                TargetLocationModel(
-                    latitude = currentLocation.latitude,
+                TargetLocationModel(latitude = currentLocation.latitude,
                     longitude = currentLocation.longitude,
-                ) to null
+                    time = currentLocation.time) to null
             }
 
             is CurrentLocationResultState.Failure -> {
