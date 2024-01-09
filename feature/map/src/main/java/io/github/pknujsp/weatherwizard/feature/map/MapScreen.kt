@@ -168,7 +168,7 @@ fun SimpleMapScreen(
     val uiState by viewModel.radarUiState.collectAsStateWithLifecycle()
 
     uiState.onSuccess {
-        SimpleWeatherScreenBackground(CardInfo(title = stringResource(id = R.string.radar)) {
+        SimpleWeatherScreenBackground(cardInfo = CardInfo(title = stringResource(id = R.string.radar)) {
             Column(modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {

@@ -9,7 +9,7 @@ import io.github.pknujsp.weatherwizard.feature.weather.route.NestedWeatherRoutes
 
 @Composable
 fun SimpleDailyForecastScreen(dailyForecast: SimpleDailyForecast, navigate: (NestedWeatherRoutes) -> Unit) {
-    SimpleWeatherScreenBackground(CardInfo(title = stringResource(id = io.github.pknujsp.weatherwizard.core.resource.R.string.daily_forecast),
+    SimpleWeatherScreenBackground(cardInfo = CardInfo(title = stringResource(id = io.github.pknujsp.weatherwizard.core.resource.R.string.daily_forecast),
         buttons = listOf(
             stringResource(id = io.github.pknujsp.weatherwizard.core.resource.R.string.comparison) to {
                 navigate(NestedWeatherRoutes.ComparisonDailyForecast)

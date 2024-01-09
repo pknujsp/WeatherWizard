@@ -43,35 +43,36 @@ fun AirQualityScreen(
     onAirQualityLoaded: (AirQualityValueType) -> Unit,
     viewModel: AirQualityViewModel = hiltViewModel()
 ) {
-    val airQuality by viewModel.airQuality.collectAsStateWithLifecycle()
+    val airQuality = viewModel.airQuality
     val airQualityCallback by rememberUpdatedState(onAirQualityLoaded)
 
     LaunchedEffect(requestWeatherArguments) {
         viewModel.loadAirQuality(requestWeatherArguments.latitude, requestWeatherArguments.longitude)
     }
 
-    airQuality.onSuccess {
-        airQualityCallback(it.current.aqi)
-        SimpleWeatherScreenBackground(CardInfo(title = stringResource(io.github.pknujsp.weatherwizard.core.resource.R.string.air_quality_index),
-            content = {
-                Column(
-                    verticalArrangement = Arrangement.spacedBy(16.dp),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .wrapContentHeight()
-                        .padding(horizontal = 12.dp, vertical = 8.dp),
-                ) {
-                    SimpleCurrentContent(simpleAirQuality = it)
-                    BarGraph(forecast = it.dailyForecast)
-                }
-            }))
-    }.onError {
-        SimpleWeatherFailedBox(title = stringResource(id = R.string.air_quality_index),
-            description = stringResource(id = R.string.data_downloaded_failed)) {
-            viewModel.reload()
+    if (!airQuality.isLoading) {
+        airQuality.airQuality?.let {
+            airQualityCallback(it.current.aqi)
+            SimpleWeatherScreenBackground(cardInfo = CardInfo(title = stringResource(io.github.pknujsp.weatherwizard.core.resource.R.string.air_quality_index),
+                content = {
+                    Column(
+                        verticalArrangement = Arrangement.spacedBy(16.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .wrapContentHeight()
+                            .padding(horizontal = 12.dp, vertical = 8.dp),
+                    ) {
+                        SimpleCurrentContent(simpleAirQuality = it)
+                        BarGraph(forecast = it.dailyForecast)
+                    }
+                }))
+        } ?: run {
+            SimpleWeatherFailedBox(title = stringResource(id = R.string.air_quality_index),
+                description = stringResource(id = airQuality.failedReason!!.message)) {
+                viewModel.reload()
+            }
         }
     }
-
 }
 
 @OptIn(ExperimentalLayoutApi::class)
@@ -100,21 +101,11 @@ private fun SimpleCurrentContent(simpleAirQuality: SimpleAirQuality) {
         }
     }
 
-    val grids = simpleAirQuality.current.run {
-        listOf(
-            stringResource(AirPollutants.PM10.nameResId) to pm10,
-            stringResource(AirPollutants.PM25.nameResId) to pm25,
-            stringResource(AirPollutants.O3.nameResId) to o3,
-            stringResource(AirPollutants.NO2.nameResId) to no2,
-            stringResource(AirPollutants.SO2.nameResId) to so2,
-            stringResource(AirPollutants.CO.nameResId) to co,
-        )
-    }
     FlowRow(maxItemsInEachRow = 3,
         verticalArrangement = Arrangement.Center,
         horizontalArrangement = Arrangement.Center,
         modifier = Modifier.fillMaxWidth()) {
-        grids.forEach { (pollutant, value) ->
+        simpleAirQuality.grids.forEach { (pollutantStringResId, value) ->
 
             Column(
                 modifier = Modifier
@@ -124,7 +115,7 @@ private fun SimpleCurrentContent(simpleAirQuality: SimpleAirQuality) {
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 Text(
-                    text = pollutant,
+                    text = stringResource(id = pollutantStringResId),
                     fontSize = 13.sp,
                     color = Color.White,
                     textAlign = TextAlign.Center,

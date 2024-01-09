@@ -1,15 +1,21 @@
 package io.github.pknujsp.weatherwizard.feature.airquality
 
+import androidx.compose.runtime.Stable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.github.pknujsp.weatherwizard.core.common.coroutines.CoDispatcher
 import io.github.pknujsp.weatherwizard.core.common.coroutines.CoDispatcherType
+import io.github.pknujsp.weatherwizard.core.common.manager.FailedReason
 import io.github.pknujsp.weatherwizard.core.data.aqicn.AirQualityRepository
 import io.github.pknujsp.weatherwizard.core.model.UiState
 import io.github.pknujsp.weatherwizard.core.model.airquality.AirQualityEntity
 import io.github.pknujsp.weatherwizard.core.model.airquality.SimpleAirQuality
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -26,29 +32,39 @@ class AirQualityViewModel @Inject constructor(
     @CoDispatcher(CoDispatcherType.IO) private val ioDispatcher: CoroutineDispatcher,
 ) : ViewModel() {
 
-    private val _airQuality: MutableStateFlow<UiState<SimpleAirQuality>> = MutableStateFlow(UiState.Loading)
-    val airQuality: StateFlow<UiState<SimpleAirQuality>> = _airQuality.asStateFlow()
+    private val mutableAirQuality = MutableAirQualityUiState()
+    val airQuality: AirQualityUiState = mutableAirQuality
 
-    private var latitude: Double = 0.0
-    private var longitude: Double = 0.0
+    private var coordinate: Pair<Double, Double>? = null
+    private var job: Job? = null
 
     fun reload() {
         viewModelScope.launch {
-            _airQuality.value = UiState.Loading
-            loadAirQuality(latitude, longitude)
+            mutableAirQuality.isLoading = true
+            coordinate?.run {
+                loadAirQuality(first, second)
+            } ?: run {
+                mutableAirQuality.isLoading = false
+                mutableAirQuality.failedReason = FailedReason.UNKNOWN
+            }
         }
     }
 
     fun loadAirQuality(latitude: Double, longitude: Double) {
-        viewModelScope.launch(ioDispatcher) {
-            this@AirQualityViewModel.latitude = latitude
-            this@AirQualityViewModel.longitude = longitude
+        job?.cancel()
+        job = viewModelScope.launch {
+            coordinate = latitude to longitude
+            mutableAirQuality.isLoading = true
 
-            _airQuality.value = airQualityRepository.getAirQuality(latitude, longitude).fold(onSuccess = { airQuality ->
-                UiState.Success(createModel(airQuality))
-            }, onFailure = { throwable ->
-                UiState.Error(throwable)
-            })
+            withContext(ioDispatcher) {
+                airQualityRepository.getAirQuality(latitude, longitude).map { createModel(it) }
+            }.onSuccess {
+                mutableAirQuality.airQuality = it
+                mutableAirQuality.isLoading = false
+            }.onFailure {
+                mutableAirQuality.failedReason = FailedReason.UNKNOWN
+                mutableAirQuality.isLoading = false
+            }
         }
     }
 
@@ -83,5 +99,17 @@ class AirQualityViewModel @Inject constructor(
                 barHeightRatio = ((it.second.value - minIndex) / indexRange).coerceAtLeast(0.2f).coerceAtMost(1f))
         }
     }
+}
 
+private class MutableAirQualityUiState : AirQualityUiState {
+    override var airQuality: SimpleAirQuality? by mutableStateOf(null)
+    override var isLoading: Boolean by mutableStateOf(true)
+    override var failedReason: FailedReason? by mutableStateOf(null)
+}
+
+@Stable
+interface AirQualityUiState {
+    val airQuality: SimpleAirQuality?
+    val isLoading: Boolean
+    val failedReason: FailedReason?
 }

@@ -1,10 +1,7 @@
 package io.github.pknujsp.weatherwizard.feature.weather.info
 
 import android.util.Log
-import androidx.compose.foundation.MutatePriority
 import androidx.compose.foundation.ScrollState
-import androidx.compose.foundation.gestures.scrollBy
-import androidx.compose.foundation.gestures.stopScroll
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.TopAppBarDefaults
@@ -12,10 +9,7 @@ import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.SideEffect
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.Saver
@@ -38,9 +32,6 @@ import io.github.pknujsp.weatherwizard.core.model.weather.hourlyforecast.SimpleH
 import io.github.pknujsp.weatherwizard.core.model.weather.yesterday.YesterdayWeather
 import io.github.pknujsp.weatherwizard.core.ui.lottie.asActivity
 import io.github.pknujsp.weatherwizard.feature.weather.route.NestedWeatherRoutes
-import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.map
 import java.time.ZonedDateTime
 
 
@@ -48,10 +39,10 @@ sealed interface WeatherContentUiState {
     data class Error(val message: FailedReason) : WeatherContentUiState
 
     class Success(
-        val args: RequestWeatherArguments, val weather: Weather, dateTime: ZonedDateTime
+        val args: RequestWeatherArguments, val weather: Weather, val lastUpdatedDateTime: ZonedDateTime
     ) : WeatherContentUiState {
 
-        val dateTime: String = dateTime.format(dateTimeFormatter)
+        val dateTime: String = lastUpdatedDateTime.format(dateTimeFormatter)
 
         private companion object {
             private const val DATETIME_FORMAT = "MM.dd HH:mm"
