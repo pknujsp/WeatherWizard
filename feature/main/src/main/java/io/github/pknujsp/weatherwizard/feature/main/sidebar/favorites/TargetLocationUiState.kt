@@ -9,12 +9,7 @@ import io.github.pknujsp.weatherwizard.core.model.coordinate.LocationType
 interface TargetLocationUiState {
     val locationType: LocationType
     val locationId: Long?
-    val loadCurrentLocationState: LoadCurrentLocationState
-    val isLoading: Boolean
-}
-
-sealed interface LoadCurrentLocationState {
-    data class Success(val addressName: String) : LoadCurrentLocationState
-    data class Failed(val failedReason: FailedReason) : LoadCurrentLocationState
-    data object Loading : LoadCurrentLocationState
+    val isCurrentLocationLoading: Boolean
+    val currentLocationAddress: String?
+    val loadCurrentLocationFailedReason: FailedReason?
 }

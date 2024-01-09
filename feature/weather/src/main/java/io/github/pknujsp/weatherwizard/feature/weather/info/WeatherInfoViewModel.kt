@@ -145,6 +145,9 @@ class WeatherInfoViewModel @Inject constructor(
             is CurrentLocationResultState.Failure -> {
                 null to currentLocation.reason
             }
+
+            else -> null to null
+
         }
     }
 

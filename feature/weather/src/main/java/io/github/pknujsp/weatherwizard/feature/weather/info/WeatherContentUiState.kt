@@ -83,7 +83,6 @@ class WeatherMainState @OptIn(ExperimentalMaterial3Api::class) constructor(
 
 
     fun navigate(nestedRoutes: NestedWeatherRoutes) {
-        Log.d("WeatherMainState", "navigate: $nestedRoutes")
         this.nestedRoutes.value = nestedRoutes
         updateWindowInset(nestedRoutes !is NestedWeatherRoutes.Main)
     }
@@ -110,7 +109,7 @@ fun rememberWeatherMainState(
 ): WeatherMainState {
     val window = LocalContext.current.asActivity()!!.window
     val initialHeightOffsetLimit = remember {
-        with(density) { -48.dp.toPx() }
+        with(density) { -62.dp.toPx() }
     }
     val scrollBehavior: TopAppBarScrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(state = rememberTopAppBarState(
         initialHeightOffsetLimit = initialHeightOffsetLimit,

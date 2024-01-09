@@ -50,10 +50,10 @@ fun WeatherInfoScreen(
 
     LaunchedEffect(uiState) {
         if (uiState is WeatherContentUiState.Success) {
+            mainState.expandAppBar()
             (uiState as WeatherContentUiState.Success).run {
                 targetLocationViewModel.setPrimaryArguments(args.weatherProvider, dateTime)
             }
-            mainState.expandAppBar()
         }
     }
     LaunchedEffect(Unit) {

@@ -1,5 +1,7 @@
 package io.github.pknujsp.weatherwizard.feature.main
 
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -68,14 +70,10 @@ private fun WeatherMainScreen(mainUiState: MainUiState) {
     val scope = rememberCoroutineScope()
 
     ModalNavigationDrawer(drawerState = drawerState, gesturesEnabled = true, drawerContent = {
-        ModalDrawerSheet(drawerContainerColor = AppColorScheme.surface.copy(alpha = 0.97f), modifier = Modifier.systemBarsPadding()) {
+        ModalDrawerSheet(drawerContainerColor = Color.White, modifier = Modifier.systemBarsPadding()) {
+            Spacer(modifier = Modifier.height(24.dp))
             FavoriteLocationsScreen(closeDrawer = {
                 scope.launch {
-                    drawerState.close()
-                }
-            }, onClickedShowMore = {
-                scope.launch {
-                    mainUiState.navigate(MainRoutes.Favorite)
                     drawerState.close()
                 }
             })
@@ -87,14 +85,7 @@ private fun WeatherMainScreen(mainUiState: MainUiState) {
                     }
                 }
             }
-            Divider()
-            AsyncImage(modifier = Modifier
-                .padding(horizontal = 16.dp, vertical = 12.dp)
-                .align(Alignment.CenterHorizontally)
-                .height(22.dp),
-                model = ImageRequest.Builder(LocalContext.current)
-                    .data(io.github.pknujsp.weatherwizard.core.resource.R.drawable.textlogo_small).build(),
-                contentDescription = null)
+            DrawerFooter()
         }
     }) {
         HostWeatherScreen {
@@ -120,11 +111,17 @@ private fun DrawerRouteItem(
                 contentDescription = stringResource(id = route.navTitle))
         },
         selected = false,
-        onClick = onClick,
-        shape = RectangleShape,
-        colors = NavigationDrawerItemDefaults.colors(unselectedContainerColor = Color.Transparent,
-            selectedTextColor = Color.Gray,
-            unselectedBadgeColor = Color.Gray,
-            selectedIconColor = Color.Gray,
-            unselectedIconColor = Color.Gray))
+        onClick = { onClick() }, )
+}
+
+@Composable
+private fun DrawerFooter() {
+    Box(contentAlignment = Alignment.BottomCenter, modifier = Modifier
+        .fillMaxSize()
+        .padding(bottom = 12.dp)) {
+        AsyncImage(modifier = Modifier.height(20.dp),
+            model = ImageRequest.Builder(LocalContext.current).data(io.github.pknujsp.weatherwizard.core.resource.R.drawable.textlogo_small)
+                .build(),
+            contentDescription = null)
+    }
 }
