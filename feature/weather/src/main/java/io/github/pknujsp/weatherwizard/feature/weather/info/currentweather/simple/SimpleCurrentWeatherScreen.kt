@@ -89,16 +89,20 @@ fun CurrentWeatherScreen(current: CurrentWeather, yesterdayWeather: YesterdayWea
                 bottom.linkTo(yesterdayTemperature.top)
             }, style = LocalTextStyle.current.merge(notIncludeTextPaddingStyle).merge(outlineTextStyle))
 
-            // yesterday temperature
-            yesterdayWeather?.let {
-                Text(text = it.text(current.temperature, LocalContext.current),
-                    color = textColor,
-                    fontSize = 14.sp,
-                    modifier = Modifier.constrainAs(yesterdayTemperature) {
-                        absoluteLeft.linkTo(parent.absoluteLeft)
-                        bottom.linkTo(parent.bottom)
-                    },
-                    style = LocalTextStyle.current.merge(notIncludeTextPaddingStyle).merge(outlineTextStyle))
+            Box(modifier = Modifier.constrainAs(yesterdayTemperature) {
+                absoluteLeft.linkTo(parent.absoluteLeft)
+                bottom.linkTo(parent.bottom)
+            }) {
+                // yesterday temperature
+                yesterdayWeather?.let {
+                    Text(text = it.text(current.temperature, LocalContext.current).let { texts ->
+                        listOf(
+                            AStyle(texts[0], span = SpanStyle(fontSize = 14.sp, color = textColor, fontWeight = FontWeight.Light)),
+                            AStyle(" ${texts[1]} ", span = SpanStyle(fontSize = 15.sp, color = textColor, fontWeight = FontWeight.Normal)),
+                            AStyle(texts[2], span = SpanStyle(fontSize = 14.sp, color = textColor, fontWeight = FontWeight.Light)),
+                        ).toAnnotated()
+                    }, style = LocalTextStyle.current.merge(notIncludeTextPaddingStyle).merge(outlineTextStyle))
+                }
             }
 
             // weather icon
@@ -108,10 +112,10 @@ fun CurrentWeatherScreen(current: CurrentWeather, yesterdayWeather: YesterdayWea
                     id = io.github.pknujsp.weatherwizard.core.resource.R.string.weather_icon_description,
                 ),
                 modifier = Modifier
-                    .size(65.dp)
+                    .size(60.dp)
                     .constrainAs(weatherIcon) {
                         absoluteLeft.linkTo(parent.absoluteLeft)
-                        bottom.linkTo(temperature.top)
+                        bottom.linkTo(temperature.top, (-8).dp)
                     },
             )
 
