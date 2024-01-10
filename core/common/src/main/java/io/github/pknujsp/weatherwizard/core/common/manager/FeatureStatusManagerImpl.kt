@@ -106,5 +106,10 @@ enum class FailedReason(
         R.string.title_canceled_work,
         R.string.message_canceled_work,
         R.string.reload,
-    );
+    ),
+    NOT_SELECTED_TARGET_LOCATION(
+        R.string.title_not_selected_target_location,
+        R.string.message_not_selected_target_location,
+        R.string.go_to_select_target_location,
+    ), ;
 }

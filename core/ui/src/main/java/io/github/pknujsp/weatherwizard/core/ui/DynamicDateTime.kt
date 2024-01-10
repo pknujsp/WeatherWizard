@@ -15,6 +15,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.drawText
 import androidx.compose.ui.text.rememberTextMeasurer
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -37,9 +38,9 @@ private fun DateTime(
 ) {
     val textMeasurer = rememberTextMeasurer()
     val textStyle = remember {
-        TextStyle(fontSize = textSize, textAlign = androidx.compose.ui.text.style.TextAlign.Center)
+        TextStyle(fontSize = textSize, textAlign = TextAlign.Center)
     }
-    val textLayoutResult = remember {
+    val textLayoutResult = remember(dateTimeInfo) {
         textMeasurer.measure(dateTimeInfo.items.first().date, textStyle)
     }
     val columnWidthPx = remember {
@@ -47,13 +48,12 @@ private fun DateTime(
             SimpleHourlyForecast.itemWidth.toPx().toInt()
         }
     }
-    val height = remember {
-        (textLayoutResult.size.height / density.density).dp + (space * 2)
+    val height by remember(textLayoutResult) {
+        derivedStateOf { (textLayoutResult.size.height / density.density).dp + (space * 2) }
     }
-
     val leftOnBoxInRow by remember {
         derivedStateOf {
-            lazyListState.firstVisibleItemIndex * columnWidthPx + lazyListState.firstVisibleItemScrollOffset
+            (lazyListState.firstVisibleItemIndex * columnWidthPx) + lazyListState.firstVisibleItemScrollOffset
         }
     }
 

@@ -27,7 +27,7 @@ class SettingsViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            settingsRepository.settings.value.let {
+            settingsRepository.settings.replayCache.last().let {
                 mutableMainSettingsUiState.run {
                     weatherProvider = it.weatherProvider
                     widgetAutoRefreshInterval = it.widgetAutoRefreshInterval

@@ -2,6 +2,7 @@ package io.github.pknujsp.weatherwizard.core.model.weather.hourlyforecast
 
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
+import androidx.compose.runtime.Stable
 import io.github.pknujsp.weatherwizard.core.common.util.DayNightCalculator
 import io.github.pknujsp.weatherwizard.core.common.util.toCalendar
 import io.github.pknujsp.weatherwizard.core.model.UiModel
@@ -17,14 +18,20 @@ import io.github.pknujsp.weatherwizard.core.model.weather.common.WindDirectionVa
 import io.github.pknujsp.weatherwizard.core.model.weather.common.WindSpeedValueType
 import java.time.ZonedDateTime
 
+@Stable
 class DetailHourlyForecast(
-    val items: List<Pair<String, List<Item>>>
+    val items: List<Pair<Header, List<Item>>>
 ) : UiModel {
 
     val displayRainfallVolume = items.any { it.second.any { item -> item.rainfallVolume.isNotEmpty() } }
     val displaySnowfallVolume = items.any { it.second.any { item -> item.snowfallVolume.isNotEmpty() } }
     val displayPrecipitationVolume = items.any { it.second.any { item -> item.precipitationVolume.isNotEmpty() } }
     val displayPrecipitationProbability = items.any { it.second.any { item -> item.precipitationProbability != "-" } }
+
+    class Header(
+        val id: Int,
+        val title: String,
+    ) : UiModel
 
     class Item(
         val id: Int,

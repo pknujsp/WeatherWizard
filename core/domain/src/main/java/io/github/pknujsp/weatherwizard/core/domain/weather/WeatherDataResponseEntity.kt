@@ -1,7 +1,6 @@
 package io.github.pknujsp.weatherwizard.core.domain.weather
 
 import io.github.pknujsp.weatherwizard.core.common.util.DayNightCalculator
-import io.github.pknujsp.weatherwizard.core.model.coordinate.LocationTypeModel
 import io.github.pknujsp.weatherwizard.core.model.weather.base.WeatherEntityModel
 import io.github.pknujsp.weatherwizard.core.model.weather.common.MajorWeatherEntityType
 import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherProvider
@@ -31,16 +30,16 @@ data class WeatherResponseEntity(
 
 sealed interface WeatherResponseState {
     val requestId: Long
-    val location: LocationTypeModel
+    val location: WeatherDataRequest.Coordinate
     val weatherProvider: WeatherProvider
 
     data class Failure(
-        override val requestId: Long, override val location: LocationTypeModel, override val weatherProvider: WeatherProvider,
+        override val requestId: Long, override val location: WeatherDataRequest.Coordinate, override val weatherProvider: WeatherProvider,
     ) : WeatherResponseState
 
     data class Success(
         override val requestId: Long,
-        override val location: LocationTypeModel,
+        override val location: WeatherDataRequest.Coordinate,
         override val weatherProvider: WeatherProvider,
         val entity: WeatherResponseEntity
     ) : WeatherResponseState

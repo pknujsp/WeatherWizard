@@ -9,10 +9,7 @@ import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.SideEffect
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.Saver
@@ -35,22 +32,17 @@ import io.github.pknujsp.weatherwizard.core.model.weather.hourlyforecast.SimpleH
 import io.github.pknujsp.weatherwizard.core.model.weather.yesterday.YesterdayWeather
 import io.github.pknujsp.weatherwizard.core.ui.lottie.asActivity
 import io.github.pknujsp.weatherwizard.feature.weather.route.NestedWeatherRoutes
-import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.map
 import java.time.ZonedDateTime
 
 
 sealed interface WeatherContentUiState {
-    data object Loading : WeatherContentUiState
-
     data class Error(val message: FailedReason) : WeatherContentUiState
 
     class Success(
-        val args: RequestWeatherArguments, val weather: Weather, dateTime: ZonedDateTime
+        val args: RequestWeatherArguments, val weather: Weather, val lastUpdatedDateTime: ZonedDateTime
     ) : WeatherContentUiState {
 
-        val dateTime: String = dateTime.format(dateTimeFormatter)
+        val dateTime: String = lastUpdatedDateTime.format(dateTimeFormatter)
 
         private companion object {
             private const val DATETIME_FORMAT = "MM.dd HH:mm"
@@ -91,7 +83,6 @@ class WeatherMainState @OptIn(ExperimentalMaterial3Api::class) constructor(
 
 
     fun navigate(nestedRoutes: NestedWeatherRoutes) {
-        Log.d("WeatherMainState", "navigate: $nestedRoutes")
         this.nestedRoutes.value = nestedRoutes
         updateWindowInset(nestedRoutes !is NestedWeatherRoutes.Main)
     }
@@ -102,6 +93,10 @@ class WeatherMainState @OptIn(ExperimentalMaterial3Api::class) constructor(
             isAppearanceLightStatusBars = isAppearanceLight
             isAppearanceLightNavigationBars = isAppearanceLight
         }
+    }
+
+    suspend fun expandAppBar() {
+        scrollState.scrollTo(0)
     }
 }
 
@@ -114,7 +109,7 @@ fun rememberWeatherMainState(
 ): WeatherMainState {
     val window = LocalContext.current.asActivity()!!.window
     val initialHeightOffsetLimit = remember {
-        with(density) { -48.dp.toPx() }
+        with(density) { -62.dp.toPx() }
     }
     val scrollBehavior: TopAppBarScrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(state = rememberTopAppBarState(
         initialHeightOffsetLimit = initialHeightOffsetLimit,
@@ -125,6 +120,21 @@ fun rememberWeatherMainState(
     var nestedRoutes by rememberSaveable(saver = Saver(save = { it.value.route },
         restore = { mutableStateOf(NestedWeatherRoutes.getRoute(it)) })) {
         state.nestedRoutes
+    }
+
+    LaunchedEffect(Unit) {
+        val heightOffsetLimit = -scrollBehavior.state.heightOffsetLimit
+        val collapsedHeightOffset = scrollBehavior.state.heightOffsetLimit
+
+        snapshotFlow {
+            scrollState.value
+        }.collect { y ->
+            if (y <= heightOffsetLimit) {
+                scrollBehavior.state.heightOffset = -y.toFloat()
+            } else if (scrollBehavior.state.heightOffset != collapsedHeightOffset) {
+                scrollBehavior.state.heightOffset = collapsedHeightOffset
+            }
+        }
     }
 
     return state

@@ -22,7 +22,6 @@ import io.github.pknujsp.weatherwizard.core.model.weather.hourlyforecast.ToCompa
 import io.github.pknujsp.weatherwizard.core.ui.weather.item.DynamicDateTimeUiCreator
 import io.github.pknujsp.weatherwizard.feature.weather.comparison.common.CompareForecastViewModel
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -30,7 +29,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.time.ZonedDateTime
 import javax.inject.Inject
-import kotlin.text.Typography.times
 
 @HiltViewModel
 class CompareHourlyForecastViewModel @Inject constructor(
@@ -48,20 +46,20 @@ class CompareHourlyForecastViewModel @Inject constructor(
     override fun load(args: RequestWeatherArguments) {
         viewModelScope.launch {
             args.run {
-                val weatherDataRequest = WeatherDataRequest()
-                weatherProviders.forEach {
-                    weatherDataRequest.addRequest(args.location,
-                        setOf(io.github.pknujsp.weatherwizard.core.model.weather.common.MajorWeatherEntityType.HOURLY_FORECAST),
-                        it)
-                }
                 withContext(ioDispatcher) {
+                    val weatherDataRequest = WeatherDataRequest()
+                    weatherProviders.forEach {
+                        weatherDataRequest.addRequest(WeatherDataRequest.Coordinate(latitude, longitude),
+                            setOf(io.github.pknujsp.weatherwizard.core.model.weather.common.MajorWeatherEntityType.HOURLY_FORECAST),
+                            it)
+                    }
                     getHourlyForecastToCompareUseCase(weatherDataRequest.finalRequests).map { entity ->
                         val (firstTime, endTime) = entity.run {
                             items.maxOf { ZonedDateTime.parse(it.second.first().dateTime.value) } to items.minOf {
                                 ZonedDateTime.parse(it.second.last().dateTime.value)
                             }
                         }
-                        val dayNightCalculator = DayNightCalculator(location.latitude, location.longitude)
+                        val dayNightCalculator = DayNightCalculator(latitude, longitude)
                         val dayOrNightList = mutableListOf<Pair<Boolean, ZonedDateTime>>()
                         var time = firstTime
                         while (time <= endTime) {
@@ -69,7 +67,7 @@ class CompareHourlyForecastViewModel @Inject constructor(
                             time = time.plusHours(1)
                         }
 
-                        val units = settingsRepository.settings.value.units
+                        val units = settingsRepository.settings.replayCache.last().units
                         val entities = mutableListOf<Pair<WeatherProvider, List<ToCompareHourlyForecastEntity.Item>>>()
 
                         val items = entity.items.map { (provider, items) ->

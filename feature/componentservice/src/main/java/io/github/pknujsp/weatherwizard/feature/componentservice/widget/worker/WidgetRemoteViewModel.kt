@@ -56,6 +56,7 @@ class WidgetRemoteViewModel @Inject constructor(
         val weatherDataRequest = WeatherDataRequest()
         val responseMap = mutableMapOf<WidgetSettingsEntity, WeatherResponseState>()
         val requestMapWithRequestIdAndWidget = mutableMapOf<Long, MutableList<WidgetSettingsEntity>>()
+        val locationMap = mutableMapOf<WeatherDataRequest.Coordinate, String>()
 
         widgetSettingsEntityList.locationTypeGroups[LocationType.CurrentLocation]?.let { entities ->
             if (entities.isNotEmpty()) {
@@ -63,16 +64,14 @@ class WidgetRemoteViewModel @Inject constructor(
                     is CurrentLocationResultState.Success -> {
                         val geoCodeResult = nominatimRepository.reverseGeoCode(currentLocation.latitude, currentLocation.longitude)
                         geoCodeResult.onSuccess { geoCodeEntity ->
-                            val locationModel = LocationTypeModel(
-                                locationType = LocationType.CurrentLocation,
-                                address = geoCodeEntity.simpleDisplayName,
-                                country = geoCodeEntity.country,
+                            val coordinate = WeatherDataRequest.Coordinate(
                                 latitude = currentLocation.latitude,
                                 longitude = currentLocation.longitude,
                             )
+                            locationMap[coordinate] = geoCodeEntity.simpleDisplayName
                             entities.forEach {
                                 val requestId = weatherDataRequest.addRequest(
-                                    locationModel,
+                                    coordinate,
                                     it.widgetType.categories.toSet(),
                                     it.weatherProvider,
                                 )
@@ -80,7 +79,7 @@ class WidgetRemoteViewModel @Inject constructor(
                             }
                         }.onFailure {
                             entities.forEach {
-                                responseMap[it] = WeatherResponseState.Failure(-1, LocationTypeModel(), it.weatherProvider)
+                                responseMap[it] = WeatherResponseState.Failure(-1, WeatherDataRequest.Coordinate(), it.weatherProvider)
                             }
                         }
 
@@ -88,7 +87,7 @@ class WidgetRemoteViewModel @Inject constructor(
 
                     else -> {
                         entities.forEach {
-                            responseMap[it] = WeatherResponseState.Failure(-1, LocationTypeModel(), it.weatherProvider)
+                            responseMap[it] = WeatherResponseState.Failure(-1, WeatherDataRequest.Coordinate(), it.weatherProvider)
                         }
                     }
                 }
@@ -96,8 +95,13 @@ class WidgetRemoteViewModel @Inject constructor(
         }
 
         widgetSettingsEntityList.locationTypeGroups[LocationType.CustomLocation]?.forEach {
+            val coordinate = WeatherDataRequest.Coordinate(
+                latitude = it.location.latitude,
+                longitude = it.location.longitude,
+            )
+            locationMap[coordinate] = it.location.address
             val requestId = weatherDataRequest.addRequest(
-                it.location,
+                coordinate,
                 it.widgetType.categories.toSet(),
                 it.weatherProvider,
             )
@@ -118,17 +122,17 @@ class WidgetRemoteViewModel @Inject constructor(
             }
         }
 
-        return linkWidgetsWithResponses(responseMap)
+        return linkWidgetsWithResponses(responseMap, locationMap)
     }
 
     private fun linkWidgetsWithResponses(
-        responses: Map<WidgetSettingsEntity, WeatherResponseState>
+        responses: Map<WidgetSettingsEntity, WeatherResponseState>, locationMap: Map<WeatherDataRequest.Coordinate, String>
     ): List<WidgetRemoteViewUiState> {
         return responses.map { (widget, response) ->
             WidgetRemoteViewUiState(
                 widget = widget,
                 lastUpdated = if (response is WeatherResponseState.Success) response.entity.responseTime else null,
-                address = response.location.address,
+                address = locationMap[response.location],
                 isSuccessful = response is WeatherResponseState.Success,
                 model = if (response is WeatherResponseState.Success) response.entity else null,
                 latitude = response.location.latitude,

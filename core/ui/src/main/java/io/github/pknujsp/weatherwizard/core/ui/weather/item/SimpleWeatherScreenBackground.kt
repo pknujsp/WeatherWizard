@@ -37,9 +37,9 @@ import io.github.pknujsp.weatherwizard.core.ui.theme.AppShapes
 private val backgroundColor = Color(150, 140, 155, 215)
 
 @Composable
-private fun DefaultSurface(content: @Composable () -> Unit) {
+private fun DefaultSurface(modifier: Modifier, content: @Composable () -> Unit) {
     Surface(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .wrapContentHeight(),
         shape = AppShapes.large,
@@ -50,9 +50,9 @@ private fun DefaultSurface(content: @Composable () -> Unit) {
 }
 
 @Composable
-fun SimpleWeatherScreenBackground(cardInfo: CardInfo) {
-    DefaultSurface {
-        Column(modifier = Modifier
+fun SimpleWeatherScreenBackground(modifier: Modifier = Modifier, cardInfo: CardInfo) {
+    DefaultSurface(modifier = modifier) {
+        Column(modifier = modifier
             .padding(vertical = 12.dp)
             .fillMaxWidth()
             .wrapContentHeight()) {
@@ -81,7 +81,7 @@ fun SimpleWeatherBackgroundPlaceHolder() {
 
 @Composable
 fun SimpleWeatherFailedBox(title: String, description: String, onClick: () -> Unit) {
-    DefaultSurface {
+    DefaultSurface(Modifier) {
         Column(horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
                 .padding(vertical = 12.dp, horizontal = 12.dp)

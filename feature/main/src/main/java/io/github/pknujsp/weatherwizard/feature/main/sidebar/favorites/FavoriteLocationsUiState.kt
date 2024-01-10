@@ -7,6 +7,5 @@ import kotlinx.coroutines.flow.StateFlow
 
 @Stable
 interface FavoriteLocationsUiState {
-    val containMore: Boolean
     val favoriteAreas: StateFlow<List<FavoriteArea>>
 }

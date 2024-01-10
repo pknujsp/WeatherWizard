@@ -1,5 +1,6 @@
 package io.github.pknujsp.weatherwizard.feature.flickr
 
+import androidx.browser.customtabs.CustomTabsIntent
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
@@ -11,6 +12,8 @@ import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
@@ -20,6 +23,7 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.net.toUri
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
@@ -37,23 +41,25 @@ fun FlickrImageItemScreen(
         viewModel.initialize(requestParameter)
     }
 
+    val onImageUrlChangedState by rememberUpdatedState(newValue = onImageUrlChanged)
     val uiState = viewModel.flickrImageUiState
-
+    val context = LocalContext.current
     LaunchedEffect(uiState) {
-        if (uiState.isLoaded) {
-            onImageUrlChanged(uiState.url)
-        } else {
-            onImageUrlChanged("")
-        }
+        onImageUrlChangedState(if (uiState.isLoaded) uiState.url else "")
     }
 
-    UrlItem(text = if (uiState.isLoaded) uiState.url else stringResource(uiState.textRes), onClick = {
+    UrlItem(isSuccess = uiState.isLoaded, text = if (uiState.isLoaded) uiState.url else stringResource(uiState.textRes), onClickUrl = {
+        if (uiState.isLoaded) {
+            val customTabsIntent = CustomTabsIntent.Builder().build()
+            customTabsIntent.launchUrl(context, uiState.url.toUri())
+        }
+    }, onClickRefresh = {
         if (!uiState.isLoading) viewModel.load()
     })
 }
 
 @Composable
-private fun UrlItem(text: String, onClick: () -> Unit) {
+private fun UrlItem(isSuccess: Boolean, text: String, onClickUrl: () -> Unit, onClickRefresh: () -> Unit) {
     Row(modifier = Modifier
         .padding(start = 84.dp, end = 14.dp, top = 6.dp)
         .fillMaxWidth(),
@@ -70,11 +76,11 @@ private fun UrlItem(text: String, onClick: () -> Unit) {
             textAlign = androidx.compose.ui.text.style.TextAlign.End,
             modifier = Modifier
                 .weight(1f)
-                .clickable { onClick() })
+                .clickable { if (isSuccess) onClickUrl() else onClickRefresh() })
         Spacer(modifier = Modifier.padding(horizontal = 4.dp))
         AsyncImage(model = ImageRequest.Builder(LocalContext.current).data(R.drawable.flickrlogo).crossfade(false).build(),
             contentDescription = stringResource(io.github.pknujsp.weatherwizard.core.resource.R.string.flickr),
             contentScale = ContentScale.Inside,
-            modifier = Modifier.width(31.dp))
+            modifier = Modifier.width(32.dp))
     }
 }

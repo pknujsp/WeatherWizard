@@ -2,6 +2,7 @@ package io.github.pknujsp.weatherwizard.feature.airquality
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -9,7 +10,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -17,90 +17,101 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.TextMeasurer
 import androidx.compose.ui.text.drawText
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import io.github.pknujsp.weatherwizard.core.common.util.AStyle
+import io.github.pknujsp.weatherwizard.core.common.util.toAnnotated
 import io.github.pknujsp.weatherwizard.core.model.airquality.SimpleAirQuality
+import io.github.pknujsp.weatherwizard.core.resource.R
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
+private val dateFormatter = DateTimeFormatter.ofPattern("M.d\n")
+private val dayFormatter = DateTimeFormatter.ofPattern("E")
+private val barGraphTheme = BarGraphTheme.SMALL
+private val dateTimeHeight = (barGraphTheme.dateTextStyle.fontSize.value + barGraphTheme.dayTextStyle.fontSize.value).dp
 
 @Composable
-fun BarGraph(forecast: List<SimpleAirQuality.DailyItem>) {
+fun BarGraph(forecast: List<SimpleAirQuality.DailyItem>, dateTime: LocalDate) {
+    val textMeasurer = rememberTextMeasurer()
     Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .graphicsLayer(clip = false)
-            .wrapContentHeight()
-            .horizontalScroll(rememberScrollState()),
+        verticalAlignment = Alignment.Bottom,
+        modifier = Modifier.horizontalScroll(rememberScrollState()),
     ) {
-        val dateTimeFormatter = DateTimeFormatter.ofPattern("M.d\nE")
-        val today = LocalDate.now()
-
         forecast.forEach { item ->
-            Bar(BarGraphTheme.Small, item, dateTimeFormatter, today)
+            Bar(BarGraphTheme.SMALL, item, dateTime, textMeasurer)
         }
     }
-
 }
 
 
 @Composable
 private fun Bar(
-    barGraphTheme: BarGraphTheme, item: SimpleAirQuality.DailyItem, dateTimeFormatter: DateTimeFormatter, today: LocalDate
+    barGraphTheme: BarGraphTheme, item: SimpleAirQuality.DailyItem, today: LocalDate, textMeasurer: TextMeasurer
 ) {
-    Column(
-        modifier = Modifier
-            .width(barGraphTheme.barSize.width)
-            .fillMaxHeight(),
+    Column(modifier = Modifier
+        .width(barGraphTheme.barSize.width)
+        .fillMaxHeight(),
         horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
-        val indexTextResult = rememberTextMeasurer().measure(text = stringResource(item.aqi.airQualityDescription.descriptionStringId),
-            maxLines = 1,
-            style = TextStyle(
-                fontSize = barGraphTheme.indexTextStyle.fontSize,
-                color = barGraphTheme.indexTextStyle.color,
-                textAlign = TextAlign.Center,
-            ))
+        verticalArrangement = Arrangement.spacedBy(4.dp)) {
+
+        val aqiStatusTextResult = textMeasurer.measure(stringResource(id = item.aqi.airQualityDescription.descriptionStringId),
+            barGraphTheme.indexTextStyle,
+            overflow = TextOverflow.Visible,
+            maxLines = 1)
 
         Canvas(
             modifier = Modifier
                 .fillMaxWidth()
+                .graphicsLayer(clip = false)
                 .padding(horizontal = barGraphTheme.barSize.horizontalPadding)
                 .height(barGraphTheme.barSize.height),
         ) {
-            val barHeight = (size.height - indexTextResult.size.height) * item.barHeightRatio
+            val barHeight = (size.height - aqiStatusTextResult.size.height) * item.barHeightRatio
             val barTop = size.height - barHeight
 
-            drawRoundRect(
-                color = item.aqi.airQualityDescription.color,
-                topLeft = androidx.compose.ui.geometry.Offset(0f, barTop),
-                size = androidx.compose.ui.geometry.Size(size.width, barHeight),
-                cornerRadius = CornerRadius(4.dp.toPx())
-            )
+            drawRoundRect(color = item.aqi.airQualityDescription.color,
+                topLeft = Offset(0f, barTop),
+                size = Size(size.width, barHeight),
+                cornerRadius = CornerRadius(4.dp.toPx()))
 
-            drawText(indexTextResult,
-                topLeft = Offset((size.width / 2f) - (indexTextResult.size.width / 2f), barTop - indexTextResult.size
-                    .height),
-                color = barGraphTheme.indexTextStyle.color)
+            drawText(
+                aqiStatusTextResult,
+                topLeft = Offset((size.width - aqiStatusTextResult.size.width) / 2, barTop - aqiStatusTextResult.size.height),
+            )
         }
 
         val isToday = item.dateTime.isEqual(today)
-        Text(text = if (isToday) stringResource(id = io.github.pknujsp.weatherwizard.core.resource.R.string.today)
-        else item.dateTime.format(dateTimeFormatter),
-            fontSize = barGraphTheme.dateTextStyle.fontSize,
-            color = barGraphTheme.dateTextStyle.color,
-            lineHeight = barGraphTheme.dateTextStyle.fontSize,
-            maxLines = 2,
+        Text(
+            text = if (isToday) {
+                listOf(
+                    AStyle(stringResource(id = R.string.today),
+                        paragraph = barGraphTheme.dateTextStyle.toParagraphStyle(),
+                        span = barGraphTheme.dateTextStyle.toSpanStyle()),
+                )
+            } else {
+                listOf(
+                    AStyle(item.dateTime.format(dateFormatter),
+                        paragraph = barGraphTheme.dateTextStyle.toParagraphStyle(),
+                        span = barGraphTheme.dateTextStyle.toSpanStyle()),
+                    AStyle(item.dateTime.format(dayFormatter),
+                        paragraph = barGraphTheme.dayTextStyle.toParagraphStyle(),
+                        span = barGraphTheme.dayTextStyle.toSpanStyle()),
+                )
+            }.toAnnotated(),
             overflow = TextOverflow.Visible,
-            textDecoration = if (isToday)  TextDecoration.Underline else null,
-            textAlign = TextAlign.Center)
-    }
+            maxLines = 2,
+            textAlign = TextAlign.Center,
+            lineHeight = barGraphTheme.dateTextStyle.fontSize,
+            modifier = Modifier.height(dateTimeHeight),
+        )
 
+    }
 }

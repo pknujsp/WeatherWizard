@@ -1,13 +1,10 @@
 package io.github.pknujsp.weatherwizard.feature.weather.info
 
-import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.scrollBy
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -22,13 +19,10 @@ import androidx.compose.material.icons.rounded.Place
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.LargeTopAppBar
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -53,13 +47,14 @@ import io.github.pknujsp.weatherwizard.core.ui.theme.outlineTextStyle
 import io.github.pknujsp.weatherwizard.core.ui.theme.shadowBox
 import io.github.pknujsp.weatherwizard.feature.weather.CustomTopAppBar
 import io.github.pknujsp.weatherwizard.feature.weather.CustomTopAppBarColors
-import kotlinx.coroutines.launch
+import io.github.pknujsp.weatherwizard.feature.weather.info.geocode.TopAppBarUiState
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TopAppBars(
     modifier: Modifier = Modifier,
-    uiState: WeatherContentUiState.Success,
+    topAppBarUiState: TopAppBarUiState?,
+    weatherContentUiState: WeatherContentUiState.Success,
     openDrawer: () -> Unit,
     reload: () -> Unit,
     onClickedWeatherProviderButton: () -> Unit,
@@ -67,9 +62,7 @@ fun TopAppBars(
 ) {
     CustomTopAppBar(
         smallTitle = {
-            Column(modifier = modifier,
-                horizontalAlignment = Alignment.Start,
-                verticalArrangement = Arrangement.Center) {
+            Column(modifier = modifier, horizontalAlignment = Alignment.Start, verticalArrangement = Arrangement.Center) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(imageVector = Icons.Rounded.Place,
                         contentDescription = null,
@@ -78,14 +71,14 @@ fun TopAppBars(
                             .size(15.dp)
                             .padding(end = 4.dp))
                     Text(
-                        text = uiState.args.location.address,
+                        text = topAppBarUiState?.address ?: stringResource(id = R.string.unknown_address),
                         color = Color.White,
                         fontSize = 14.sp,
                         style = LocalTextStyle.current.merge(notIncludeTextPaddingStyle).merge(outlineTextStyle),
                     )
                 }
                 Text(
-                    text = uiState.dateTime,
+                    text = weatherContentUiState.dateTime,
                     fontSize = TextUnit(11f, TextUnitType.Sp),
                     color = Color.White,
                     style = LocalTextStyle.current.merge(notIncludeTextPaddingStyle).merge(outlineTextStyle),
@@ -100,9 +93,10 @@ fun TopAppBars(
             ) {
                 Text(
                     text = listOf(
-                        AStyle("${uiState.args.location.address}\n", span = SpanStyle(fontSize = 25.sp)),
+                        AStyle("${topAppBarUiState?.address ?: stringResource(id = R.string.unknown_address)}\n",
+                            span = SpanStyle(fontSize = 25.sp)),
                         AStyle(
-                            uiState.args.location.country,
+                            topAppBarUiState?.country ?: stringResource(id = R.string.unknown_country),
                             span = SpanStyle(
                                 fontSize = 16.sp,
                             ),
@@ -127,7 +121,7 @@ fun TopAppBars(
                     )
                     Spacer(modifier = Modifier.width(4.dp))
                     Text(
-                        text = uiState.dateTime,
+                        text = weatherContentUiState.dateTime,
                         fontSize = 14.sp,
                         color = Color.White, style = LocalTextStyle.current.merge(outlineTextStyle),
                     )
@@ -138,13 +132,14 @@ fun TopAppBars(
                         onClickedWeatherProviderButton()
                     }) {
                     AsyncImage(
-                        model = ImageRequest.Builder(LocalContext.current).data(uiState.args.weatherProvider.icon).crossfade(false).build(),
+                        model = ImageRequest.Builder(LocalContext.current).data(weatherContentUiState.args.weatherProvider.icon)
+                            .crossfade(false).build(),
                         contentDescription = stringResource(id = R.string.weather_provider),
                         modifier = Modifier.size(16.dp),
                     )
                     Spacer(modifier = Modifier.width(4.dp))
                     Text(
-                        text = stringResource(id = uiState.args.weatherProvider.title),
+                        text = stringResource(id = weatherContentUiState.args.weatherProvider.title),
                         fontSize = 14.sp,
                         color = Color.White,
                         style = LocalTextStyle.current.merge(outlineTextStyle),
@@ -166,10 +161,14 @@ fun TopAppBars(
             navigationIconContentColor = Color.White,
             actionIconContentColor = Color.White,
         ),
-        modifier = modifier.background(brush = shadowBox()).statusBarsPadding(),
+        modifier = modifier
+            .background(brush = shadowBox())
+            .statusBarsPadding(),
         windowInsets = WindowInsets(0.dp, 0.dp, 0.dp, 0.dp),
         navigationIcon = {
-            IconButton(modifier = modifier, onClick = openDrawer) {
+            IconButton(modifier = modifier, onClick = {
+                openDrawer()
+            }) {
                 Icon(Icons.Rounded.Menu, contentDescription = null)
             }
         },

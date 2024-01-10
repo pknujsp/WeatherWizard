@@ -19,7 +19,7 @@ enum class ShadowDirection(
 ) {
     UP(
         colorStops = arrayOf(
-            0.0f to Color.Black.copy(alpha = 0.65f),
+            0.0f to Color.Black.copy(alpha = 0.6f),
             1.0f to Color.Transparent,
         ),
         end = Offset(0.0f, 0f),
@@ -27,7 +27,7 @@ enum class ShadowDirection(
     ),
     DOWN(
         colorStops = arrayOf(
-            0.0f to Color.Black.copy(alpha = 0.65f),
+            0.0f to Color.Black.copy(alpha = 0.6f),
             1.0f to Color.Transparent,
         ),
         start = Offset(0.0f, 0f),

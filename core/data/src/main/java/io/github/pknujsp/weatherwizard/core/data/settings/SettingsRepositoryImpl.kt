@@ -1,5 +1,6 @@
 package io.github.pknujsp.weatherwizard.core.data.settings
 
+import android.util.Log
 import io.github.pknujsp.weatherwizard.core.data.RepositoryInitializer
 import io.github.pknujsp.weatherwizard.core.database.AppDataStore
 import io.github.pknujsp.weatherwizard.core.model.DBEntityState
@@ -12,15 +13,22 @@ import io.github.pknujsp.weatherwizard.core.model.weather.common.PrecipitationUn
 import io.github.pknujsp.weatherwizard.core.model.weather.common.TemperatureUnit
 import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherProvider
 import io.github.pknujsp.weatherwizard.core.model.weather.common.WindSpeedUnit
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.channels.BufferOverflow
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.channelFlow
 
 class SettingsRepositoryImpl(
     private val appDataStore: AppDataStore
 ) : SettingsRepository, RepositoryInitializer {
-    private val mutableSettings = MutableStateFlow(SettingsEntity())
-    override val settings: StateFlow<SettingsEntity> = mutableSettings.asStateFlow()
+
+    private val mutableSettings =
+        MutableSharedFlow<SettingsEntity>(replay = 1, extraBufferCapacity = 1, onBufferOverflow = BufferOverflow.DROP_OLDEST)
+
+    override val settings: SharedFlow<SettingsEntity> = mutableSettings.asSharedFlow()
 
     private companion object {
         val preferences = arrayOf(TemperatureUnit.Companion,
@@ -37,11 +45,13 @@ class SettingsRepositoryImpl(
 
     override suspend fun init() {
         load().run {
-            mutableSettings.value = SettingsEntity(units = CurrentUnits(temperatureUnit = this[TemperatureUnit]!! as TemperatureUnit,
+            mutableSettings.emit(SettingsEntity(units = CurrentUnits(temperatureUnit = this[TemperatureUnit]!! as TemperatureUnit,
                 windSpeedUnit = this[WindSpeedUnit]!! as WindSpeedUnit,
                 precipitationUnit = this[PrecipitationUnit]!! as PrecipitationUnit),
                 weatherProvider = this[WeatherProvider]!! as WeatherProvider,
-                widgetAutoRefreshInterval = this[RefreshInterval]!! as RefreshInterval)
+                widgetAutoRefreshInterval = this[RefreshInterval]!! as RefreshInterval).apply {
+                Log.d("SettingsRepositoryImpl", "init: $this")
+            })
         }
     }
 

@@ -17,6 +17,10 @@ import io.github.pknujsp.weatherwizard.feature.componentservice.notification.Not
 import io.github.pknujsp.weatherwizard.feature.componentservice.notification.daily.model.DailyNotificationSettings
 import io.github.pknujsp.weatherwizard.feature.componentservice.notification.daily.model.DailyNotificationUiState
 import io.github.pknujsp.weatherwizard.feature.componentservice.notification.manager.NotificationAlarmManager
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.last
+import kotlinx.coroutines.flow.mapLatest
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -30,7 +34,8 @@ class ConfigDailyNotificationViewModel @Inject constructor(
     val notificationAlarmManager = NotificationAlarmManager(appAlarmManager)
     private val notificationId = savedStateHandle.get<Long>(NotificationRoutes.AddOrEditDaily.arguments.first().name) ?: -1L
     private val isNew get() = notificationId == -1L
-    val units = appSettingsRepository.settings.value.units
+
+    val units = appSettingsRepository.settings.replayCache.last().units
 
     private val _dailyNoficationUiState =
         MutableDailyNotificationUiState(dailyNotificationSettings = DailyNotificationSettingsEntity().let {
@@ -71,7 +76,7 @@ class ConfigDailyNotificationViewModel @Inject constructor(
     private fun update() {
         viewModelScope.launch {
             _dailyNoficationUiState.action = DailyNotificationUiState.Action.NONE
-            _dailyNoficationUiState.isEnabled= dailyNotificationUiState.isEnabled || isNew
+            _dailyNoficationUiState.isEnabled = dailyNotificationUiState.isEnabled || isNew
             val settingsEntity = NotificationSettingsEntity(
                 id = dailyNotificationUiState.dailyNotificationSettings.id,
                 enabled = dailyNotificationUiState.isEnabled,

@@ -1,6 +1,7 @@
 package io.github.pknujsp.weatherwizard.core.model.airquality
 
 import androidx.compose.runtime.Stable
+import androidx.compose.ui.res.stringResource
 import io.github.pknujsp.weatherwizard.core.model.UiModel
 import io.github.pknujsp.weatherwizard.core.model.weather.common.AirQualityValueType
 import java.time.LocalDate
@@ -11,6 +12,16 @@ data class SimpleAirQuality(
     val info: Info,
     val dailyForecast: List<DailyItem>,
 ) : UiModel {
+
+    val grids = current.run {
+        listOf(
+            AirPollutants.PM10.nameResId to pm10,
+            AirPollutants.PM25.nameResId to o3,
+            AirPollutants.NO2.nameResId to no2,
+            AirPollutants.SO2.nameResId to so2,
+            AirPollutants.CO.nameResId to co,
+        )
+    }
 
     data class Current(
         val aqi: AirQualityValueType,

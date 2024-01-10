@@ -26,6 +26,7 @@ androidx_hilt = "1.1.0"
 androidx_windowmanager = "1.0.0"
 androidx_remoteviews = "1.0.0"
 androidx_paging = "3.2.1"
+androidx_browser = "1.7.0"
 accompanist = "0.32.0"
 dagger = "2.50"
 
@@ -118,6 +119,7 @@ androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = 
 androidx-activity = { group = "androidx.activity", name = "activity-ktx", version.ref = "androidx_activity" }
 androidx-startup = { module = "androidx.startup:startup-runtime", version.ref = "androidx_start_up" }
 androidx-core-remoteviews = { module = "androidx.core:core-remoteviews", version.ref = "androidx_remoteviews" }
+androidx-browser = { module = "androidx.browser:browser", version.ref = "androidx_browser" }
 
 androidx-paging-runtime = { module = "androidx.paging:paging-runtime", version.ref = "androidx_paging" }
 androidx-paging-compose = { module = "androidx.paging:paging-compose", version.ref = "androidx_paging" }

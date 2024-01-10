@@ -32,4 +32,5 @@ class CurrentWeather(
         weatherCondition.value.getWeatherIconByTimeOfDay(dayNightCalculator.calculate(currentCalendar) == DayNightCalculator.DayNight.DAY)
 
     var airQuality: AirQualityValueType? by mutableStateOf(null)
+
 }

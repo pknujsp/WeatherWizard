@@ -11,7 +11,6 @@ import io.github.pknujsp.weatherwizard.core.data.settings.SettingsRepository
 import io.github.pknujsp.weatherwizard.core.data.widget.WidgetRepository
 import io.github.pknujsp.weatherwizard.core.data.widget.WidgetSettingsEntity
 import io.github.pknujsp.weatherwizard.core.model.coordinate.LocationType
-import io.github.pknujsp.weatherwizard.core.model.widget.WidgetType
 import io.github.pknujsp.weatherwizard.feature.componentservice.widget.configure.model.WidgetModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -21,7 +20,7 @@ import javax.inject.Inject
 class WidgetConfigureViewModel @Inject constructor(
     private val widgetRepository: WidgetRepository, appSettingsRepository: SettingsRepository, savedStateHandle: SavedStateHandle
 ) : ViewModel() {
-    val units = appSettingsRepository.settings.value.units
+    val units = appSettingsRepository.settings.replayCache.last().units
     val widget = savedStateHandle.run {
         WidgetModel(get<Int>("widgetId")!!, get<Int>("widgetType")!!, ::save)
     }
