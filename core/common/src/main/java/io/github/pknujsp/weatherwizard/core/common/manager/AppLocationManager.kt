@@ -11,6 +11,7 @@ import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
 import com.google.android.gms.tasks.CancellationTokenSource
+import io.github.pknujsp.weatherwizard.core.common.util.toCoordinate
 import kotlinx.coroutines.suspendCancellableCoroutine
 import java.time.Duration
 import kotlin.coroutines.resume
@@ -29,18 +30,13 @@ internal class AppLocationManagerImpl(private val context: Context) : AppLocatio
 
     @SuppressLint("MissingPermission")
     override suspend fun getCurrentLocation(): AppLocationManager.LocationResult {
-        Log.d("AppLocationManagerImpl", "getCurrentLocation")
-
         return findCurrentLocation()?.let {
-            Log.d("AppLocationManagerImpl", "getCurrentLocation Result: $it")
-            AppLocationManager.LocationResult.Success(it)
+            AppLocationManager.LocationResult.Success(it.latitude.toCoordinate(), it.longitude.toCoordinate())
         } ?: run {
             val lastLocation = getLastLocation()
             lastLocation?.let {
-                Log.d("AppLocationManagerImpl", "getCurrentLocation Result: $it")
-                AppLocationManager.LocationResult.Success(it)
+                AppLocationManager.LocationResult.Success(it.latitude.toCoordinate(), it.longitude.toCoordinate())
             } ?: run {
-                Log.d("AppLocationManagerImpl", "getCurrentLocation Result: null")
                 AppLocationManager.LocationResult.Failure
             }
         }
@@ -80,7 +76,7 @@ interface AppLocationManager {
     suspend fun getCurrentLocation(): LocationResult
 
     sealed interface LocationResult {
-        data class Success(val location: Location) : LocationResult
+        data class Success(val latitude: Double, val longitude: Double) : LocationResult
         data object Failure : LocationResult
     }
 }

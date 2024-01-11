@@ -13,7 +13,7 @@ import io.github.pknujsp.weatherwizard.core.common.manager.FailedReason
 import io.github.pknujsp.weatherwizard.core.data.favorite.FavoriteAreaListRepository
 import io.github.pknujsp.weatherwizard.core.data.favorite.SelectedLocationModel
 import io.github.pknujsp.weatherwizard.core.data.favorite.TargetLocationRepository
-import io.github.pknujsp.weatherwizard.core.domain.location.CurrentLocationResultState
+import io.github.pknujsp.weatherwizard.core.domain.location.CurrentLocationState
 import io.github.pknujsp.weatherwizard.core.domain.location.GetCurrentLocationUseCase
 import io.github.pknujsp.weatherwizard.core.model.coordinate.LocationType
 import io.github.pknujsp.weatherwizard.core.model.favorite.FavoriteArea
@@ -70,15 +70,15 @@ class FavoriteLocationsViewModel @Inject constructor(
         }
     }
 
-    private fun onLoadCurrentLocation(currentLocationResultState: CurrentLocationResultState) {
-        when (currentLocationResultState) {
-            is CurrentLocationResultState.SuccessWithAddress -> {
-                mutableTargetLocationUiState.currentLocationAddress = currentLocationResultState.address
+    private fun onLoadCurrentLocation(currentLocationState: CurrentLocationState) {
+        when (currentLocationState) {
+            is CurrentLocationState.Success -> {
+                mutableTargetLocationUiState.currentLocationAddress = currentLocationState.address
                 mutableTargetLocationUiState.isCurrentLocationLoading = false
             }
 
-            is CurrentLocationResultState.Failure -> {
-                mutableTargetLocationUiState.loadCurrentLocationFailedReason = currentLocationResultState.reason
+            is CurrentLocationState.Failure -> {
+                mutableTargetLocationUiState.loadCurrentLocationFailedReason = currentLocationState.reason
                 mutableTargetLocationUiState.isCurrentLocationLoading = false
             }
 

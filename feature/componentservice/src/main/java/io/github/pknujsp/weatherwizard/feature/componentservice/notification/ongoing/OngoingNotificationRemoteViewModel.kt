@@ -4,7 +4,7 @@ import io.github.pknujsp.weatherwizard.core.data.nominatim.NominatimRepository
 import io.github.pknujsp.weatherwizard.core.data.notification.ongoing.OngoingNotificationRepository
 import io.github.pknujsp.weatherwizard.core.data.notification.ongoing.model.OngoingNotificationSettingsEntity
 import io.github.pknujsp.weatherwizard.core.data.settings.SettingsRepository
-import io.github.pknujsp.weatherwizard.core.domain.location.CurrentLocationResultState
+import io.github.pknujsp.weatherwizard.core.domain.location.CurrentLocationState
 import io.github.pknujsp.weatherwizard.core.domain.location.GetCurrentLocationUseCase
 import io.github.pknujsp.weatherwizard.core.domain.weather.GetWeatherDataUseCase
 import io.github.pknujsp.weatherwizard.core.domain.weather.WeatherDataRequest
@@ -39,7 +39,7 @@ class OngoingNotificationRemoteViewModel @Inject constructor(
 
         if (settings.location.locationType is LocationType.CurrentLocation) {
             when (val currentLocation = getCurrentLocationUseCase()) {
-                is CurrentLocationResultState.Success -> {
+                is CurrentLocationState.Success -> {
                     nominatimRepository.reverseGeoCode(currentLocation.latitude, currentLocation.longitude).fold(onSuccess = {
                         addressName = it.simpleDisplayName
                         weatherDataRequest.addRequest(

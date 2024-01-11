@@ -4,13 +4,12 @@ import io.github.pknujsp.weatherwizard.core.data.nominatim.NominatimRepository
 import io.github.pknujsp.weatherwizard.core.data.widget.WidgetRepository
 import io.github.pknujsp.weatherwizard.core.data.widget.WidgetSettingsEntity
 import io.github.pknujsp.weatherwizard.core.data.widget.WidgetSettingsEntityList
-import io.github.pknujsp.weatherwizard.core.domain.location.CurrentLocationResultState
+import io.github.pknujsp.weatherwizard.core.domain.location.CurrentLocationState
 import io.github.pknujsp.weatherwizard.core.domain.location.GetCurrentLocationUseCase
 import io.github.pknujsp.weatherwizard.core.domain.weather.GetWeatherDataUseCase
 import io.github.pknujsp.weatherwizard.core.domain.weather.WeatherDataRequest
 import io.github.pknujsp.weatherwizard.core.domain.weather.WeatherResponseState
 import io.github.pknujsp.weatherwizard.core.model.coordinate.LocationType
-import io.github.pknujsp.weatherwizard.core.model.coordinate.LocationTypeModel
 import io.github.pknujsp.weatherwizard.core.model.widget.WidgetStatus
 import io.github.pknujsp.weatherwizard.core.widgetnotification.model.LoadWidgetDataArgument
 import io.github.pknujsp.weatherwizard.core.widgetnotification.remoteview.RemoteViewModel
@@ -61,7 +60,7 @@ class WidgetRemoteViewModel @Inject constructor(
         widgetSettingsEntityList.locationTypeGroups[LocationType.CurrentLocation]?.let { entities ->
             if (entities.isNotEmpty()) {
                 when (val currentLocation = getCurrentLocationUseCase()) {
-                    is CurrentLocationResultState.Success -> {
+                    is CurrentLocationState.Success -> {
                         val geoCodeResult = nominatimRepository.reverseGeoCode(currentLocation.latitude, currentLocation.longitude)
                         geoCodeResult.onSuccess { geoCodeEntity ->
                             val coordinate = WeatherDataRequest.Coordinate(

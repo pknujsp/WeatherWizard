@@ -8,13 +8,12 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.github.pknujsp.weatherwizard.core.common.coroutines.CoDispatcher
 import io.github.pknujsp.weatherwizard.core.common.coroutines.CoDispatcherType
-import io.github.pknujsp.weatherwizard.core.domain.location.CurrentLocationResultState
+import io.github.pknujsp.weatherwizard.core.domain.location.CurrentLocationState
 import io.github.pknujsp.weatherwizard.core.domain.location.GetCurrentLocationUseCase
 import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherProvider
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.filter
-import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.lastOrNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
@@ -52,7 +51,7 @@ class TargetLocationViewModel @Inject constructor(
         return withContext(dispatcher) {
             val cache = getCurrentLocationUseCase.currentLocationFlow.replayCache.lastOrNull { it.time > location.time }
             if (cache != null) {
-                return@withContext if (cache is CurrentLocationResultState.SuccessWithAddress) {
+                return@withContext if (cache is CurrentLocationState.Success) {
                     LocationInfo(cache.address, cache.country)
                 } else {
                     null
@@ -62,7 +61,7 @@ class TargetLocationViewModel @Inject constructor(
             getCurrentLocationUseCase.currentLocationFlow.filter {
                 it.time >= location.time
             }.map {
-                if (it is CurrentLocationResultState.SuccessWithAddress) {
+                if (it is CurrentLocationState.Success) {
                     LocationInfo(it.address, it.country)
                 } else {
                     null

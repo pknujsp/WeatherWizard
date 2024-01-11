@@ -13,7 +13,7 @@ import io.github.pknujsp.weatherwizard.core.common.manager.FailedReason
 import io.github.pknujsp.weatherwizard.core.data.favorite.FavoriteAreaListRepository
 import io.github.pknujsp.weatherwizard.core.data.favorite.SelectedLocationModel
 import io.github.pknujsp.weatherwizard.core.data.favorite.TargetLocationRepository
-import io.github.pknujsp.weatherwizard.core.domain.location.CurrentLocationResultState
+import io.github.pknujsp.weatherwizard.core.domain.location.CurrentLocationState
 import io.github.pknujsp.weatherwizard.core.domain.location.GetCurrentLocationUseCase
 import io.github.pknujsp.weatherwizard.core.model.coordinate.LocationType
 import io.github.pknujsp.weatherwizard.core.model.favorite.FavoriteArea
@@ -65,12 +65,12 @@ class FavoriteAreaViewModel @Inject constructor(
         viewModelScope.launch {
             mutableTargetLocationUiState.isLoading = true
             when (val currentLocation = getCurrentLocationUseCase.getCurrentLocationWithAddress()) {
-                is CurrentLocationResultState.SuccessWithAddress -> {
+                is CurrentLocationState.Success -> {
                     mutableTargetLocationUiState.loadCurrentLocationState = LoadCurrentLocationState.Success(currentLocation.address)
                     mutableTargetLocationUiState.isLoading = false
                 }
 
-                is CurrentLocationResultState.Failure -> {
+                is CurrentLocationState.Failure -> {
                     val featureType = when (currentLocation.reason) {
                         FailedReason.LOCATION_PERMISSION_DENIED -> FeatureType.LOCATION_PERMISSION
                         FailedReason.LOCATION_PROVIDER_DISABLED -> FeatureType.LOCATION_SERVICE
