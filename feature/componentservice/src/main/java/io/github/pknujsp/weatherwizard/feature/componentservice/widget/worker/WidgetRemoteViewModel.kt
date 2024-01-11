@@ -1,11 +1,9 @@
 package io.github.pknujsp.weatherwizard.feature.componentservice.widget.worker
 
-import io.github.pknujsp.weatherwizard.core.data.nominatim.NominatimRepository
 import io.github.pknujsp.weatherwizard.core.data.widget.WidgetRepository
 import io.github.pknujsp.weatherwizard.core.data.widget.WidgetSettingsEntity
 import io.github.pknujsp.weatherwizard.core.data.widget.WidgetSettingsEntityList
-import io.github.pknujsp.weatherwizard.core.domain.location.CurrentLocationState
-import io.github.pknujsp.weatherwizard.core.domain.location.GetCurrentLocationUseCase
+import io.github.pknujsp.weatherwizard.core.domain.location.GetCurrentLocationAddress
 import io.github.pknujsp.weatherwizard.core.domain.weather.GetWeatherDataUseCase
 import io.github.pknujsp.weatherwizard.core.domain.weather.WeatherDataRequest
 import io.github.pknujsp.weatherwizard.core.domain.weather.WeatherResponseState
@@ -16,15 +14,15 @@ import io.github.pknujsp.weatherwizard.core.widgetnotification.remoteview.Remote
 import io.github.pknujsp.weatherwizard.core.widgetnotification.widget.worker.model.WidgetRemoteViewUiState
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.flow.first
 import javax.inject.Inject
 import kotlin.properties.Delegates
 
 class WidgetRemoteViewModel @Inject constructor(
     private val getWeatherDataUseCase: GetWeatherDataUseCase,
     private val widgetRepository: WidgetRepository,
-    private val getCurrentLocationUseCase: GetCurrentLocationUseCase,
-    private val nominatimRepository: NominatimRepository,
-) : RemoteViewModel() {
+    getCurrentLocationUseCase: GetCurrentLocationAddress,
+) : RemoteViewModel(getCurrentLocationUseCase) {
 
     private var widgetSettingsEntityList: WidgetSettingsEntityList by Delegates.notNull()
 
@@ -59,29 +57,21 @@ class WidgetRemoteViewModel @Inject constructor(
 
         widgetSettingsEntityList.locationTypeGroups[LocationType.CurrentLocation]?.let { entities ->
             if (entities.isNotEmpty()) {
-                when (val currentLocation = getCurrentLocationUseCase()) {
-                    is CurrentLocationState.Success -> {
-                        val geoCodeResult = nominatimRepository.reverseGeoCode(currentLocation.latitude, currentLocation.longitude)
-                        geoCodeResult.onSuccess { geoCodeEntity ->
-                            val coordinate = WeatherDataRequest.Coordinate(
-                                latitude = currentLocation.latitude,
-                                longitude = currentLocation.longitude,
+                when (val currentLocation = getCurrentLocation().first()) {
+                    is CurrentLocationResult.Success -> {
+                        val coordinate = WeatherDataRequest.Coordinate(
+                            latitude = currentLocation.latitude,
+                            longitude = currentLocation.longitude,
+                        )
+                        locationMap[coordinate] = currentLocation.address
+                        entities.forEach {
+                            val requestId = weatherDataRequest.addRequest(
+                                coordinate,
+                                it.widgetType.categories.toSet(),
+                                it.weatherProvider,
                             )
-                            locationMap[coordinate] = geoCodeEntity.simpleDisplayName
-                            entities.forEach {
-                                val requestId = weatherDataRequest.addRequest(
-                                    coordinate,
-                                    it.widgetType.categories.toSet(),
-                                    it.weatherProvider,
-                                )
-                                requestMapWithRequestIdAndWidget.getOrPut(requestId) { mutableListOf() }.add(it)
-                            }
-                        }.onFailure {
-                            entities.forEach {
-                                responseMap[it] = WeatherResponseState.Failure(-1, WeatherDataRequest.Coordinate(), it.weatherProvider)
-                            }
+                            requestMapWithRequestIdAndWidget.getOrPut(requestId) { mutableListOf() }.add(it)
                         }
-
                     }
 
                     else -> {

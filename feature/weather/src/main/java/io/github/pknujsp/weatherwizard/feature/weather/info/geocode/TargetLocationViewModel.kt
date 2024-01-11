@@ -8,85 +8,55 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.github.pknujsp.weatherwizard.core.common.coroutines.CoDispatcher
 import io.github.pknujsp.weatherwizard.core.common.coroutines.CoDispatcherType
-import io.github.pknujsp.weatherwizard.core.domain.location.CurrentLocationState
-import io.github.pknujsp.weatherwizard.core.domain.location.GetCurrentLocationUseCase
-import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherProvider
+import io.github.pknujsp.weatherwizard.core.domain.location.GetCurrentLocationAddress
+import io.github.pknujsp.weatherwizard.core.domain.location.LocationGeoCodeState
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.flow.filter
-import kotlinx.coroutines.flow.lastOrNull
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
 class TargetLocationViewModel @Inject constructor(
-    private val getCurrentLocationUseCase: GetCurrentLocationUseCase,
+    private val getCurrentLocationUseCase: GetCurrentLocationAddress,
     @CoDispatcher(CoDispatcherType.IO) private val dispatcher: CoroutineDispatcher
 ) : ViewModel() {
-
-    private var job: Job? = null
 
     private val mutableTopAppBarUiState = MutableTopAppBarUiState()
     val topAppBarUiState: TopAppBarUiState = mutableTopAppBarUiState
 
-    fun setLocation(location: TargetLocationModel) {
-        job?.cancel()
-        job = viewModelScope.launch {
-            val result = if (location.address == null || location.country == null) {
-                getCurrentLocationAddress(location)
+    private val mutableLocationFlow = MutableStateFlow<TargetLocationModel?>(null)
+
+    init {
+        mutableLocationFlow.asStateFlow().filterNotNull().combine(getCurrentLocationUseCase.geoCodeFlow) { argument, geoCode ->
+            argument to geoCode
+        }.map { (argument, geoCode) ->
+            if (argument.address != null) {
+                LocationUiState(argument.address, argument.country)
+            } else if (geoCode is LocationGeoCodeState.Success) {
+                LocationUiState(geoCode.address, geoCode.country)
             } else {
-                LocationInfo(location.address, location.country)
+                null
             }
-
-            result?.run {
-                mutableTopAppBarUiState.address = address
-                mutableTopAppBarUiState.country = country
-            }
-        }
+        }.flowOn(dispatcher).filterNotNull().distinctUntilChanged().onEach {
+            mutableTopAppBarUiState.location = it
+        }.launchIn(viewModelScope)
     }
 
-    private suspend fun getCurrentLocationAddress(location: TargetLocationModel): LocationInfo? {
-        return withContext(dispatcher) {
-            val cache = getCurrentLocationUseCase.currentLocationFlow.replayCache.lastOrNull { it.time > location.time }
-            if (cache != null) {
-                return@withContext if (cache is CurrentLocationState.Success) {
-                    LocationInfo(cache.address, cache.country)
-                } else {
-                    null
-                }
-            }
-
-            getCurrentLocationUseCase.currentLocationFlow.filter {
-                it.time >= location.time
-            }.map {
-                if (it is CurrentLocationState.Success) {
-                    LocationInfo(it.address, it.country)
-                } else {
-                    null
-                }
-            }.lastOrNull()
-        }
-    }
-
-    fun setPrimaryArguments(weatherProvider: WeatherProvider, dateTime: String) {
+    fun setLocation(location: TargetLocationModel) {
         viewModelScope.launch {
-            mutableTopAppBarUiState.weatherProvider = weatherProvider
-            mutableTopAppBarUiState.dateTime = dateTime
+            mutableLocationFlow.value = location
         }
     }
-
 }
 
 private class MutableTopAppBarUiState : TopAppBarUiState {
-    override var dateTime by mutableStateOf("")
-    override var weatherProvider by mutableStateOf(WeatherProvider.default)
-    override var address: String? by mutableStateOf(null)
-    override var country: String? by mutableStateOf(null)
+    override var location: LocationUiState? by mutableStateOf(null)
 }
-
-private data class LocationInfo(
-    val address: String?,
-    val country: String?,
-)

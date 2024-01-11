@@ -7,12 +7,12 @@ import androidx.compose.runtime.setValue
 import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherProvider
 
 
-
-
 @Stable
 interface TopAppBarUiState {
-    val address: String?
-    val country: String?
-    val dateTime: String
-    val weatherProvider: WeatherProvider
+    val location: LocationUiState?
 }
+
+data class LocationUiState(
+    val address: String?,
+    val country: String?,
+)

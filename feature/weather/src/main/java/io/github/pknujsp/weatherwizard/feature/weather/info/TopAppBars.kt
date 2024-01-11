@@ -71,7 +71,7 @@ fun TopAppBars(
                             .size(15.dp)
                             .padding(end = 4.dp))
                     Text(
-                        text = topAppBarUiState?.address ?: stringResource(id = R.string.unknown_address),
+                        text = topAppBarUiState?.location?.address ?: stringResource(id = R.string.unknown_address),
                         color = Color.White,
                         fontSize = 14.sp,
                         style = LocalTextStyle.current.merge(notIncludeTextPaddingStyle).merge(outlineTextStyle),
@@ -93,10 +93,10 @@ fun TopAppBars(
             ) {
                 Text(
                     text = listOf(
-                        AStyle("${topAppBarUiState?.address ?: stringResource(id = R.string.unknown_address)}\n",
+                        AStyle("${topAppBarUiState?.location?.address ?: stringResource(id = R.string.unknown_address)}\n",
                             span = SpanStyle(fontSize = 25.sp)),
                         AStyle(
-                            topAppBarUiState?.country ?: stringResource(id = R.string.unknown_country),
+                            topAppBarUiState?.location?.country ?: stringResource(id = R.string.unknown_country),
                             span = SpanStyle(
                                 fontSize = 16.sp,
                             ),

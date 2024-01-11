@@ -19,7 +19,7 @@ import io.github.pknujsp.weatherwizard.core.data.favorite.SelectedLocationModel
 import io.github.pknujsp.weatherwizard.core.data.favorite.TargetLocationRepository
 import io.github.pknujsp.weatherwizard.core.data.settings.SettingsRepository
 import io.github.pknujsp.weatherwizard.core.domain.location.CurrentLocationState
-import io.github.pknujsp.weatherwizard.core.domain.location.GetCurrentLocationUseCase
+import io.github.pknujsp.weatherwizard.core.domain.location.GetCurrentLocationCoordinate
 import io.github.pknujsp.weatherwizard.core.domain.weather.GetWeatherDataUseCase
 import io.github.pknujsp.weatherwizard.core.domain.weather.WeatherDataRequest
 import io.github.pknujsp.weatherwizard.core.domain.weather.WeatherResponseState
@@ -41,17 +41,22 @@ import io.github.pknujsp.weatherwizard.core.ui.weather.item.DynamicDateTimeUiCre
 import io.github.pknujsp.weatherwizard.feature.weather.info.geocode.TargetLocationModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.time.LocalDateTime
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import java.util.Calendar
@@ -60,7 +65,7 @@ import javax.inject.Inject
 @HiltViewModel
 class WeatherInfoViewModel @Inject constructor(
     private val settingsRepository: SettingsRepository,
-    private val getCurrentLocationUseCase: GetCurrentLocationUseCase,
+    private val getCurrentLocationUseCase: GetCurrentLocationCoordinate,
     private val getWeatherDataUseCase: GetWeatherDataUseCase,
     @CoDispatcher(CoDispatcherType.IO) private val dispatcher: CoroutineDispatcher,
     private val favoriteAreaListRepository: FavoriteAreaListRepository,
@@ -106,7 +111,7 @@ class WeatherInfoViewModel @Inject constructor(
             isLoading = true
             val result = withContext(dispatcher) {
                 if (location.locationType is LocationType.CurrentLocation) {
-                    loadCurrentLocation()
+                    loadCurrentLocation().first()
                 } else {
                     val favoriteLocation = favoriteAreaListRepository.getById(location.locationId).getOrThrow()
                     TargetLocationModel(address = favoriteLocation.areaName,
@@ -133,20 +138,24 @@ class WeatherInfoViewModel @Inject constructor(
         }
     }
 
-    private suspend fun loadCurrentLocation(): Pair<TargetLocationModel?, FailedReason?> {
-        return when (val currentLocation = getCurrentLocationUseCase(true)) {
-            is CurrentLocationState.Success -> {
-                TargetLocationModel(latitude = currentLocation.latitude,
-                    longitude = currentLocation.longitude,
-                    time = currentLocation.time) to null
+    private suspend fun loadCurrentLocation() = callbackFlow {
+        val now = LocalDateTime.now()
+        getCurrentLocationUseCase(true)
+        getCurrentLocationUseCase.currentLocationFlow.filterNotNull().filter {
+            it.time >= now && it !is CurrentLocationState.Loading
+        }.collect {
+            when (it) {
+                is CurrentLocationState.Success -> {
+                    send(TargetLocationModel(latitude = it.latitude, longitude = it.longitude) to null)
+                }
+
+                is CurrentLocationState.Failure -> {
+                    send(null to it.reason)
+                }
+
+                else -> {}
             }
-
-            is CurrentLocationState.Failure -> {
-                null to currentLocation.reason
-            }
-
-            else -> null to null
-
+            this.cancel()
         }
     }
 

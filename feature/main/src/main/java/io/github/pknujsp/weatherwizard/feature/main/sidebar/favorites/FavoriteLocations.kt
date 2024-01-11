@@ -27,7 +27,6 @@ import io.github.pknujsp.weatherwizard.core.data.favorite.SelectedLocationModel
 import io.github.pknujsp.weatherwizard.core.model.coordinate.LocationType
 import io.github.pknujsp.weatherwizard.core.model.favorite.FavoriteArea
 import io.github.pknujsp.weatherwizard.core.resource.R
-import io.github.pknujsp.weatherwizard.core.ui.theme.AppColorScheme
 
 
 private val itemPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp)

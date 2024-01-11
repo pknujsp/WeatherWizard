@@ -6,43 +6,72 @@ import io.github.pknujsp.weatherwizard.core.common.manager.AppLocationManager
 import io.github.pknujsp.weatherwizard.core.common.manager.FailedReason
 import io.github.pknujsp.weatherwizard.core.data.nominatim.NominatimRepository
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.Job
+import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.supervisorScope
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
-import java.time.LocalDateTime
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class GetCurrentLocationUseCase @Inject constructor(
+internal class GetCurrentLocationUseCase @Inject constructor(
     private val appLocationManager: AppLocationManager,
     private val nominatimRepository: NominatimRepository,
     @CoDispatcher(CoDispatcherType.IO) private val dispatcher: CoroutineDispatcher,
-) {
-    private var reverseGeoCodeJob: Job? = null
-    private val mutex = Mutex()
+) : GetCurrentLocationAddress, GetCurrentLocationCoordinate {
 
     private val mutableGeoCodeFlow: MutableStateFlow<LocationGeoCodeState?> = MutableStateFlow(null)
-    val geoCodeFlow = mutableGeoCodeFlow.asStateFlow()
+    override val geoCodeFlow = mutableGeoCodeFlow.asStateFlow()
 
     private val mutableCurrentLocationFlow: MutableStateFlow<CurrentLocationState?> = MutableStateFlow(null)
-    val currentLocationFlow = mutableCurrentLocationFlow.asStateFlow()
+    override val currentLocationFlow = mutableCurrentLocationFlow.asStateFlow()
 
-    suspend operator fun invoke() {
+    override suspend fun invoke(): LocationGeoCodeState {
+        return when (val currentLocation = getCurrentLocation()) {
+            is CurrentLocationState.Success -> {
+                val geoCode = reverseGeoCode(currentLocation.latitude, currentLocation.longitude).await()
+                val geoCodeState = if (geoCode is LocationGeoCodeState.Success) {
+                    LocationGeoCodeState.Success(currentLocation.latitude, currentLocation.longitude, geoCode.address, geoCode.country)
+                } else {
+                    LocationGeoCodeState.Failure(FailedReason.REVERSE_GEOCODE_ERROR)
+                }
+                mutableGeoCodeFlow.emit(geoCodeState)
+                geoCodeState
+            }
+
+            else -> {
+                val geoCodeState = LocationGeoCodeState.Failure((currentLocation as CurrentLocationState.Failure).reason)
+                mutableGeoCodeFlow.emit(geoCodeState)
+                geoCodeState
+            }
+        }
+    }
+
+    override suspend operator fun invoke(loadAddress: Boolean): CurrentLocationState {
+        val currentLocation = getCurrentLocation()
+        if (currentLocation is CurrentLocationState.Success && loadAddress) {
+            supervisorScope {
+                launch {
+                    reverseGeoCode(currentLocation.latitude, currentLocation.longitude)
+                }
+            }
+        }
+        return currentLocation
+    }
+
+    private suspend fun getCurrentLocation(): CurrentLocationState {
+        mutableCurrentLocationFlow.emit(CurrentLocationState.Loading())
         if (!appLocationManager.isPermissionGranted) {
             val state = CurrentLocationState.Failure(FailedReason.LOCATION_PERMISSION_DENIED)
             mutableCurrentLocationFlow.emit(state)
-            return
+            return state
         }
 
         val result = if (appLocationManager.isGpsProviderEnabled) {
             when (val currentLocation = appLocationManager.getCurrentLocation()) {
                 is AppLocationManager.LocationResult.Success -> {
-                    reverseGeoCode(currentLocation.latitude, currentLocation.longitude)
                     CurrentLocationState.Success(
                         currentLocation.latitude,
                         currentLocation.longitude,
@@ -55,40 +84,20 @@ class GetCurrentLocationUseCase @Inject constructor(
             CurrentLocationState.Failure(FailedReason.LOCATION_PROVIDER_DISABLED)
         }
         mutableCurrentLocationFlow.emit(result)
+        return result
     }
 
-    private suspend fun reverseGeoCode(latitude: Double, longitude: Double) {
-        mutex.withLock {
-            reverseGeoCodeJob?.cancel()
-            reverseGeoCodeJob = supervisorScope {
-                launch(dispatcher) {
-                    val result = nominatimRepository.reverseGeoCode(latitude, longitude).fold(onSuccess = { address ->
-                        LocationGeoCodeState.Success(latitude, longitude, address.simpleDisplayName, address.country)
-                    }, onFailure = {
-                        LocationGeoCodeState.Failure(latitude, longitude, FailedReason.REVERSE_GEOCODE_ERROR)
-                    })
-                    mutableGeoCodeFlow.emit(result)
-                }
+    private suspend fun reverseGeoCode(latitude: Double, longitude: Double): Deferred<LocationGeoCodeState> {
+        val newDeferred = supervisorScope {
+            async(dispatcher) {
+                val result = nominatimRepository.reverseGeoCode(latitude, longitude).fold(onSuccess = { address ->
+                    LocationGeoCodeState.Success(latitude, longitude, address.simpleDisplayName, address.country)
+                }, onFailure = {
+                    LocationGeoCodeState.Failure(FailedReason.REVERSE_GEOCODE_ERROR)
+                })
+                result
             }
         }
+        return newDeferred
     }
-}
-
-sealed interface CurrentLocationState {
-    val time: LocalDateTime
-
-    data class Failure(val reason: FailedReason, override val time: LocalDateTime = LocalDateTime.now()) : CurrentLocationState
-    data class Success(
-        val latitude: Double, val longitude: Double, override val time: LocalDateTime = LocalDateTime.now()
-    ) : CurrentLocationState
-}
-
-sealed interface LocationGeoCodeState {
-    val latitude: Double
-    val longitude: Double
-
-    data class Success(override val latitude: Double, override val longitude: Double, val address: String, val country: String) :
-        LocationGeoCodeState
-
-    data class Failure(override val latitude: Double, override val longitude: Double, val reason: FailedReason) : LocationGeoCodeState
 }

@@ -1,5 +1,49 @@
 package io.github.pknujsp.weatherwizard.core.widgetnotification.remoteview
 
-abstract class RemoteViewModel {
+import io.github.pknujsp.weatherwizard.core.common.manager.FailedReason
+import io.github.pknujsp.weatherwizard.core.domain.location.GetCurrentLocationAddress
+import io.github.pknujsp.weatherwizard.core.domain.location.LocationGeoCodeState
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.filterNotNull
 
+abstract class RemoteViewModel(
+    protected val getCurrentLocationUseCase: GetCurrentLocationAddress,
+) {
+
+    protected suspend fun getCurrentLocation() = callbackFlow {
+        if (getCurrentLocationUseCase.geoCodeFlow.value == null) {
+            getCurrentLocationUseCase()
+        }
+        getCurrentLocationUseCase.geoCodeFlow.filterNotNull().collect {
+            send(parseCurrentLocationResult(it))
+            this.cancel()
+        }
+    }
+
+    private fun parseCurrentLocationResult(
+        locationGeoCodeState: LocationGeoCodeState
+    ): CurrentLocationResult = when (locationGeoCodeState) {
+        is LocationGeoCodeState.Success -> CurrentLocationResult.Success(
+            locationGeoCodeState.latitude,
+            locationGeoCodeState.longitude,
+            locationGeoCodeState.address,
+        )
+
+        is LocationGeoCodeState.Failure -> CurrentLocationResult.Failure(locationGeoCodeState.reason)
+    }
+
+    protected sealed interface CurrentLocationResult {
+
+        class Success(
+            val latitude: Double,
+            val longitude: Double,
+            val address: String,
+        ) : CurrentLocationResult
+
+        class Failure(
+            val reason: FailedReason
+        ) : CurrentLocationResult
+
+    }
 }
