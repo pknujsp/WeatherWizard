@@ -4,7 +4,7 @@ import io.github.pknujsp.weatherwizard.core.common.manager.FailedReason
 import kotlinx.coroutines.flow.StateFlow
 import java.time.LocalDateTime
 
-interface GetCurrentLocationCoordinate {
+interface GetCurrentLocationCoordinate : CurrentLocationUseCase {
     val currentLocationFlow: StateFlow<CurrentLocationState?>
     suspend operator fun invoke(loadAddress: Boolean): CurrentLocationState
 }

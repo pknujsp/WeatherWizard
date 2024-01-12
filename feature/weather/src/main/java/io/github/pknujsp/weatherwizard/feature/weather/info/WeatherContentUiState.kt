@@ -36,7 +36,7 @@ import java.time.ZonedDateTime
 private val topAppBarOffsetLimit = (-62).dp
 
 sealed interface WeatherContentUiState {
-    data class Error(val message: FailedReason) : WeatherContentUiState
+    class Error(val message: FailedReason) : WeatherContentUiState
 
     class Success(
         val args: RequestWeatherArguments, val weather: Weather, val lastUpdatedDateTime: ZonedDateTime
@@ -80,7 +80,6 @@ class WeatherMainState @OptIn(ExperimentalMaterial3Api::class) constructor(
     init {
         updateWindowInset(true)
     }
-
 
     fun navigate(nestedRoutes: NestedWeatherRoutes) {
         this.nestedRoutes.value = nestedRoutes

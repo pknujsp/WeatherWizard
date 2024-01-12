@@ -17,7 +17,7 @@ import javax.inject.Singleton
 
 @Singleton
 internal class GetCurrentLocationUseCase @Inject constructor(
-    private val appLocationManager: AppLocationManager,
+    override val appLocationManager: AppLocationManager,
     private val nominatimRepository: NominatimRepository,
     @CoDispatcher(CoDispatcherType.IO) private val dispatcher: CoroutineDispatcher,
 ) : GetCurrentLocationAddress, GetCurrentLocationCoordinate {
@@ -100,4 +100,9 @@ internal class GetCurrentLocationUseCase @Inject constructor(
         }
         return newDeferred
     }
+}
+
+
+interface CurrentLocationUseCase {
+    val appLocationManager: AppLocationManager
 }

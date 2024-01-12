@@ -18,12 +18,10 @@ import io.github.pknujsp.weatherwizard.core.domain.location.LocationGeoCodeState
 import io.github.pknujsp.weatherwizard.core.model.coordinate.LocationType
 import io.github.pknujsp.weatherwizard.core.model.favorite.FavoriteArea
 import io.github.pknujsp.weatherwizard.feature.favorite.model.LoadCurrentLocationState
-import io.github.pknujsp.weatherwizard.feature.favorite.model.TargetLocationUiState
+import io.github.pknujsp.weatherwizard.feature.favorite.model.LocationUiState
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flowOn
-import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
@@ -39,10 +37,10 @@ class FavoriteAreaViewModel @Inject constructor(
     @CoDispatcher(CoDispatcherType.IO) private val ioDispatcher: CoroutineDispatcher
 ) : ViewModel() {
 
-    private val mutableTargetLocationUiState: MutableTargetLocationUiState = MutableTargetLocationUiState()
-    val targetLocationUiState: TargetLocationUiState = mutableTargetLocationUiState
+    private val mutableTargetLocationUiState: MutableLocationUiState = MutableLocationUiState()
+    val locationUiState: LocationUiState = mutableTargetLocationUiState
 
-    val favoriteLocations = favoriteAreaRepository.getAllByFlow().distinctUntilChanged().map { list ->
+    val favoriteLocations = favoriteAreaRepository.getAllByFlow().map { list ->
         list.map {
             FavoriteArea(it.id, it.placeId, it.areaName, it.countryName)
         }
@@ -50,42 +48,7 @@ class FavoriteAreaViewModel @Inject constructor(
 
     init {
         loadTargetLocation()
-
-        getCurrentLocationUseCase.geoCodeFlow.onEach { geocode ->
-            when (geocode) {
-                is LocationGeoCodeState.Success -> {
-                    mutableTargetLocationUiState.isLoading = true
-                }
-
-                is LocationGeoCodeState.Failure -> {
-                    val featureType = when (geocode.reason) {
-                        FailedReason.LOCATION_PERMISSION_DENIED -> FeatureType.LOCATION_PERMISSION
-                        FailedReason.LOCATION_PROVIDER_DISABLED -> FeatureType.LOCATION_SERVICE
-                        else -> null
-                    }
-                    mutableTargetLocationUiState.loadCurrentLocationState =
-                        LoadCurrentLocationState.Failed(featureType, geocode.reason)
-                    mutableTargetLocationUiState.isLoading = false
-                }
-
-                else -> {}
-            }
-        }.launchIn(viewModelScope)
-
-        getCurrentLocationUseCase.geoCodeFlow.onEach {
-            when (it) {
-                is LocationGeoCodeState.Success -> {
-                    mutableTargetLocationUiState.loadCurrentLocationState = LoadCurrentLocationState.Success(it.address)
-                }
-
-                is LocationGeoCodeState.Failure -> {
-                    mutableTargetLocationUiState.loadCurrentLocationState = LoadCurrentLocationState.Failed(null, it.reason)
-                }
-
-                else -> {}
-            }
-            mutableTargetLocationUiState.isLoading = false
-        }.launchIn(viewModelScope)
+        setCurrentLocationFlow()
     }
 
     private fun loadTargetLocation() {
@@ -99,8 +62,36 @@ class FavoriteAreaViewModel @Inject constructor(
         }
     }
 
+    private fun setCurrentLocationFlow() {
+        viewModelScope.launch {
+            val isGpsEnabled = getCurrentLocationUseCase.appLocationManager.
+
+                getCurrentLocationUseCase.geoCodeFlow.onEach { geocode ->
+                    when (geocode) {
+                        is LocationGeoCodeState.Success -> {
+                            mutableTargetLocationUiState.loadCurrentLocationState = LoadCurrentLocationState.Success(geocode.address)
+                        }
+
+                        is LocationGeoCodeState.Failure -> {
+                            val featureType = when (geocode.reason) {
+                                FailedReason.LOCATION_PERMISSION_DENIED -> FeatureType.LOCATION_PERMISSION
+                                FailedReason.LOCATION_PROVIDER_DISABLED -> FeatureType.LOCATION_SERVICE
+                                else -> null
+                            }
+                            mutableTargetLocationUiState.loadCurrentLocationState =
+                                LoadCurrentLocationState.Failed(featureType, geocode.reason)
+                        }
+
+                        else -> {}
+                    }
+                    mutableTargetLocationUiState.isLoading = false
+                }
+        }
+    }
+
     fun loadCurrentLocation() {
         viewModelScope.launch {
+            mutableTargetLocationUiState.isLoading = true
             getCurrentLocationUseCase()
         }
     }
@@ -117,7 +108,7 @@ class FavoriteAreaViewModel @Inject constructor(
         viewModelScope.launch {
             withContext(ioDispatcher) {
                 favoriteLocations.value.run {
-                    if (size == 1 || (targetLocationUiState.locationType is LocationType.CustomLocation && targetLocationUiState.locationId == id)) {
+                    if (size == 1 || (locationUiState.locationType is LocationType.CustomLocation && locationUiState.locationId == id)) {
                         targetLocationRepository.updateTargetLocation(SelectedLocationModel(LocationType.CurrentLocation))
                     }
                 }
@@ -128,7 +119,7 @@ class FavoriteAreaViewModel @Inject constructor(
 }
 
 
-private class MutableTargetLocationUiState : TargetLocationUiState {
+private class MutableLocationUiState : LocationUiState {
     override var locationType: LocationType by mutableStateOf(LocationType.default)
     override var locationId: Long? by mutableStateOf(null)
     override var loadCurrentLocationState: LoadCurrentLocationState by mutableStateOf(LoadCurrentLocationState.Loading)

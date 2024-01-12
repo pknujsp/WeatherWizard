@@ -3,9 +3,7 @@ package io.github.pknujsp.weatherwizard.core.ui.feature
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -31,11 +29,12 @@ fun UnavailableFeatureScreen(featureType: FeatureType, onClick: () -> Unit) {
 fun FailedScreen(@StringRes title: Int, @StringRes alertMessage: Int, @StringRes actionMessage: Int, onClick: () -> Unit) {
     Column(modifier = Modifier
         .padding(horizontal = 16.dp)
-        .fillMaxSize(), verticalArrangement = Arrangement.Center) {
+        .fillMaxSize(),
+        verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterVertically)) {
         Text(text = stringResource(title), style = TextStyle(fontSize = 24.sp, color = Color.Black))
-        Spacer(modifier = Modifier.height(16.dp))
         Text(text = stringResource(alertMessage), style = TextStyle(fontSize = 16.sp, color = Color.DarkGray))
-        Spacer(modifier = Modifier.height(16.dp))
-        PrimaryButton(text = stringResource(id = actionMessage), onClick = onClick, modifier = Modifier.align(Alignment.End))
+        PrimaryButton(text = stringResource(id = actionMessage), onClick = {
+            onClick()
+        }, modifier = Modifier.align(Alignment.End))
     }
 }

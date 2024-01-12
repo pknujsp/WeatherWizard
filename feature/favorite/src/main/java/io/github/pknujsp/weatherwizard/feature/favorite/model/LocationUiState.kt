@@ -5,9 +5,8 @@ import io.github.pknujsp.weatherwizard.core.common.FeatureType
 import io.github.pknujsp.weatherwizard.core.common.manager.FailedReason
 import io.github.pknujsp.weatherwizard.core.model.coordinate.LocationType
 
-
 @Stable
-interface TargetLocationUiState {
+interface LocationUiState {
     val locationType: LocationType
     val locationId: Long?
     val loadCurrentLocationState: LoadCurrentLocationState

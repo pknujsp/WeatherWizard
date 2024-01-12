@@ -1,10 +1,6 @@
 package io.github.pknujsp.weatherwizard.feature.componentservice.widget
 
-import android.app.Activity
-import android.content.Context
-import android.content.ContextWrapper
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -19,6 +15,7 @@ import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat.startActivity
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
+import io.github.pknujsp.weatherwizard.core.common.asActivity
 import io.github.pknujsp.weatherwizard.core.resource.R
 import io.github.pknujsp.weatherwizard.core.ui.PrimaryButton
 import io.github.pknujsp.weatherwizard.core.ui.SecondaryButton
@@ -67,10 +64,4 @@ fun Content(onClickLaunchApp: () -> Unit = {}, onClickRefresh: () -> Unit = {}, 
             onClickCancel()
         }
     }
-}
-
-fun Context.asActivity(): Activity? = when (this) {
-    is Activity -> this
-    is ContextWrapper -> baseContext.asActivity()
-    else -> null
 }

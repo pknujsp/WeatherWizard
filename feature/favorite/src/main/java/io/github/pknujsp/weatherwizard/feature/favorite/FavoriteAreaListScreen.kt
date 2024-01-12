@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -39,20 +38,16 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
-import io.github.pknujsp.weatherwizard.core.common.manager.FailedReason
 import io.github.pknujsp.weatherwizard.core.data.favorite.SelectedLocationModel
 import io.github.pknujsp.weatherwizard.core.model.coordinate.LocationType
 import io.github.pknujsp.weatherwizard.core.model.favorite.FavoriteArea
 import io.github.pknujsp.weatherwizard.core.resource.R
-import io.github.pknujsp.weatherwizard.core.ui.ButtonSize
 import io.github.pknujsp.weatherwizard.core.ui.MainRoutes
-import io.github.pknujsp.weatherwizard.core.ui.PrimaryButton
 import io.github.pknujsp.weatherwizard.core.ui.RootNavControllerViewModel
 import io.github.pknujsp.weatherwizard.core.ui.SecondaryButton
 import io.github.pknujsp.weatherwizard.core.ui.TitleTextWithNavigation
@@ -61,13 +56,14 @@ import io.github.pknujsp.weatherwizard.core.ui.dialog.DialogScreen
 import io.github.pknujsp.weatherwizard.core.ui.feature.OpenAppSettingsActivity
 import io.github.pknujsp.weatherwizard.core.ui.list.EmptyListScreen
 import io.github.pknujsp.weatherwizard.core.ui.theme.AppShapes
+import io.github.pknujsp.weatherwizard.feature.favorite.failure.LoadCurrentLocationFailureScreen
 import io.github.pknujsp.weatherwizard.feature.favorite.model.LoadCurrentLocationState
-import io.github.pknujsp.weatherwizard.feature.favorite.model.TargetLocationUiState
+import io.github.pknujsp.weatherwizard.feature.favorite.model.LocationUiState
 
 @Composable
 fun FavoriteAreaListScreen(navController: NavController, viewModel: FavoriteAreaViewModel = hiltViewModel()) {
     val favoriteLocations by viewModel.favoriteLocations.collectAsStateWithLifecycle()
-    val targetLocation = viewModel.targetLocationUiState
+    val targetLocation = viewModel.locationUiState
     var showSettingsActivity by remember { mutableStateOf(false) }
     var selectedLocationToDelete by remember { mutableStateOf<FavoriteArea?>(null) }
 
@@ -200,7 +196,7 @@ private fun FavoriteLocationItem(
 
 @Composable
 private fun CurrentLocationItem(
-    targetLocationUiState: TargetLocationUiState, onClickRetry: () -> Unit, onClickAction: () -> Unit, onClick: () -> Unit
+    locationUiState: LocationUiState, onClickRetry: () -> Unit, onClickAction: () -> Unit, onClick: () -> Unit
 ) {
     Box(modifier = Modifier
         .fillMaxWidth()
@@ -209,7 +205,7 @@ private fun CurrentLocationItem(
         Row(modifier = Modifier
             .fillMaxWidth()
             .clickable {
-                if (targetLocationUiState.locationType !is LocationType.CurrentLocation) {
+                if (locationUiState.locationType !is LocationType.CurrentLocation) {
                     onClick()
                 }
             }
@@ -233,14 +229,14 @@ private fun CurrentLocationItem(
                     style = TextStyle(fontSize = 17.sp, color = Color.Gray),
                 )
 
-                if (targetLocationUiState.isLoading) {
+                if (locationUiState.isLoading) {
                     Text(
                         text = stringResource(id = R.string.finding_current_location),
                         style = TextStyle(fontSize = 15.sp, color = Color.Black),
                     )
                 } else {
 
-                    when (val state = targetLocationUiState.loadCurrentLocationState) {
+                    when (val state = locationUiState.loadCurrentLocationState) {
                         is LoadCurrentLocationState.Success -> {
                             Text(
                                 text = state.addressName,
@@ -260,31 +256,11 @@ private fun CurrentLocationItem(
                     }
                 }
             }
-            Checkbox(checked = targetLocationUiState.locationType is LocationType.CurrentLocation, onCheckedChange = {
-                if (targetLocationUiState.locationType !is LocationType.CurrentLocation) {
+            Checkbox(checked = locationUiState.locationType is LocationType.CurrentLocation, onCheckedChange = {
+                if (locationUiState.locationType !is LocationType.CurrentLocation) {
                     onClick()
                 }
             })
-        }
-    }
-}
-
-@Composable
-private fun LoadCurrentLocationFailureScreen(failedReason: FailedReason, onClickRetry: () -> Unit, onClickAction: () -> Unit) {
-    val buttonSize = remember { ButtonSize.SMALL }
-    Column(verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.Start) {
-        Text(text = stringResource(id = failedReason.message),
-            style = TextStyle(fontSize = 14.sp, color = Color.Black, textAlign = TextAlign.Left))
-        Spacer(modifier = Modifier.size(8.dp))
-        Row(horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End)) {
-            if (failedReason.hasRepairAction) {
-                SecondaryButton(text = stringResource(id = failedReason.action), buttonSize = buttonSize) {
-                    onClickAction()
-                }
-            }
-            PrimaryButton(text = stringResource(id = R.string.reload), buttonSize = buttonSize) {
-                onClickRetry()
-            }
         }
     }
 }

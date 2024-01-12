@@ -7,13 +7,11 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBarsPadding
-import androidx.compose.material3.Divider
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.NavigationDrawerItem
-import androidx.compose.material3.NavigationDrawerItemDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
@@ -21,7 +19,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -33,7 +30,6 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import io.github.pknujsp.weatherwizard.core.ui.MainRoutes
 import io.github.pknujsp.weatherwizard.core.ui.RootNavControllerViewModel
-import io.github.pknujsp.weatherwizard.core.ui.theme.AppColorScheme
 import io.github.pknujsp.weatherwizard.feature.componentservice.notification.HostNotificationScreen
 import io.github.pknujsp.weatherwizard.feature.favorite.HostFavoriteScreen
 import io.github.pknujsp.weatherwizard.feature.main.sidebar.favorites.FavoriteLocationsScreen
@@ -100,18 +96,20 @@ private fun WeatherMainScreen(mainUiState: MainUiState) {
 private fun DrawerRouteItem(
     route: MainRoutes, onClick: () -> Unit
 ) {
-    NavigationDrawerItem(label = {
-        Text(
-            text = stringResource(id = route.navTitle),
-        )
-    },
+    NavigationDrawerItem(
+        label = {
+            Text(
+                text = stringResource(id = route.navTitle),
+            )
+        },
         icon = {
             Icon(modifier = Modifier.size(24.dp),
                 painter = painterResource(id = route.navIcon),
                 contentDescription = stringResource(id = route.navTitle))
         },
         selected = false,
-        onClick = { onClick() }, )
+        onClick = { onClick() },
+    )
 }
 
 @Composable

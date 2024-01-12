@@ -1,7 +1,6 @@
 package io.github.pknujsp.weatherwizard.feature.weather.info
 
 
-import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -42,6 +41,8 @@ import io.github.pknujsp.weatherwizard.feature.weather.info.geocode.TargetLocati
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.channels.BufferOverflow
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
@@ -69,12 +70,12 @@ class WeatherInfoViewModel @Inject constructor(
     private val getWeatherDataUseCase: GetWeatherDataUseCase,
     @CoDispatcher(CoDispatcherType.IO) private val dispatcher: CoroutineDispatcher,
     private val favoriteAreaListRepository: FavoriteAreaListRepository,
-    targetLocationRepository: TargetLocationRepository,
+    private val targetLocationRepository: TargetLocationRepository,
 ) : ViewModel() {
     private var loadWeatherDataJob: Job? = null
     private var targetLocationJob: Job? = null
 
-    private val units = settingsRepository.settings.replayCache.last().units
+    private val units get() = settingsRepository.settings.replayCache.last().units
 
     var isLoading: Boolean by mutableStateOf(true)
         private set
@@ -82,28 +83,23 @@ class WeatherInfoViewModel @Inject constructor(
     private val mutableTargetLocations = MutableStateFlow<TargetLocationModel?>(null)
     val targetLocation = mutableTargetLocations.asStateFlow()
 
-    private val mutableUiState = MutableStateFlow<WeatherContentUiState?>(null)
+    private val mutableUiState = MutableSharedFlow<WeatherContentUiState>(1, 0, BufferOverflow.DROP_OLDEST)
 
     val uiState = mutableUiState.filterNotNull().onEach {
-        Log.d("WeatherInfoViewModel", "uiState 흐름: $it")
         isLoading = false
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
 
     private val argumentsFlow = targetLocation.filterNotNull().combine(settingsRepository.settings) { location, settings ->
-        Log.d("WeatherInfoViewModel", "baseArgumentsFlow 흐름: settings $settings")
         RequestWeatherArguments(settings.weatherProvider, location.latitude, location.longitude)
     }.onEach {
-        Log.d("WeatherInfoViewModel", "baseArgumentsFlow 흐름: 날씨 데이터 로드 $it")
         loadAllWeatherData(it)
     }.stateIn(viewModelScope, SharingStarted.Eagerly, null)
 
     init {
         targetLocationRepository.targetLocation.distinctUntilChanged().onEach { location ->
-            Log.d("WeatherInfoViewModel", "targetLocationRepository 흐름: targetLocation $location")
             createLocationTypeModel(location)
         }.launchIn(viewModelScope)
     }
-
 
     private suspend fun createLocationTypeModel(location: SelectedLocationModel) {
         targetLocationJob?.cancel()
@@ -131,10 +127,7 @@ class WeatherInfoViewModel @Inject constructor(
 
     fun refresh() {
         viewModelScope.launch {
-            argumentsFlow.value?.run {
-                isLoading = true
-                loadAllWeatherData(this)
-            }
+            createLocationTypeModel(targetLocationRepository.getCurrentTargetLocation())
         }
     }
 
@@ -165,7 +158,7 @@ class WeatherInfoViewModel @Inject constructor(
             targetLocationJob?.cancel()
             loadWeatherDataJob?.cancel()
             isLoading = false
-            mutableUiState.value = WeatherContentUiState.Error(FailedReason.CANCELED)
+            mutableUiState.emit(WeatherContentUiState.Error(FailedReason.CANCELED))
         }
     }
 
@@ -225,7 +218,7 @@ class WeatherInfoViewModel @Inject constructor(
                     requestDateTime)
                 WeatherContentUiState.Success(args, weather, requestDateTime)
             }
-            mutableUiState.value = newState
+            mutableUiState.emit(newState)
         }
     }
 
