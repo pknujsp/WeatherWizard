@@ -47,18 +47,16 @@ fun WeatherInfoScreen(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val topAppBarUiState = targetLocationViewModel.topAppBarUiState
     val isLoading = viewModel.isLoading
+    val targetLocation by viewModel.targetLocation.collectAsStateWithLifecycle()
 
     LaunchedEffect(uiState) {
         if (uiState is WeatherContentUiState.Success) {
             mainState.expandAppBar()
-            (uiState as WeatherContentUiState.Success).run {
-                targetLocationViewModel.setPrimaryArguments(args.weatherProvider, dateTime)
-            }
         }
     }
-    LaunchedEffect(Unit) {
-        viewModel.targetLocation.filterNotNull().collect {
-            targetLocationViewModel.setLocation(it)
+    LaunchedEffect(targetLocation) {
+        targetLocation?.run {
+            targetLocationViewModel.setLocation(this)
         }
     }
 

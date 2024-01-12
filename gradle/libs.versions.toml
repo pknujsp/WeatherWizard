@@ -1,11 +1,11 @@
 [versions]
 # kotlin
 
-kotlin = "1.9.21"
-kotlin_compiler_extension = "1.5.7"
+kotlin = "1.9.22"
+kotlin_compiler_extension = "1.5.8"
 kotlinx_coroutines = "1.8.0-RC2"
 kotlinx_serialization_json = "1.6.2"
-ksp = "1.9.21-1.0.16"
+ksp = "1.9.22-1.0.16"
 
 android_gradle_plugin = "8.2.1"
 android_desugar_jdk_libs = "2.0.4"
@@ -15,7 +15,7 @@ androidx_core = "1.12.0"
 androidx_activity = "1.8.2"
 androidx_navigation = "2.7.6"
 androidx_compose_bom = "2023.10.01"
-androidx_lifecycle = "2.6.2"
+androidx_lifecycle = "2.7.0"
 androidx_datastore = "1.0.0"
 androidx_workmanager = "2.9.0"
 androidx_room = "2.6.1"

@@ -120,9 +120,7 @@ fun WeatherContentScreen(
                 Box(modifier = Modifier.height(screenHeight - DEFAULT_PADDING), contentAlignment = Alignment.BottomStart) {
                     Column(verticalArrangement = Arrangement.spacedBy(COLUMN_ITEM_SPACING)) {
                         CurrentWeatherScreen(weather.currentWeather, weather.yesterdayWeather)
-                        HourlyForecastScreen(hourlyForecast = weather.simpleHourlyForecast, navigate = navigate, onCalculatedY = { diff ->
-                            true
-                        })
+                        HourlyForecastScreen(hourlyForecast = weather.simpleHourlyForecast, navigate = navigate)
                     }
                 }
                 SimpleDailyForecastScreen(weather.simpleDailyForecast, navigate)

@@ -1,28 +1,26 @@
 package io.github.pknujsp.weatherwizard.feature.componentservice.notification.ongoing
 
-import io.github.pknujsp.weatherwizard.core.data.nominatim.NominatimRepository
 import io.github.pknujsp.weatherwizard.core.data.notification.ongoing.OngoingNotificationRepository
 import io.github.pknujsp.weatherwizard.core.data.notification.ongoing.model.OngoingNotificationSettingsEntity
 import io.github.pknujsp.weatherwizard.core.data.settings.SettingsRepository
-import io.github.pknujsp.weatherwizard.core.domain.location.CurrentLocationResultState
-import io.github.pknujsp.weatherwizard.core.domain.location.GetCurrentLocationUseCase
+import io.github.pknujsp.weatherwizard.core.domain.location.GetCurrentLocationAddress
 import io.github.pknujsp.weatherwizard.core.domain.weather.GetWeatherDataUseCase
 import io.github.pknujsp.weatherwizard.core.domain.weather.WeatherDataRequest
 import io.github.pknujsp.weatherwizard.core.domain.weather.WeatherResponseState
 import io.github.pknujsp.weatherwizard.core.model.coordinate.LocationType
 import io.github.pknujsp.weatherwizard.core.widgetnotification.notification.ongoing.OngoingNotificationRemoteViewUiState
 import io.github.pknujsp.weatherwizard.core.widgetnotification.remoteview.RemoteViewModel
+import kotlinx.coroutines.flow.first
 import javax.inject.Inject
 
 class OngoingNotificationRemoteViewModel @Inject constructor(
     private val getWeatherDataUseCase: GetWeatherDataUseCase,
-    private val getCurrentLocationUseCase: GetCurrentLocationUseCase,
     private val ongoingNotificationRepository: OngoingNotificationRepository,
-    private val nominatimRepository: NominatimRepository,
-    appSettingsRepository: SettingsRepository,
-) : RemoteViewModel() {
+    private val appSettingsRepository: SettingsRepository,
+    getCurrentLocationUseCase: GetCurrentLocationAddress,
+) : RemoteViewModel(getCurrentLocationUseCase) {
 
-    val units = appSettingsRepository.settings.replayCache.last().units
+    val units get() = appSettingsRepository.settings.replayCache.last().units
 
     suspend fun loadNotification(): OngoingNotificationSettingsEntity {
         val notificationEntity = ongoingNotificationRepository.getOngoingNotification()
@@ -35,24 +33,20 @@ class OngoingNotificationRemoteViewModel @Inject constructor(
 
     private suspend fun loadWeatherData(settings: OngoingNotificationSettingsEntity): OngoingNotificationRemoteViewUiState {
         val weatherDataRequest = WeatherDataRequest()
-        var addressName: String? = null
+        val addressName: String?
 
         if (settings.location.locationType is LocationType.CurrentLocation) {
-            when (val currentLocation = getCurrentLocationUseCase()) {
-                is CurrentLocationResultState.Success -> {
-                    nominatimRepository.reverseGeoCode(currentLocation.latitude, currentLocation.longitude).fold(onSuccess = {
-                        addressName = it.simpleDisplayName
-                        weatherDataRequest.addRequest(
-                            WeatherDataRequest.Coordinate(
-                                latitude = currentLocation.latitude,
-                                longitude = currentLocation.longitude,
-                            ),
-                            settings.type.categories.toSet(),
-                            settings.weatherProvider,
-                        )
-                    }, onFailure = {
-                        return OngoingNotificationRemoteViewUiState(isSuccessful = false, notificationType = settings.type)
-                    })
+            when (val currentLocation = getCurrentLocation().first()) {
+                is CurrentLocationResult.Success -> {
+                    addressName = currentLocation.address
+                    weatherDataRequest.addRequest(
+                        WeatherDataRequest.Coordinate(
+                            latitude = currentLocation.latitude,
+                            longitude = currentLocation.longitude,
+                        ),
+                        settings.type.categories.toSet(),
+                        settings.weatherProvider,
+                    )
                 }
 
                 else -> {

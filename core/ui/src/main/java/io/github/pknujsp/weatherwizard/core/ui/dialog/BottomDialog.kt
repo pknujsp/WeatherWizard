@@ -66,7 +66,7 @@ import androidx.lifecycle.setViewTreeLifecycleOwner
 import androidx.lifecycle.setViewTreeViewModelStoreOwner
 import androidx.savedstate.findViewTreeSavedStateRegistryOwner
 import androidx.savedstate.setViewTreeSavedStateRegistryOwner
-import io.github.pknujsp.weatherwizard.core.ui.lottie.asActivity
+import io.github.pknujsp.weatherwizard.core.common.asActivity
 import io.github.pknujsp.weatherwizard.core.ui.theme.AppShapes
 import kotlinx.coroutines.launch
 import java.util.UUID

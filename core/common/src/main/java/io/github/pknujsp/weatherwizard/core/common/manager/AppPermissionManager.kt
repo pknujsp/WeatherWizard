@@ -40,9 +40,6 @@ fun PermissionManager(
     val context = LocalContext.current
     val activity = context as Activity
     val permissionState by rememberUpdatedState(arrayOf(onPermissionGranted, onPermissionDenied, onShouldShowRationale, onNeverAskAgain))
-
-    var requestPermission by remember { mutableStateOf(true) }
-
     val permissionLauncher = rememberLauncherForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { result ->
         if (result.all { it.value }) {
             permissionState[0]()

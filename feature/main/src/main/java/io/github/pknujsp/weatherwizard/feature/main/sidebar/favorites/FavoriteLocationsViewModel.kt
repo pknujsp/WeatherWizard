@@ -1,6 +1,5 @@
 package io.github.pknujsp.weatherwizard.feature.main.sidebar.favorites
 
-import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -13,25 +12,28 @@ import io.github.pknujsp.weatherwizard.core.common.manager.FailedReason
 import io.github.pknujsp.weatherwizard.core.data.favorite.FavoriteAreaListRepository
 import io.github.pknujsp.weatherwizard.core.data.favorite.SelectedLocationModel
 import io.github.pknujsp.weatherwizard.core.data.favorite.TargetLocationRepository
-import io.github.pknujsp.weatherwizard.core.domain.location.CurrentLocationResultState
-import io.github.pknujsp.weatherwizard.core.domain.location.GetCurrentLocationUseCase
+import io.github.pknujsp.weatherwizard.core.domain.location.GetCurrentLocationAddress
+import io.github.pknujsp.weatherwizard.core.domain.location.LocationGeoCodeState
 import io.github.pknujsp.weatherwizard.core.model.coordinate.LocationType
 import io.github.pknujsp.weatherwizard.core.model.favorite.FavoriteArea
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
 class FavoriteLocationsViewModel @Inject constructor(
     private val targetLocationRepository: TargetLocationRepository,
-    private val getCurrentLocationUseCase: GetCurrentLocationUseCase,
+    private val getCurrentLocationUseCase: GetCurrentLocationAddress,
     @CoDispatcher(CoDispatcherType.IO) private val ioDispatcher: CoroutineDispatcher,
     favoriteAreaRepository: FavoriteAreaListRepository,
 ) : ViewModel() {
@@ -46,15 +48,10 @@ class FavoriteLocationsViewModel @Inject constructor(
     }.flowOn(ioDispatcher).stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
 
     private val targetLocationFlow = targetLocationRepository.targetLocation.distinctUntilChanged().onEach { targetLocation ->
-        Log.d("FavoriteLocationsViewModel", "TargetLocation 흐름: $targetLocation")
         mutableTargetLocationUiState.run {
             locationType = targetLocation.locationType
             locationId = if (targetLocation.locationType is LocationType.CustomLocation) targetLocation.locationId else null
         }
-    }.stateIn(viewModelScope, SharingStarted.Eagerly, null)
-
-    val currentLocation = getCurrentLocationUseCase.currentLocationFlow.onEach {
-        onLoadCurrentLocation(it)
     }.stateIn(viewModelScope, SharingStarted.Eagerly, null)
 
     private val mutableFavoriteLocationsUiState: MutableFavoriteLocationsUiState = MutableFavoriteLocationsUiState(favoriteLocations)
@@ -65,25 +62,29 @@ class FavoriteLocationsViewModel @Inject constructor(
     }
 
     init {
-        viewModelScope.launch {
-            getCurrentLocationUseCase.getCurrentLocationWithAddress()
+        if (getCurrentLocationUseCase.geoCodeFlow.value == null) {
+            viewModelScope.launch {
+                withContext(ioDispatcher) {
+                    getCurrentLocationUseCase()
+                }
+            }
         }
+        getCurrentLocationUseCase.geoCodeFlow.filterNotNull().onEach { geoCode ->
+            onResultCurrentLocation(geoCode)
+        }.launchIn(viewModelScope)
     }
 
-    private fun onLoadCurrentLocation(currentLocationResultState: CurrentLocationResultState) {
-        when (currentLocationResultState) {
-            is CurrentLocationResultState.SuccessWithAddress -> {
-                mutableTargetLocationUiState.currentLocationAddress = currentLocationResultState.address
-                mutableTargetLocationUiState.isCurrentLocationLoading = false
+    private fun onResultCurrentLocation(geoCodeState: LocationGeoCodeState) {
+        when (geoCodeState) {
+            is LocationGeoCodeState.Success -> {
+                mutableTargetLocationUiState.currentLocationAddress = geoCodeState.address
             }
 
-            is CurrentLocationResultState.Failure -> {
-                mutableTargetLocationUiState.loadCurrentLocationFailedReason = currentLocationResultState.reason
-                mutableTargetLocationUiState.isCurrentLocationLoading = false
+            is LocationGeoCodeState.Failure -> {
+                mutableTargetLocationUiState.loadCurrentLocationFailedReason = geoCodeState.reason
             }
-
-            else -> {}
         }
+        mutableTargetLocationUiState.isCurrentLocationLoading = false
     }
 
 

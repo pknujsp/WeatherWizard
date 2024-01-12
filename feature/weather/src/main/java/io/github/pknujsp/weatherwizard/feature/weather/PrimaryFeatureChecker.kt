@@ -20,30 +20,32 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
-import androidx.navigation.compose.rememberNavController
 import io.github.pknujsp.weatherwizard.core.common.FeatureType
 import io.github.pknujsp.weatherwizard.core.common.manager.PermissionType
 import io.github.pknujsp.weatherwizard.core.common.manager.checkSelfPermission
 import io.github.pknujsp.weatherwizard.core.model.coordinate.LocationType
 import io.github.pknujsp.weatherwizard.core.ui.feature.OpenAppSettingsActivity
 import io.github.pknujsp.weatherwizard.core.ui.feature.UnavailableFeatureScreen
-import io.github.pknujsp.weatherwizard.feature.weather.info.WeatherInfoScreen
 import io.github.pknujsp.weatherwizard.feature.weather.route.WeatherRoutes
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PermissionCheckingScreen(navController: NavController, openDrawer: () -> Unit, mainViewModel: WeatherMainViewModel = hiltViewModel()) {
+fun PrimaryFeatureChecker(navController: NavController, openDrawer: () -> Unit, mainViewModel: WeatherMainViewModel = hiltViewModel()) {
     val locationType = mainViewModel.locationType
     locationType?.run {
         val context = LocalContext.current
         var openLocationPermissionActivity by remember { mutableStateOf(false) }
-        var locationPermissionGranted by remember { mutableStateOf(context.checkSelfPermission(PermissionType.LOCATION)) }
+        var locationPermissionGranted by remember(openLocationPermissionActivity) {
+            mutableStateOf(context.checkSelfPermission(PermissionType.LOCATION))
+        }
 
         if (locationPermissionGranted || locationType is LocationType.CustomLocation) {
-            navigateToInfo(navController)
+            navController.navigate(WeatherRoutes.Info.route) {
+                launchSingleTop = true
+                popUpTo(WeatherRoutes.Main.route) { inclusive = true }
+            }
         } else {
+            val featureType = remember { FeatureType.LOCATION_PERMISSION }
             Column(modifier = Modifier.systemBarsPadding()) {
                 TopAppBar(title = {},
                     colors = TopAppBarDefaults.topAppBarColors(
@@ -55,38 +57,16 @@ fun PermissionCheckingScreen(navController: NavController, openDrawer: () -> Uni
                             Icon(Icons.Rounded.Menu, contentDescription = null)
                         }
                     })
-                UnavailableFeatureScreen(featureType = FeatureType.LOCATION_PERMISSION) {
+                UnavailableFeatureScreen(featureType = featureType) {
                     openLocationPermissionActivity = true
                     locationPermissionGranted = context.checkSelfPermission(PermissionType.LOCATION)
                 }
             }
             if (openLocationPermissionActivity) {
-                OpenAppSettingsActivity(FeatureType.LOCATION_PERMISSION) {
+                OpenAppSettingsActivity(featureType) {
                     openLocationPermissionActivity = false
                 }
             }
-        }
-    }
-
-}
-
-private fun navigateToInfo(navController: NavController) {
-    navController.navigate(WeatherRoutes.Info.route) {
-        launchSingleTop = true
-        popUpTo(WeatherRoutes.Main.route) { inclusive = true }
-    }
-}
-
-@Composable
-fun HostWeatherScreen(openDrawer: () -> Unit) {
-    val navController = rememberNavController()
-
-    NavHost(navController = navController, route = WeatherRoutes.route, startDestination = WeatherRoutes.Main.route) {
-        composable(WeatherRoutes.Main.route) {
-            PermissionCheckingScreen(navController, openDrawer)
-        }
-        composable(WeatherRoutes.Info.route) {
-            WeatherInfoScreen(openDrawer)
         }
     }
 

@@ -6,14 +6,21 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import io.github.pknujsp.weatherwizard.core.common.coroutines.CoDispatcher
+import io.github.pknujsp.weatherwizard.core.common.coroutines.CoDispatcherType
 import io.github.pknujsp.weatherwizard.core.data.favorite.TargetLocationRepository
 import io.github.pknujsp.weatherwizard.core.model.coordinate.LocationType
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class WeatherMainViewModel @Inject constructor(
     private val targetLocationRepository: TargetLocationRepository,
+    @CoDispatcher(CoDispatcherType.IO) private val ioDispatcher: CoroutineDispatcher
 ) : ViewModel() {
 
     var locationType: LocationType? by mutableStateOf(null)
@@ -21,7 +28,9 @@ class WeatherMainViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            locationType = targetLocationRepository.getCurrentTargetLocation().locationType
+            targetLocationRepository.targetLocation.filterNotNull().distinctUntilChanged().collectLatest {
+                locationType = it.locationType
+            }
         }
     }
 }

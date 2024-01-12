@@ -1,6 +1,5 @@
 package io.github.pknujsp.weatherwizard.feature.weather.info
 
-import android.util.Log
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -34,9 +33,10 @@ import io.github.pknujsp.weatherwizard.core.ui.lottie.asActivity
 import io.github.pknujsp.weatherwizard.feature.weather.route.NestedWeatherRoutes
 import java.time.ZonedDateTime
 
+private val topAppBarOffsetLimit = (-62).dp
 
 sealed interface WeatherContentUiState {
-    data class Error(val message: FailedReason) : WeatherContentUiState
+    class Error(val message: FailedReason) : WeatherContentUiState
 
     class Success(
         val args: RequestWeatherArguments, val weather: Weather, val lastUpdatedDateTime: ZonedDateTime
@@ -81,7 +81,6 @@ class WeatherMainState @OptIn(ExperimentalMaterial3Api::class) constructor(
         updateWindowInset(true)
     }
 
-
     fun navigate(nestedRoutes: NestedWeatherRoutes) {
         this.nestedRoutes.value = nestedRoutes
         updateWindowInset(nestedRoutes !is NestedWeatherRoutes.Main)
@@ -109,7 +108,7 @@ fun rememberWeatherMainState(
 ): WeatherMainState {
     val window = LocalContext.current.asActivity()!!.window
     val initialHeightOffsetLimit = remember {
-        with(density) { -62.dp.toPx() }
+        with(density) { topAppBarOffsetLimit.toPx() }
     }
     val scrollBehavior: TopAppBarScrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(state = rememberTopAppBarState(
         initialHeightOffsetLimit = initialHeightOffsetLimit,
