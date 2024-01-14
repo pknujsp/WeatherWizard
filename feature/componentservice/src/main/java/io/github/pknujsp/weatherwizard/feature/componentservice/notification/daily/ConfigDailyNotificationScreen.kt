@@ -21,10 +21,9 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import io.github.pknujsp.weatherwizard.core.common.FeatureType
-import io.github.pknujsp.weatherwizard.core.common.manager.PermissionManager
+import io.github.pknujsp.weatherwizard.core.common.manager.rememberPermissionManager
 import io.github.pknujsp.weatherwizard.core.common.manager.PermissionType
 import io.github.pknujsp.weatherwizard.core.model.coordinate.LocationType
 import io.github.pknujsp.weatherwizard.core.model.coordinate.LocationTypeModel
@@ -43,7 +42,6 @@ import io.github.pknujsp.weatherwizard.feature.componentservice.RemoteViewsScree
 import io.github.pknujsp.weatherwizard.feature.componentservice.notification.daily.model.DailyNotificationSettings
 import io.github.pknujsp.weatherwizard.feature.componentservice.notification.daily.model.rememberDailyNotificationState
 import io.github.pknujsp.weatherwizard.feature.searchlocation.SearchLocationScreen
-import kotlinx.coroutines.flow.filterNotNull
 
 
 @Composable
@@ -109,7 +107,7 @@ fun ConfigDailyNotificationScreen(navController: NavController, viewModel: Confi
             }
         }
     } else {
-        PermissionManager(PermissionType.LOCATION, onPermissionGranted = {
+        rememberPermissionManager(PermissionType.LOCATION, onPermissionGranted = {
             notification.isScheduleExactAlarmPermissionGranted = true
         }, onPermissionDenied = {
             notification.isScheduleExactAlarmPermissionGranted = false

@@ -1,5 +1,6 @@
 package io.github.pknujsp.weatherwizard.core.domain.location
 
+import io.github.pknujsp.weatherwizard.core.common.StatefulFeature
 import io.github.pknujsp.weatherwizard.core.common.manager.FailedReason
 import kotlinx.coroutines.flow.StateFlow
 import java.time.LocalDateTime
@@ -17,7 +18,7 @@ sealed interface CurrentLocationState {
         override val time: LocalDateTime = LocalDateTime.now()
     }
 
-    data class Failure(val reason: FailedReason, override val time: LocalDateTime = LocalDateTime.now()) : CurrentLocationState
+    data class Failure(val reason: StatefulFeature, override val time: LocalDateTime = LocalDateTime.now()) : CurrentLocationState
     data class Success(
         val latitude: Double, val longitude: Double, override val time: LocalDateTime = LocalDateTime.now()
     ) : CurrentLocationState

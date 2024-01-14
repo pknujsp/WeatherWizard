@@ -94,7 +94,8 @@ fun FavoriteAreaListScreen(navController: NavController, viewModel: FavoriteArea
         }
     }
 
-    Column(modifier = Modifier.fillMaxSize()) {
+    Column(modifier = Modifier
+        .fillMaxSize()) {
         LazyColumn(modifier = Modifier.weight(1f), state = rememberLazyListState()) {
             item {
                 TitleTextWithNavigation(title = stringResource(id = R.string.nav_favorite_areas), onClickNavigation = {

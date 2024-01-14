@@ -4,6 +4,8 @@ import io.github.pknujsp.weatherwizard.core.common.coroutines.CoDispatcher
 import io.github.pknujsp.weatherwizard.core.common.coroutines.CoDispatcherType
 import io.github.pknujsp.weatherwizard.core.common.manager.AppLocationManager
 import io.github.pknujsp.weatherwizard.core.common.manager.FailedReason
+import io.github.pknujsp.weatherwizard.core.common.manager.PermissionState
+import io.github.pknujsp.weatherwizard.core.common.manager.PermissionType
 import io.github.pknujsp.weatherwizard.core.data.nominatim.NominatimRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Deferred
@@ -64,7 +66,7 @@ internal class GetCurrentLocationUseCase @Inject constructor(
     private suspend fun getCurrentLocation(): CurrentLocationState {
         mutableCurrentLocationFlow.emit(CurrentLocationState.Loading())
         if (!appLocationManager.isPermissionGranted) {
-            val state = CurrentLocationState.Failure(FailedReason.LOCATION_PERMISSION_DENIED)
+            val state = CurrentLocationState.Failure(PermissionType.LOCATION)
             mutableCurrentLocationFlow.emit(state)
             return state
         }

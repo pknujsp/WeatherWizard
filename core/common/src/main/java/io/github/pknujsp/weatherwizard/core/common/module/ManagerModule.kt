@@ -13,7 +13,7 @@ import io.github.pknujsp.weatherwizard.core.common.manager.AppLocationManagerImp
 import io.github.pknujsp.weatherwizard.core.common.manager.AppNetworkManager
 import io.github.pknujsp.weatherwizard.core.common.manager.AppNetworkManagerImpl
 import io.github.pknujsp.weatherwizard.core.common.manager.FeatureStatusManager
-import io.github.pknujsp.weatherwizard.core.common.manager.FeatureStatusManagerImpl
+import io.github.pknujsp.weatherwizard.core.common.manager.StatefulFeatureStateManagerImpl
 import io.github.pknujsp.weatherwizard.core.common.manager.WidgetManager
 import io.github.pknujsp.weatherwizard.core.common.manager.WidgetManagerImpl
 import javax.inject.Singleton
@@ -38,7 +38,7 @@ object ManagerModule {
     @Singleton
     fun providesFeatureStatusManager(
         appNetworkManager: AppNetworkManager, appLocationManager: AppLocationManager
-    ): FeatureStatusManager = FeatureStatusManagerImpl(appNetworkManager, appLocationManager)
+    ): FeatureStatusManager = StatefulFeatureStateManagerImpl(appNetworkManager, appLocationManager)
 
 
     @Provides

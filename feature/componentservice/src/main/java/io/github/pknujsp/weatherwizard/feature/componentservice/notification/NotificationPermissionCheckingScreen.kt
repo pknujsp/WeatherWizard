@@ -10,7 +10,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import io.github.pknujsp.weatherwizard.core.common.FeatureType
-import io.github.pknujsp.weatherwizard.core.common.manager.PermissionManager
+import io.github.pknujsp.weatherwizard.core.common.manager.rememberPermissionManager
 import io.github.pknujsp.weatherwizard.core.common.manager.PermissionType
 import io.github.pknujsp.weatherwizard.core.common.manager.checkSelfPermission
 import io.github.pknujsp.weatherwizard.core.ui.feature.UnavailableFeatureScreen
@@ -27,7 +27,7 @@ fun NotificationPermissionCheckingScreen(onPermissionGranted: () -> Unit) {
     if (permissionGranted) {
         onPermissionGranted()
     } else {
-        PermissionManager(PermissionType.POST_NOTIFICATIONS, onPermissionGranted = {
+        rememberPermissionManager(PermissionType.POST_NOTIFICATIONS, onPermissionGranted = {
             openPermissionActivity = false
             permissionGranted = true
         }, onPermissionDenied = {
