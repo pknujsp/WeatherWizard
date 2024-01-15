@@ -62,9 +62,7 @@ class FavoriteAreaViewModel @Inject constructor(
 
     private fun setCurrentLocationFlow() {
         viewModelScope.launch {
-            val isGpsEnabled = getCurrentLocationUseCase.appLocationManager.isGpsProviderEnabled
-
-            getCurrentLocationUseCase.geoCodeFlow.onEach { geocode ->
+            getCurrentLocationUseCase.geoCodeFlow.collect { geocode ->
                 when (geocode) {
                     is LocationGeoCodeState.Success -> {
                         mutableTargetLocationUiState.loadCurrentLocationState = LoadCurrentLocationState.Success(geocode.address)

@@ -28,7 +28,11 @@ import io.github.pknujsp.weatherwizard.feature.weather.route.WeatherRoutes
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PrimaryFeatureChecker(navController: NavController, openDrawer: () -> Unit, mainViewModel: WeatherMainViewModel = hiltViewModel()) {
+internal fun PrimaryFeatureChecker(
+    navController: NavController,
+    openDrawer: () -> Unit,
+    mainViewModel: WeatherMainViewModel = hiltViewModel()
+) {
     val locationType = mainViewModel.locationType
     locationType?.run {
         val context = LocalContext.current

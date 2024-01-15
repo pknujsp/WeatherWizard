@@ -124,7 +124,7 @@ fun WeatherContentScreen(
                     }
                 }
                 SimpleDailyForecastScreen(weather.simpleDailyForecast, navigate)
-                SimpleMapScreen(uiState.args)
+                //SimpleMapScreen(uiState.args)
                 AirQualityScreen(uiState.args, uiState.lastUpdatedDateTime, onAirQualityLoaded = { aqi ->
                     weather.currentWeather.airQuality = aqi
                 })

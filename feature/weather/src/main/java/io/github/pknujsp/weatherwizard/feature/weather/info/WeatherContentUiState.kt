@@ -20,7 +20,8 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import androidx.core.view.WindowInsetsControllerCompat
-import io.github.pknujsp.weatherwizard.core.common.manager.FailedReason
+import io.github.pknujsp.weatherwizard.core.common.StatefulFeature
+import io.github.pknujsp.weatherwizard.core.common.asActivity
 import io.github.pknujsp.weatherwizard.core.model.flickr.FlickrRequestParameters
 import io.github.pknujsp.weatherwizard.core.model.weather.RequestWeatherArguments
 import io.github.pknujsp.weatherwizard.core.model.weather.current.CurrentWeather
@@ -29,14 +30,13 @@ import io.github.pknujsp.weatherwizard.core.model.weather.dailyforecast.SimpleDa
 import io.github.pknujsp.weatherwizard.core.model.weather.hourlyforecast.DetailHourlyForecast
 import io.github.pknujsp.weatherwizard.core.model.weather.hourlyforecast.SimpleHourlyForecast
 import io.github.pknujsp.weatherwizard.core.model.weather.yesterday.YesterdayWeather
-import io.github.pknujsp.weatherwizard.core.ui.lottie.asActivity
 import io.github.pknujsp.weatherwizard.feature.weather.route.NestedWeatherRoutes
 import java.time.ZonedDateTime
 
 private val topAppBarOffsetLimit = (-62).dp
 
 sealed interface WeatherContentUiState {
-    class Error(val message: FailedReason) : WeatherContentUiState
+    class Error(val state: StatefulFeature) : WeatherContentUiState
 
     class Success(
         val args: RequestWeatherArguments, val weather: Weather, val lastUpdatedDateTime: ZonedDateTime

@@ -1,7 +1,6 @@
 package io.github.pknujsp.weatherwizard.core.domain.location
 
 import io.github.pknujsp.weatherwizard.core.common.StatefulFeature
-import io.github.pknujsp.weatherwizard.core.common.manager.FailedReason
 import kotlinx.coroutines.flow.StateFlow
 import java.time.LocalDateTime
 

@@ -13,9 +13,6 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
@@ -27,8 +24,6 @@ import io.github.pknujsp.weatherwizard.core.common.manager.FailedReason
 import io.github.pknujsp.weatherwizard.core.resource.R
 import io.github.pknujsp.weatherwizard.core.ui.feature.FailedScreen
 import io.github.pknujsp.weatherwizard.core.ui.feature.FeatureStateScreen
-import io.github.pknujsp.weatherwizard.core.ui.feature.OpenAppSettingsActivity
-import io.github.pknujsp.weatherwizard.core.ui.feature.UnavailableFeatureScreen
 import io.github.pknujsp.weatherwizard.core.ui.lottie.CancellableLoadingScreen
 import io.github.pknujsp.weatherwizard.feature.weather.comparison.dailyforecast.CompareDailyForecastScreen
 import io.github.pknujsp.weatherwizard.feature.weather.comparison.hourlyforecast.CompareHourlyForecastScreen
@@ -79,7 +74,7 @@ fun WeatherInfoScreen(
                 is WeatherContentUiState.Error -> {
                     mainState.updateWindowInset(true)
                     TopAppBarScreen(openDrawer) {
-                        ErrorScreen(statefulFeature = (uiState as WeatherContentUiState.Error).message, reload = {
+                        ErrorScreen(statefulFeature = (uiState as WeatherContentUiState.Error).state, reload = {
                             viewModel.refresh()
                         })
                     }

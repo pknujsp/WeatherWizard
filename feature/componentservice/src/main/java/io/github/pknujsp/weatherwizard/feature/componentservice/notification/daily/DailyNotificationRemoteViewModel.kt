@@ -11,7 +11,6 @@ import io.github.pknujsp.weatherwizard.core.model.coordinate.LocationType
 import io.github.pknujsp.weatherwizard.core.widgetnotification.notification.daily.DailyNotificationRemoteViewUiState
 import io.github.pknujsp.weatherwizard.core.widgetnotification.remoteview.RemoteViewModel
 import kotlinx.coroutines.flow.first
-import java.time.Duration
 import javax.inject.Inject
 
 class DailyNotificationRemoteViewModel @Inject constructor(

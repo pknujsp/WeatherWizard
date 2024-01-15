@@ -43,6 +43,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
+import io.github.pknujsp.weatherwizard.core.common.FeatureType
 import io.github.pknujsp.weatherwizard.core.data.favorite.SelectedLocationModel
 import io.github.pknujsp.weatherwizard.core.model.coordinate.LocationType
 import io.github.pknujsp.weatherwizard.core.model.favorite.FavoriteArea
@@ -88,14 +89,13 @@ fun FavoriteAreaListScreen(navController: NavController, viewModel: FavoriteArea
     }
 
     if (showSettingsActivity) {
-        OpenAppSettingsActivity(featureType = (targetLocation.loadCurrentLocationState as LoadCurrentLocationState.Failed).featureType!!) {
+        OpenAppSettingsActivity(featureType = (targetLocation.loadCurrentLocationState as LoadCurrentLocationState.Failed).statefulFeature as FeatureType) {
             showSettingsActivity = false
             viewModel.loadCurrentLocation()
         }
     }
 
-    Column(modifier = Modifier
-        .fillMaxSize()) {
+    Column(modifier = Modifier.fillMaxSize()) {
         LazyColumn(modifier = Modifier.weight(1f), state = rememberLazyListState()) {
             item {
                 TitleTextWithNavigation(title = stringResource(id = R.string.nav_favorite_areas), onClickNavigation = {
@@ -246,7 +246,7 @@ private fun CurrentLocationItem(
                         }
 
                         is LoadCurrentLocationState.Failed -> {
-                            LoadCurrentLocationFailureScreen(state.failedReason ?: state.featureType!!.failedReason, onClickRetry = {
+                            LoadCurrentLocationFailureScreen(state.statefulFeature, onClickRetry = {
                                 onClickRetry()
                             }, onClickAction = {
                                 onClickAction()

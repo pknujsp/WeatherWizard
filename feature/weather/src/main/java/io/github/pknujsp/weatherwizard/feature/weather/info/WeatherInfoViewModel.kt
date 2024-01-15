@@ -134,6 +134,7 @@ class WeatherInfoViewModel @Inject constructor(
     private suspend fun loadCurrentLocation() = callbackFlow {
         val now = LocalDateTime.now()
         getCurrentLocationUseCase(true)
+
         getCurrentLocationUseCase.currentLocationFlow.filterNotNull().filter {
             it.time >= now && it !is CurrentLocationState.Loading
         }.collect {
