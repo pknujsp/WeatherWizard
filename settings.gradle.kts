@@ -15,6 +15,13 @@ dependencyResolutionManagement {
         google()
         mavenCentral()
         maven { url = uri("https://www.jitpack.io") }
+        ivy {
+            name = "OsmAndBinariesIvy"
+            setUrl("https://creator.osmand.net")
+            patternLayout {
+                artifact("ivy/[organisation]/[module]/[revision]/[artifact]-[revision](-[classifier]).[ext]")
+            }
+        }
     }
 }
 

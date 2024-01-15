@@ -37,6 +37,40 @@ android {
         }
     }
 
+    /*  with(aaptOptions) {
+          noCompress.add("qz")
+          noCompress.add("png")
+      }
+
+      with(packagingOptions) {
+          setPickFirsts(setOf("lib/armeabi-v7a/libc++_shared.so",
+              "lib/arm64-v8a/libc++_shared.so",
+              "lib/x86_64/libc++_shared.so",
+              "lib/x86/libc++_shared.so"))
+      }
+
+      flavorDimensions.addAll(listOf("coreversion", "abi"))
+      productFlavors {
+          register("armonly") {
+              dimension = "abi"
+              ndk {
+                  abiFilters.addAll(listOf("arm64-v8a", "armeabi-v7a"))
+              }
+          }
+          register("fat") {
+              dimension = "abi"
+              ndk {
+                  abiFilters.addAll(listOf("arm64-v8a", "x86", "x86_64", "armeabi-v7a"))
+              }
+          }
+          register("legacy") {
+              dimension = "coreversion"
+          }
+          register("opengl") {
+              dimension = "coreversion"
+          }
+      }*/
+
     lint {
         checkDependencies = true
         ignoreTestSources = true
