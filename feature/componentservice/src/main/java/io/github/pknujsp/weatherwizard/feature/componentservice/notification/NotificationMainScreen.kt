@@ -65,7 +65,7 @@ fun NotificationMainScreen(navController: NavController) {
     val context = LocalContext.current
 
     var permissionGranted by remember { mutableStateOf(FeatureType.POST_NOTIFICATION_PERMISSION.isAvailable(context)) }
-    var ignoredBatteryOptimization by remember { mutableStateOf(FeatureType.BATTERY_OPTIMIZATION.isAvailable(context)) }
+    var ignoredBatteryOptimization by remember { mutableStateOf(true) }
 
     val onBackPressedDispatcherOwner = LocalOnBackPressedDispatcherOwner.current
     val backDispatcher = remember {

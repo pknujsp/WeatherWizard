@@ -24,7 +24,7 @@ fun PermissionStateScreen(permissionType: PermissionType, onGranted: () -> Unit)
     Box {
         when (permissionManager.permissionState) {
             is PermissionState.Granted -> grantedCallback()
-            else -> {
+            is PermissionState.Denied, is PermissionState.ShouldShowRationale -> {
                 UnavailableFeatureScreen(featureType = permissionManager.permissionState!!.permissionType) {
                     openSettingsActivity = true
                 }
@@ -37,6 +37,8 @@ fun PermissionStateScreen(permissionType: PermissionType, onGranted: () -> Unit)
                     }
                 }
             }
+
+            else -> {}
         }
     }
 }

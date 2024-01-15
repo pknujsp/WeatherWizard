@@ -7,6 +7,7 @@ import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Immutable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
@@ -16,71 +17,85 @@ import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
+private val textStyle = TextStyle(
+    fontWeight = FontWeight(400),
+    letterSpacing = 0.sp,
+)
 
 @Composable
 fun PrimaryButton(
-    modifier: Modifier = Modifier,
-    buttonSize: ButtonSize = ButtonSize.MEDIUM,
-    text: String,
-    onClick: () -> Unit
+    modifier: Modifier = Modifier, buttonSize: ButtonSize = ButtonSize.MEDIUM, text: String, onClick: () -> Unit
 ) {
-    BaseButton(modifier, buttonSize.paddingValues, buttonSize.fontSize, AppButtons.primary(), Color.White, text, onClick)
+    BaseButton(modifier, AppButtonDefaults.primary(buttonSize), text, onClick)
 }
 
 @Composable
 fun SecondaryButton(
     modifier: Modifier = Modifier, buttonSize: ButtonSize = ButtonSize.MEDIUM, text: String, onClick: () -> Unit
 ) {
-    BaseButton(modifier, buttonSize.paddingValues, buttonSize.fontSize, AppButtons.secondary(), Color.Black, text, onClick)
+    BaseButton(modifier, AppButtonDefaults.secondary(buttonSize), text, onClick)
 }
 
 @Composable
 fun ThirdButton(
     modifier: Modifier = Modifier, buttonSize: ButtonSize = ButtonSize.MEDIUM, text: String, onClick: () -> Unit
 ) {
-    BaseButton(modifier, buttonSize.paddingValues, buttonSize.fontSize, AppButtons.third(), Color.White, text, onClick)
+    BaseButton(modifier, AppButtonDefaults.third(buttonSize), text, onClick)
 }
 
 @Composable
 private fun BaseButton(
-    modifier: Modifier,
-    contentPadding: PaddingValues,
-    fontSize: TextUnit,
-    colors: ButtonColors,
-    textColor: Color,
-    text: String,
-    onClick: () -> Unit
+    modifier: Modifier, appButton: AppButtonDefaults.AppButton, text: String, onClick: () -> Unit
 ) {
     Button(onClick = onClick,
         modifier = modifier,
         shape = RectangleShape,
-        colors = colors,
-        border = BorderStroke(1.dp, Color.Black),
-        contentPadding = contentPadding) {
+        colors = appButton.colors,
+        border = appButton.border,
+        contentPadding = appButton.size.paddingValues) {
         Text(text = text,
             minLines = 1,
             maxLines = 1,
-            style = TextStyle(
-                fontSize = fontSize,
-                fontWeight = FontWeight(400),
-                color = textColor,
-                letterSpacing = 0.sp,
+            style = textStyle.copy(
+                fontSize = appButton.size.fontSize,
             ))
     }
 }
 
-object AppButtons {
+object AppButtonDefaults {
     @Composable
     fun primary(
-    ) = ButtonDefaults.buttonColors(containerColor = Color.Black, contentColor = Color.White)
+        buttonSize: ButtonSize = ButtonSize.MEDIUM,
+    ) = AppButton(
+        colors = ButtonDefaults.buttonColors(containerColor = Color.Black, contentColor = Color.White),
+        size = buttonSize,
+        border = null,
+    )
 
     @Composable
     fun secondary(
-    ) = ButtonDefaults.buttonColors(containerColor = Color.White, contentColor = Color.Black)
+        buttonSize: ButtonSize = ButtonSize.MEDIUM,
+    ) = AppButton(
+        colors = ButtonDefaults.buttonColors(containerColor = Color.White, contentColor = Color.Black),
+        size = buttonSize,
+        border = BorderStroke(1.dp, Color.Black),
+    )
 
     @Composable
     fun third(
-    ) = ButtonDefaults.buttonColors(containerColor = Color.Gray, contentColor = Color.White)
+        buttonSize: ButtonSize = ButtonSize.MEDIUM,
+    ) = AppButton(
+        colors = ButtonDefaults.buttonColors(containerColor = Color.LightGray, contentColor = Color.White),
+        size = buttonSize,
+        border = null,
+    )
+
+    @Immutable
+    class AppButton(
+        val colors: ButtonColors,
+        val size: ButtonSize,
+        val border: BorderStroke?,
+    )
 }
 
 enum class ButtonSize(val paddingValues: PaddingValues, val fontSize: TextUnit) {
