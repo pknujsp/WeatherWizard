@@ -4,7 +4,6 @@ import io.github.pknujsp.weatherwizard.core.common.coroutines.CoDispatcher
 import io.github.pknujsp.weatherwizard.core.common.coroutines.CoDispatcherType
 import io.github.pknujsp.weatherwizard.core.common.manager.AppLocationManager
 import io.github.pknujsp.weatherwizard.core.common.manager.FailedReason
-import io.github.pknujsp.weatherwizard.core.common.manager.PermissionState
 import io.github.pknujsp.weatherwizard.core.common.manager.PermissionType
 import io.github.pknujsp.weatherwizard.core.data.nominatim.NominatimRepository
 import kotlinx.coroutines.CoroutineDispatcher

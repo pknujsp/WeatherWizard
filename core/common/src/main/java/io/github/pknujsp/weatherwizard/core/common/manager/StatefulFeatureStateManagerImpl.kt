@@ -1,41 +1,7 @@
 package io.github.pknujsp.weatherwizard.core.common.manager
 
-import android.annotation.SuppressLint
-import android.content.Context
-import android.os.Build
-import android.os.PowerManager
-import io.github.pknujsp.weatherwizard.core.common.FeatureType
 import io.github.pknujsp.weatherwizard.core.common.StatefulFeature
-import io.github.pknujsp.weatherwizard.core.common.manager.StatefulFeatureStateManagerImpl.AvailableChecker
 import io.github.pknujsp.weatherwizard.core.resource.R
-
-
-sealed interface FeatureState {
-    data object Available : FeatureState
-    data class Unavailable(val featureType: FeatureType) : FeatureState
-}
-
-internal class StatefulFeatureStateManagerImpl(
-    private val networkManager: AppNetworkManager, private val locationManager: AppLocationManager
-) : FeatureStatusManager {
-
-
-    override fun status(context: Context, featureTypes: Array<FeatureType>): FeatureState {
-        return featureTypes.firstOrNull {
-            !checkMethods.getValue(it).isAvailable(context)
-        }?.let {
-            FeatureState.Unavailable(it)
-        } ?: FeatureState.Available
-    }
-
-    private fun interface AvailableChecker {
-        fun isAvailable(context: Context): Boolean
-    }
-}
-
-interface FeatureStatusManager {
-    fun status(context: Context, featureTypes: Array<FeatureType>): FeatureState
-}
 
 enum class FailedReason : StatefulFeature {
     SERVER_ERROR {

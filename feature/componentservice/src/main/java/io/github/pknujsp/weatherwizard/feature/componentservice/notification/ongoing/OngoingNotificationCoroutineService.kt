@@ -7,10 +7,9 @@ import androidx.hilt.work.HiltWorker
 import androidx.work.WorkerParameters
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
+import io.github.pknujsp.weatherwizard.core.FeatureStateManager
 import io.github.pknujsp.weatherwizard.core.common.FeatureType
 import io.github.pknujsp.weatherwizard.core.common.NotificationType
-import io.github.pknujsp.weatherwizard.core.common.manager.FeatureState
-import io.github.pknujsp.weatherwizard.core.common.manager.FeatureStatusManager
 import io.github.pknujsp.weatherwizard.core.model.RemoteViewUiModel
 import io.github.pknujsp.weatherwizard.core.model.coordinate.LocationType
 import io.github.pknujsp.weatherwizard.core.resource.R
@@ -32,7 +31,6 @@ class OngoingNotificationCoroutineService @AssistedInject constructor(
     @Assisted val context: Context,
     @Assisted params: WorkerParameters,
     private val remoteViewsModel: OngoingNotificationRemoteViewModel,
-    private val featureStatusManager: FeatureStatusManager
 ) : AppComponentCoroutineService<OngoingNotificationServiceArgument>(context, params, Companion) {
 
     private val pendingIntentToRefresh: PendingIntent by lazy {
@@ -121,8 +119,8 @@ class OngoingNotificationCoroutineService @AssistedInject constructor(
     }
 
     private fun checkFeatureStateAndNotify(featureTypes: Array<FeatureType>, context: Context): Boolean {
-        return when (val state = featureStatusManager.status(context, featureTypes)) {
-            is FeatureState.Unavailable -> {
+        return when (val state = featureStateManager.retrieveFeaturesState(featureTypes, context)) {
+            is FeatureStateManager.FeatureState.Unavailable -> {
                 val smallRemoteViews = UiStateRemoteViewCreator.createView(context,
                     state.featureType,
                     RemoteViewCreator.ContainerType.NOTIFICATION_SMALL,

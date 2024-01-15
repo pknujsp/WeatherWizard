@@ -3,10 +3,9 @@ package io.github.pknujsp.weatherwizard.feature.componentservice.widget.worker
 import android.app.PendingIntent
 import android.content.Context
 import android.widget.RemoteViews
+import io.github.pknujsp.weatherwizard.core.FeatureStateManager
 import io.github.pknujsp.weatherwizard.core.common.FeatureType
 import io.github.pknujsp.weatherwizard.core.common.manager.FailedReason
-import io.github.pknujsp.weatherwizard.core.common.manager.FeatureState
-import io.github.pknujsp.weatherwizard.core.common.manager.FeatureStatusManager
 import io.github.pknujsp.weatherwizard.core.common.manager.WidgetManager
 import io.github.pknujsp.weatherwizard.core.data.cache.CacheManager
 import io.github.pknujsp.weatherwizard.core.data.settings.SettingsRepository
@@ -32,7 +31,7 @@ import io.github.pknujsp.weatherwizard.feature.componentservice.widget.isInProgr
 class AppWidgetViewUpdater(
     private val widgetManager: WidgetManager,
     private val widgetRepository: WidgetRepository,
-    private val featureStatusManager: FeatureStatusManager,
+    private val featureStateManager: FeatureStateManager,
     private val appSettingsRepository: SettingsRepository,
     private val remoteViewsCacheManager: CacheManager<Int, RemoteViews>
 ) {
@@ -120,8 +119,8 @@ class AppWidgetViewUpdater(
             return true
         }
 
-        return when (val status = featureStatusManager.status(context, requiredFeatures)) {
-            is FeatureState.Unavailable -> {
+        return when (val status = featureStateManager.retrieveFeaturesState(requiredFeatures, context)) {
+            is FeatureStateManager.FeatureState.Unavailable -> {
                 val featurePendingIntent = status.featureType.getPendingIntent(context)
                 val refreshPendingIntent = ComponentPendingIntentManager.getRefreshPendingIntent(context,
                     PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
