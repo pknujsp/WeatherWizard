@@ -131,7 +131,7 @@ class AppWidgetViewUpdater(
 
                 for (widget in this) {
                     val failedRemoteView = UiStateRemoteViewCreator.createView(context,
-                        status.featureType.failedReason,
+                        status.featureType,
                         RemoteViewCreator.ContainerType.WIDGET,
                         UiStateRemoteViewCreator.ViewSizeType.BIG,
                         pendingIntent = featurePendingIntent,

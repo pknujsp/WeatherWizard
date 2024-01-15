@@ -19,33 +19,6 @@ internal class StatefulFeatureStateManagerImpl(
     private val networkManager: AppNetworkManager, private val locationManager: AppLocationManager
 ) : FeatureStatusManager {
 
-    @SuppressLint("NewApi") private val checkMethods = mapOf(
-        FeatureType.NETWORK to AvailableChecker { _ ->
-            networkManager.isNetworkAvailable()
-        },
-        FeatureType.LOCATION_SERVICE to AvailableChecker { _ ->
-            locationManager.isGpsProviderEnabled
-        },
-        FeatureType.BATTERY_OPTIMIZATION to AvailableChecker { context ->
-            Build.VERSION.SDK_INT < Build.VERSION_CODES.S || (context.getSystemService(Context.POWER_SERVICE) as PowerManager).isIgnoringBatteryOptimizations(
-                context.packageName)
-        },
-        FeatureType.STORAGE_PERMISSION to AvailableChecker { context ->
-            context.checkSelfPermission(PermissionType.STORAGE)
-        },
-        FeatureType.POST_NOTIFICATION_PERMISSION to AvailableChecker { context ->
-            context.checkSelfPermission(PermissionType.POST_NOTIFICATIONS)
-        },
-        FeatureType.SCHEDULE_EXACT_ALARM_PERMISSION to AvailableChecker { context ->
-            context.checkSelfPermission(PermissionType.SCHEDULE_EXACT_ALARM_ABOVE_EQUALS_ON_SDK_31)
-        },
-        FeatureType.LOCATION_PERMISSION to AvailableChecker { context ->
-            context.checkSelfPermission(PermissionType.LOCATION)
-        },
-        FeatureType.BACKGROUND_LOCATION_PERMISSION to AvailableChecker { context ->
-            context.checkSelfPermission(PermissionType.BACKGROUND_LOCATION)
-        },
-    )
 
     override fun status(context: Context, featureTypes: Array<FeatureType>): FeatureState {
         return featureTypes.firstOrNull {

@@ -5,24 +5,36 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
+import io.github.pknujsp.weatherwizard.core.common.asFeatureType
 import io.github.pknujsp.weatherwizard.core.common.manager.PermissionState
 import io.github.pknujsp.weatherwizard.core.common.manager.PermissionType
-import io.github.pknujsp.weatherwizard.core.common.manager.checkSelfPermission
 import io.github.pknujsp.weatherwizard.core.common.manager.rememberPermissionManager
+import kotlinx.coroutines.launch
 
 @Composable
-fun PermissionStateScreen(navigate: () -> Unit, permissionType: PermissionType) {
+fun PermissionStateScreen(permissionType: PermissionType, onGranted: () -> Unit) {
     var openSettingsActivity by remember { mutableStateOf(false) }
     val permissionManager = rememberPermissionManager(defaultPermissionType = permissionType)
+    val coroutineScope = rememberCoroutineScope()
+    val grantedCallback by rememberUpdatedState(newValue = onGranted)
 
     Box {
         when (permissionManager.permissionState) {
-            is PermissionState.Granted -> navigate()
-            else ->{
-                UnavailableFeatureScreen(featureType = featureType) {
-                    openLocationPermissionActivity = true
-                    locationPermissionGranted = context.checkSelfPermission(PermissionType.LOCATION)
+            is PermissionState.Granted -> grantedCallback()
+            else -> {
+                UnavailableFeatureScreen(featureType = permissionManager.permissionState!!.permissionType) {
+                    openSettingsActivity = true
+                }
+                if (openSettingsActivity) {
+                    OpenAppSettingsActivity(permissionManager.permissionState!!.permissionType.asFeatureType()) {
+                        openSettingsActivity = false
+                        coroutineScope.launch {
+                            permissionManager.fetchPermissionState()
+                        }
+                    }
                 }
             }
         }

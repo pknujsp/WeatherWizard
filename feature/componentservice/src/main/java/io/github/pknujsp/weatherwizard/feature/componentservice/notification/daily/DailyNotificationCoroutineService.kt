@@ -106,13 +106,13 @@ class DailyNotificationCoroutineService @AssistedInject constructor(
         return when (val state = featureStatusManager.status(context, featureTypes)) {
             is FeatureState.Unavailable -> {
                 val smallRemoteViews = UiStateRemoteViewCreator.createView(context,
-                    state.featureType.failedReason,
+                    state.featureType,
                     io.github.pknujsp.weatherwizard.core.widgetnotification.remoteview.RemoteViewCreator.ContainerType.NOTIFICATION_SMALL,
                     viewSizeType = UiStateRemoteViewCreator.ViewSizeType.SMALL,
                     visibilityOfCompleteButton = false,
                     visibilityOfActionButton = false)
                 val bigRemoteViews = UiStateRemoteViewCreator.createView(context,
-                    state.featureType.failedReason,
+                    state.featureType,
                     io.github.pknujsp.weatherwizard.core.widgetnotification.remoteview.RemoteViewCreator.ContainerType.NOTIFICATION_BIG,
                     viewSizeType = UiStateRemoteViewCreator.ViewSizeType.BIG,
                     visibilityOfCompleteButton = false,

@@ -17,10 +17,6 @@ import io.github.pknujsp.weatherwizard.feature.componentservice.notification.Not
 import io.github.pknujsp.weatherwizard.feature.componentservice.notification.daily.model.DailyNotificationSettings
 import io.github.pknujsp.weatherwizard.feature.componentservice.notification.daily.model.DailyNotificationUiState
 import io.github.pknujsp.weatherwizard.feature.componentservice.notification.manager.NotificationAlarmManager
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.last
-import kotlinx.coroutines.flow.mapLatest
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 

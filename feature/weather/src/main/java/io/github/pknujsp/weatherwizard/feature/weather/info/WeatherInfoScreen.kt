@@ -22,9 +22,11 @@ import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.pknujsp.weatherwizard.core.common.FeatureType
+import io.github.pknujsp.weatherwizard.core.common.StatefulFeature
 import io.github.pknujsp.weatherwizard.core.common.manager.FailedReason
 import io.github.pknujsp.weatherwizard.core.resource.R
 import io.github.pknujsp.weatherwizard.core.ui.feature.FailedScreen
+import io.github.pknujsp.weatherwizard.core.ui.feature.FeatureStateScreen
 import io.github.pknujsp.weatherwizard.core.ui.feature.OpenAppSettingsActivity
 import io.github.pknujsp.weatherwizard.core.ui.feature.UnavailableFeatureScreen
 import io.github.pknujsp.weatherwizard.core.ui.lottie.CancellableLoadingScreen
@@ -34,7 +36,6 @@ import io.github.pknujsp.weatherwizard.feature.weather.info.dailyforecast.detail
 import io.github.pknujsp.weatherwizard.feature.weather.info.geocode.TargetLocationViewModel
 import io.github.pknujsp.weatherwizard.feature.weather.info.hourlyforecast.detail.DetailHourlyForecastScreen
 import io.github.pknujsp.weatherwizard.feature.weather.route.NestedWeatherRoutes
-import kotlinx.coroutines.flow.filterNotNull
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -78,7 +79,7 @@ fun WeatherInfoScreen(
                 is WeatherContentUiState.Error -> {
                     mainState.updateWindowInset(true)
                     TopAppBarScreen(openDrawer) {
-                        ErrorScreen(failedReason = (uiState as WeatherContentUiState.Error).message, reload = {
+                        ErrorScreen(statefulFeature = (uiState as WeatherContentUiState.Error).message, reload = {
                             viewModel.refresh()
                         })
                     }
@@ -140,26 +141,14 @@ private fun TopAppBarScreen(openDrawer: () -> Unit, content: @Composable () -> U
 
 
 @Composable
-private fun ErrorScreen(failedReason: FailedReason, reload: () -> Unit) {
-    var openLocationSettings by remember { mutableStateOf(false) }
-
-    when (failedReason) {
-        FailedReason.LOCATION_PROVIDER_DISABLED -> {
-            UnavailableFeatureScreen(featureType = FeatureType.LOCATION_SERVICE) {
-                openLocationSettings = true
-            }
-            if (openLocationSettings) {
-                OpenAppSettingsActivity(featureType = FeatureType.LOCATION_SERVICE) {
-                    openLocationSettings = false
-                    reload()
-                }
-            }
+private fun ErrorScreen(statefulFeature: StatefulFeature, reload: () -> Unit) {
+    if (statefulFeature is FeatureType) {
+        FeatureStateScreen(featureType = statefulFeature) {
+            reload()
         }
-
-        else -> {
-            FailedScreen(R.string.title_failed_to_load_weather_data, failedReason.message, R.string.reload) {
-                reload()
-            }
+    } else if (statefulFeature is FailedReason) {
+        FailedScreen(R.string.title_failed_to_load_weather_data, statefulFeature.message, R.string.reload) {
+            reload()
         }
     }
 }

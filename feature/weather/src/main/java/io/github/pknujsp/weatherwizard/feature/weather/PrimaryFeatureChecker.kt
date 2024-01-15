@@ -22,10 +22,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import io.github.pknujsp.weatherwizard.core.common.FeatureType
 import io.github.pknujsp.weatherwizard.core.common.manager.PermissionType
-import io.github.pknujsp.weatherwizard.core.common.manager.checkSelfPermission
 import io.github.pknujsp.weatherwizard.core.model.coordinate.LocationType
-import io.github.pknujsp.weatherwizard.core.ui.feature.OpenAppSettingsActivity
-import io.github.pknujsp.weatherwizard.core.ui.feature.UnavailableFeatureScreen
+import io.github.pknujsp.weatherwizard.core.ui.feature.PermissionStateScreen
 import io.github.pknujsp.weatherwizard.feature.weather.route.WeatherRoutes
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -34,9 +32,8 @@ fun PrimaryFeatureChecker(navController: NavController, openDrawer: () -> Unit, 
     val locationType = mainViewModel.locationType
     locationType?.run {
         val context = LocalContext.current
-        var openLocationPermissionActivity by remember { mutableStateOf(false) }
-        var locationPermissionGranted by remember(openLocationPermissionActivity) {
-            mutableStateOf(context.checkSelfPermission(PermissionType.LOCATION))
+        var locationPermissionGranted by remember {
+            mutableStateOf(FeatureType.LOCATION_PERMISSION.isAvailable(context))
         }
 
         if (locationPermissionGranted || locationType is LocationType.CustomLocation) {
@@ -45,7 +42,6 @@ fun PrimaryFeatureChecker(navController: NavController, openDrawer: () -> Unit, 
                 popUpTo(WeatherRoutes.Main.route) { inclusive = true }
             }
         } else {
-            val featureType = remember { FeatureType.LOCATION_PERMISSION }
             Column(modifier = Modifier.systemBarsPadding()) {
                 TopAppBar(title = {},
                     colors = TopAppBarDefaults.topAppBarColors(
@@ -57,14 +53,8 @@ fun PrimaryFeatureChecker(navController: NavController, openDrawer: () -> Unit, 
                             Icon(Icons.Rounded.Menu, contentDescription = null)
                         }
                     })
-                UnavailableFeatureScreen(featureType = featureType) {
-                    openLocationPermissionActivity = true
-                    locationPermissionGranted = context.checkSelfPermission(PermissionType.LOCATION)
-                }
-            }
-            if (openLocationPermissionActivity) {
-                OpenAppSettingsActivity(featureType) {
-                    openLocationPermissionActivity = false
+                PermissionStateScreen(permissionType = PermissionType.LOCATION) {
+                    locationPermissionGranted = true
                 }
             }
         }

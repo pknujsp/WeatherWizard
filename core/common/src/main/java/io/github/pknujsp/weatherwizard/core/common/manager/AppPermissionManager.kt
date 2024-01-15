@@ -23,25 +23,27 @@ import io.github.pknujsp.weatherwizard.core.common.StatefulFeature
 import io.github.pknujsp.weatherwizard.core.common.asActivity
 
 sealed interface PermissionState {
-    data object Granted : PermissionState
-    data object Denied : PermissionState
-    data object ShouldShowRationale : PermissionState
+    val permissionType: PermissionType
+
+    data class Granted(override val permissionType: PermissionType) : PermissionState
+    data class Denied(override val permissionType: PermissionType) : PermissionState
+    data class ShouldShowRationale(override val permissionType: PermissionType) : PermissionState
 }
 
 private class PermissionManagerImpl(
-    val fetchPermissionStateFunc: (PermissionType) -> Unit
+    val fetchPermissionStateFunc: () -> Unit
 ) : PermissionManager {
     override var permissionState: PermissionState? by mutableStateOf(null)
 
-    override fun fetchPermissionState(permissionType: PermissionType) {
-        fetchPermissionStateFunc(permissionType)
+    override fun fetchPermissionState() {
+        fetchPermissionStateFunc()
     }
 }
 
 @Stable
 interface PermissionManager {
     val permissionState: PermissionState?
-    fun fetchPermissionState(permissionType: PermissionType)
+    fun fetchPermissionState()
 }
 
 
@@ -51,20 +53,20 @@ fun rememberPermissionManager(
     defaultPermissionType: PermissionType,
 ): PermissionManager {
     val activity = context.asActivity()!!
-    var fetchPermissionType by remember { mutableStateOf<Pair<PermissionType, Long>>(defaultPermissionType to 0) }
+    var fetchPermissionType by remember(defaultPermissionType) { mutableStateOf<Pair<PermissionType, Long>>(defaultPermissionType to 0) }
 
     val permissionManager = remember {
-        PermissionManagerImpl(fetchPermissionStateFunc = { permissionType ->
-            fetchPermissionType = permissionType to fetchPermissionType.second + 1
+        PermissionManagerImpl(fetchPermissionStateFunc = {
+            fetchPermissionType = fetchPermissionType.first to fetchPermissionType.second + 1
         })
     }
     val permissionLauncher = rememberLauncherForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { result ->
         permissionManager.permissionState = if (result.all { it.value }) {
-            PermissionState.Granted
+            PermissionState.Granted(fetchPermissionType.first)
         } else if (activity.shouldShowRequestPermissionRationale(result.entries.first { !it.value }.key)) {
-            PermissionState.ShouldShowRationale
+            PermissionState.ShouldShowRationale(fetchPermissionType.first)
         } else {
-            PermissionState.Denied
+            PermissionState.Denied(fetchPermissionType.first)
         }
     }
 
@@ -79,11 +81,11 @@ private fun fetchPermission(
     permissionType: PermissionType,
     activityResultLauncher: ManagedActivityResultLauncher<Array<String>, Map<String, Boolean>>
 ) = when {
-    activity.checkSelfPermission(permissionType) -> PermissionState.Granted
-    activity.shouldShowRequestPermissionRationale(permissionType) -> PermissionState.ShouldShowRationale
+    activity.checkSelfPermission(permissionType) -> PermissionState.Granted(permissionType)
+    activity.shouldShowRequestPermissionRationale(permissionType) -> PermissionState.ShouldShowRationale(permissionType)
     else -> {
         activityResultLauncher.launch(permissionType.permissions)
-        PermissionState.Denied
+        PermissionState.Denied(permissionType)
     }
 }
 

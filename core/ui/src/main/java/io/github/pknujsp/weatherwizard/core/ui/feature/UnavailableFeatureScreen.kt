@@ -14,14 +14,14 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import io.github.pknujsp.weatherwizard.core.common.FeatureType
+import io.github.pknujsp.weatherwizard.core.common.StatefulFeature
 import io.github.pknujsp.weatherwizard.core.ui.PrimaryButton
 
 @Composable
-fun UnavailableFeatureScreen(featureType: FeatureType, onClick: () -> Unit) {
-    FailedScreen(title = featureType.failedReason.title,
-        alertMessage = featureType.failedReason.message,
-        actionMessage = featureType.failedReason.action,
+fun UnavailableFeatureScreen(featureType: StatefulFeature, onClick: () -> Unit) {
+    FailedScreen(title = featureType.title,
+        alertMessage = featureType.message,
+        actionMessage = featureType.action,
         onClick = onClick)
 }
 

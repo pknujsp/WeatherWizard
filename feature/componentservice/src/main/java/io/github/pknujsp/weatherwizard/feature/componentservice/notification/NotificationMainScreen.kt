@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -32,8 +31,8 @@ import io.github.pknujsp.weatherwizard.core.common.manager.PermissionType
 import io.github.pknujsp.weatherwizard.core.common.manager.checkSelfPermission
 import io.github.pknujsp.weatherwizard.core.resource.R
 import io.github.pknujsp.weatherwizard.core.ui.TitleTextWithNavigation
-import io.github.pknujsp.weatherwizard.core.ui.feature.OpenAppSettingsActivity
-import io.github.pknujsp.weatherwizard.core.ui.feature.UnavailableFeatureScreen
+import io.github.pknujsp.weatherwizard.core.ui.feature.FeatureStateScreen
+import io.github.pknujsp.weatherwizard.core.ui.feature.PermissionStateScreen
 
 
 @Composable
@@ -65,11 +64,8 @@ private fun NotificationItem(
 fun NotificationMainScreen(navController: NavController) {
     val context = LocalContext.current
 
-    var openBatteryOptimizationSettings by remember { mutableStateOf(false) }
-    var permissionGranted by remember { mutableStateOf(context.checkSelfPermission(PermissionType.POST_NOTIFICATIONS)) }
-    val ignoredBatteryOptimization by remember {
-        mutableStateOf(true)
-    }
+    var permissionGranted by remember { mutableStateOf(FeatureType.POST_NOTIFICATION_PERMISSION.isAvailable(context)) }
+    var ignoredBatteryOptimization by remember { mutableStateOf(FeatureType.BATTERY_OPTIMIZATION.isAvailable(context)) }
 
     val onBackPressedDispatcherOwner = LocalOnBackPressedDispatcherOwner.current
     val backDispatcher = remember {
@@ -94,19 +90,12 @@ fun NotificationMainScreen(navController: NavController) {
                 }
             }
         } else if (!permissionGranted) {
-            NotificationPermissionCheckingScreen {
+            PermissionStateScreen(onGranted = {
                 permissionGranted = true
-            }
+            }, permissionType = PermissionType.POST_NOTIFICATIONS)
         } else {
-            if (openBatteryOptimizationSettings) {
-                OpenAppSettingsActivity(FeatureType.BATTERY_OPTIMIZATION) {
-                    openBatteryOptimizationSettings = false
-                }
-            }
-            if (!ignoredBatteryOptimization) {
-                UnavailableFeatureScreen(featureType = FeatureType.BATTERY_OPTIMIZATION) {
-                    openBatteryOptimizationSettings = true
-                }
+            FeatureStateScreen(featureType = FeatureType.BATTERY_OPTIMIZATION) {
+                ignoredBatteryOptimization = true
             }
         }
     }

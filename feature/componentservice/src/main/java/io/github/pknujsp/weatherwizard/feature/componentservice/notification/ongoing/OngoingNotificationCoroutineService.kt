@@ -15,10 +15,10 @@ import io.github.pknujsp.weatherwizard.core.model.RemoteViewUiModel
 import io.github.pknujsp.weatherwizard.core.model.coordinate.LocationType
 import io.github.pknujsp.weatherwizard.core.resource.R
 import io.github.pknujsp.weatherwizard.core.widgetnotification.model.AppComponentCoroutineService
+import io.github.pknujsp.weatherwizard.core.widgetnotification.model.ComponentServiceAction
 import io.github.pknujsp.weatherwizard.core.widgetnotification.model.IWorker
 import io.github.pknujsp.weatherwizard.core.widgetnotification.model.NotificationViewState
 import io.github.pknujsp.weatherwizard.core.widgetnotification.model.OngoingNotificationServiceArgument
-import io.github.pknujsp.weatherwizard.core.widgetnotification.model.ComponentServiceAction
 import io.github.pknujsp.weatherwizard.core.widgetnotification.model.RemoteViewUiModelMapperManager
 import io.github.pknujsp.weatherwizard.core.widgetnotification.notification.remoteview.NotificationRemoteViewsCreator
 import io.github.pknujsp.weatherwizard.core.widgetnotification.notification.util.NotificationIconGenerator
@@ -124,13 +124,13 @@ class OngoingNotificationCoroutineService @AssistedInject constructor(
         return when (val state = featureStatusManager.status(context, featureTypes)) {
             is FeatureState.Unavailable -> {
                 val smallRemoteViews = UiStateRemoteViewCreator.createView(context,
-                    state.featureType.failedReason,
+                    state.featureType,
                     RemoteViewCreator.ContainerType.NOTIFICATION_SMALL,
                     viewSizeType = UiStateRemoteViewCreator.ViewSizeType.SMALL,
                     state.featureType.getPendingIntent(context),
                     visibilityOfCompleteButton = true)
                 val bigRemoteViews = UiStateRemoteViewCreator.createView(context,
-                    state.featureType.failedReason,
+                    state.featureType,
                     RemoteViewCreator.ContainerType.NOTIFICATION_BIG,
                     viewSizeType = UiStateRemoteViewCreator.ViewSizeType.BIG,
                     state.featureType.getPendingIntent(context),

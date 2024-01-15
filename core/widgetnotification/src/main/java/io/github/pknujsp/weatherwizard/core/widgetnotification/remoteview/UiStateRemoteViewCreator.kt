@@ -6,6 +6,7 @@ import android.view.View
 import android.widget.RemoteViews
 import androidx.annotation.LayoutRes
 import androidx.annotation.StringRes
+import io.github.pknujsp.weatherwizard.core.common.StatefulFeature
 import io.github.pknujsp.weatherwizard.core.common.manager.FailedReason
 import io.github.pknujsp.weatherwizard.core.resource.R
 
@@ -47,7 +48,7 @@ object UiStateRemoteViewCreator : RemoteViewCreator {
 
     fun createView(
         context: Context,
-        failedReason: FailedReason,
+        failedReason: StatefulFeature,
         containerType: RemoteViewCreator.ContainerType,
         viewSizeType: ViewSizeType = ViewSizeType.BIG,
         pendingIntent: PendingIntent? = null,
