@@ -75,7 +75,7 @@ private fun TopAppBarLayout(
     modifier: Modifier,
     navigationIconContentColor: Color,
     actionIconContentColor: Color,
-    collapsedFraction: ()-> Float,
+    collapsedFraction: () -> Float,
     bigTitle: @Composable (() -> Unit),
     smallTitle: @Composable (() -> Unit),
     navigationIcon: @Composable (() -> Unit)? = null,
@@ -110,7 +110,7 @@ private fun TopAppBarLayout(
                 CompositionLocalProvider(LocalContentColor provides actionIconContentColor, content = this)
             }
         }
-    }, modifier = modifier) { measurables, constraints ->
+    }, modifier = modifier.graphicsLayer(clip = false)) { measurables, constraints ->
         val navigationIconPlaceable = measurables.first { it.layoutId == NAVIGATION_ICON }.measure(constraints.copy(minWidth = 0))
         val actionIconsPlaceable = measurables.first { it.layoutId == ACTION_ICONS }.measure(constraints.copy(minWidth = 0))
         val bigTitlePlaceable = measurables.first { it.layoutId == BIG_TITLE }.measure(constraints.copy(minWidth = 0))

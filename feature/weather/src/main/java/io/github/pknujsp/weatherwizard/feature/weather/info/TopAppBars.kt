@@ -117,7 +117,7 @@ fun TopAppBars(
                         model = ImageRequest.Builder(LocalContext.current).data(R.drawable.ic_time).crossfade(false).build(),
                         contentDescription = stringResource(id = R.string.weather_info_head_info_update_time),
                         colorFilter = ColorFilter.tint(Color.White),
-                        modifier = Modifier.size(16.dp),
+                        modifier = Modifier.size(18.dp),
                     )
                     Spacer(modifier = Modifier.width(4.dp))
                     Text(
@@ -135,7 +135,7 @@ fun TopAppBars(
                         model = ImageRequest.Builder(LocalContext.current).data(weatherContentUiState.args.weatherProvider.icon)
                             .crossfade(false).build(),
                         contentDescription = stringResource(id = R.string.weather_provider),
-                        modifier = Modifier.size(16.dp),
+                        modifier = Modifier.size(18.dp),
                     )
                     Spacer(modifier = Modifier.width(4.dp))
                     Text(

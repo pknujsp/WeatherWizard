@@ -2,6 +2,9 @@ package io.github.pknujsp.weatherwizard.feature.weather.info.hourlyforecast.simp
 
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import io.github.pknujsp.weatherwizard.core.model.weather.hourlyforecast.SimpleHourlyForecast
@@ -19,18 +22,23 @@ fun HourlyForecastScreen(
     hourlyForecast: SimpleHourlyForecast,
     navigate: (NestedWeatherRoutes) -> Unit,
 ) {
+    val currentNavigate by rememberUpdatedState(newValue = navigate)
+    val lazyListState = rememberLazyListState()
+    LaunchedEffect(hourlyForecast) {
+        lazyListState.scrollToItem(0, 0)
+    }
+
     SimpleWeatherScreenBackground(modifier = modifier,
         cardInfo = CardInfo(title = stringResource(id = R.string.hourly_forecast),
             buttons = listOf(
                 stringResource(id = io.github.pknujsp.weatherwizard.core.resource.R.string.comparison) to {
-                    navigate(NestedWeatherRoutes.ComparisonHourlyForecast)
+                    currentNavigate(NestedWeatherRoutes.ComparisonHourlyForecast)
                 },
                 stringResource(id = R.string.detail) to {
-                    navigate(NestedWeatherRoutes.DetailHourlyForecast)
+                    currentNavigate(NestedWeatherRoutes.DetailHourlyForecast)
                 },
             ),
             content = {
-                val lazyListState = rememberLazyListState()
                 DynamicDateTime(hourlyForecast.dateTimeInfo, lazyListState)
                 HourlyForecastItem(simpleHourlyForecast = hourlyForecast, lazyListState)
             }))

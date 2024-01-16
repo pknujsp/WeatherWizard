@@ -21,9 +21,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import io.github.pknujsp.weatherwizard.core.model.weather.hourlyforecast.SimpleHourlyForecast
 
-val textSize = 12.sp
+private val textSize = 12.sp
 val textColor = Color.White
-val space = 2.dp
+private val space = 2.dp
 
 @Composable
 fun DynamicDateTime(

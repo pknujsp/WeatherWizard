@@ -33,7 +33,7 @@ class SimpleHourlyForecast(
 
     companion object {
         val itemWidth: Dp = 54.dp
-        val temperatureGraphHeight: Dp = 65.dp
+        val temperatureGraphHeight: Dp = 63.dp
     }
 
     class DateTimeInfo(val items: List<Item>, val firstItemX: Int) : UiModel {
