@@ -1,4 +1,4 @@
-package io.github.pknujsp.weatherwizard.feature.map
+package io.github.pknujsp.weatherwizard.feature.map.screen
 
 import android.annotation.SuppressLint
 import android.graphics.drawable.BitmapDrawable
@@ -59,6 +59,8 @@ import io.github.pknujsp.weatherwizard.core.resource.R
 import io.github.pknujsp.weatherwizard.core.ui.weather.item.CardInfo
 import io.github.pknujsp.weatherwizard.core.ui.weather.item.SimpleWeatherFailedBox
 import io.github.pknujsp.weatherwizard.core.ui.weather.item.SimpleWeatherScreenBackground
+import io.github.pknujsp.weatherwizard.feature.map.RadarController
+import io.github.pknujsp.weatherwizard.feature.map.SimpleMapController
 import io.github.pknujsp.weatherwizard.feature.map.model.MapSettingsDefault
 import io.github.pknujsp.weatherwizard.feature.map.model.RadarTilesOverlay
 import kotlinx.coroutines.CoroutineScope

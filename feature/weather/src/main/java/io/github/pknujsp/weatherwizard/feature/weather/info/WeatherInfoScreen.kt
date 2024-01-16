@@ -13,6 +13,7 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
@@ -31,6 +32,7 @@ import io.github.pknujsp.weatherwizard.feature.weather.info.dailyforecast.detail
 import io.github.pknujsp.weatherwizard.feature.weather.info.geocode.TargetLocationViewModel
 import io.github.pknujsp.weatherwizard.feature.weather.info.hourlyforecast.detail.DetailHourlyForecastScreen
 import io.github.pknujsp.weatherwizard.feature.weather.route.NestedWeatherRoutes
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -43,7 +45,7 @@ fun WeatherInfoScreen(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val topAppBarUiState = targetLocationViewModel.topAppBarUiState
     val isLoading = viewModel.isLoading
-    val targetLocation by viewModel.targetLocation.collectAsStateWithLifecycle()
+    val targetLocation by viewModel.targetLocation.collectAsStateWithLifecycle(initialValue = null)
 
     LaunchedEffect(uiState) {
         if (uiState is WeatherContentUiState.Success) {

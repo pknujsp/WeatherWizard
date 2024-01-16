@@ -8,6 +8,8 @@ import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.Stable
+import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -33,12 +35,12 @@ import io.github.pknujsp.weatherwizard.core.model.weather.yesterday.YesterdayWea
 import io.github.pknujsp.weatherwizard.feature.weather.route.NestedWeatherRoutes
 import java.time.ZonedDateTime
 
-private val topAppBarOffsetLimit = (-62).dp
+private val topAppBarOffsetLimit = (-64).dp
 
 sealed interface WeatherContentUiState {
-    class Error(val state: StatefulFeature) : WeatherContentUiState
+    data class Error(val state: StatefulFeature) : WeatherContentUiState
 
-    class Success(
+    data class Success(
         val args: RequestWeatherArguments, val weather: Weather, val lastUpdatedDateTime: ZonedDateTime
     ) : WeatherContentUiState {
 
@@ -70,31 +72,31 @@ class Weather(
     )
 }
 
-class WeatherMainState @OptIn(ExperimentalMaterial3Api::class) constructor(
-    val scrollState: ScrollState,
-    val scrollBehavior: TopAppBarScrollBehavior,
+private class MutableWeatherMainState @OptIn(ExperimentalMaterial3Api::class) constructor(
+    override val scrollState: ScrollState,
+    override val scrollBehavior: TopAppBarScrollBehavior,
     private val windowInsetsController: WindowInsetsControllerCompat
-) {
-    val nestedRoutes = mutableStateOf(NestedWeatherRoutes.startDestination)
+) : WeatherMainState {
+    override val nestedRoutes = mutableStateOf(NestedWeatherRoutes.startDestination)
 
     init {
         updateWindowInset(true)
     }
 
-    fun navigate(nestedRoutes: NestedWeatherRoutes) {
+    override fun navigate(nestedRoutes: NestedWeatherRoutes) {
         this.nestedRoutes.value = nestedRoutes
         updateWindowInset(nestedRoutes !is NestedWeatherRoutes.Main)
     }
 
 
-    fun updateWindowInset(isAppearanceLight: Boolean) {
+    override fun updateWindowInset(isAppearanceLight: Boolean) {
         windowInsetsController.run {
             isAppearanceLightStatusBars = isAppearanceLight
             isAppearanceLightNavigationBars = isAppearanceLight
         }
     }
 
-    suspend fun expandAppBar() {
+    override suspend fun expandAppBar() {
         scrollState.scrollTo(0)
     }
 }
@@ -114,7 +116,7 @@ fun rememberWeatherMainState(
         initialHeightOffsetLimit = initialHeightOffsetLimit,
     ))
     val state = remember {
-        WeatherMainState(scrollState, scrollBehavior, WindowInsetsControllerCompat(window, window.decorView))
+        MutableWeatherMainState(scrollState, scrollBehavior, WindowInsetsControllerCompat(window, window.decorView))
     }
     var nestedRoutes by rememberSaveable(saver = Saver(save = { it.value.route },
         restore = { mutableStateOf(NestedWeatherRoutes.getRoute(it)) })) {
@@ -137,4 +139,16 @@ fun rememberWeatherMainState(
     }
 
     return state
+}
+
+
+@Stable
+interface WeatherMainState {
+    val scrollState: ScrollState
+    @OptIn(ExperimentalMaterial3Api::class) val scrollBehavior: TopAppBarScrollBehavior
+
+    val nestedRoutes: State<NestedWeatherRoutes>
+    suspend fun expandAppBar()
+    fun navigate(nestedRoutes: NestedWeatherRoutes)
+    fun updateWindowInset(isAppearanceLight: Boolean)
 }

@@ -1,4 +1,4 @@
-package io.github.pknujsp.weatherwizard.feature.map
+package io.github.pknujsp.weatherwizard.feature.map.overlay
 
 import android.os.Handler
 import android.os.Looper

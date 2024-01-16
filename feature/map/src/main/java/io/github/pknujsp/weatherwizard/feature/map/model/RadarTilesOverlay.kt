@@ -4,13 +4,12 @@ import android.content.Context
 import android.graphics.Color
 import androidx.compose.runtime.Stable
 import io.github.pknujsp.weatherwizard.core.model.UiModel
-import io.github.pknujsp.weatherwizard.feature.map.OverlayHandler
+import io.github.pknujsp.weatherwizard.feature.map.overlay.OverlayHandler
 import org.osmdroid.tileprovider.MapTileProviderBasic
 import org.osmdroid.tileprovider.modules.SqlTileWriter
 import org.osmdroid.tileprovider.tilesource.OnlineTileSourceBase
 import org.osmdroid.util.MapTileIndex
 import org.osmdroid.views.overlay.TilesOverlay
-import org.osmdroid.views.overlay.TilesOverlay.INVERT_COLORS
 
 @Stable
 class RadarTilesOverlay(
