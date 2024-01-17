@@ -25,7 +25,6 @@ fun RemoteViewsScreen(sampleRemoteViews: DefaultRemoteViewCreator, units: Curren
             modifier = modifier.padding(16.dp, 12.dp),
             shadowElevation = 6.dp,
         ) {
-            //val viewPadding = 16.dp.value.toInt()
             AndroidView(modifier = modifier.heightIn(max = 330.dp), factory = { context ->
                 FrameLayout(context).apply {
                     addView(sampleRemoteViews.createSampleView(context, units).apply(context, this))
@@ -33,7 +32,4 @@ fun RemoteViewsScreen(sampleRemoteViews: DefaultRemoteViewCreator, units: Curren
             }, update = {})
         }
     }
-}
-
-private fun ViewGroup.updateViewLayoutParamsForRemoteViews(remoteViews: RemoteViews) {
 }

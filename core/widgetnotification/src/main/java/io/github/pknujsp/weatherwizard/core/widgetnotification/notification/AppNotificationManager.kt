@@ -43,12 +43,14 @@ class AppNotificationManager(context: Context) {
 
     }
 
-    fun createNotification(notificationType: NotificationType, context: Context): NotificationCompat.Builder {
+    private fun createNotification(notificationType: NotificationType, context: Context, isOngoing: Boolean = notificationType.ongoing):
+            NotificationCompat
+            .Builder {
         createNotificationChannel(notificationType)
 
         return NotificationCompat.Builder(context, notificationType.channelId).apply {
             setSmallIcon(R.drawable.weatherwizard_icon_logo)
-            setOngoing(notificationType.ongoing)
+            setOngoing(isOngoing)
             setSilent(notificationType.silent)
             setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
             priority = notificationType.importance
@@ -96,7 +98,7 @@ class AppNotificationManager(context: Context) {
 
     @SuppressLint("MissingPermission")
     fun notifyLoadingNotification(notificationType: NotificationType, context: Context) {
-        val notificationBulder = createNotification(notificationType, context)
+        val notificationBulder = createNotification(notificationType, context, false)
 
         notificationBulder.setSmallIcon(R.drawable.ic_refresh)
             .setContent(RemoteViews(context.packageName, R.layout.view_loading_notification))

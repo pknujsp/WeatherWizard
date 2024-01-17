@@ -21,5 +21,7 @@ dependencies {
     ksp(libs.ksealedbinding.compiler)
     implementation(libs.ksealedbinding.annotation)
     implementation(libs.kotlinx.serialization.json)
+
+    implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.storage)
 }

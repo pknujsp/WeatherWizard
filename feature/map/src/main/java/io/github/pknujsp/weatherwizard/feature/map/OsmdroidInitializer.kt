@@ -16,7 +16,8 @@ import java.util.concurrent.atomic.AtomicBoolean
 object OsmdroidInitializer {
     private const val MAPSFORGE_MAP_FILES_DIR = "mapsforge"
     private const val MAPSFORGE_MAP_FILE_FORMAT = ".map"
-    private const val FILE_SYSTEM_THREADS: Short = 3
+    private const val FILE_SYSTEM_THREADS: Short = 2
+    private const val DOWNLOAD_THREADS: Short = 3
 
     private val isInitialized = AtomicBoolean(false)
 
@@ -28,7 +29,9 @@ object OsmdroidInitializer {
 
             Configuration.getInstance().run {
                 load(application, PreferenceManager.getDefaultSharedPreferences(application))
+                tileDownloadThreads = minOf(DOWNLOAD_THREADS, Runtime.getRuntime().availableProcessors().toShort())
                 tileFileSystemThreads = minOf(FILE_SYSTEM_THREADS, Runtime.getRuntime().availableProcessors().toShort())
+                tileDownloadMaxQueueSize = 20
                 tileFileSystemMaxQueueSize = 20
                 animationSpeedShort = 200
                 animationSpeedDefault = 200
