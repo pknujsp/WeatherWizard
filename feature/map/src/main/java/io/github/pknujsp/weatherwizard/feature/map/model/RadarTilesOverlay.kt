@@ -39,8 +39,6 @@ class RadarTilesOverlay(
                 SqlTileWriter().apply {
                     purgeCache(tileSourceName)
                 }).apply {
-                setOfflineFirst(false)
-                tileCache.setStressedMemory(true)
                 tileRequestCompleteHandlers.add(handler)
             }
             TilesOverlay(tileProvider, context).apply {

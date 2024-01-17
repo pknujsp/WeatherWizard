@@ -42,6 +42,7 @@ import io.github.pknujsp.weatherwizard.core.ui.theme.ShadowDirection
 import io.github.pknujsp.weatherwizard.core.ui.theme.shadowBox
 import io.github.pknujsp.weatherwizard.feature.airquality.AirQualityScreen
 import io.github.pknujsp.weatherwizard.feature.flickr.FlickrImageItemScreen
+import io.github.pknujsp.weatherwizard.feature.map.screen.SimpleMapScreen
 import io.github.pknujsp.weatherwizard.feature.sunsetrise.SimpleSunSetRiseScreen
 import io.github.pknujsp.weatherwizard.feature.sunsetrise.SunSetRiseInfo
 import io.github.pknujsp.weatherwizard.feature.weather.info.currentweather.simple.CurrentWeatherScreen
@@ -123,7 +124,7 @@ fun WeatherContentScreen(
                     }
                 }
                 SimpleDailyForecastScreen(weather.simpleDailyForecast, navigate)
-                //SimpleMapScreen(uiState.args)
+                SimpleMapScreen(uiState.args)
                 AirQualityScreen(uiState.args, uiState.lastUpdatedDateTime, onAirQualityLoaded = { aqi ->
                     weather.currentWeather.airQuality = aqi
                 })
