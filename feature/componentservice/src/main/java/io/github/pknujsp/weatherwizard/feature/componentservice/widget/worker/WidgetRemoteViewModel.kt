@@ -65,18 +65,20 @@ class WidgetRemoteViewModel @Inject constructor(
                         )
                         locationMap[coordinate] = currentLocation.address
                         entities.forEach {
-                            val requestId = weatherDataRequest.addRequest(
-                                coordinate,
-                                it.widgetType.categories.toSet(),
-                                it.weatherProvider,
-                            )
-                            requestMapWithRequestIdAndWidget.getOrPut(requestId) { mutableListOf() }.add(it)
+                            it.weatherProviders.forEach { weatherProvider ->
+                                val requestId = weatherDataRequest.addRequest(
+                                    coordinate,
+                                    it.widgetType.categories.toSet(),
+                                    weatherProvider,
+                                )
+                                requestMapWithRequestIdAndWidget.getOrPut(requestId) { mutableListOf() }.add(it)
+                            }
                         }
                     }
 
                     else -> {
                         entities.forEach {
-                            responseMap[it] = WeatherResponseState.Failure(-1, WeatherDataRequest.Coordinate(), it.weatherProvider)
+                            responseMap[it] = WeatherResponseState.Failure(-1, WeatherDataRequest.Coordinate(), it.weatherProviders.first())
                         }
                     }
                 }
@@ -89,12 +91,15 @@ class WidgetRemoteViewModel @Inject constructor(
                 longitude = it.location.longitude,
             )
             locationMap[coordinate] = it.location.address
-            val requestId = weatherDataRequest.addRequest(
-                coordinate,
-                it.widgetType.categories.toSet(),
-                it.weatherProvider,
-            )
-            requestMapWithRequestIdAndWidget.getOrPut(requestId) { mutableListOf() }.add(it)
+
+            it.weatherProviders.forEach { weatherProvider ->
+                val requestId = weatherDataRequest.addRequest(
+                    coordinate,
+                    it.widgetType.categories.toSet(),
+                    weatherProvider,
+                )
+                requestMapWithRequestIdAndWidget.getOrPut(requestId) { mutableListOf() }.add(it)
+            }
         }
 
         val responses = coroutineScope {
@@ -111,23 +116,32 @@ class WidgetRemoteViewModel @Inject constructor(
             }
         }
 
-        return linkWidgetsWithResponses(responseMap, locationMap)
+        return linkWidgetsWithResponses(responseMap.toList(), locationMap)
     }
 
     private fun linkWidgetsWithResponses(
-        responses: Map<WidgetSettingsEntity, WeatherResponseState>, locationMap: Map<WeatherDataRequest.Coordinate, String>
+        responses: List<Pair<WidgetSettingsEntity, WeatherResponseState>>, locationMap: Map<WeatherDataRequest.Coordinate, String>
     ): List<WidgetRemoteViewUiState> {
-        return responses.map { (widget, response) ->
-            WidgetRemoteViewUiState(
-                widget = widget,
-                lastUpdated = if (response is WeatherResponseState.Success) response.entity.responseTime else null,
-                address = locationMap[response.location],
-                isSuccessful = response is WeatherResponseState.Success,
-                model = if (response is WeatherResponseState.Success) response.entity else null,
-                latitude = response.location.latitude,
-                longitude = response.location.longitude,
-            )
+        val uiStateMapByCoordinate = mutableMapOf<WeatherDataRequest.Coordinate, WidgetRemoteViewUiState>()
+        for (coordinate in locationMap.keys) {
+            val responseState = responses.filter {  pair ->
+                pair.second.location == coordinate
+            }
+            responseState.forEach { (widget, response) ->
+                val state = WidgetRemoteViewUiState(
+                    widget = widget,
+                    lastUpdated = if (response is WeatherResponseState.Success) response.entity.responseTime else null,
+                    address = locationMap[response.location],
+                    isSuccessful = response is WeatherResponseState.Success,
+                    model = if (response is WeatherResponseState.Success) response.entity else null,
+                    latitude = response.location.latitude,
+                    longitude = response.location.longitude,
+                )
+            }
+
         }
+
+        return uiStateMapByCoordinate.values.toList()
     }
 
     suspend fun updateResponseData(id: Int, status: WidgetStatus, responseData: ByteArray? = null) {

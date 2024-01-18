@@ -17,8 +17,14 @@ class WidgetResponseDBModel(
     @SerialName("address") val address: String,
     @SerialName("latitude") val latitude: Double,
     @SerialName("longitude") val longitude: Double,
-    @SerialName("entities") val entities: List<Entity>,
+    @SerialName("entities") val entities: List<EntityWithWeatherProvider>,
 ) : EntityModel {
+
+    @Serializable
+    class EntityWithWeatherProvider(
+        @SerialName("weatherProvider") val weatherProvider: Int,
+        @SerialName("entities") val entities: List<Entity>,
+    )
 
     @Serializable
     class Entity(

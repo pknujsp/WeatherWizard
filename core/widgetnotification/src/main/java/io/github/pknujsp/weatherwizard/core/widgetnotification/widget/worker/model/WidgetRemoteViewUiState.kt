@@ -16,13 +16,18 @@ import java.time.ZonedDateTime
 
 class WidgetRemoteViewUiState(
     val widget: WidgetSettingsEntity,
-    override val lastUpdated: ZonedDateTime?,
-    override val address: String?,
+    override val lastUpdated: ZonedDateTime? = null,
+    override val address: String? = null,
     override val isSuccessful: Boolean,
-    override val model: WeatherResponseEntity?,
+    override val model: List<EntityWithWeatherProvider>? = null,
     val latitude: Double,
     val longitude: Double,
-) : RemoteViewUiState<WeatherResponseEntity> {
+) : RemoteViewUiState<List<WidgetRemoteViewUiState.EntityWithWeatherProvider>> {
+
+    class EntityWithWeatherProvider(
+        val weatherProvider: Int,
+        val entity: WeatherResponseEntity,
+    )
 
     private companion object {
         fun realTypeParseToByteArray(jsonParser: JsonParser, majorWeatherEntityType: MajorWeatherEntityType, model: WeatherEntityModel) =
@@ -35,8 +40,10 @@ class WidgetRemoteViewUiState(
             }
     }
 
-    fun toWidgetResponseDBModel(jsonParser: JsonParser) =
-        WidgetResponseDBModel(address = address!!, entities = model!!.export(widget.widgetType.categories.toSet()).map {
-            WidgetResponseDBModel.Entity(it.key.name, realTypeParseToByteArray(jsonParser, it.key, it.value))
-        }, latitude = latitude, longitude = longitude)
+    fun toWidgetResponseDBModel(jsonParser: JsonParser) = WidgetResponseDBModel(address = address!!, entities = model!!.map { entity ->
+        WidgetResponseDBModel.EntityWithWeatherProvider(weatherProvider = entity.weatherProvider,
+            entities = entity.entity.export(widget.widgetType.categories.toSet()).map {
+                WidgetResponseDBModel.Entity(it.key.name, realTypeParseToByteArray(jsonParser, it.key, it.value))
+            })
+    }, latitude = latitude, longitude = longitude)
 }

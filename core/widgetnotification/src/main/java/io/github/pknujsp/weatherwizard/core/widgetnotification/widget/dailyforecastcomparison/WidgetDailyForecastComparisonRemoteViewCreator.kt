@@ -1,4 +1,4 @@
-package io.github.pknujsp.weatherwizard.core.widgetnotification.widget.hourlyforecastcomparison
+package io.github.pknujsp.weatherwizard.core.widgetnotification.widget.dailyforecastcomparison
 
 import android.content.Context
 import android.widget.RemoteViews
@@ -12,10 +12,12 @@ import io.github.pknujsp.weatherwizard.core.widgetnotification.remoteview.Remote
 import io.github.pknujsp.weatherwizard.core.widgetnotification.remoteview.addViewSafely
 import io.github.pknujsp.weatherwizard.core.widgetnotification.widget.remoteview.WidgetRemoteViewsCreator
 import java.time.ZonedDateTime
+import java.time.format.DateTimeFormatter
+import java.util.Locale
 
-class WidgetHourlyForecastComparisonRemoteViewCreator : WidgetRemoteViewsCreator<WidgetHourlyForecastComparisonRemoteViewUiModel>() {
+class WidgetDailyForecastComparisonRemoteViewCreator : WidgetRemoteViewsCreator<WidgetDailyForecastComparisonRemoteViewUiModel>() {
     override fun createContentView(
-        model: WidgetHourlyForecastComparisonRemoteViewUiModel, header: Header, context: Context
+        model: WidgetDailyForecastComparisonRemoteViewUiModel, header: Header, context: Context
     ): RemoteViews {
         return RemoteViews(context.packageName, R.layout.view_forecast_comparison_widget).let { content ->
             // 날씨 제공사 별로 처리
@@ -26,22 +28,16 @@ class WidgetHourlyForecastComparisonRemoteViewCreator : WidgetRemoteViewsCreator
                 }
                 content.addView(R.id.forecast_comparison_column, containerView)
 
-                item.currentWeather.let {
-                    val view = RemoteViews(context.packageName, R.layout.view_hourly_forecast_item).apply {
-                        setTextViewText(R.id.time, it.dateTime)
-                        setImageViewResource(R.id.weather_icon, it.weatherIcon)
+                item.dailyForecast.forEach {
+                    containerView.addView(R.id.forecast_row, RemoteViews(context.packageName, R.layout.view_daily_forecast_item).apply {
+                        setTextViewText(R.id.date, it.date)
+                        it.weatherIcons.forEach { icon ->
+                            addView(R.id.weather_icons, RemoteViews(context.packageName, R.layout.view_weather_icon_item).also { iconView ->
+                                iconView.setImageViewResource(R.id.weather_icon, icon)
+                            })
+                        }
                         setTextViewText(R.id.temperature, it.temperature)
-                    }
-                    containerView.addView(R.id.forecast_row, view)
-                }
-
-                item.hourlyForecast.forEach {
-                    val view = RemoteViews(context.packageName, R.layout.view_hourly_forecast_item).apply {
-                        setTextViewText(R.id.time, it.dateTime)
-                        setImageViewResource(R.id.weather_icon, it.weatherIcon)
-                        setTextViewText(R.id.temperature, it.temperature)
-                    }
-                    containerView.addView(R.id.forecast_row, view)
+                    })
                 }
             }
 
@@ -54,17 +50,17 @@ class WidgetHourlyForecastComparisonRemoteViewCreator : WidgetRemoteViewsCreator
 
 
     override fun createSampleView(context: Context, units: CurrentUnits): RemoteViews {
-        val currentWeather = MockDataGenerator.currentWeatherEntity.run {
-            WidgetHourlyForecastComparisonRemoteViewUiModel.CurrentWeather(temperature.convertUnit(units.temperatureUnit).toString(),
-                weatherCondition.value.dayWeatherIcon)
+        val dateFormatter = DateTimeFormatter.ofPattern("d E", Locale.getDefault())
+
+        val forecast = MockDataGenerator.dailyForecastEntity.dayItems.subList(0, 5).map { dayItem ->
+            WidgetDailyForecastComparisonRemoteViewUiModel.DailyForecast("${dayItem.minTemperature.convertUnit(units.temperatureUnit)}/${
+                dayItem.maxTemperature.convertUnit(units.temperatureUnit)
+            }",
+                dayItem.items.map { it.weatherCondition.value.dayWeatherIcon },
+                dateFormatter.format(ZonedDateTime.parse(dayItem.dateTime.value)))
         }
-        val hourlyForecast = MockDataGenerator.hourlyForecastEntity.items.map {
-            WidgetHourlyForecastComparisonRemoteViewUiModel.HourlyForecast(it.temperature.convertUnit(units.temperatureUnit).toString(),
-                it.weatherCondition.value.dayWeatherIcon,
-                ZonedDateTime.parse(it.dateTime.value).hour.toString())
-        }
-        val mockModel = WidgetHourlyForecastComparisonRemoteViewUiModel(WeatherProvider.enums.map {
-            WidgetHourlyForecastComparisonRemoteViewUiModel.Item(it, currentWeather, hourlyForecast)
+        val mockModel = WidgetDailyForecastComparisonRemoteViewUiModel(WeatherProvider.enums.map {
+            WidgetDailyForecastComparisonRemoteViewUiModel.Item(it, forecast)
         })
         return createContentView(mockModel, RemoteViewsMockGenerator.header, context)
     }

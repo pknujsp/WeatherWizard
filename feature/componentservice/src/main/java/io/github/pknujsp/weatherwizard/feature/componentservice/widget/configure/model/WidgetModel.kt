@@ -2,7 +2,6 @@ package io.github.pknujsp.weatherwizard.feature.componentservice.widget.configur
 
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import io.github.pknujsp.weatherwizard.core.model.UiModel
@@ -19,4 +18,6 @@ class WidgetModel(
     val widgetType = WidgetType.fromKey(widgetType)
     var weatherProvider: WeatherProvider by mutableStateOf(WeatherProvider.default)
     var location: LocationTypeModel by mutableStateOf(LocationTypeModel())
+    val displayAllWeatherProviders by mutableStateOf(this.widgetType == WidgetType.DAILY_FORECAST_COMPARISON || this.widgetType ==
+            WidgetType.HOURLY_FORECAST_COMPARISON)
 }

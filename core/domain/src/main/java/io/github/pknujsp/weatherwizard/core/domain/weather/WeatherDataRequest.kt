@@ -79,3 +79,15 @@ class WeatherDataRequest(
         val latitude: Double = 0.0, val longitude: Double = 0.0
     )
 }
+
+/*
+* val state = WidgetRemoteViewUiState(
+                    widget = widget,
+                    lastUpdated = if (response is WeatherResponseState.Success) response.entity.responseTime else null,
+                    address = locationMap[response.location],
+                    isSuccessful = response is WeatherResponseState.Success,
+                    model = if (response is WeatherResponseState.Success) response.entity else null,
+                    latitude = response.location.latitude,
+                    longitude = response.location.longitude,
+                )
+* */

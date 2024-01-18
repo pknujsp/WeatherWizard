@@ -3,7 +3,6 @@ package io.github.pknujsp.weatherwizard.feature.componentservice.widget
 import android.appwidget.AppWidgetManager
 import android.content.Context
 import android.content.Intent
-import android.util.Log
 import androidx.hilt.work.HiltWorker
 import androidx.work.WorkerParameters
 import dagger.assisted.Assisted
@@ -104,7 +103,6 @@ class WidgetCoroutineService @AssistedInject constructor(
                 action = AppWidgetManager.ACTION_APPWIDGET_UPDATE
                 putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, widgetIds.toTypedArray())
                 context.sendBroadcast(this)
-                Log.d("WidgetCoroutineService", "sendBroadcast: $widgetIds")
             }
         }
     }
