@@ -5,25 +5,20 @@ import io.github.pknujsp.weatherwizard.core.model.settings.IEnum
 import io.github.pknujsp.weatherwizard.core.model.weather.common.MajorWeatherEntityType
 
 enum class WidgetType(val categories: Array<MajorWeatherEntityType>) : IEnum {
-    CURRENT_CONDITION(arrayOf(MajorWeatherEntityType.CURRENT_CONDITION)) {
+    TIME_HOURLY_FORECAST(arrayOf(MajorWeatherEntityType.CURRENT_CONDITION, MajorWeatherEntityType.HOURLY_FORECAST)) {
         override val icon: Int? = null
-        override val title: Int = io.github.pknujsp.weatherwizard.core.resource.R.string.current_weather
+        override val title: Int = io.github.pknujsp.weatherwizard.core.resource.R.string.time_hourly_forecast_widget
         override val key: Int = ordinal
     },
-    HOURLY_FORECAST(arrayOf(MajorWeatherEntityType.HOURLY_FORECAST)) {
+    HOURLY_FORECAST_COMPARISON(arrayOf(MajorWeatherEntityType.HOURLY_FORECAST)) {
         override val icon: Int? = null
         override val key: Int = ordinal
-        override val title: Int = io.github.pknujsp.weatherwizard.core.resource.R.string.hourly_forecast
+        override val title: Int = io.github.pknujsp.weatherwizard.core.resource.R.string.hourly_forecast_comparison_widget
     },
-    DAILY_FORECAST(arrayOf(MajorWeatherEntityType.DAILY_FORECAST)) {
+    DAILY_FORECAST_COMPARISON(arrayOf(MajorWeatherEntityType.DAILY_FORECAST)) {
         override val icon: Int? = null
         override val key: Int = ordinal
-        override val title: Int = io.github.pknujsp.weatherwizard.core.resource.R.string.daily_forecast
-    },
-    AIR_QUALITY(arrayOf(MajorWeatherEntityType.AIR_QUALITY)) {
-        override val key: Int = ordinal
-        override val title: Int = io.github.pknujsp.weatherwizard.core.resource.R.string.air_quality
-        override val icon: Int? = null
+        override val title: Int = io.github.pknujsp.weatherwizard.core.resource.R.string.daily_forecast_comparison_widget
     },
     ALL_IN_ONE(arrayOf(MajorWeatherEntityType.CURRENT_CONDITION,
         MajorWeatherEntityType.HOURLY_FORECAST,

@@ -308,5 +308,8 @@
     <string name="go_to_select_target_location">지정하기</string>
     <string name="unknown_address">알수없는 주소</string>
     <string name="unknown_country">알수없는 국가</string>
+    <string name="time_hourly_forecast_widget">현재시각 + 현재날씨 + 시간별 예보</string>
+    <string name="hourly_forecast_comparison_widget">시간별 예보 비교</string>
+    <string name="daily_forecast_comparison_widget">일별 예보 비교</string>
 
 </resources>
