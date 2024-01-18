@@ -41,7 +41,7 @@ import io.github.pknujsp.weatherwizard.feature.searchlocation.SearchLocationScre
 
 @Composable
 fun WidgetConfigureScreen(
-    navController: NavController, viewModel: WidgetConfigureViewModel = hiltViewModel()
+    viewModel: WidgetConfigureViewModel = hiltViewModel()
 ) {
     val context = LocalContext.current
     val widget = viewModel.widget

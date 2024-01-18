@@ -6,10 +6,8 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import io.github.pknujsp.weatherwizard.core.common.FeatureType
 import io.github.pknujsp.weatherwizard.core.common.coroutines.CoDispatcher
 import io.github.pknujsp.weatherwizard.core.common.coroutines.CoDispatcherType
-import io.github.pknujsp.weatherwizard.core.common.manager.FailedReason
 import io.github.pknujsp.weatherwizard.core.data.favorite.FavoriteAreaListRepository
 import io.github.pknujsp.weatherwizard.core.data.favorite.SelectedLocationModel
 import io.github.pknujsp.weatherwizard.core.data.favorite.TargetLocationRepository
@@ -64,28 +62,22 @@ class FavoriteAreaViewModel @Inject constructor(
 
     private fun setCurrentLocationFlow() {
         viewModelScope.launch {
-            val isGpsEnabled = getCurrentLocationUseCase.appLocationManager.
-
-                getCurrentLocationUseCase.geoCodeFlow.onEach { geocode ->
-                    when (geocode) {
-                        is LocationGeoCodeState.Success -> {
-                            mutableTargetLocationUiState.loadCurrentLocationState = LoadCurrentLocationState.Success(geocode.address)
-                        }
-
-                        is LocationGeoCodeState.Failure -> {
-                            val featureType = when (geocode.reason) {
-                                FailedReason.LOCATION_PERMISSION_DENIED -> FeatureType.LOCATION_PERMISSION
-                                FailedReason.LOCATION_PROVIDER_DISABLED -> FeatureType.LOCATION_SERVICE
-                                else -> null
-                            }
-                            mutableTargetLocationUiState.loadCurrentLocationState =
-                                LoadCurrentLocationState.Failed(featureType, geocode.reason)
-                        }
-
-                        else -> {}
+            getCurrentLocationUseCase.geoCodeFlow.collect { geocode ->
+                when (geocode) {
+                    is LocationGeoCodeState.Success -> {
+                        mutableTargetLocationUiState.loadCurrentLocationState = LoadCurrentLocationState.Success(geocode.address)
                     }
-                    mutableTargetLocationUiState.isLoading = false
+
+                    is LocationGeoCodeState.Failure -> {
+
+                        mutableTargetLocationUiState.loadCurrentLocationState =
+                            LoadCurrentLocationState.Failed(geocode.reason)
+                    }
+
+                    else -> {}
                 }
+                mutableTargetLocationUiState.isLoading = false
+            }
         }
     }
 

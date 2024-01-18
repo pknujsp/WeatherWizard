@@ -18,7 +18,7 @@ class SimpleDailyForecast(
 
     companion object {
         val itemWidth: Dp = 92.dp
-        val temperatureGraphHeight: Dp = 50.dp
+        val temperatureGraphHeight: Dp = 52.dp
         private val dateFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("M/d\nE")
 
         @DrawableRes val probabilityIcon = io.github.pknujsp.weatherwizard.core.resource.R.drawable.pop

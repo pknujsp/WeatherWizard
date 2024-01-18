@@ -43,6 +43,7 @@ import io.github.pknujsp.weatherwizard.core.resource.R
 import io.github.pknujsp.weatherwizard.core.ui.MainRoutes
 import io.github.pknujsp.weatherwizard.core.ui.RootNavControllerViewModel
 import io.github.pknujsp.weatherwizard.core.ui.TitleTextWithNavigation
+import io.github.pknujsp.weatherwizard.core.ui.feature.FeatureStateScreen
 import io.github.pknujsp.weatherwizard.core.ui.feature.OpenAppSettingsActivity
 import io.github.pknujsp.weatherwizard.core.ui.feature.UnavailableFeatureScreen
 import io.github.pknujsp.weatherwizard.core.ui.feature.rememberAppNetworkState
@@ -96,13 +97,9 @@ fun SearchAreaScreen(
                     showSearchHistory = true
                 }
             }
-        } else if (networkUiState.isOpenAppSettings) {
-            OpenAppSettingsActivity(featureType = FeatureType.NETWORK) {
-                networkUiState.isOpenAppSettings = false
-            }
         } else {
-            UnavailableFeatureScreen(featureType = FeatureType.NETWORK) {
-                networkUiState.isOpenAppSettings = true
+            FeatureStateScreen(featureType = FeatureType.NETWORK) {
+
             }
         }
     }

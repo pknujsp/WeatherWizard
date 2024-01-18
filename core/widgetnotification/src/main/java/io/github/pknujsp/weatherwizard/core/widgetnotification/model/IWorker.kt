@@ -7,6 +7,8 @@ import android.os.PowerManager
 import androidx.work.CoroutineWorker
 import androidx.work.ForegroundInfo
 import androidx.work.WorkerParameters
+import io.github.pknujsp.weatherwizard.core.FeatureStateManager
+import io.github.pknujsp.weatherwizard.core.FeatureStateManagerImpl
 import io.github.pknujsp.weatherwizard.core.common.FeatureType
 import io.github.pknujsp.weatherwizard.core.common.NotificationType
 import io.github.pknujsp.weatherwizard.core.widgetnotification.notification.AppNotificationManager
@@ -19,13 +21,14 @@ interface IWorker {
 }
 
 interface AppComponentService {
+    val featureStateManager: FeatureStateManager
     val id: Int
 }
 
 abstract class AppComponentCoroutineService<T : ComponentServiceArgument>(
     private val context: Context, params: WorkerParameters, private val iWorker: IWorker,
 ) : CoroutineWorker(context, params), AppComponentService {
-
+    override val featureStateManager: FeatureStateManager by lazy { FeatureStateManagerImpl() }
     open val isRequiredForegroundService: Boolean = true
     override val id: Int = iWorker.workerId
 
@@ -63,7 +66,7 @@ abstract class AppComponentCoroutineService<T : ComponentServiceArgument>(
 abstract class AppComponentBackgroundService<T : ComponentServiceArgument>(
     protected val context: Context
 ) : AppComponentService {
-
+    override val featureStateManager: FeatureStateManager by lazy { FeatureStateManagerImpl() }
     override val id: Int = this::class.simpleName.hashCode()
     private val wakeLockDuration = Duration.ofSeconds(30).toMillis()
 

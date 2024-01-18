@@ -1,6 +1,6 @@
 package io.github.pknujsp.weatherwizard.core.widgetnotification.remoteview
 
-import io.github.pknujsp.weatherwizard.core.common.manager.FailedReason
+import io.github.pknujsp.weatherwizard.core.common.StatefulFeature
 import io.github.pknujsp.weatherwizard.core.domain.location.GetCurrentLocationAddress
 import io.github.pknujsp.weatherwizard.core.domain.location.LocationGeoCodeState
 import kotlinx.coroutines.cancel
@@ -42,7 +42,7 @@ abstract class RemoteViewModel(
         ) : CurrentLocationResult
 
         class Failure(
-            val reason: FailedReason
+            val reason: StatefulFeature
         ) : CurrentLocationResult
 
     }

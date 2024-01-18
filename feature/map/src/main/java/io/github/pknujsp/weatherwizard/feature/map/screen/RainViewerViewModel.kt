@@ -1,4 +1,4 @@
-package io.github.pknujsp.weatherwizard.feature.map
+package io.github.pknujsp.weatherwizard.feature.map.screen
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -8,6 +8,7 @@ import io.github.pknujsp.weatherwizard.core.common.coroutines.CoDispatcherType
 import io.github.pknujsp.weatherwizard.core.data.rainviewer.RadarTilesRepository
 import io.github.pknujsp.weatherwizard.core.model.UiState
 import io.github.pknujsp.weatherwizard.core.model.onSuccess
+import io.github.pknujsp.weatherwizard.feature.map.RadarController
 import io.github.pknujsp.weatherwizard.feature.map.model.RadarTileEntity
 import io.github.pknujsp.weatherwizard.feature.map.model.RadarUiState
 import kotlinx.coroutines.CoroutineDispatcher

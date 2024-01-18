@@ -5,10 +5,9 @@ import androidx.hilt.work.HiltWorker
 import androidx.work.WorkerParameters
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
+import io.github.pknujsp.weatherwizard.core.FeatureStateManager
 import io.github.pknujsp.weatherwizard.core.common.FeatureType
 import io.github.pknujsp.weatherwizard.core.common.NotificationType
-import io.github.pknujsp.weatherwizard.core.common.manager.FeatureState
-import io.github.pknujsp.weatherwizard.core.common.manager.FeatureStatusManager
 import io.github.pknujsp.weatherwizard.core.model.RemoteViewUiModel
 import io.github.pknujsp.weatherwizard.core.model.coordinate.LocationType
 import io.github.pknujsp.weatherwizard.core.resource.R
@@ -27,7 +26,6 @@ class DailyNotificationCoroutineService @AssistedInject constructor(
     @Assisted val context: Context,
     @Assisted params: WorkerParameters,
     private val viewModel: DailyNotificationRemoteViewModel,
-    private val featureStatusManager: FeatureStatusManager
 ) : AppComponentCoroutineService<DailyNotificationServiceArgument>(context, params, Companion) {
 
     companion object : IWorker {
@@ -55,7 +53,8 @@ class DailyNotificationCoroutineService @AssistedInject constructor(
         val notificationEntity = viewModel.loadNotification(notificationId)
 
         if (notificationEntity.location.locationType is LocationType.CurrentLocation && !checkFeatureStateAndNotify(arrayOf(FeatureType.LOCATION_PERMISSION,
-                FeatureType.LOCATION_SERVICE, FeatureType.BACKGROUND_LOCATION_PERMISSION), context)) {
+                FeatureType.LOCATION_SERVICE,
+                FeatureType.BACKGROUND_LOCATION_PERMISSION), context)) {
             return
         }
 
@@ -102,16 +101,16 @@ class DailyNotificationCoroutineService @AssistedInject constructor(
 
 
     private fun checkFeatureStateAndNotify(featureTypes: Array<FeatureType>, context: Context): Boolean {
-        return when (val state = featureStatusManager.status(context, featureTypes)) {
-            is FeatureState.Unavailable -> {
+        return when (val state = featureStateManager.retrieveFeaturesState(featureTypes, context)) {
+            is FeatureStateManager.FeatureState.Unavailable -> {
                 val smallRemoteViews = UiStateRemoteViewCreator.createView(context,
-                    state.featureType.failedReason,
+                    state.featureType,
                     io.github.pknujsp.weatherwizard.core.widgetnotification.remoteview.RemoteViewCreator.ContainerType.NOTIFICATION_SMALL,
                     viewSizeType = UiStateRemoteViewCreator.ViewSizeType.SMALL,
                     visibilityOfCompleteButton = false,
                     visibilityOfActionButton = false)
                 val bigRemoteViews = UiStateRemoteViewCreator.createView(context,
-                    state.featureType.failedReason,
+                    state.featureType,
                     io.github.pknujsp.weatherwizard.core.widgetnotification.remoteview.RemoteViewCreator.ContainerType.NOTIFICATION_BIG,
                     viewSizeType = UiStateRemoteViewCreator.ViewSizeType.BIG,
                     visibilityOfCompleteButton = false,

@@ -6,7 +6,7 @@ import io.github.pknujsp.weatherwizard.core.ui.NestedRoutes
 sealed interface NestedWeatherRoutes : NestedRoutes {
     companion object : NestedParentRoutes {
         override val route: String = "Weather"
-        override val startDestination: NestedRoutes get() = Main
+        override val startDestination: NestedWeatherRoutes get() = Main
         override val routes: Array<NestedRoutes>
             get() = arrayOf(Main, DetailHourlyForecast, DetailDailyForecast,
                 ComparisonHourlyForecast, ComparisonDailyForecast)

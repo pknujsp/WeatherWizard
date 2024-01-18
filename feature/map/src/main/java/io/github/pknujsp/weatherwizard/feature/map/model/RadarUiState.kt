@@ -44,7 +44,7 @@ class RadarUiState(
 
 internal object MapSettingsDefault {
     const val MIN_ZOOM_LEVEL = 2.0
-    const val MAX_ZOOM_LEVEL = 19.0
+    const val MAX_ZOOM_LEVEL = 16.0
 }
 
 internal object RadarTileSettingsDefault {

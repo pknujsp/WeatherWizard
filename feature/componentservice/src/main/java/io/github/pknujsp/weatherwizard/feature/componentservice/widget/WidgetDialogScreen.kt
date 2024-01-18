@@ -4,6 +4,7 @@ import android.content.Intent
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
@@ -17,6 +18,7 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import io.github.pknujsp.weatherwizard.core.common.asActivity
 import io.github.pknujsp.weatherwizard.core.resource.R
+import io.github.pknujsp.weatherwizard.core.ui.ButtonSize
 import io.github.pknujsp.weatherwizard.core.ui.PrimaryButton
 import io.github.pknujsp.weatherwizard.core.ui.SecondaryButton
 import io.github.pknujsp.weatherwizard.core.ui.ThirdButton
@@ -27,7 +29,7 @@ import io.github.pknujsp.weatherwizard.feature.componentservice.NotificationServ
 @Preview(showBackground = true, backgroundColor = 0xFFFFFFFF, showSystemUi = true)
 @Composable
 fun WidgetDialogScreen() {
-    Box(contentAlignment = androidx.compose.ui.Alignment.Center) {
+    Box(contentAlignment = androidx.compose.ui.Alignment.Center, modifier = Modifier.padding(24.dp, 24.dp)) {
         val activity = LocalContext.current.asActivity()!!
         Content(onClickLaunchApp = {
             startActivity(activity, ComponentPendingIntentManager.mainActivityIntent, null)
@@ -47,20 +49,21 @@ fun WidgetDialogScreen() {
 
 
 @Composable
-fun Content(onClickLaunchApp: () -> Unit = {}, onClickRefresh: () -> Unit = {}, onClickCancel: () -> Unit = {}) {
-    Column(horizontalAlignment = androidx.compose.ui.Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(16.dp),
-        modifier = Modifier.padding(vertical = 24.dp)) {
+fun Content(onClickLaunchApp: () -> Unit, onClickRefresh: () -> Unit, onClickCancel: () -> Unit) {
+    Column(
+        horizontalAlignment = androidx.compose.ui.Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(14.dp),
+    ) {
         AsyncImage(model = ImageRequest.Builder(LocalContext.current).data(R.drawable.textlogo_small).build(),
             contentDescription = null,
             modifier = Modifier.height(24.dp))
-        PrimaryButton(text = stringResource(id = R.string.launch_app)) {
+        PrimaryButton(text = stringResource(id = R.string.launch_app), buttonSize = ButtonSize.MEDIUM, modifier = Modifier.fillMaxWidth()) {
             onClickLaunchApp()
         }
-        SecondaryButton(text = stringResource(id = R.string.refresh)) {
+        SecondaryButton(text = stringResource(id = R.string.refresh), buttonSize = ButtonSize.MEDIUM, modifier = Modifier.fillMaxWidth()) {
             onClickRefresh()
         }
-        ThirdButton(text = stringResource(id = R.string.cancel)) {
+        ThirdButton(text = stringResource(id = R.string.close), buttonSize = ButtonSize.SMALL, modifier = Modifier.fillMaxWidth()) {
             onClickCancel()
         }
     }

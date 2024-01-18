@@ -7,18 +7,15 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import io.github.pknujsp.weatherwizard.core.common.StatefulFeature
 import io.github.pknujsp.weatherwizard.core.common.coroutines.CoDispatcher
 import io.github.pknujsp.weatherwizard.core.common.coroutines.CoDispatcherType
 import io.github.pknujsp.weatherwizard.core.common.manager.FailedReason
 import io.github.pknujsp.weatherwizard.core.data.aqicn.AirQualityRepository
-import io.github.pknujsp.weatherwizard.core.model.UiState
 import io.github.pknujsp.weatherwizard.core.model.airquality.AirQualityEntity
 import io.github.pknujsp.weatherwizard.core.model.airquality.SimpleAirQuality
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.time.LocalDate
@@ -104,12 +101,12 @@ class AirQualityViewModel @Inject constructor(
 private class MutableAirQualityUiState : AirQualityUiState {
     override var airQuality: SimpleAirQuality? by mutableStateOf(null)
     override var isLoading: Boolean by mutableStateOf(true)
-    override var failedReason: FailedReason? by mutableStateOf(null)
+    override var failedReason: StatefulFeature? by mutableStateOf(null)
 }
 
 @Stable
 interface AirQualityUiState {
     val airQuality: SimpleAirQuality?
     val isLoading: Boolean
-    val failedReason: FailedReason?
+    val failedReason: StatefulFeature?
 }

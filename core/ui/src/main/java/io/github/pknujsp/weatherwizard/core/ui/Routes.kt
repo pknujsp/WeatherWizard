@@ -49,7 +49,7 @@ interface NestedParentRoutes {
     val route: String
     val startDestination: NestedRoutes
     val routes: Array<NestedRoutes>
-    fun getRoute(route: String): NestedRoutes {
-        return routes.first { it.route == route }
+    fun <T : NestedRoutes> getRoute(route: String): T {
+        return routes.first { it.route == route } as T
     }
 }

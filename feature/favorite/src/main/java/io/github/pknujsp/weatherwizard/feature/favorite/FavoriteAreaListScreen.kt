@@ -7,12 +7,12 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -43,6 +43,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
+import io.github.pknujsp.weatherwizard.core.common.FeatureType
 import io.github.pknujsp.weatherwizard.core.data.favorite.SelectedLocationModel
 import io.github.pknujsp.weatherwizard.core.model.coordinate.LocationType
 import io.github.pknujsp.weatherwizard.core.model.favorite.FavoriteArea
@@ -87,20 +88,21 @@ fun FavoriteAreaListScreen(navController: NavController, viewModel: FavoriteArea
         }
     }
 
-    if (showSettingsActivity) {
-        OpenAppSettingsActivity(featureType = (targetLocation.loadCurrentLocationState as LoadCurrentLocationState.Failed).featureType!!) {
+    if (showSettingsActivity && targetLocation.loadCurrentLocationState is LoadCurrentLocationState.Failed) {
+        OpenAppSettingsActivity(featureType = (targetLocation.loadCurrentLocationState as LoadCurrentLocationState.Failed).statefulFeature as FeatureType) {
             showSettingsActivity = false
             viewModel.loadCurrentLocation()
         }
     }
 
     Column(modifier = Modifier.fillMaxSize()) {
-        LazyColumn(modifier = Modifier.weight(1f), state = rememberLazyListState()) {
-            item {
-                TitleTextWithNavigation(title = stringResource(id = R.string.nav_favorite_areas), onClickNavigation = {
-                    backDispatcher?.onBackPressed()
-                })
-            }
+        TitleTextWithNavigation(title = stringResource(id = R.string.nav_favorite_areas), onClickNavigation = {
+            backDispatcher?.onBackPressed()
+        })
+        LazyColumn(modifier = Modifier.weight(1f),
+            state = rememberLazyListState(),
+            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 6.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp, Alignment.Top)) {
             item {
                 CurrentLocationItem(targetLocation, onClick = {
                     viewModel.updateTargetLocation(SelectedLocationModel(LocationType.CurrentLocation))
@@ -157,38 +159,35 @@ fun FavoriteAreaListScreen(navController: NavController, viewModel: FavoriteArea
 private fun FavoriteLocationItem(
     favoriteLocation: FavoriteArea, targetLocationId: Long?, onClick: () -> Unit, onClickDelete: (Long) -> Unit
 ) {
-    Box(modifier = Modifier
-        .fillMaxWidth()
-        .wrapContentHeight()
-        .padding(horizontal = 16.dp, vertical = 8.dp)) {
-        Row(modifier = Modifier
-            .fillMaxWidth()
-            .wrapContentHeight()
-            .shadow(elevation = 4.dp, shape = AppShapes.large)
-            .background(color = Color.White, shape = AppShapes.large)
-            .padding(horizontal = 8.dp, vertical = 6.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween) {
-            IconButton(onClick = {
-                onClickDelete(favoriteLocation.id)
-            }) {
-                Icon(imageVector = Icons.Rounded.Delete, contentDescription = null)
-            }
-            Column(modifier = Modifier
-                .weight(1f)
-                .clickable {
-                    if (targetLocationId == null || targetLocationId != favoriteLocation.id) {
-                        onClick()
-                    }
-                }, verticalArrangement = Arrangement.Center) {
-                Text(text = favoriteLocation.countryName, style = TextStyle(fontSize = 12.sp, color = Color.Gray))
-                Text(text = favoriteLocation.areaName, style = TextStyle(fontSize = 15.sp, color = Color.Black))
-            }
-            Checkbox(checked = targetLocationId == favoriteLocation.id, onCheckedChange = {
+
+    Row(horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally), verticalAlignment = Alignment.CenterVertically) {
+        IconButton(onClick = {
+            onClickDelete(favoriteLocation.id)
+        }) {
+            Icon(imageVector = Icons.Rounded.Delete, contentDescription = null)
+        }
+        Box(modifier = Modifier
+            .clickable {
                 if (targetLocationId == null || targetLocationId != favoriteLocation.id) {
                     onClick()
                 }
-            })
+            }
+            .shadow(elevation = 6.dp, shape = AppShapes.medium)
+            .background(color = Color.White, shape = AppShapes.medium)
+            .padding(horizontal = 16.dp, vertical = 8.dp)) {
+            Row(modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Start) {
+                Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.Center) {
+                    Text(text = favoriteLocation.countryName, style = TextStyle(fontSize = 12.sp, color = Color.Gray))
+                    Text(text = favoriteLocation.areaName, style = TextStyle(fontSize = 15.sp, color = Color.Black))
+                }
+                Checkbox(checked = targetLocationId == favoriteLocation.id, onCheckedChange = {
+                    if (targetLocationId == null || targetLocationId != favoriteLocation.id) {
+                        onClick()
+                    }
+                })
+            }
         }
     }
 }
@@ -199,25 +198,19 @@ private fun CurrentLocationItem(
     locationUiState: LocationUiState, onClickRetry: () -> Unit, onClickAction: () -> Unit, onClick: () -> Unit
 ) {
     Box(modifier = Modifier
-        .fillMaxWidth()
-        .wrapContentHeight()
-        .padding(horizontal = 16.dp, vertical = 8.dp)) {
-        Row(modifier = Modifier
-            .fillMaxWidth()
-            .clickable {
-                if (locationUiState.locationType !is LocationType.CurrentLocation) {
-                    onClick()
-                }
+        .clickable {
+            if (locationUiState.locationType !is LocationType.CurrentLocation) {
+                onClick()
             }
-            .shadow(elevation = 4.dp, shape = AppShapes.large)
-            .background(color = Color.White, shape = AppShapes.large)
-            .padding(horizontal = 12.dp, vertical = 8.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Start) {
+        }
+        .shadow(elevation = 4.dp, shape = AppShapes.extraLarge)
+        .background(color = Color.White, shape = AppShapes.extraLarge)
+        .padding(horizontal = 16.dp, vertical = 8.dp)) {
+        Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Start) {
             Icon(
                 painter = painterResource(id = R.drawable.ic_location),
                 contentDescription = stringResource(id = R.string.current_location),
-                modifier = Modifier.size(24.dp),
+                modifier = Modifier.size(22.dp),
             )
             Column(modifier = Modifier
                 .weight(1f)
@@ -226,7 +219,7 @@ private fun CurrentLocationItem(
                 verticalArrangement = Arrangement.Center) {
                 Text(
                     text = stringResource(id = R.string.current_location),
-                    style = TextStyle(fontSize = 17.sp, color = Color.Gray),
+                    style = TextStyle(fontSize = 15.sp, color = Color.Gray),
                 )
 
                 if (locationUiState.isLoading) {
@@ -245,7 +238,7 @@ private fun CurrentLocationItem(
                         }
 
                         is LoadCurrentLocationState.Failed -> {
-                            LoadCurrentLocationFailureScreen(state.failedReason ?: state.featureType!!.failedReason, onClickRetry = {
+                            LoadCurrentLocationFailureScreen(state.statefulFeature, onClickRetry = {
                                 onClickRetry()
                             }, onClickAction = {
                                 onClickAction()
@@ -272,22 +265,16 @@ private fun DeleteDialog(
     onConfirmation: () -> Unit,
 ) {
     BottomSheet(
-        onDismissRequest = {
-            onDismissRequest()
-        },
+        onDismissRequest = onDismissRequest,
     ) {
         val message = stringResource(id = R.string.delete_favorite_location_message).let {
-            "$it\n$address"
+            "$it\n\n$address"
         }
         DialogScreen(title = stringResource(id = R.string.delete_favorite_location_title),
             message = message,
             negative = stringResource(id = R.string.cancel),
             positive = stringResource(id = R.string.delete),
-            onClickNegative = {
-                onDismissRequest()
-            },
-            onClickPositive = {
-                onConfirmation()
-            })
+            onClickNegative = onDismissRequest,
+            onClickPositive = onConfirmation)
     }
 }

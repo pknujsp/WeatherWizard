@@ -14,13 +14,11 @@ import io.github.pknujsp.weatherwizard.core.common.manager.AppNetworkManager
 @Stable
 interface NetworkUiState {
     val isNetworkAvailable: Boolean
-    var isOpenAppSettings: Boolean
 }
 
 @Stable
 private class MutableNetworkUiState(appNetworkManager: AppNetworkManager) : NetworkUiState {
     override var isNetworkAvailable by mutableStateOf(appNetworkManager.isNetworkAvailable())
-    override var isOpenAppSettings by mutableStateOf(false)
 }
 
 @Composable

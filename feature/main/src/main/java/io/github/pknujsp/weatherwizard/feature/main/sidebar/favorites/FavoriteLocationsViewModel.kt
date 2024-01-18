@@ -6,9 +6,9 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import io.github.pknujsp.weatherwizard.core.common.StatefulFeature
 import io.github.pknujsp.weatherwizard.core.common.coroutines.CoDispatcher
 import io.github.pknujsp.weatherwizard.core.common.coroutines.CoDispatcherType
-import io.github.pknujsp.weatherwizard.core.common.manager.FailedReason
 import io.github.pknujsp.weatherwizard.core.data.favorite.FavoriteAreaListRepository
 import io.github.pknujsp.weatherwizard.core.data.favorite.SelectedLocationModel
 import io.github.pknujsp.weatherwizard.core.data.favorite.TargetLocationRepository
@@ -100,7 +100,7 @@ private class MutableTargetLocationUiState : TargetLocationUiState {
     override var locationId: Long? by mutableStateOf(null)
     override var isCurrentLocationLoading: Boolean by mutableStateOf(true)
     override var currentLocationAddress: String? by mutableStateOf(null)
-    override var loadCurrentLocationFailedReason: FailedReason? by mutableStateOf(null)
+    override var loadCurrentLocationFailedReason: StatefulFeature? by mutableStateOf(null)
 }
 
 private class MutableFavoriteLocationsUiState(

@@ -8,9 +8,8 @@ import androidx.hilt.work.HiltWorker
 import androidx.work.WorkerParameters
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
+import io.github.pknujsp.weatherwizard.core.FeatureStateManager
 import io.github.pknujsp.weatherwizard.core.common.FeatureType
-import io.github.pknujsp.weatherwizard.core.common.manager.FeatureState
-import io.github.pknujsp.weatherwizard.core.common.manager.FeatureStatusManager
 import io.github.pknujsp.weatherwizard.core.common.manager.WidgetManager
 import io.github.pknujsp.weatherwizard.core.common.module.KtJson
 import io.github.pknujsp.weatherwizard.core.model.JsonParser
@@ -23,14 +22,12 @@ import io.github.pknujsp.weatherwizard.feature.componentservice.widget.worker.Wi
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.serialization.json.Json
-import java.util.concurrent.ConcurrentHashMap
 
 @HiltWorker
 class WidgetCoroutineService @AssistedInject constructor(
     @Assisted val context: Context,
     @Assisted params: WorkerParameters,
     private val widgetRemoteViewModel: WidgetRemoteViewModel,
-    private val featureStatusManager: FeatureStatusManager,
     private val widgetManager: WidgetManager,
     @KtJson json: Json
 ) : AppComponentCoroutineService<LoadWidgetDataArgument>(context, params, Companion) {
@@ -57,7 +54,7 @@ class WidgetCoroutineService @AssistedInject constructor(
 
         WidgetsInProgress.addAll(widgetEntityList.widgetSettings.map { it.id })
 
-        if (featureStatusManager.status(context, requiredFeatures) is FeatureState.Unavailable) {
+        if (featureStateManager.retrieveFeaturesState(requiredFeatures, context) is FeatureStateManager.FeatureState.Unavailable) {
             for (widget in widgetEntityList.widgetSettings) {
                 widgetRemoteViewModel.updateResponseData(widget.id, WidgetStatus.RESPONSE_FAILURE)
             }
@@ -69,10 +66,10 @@ class WidgetCoroutineService @AssistedInject constructor(
 
         val failedWidgetIds = mutableListOf<Int>()
 
-        if (LocationType.CurrentLocation in widgetEntityList.locationTypeGroups && featureStatusManager.status(context,
-                arrayOf(FeatureType.LOCATION_PERMISSION,
-                    FeatureType.LOCATION_SERVICE,
-                    FeatureType.BACKGROUND_LOCATION_PERMISSION)) is FeatureState.Unavailable) {
+        if (LocationType.CurrentLocation in widgetEntityList.locationTypeGroups && featureStateManager.retrieveFeaturesState(arrayOf(
+                FeatureType.LOCATION_PERMISSION,
+                FeatureType.LOCATION_SERVICE,
+                FeatureType.BACKGROUND_LOCATION_PERMISSION), context) is FeatureStateManager.FeatureState.Unavailable) {
             widgetEntityList.locationTypeGroups.getValue(LocationType.CurrentLocation).forEach {
                 widgetRemoteViewModel.updateResponseData(it.id, WidgetStatus.RESPONSE_FAILURE)
                 failedWidgetIds.add(it.id)

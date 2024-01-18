@@ -13,20 +13,18 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.pknujsp.weatherwizard.core.common.FeatureType
+import io.github.pknujsp.weatherwizard.core.common.StatefulFeature
 import io.github.pknujsp.weatherwizard.core.common.manager.FailedReason
 import io.github.pknujsp.weatherwizard.core.resource.R
 import io.github.pknujsp.weatherwizard.core.ui.feature.FailedScreen
-import io.github.pknujsp.weatherwizard.core.ui.feature.OpenAppSettingsActivity
-import io.github.pknujsp.weatherwizard.core.ui.feature.UnavailableFeatureScreen
+import io.github.pknujsp.weatherwizard.core.ui.feature.FeatureStateScreen
 import io.github.pknujsp.weatherwizard.core.ui.lottie.CancellableLoadingScreen
 import io.github.pknujsp.weatherwizard.feature.weather.comparison.dailyforecast.CompareDailyForecastScreen
 import io.github.pknujsp.weatherwizard.feature.weather.comparison.hourlyforecast.CompareHourlyForecastScreen
@@ -34,7 +32,7 @@ import io.github.pknujsp.weatherwizard.feature.weather.info.dailyforecast.detail
 import io.github.pknujsp.weatherwizard.feature.weather.info.geocode.TargetLocationViewModel
 import io.github.pknujsp.weatherwizard.feature.weather.info.hourlyforecast.detail.DetailHourlyForecastScreen
 import io.github.pknujsp.weatherwizard.feature.weather.route.NestedWeatherRoutes
-import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -47,7 +45,7 @@ fun WeatherInfoScreen(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val topAppBarUiState = targetLocationViewModel.topAppBarUiState
     val isLoading = viewModel.isLoading
-    val targetLocation by viewModel.targetLocation.collectAsStateWithLifecycle()
+    val targetLocation by viewModel.targetLocation.collectAsStateWithLifecycle(initialValue = null)
 
     LaunchedEffect(uiState) {
         if (uiState is WeatherContentUiState.Success) {
@@ -78,7 +76,7 @@ fun WeatherInfoScreen(
                 is WeatherContentUiState.Error -> {
                     mainState.updateWindowInset(true)
                     TopAppBarScreen(openDrawer) {
-                        ErrorScreen(failedReason = (uiState as WeatherContentUiState.Error).message, reload = {
+                        ErrorScreen(statefulFeature = (uiState as WeatherContentUiState.Error).state, reload = {
                             viewModel.refresh()
                         })
                     }
@@ -140,26 +138,14 @@ private fun TopAppBarScreen(openDrawer: () -> Unit, content: @Composable () -> U
 
 
 @Composable
-private fun ErrorScreen(failedReason: FailedReason, reload: () -> Unit) {
-    var openLocationSettings by remember { mutableStateOf(false) }
-
-    when (failedReason) {
-        FailedReason.LOCATION_PROVIDER_DISABLED -> {
-            UnavailableFeatureScreen(featureType = FeatureType.LOCATION_SERVICE) {
-                openLocationSettings = true
-            }
-            if (openLocationSettings) {
-                OpenAppSettingsActivity(featureType = FeatureType.LOCATION_SERVICE) {
-                    openLocationSettings = false
-                    reload()
-                }
-            }
+private fun ErrorScreen(statefulFeature: StatefulFeature, reload: () -> Unit) {
+    if (statefulFeature is FeatureType) {
+        FeatureStateScreen(featureType = statefulFeature) {
+            reload()
         }
-
-        else -> {
-            FailedScreen(R.string.title_failed_to_load_weather_data, failedReason.message, R.string.reload) {
-                reload()
-            }
+    } else if (statefulFeature is FailedReason) {
+        FailedScreen(R.string.title_failed_to_load_weather_data, statefulFeature.message, R.string.reload) {
+            reload()
         }
     }
 }

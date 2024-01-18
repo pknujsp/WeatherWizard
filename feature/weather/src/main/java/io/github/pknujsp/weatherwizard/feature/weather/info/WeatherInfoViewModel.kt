@@ -43,9 +43,8 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -68,9 +67,9 @@ class WeatherInfoViewModel @Inject constructor(
     private val settingsRepository: SettingsRepository,
     private val getCurrentLocationUseCase: GetCurrentLocationCoordinate,
     private val getWeatherDataUseCase: GetWeatherDataUseCase,
-    @CoDispatcher(CoDispatcherType.IO) private val dispatcher: CoroutineDispatcher,
     private val favoriteAreaListRepository: FavoriteAreaListRepository,
     private val targetLocationRepository: TargetLocationRepository,
+    @CoDispatcher(CoDispatcherType.IO) private val dispatcher: CoroutineDispatcher,
 ) : ViewModel() {
     private var loadWeatherDataJob: Job? = null
     private var targetLocationJob: Job? = null
@@ -80,12 +79,12 @@ class WeatherInfoViewModel @Inject constructor(
     var isLoading: Boolean by mutableStateOf(true)
         private set
 
-    private val mutableTargetLocations = MutableStateFlow<TargetLocationModel?>(null)
-    val targetLocation = mutableTargetLocations.asStateFlow()
+    private val mutableTargetLocations = MutableSharedFlow<TargetLocationModel?>(1, 0, BufferOverflow.DROP_OLDEST)
+    val targetLocation = mutableTargetLocations.asSharedFlow()
 
     private val mutableUiState = MutableSharedFlow<WeatherContentUiState>(1, 0, BufferOverflow.DROP_OLDEST)
 
-    val uiState = mutableUiState.filterNotNull().onEach {
+    val uiState = mutableUiState.asSharedFlow().onEach {
         isLoading = false
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
 
@@ -118,7 +117,7 @@ class WeatherInfoViewModel @Inject constructor(
             }
 
             result.first?.run {
-                mutableTargetLocations.value = this
+                mutableTargetLocations.emit(this)
             } ?: run {
                 mutableUiState.emit(WeatherContentUiState.Error(result.second!!))
             }
@@ -134,6 +133,7 @@ class WeatherInfoViewModel @Inject constructor(
     private suspend fun loadCurrentLocation() = callbackFlow {
         val now = LocalDateTime.now()
         getCurrentLocationUseCase(true)
+
         getCurrentLocationUseCase.currentLocationFlow.filterNotNull().filter {
             it.time >= now && it !is CurrentLocationState.Loading
         }.collect {

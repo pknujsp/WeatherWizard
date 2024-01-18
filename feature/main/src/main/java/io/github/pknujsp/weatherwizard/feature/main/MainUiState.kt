@@ -8,8 +8,9 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import io.github.pknujsp.weatherwizard.core.common.asActivity
 import io.github.pknujsp.weatherwizard.core.ui.MainRoutes
-import io.github.pknujsp.weatherwizard.feature.componentservice.widget.asActivity
+
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.filter

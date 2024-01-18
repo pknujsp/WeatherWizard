@@ -5,7 +5,6 @@ import android.appwidget.AppWidgetManager
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
-import android.content.res.Resources
 import android.widget.RemoteViews
 import io.github.pknujsp.weatherwizard.core.common.enum.pendingIntentRequestFactory
 import kotlin.reflect.KClass

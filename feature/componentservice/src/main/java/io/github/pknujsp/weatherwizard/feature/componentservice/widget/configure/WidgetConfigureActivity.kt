@@ -36,7 +36,7 @@ class WidgetConfigureActivity : ComponentActivity() {
             val navController = rememberNavController()
             NavHost(navController = navController, route = WidgetRoutes.route, startDestination = WidgetRoutes.Configure.route) {
                 composable(WidgetRoutes.Configure.route, arguments = argumentsOfStartDestination) {
-                    WidgetConfigureScreen(navController)
+                    WidgetConfigureScreen()
                 }
             }
         }

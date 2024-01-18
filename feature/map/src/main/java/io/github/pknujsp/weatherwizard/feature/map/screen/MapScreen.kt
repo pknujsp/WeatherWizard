@@ -1,4 +1,4 @@
-package io.github.pknujsp.weatherwizard.feature.map
+package io.github.pknujsp.weatherwizard.feature.map.screen
 
 import android.annotation.SuppressLint
 import android.graphics.drawable.BitmapDrawable
@@ -59,19 +59,23 @@ import io.github.pknujsp.weatherwizard.core.resource.R
 import io.github.pknujsp.weatherwizard.core.ui.weather.item.CardInfo
 import io.github.pknujsp.weatherwizard.core.ui.weather.item.SimpleWeatherFailedBox
 import io.github.pknujsp.weatherwizard.core.ui.weather.item.SimpleWeatherScreenBackground
-import io.github.pknujsp.weatherwizard.feature.map.model.MapSettingsDefault
+import io.github.pknujsp.weatherwizard.feature.map.OsmdroidInitializer
+import io.github.pknujsp.weatherwizard.feature.map.OsmdroidInitializer.initializeMapView
+import io.github.pknujsp.weatherwizard.feature.map.RadarController
+import io.github.pknujsp.weatherwizard.feature.map.SimpleMapController
 import io.github.pknujsp.weatherwizard.feature.map.model.RadarTilesOverlay
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
-import org.osmdroid.tileprovider.tilesource.TileSourceFactory
 import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.Marker
 import kotlin.math.abs
 
 private const val POI_MARKER_ID = "poi"
+
+private const val DEFAULT_ZOOM = 7.0
 
 @SuppressLint("ClickableViewAccessibility")
 @Composable
@@ -85,49 +89,37 @@ private fun MapScreen(
     density: Density = LocalDensity.current,
 ) {
     AndroidView(modifier = Modifier.fillMaxSize(), factory = { context ->
-        MapView(context).apply {
-            clipToOutline = true
-            setBackgroundResource(R.drawable.map_background)
-            setTileSource(TileSourceFactory.DEFAULT_TILE_SOURCE)
-
-            tileProvider.tileCache.setStressedMemory(true)
-            tileProvider.tileCache.setAutoEnsureCapacity(true)
-
-            maxZoomLevel = MapSettingsDefault.MAX_ZOOM_LEVEL
-            minZoomLevel = MapSettingsDefault.MIN_ZOOM_LEVEL
-            setMultiTouchControls(true)
-            zoomController.setVisibility(org.osmdroid.views.CustomZoomButtonsController.Visibility.NEVER)
-
-            isTilesScaledToDpi = true
-            isHorizontalMapRepetitionEnabled = true
-            isVerticalMapRepetitionEnabled = true
-
+        MapView(context, OsmdroidInitializer.getMapsForgeTileProvider(context)).apply {
+            initializeMapView(this)
+            simpleMapController.init(this)
             setOnTouchListener { v, _ ->
                 v.parent.requestDisallowInterceptTouchEvent(true)
                 false
             }
-
-            simpleMapController.init(this)
         }
     }, update = { mapView ->
         coroutineScope.launch {
             launch {
                 mapView.run {
-                    mapView.onResume()
                     addCurrentLocationPoiMarker(latitude, longitude, density)
-                    controller.animateTo(GeoPoint(latitude, longitude), 7.0, 0)
+                    controller.animateTo(GeoPoint(latitude, longitude), DEFAULT_ZOOM, 0)
+                    mapView.onResume()
                 }
             }.join()
+
             launch {
                 timePosition.filter { time -> time != -1 }.collect { time ->
-                    if (!(mapView.overlays.isNotEmpty() and mapView.overlays.contains(tiles.overlays[time].first))) {
-                        mapView.overlays.removeIf { it !is Marker }
-                        mapView.overlays.add(tiles.overlays[time].let {
-                            if (it.second.mView == null) it.second.mView = mapView
-                            it.first
-                        })
-                        mapView.invalidate()
+                    mapView.run {
+                        if (!(overlays.isNotEmpty() and overlays.contains(tiles.overlays[time].first))) {
+                            overlays.removeIf { it !is Marker }
+                            overlays.add(tiles.overlays[time].let {
+                                if (it.second.mView == null) it.second.mView = this
+                                it.first
+                            })
+                            invalidate()
+                        }
                     }
+
                 }
             }
         }
@@ -139,9 +131,6 @@ private fun MapScreen(
         }
 
         mapView.onPause()
-        mapView.tileProvider.tileWriter?.onDetach()
-        mapView.tileProvider.clearTileCache()
-        mapView.tileProvider.tileCache.clear()
         mapView.onDetach()
     })
 
@@ -312,55 +301,29 @@ fun CustomLinearProgressIndicator(
     // Fractional position of the 'head' and 'tail' of the two lines drawn, i.e. if the head is 0.8
     // and the tail is 0.2, there is a line drawn from between 20% along to 80% along the total
     // width.
-    val firstLineHead = infiniteTransition.animateFloat(
-        0f,
-        1f,
-        infiniteRepeatable(
-            animation = keyframes {
-                durationMillis = LinearAnimationDuration
-                0f at FirstLineHeadDelay with FirstLineHeadEasing
-                1f at FirstLineHeadDuration + FirstLineHeadDelay
-            }
-        ), label = ""
-    )
-    val firstLineTail = infiniteTransition.animateFloat(
-        0f,
-        1f,
-        infiniteRepeatable(
-            animation = keyframes {
-                durationMillis = LinearAnimationDuration
-                0f at FirstLineTailDelay with FirstLineTailEasing
-                1f at FirstLineTailDuration + FirstLineTailDelay
-            }
-        ), label = ""
-    )
-    val secondLineHead = infiniteTransition.animateFloat(
-        0f,
-        1f,
-        infiniteRepeatable(
-            animation = keyframes {
-                durationMillis = LinearAnimationDuration
-                0f at SecondLineHeadDelay with SecondLineHeadEasing
-                1f at SecondLineHeadDuration + SecondLineHeadDelay
-            }
-        ), label = ""
-    )
-    val secondLineTail = infiniteTransition.animateFloat(
-        0f,
-        1f,
-        infiniteRepeatable(
-            animation = keyframes {
-                durationMillis = LinearAnimationDuration
-                0f at SecondLineTailDelay with SecondLineTailEasing
-                1f at SecondLineTailDuration + SecondLineTailDelay
-            }
-        ), label = ""
-    )
-    Canvas(
-        modifier
-            .progressSemantics()
-            .size(LinearIndicatorWidth, LinearIndicatorHeight)
-    ) {
+    val firstLineHead = infiniteTransition.animateFloat(0f, 1f, infiniteRepeatable(animation = keyframes {
+        durationMillis = LinearAnimationDuration
+        0f at FirstLineHeadDelay with FirstLineHeadEasing
+        1f at FirstLineHeadDuration + FirstLineHeadDelay
+    }), label = "")
+    val firstLineTail = infiniteTransition.animateFloat(0f, 1f, infiniteRepeatable(animation = keyframes {
+        durationMillis = LinearAnimationDuration
+        0f at FirstLineTailDelay with FirstLineTailEasing
+        1f at FirstLineTailDuration + FirstLineTailDelay
+    }), label = "")
+    val secondLineHead = infiniteTransition.animateFloat(0f, 1f, infiniteRepeatable(animation = keyframes {
+        durationMillis = LinearAnimationDuration
+        0f at SecondLineHeadDelay with SecondLineHeadEasing
+        1f at SecondLineHeadDuration + SecondLineHeadDelay
+    }), label = "")
+    val secondLineTail = infiniteTransition.animateFloat(0f, 1f, infiniteRepeatable(animation = keyframes {
+        durationMillis = LinearAnimationDuration
+        0f at SecondLineTailDelay with SecondLineTailEasing
+        1f at SecondLineTailDuration + SecondLineTailDelay
+    }), label = "")
+    Canvas(modifier
+        .progressSemantics()
+        .size(LinearIndicatorWidth, LinearIndicatorHeight)) {
         val strokeWidth = size.height
         drawLinearIndicatorTrack(trackColor, strokeWidth, strokeCap)
         if (firstLineHead.value - firstLineTail.value > 0) {

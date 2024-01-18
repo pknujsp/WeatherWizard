@@ -1,13 +1,13 @@
 package io.github.pknujsp.weatherwizard.core.domain.location
 
+import io.github.pknujsp.weatherwizard.core.common.FeatureType
 import io.github.pknujsp.weatherwizard.core.common.coroutines.CoDispatcher
 import io.github.pknujsp.weatherwizard.core.common.coroutines.CoDispatcherType
 import io.github.pknujsp.weatherwizard.core.common.manager.AppLocationManager
 import io.github.pknujsp.weatherwizard.core.common.manager.FailedReason
+import io.github.pknujsp.weatherwizard.core.common.manager.PermissionType
 import io.github.pknujsp.weatherwizard.core.data.nominatim.NominatimRepository
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.Deferred
-import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
@@ -31,7 +31,7 @@ internal class GetCurrentLocationUseCase @Inject constructor(
     override suspend fun invoke(): LocationGeoCodeState {
         return when (val currentLocation = getCurrentLocation()) {
             is CurrentLocationState.Success -> {
-                val geoCode = reverseGeoCode(currentLocation.latitude, currentLocation.longitude).await()
+                val geoCode = reverseGeoCode(currentLocation.latitude, currentLocation.longitude)
                 val geoCodeState = if (geoCode is LocationGeoCodeState.Success) {
                     LocationGeoCodeState.Success(currentLocation.latitude, currentLocation.longitude, geoCode.address, geoCode.country)
                 } else {
@@ -53,8 +53,9 @@ internal class GetCurrentLocationUseCase @Inject constructor(
         val currentLocation = getCurrentLocation()
         if (currentLocation is CurrentLocationState.Success && loadAddress) {
             supervisorScope {
-                launch {
-                    reverseGeoCode(currentLocation.latitude, currentLocation.longitude)
+                launch(dispatcher) {
+                    val result = reverseGeoCode(currentLocation.latitude, currentLocation.longitude)
+                    mutableGeoCodeFlow.emit(result)
                 }
             }
         }
@@ -64,7 +65,7 @@ internal class GetCurrentLocationUseCase @Inject constructor(
     private suspend fun getCurrentLocation(): CurrentLocationState {
         mutableCurrentLocationFlow.emit(CurrentLocationState.Loading())
         if (!appLocationManager.isPermissionGranted) {
-            val state = CurrentLocationState.Failure(FailedReason.LOCATION_PERMISSION_DENIED)
+            val state = CurrentLocationState.Failure(FeatureType.LOCATION_PERMISSION)
             mutableCurrentLocationFlow.emit(state)
             return state
         }
@@ -81,24 +82,19 @@ internal class GetCurrentLocationUseCase @Inject constructor(
                 is AppLocationManager.LocationResult.Failure -> CurrentLocationState.Failure(FailedReason.UNKNOWN)
             }
         } else {
-            CurrentLocationState.Failure(FailedReason.LOCATION_PROVIDER_DISABLED)
+            CurrentLocationState.Failure(FeatureType.LOCATION_SERVICE)
         }
         mutableCurrentLocationFlow.emit(result)
         return result
     }
 
-    private suspend fun reverseGeoCode(latitude: Double, longitude: Double): Deferred<LocationGeoCodeState> {
-        val newDeferred = supervisorScope {
-            async(dispatcher) {
-                val result = nominatimRepository.reverseGeoCode(latitude, longitude).fold(onSuccess = { address ->
-                    LocationGeoCodeState.Success(latitude, longitude, address.simpleDisplayName, address.country)
-                }, onFailure = {
-                    LocationGeoCodeState.Failure(FailedReason.REVERSE_GEOCODE_ERROR)
-                })
-                result
-            }
-        }
-        return newDeferred
+    private suspend fun reverseGeoCode(latitude: Double, longitude: Double): LocationGeoCodeState {
+        val result = nominatimRepository.reverseGeoCode(latitude, longitude).fold(onSuccess = { address ->
+            LocationGeoCodeState.Success(latitude, longitude, address.simpleDisplayName, address.country)
+        }, onFailure = {
+            LocationGeoCodeState.Failure(FailedReason.REVERSE_GEOCODE_ERROR)
+        })
+        return result
     }
 }
 

@@ -1,7 +1,5 @@
 package io.github.pknujsp.weatherwizard.feature.weather.info.dailyforecast.simple
 
-import android.content.res.Resources
-import android.util.TypedValue
 import android.widget.Toast
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -17,11 +15,13 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -37,26 +37,30 @@ import io.github.pknujsp.weatherwizard.core.ui.NewGraph
 @Composable
 fun SimpleDailyForecastItem(simpleDailyForecast: SimpleDailyForecast) {
     val context = LocalContext.current
+    val density = LocalDensity.current
 
     val graphHeight = remember {
-        TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,
-            SimpleDailyForecast.temperatureGraphHeight.value,
-            Resources.getSystem().displayMetrics)
+        with(density) {
+            SimpleDailyForecast.temperatureGraphHeight.toPx()
+        }
     }
-    val linePoints = remember {
-        NewGraph(listOf(simpleDailyForecast.items.map { it.minTemperatureInt }, simpleDailyForecast.items.map { it.maxTemperatureInt })).createNewGraph(
-            graphHeight)
+    val linePoints = remember(simpleDailyForecast) {
+        NewGraph(listOf(simpleDailyForecast.items.map { it.minTemperatureInt },
+            simpleDailyForecast.items.map { it.maxTemperatureInt })).createNewGraph(graphHeight)
     }
     val graphDrawInfos = remember { listOf(DrawInfo(pointColor = Color.Blue), DrawInfo(pointColor = Color.Red)) }
 
+    val lazyListState = rememberLazyListState()
+    LaunchedEffect(linePoints) {
+        lazyListState.scrollToItem(0, 0)
+    }
     LazyRow(
         modifier = Modifier
             .fillMaxWidth()
             .wrapContentHeight(),
-        state = rememberLazyListState(),
+        state = lazyListState,
     ) {
-        items(count = simpleDailyForecast.items.size,
-            key = { simpleDailyForecast.items[it].id }) { i ->
+        items(count = simpleDailyForecast.items.size, key = { simpleDailyForecast.items[it].id }) { i ->
             Item(i, simpleDailyForecast, linePoints, graphDrawInfos) { conditions ->
                 Toast.makeText(context, conditions.joinToString(",") { context.getString(it) }, Toast.LENGTH_SHORT).show()
             }
@@ -91,24 +95,19 @@ private fun Item(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween) {
                 weatherConditionIcons.forEachIndexed { idx, icon ->
-                    AsyncImage(
-                        model = ImageRequest.Builder(LocalContext.current).data(icon).crossfade(false).build(),
+                    AsyncImage(model = ImageRequest.Builder(LocalContext.current).data(icon).crossfade(false).build(),
                         contentDescription = null,
-                        modifier = Modifier.weight(1f, true)
-                    )
+                        modifier = Modifier.weight(1f, true))
                 }
             }
 
             if (simpleDailyForecast.displayPrecipitationProbability) {
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Center) {
                     AsyncImage(model = ImageRequest.Builder(LocalContext.current).data(SimpleDailyForecast.probabilityIcon).crossfade(false)
-                        .build(),
-                        contentDescription = null,
-                        modifier = Modifier
-                            .size(12.dp)
-                            .padding(end = 4.dp))
-                    Text(text = precipitationProbabilities.joinToString("/"),
-                        style = TextStyle(fontSize = 12.sp, color = Color.White))
+                        .build(), contentDescription = null, modifier = Modifier
+                        .size(12.dp)
+                        .padding(end = 4.dp))
+                    Text(text = precipitationProbabilities.joinToString("/"), style = TextStyle(fontSize = 12.sp, color = Color.White))
                 }
             }
 
