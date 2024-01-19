@@ -33,7 +33,7 @@ object CoDispatcherModule {
 
     @Provides
     @CoDispatcher(CoDispatcherType.MULTIPLE)
-    fun providesMultipleDispatcher(): CoroutineDispatcher = Dispatchers.Default.limitedParallelism(2)
+    fun providesMultipleDispatcher(): CoroutineDispatcher = Dispatchers.Default.limitedParallelism(3)
 
     @Provides
     @CoDispatcher(CoDispatcherType.SINGLE)

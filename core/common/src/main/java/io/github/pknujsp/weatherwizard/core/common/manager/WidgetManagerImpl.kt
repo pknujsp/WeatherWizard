@@ -10,7 +10,7 @@ import io.github.pknujsp.weatherwizard.core.common.enum.pendingIntentRequestFact
 import kotlin.reflect.KClass
 
 class WidgetManagerImpl(context: Context) : WidgetManager {
-    private val appWidgetManager: AppWidgetManager = AppWidgetManager.getInstance(context)
+    override val appWidgetManager: AppWidgetManager = AppWidgetManager.getInstance(context)
     private val packageName: String = context.packageName
 
     override val installedAllWidgetIds: List<Int>
@@ -41,6 +41,7 @@ class WidgetManagerImpl(context: Context) : WidgetManager {
 }
 
 interface WidgetManager {
+    val appWidgetManager: AppWidgetManager
     val installedAllWidgetIds: List<Int>
     fun updateWidget(appWidgetId: Int, remoteView: RemoteViews, context: Context, activityCls: KClass<*>)
     fun isBind(appWidgetId: Int): Boolean

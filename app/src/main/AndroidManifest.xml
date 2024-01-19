@@ -89,7 +89,7 @@
         </activity>
 
         <receiver
-            android:name=".feature.componentservice.NotificationServiceReceiver"
+            android:name=".feature.componentservice.AppComponentServiceReceiver"
             android:enabled="true"
             android:exported="false">
             <intent-filter>
