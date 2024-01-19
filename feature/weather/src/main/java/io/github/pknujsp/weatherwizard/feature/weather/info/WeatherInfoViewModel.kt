@@ -20,7 +20,7 @@ import io.github.pknujsp.weatherwizard.core.data.settings.SettingsRepository
 import io.github.pknujsp.weatherwizard.core.domain.location.CurrentLocationState
 import io.github.pknujsp.weatherwizard.core.domain.location.GetCurrentLocationCoordinate
 import io.github.pknujsp.weatherwizard.core.domain.weather.GetWeatherDataUseCase
-import io.github.pknujsp.weatherwizard.core.domain.weather.WeatherDataRequestBuilder
+import io.github.pknujsp.weatherwizard.core.domain.weather.WeatherDataRequest
 import io.github.pknujsp.weatherwizard.core.domain.weather.WeatherResponseState
 import io.github.pknujsp.weatherwizard.core.model.coordinate.LocationType
 import io.github.pknujsp.weatherwizard.core.model.weather.RequestWeatherArguments
@@ -175,12 +175,12 @@ class WeatherInfoViewModel @Inject constructor(
         loadWeatherDataJob = viewModelScope.launch {
             val newState = withContext(dispatcher) {
                 val weatherProvider = args.weatherProvider
-                val coordinate = WeatherDataRequestBuilder.Coordinate(args.latitude, args.longitude)
+                val coordinate = WeatherDataRequest.Coordinate(args.latitude, args.longitude)
 
-                val weatherDataRequestBuilder = WeatherDataRequestBuilder()
-                weatherDataRequestBuilder.add(coordinate, weatherProvider.majorWeatherEntityTypes, weatherProvider)
+                val weatherDataRequestBuilder = WeatherDataRequest.Builder()
+                weatherDataRequestBuilder.add(coordinate, weatherProvider.majorWeatherEntityTypes.toTypedArray(), weatherProvider)
 
-                val entity = when (val result = getWeatherDataUseCase(weatherDataRequestBuilder.finalRequests[0], false)) {
+                val entity = when (val result = getWeatherDataUseCase(weatherDataRequestBuilder.build()[0], false)) {
                     is WeatherResponseState.Success -> result.entity
                     is WeatherResponseState.Failure -> {
                         return@withContext WeatherContentUiState.Error(FailedReason.SERVER_ERROR)

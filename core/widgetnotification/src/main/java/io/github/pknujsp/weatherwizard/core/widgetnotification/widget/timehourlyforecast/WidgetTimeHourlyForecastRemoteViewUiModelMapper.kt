@@ -16,8 +16,8 @@ class WidgetTimeHourlyForecastRemoteViewUiModelMapper :
     override fun mapToUiModel(model: SavedWidgetContentState.Success, units: CurrentUnits): WidgetTimeHourlyForecastRemoteViewUiModel {
         return model.let {
             val dayNightCalculator = DayNightCalculator(it.latitude, it.longitude)
-
-            val currentWeather = it.toEntity<CurrentWeatherEntity>().run {
+            val primaryEntity = it.entities[0]
+            val currentWeather = primaryEntity.toEntity<CurrentWeatherEntity>().run {
                 val calendar = ZonedDateTime.now()
                 WidgetTimeHourlyForecastRemoteViewUiModel.CurrentWeather(
                     temperature = temperature.convertUnit(units.temperatureUnit).toString(),
@@ -25,7 +25,7 @@ class WidgetTimeHourlyForecastRemoteViewUiModelMapper :
                 )
             }
 
-            val hourlyForecast = it.toEntity<HourlyForecastEntity>().run {
+            val hourlyForecast = primaryEntity.toEntity<HourlyForecastEntity>().run {
                 items.subList(0, 3).map { item ->
                     val time = ZonedDateTime.parse(item.dateTime.value)
 

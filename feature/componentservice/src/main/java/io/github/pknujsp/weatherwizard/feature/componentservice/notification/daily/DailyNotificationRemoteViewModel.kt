@@ -5,7 +5,7 @@ import io.github.pknujsp.weatherwizard.core.data.notification.daily.model.DailyN
 import io.github.pknujsp.weatherwizard.core.data.settings.SettingsRepository
 import io.github.pknujsp.weatherwizard.core.domain.location.GetCurrentLocationAddress
 import io.github.pknujsp.weatherwizard.core.domain.weather.GetWeatherDataUseCase
-import io.github.pknujsp.weatherwizard.core.domain.weather.WeatherDataRequestBuilder
+import io.github.pknujsp.weatherwizard.core.domain.weather.WeatherDataRequest
 import io.github.pknujsp.weatherwizard.core.domain.weather.WeatherResponseState
 import io.github.pknujsp.weatherwizard.core.model.coordinate.LocationType
 import io.github.pknujsp.weatherwizard.core.widgetnotification.notification.daily.DailyNotificationRemoteViewUiState
@@ -35,39 +35,37 @@ class DailyNotificationRemoteViewModel @Inject constructor(
     }
 
     private suspend fun loadWeatherData(dailyNotificationSettingsEntity: DailyNotificationSettingsEntity): DailyNotificationRemoteViewUiState {
-        val weatherDataRequestBuilder = WeatherDataRequestBuilder()
-        var addressName: String? = null
-
+        val weatherDataRequestBuilder = WeatherDataRequest.Builder()
         if (dailyNotificationSettingsEntity.location.locationType is LocationType.CurrentLocation) {
             getCurrentLocation().first().let {
                 if (it is CurrentLocationResult.Success) {
-                    addressName = it.address
                     weatherDataRequestBuilder.add(
-                        WeatherDataRequestBuilder.Coordinate(
+                        WeatherDataRequest.Coordinate(
                             it.latitude,
                             it.longitude,
+                            it.address,
                         ),
-                        dailyNotificationSettingsEntity.type.categories.toSet(),
+                        dailyNotificationSettingsEntity.type.categories,
                         dailyNotificationSettingsEntity.weatherProvider,
                     )
                 }
             }
         } else {
-            addressName = dailyNotificationSettingsEntity.location.address
             weatherDataRequestBuilder.add(
-                WeatherDataRequestBuilder.Coordinate(
+                WeatherDataRequest.Coordinate(
                     dailyNotificationSettingsEntity.location.latitude,
                     dailyNotificationSettingsEntity.location.longitude,
+                    dailyNotificationSettingsEntity.location.address,
                 ),
-                dailyNotificationSettingsEntity.type.categories.toSet(),
+                dailyNotificationSettingsEntity.type.categories,
                 dailyNotificationSettingsEntity.weatherProvider,
             )
         }
 
-        return when (val response = getWeatherDataUseCase(weatherDataRequestBuilder.finalRequests[0], false)) {
+        return when (val response = getWeatherDataUseCase(weatherDataRequestBuilder.build()[0], false)) {
             is WeatherResponseState.Success -> DailyNotificationRemoteViewUiState(model = response.entity,
-                address = addressName,
-                lastUpdated = weatherDataRequestBuilder.time,
+                address = response.location.address,
+                lastUpdated = response.entity.responseTime,
                 notificationType = dailyNotificationSettingsEntity.type,
                 isSuccessful = true)
 

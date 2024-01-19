@@ -41,10 +41,10 @@ class WidgetRemoteViewUiState(
             }
     }
 
-    fun toWidgetResponseDBModel(jsonParser: JsonParser) = WidgetResponseDBModel(address = address!!, entities = model!!.map { entity ->
+    fun toWidgetResponseDBModel(jsonParser: JsonParser) = WidgetResponseDBModel(entities = model!!.map { entity ->
         WidgetResponseDBModel.EntityWithWeatherProvider(weatherProvider = entity.weatherProvider.key,
             entities = entity.entity.export(widget.widgetType.categories.toSet()).map {
                 WidgetResponseDBModel.Entity(it.key.name, realTypeParseToByteArray(jsonParser, it.key, it.value))
             })
-    }, latitude = latitude, longitude = longitude)
+    }, address = address!!, latitude = latitude!!, longitude = longitude!!)
 }

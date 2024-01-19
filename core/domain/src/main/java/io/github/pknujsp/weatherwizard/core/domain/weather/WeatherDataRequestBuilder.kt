@@ -57,7 +57,7 @@ object WeatherDataRequest {
     )
 
     data class Coordinate(
-        val latitude: Double, val longitude: Double, val address: String
+        val latitude: Double, val longitude: Double, val address: String = ""
     )
 }
 

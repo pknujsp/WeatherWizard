@@ -5,7 +5,7 @@ import io.github.pknujsp.weatherwizard.core.data.notification.ongoing.model.Ongo
 import io.github.pknujsp.weatherwizard.core.data.settings.SettingsRepository
 import io.github.pknujsp.weatherwizard.core.domain.location.GetCurrentLocationAddress
 import io.github.pknujsp.weatherwizard.core.domain.weather.GetWeatherDataUseCase
-import io.github.pknujsp.weatherwizard.core.domain.weather.WeatherDataRequestBuilder
+import io.github.pknujsp.weatherwizard.core.domain.weather.WeatherDataRequest
 import io.github.pknujsp.weatherwizard.core.domain.weather.WeatherResponseState
 import io.github.pknujsp.weatherwizard.core.model.coordinate.LocationType
 import io.github.pknujsp.weatherwizard.core.widgetnotification.notification.ongoing.OngoingNotificationRemoteViewUiState
@@ -32,19 +32,18 @@ class OngoingNotificationRemoteViewModel @Inject constructor(
     ): OngoingNotificationRemoteViewUiState = loadWeatherData(settings)
 
     private suspend fun loadWeatherData(settings: OngoingNotificationSettingsEntity): OngoingNotificationRemoteViewUiState {
-        val weatherDataRequestBuilder = WeatherDataRequestBuilder()
-        val addressName: String?
+        val weatherDataRequestBuilder = WeatherDataRequest.Builder()
 
         if (settings.location.locationType is LocationType.CurrentLocation) {
             when (val currentLocation = getCurrentLocation().first()) {
                 is CurrentLocationResult.Success -> {
-                    addressName = currentLocation.address
                     weatherDataRequestBuilder.add(
-                        WeatherDataRequestBuilder.Coordinate(
+                        WeatherDataRequest.Coordinate(
                             latitude = currentLocation.latitude,
                             longitude = currentLocation.longitude,
+                            address = currentLocation.address,
                         ),
-                        settings.type.categories.toSet(),
+                        settings.type.categories,
                         settings.weatherProvider,
                     )
                 }
@@ -54,24 +53,24 @@ class OngoingNotificationRemoteViewModel @Inject constructor(
                 }
             }
         } else {
-            addressName = settings.location.address
             weatherDataRequestBuilder.add(
                 settings.location.run {
-                    WeatherDataRequestBuilder.Coordinate(
+                    WeatherDataRequest.Coordinate(
                         latitude = latitude,
                         longitude = longitude,
+                        address = address,
                     )
                 },
-                settings.type.categories.toSet(),
+                settings.type.categories,
                 settings.weatherProvider,
             )
         }
 
-        return when (val response = getWeatherDataUseCase(weatherDataRequestBuilder.finalRequests[0], false)) {
+        return when (val response = getWeatherDataUseCase(weatherDataRequestBuilder.build()[0], false)) {
             is WeatherResponseState.Success -> OngoingNotificationRemoteViewUiState(notificationIconType = settings.notificationIconType,
                 model = response.entity,
-                address = addressName,
-                lastUpdated = weatherDataRequestBuilder.time,
+                address = response.location.address,
+                lastUpdated = response.entity.responseTime,
                 notificationType = settings.type,
                 isSuccessful = true)
 
