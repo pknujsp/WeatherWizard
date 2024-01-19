@@ -179,15 +179,15 @@ class WeatherInfoViewModel @Inject constructor(
 
                 val weatherDataRequestBuilder = WeatherDataRequest.Builder()
                 weatherDataRequestBuilder.add(coordinate, weatherProvider.majorWeatherEntityTypes.toTypedArray(), weatherProvider)
-
-                val entity = when (val result = getWeatherDataUseCase(weatherDataRequestBuilder.build()[0], false)) {
+                val request = weatherDataRequestBuilder.build()
+                val entity = when (val result = getWeatherDataUseCase(request.first(), false)) {
                     is WeatherResponseState.Success -> result.entity
                     is WeatherResponseState.Failure -> {
                         return@withContext WeatherContentUiState.Error(FailedReason.SERVER_ERROR)
                     }
                 }
 
-                val requestDateTime = ZonedDateTime.now()
+                val requestDateTime = entity.responseTime
                 val dayNightCalculator = DayNightCalculator(coordinate.latitude, coordinate.longitude, requestDateTime.toTimeZone())
 
                 val currentWeatherEntity = entity.toEntity<CurrentWeatherEntity>()

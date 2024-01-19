@@ -30,7 +30,7 @@ object WeatherDataRequest {
             categories: Array<MajorWeatherEntityType>,
             weatherProvider: WeatherProvider,
         ) {
-            sameLocationMap.getOrDefault(coordinate, SameLocation()).add(weatherProvider, categories)
+            sameLocationMap.getOrPut(coordinate) { SameLocation() }.add(weatherProvider, categories)
         }
     }
 
@@ -45,7 +45,7 @@ object WeatherDataRequest {
         fun add(
             weatherProvider: WeatherProvider, categories: Array<MajorWeatherEntityType>,
         ) {
-            requestMap.getOrDefault(weatherProvider, mutableSetOf()).addAll(categories)
+            requestMap.getOrPut(weatherProvider) { mutableSetOf() }.addAll(categories)
         }
     }
 
