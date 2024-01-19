@@ -10,7 +10,7 @@ enum class WidgetType(val categories: Array<MajorWeatherEntityType>) : IEnum {
         override val title: Int = io.github.pknujsp.weatherwizard.core.resource.R.string.time_hourly_forecast_widget
         override val key: Int = ordinal
     },
-    HOURLY_FORECAST_COMPARISON(arrayOf(MajorWeatherEntityType.HOURLY_FORECAST)) {
+    HOURLY_FORECAST_COMPARISON(arrayOf(MajorWeatherEntityType.CURRENT_CONDITION, MajorWeatherEntityType.HOURLY_FORECAST)) {
         override val icon: Int? = null
         override val key: Int = ordinal
         override val title: Int = io.github.pknujsp.weatherwizard.core.resource.R.string.hourly_forecast_comparison_widget
@@ -25,7 +25,7 @@ enum class WidgetType(val categories: Array<MajorWeatherEntityType>) : IEnum {
         MajorWeatherEntityType.DAILY_FORECAST)) {
         override val icon: Int? = null
         override val key: Int = ordinal
-        override val title: Int = io.github.pknujsp.weatherwizard.core.resource.R.string.all_in_one
+        override val title: Int = io.github.pknujsp.weatherwizard.core.resource.R.string.all_in_one_widget
     };
 
 

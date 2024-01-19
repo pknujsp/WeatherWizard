@@ -1,4 +1,4 @@
-package io.github.pknujsp.weatherwizard.feature.componentservice.widget.worker
+package io.github.pknujsp.weatherwizard.feature.componentservice.widget.widgetprovider
 
 import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProvider
@@ -10,6 +10,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import io.github.pknujsp.weatherwizard.core.common.coroutines.CoDispatcher
 import io.github.pknujsp.weatherwizard.core.common.coroutines.CoDispatcherType
 import io.github.pknujsp.weatherwizard.core.widgetnotification.model.WidgetUpdatedArgument
+import io.github.pknujsp.weatherwizard.feature.componentservice.widget.worker.WidgetUpdateBackgroundService
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope

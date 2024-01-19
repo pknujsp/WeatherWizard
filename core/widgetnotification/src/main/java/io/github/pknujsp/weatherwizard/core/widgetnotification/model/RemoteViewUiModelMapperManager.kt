@@ -9,7 +9,11 @@ import io.github.pknujsp.weatherwizard.core.model.notification.enums.OngoingNoti
 import io.github.pknujsp.weatherwizard.core.model.widget.WidgetType
 import io.github.pknujsp.weatherwizard.core.widgetnotification.notification.daily.forecast.DailyNotificationForecastUiModelMapper
 import io.github.pknujsp.weatherwizard.core.widgetnotification.notification.ongoing.model.mapper.OngoingNotificationRemoteViewUiModelMapper
+import io.github.pknujsp.weatherwizard.core.widgetnotification.widget.WidgetUiModelMapper
+import io.github.pknujsp.weatherwizard.core.widgetnotification.widget.dailyforecastcomparison.WidgetDailyForecastComparisonRemoteViewUiModelMapper
+import io.github.pknujsp.weatherwizard.core.widgetnotification.widget.hourlyforecastcomparison.WidgetHourlyForecastComparisonRemoteViewUiModelMapper
 import io.github.pknujsp.weatherwizard.core.widgetnotification.widget.summary.WidgetAllInOneRemoteViewUiModelMapper
+import io.github.pknujsp.weatherwizard.core.widgetnotification.widget.timehourlyforecast.WidgetTimeHourlyForecastRemoteViewUiModelMapper
 
 object RemoteViewUiModelMapperManager {
     fun getByDailyNotificationType(
@@ -28,8 +32,10 @@ object RemoteViewUiModelMapperManager {
 
     fun getByWidgetType(
         widgetType: WidgetType
-    ): UiModelMapper<SavedWidgetContentState.Success, out RemoteViewUiModel> = when (widgetType) {
+    ): WidgetUiModelMapper<SavedWidgetContentState.Success, out RemoteViewUiModel> = when (widgetType) {
         WidgetType.ALL_IN_ONE -> WidgetAllInOneRemoteViewUiModelMapper()
-        else -> throw IllegalArgumentException("Unknown widget type: $widgetType")
+        WidgetType.HOURLY_FORECAST_COMPARISON -> WidgetHourlyForecastComparisonRemoteViewUiModelMapper()
+        WidgetType.DAILY_FORECAST_COMPARISON -> WidgetDailyForecastComparisonRemoteViewUiModelMapper()
+        WidgetType.TIME_HOURLY_FORECAST -> WidgetTimeHourlyForecastRemoteViewUiModelMapper()
     }
 }

@@ -1,7 +1,9 @@
 package io.github.pknujsp.weatherwizard.core.widgetnotification.widget.dailyforecastcomparison
 
 import android.content.Context
+import android.util.TypedValue
 import android.widget.RemoteViews
+import androidx.annotation.DrawableRes
 import androidx.core.widget.RemoteViewsCompat.setTextViewText
 import io.github.pknujsp.weatherwizard.core.model.mock.MockDataGenerator
 import io.github.pknujsp.weatherwizard.core.model.settings.CurrentUnits
@@ -30,13 +32,12 @@ class WidgetDailyForecastComparisonRemoteViewCreator : WidgetRemoteViewsCreator<
 
                 item.dailyForecast.forEach {
                     containerView.addView(R.id.forecast_row, RemoteViews(context.packageName, R.layout.view_daily_forecast_item).apply {
-                        setTextViewText(R.id.date, it.date)
+                        applyDailyForecastItem(it.date, it.temperature)
                         it.weatherIcons.forEach { icon ->
                             addView(R.id.weather_icons, RemoteViews(context.packageName, R.layout.view_weather_icon_item).also { iconView ->
                                 iconView.setImageViewResource(R.id.weather_icon, icon)
                             })
                         }
-                        setTextViewText(R.id.temperature, it.temperature)
                     })
                 }
             }
@@ -46,6 +47,14 @@ class WidgetDailyForecastComparisonRemoteViewCreator : WidgetRemoteViewsCreator<
                 addViewSafely(R.id.remote_views_content_container, content)
             }
         }
+    }
+
+    private fun RemoteViews.applyDailyForecastItem(date: String, temperature: String) {
+        setTextViewText(R.id.date, date)
+        setTextViewText(R.id.temperature, temperature)
+
+        setTextViewTextSize(R.id.date, TypedValue.COMPLEX_UNIT_SP, 14f)
+        setTextViewTextSize(R.id.temperature, TypedValue.COMPLEX_UNIT_SP, 13f)
     }
 
 

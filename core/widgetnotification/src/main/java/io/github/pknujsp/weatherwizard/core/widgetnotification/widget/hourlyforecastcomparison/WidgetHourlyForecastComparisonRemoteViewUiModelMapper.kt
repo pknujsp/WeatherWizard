@@ -7,12 +7,16 @@ import io.github.pknujsp.weatherwizard.core.model.mapper.UiModelMapper
 import io.github.pknujsp.weatherwizard.core.model.settings.CurrentUnits
 import io.github.pknujsp.weatherwizard.core.model.weather.current.CurrentWeatherEntity
 import io.github.pknujsp.weatherwizard.core.model.weather.hourlyforecast.HourlyForecastEntity
+import io.github.pknujsp.weatherwizard.core.widgetnotification.widget.WidgetUiModelMapper
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 
 class WidgetHourlyForecastComparisonRemoteViewUiModelMapper :
-    UiModelMapper<SavedWidgetContentState.Success, WidgetHourlyForecastComparisonRemoteViewUiModel> {
+    WidgetUiModelMapper<SavedWidgetContentState.Success, WidgetHourlyForecastComparisonRemoteViewUiModel>(
+        hourlyForecastItemsCount = 9,
+        dailyForecastItemsCount = 0
+    ) {
     override fun mapToUiModel(
         model: SavedWidgetContentState.Success, units: CurrentUnits
     ): WidgetHourlyForecastComparisonRemoteViewUiModel {
@@ -20,15 +24,15 @@ class WidgetHourlyForecastComparisonRemoteViewUiModelMapper :
             val dayNightCalculator = DayNightCalculator(it.latitude, it.longitude)
             val items = it.entities.map { entity ->
                 val currentWeather = entity.toEntity<CurrentWeatherEntity>().run {
-                    val calendar = ZonedDateTime.now()
                     WidgetHourlyForecastComparisonRemoteViewUiModel.CurrentWeather(
                         temperature = temperature.convertUnit(units.temperatureUnit).toString(),
-                        weatherIcon = weatherCondition.value.getWeatherIconByTimeOfDay(dayNightCalculator.calculate(calendar.toCalendar()) == DayNightCalculator.DayNight.DAY),
+                        weatherIcon = weatherCondition.value.getWeatherIconByTimeOfDay(dayNightCalculator.calculate(it.updatedAt.toCalendar()) ==
+                                DayNightCalculator.DayNight.DAY),
                     )
                 }
 
                 val hourlyForecast = entity.toEntity<HourlyForecastEntity>().run {
-                    items.subList(0, 3).map { item ->
+                    items.subList(0, hourlyForecastItemsCount).map { item ->
                         val time = ZonedDateTime.parse(item.dateTime.value)
 
                         val dateTimeString = "${

@@ -1,8 +1,12 @@
 package io.github.pknujsp.weatherwizard.core.widgetnotification.widget.hourlyforecastcomparison
 
 import android.content.Context
+import android.util.TypedValue
 import android.widget.RemoteViews
+import android.widget.TextView
+import androidx.annotation.DrawableRes
 import androidx.core.widget.RemoteViewsCompat.setTextViewText
+import androidx.core.widget.RemoteViewsCompat.setTextViewTextSizeDimen
 import io.github.pknujsp.weatherwizard.core.model.mock.MockDataGenerator
 import io.github.pknujsp.weatherwizard.core.model.settings.CurrentUnits
 import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherProvider
@@ -17,20 +21,18 @@ class WidgetHourlyForecastComparisonRemoteViewCreator : WidgetRemoteViewsCreator
     override fun createContentView(
         model: WidgetHourlyForecastComparisonRemoteViewUiModel, header: Header, context: Context
     ): RemoteViews {
-        return RemoteViews(context.packageName, R.layout.view_forecast_comparison_widget).let { content ->
+        return RemoteViews(context.packageName, R.layout.view_forecast_comparison_widget).let { contentView ->
             // 날씨 제공사 별로 처리
             model.items.forEach { item ->
                 val containerView = RemoteViews(context.packageName, R.layout.view_forecast_container).apply {
                     setTextViewText(R.id.weather_provider_name, item.weatherProvider.title)
                     setImageViewResource(R.id.weather_provider_icon, item.weatherProvider.icon!!)
                 }
-                content.addView(R.id.forecast_comparison_column, containerView)
 
                 item.currentWeather.let {
                     val view = RemoteViews(context.packageName, R.layout.view_hourly_forecast_item).apply {
                         setTextViewText(R.id.time, it.dateTime)
-                        setImageViewResource(R.id.weather_icon, it.weatherIcon)
-                        setTextViewText(R.id.temperature, it.temperature)
+                        applyHourlyForecastItem(it.weatherIcon, it.temperature)
                     }
                     containerView.addView(R.id.forecast_row, view)
                 }
@@ -38,18 +40,26 @@ class WidgetHourlyForecastComparisonRemoteViewCreator : WidgetRemoteViewsCreator
                 item.hourlyForecast.forEach {
                     val view = RemoteViews(context.packageName, R.layout.view_hourly_forecast_item).apply {
                         setTextViewText(R.id.time, it.dateTime)
-                        setImageViewResource(R.id.weather_icon, it.weatherIcon)
-                        setTextViewText(R.id.temperature, it.temperature)
+                        applyHourlyForecastItem(it.weatherIcon, it.temperature)
                     }
                     containerView.addView(R.id.forecast_row, view)
                 }
+                contentView.addView(R.id.forecast_comparison_column, containerView)
             }
 
             createBaseView(context, RemoteViewCreator.ContainerType.WIDGET).apply {
                 createHeaderView(this, header)
-                addViewSafely(R.id.remote_views_content_container, content)
+                addViewSafely(R.id.remote_views_content_container, contentView)
             }
         }
+    }
+
+    private fun RemoteViews.applyHourlyForecastItem(@DrawableRes icon: Int, temperature: String) {
+        setImageViewResource(R.id.weather_icon, icon)
+        setTextViewText(R.id.temperature, temperature)
+
+        setTextViewTextSize(R.id.time, TypedValue.COMPLEX_UNIT_SP, 12f)
+        setTextViewTextSize(R.id.temperature, TypedValue.COMPLEX_UNIT_SP, 12f)
     }
 
 
@@ -58,7 +68,7 @@ class WidgetHourlyForecastComparisonRemoteViewCreator : WidgetRemoteViewsCreator
             WidgetHourlyForecastComparisonRemoteViewUiModel.CurrentWeather(temperature.convertUnit(units.temperatureUnit).toString(),
                 weatherCondition.value.dayWeatherIcon)
         }
-        val hourlyForecast = MockDataGenerator.hourlyForecastEntity.items.map {
+        val hourlyForecast = MockDataGenerator.hourlyForecastEntity.items.subList(0, 9).map {
             WidgetHourlyForecastComparisonRemoteViewUiModel.HourlyForecast(it.temperature.convertUnit(units.temperatureUnit).toString(),
                 it.weatherCondition.value.dayWeatherIcon,
                 ZonedDateTime.parse(it.dateTime.value).hour.toString())

@@ -3,11 +3,8 @@ package io.github.pknujsp.weatherwizard.feature.componentservice.widget
 import android.appwidget.AppWidgetManager
 import android.content.Context
 import android.content.Intent
-import android.net.Uri
-import android.os.Bundle
 import android.util.Log
 import io.github.pknujsp.weatherwizard.core.common.manager.WidgetManager
-import io.github.pknujsp.weatherwizard.feature.componentservice.widget.worker.SummaryWeatherWidgetProvider
 
 class WidgetStarterImpl(
     private val widgetManager: WidgetManager

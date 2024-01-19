@@ -1,6 +1,7 @@
 package io.github.pknujsp.weatherwizard.core.widgetnotification.widget.timehourlyforecast
 
 import android.content.Context
+import android.util.TypedValue
 import android.widget.RemoteViews
 import androidx.core.widget.RemoteViewsCompat.setTextViewText
 import io.github.pknujsp.weatherwizard.core.model.mock.MockDataGenerator
@@ -20,8 +21,7 @@ class WidgetTimeHourlyForecastRemoteViewCreator : WidgetRemoteViewsCreator<Widge
             model.currentWeather.let {
                 val item = RemoteViews(context.packageName, R.layout.view_hourly_forecast_item).apply {
                     setTextViewText(R.id.time, it.dateTime)
-                    setImageViewResource(R.id.weather_icon, it.weatherIcon)
-                    setTextViewText(R.id.temperature, it.temperature)
+                    applyForecastItem(it.weatherIcon, it.temperature)
                 }
                 content.addView(R.id.hourly_forecast_row, item)
             }
@@ -29,8 +29,7 @@ class WidgetTimeHourlyForecastRemoteViewCreator : WidgetRemoteViewsCreator<Widge
             model.hourlyForecast.forEach {
                 val item = RemoteViews(context.packageName, R.layout.view_hourly_forecast_item).apply {
                     setTextViewText(R.id.time, it.dateTime)
-                    setImageViewResource(R.id.weather_icon, it.weatherIcon)
-                    setTextViewText(R.id.temperature, it.temperature)
+                    applyForecastItem(it.weatherIcon, it.temperature)
                 }
                 content.addView(R.id.hourly_forecast_row, item)
             }
@@ -42,12 +41,20 @@ class WidgetTimeHourlyForecastRemoteViewCreator : WidgetRemoteViewsCreator<Widge
         }
     }
 
+    private fun RemoteViews.applyForecastItem(icon: Int, temperature: String) {
+        setImageViewResource(R.id.weather_icon, icon)
+        setTextViewText(R.id.temperature, temperature)
+
+        setTextViewTextSize(R.id.time, TypedValue.COMPLEX_UNIT_SP, 15f)
+        setTextViewTextSize(R.id.temperature, TypedValue.COMPLEX_UNIT_SP, 15f)
+    }
+
 
     override fun createSampleView(context: Context, units: CurrentUnits): RemoteViews {
         val mockModel = WidgetTimeHourlyForecastRemoteViewUiModel(currentWeather = MockDataGenerator.currentWeatherEntity.run {
             WidgetTimeHourlyForecastRemoteViewUiModel.CurrentWeather(temperature.convertUnit(units.temperatureUnit).toString(),
                 weatherCondition.value.dayWeatherIcon)
-        }, hourlyForecast = MockDataGenerator.hourlyForecastEntity.items.map {
+        }, hourlyForecast = MockDataGenerator.hourlyForecastEntity.items.subList(0, 4).map {
             WidgetTimeHourlyForecastRemoteViewUiModel.HourlyForecast(it.temperature.convertUnit(units.temperatureUnit).toString(),
                 it.weatherCondition.value.dayWeatherIcon,
                 ZonedDateTime.parse(it.dateTime.value).hour.toString())

@@ -1,6 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-
     <dimen name="widget_margin">0dp</dimen>
 
+    <!-- 위젯 시간별 예보 -->
+    <dimen name="small_hour_text_size_in_hourly_forecast_widget">13sp</dimen>
+    <dimen name="small_temperature_text_size_in_hourly_forecast_widget">13sp</dimen>
+
+    <dimen name="medium_hour_text_size_in_hourly_forecast_widget">14sp</dimen>
+    <dimen name="medium_temperature_text_size_in_hourly_forecast_widget">14sp</dimen>
+
+    <dimen name="large_hour_text_size_in_hourly_forecast_widget">15sp</dimen>
+    <dimen name="large_temperature_text_size_in_hourly_forecast_widget">15sp</dimen>
+
+    <!-- 위젯 일별 예보 -->
+    <dimen name="small_day_text_size_in_daily_forecast_widget">13sp</dimen>
+    <dimen name="small_temperature_text_size_in_daily_forecast_widget">13sp</dimen>
+
+    <dimen name="medium_day_text_size_in_daily_forecast_widget">14sp</dimen>
+    <dimen name="medium_temperature_text_size_in_daily_forecast_widget">14sp</dimen>
+
+    <dimen name="large_day_text_size_in_daily_forecast_widget">15sp</dimen>
+    <dimen name="large_temperature_text_size_in_daily_forecast_widget">15sp</dimen>
 </resources>

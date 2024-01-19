@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
     android:configure="io.github.pknujsp.weatherwizard.feature.componentservice.widget.configure.WidgetConfigureActivity"
-    android:description="@string/all_in_one_widget"
+    android:description="@string/hourly_forecast_comparison_widget"
     android:initialLayout="@layout/view_loading_widget"
     android:maxResizeWidth="530dp"
-    android:maxResizeHeight="450dp"
+    android:maxResizeHeight="200dp"
     android:minWidth="340dp"
     android:minHeight="180dp"
     android:minResizeWidth="340dp"
@@ -12,6 +12,6 @@
     android:previewImage="@drawable/example_appwidget_preview"
     android:resizeMode="horizontal|vertical"
     android:targetCellWidth="5"
-    android:targetCellHeight="3"
+    android:targetCellHeight="2"
     android:updatePeriodMillis="0"
     android:widgetCategory="home_screen" />

@@ -7,7 +7,8 @@ import io.github.pknujsp.weatherwizard.core.common.manager.AppAlarmManager
 import io.github.pknujsp.weatherwizard.core.common.manager.WidgetManager
 import io.github.pknujsp.weatherwizard.core.model.notification.enums.RefreshInterval
 import io.github.pknujsp.weatherwizard.core.widgetnotification.model.ComponentServiceAutoRefreshScheduler
-import io.github.pknujsp.weatherwizard.core.widgetnotification.model.WidgetUpdatedArgument
+import io.github.pknujsp.weatherwizard.feature.componentservice.widget.widgetprovider.BaseWidgetProvider
+import io.github.pknujsp.weatherwizard.feature.componentservice.widget.widgetprovider.SummaryWeatherWidgetProvider
 
 class AppWidgetAutoRefreshScheduler(private val widgetManager: WidgetManager) : ComponentServiceAutoRefreshScheduler {
 
