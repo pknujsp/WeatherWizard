@@ -1,4 +1,4 @@
-package io.github.pknujsp.weatherwizard.core.domain.weather
+package io.github.pknujsp.weatherwizard.core.domain
 
 import io.github.pknujsp.weatherwizard.core.model.Model
 

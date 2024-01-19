@@ -8,7 +8,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import io.github.pknujsp.weatherwizard.core.common.coroutines.CoDispatcher
 import io.github.pknujsp.weatherwizard.core.common.coroutines.CoDispatcherType
 import io.github.pknujsp.weatherwizard.core.data.settings.SettingsRepository
-import io.github.pknujsp.weatherwizard.core.domain.weather.WeatherDataRequest
+import io.github.pknujsp.weatherwizard.core.domain.weather.WeatherDataRequestBuilder
 import io.github.pknujsp.weatherwizard.core.domain.weather.compare.GetDailyForecastToCompareUseCase
 import io.github.pknujsp.weatherwizard.core.model.UiState
 import io.github.pknujsp.weatherwizard.core.model.weather.RequestWeatherArguments
@@ -40,14 +40,14 @@ class CompareDailyForecastViewModel @Inject constructor(
         viewModelScope.launch {
             args.run {
                 withContext(ioDispatcher) {
-                    val weatherDataRequest = WeatherDataRequest()
+                    val weatherDataRequestBuilder = WeatherDataRequestBuilder()
                     weatherProviders.forEach {
-                        weatherDataRequest.addRequest(WeatherDataRequest.Coordinate(latitude, longitude),
+                        weatherDataRequestBuilder.add(WeatherDataRequestBuilder.Coordinate(latitude, longitude),
                             setOf(MajorWeatherEntityType.DAILY_FORECAST),
                             it)
                     }
 
-                    getDailyForecastToCompareUseCase(weatherDataRequest.finalRequests).map { entity ->
+                    getDailyForecastToCompareUseCase(weatherDataRequestBuilder.finalRequests).map { entity ->
                         val (firstDate, endDate) = entity.run {
                             items.maxOf { ZonedDateTime.parse(it.second.dayItems.first().dateTime.value).toLocalDate() } to items.minOf {
                                 ZonedDateTime.parse(it.second.dayItems.last().dateTime.value).toLocalDate()

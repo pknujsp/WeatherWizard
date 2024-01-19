@@ -10,7 +10,7 @@ import io.github.pknujsp.weatherwizard.core.common.coroutines.CoDispatcherType
 import io.github.pknujsp.weatherwizard.core.common.util.DayNightCalculator
 import io.github.pknujsp.weatherwizard.core.common.util.toCalendar
 import io.github.pknujsp.weatherwizard.core.data.settings.SettingsRepository
-import io.github.pknujsp.weatherwizard.core.domain.weather.WeatherDataRequest
+import io.github.pknujsp.weatherwizard.core.domain.weather.WeatherDataRequestBuilder
 import io.github.pknujsp.weatherwizard.core.domain.weather.compare.GetHourlyForecastToCompareUseCase
 import io.github.pknujsp.weatherwizard.core.model.UiState
 import io.github.pknujsp.weatherwizard.core.model.weather.RequestWeatherArguments
@@ -47,13 +47,13 @@ class CompareHourlyForecastViewModel @Inject constructor(
         viewModelScope.launch {
             args.run {
                 withContext(ioDispatcher) {
-                    val weatherDataRequest = WeatherDataRequest()
+                    val weatherDataRequestBuilder = WeatherDataRequestBuilder()
                     weatherProviders.forEach {
-                        weatherDataRequest.addRequest(WeatherDataRequest.Coordinate(latitude, longitude),
+                        weatherDataRequestBuilder.add(WeatherDataRequestBuilder.Coordinate(latitude, longitude),
                             setOf(io.github.pknujsp.weatherwizard.core.model.weather.common.MajorWeatherEntityType.HOURLY_FORECAST),
                             it)
                     }
-                    getHourlyForecastToCompareUseCase(weatherDataRequest.finalRequests).map { entity ->
+                    getHourlyForecastToCompareUseCase(weatherDataRequestBuilder.finalRequests).map { entity ->
                         val (firstTime, endTime) = entity.run {
                             items.maxOf { ZonedDateTime.parse(it.second.first().dateTime.value) } to items.minOf {
                                 ZonedDateTime.parse(it.second.last().dateTime.value)

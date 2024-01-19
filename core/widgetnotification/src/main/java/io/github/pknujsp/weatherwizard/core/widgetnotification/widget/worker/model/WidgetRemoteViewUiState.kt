@@ -8,6 +8,7 @@ import io.github.pknujsp.weatherwizard.core.model.airquality.AirQualityEntity
 import io.github.pknujsp.weatherwizard.core.model.remoteviews.RemoteViewUiState
 import io.github.pknujsp.weatherwizard.core.model.weather.base.WeatherEntityModel
 import io.github.pknujsp.weatherwizard.core.model.weather.common.MajorWeatherEntityType
+import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherProvider
 import io.github.pknujsp.weatherwizard.core.model.weather.current.CurrentWeatherEntity
 import io.github.pknujsp.weatherwizard.core.model.weather.dailyforecast.DailyForecastEntity
 import io.github.pknujsp.weatherwizard.core.model.weather.hourlyforecast.HourlyForecastEntity
@@ -16,16 +17,16 @@ import java.time.ZonedDateTime
 
 class WidgetRemoteViewUiState(
     val widget: WidgetSettingsEntity,
+    override val isSuccessful: Boolean,
     override val lastUpdated: ZonedDateTime? = null,
     override val address: String? = null,
-    override val isSuccessful: Boolean,
     override val model: List<EntityWithWeatherProvider>? = null,
-    val latitude: Double,
-    val longitude: Double,
+    val latitude: Double? = null,
+    val longitude: Double? = null,
 ) : RemoteViewUiState<List<WidgetRemoteViewUiState.EntityWithWeatherProvider>> {
 
     class EntityWithWeatherProvider(
-        val weatherProvider: Int,
+        val weatherProvider: WeatherProvider,
         val entity: WeatherResponseEntity,
     )
 
@@ -41,7 +42,7 @@ class WidgetRemoteViewUiState(
     }
 
     fun toWidgetResponseDBModel(jsonParser: JsonParser) = WidgetResponseDBModel(address = address!!, entities = model!!.map { entity ->
-        WidgetResponseDBModel.EntityWithWeatherProvider(weatherProvider = entity.weatherProvider,
+        WidgetResponseDBModel.EntityWithWeatherProvider(weatherProvider = entity.weatherProvider.key,
             entities = entity.entity.export(widget.widgetType.categories.toSet()).map {
                 WidgetResponseDBModel.Entity(it.key.name, realTypeParseToByteArray(jsonParser, it.key, it.value))
             })
