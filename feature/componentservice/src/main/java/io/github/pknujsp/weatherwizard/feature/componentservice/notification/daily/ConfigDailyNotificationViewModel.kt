@@ -8,6 +8,8 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import io.github.pknujsp.weatherwizard.core.common.coroutines.CoDispatcher
+import io.github.pknujsp.weatherwizard.core.common.coroutines.CoDispatcherType
 import io.github.pknujsp.weatherwizard.core.common.manager.AppAlarmManager
 import io.github.pknujsp.weatherwizard.core.data.notification.daily.DailyNotificationRepository
 import io.github.pknujsp.weatherwizard.core.data.notification.daily.model.DailyNotificationSettingsEntity
@@ -18,11 +20,13 @@ import io.github.pknujsp.weatherwizard.feature.componentservice.notification.dai
 import io.github.pknujsp.weatherwizard.feature.componentservice.notification.daily.model.DailyNotificationUiState
 import io.github.pknujsp.weatherwizard.feature.componentservice.notification.manager.NotificationAlarmManager
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
 class ConfigDailyNotificationViewModel @Inject constructor(
     private val dailyNotificationRepository: DailyNotificationRepository,
+    @CoDispatcher(CoDispatcherType.IO) private val ioDispatcher: kotlinx.coroutines.CoroutineDispatcher,
     appAlarmManager: AppAlarmManager,
     savedStateHandle: SavedStateHandle,
     appSettingsRepository: SettingsRepository
@@ -73,16 +77,17 @@ class ConfigDailyNotificationViewModel @Inject constructor(
         viewModelScope.launch {
             _dailyNoficationUiState.action = DailyNotificationUiState.Action.NONE
             _dailyNoficationUiState.isEnabled = dailyNotificationUiState.isEnabled || isNew
-            val settingsEntity = NotificationSettingsEntity(
-                id = dailyNotificationUiState.dailyNotificationSettings.id,
-                enabled = dailyNotificationUiState.isEnabled,
-                data = createSettingsEntity(),
-                isInitialized = true,
-            )
-            dailyNotificationRepository.updateDailyNotification(settingsEntity)
-            _dailyNoficationUiState.action = DailyNotificationUiState.Action.UPDATED
 
-            Log.d("AddOrEditDailyNotificationViewModel", "update: ${dailyNotificationUiState.dailyNotificationSettings}")
+            withContext(ioDispatcher) {
+                val settingsEntity = NotificationSettingsEntity(
+                    id = dailyNotificationUiState.dailyNotificationSettings.id,
+                    enabled = dailyNotificationUiState.isEnabled,
+                    data = createSettingsEntity(),
+                    isInitialized = true,
+                )
+                dailyNotificationRepository.updateDailyNotification(settingsEntity)
+            }
+            _dailyNoficationUiState.action = DailyNotificationUiState.Action.UPDATED
         }
     }
 

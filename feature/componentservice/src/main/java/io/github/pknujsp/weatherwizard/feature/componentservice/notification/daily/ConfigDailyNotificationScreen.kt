@@ -53,7 +53,9 @@ fun ConfigDailyNotificationScreen(navController: NavController, viewModel: Confi
     val units = viewModel.units
 
     LaunchedEffect(notification.dailyNotificationUiState.action) {
-        notification.onChangedSettings(context)
+        notification.onChangedSettings(context, popBackStack = {
+            navController.popBackStack()
+        })
     }
 
     when (notification.scheduleExactAlarmPermissionState) {

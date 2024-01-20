@@ -22,11 +22,15 @@ class OngoingNotificationState(
 ) {
     var showSearch by mutableStateOf(false)
 
-    fun onChangedSettings(context: Context, refreshInterval: RefreshInterval) {
+    fun onChangedSettings(context: Context, refreshInterval: RefreshInterval, popBackStack: () -> Unit) {
         if (ongoingNotificationUiState.action == OngoingNotificationUiState.Action.NONE) {
             return
         }
         switchNotification(context, refreshInterval)
+
+        if (ongoingNotificationUiState.action == OngoingNotificationUiState.Action.UPDATED) {
+            popBackStack()
+        }
     }
 
     private fun switchNotification(

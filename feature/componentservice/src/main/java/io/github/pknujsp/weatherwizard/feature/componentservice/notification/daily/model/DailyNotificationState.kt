@@ -22,7 +22,7 @@ class DailyNotificationState(
     var showSearch by mutableStateOf(false)
     var scheduleExactAlarmPermissionState by mutableStateOf(permissionType.asFeatureType().isAvailable(context))
 
-    fun onChangedSettings(context: Context) {
+    fun onChangedSettings(context: Context, popBackStack: () -> Unit) {
         dailyNotificationUiState.run {
             when (action) {
                 DailyNotificationUiState.Action.DISABLED -> notificationAlarmManager.unSchedule(context, dailyNotificationSettings.id)
@@ -35,6 +35,7 @@ class DailyNotificationState(
                     if (isEnabled) {
                         notificationAlarmManager.schedule(context, id, dailyNotificationSettings.hour, dailyNotificationSettings.minute)
                         Toast.makeText(context, "알림이 설정되었습니다.", Toast.LENGTH_SHORT).show()
+                        popBackStack()
                     }
                 }
 

@@ -47,7 +47,10 @@ fun OngoingNotificationScreen(navController: NavController, viewModel: OngoingNo
 
     LaunchedEffect(notificationState.ongoingNotificationUiState.action, notificationState.ongoingNotificationUiState.changedCount) {
         notificationState.onChangedSettings(context,
-            notificationState.ongoingNotificationUiState.ongoingNotificationSettings.refreshInterval)
+            notificationState.ongoingNotificationUiState.ongoingNotificationSettings.refreshInterval,
+            popBackStack = {
+                navController.popBackStack()
+            })
     }
 
     notificationState.run {
