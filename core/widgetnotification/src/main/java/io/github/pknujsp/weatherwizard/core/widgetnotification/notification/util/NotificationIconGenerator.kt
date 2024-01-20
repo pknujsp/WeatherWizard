@@ -19,33 +19,35 @@ import io.github.pknujsp.weatherwizard.core.model.weather.current.CurrentWeather
 
 object NotificationIconGenerator {
 
-    private const val TEXT_SIZE = 23f
-    private const val ICON_SIZE = 26f
+    private const val ICON_WIDTH = 33f
+    private const val ICON_HEIGHT = 28f
     private const val FONT_FAMILY = "sans-serif-condensed"
 
-    private val textSize = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, TEXT_SIZE, Resources.getSystem().displayMetrics)
-    private val iconSize = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, ICON_SIZE, Resources.getSystem().displayMetrics).toInt()
+    private val iconWidth = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, ICON_WIDTH, Resources.getSystem().displayMetrics).toInt()
+    private val iconHeight =
+        TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, ICON_HEIGHT, Resources.getSystem().displayMetrics).toInt()
+
     private val textPaint = TextPaint().apply {
         color = Color.BLACK
+        textSize = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 28f, Resources.getSystem().displayMetrics)
         typeface = android.graphics.Typeface.create(FONT_FAMILY, android.graphics.Typeface.NORMAL)
         textAlign = Paint.Align.CENTER
         isAntiAlias = true
-        textSize = NotificationIconGenerator.textSize
-        textScaleX = 0.93f
+        textScaleX = 0.94f
     }
 
     private fun createTemperatureIcon(temperature: String): IconCompat {
         val textRect = Rect()
         textPaint.getTextBounds(temperature, 0, temperature.length, textRect)
-
-        val iconBitmap = Bitmap.createBitmap(iconSize, iconSize, Bitmap.Config.ARGB_8888)
+        val iconBitmap = Bitmap.createBitmap(iconWidth, iconHeight, Bitmap.Config.ARGB_8888)
 
         val canvas = Canvas(iconBitmap)
-        val x = canvas.width / 2f
-        val y = (canvas.height / 2f) + (textRect.height() / 2f)
+        val centerXOnCanvas = canvas.width / 2f
+        val centerYOnCanvas = canvas.height / 2f
 
-        canvas.drawText(temperature, x, y, textPaint)
+        val y = centerYOnCanvas + textRect.height() / 2f
 
+        canvas.drawText(temperature, centerXOnCanvas, y, textPaint)
         return IconCompat.createWithBitmap(iconBitmap)
     }
 

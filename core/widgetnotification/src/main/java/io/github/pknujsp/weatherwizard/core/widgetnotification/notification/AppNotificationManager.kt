@@ -43,9 +43,9 @@ class AppNotificationManager(context: Context) {
 
     }
 
-    private fun createNotification(notificationType: NotificationType, context: Context, isOngoing: Boolean = notificationType.ongoing):
-            NotificationCompat
-            .Builder {
+    private fun createNotification(
+        notificationType: NotificationType, context: Context, isOngoing: Boolean = notificationType.ongoing
+    ): NotificationCompat.Builder {
         createNotificationChannel(notificationType)
 
         return NotificationCompat.Builder(context, notificationType.channelId).apply {
@@ -69,7 +69,7 @@ class AppNotificationManager(context: Context) {
 
     fun createForegroundNotification(context: Context, notificationType: NotificationType): Notification {
         return createNotification(notificationType, context).apply {
-            setSmallIcon(R.drawable.weatherwizard_icon_logo).setContentText(context.getString(notificationType.contentText))
+            setContentText(context.getString(notificationType.contentText))
             setContentTitle(context.getString(notificationType.contentTitle))
         }.build()
     }
@@ -91,17 +91,13 @@ class AppNotificationManager(context: Context) {
             setCustomContentView(if (entity.success) entity.smallContentRemoteViews else entity.smallFailedContentRemoteViews)
         }
 
-        with(NotificationManagerCompat.from(context)) {
-            notify(notificationType.notificationId, notificationBulder.build())
-        }
+        NotificationManagerCompat.from(context).notify(notificationType.notificationId, notificationBulder.build())
     }
 
     @SuppressLint("MissingPermission")
     fun notifyLoadingNotification(notificationType: NotificationType, context: Context) {
         val notificationBulder = createNotification(notificationType, context, false)
-
-        notificationBulder.setSmallIcon(R.drawable.ic_refresh)
-            .setContent(RemoteViews(context.packageName, R.layout.view_loading_notification))
+        notificationBulder.setSmallIcon(R.drawable.ic_refresh).setStyle(NotificationCompat.DecoratedCustomViewStyle())
             .setCustomContentView(RemoteViews(context.packageName, R.layout.view_loading_notification))
         NotificationManagerCompat.from(context).notify(notificationType.notificationId, notificationBulder.build())
     }
