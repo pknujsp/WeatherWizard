@@ -50,6 +50,7 @@ import io.github.pknujsp.weatherwizard.feature.weather.info.dailyforecast.simple
 import io.github.pknujsp.weatherwizard.feature.weather.info.geocode.TopAppBarUiState
 import io.github.pknujsp.weatherwizard.feature.weather.info.hourlyforecast.simple.HourlyForecastScreen
 import io.github.pknujsp.weatherwizard.feature.weather.route.NestedWeatherRoutes
+import io.github.pknujsp.weatherwizard.feature.weather.summary.SummaryScreen
 import kotlinx.coroutines.launch
 
 private val DEFAULT_PADDING = 12.dp
@@ -72,6 +73,7 @@ fun WeatherContentScreen(
     val coroutineScope = rememberCoroutineScope()
     var imageUrl by remember { mutableStateOf("") }
     val weather = uiState.weather
+    var showAiSummary by remember { mutableStateOf(false) }
 
     LaunchedEffect(imageUrl) {
         if (imageUrl.isNotEmpty()) {
@@ -93,6 +95,9 @@ fun WeatherContentScreen(
             weatherContentUiState = uiState,
             openDrawer = openDrawer,
             reload = reload,
+            summarize = {
+                showAiSummary = true
+            },
             onClickedWeatherProviderButton = { onClickedWeatherProviderButton = true },
             scrollBehavior = scrollBehavior,
         )
@@ -126,7 +131,8 @@ fun WeatherContentScreen(
                 SimpleDailyForecastScreen(weather.simpleDailyForecast, navigate)
                 SimpleMapScreen(uiState.args)
                 AirQualityScreen(uiState.args, uiState.lastUpdatedDateTime, onAirQualityLoaded = { aqi ->
-                    weather.currentWeather.airQuality = aqi
+                    weather.currentWeather.airQuality = aqi.current.aqi
+                    uiState.weatherEntities.airQuality = aqi
                 })
                 SimpleSunSetRiseScreen(SunSetRiseInfo(uiState.args.latitude, uiState.args.longitude, uiState.lastUpdatedDateTime))
                 FlickrImageItemScreen(requestParameter = uiState.weather.flickrRequestParameters, onImageUrlChanged = {
@@ -155,5 +161,11 @@ fun WeatherContentScreen(
             enums = WeatherProvider.enums,
             expanded = { onClickedWeatherProviderButton },
             onDismissRequest = { onClickedWeatherProviderButton = false })
+
+        if (showAiSummary) {
+            SummaryScreen(model = uiState.weatherEntities, onDismiss = {
+                showAiSummary = false
+            })
+        }
     }
 }

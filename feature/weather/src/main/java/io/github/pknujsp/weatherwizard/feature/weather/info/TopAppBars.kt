@@ -57,6 +57,7 @@ fun TopAppBars(
     weatherContentUiState: WeatherContentUiState.Success,
     openDrawer: () -> Unit,
     reload: () -> Unit,
+    summarize: () -> Unit,
     onClickedWeatherProviderButton: () -> Unit,
     scrollBehavior: TopAppBarScrollBehavior,
 ) {
@@ -149,7 +150,10 @@ fun TopAppBars(
             }
         },
         actions = {
-            IconButton(modifier = modifier, onClick = { reload() }) {
+            IconButton(modifier = modifier, onClick = summarize) {
+                Icon(painter = painterResource(id = R.drawable.ic_shine_128_128), contentDescription = null)
+            }
+            IconButton(modifier = modifier, onClick = reload) {
                 Icon(painter = painterResource(id = R.drawable.ic_refresh), contentDescription = null)
             }
         },

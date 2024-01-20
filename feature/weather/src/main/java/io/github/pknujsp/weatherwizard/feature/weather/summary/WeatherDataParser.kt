@@ -7,7 +7,7 @@ import io.github.pknujsp.weatherwizard.core.model.weather.hourlyforecast.HourlyF
 import java.lang.ref.WeakReference
 
 object WeatherDataParser {
-    private const val NEW_LINE = "\n"
+    private const val TIME = "## 시각 : "
 
     private const val CONSTRUCTION = """
         # 아래의 날씨 예보를 실용적인 관점에서 요약해주세요. 
@@ -18,16 +18,13 @@ object WeatherDataParser {
         - Markdown 문법을 사용하여 작성해주세요.
     """
 
-    private const val LOCATION_INFO = "## 지역명 : "
-
     suspend fun parse(
-        address: String, model: Model
+         model: Model
     ): String = WeakReference(StringBuilder()).get()?.run {
         append(CONSTRUCTION)
         appendLine()
-        append(LOCATION_INFO)
-        append(address)
-        appendLine()
+        append(TIME)
+        append(model.time)
         append(model.currentWeather)
         append(model.hourlyForecast)
         append(model.dailyForecast)
@@ -38,9 +35,10 @@ object WeatherDataParser {
     } ?: ""
 
     class Model(
+        val time: String,
         val currentWeather: CurrentWeatherEntity,
         val hourlyForecast: HourlyForecastEntity,
         val dailyForecast: DailyForecastEntity,
-        var airQuality: AirQualityEntity? = null
+        var airQuality: AirQualityEntity? = null,
     )
 }

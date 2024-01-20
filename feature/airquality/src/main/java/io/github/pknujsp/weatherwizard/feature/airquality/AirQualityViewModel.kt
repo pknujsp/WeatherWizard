@@ -54,9 +54,10 @@ class AirQualityViewModel @Inject constructor(
             mutableAirQuality.isLoading = true
 
             withContext(ioDispatcher) {
-                airQualityRepository.getAirQuality(latitude, longitude).map { createModel(it) }
+                airQualityRepository.getAirQuality(latitude, longitude)
             }.onSuccess {
-                mutableAirQuality.airQuality = it
+                mutableAirQuality.entity = it
+                mutableAirQuality.airQuality = createModel(it)
                 mutableAirQuality.isLoading = false
             }.onFailure {
                 mutableAirQuality.failedReason = FailedReason.UNKNOWN
@@ -102,6 +103,7 @@ private class MutableAirQualityUiState : AirQualityUiState {
     override var airQuality: SimpleAirQuality? by mutableStateOf(null)
     override var isLoading: Boolean by mutableStateOf(true)
     override var failedReason: StatefulFeature? by mutableStateOf(null)
+    override var entity: AirQualityEntity? = null
 }
 
 @Stable
@@ -109,4 +111,5 @@ interface AirQualityUiState {
     val airQuality: SimpleAirQuality?
     val isLoading: Boolean
     val failedReason: StatefulFeature?
+    val entity: AirQualityEntity?
 }

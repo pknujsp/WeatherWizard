@@ -219,6 +219,7 @@ class WeatherInfoViewModel @Inject constructor(
                     requestDateTime)
 
                 val allModel = WeatherDataParser.Model(
+                    requestDateTime.toString(),
                     currentWeatherEntity,
                     hourlyForecastEntity,
                     dailyForecastEntity,
