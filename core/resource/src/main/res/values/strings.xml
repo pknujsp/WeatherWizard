@@ -315,6 +315,7 @@
     <string name="text_summarizing">요약 중..</string>
     <string name="stop_summary">요약 중단</string>
     <string name="with">with</string>
-    <string name="stopped_summary">중단됨</string>
+    <string name="stopped_summary">중단됨, 재시작</string>
+    <string name="error_summary">일시적인 오류로 요약에 실패했어요</string>
 
 </resources>

@@ -1,6 +1,6 @@
 package io.github.pknujsp.weatherwizard.feature.weather.summary
 
-import androidx.compose.foundation.clickable
+import android.text.util.Linkify
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
@@ -12,9 +12,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ElevatedCard
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -53,16 +54,21 @@ fun SummaryScreen(model: WeatherSummaryPrompt.Model, onDismiss: () -> Unit, summ
             Column(modifier = Modifier
                 .fillMaxSize()
                 .verticalScroll(scrollState, true)) {
-                MarkdownText(modifier = Modifier.padding(bottom = 32.dp), markdown = uiState.summaryText, onTextLayout = {
-                    coroutineScope.launch {
-                        scrollState.scrollTo(scrollState.maxValue)
-                    }
-                })
+                MarkdownText(modifier = Modifier.padding(bottom = 36.dp, start = 8.dp, end = 8.dp),
+                    style = TextStyle(color = Color.Black, fontSize = 14.sp),
+                    isTextSelectable = true,
+                    markdown = if (uiState.error != null) stringResource(id = uiState.error!!) else uiState.summaryText,
+                    linkifyMask = Linkify.WEB_URLS,
+                    onTextLayout = {
+                        coroutineScope.launch {
+                            scrollState.scrollTo(scrollState.maxValue)
+                        }
+                    })
             }
 
             if (uiState.isSummarizing || uiState.isStopped) {
                 SummarizingCard(uiState = uiState, stop = {
-                    summaryTextViewModel.stop()
+                    summaryTextViewModel.stopOrResume()
                 })
             }
             Footer()
@@ -72,20 +78,16 @@ fun SummaryScreen(model: WeatherSummaryPrompt.Model, onDismiss: () -> Unit, summ
 
 @Composable
 private fun BoxScope.SummarizingCard(modifier: Modifier = Modifier, uiState: SummaryUiState, stop: () -> Unit) {
-    val currentStop by rememberUpdatedState(newValue = stop)
+    val currentStopOrResume by rememberUpdatedState(newValue = stop)
     Box(modifier = modifier
         .padding(bottom = 8.dp)
         .align(Alignment.BottomCenter)) {
-        ElevatedCard(modifier = modifier.clickable {
-            currentStop()
-        },
-            colors = CardDefaults.cardColors(
-                containerColor = Color.White,
-            ),
+        OutlinedButton(onClick = currentStopOrResume,
             shape = AppShapes.extraLarge) {
-            Row(horizontalArrangement = Arrangement.spacedBy(6.dp, Alignment.CenterHorizontally),
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(6.dp, Alignment.CenterHorizontally),
                 verticalAlignment = Alignment.CenterVertically,
-                modifier = modifier.padding(horizontal = 16.dp, vertical = 8.dp)) {
+            ) {
                 if (uiState.isSummarizing) {
                     CircularProgressIndicator(modifier = Modifier.size(16.dp), strokeWidth = 2.dp, color = Color.Black)
                 }
@@ -100,9 +102,10 @@ private fun BoxScope.Footer(modifier: Modifier = Modifier) {
     Row(modifier = modifier.align(Alignment.BottomEnd),
         horizontalArrangement = Arrangement.spacedBy(2.dp, Alignment.CenterHorizontally),
         verticalAlignment = Alignment.Bottom) {
-        Text(text = "with", style = TextStyle(color = Color.Gray, fontSize = 12.sp))
+        Text(text = "with", style = TextStyle(color = Color.Gray, fontSize = 11.sp))
         AsyncImage(model = ImageRequest.Builder(LocalContext.current).data(R.drawable.gemini_300_150).crossfade(false).build(),
             modifier = modifier.height(24.dp),
+            alignment = Alignment.BottomCenter,
             contentDescription = null)
     }
 }
