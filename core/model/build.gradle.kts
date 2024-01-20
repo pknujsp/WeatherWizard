@@ -19,6 +19,7 @@ android {
         properties.load(project.rootProject.file("/local.properties").bufferedReader())
         buildConfigField("String", "FLICKR_KEY", "\"${properties["flickr_key"]}\"")
         buildConfigField("String", "AQICN_KEY", "\"${properties["aqicn_key"]}\"")
+        buildConfigField("String", "GOOGLE_AI_STUDIO_KEY", "\"${properties["google_ai_studio_key"]}\"")
     }
 }
 

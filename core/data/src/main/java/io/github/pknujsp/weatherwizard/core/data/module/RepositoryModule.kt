@@ -1,6 +1,7 @@
 package io.github.pknujsp.weatherwizard.core.data.module
 
-import dagger.Binds
+import com.google.ai.client.generativeai.GenerativeModel
+import com.google.ai.client.generativeai.type.GenerateContentResponse
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -8,7 +9,8 @@ import dagger.hilt.components.SingletonComponent
 import io.github.pknujsp.weatherwizard.core.common.coroutines.CoDispatcher
 import io.github.pknujsp.weatherwizard.core.common.coroutines.CoDispatcherType
 import io.github.pknujsp.weatherwizard.core.common.module.KtJson
-import io.github.pknujsp.weatherwizard.core.data.RepositoryInitializer
+import io.github.pknujsp.weatherwizard.core.data.ai.SummaryTextRepository
+import io.github.pknujsp.weatherwizard.core.data.ai.SummaryTextRepositoryImpl
 import io.github.pknujsp.weatherwizard.core.data.aqicn.AirQualityRepository
 import io.github.pknujsp.weatherwizard.core.data.aqicn.AirQualityRepositoryImpl
 import io.github.pknujsp.weatherwizard.core.data.cache.CacheManagerImpl
@@ -39,7 +41,7 @@ import io.github.pknujsp.weatherwizard.core.database.notification.daily.DailyNot
 import io.github.pknujsp.weatherwizard.core.database.notification.ongoing.OngoingNotificationLocalDataSource
 import io.github.pknujsp.weatherwizard.core.database.widget.WidgetLocalDataSource
 import io.github.pknujsp.weatherwizard.core.model.ApiResponseModel
-import io.github.pknujsp.weatherwizard.core.model.JsonParser
+import io.github.pknujsp.weatherwizard.core.model.BuildConfig
 import io.github.pknujsp.weatherwizard.core.model.airquality.AirQualityEntity
 import io.github.pknujsp.weatherwizard.core.model.rainviewer.RadarTiles
 import io.github.pknujsp.weatherwizard.core.model.weather.base.WeatherEntityModel
@@ -48,6 +50,7 @@ import io.github.pknujsp.weatherwizard.core.network.api.nominatim.NominatimDataS
 import io.github.pknujsp.weatherwizard.core.network.api.rainviewer.RainViewerDataSource
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.serialization.json.Json
+import java.time.Duration
 import javax.inject.Singleton
 
 @InstallIn(SingletonComponent::class)
@@ -142,4 +145,23 @@ object RepositoryModule {
     fun providesWidgetRepository(
         widgetLocalDataSource: WidgetLocalDataSource, @KtJson json: Json
     ): WidgetRepository = WidgetRepositoryImpl(widgetLocalDataSource, json)
+
+    @Singleton
+    @Provides
+    internal fun providesSummaryTextRepositoryImpl(
+        @CoDispatcher(CoDispatcherType.SINGLE) dispatcher: CoroutineDispatcher
+    ): SummaryTextRepositoryImpl {
+        val cacheManagerImpl = CacheManagerImpl<Int, GenerateContentResponse>(
+            cacheMaxSize = 5,
+            dispatcher = dispatcher,
+        )
+        return SummaryTextRepositoryImpl(GenerativeModel("gemini-pro", BuildConfig.GOOGLE_AI_STUDIO_KEY),
+            cacheManagerImpl,
+            cacheManagerImpl)
+    }
+
+    @Provides
+    internal fun providesSummaryTextRepository(
+        summaryTextRepositoryImpl: SummaryTextRepositoryImpl
+    ): SummaryTextRepository = summaryTextRepositoryImpl
 }

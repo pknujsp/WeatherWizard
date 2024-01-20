@@ -4,10 +4,11 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
-import io.github.pknujsp.weatherwizard.core.data.RepositoryCacheManager
 import io.github.pknujsp.weatherwizard.core.data.GlobalRepositoryCacheManager
 import io.github.pknujsp.weatherwizard.core.data.GlobalRepositoryCacheManagerImpl
+import io.github.pknujsp.weatherwizard.core.data.RepositoryCacheManager
 import io.github.pknujsp.weatherwizard.core.data.RepositoryInitializer
+import io.github.pknujsp.weatherwizard.core.data.ai.SummaryTextRepositoryImpl
 import io.github.pknujsp.weatherwizard.core.data.aqicn.AirQualityRepositoryImpl
 import io.github.pknujsp.weatherwizard.core.data.rainviewer.RadarTilesRepositoryImpl
 import io.github.pknujsp.weatherwizard.core.data.searchhistory.SearchHistoryRepository
@@ -15,9 +16,7 @@ import io.github.pknujsp.weatherwizard.core.data.searchhistory.SearchHistoryRepo
 import io.github.pknujsp.weatherwizard.core.data.settings.SettingsRepositoryImpl
 import io.github.pknujsp.weatherwizard.core.data.weather.WeatherDataRepositoryImpl
 import io.github.pknujsp.weatherwizard.core.database.searchhistory.SearchHistoryLocalDataSource
-import io.github.pknujsp.weatherwizard.core.model.EntityModel
 import javax.inject.Named
-import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -27,6 +26,7 @@ object ScopeRepositoryModule {
     const val AIR_QUALITY_REPOSITORY = "AIR_QUALITY_REPOSITORY"
     const val RAIN_VIEWER_REPOSITORY = "RAIN_VIEWER_REPOSITORY"
     const val SETTINGS_REPOSITORY = "SETTINGS_REPOSITORY"
+    const val SUMMARY_TEXT_REPOSITORY = "SUMMARY_TEXT_REPOSITORY"
 
     @Provides
     fun providesSearchHistoryRepository(searchHistoryLocalDataSource: SearchHistoryLocalDataSource): SearchHistoryRepository =
@@ -53,12 +53,19 @@ object ScopeRepositoryModule {
     internal fun providesSettingsRepositoryInitializer(settingsRepositoryImpl: SettingsRepositoryImpl): RepositoryInitializer =
         settingsRepositoryImpl
 
+
     @Provides
-    @Singleton
+    @Named(SUMMARY_TEXT_REPOSITORY)
+    internal fun providesSummaryTextRepositoryInitializer(summaryTextRepositoryImpl: SummaryTextRepositoryImpl): RepositoryCacheManager<*, *> =
+        summaryTextRepositoryImpl
+
+    @Provides
     fun providesRepositoryInitializer(
         @Named(WEATHER_REPOSITORY) weatherRepository: RepositoryCacheManager<*, *>,
         @Named(AIR_QUALITY_REPOSITORY) airQualityRepository: RepositoryCacheManager<*, *>,
-        @Named(RAIN_VIEWER_REPOSITORY) rainViewerRepository: RepositoryCacheManager<*, *>
-    ): GlobalRepositoryCacheManager = GlobalRepositoryCacheManagerImpl(weatherRepository, airQualityRepository, rainViewerRepository)
+        @Named(RAIN_VIEWER_REPOSITORY) rainViewerRepository: RepositoryCacheManager<*, *>,
+        @Named(SUMMARY_TEXT_REPOSITORY) summaryTextRepository: RepositoryCacheManager<*, *>,
+    ): GlobalRepositoryCacheManager =
+        GlobalRepositoryCacheManagerImpl(weatherRepository, airQualityRepository, rainViewerRepository, summaryTextRepository)
 
 }

@@ -8,6 +8,7 @@ kotlinx_serialization_json = "1.6.2"
 ksp = "1.9.22-1.0.16"
 
 mapsforge = "0.20.0"
+google_generativeai = "0.1.2"
 
 android_gradle_plugin = "8.2.1"
 android_desugar_jdk_libs = "2.0.4"
@@ -218,7 +219,7 @@ mapsforge-themes = { module = "org.mapsforge:mapsforge-themes", version.ref = "m
 material = { module = "com.google.android.material:material", version.ref = "material" }
 
 sunrisesunsetcalculator = { module = "com.luckycatlabs:SunriseSunsetCalculator", version.ref = "sunrisesunsetcalculator" }
-
+google-generativeai = { module = "com.google.ai.client.generativeai:generativeai", version.ref = "google_generativeai" }
 android-gradle-plugin = { group = "com.android.tools.build", name = "gradle", version.ref = "android_gradle_plugin" }
 kotlin-gradle-plugin = { group = "org.jetbrains.kotlin", name = "kotlin-gradle-plugin", version.ref = "kotlin" }
 ksp-gradle-plugin = { group = "com.google.devtools.ksp", name = "com.google.devtools.ksp.gradle.plugin", version.ref = "ksp" }
