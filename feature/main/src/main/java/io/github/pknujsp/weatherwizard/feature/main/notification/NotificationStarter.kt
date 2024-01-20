@@ -35,12 +35,12 @@ class NotificationStarterImpl(
 
                 if (it.data.refreshInterval != RefreshInterval.MANUAL) {
                     val action = ComponentServiceAction.OngoingNotification()
-                    if (ComponentPendingIntentManager.getRefreshPendingIntent(context,
+                    if (ComponentPendingIntentManager.getPendingIntent(context,
                             PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_NO_CREATE,
                             action) == null) {
-                        val pendingIntentToSchedule = ComponentPendingIntentManager.getRefreshPendingIntent(context,
+                        val pendingIntentToSchedule = ComponentPendingIntentManager.getPendingIntent(context,
                             PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
-                            action)!!
+                            action).pendingIntent!!
                         appAlarmManager.scheduleRepeat(it.data.refreshInterval.interval, pendingIntentToSchedule)
                     }
                 }

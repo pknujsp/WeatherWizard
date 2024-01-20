@@ -44,11 +44,12 @@ class OngoingNotificationState(
         context: Context
     ) {
         val action = ComponentServiceAction.OngoingNotification()
-        ComponentPendingIntentManager.getRefreshPendingIntent(context, PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_NO_CREATE, action)
-            ?.let { pendingIntentToCancel ->
-                appAlarmManager.unschedule(pendingIntentToCancel)
-                pendingIntentToCancel.cancel()
-            }
+        ComponentPendingIntentManager.getPendingIntent(context,
+            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_NO_CREATE,
+            action).pendingIntent?.let { pendingIntentToCancel ->
+            appAlarmManager.unschedule(pendingIntentToCancel)
+            pendingIntentToCancel.cancel()
+        }
 
         if (ongoingNotificationUiState.isEnabled) {
             Intent(context, AppComponentServiceReceiver::class.java).run {
@@ -58,9 +59,9 @@ class OngoingNotificationState(
             }
 
             if (ongoingNotificationUiState.ongoingNotificationSettings.refreshInterval != RefreshInterval.MANUAL) {
-                val pendingIntentToSchedule = ComponentPendingIntentManager.getRefreshPendingIntent(context,
+                val pendingIntentToSchedule = ComponentPendingIntentManager.getPendingIntent(context,
                     PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
-                    action)!!
+                    action).pendingIntent!!
                 appAlarmManager.scheduleRepeat(ongoingNotificationUiState.ongoingNotificationSettings.refreshInterval.interval,
                     pendingIntentToSchedule)
             }

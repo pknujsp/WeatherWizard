@@ -92,11 +92,11 @@ class AppWidgetViewUpdater(
                     remoteViewsCacheManager.put(widget.id, finalRemoteView)
                 }
             } else {
-                val pendingIntentToRefresh = ComponentPendingIntentManager.getRefreshPendingIntent(context,
+                val pendingIntentToRefresh = ComponentPendingIntentManager.getPendingIntent(context,
                     PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
                     ComponentServiceAction.LoadWidgetData(LoadWidgetDataArgument(
                         LoadWidgetDataArgument.UPDATE_ONLY_FAILED,
-                    )))!!
+                    ))).pendingIntent
                 UiStateRemoteViewCreator.createView(context,
                     FailedReason.SERVER_ERROR,
                     RemoteViewCreator.ContainerType.WIDGET,
@@ -122,11 +122,11 @@ class AppWidgetViewUpdater(
         return when (val status = featureStateManager.retrieveFeaturesState(requiredFeatures, context)) {
             is FeatureStateManager.FeatureState.Unavailable -> {
                 val featurePendingIntent = status.featureType.getPendingIntent(context)
-                val refreshPendingIntent = ComponentPendingIntentManager.getRefreshPendingIntent(context,
+                val refreshPendingIntent = ComponentPendingIntentManager.getPendingIntent(context,
                     PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
                     ComponentServiceAction.LoadWidgetData(LoadWidgetDataArgument(
                         LoadWidgetDataArgument.UPDATE_ONLY_FAILED,
-                    )))
+                    ))).pendingIntent
 
                 for (widget in this) {
                     val failedRemoteView = UiStateRemoteViewCreator.createView(context,

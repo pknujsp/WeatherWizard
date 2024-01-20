@@ -1,5 +1,6 @@
 package io.github.pknujsp.weatherwizard.feature.settings
 
+import android.content.Context
 import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.systemBarsPadding
@@ -15,6 +16,8 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import io.github.pknujsp.weatherwizard.core.common.manager.AppAlarmManager
+import io.github.pknujsp.weatherwizard.core.common.manager.WidgetManager
 import io.github.pknujsp.weatherwizard.core.model.notification.enums.RefreshInterval
 import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherProvider
 import io.github.pknujsp.weatherwizard.core.resource.R
@@ -23,6 +26,7 @@ import io.github.pknujsp.weatherwizard.core.ui.ButtonSettingItem
 import io.github.pknujsp.weatherwizard.core.ui.CheckBoxSettingItem
 import io.github.pknujsp.weatherwizard.core.ui.ClickableSettingItem
 import io.github.pknujsp.weatherwizard.core.ui.TitleTextWithNavigation
+import io.github.pknujsp.weatherwizard.feature.componentservice.widget.worker.AppWidgetAutoRefreshScheduler
 
 @Composable
 fun SettingsScreen(navController: NavController, viewModel: SettingsViewModel = hiltViewModel()) {
@@ -64,6 +68,7 @@ fun SettingsScreen(navController: NavController, viewModel: SettingsViewModel = 
             onSelectedItem = {
                 it?.run {
                     settingsUiState.updatePreference(RefreshInterval, this)
+                    rescheduleWidgetAutoRefresh(this, context, viewModel.appAlarmManager, viewModel.widgetManager)
                 }
             },
             enums = RefreshInterval.enums)
@@ -86,4 +91,11 @@ fun HostSettingsScreen() {
         composable(SettingsRoutes.Main.route) { SettingsScreen(navController) }
         composable(SettingsRoutes.ValueUnit.route) { ValueUnitScreen(navController) }
     }
+}
+
+private fun rescheduleWidgetAutoRefresh(
+    refreshInterval: RefreshInterval, context: Context, appAlarmManager: AppAlarmManager, widgetManager: WidgetManager
+) {
+    val scheduler = AppWidgetAutoRefreshScheduler(widgetManager)
+    scheduler.scheduleAutoRefresh(context, appAlarmManager, refreshInterval)
 }

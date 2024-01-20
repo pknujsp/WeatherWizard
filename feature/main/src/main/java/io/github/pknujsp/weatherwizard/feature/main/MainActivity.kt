@@ -40,7 +40,7 @@ class MainActivity : ComponentActivity() {
                 launch(dispatcher) {
                     OsmdroidInitializer.initialize(application)
                     viewModel.notificationStarter.start(applicationContext)
-                    widgetStarter.start(applicationContext)
+                    widgetStarter.redrawWidgets(applicationContext)
                 }
             }
 

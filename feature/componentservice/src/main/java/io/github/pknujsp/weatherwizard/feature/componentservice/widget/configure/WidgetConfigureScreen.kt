@@ -63,13 +63,13 @@ fun WidgetConfigureScreen(
     }
 
     if (showSearch) {
-        SearchLocationScreen(onSelectedLocation = {
-            it?.let { newLocation ->
+        SearchLocationScreen(onSelectedLocation = { newLocation ->
+            newLocation?.let {
                 widget.location = LocationTypeModel(locationType = LocationType.CustomLocation,
-                    address = newLocation.addressName,
-                    latitude = newLocation.latitude,
-                    country = newLocation.countryName,
-                    longitude = newLocation.longitude)
+                    address = it.addressName,
+                    latitude = it.latitude,
+                    country = it.countryName,
+                    longitude = it.longitude)
             }
             showSearch = false
         }, popBackStack = {

@@ -10,6 +10,7 @@ import io.github.pknujsp.weatherwizard.core.common.manager.AppAlarmManager
 import io.github.pknujsp.weatherwizard.core.common.manager.WidgetManager
 import io.github.pknujsp.weatherwizard.core.data.notification.daily.DailyNotificationRepository
 import io.github.pknujsp.weatherwizard.core.data.notification.ongoing.OngoingNotificationRepository
+import io.github.pknujsp.weatherwizard.core.data.settings.SettingsRepository
 import io.github.pknujsp.weatherwizard.core.widgetnotification.notification.AppNotificationManager
 import io.github.pknujsp.weatherwizard.feature.componentservice.notification.manager.NotificationAlarmManager
 import io.github.pknujsp.weatherwizard.feature.main.notification.NotificationStarter
@@ -35,7 +36,7 @@ class AppStartModule {
 
     @Provides
     fun providesWidgetStarter(
-        widgetManager: WidgetManager
-    ): WidgetStarter = WidgetStarterImpl(widgetManager)
+        widgetManager: WidgetManager, appAlarmManager: AppAlarmManager, settingsRepository: SettingsRepository
+    ): WidgetStarter = WidgetStarterImpl(widgetManager, appAlarmManager, settingsRepository)
 
 }
