@@ -64,6 +64,7 @@ class SummaryTextViewModel @Inject constructor(
             if (job?.isActive == false) {
                 return@launch
             }
+
             job?.cancel()
             mutableUiState.isStopped = true
             mutableUiState.buttonText = io.github.pknujsp.weatherwizard.core.resource.R.string.stopped_summary

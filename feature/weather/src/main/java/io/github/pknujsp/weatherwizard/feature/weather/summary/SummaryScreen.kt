@@ -19,6 +19,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -34,6 +35,8 @@ import coil.request.ImageRequest
 import dev.jeziellago.compose.markdowntext.MarkdownText
 import io.github.pknujsp.weatherwizard.core.resource.R
 import io.github.pknujsp.weatherwizard.core.ui.AlwaysOnBottomSheetDialog
+import io.github.pknujsp.weatherwizard.core.ui.theme.AppShapes
+import kotlinx.coroutines.launch
 
 
 @Composable
@@ -44,18 +47,17 @@ fun SummaryScreen(model: WeatherSummaryPrompt.Model, onDismiss: () -> Unit, summ
     }
     AlwaysOnBottomSheetDialog(title = stringResource(id = R.string.title_ai_summary), onDismiss = onDismiss) {
         val scrollState = rememberScrollState()
-        LaunchedEffect(uiState.summaryText) {
-            scrollState.scrollTo(scrollState.maxValue)
-        }
+        val coroutineScope = rememberCoroutineScope()
 
         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.TopStart) {
             Column(modifier = Modifier
                 .fillMaxSize()
                 .verticalScroll(scrollState, true)) {
-                MarkdownText(
-                    modifier = Modifier.padding(bottom = 32.dp),
-                    markdown = uiState.summaryText,
-                )
+                MarkdownText(modifier = Modifier.padding(bottom = 32.dp), markdown = uiState.summaryText, onTextLayout = {
+                    coroutineScope.launch {
+                        scrollState.scrollTo(scrollState.maxValue)
+                    }
+                })
             }
 
             if (uiState.isSummarizing || uiState.isStopped) {
@@ -71,23 +73,24 @@ fun SummaryScreen(model: WeatherSummaryPrompt.Model, onDismiss: () -> Unit, summ
 @Composable
 private fun BoxScope.SummarizingCard(modifier: Modifier = Modifier, uiState: SummaryUiState, stop: () -> Unit) {
     val currentStop by rememberUpdatedState(newValue = stop)
-    ElevatedCard(
-        modifier = modifier
-            .align(Alignment.BottomCenter)
-            .clickable {
-                currentStop()
-            },
-        colors = CardDefaults.cardColors(
-            containerColor = Color.White,
-        ),
-    ) {
-        Row(modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
-            horizontalArrangement = Arrangement.spacedBy(6.dp, Alignment.CenterHorizontally),
-            verticalAlignment = Alignment.CenterVertically) {
-            if (uiState.isSummarizing) {
-                CircularProgressIndicator(modifier = Modifier.size(16.dp), strokeWidth = 2.dp, color = Color.Black)
+    Box(modifier = modifier
+        .padding(bottom = 8.dp)
+        .align(Alignment.BottomCenter)) {
+        ElevatedCard(modifier = modifier.clickable {
+            currentStop()
+        },
+            colors = CardDefaults.cardColors(
+                containerColor = Color.White,
+            ),
+            shape = AppShapes.extraLarge) {
+            Row(horizontalArrangement = Arrangement.spacedBy(6.dp, Alignment.CenterHorizontally),
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = modifier.padding(horizontal = 16.dp, vertical = 8.dp)) {
+                if (uiState.isSummarizing) {
+                    CircularProgressIndicator(modifier = Modifier.size(16.dp), strokeWidth = 2.dp, color = Color.Black)
+                }
+                Text(text = stringResource(id = uiState.buttonText), style = TextStyle(color = Color.Black, fontSize = 13.sp))
             }
-            Text(text = stringResource(id = uiState.buttonText), style = TextStyle(color = Color.Black, fontSize = 13.sp))
         }
     }
 }

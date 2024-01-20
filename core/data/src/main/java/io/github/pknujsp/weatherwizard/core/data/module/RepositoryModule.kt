@@ -2,6 +2,7 @@ package io.github.pknujsp.weatherwizard.core.data.module
 
 import com.google.ai.client.generativeai.GenerativeModel
 import com.google.ai.client.generativeai.type.GenerateContentResponse
+import com.google.ai.client.generativeai.type.generationConfig
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -151,13 +152,14 @@ object RepositoryModule {
     internal fun providesSummaryTextRepositoryImpl(
         @CoDispatcher(CoDispatcherType.SINGLE) dispatcher: CoroutineDispatcher
     ): SummaryTextRepositoryImpl {
-        val cacheManagerImpl = CacheManagerImpl<Int, GenerateContentResponse>(
+        val cacheManagerImpl = CacheManagerImpl<Int, List<GenerateContentResponse>>(
             cacheMaxSize = 5,
             dispatcher = dispatcher,
         )
-        return SummaryTextRepositoryImpl(GenerativeModel("gemini-pro", BuildConfig.GOOGLE_AI_STUDIO_KEY),
-            cacheManagerImpl,
-            cacheManagerImpl)
+        return SummaryTextRepositoryImpl(GenerativeModel("gemini-pro", BuildConfig.GOOGLE_AI_STUDIO_KEY, generationConfig {
+            temperature = 0.6f
+            topP = 0.7f
+        }), cacheManagerImpl, cacheManagerImpl)
     }
 
     @Provides

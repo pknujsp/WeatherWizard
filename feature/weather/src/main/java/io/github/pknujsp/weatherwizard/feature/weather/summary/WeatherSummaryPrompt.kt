@@ -46,6 +46,7 @@ class WeatherSummaryPrompt(
     } ?: ""
 
     class Model(
+        val coodinate: Pair<Double, Double>,
         val time: String,
         val weatherProvider: WeatherProvider,
         val currentWeather: CurrentWeatherEntity,
@@ -53,6 +54,6 @@ class WeatherSummaryPrompt(
         val dailyForecast: DailyForecastEntity,
         var airQuality: AirQualityEntity? = null,
     ) {
-        val id: Int = (time + weatherProvider).hashCode()
+        val id: Int = coodinate.hashCode() + weatherProvider.key
     }
 }

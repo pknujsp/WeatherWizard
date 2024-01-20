@@ -2,30 +2,40 @@ package io.github.pknujsp.weatherwizard.core.data.ai
 
 import com.google.ai.client.generativeai.GenerativeModel
 import com.google.ai.client.generativeai.type.GenerateContentResponse
+import com.google.ai.client.generativeai.type.asTextOrNull
 import io.github.pknujsp.weatherwizard.core.data.RepositoryCacheManager
 import io.github.pknujsp.weatherwizard.core.data.cache.CacheCleaner
 import io.github.pknujsp.weatherwizard.core.data.cache.CacheManager
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.flow.onEach
 
 internal class SummaryTextRepositoryImpl(
-    private val genModel: GenerativeModel, cacheManager: CacheManager<Int, GenerateContentResponse>, cacheCleaner: CacheCleaner
-) : SummaryTextRepository, RepositoryCacheManager<Int, GenerateContentResponse>(cacheCleaner, cacheManager) {
+    private val genModel: GenerativeModel, cacheManager: CacheManager<Int, List<GenerateContentResponse>>, cacheCleaner: CacheCleaner
+) : SummaryTextRepository, RepositoryCacheManager<Int, List<GenerateContentResponse>>(cacheCleaner, cacheManager) {
+
+    private val interval = 80L
 
     override suspend fun generateContentStream(prompt: Prompt): Flow<GenerateContentResponse> {
         val cache = cacheManager.get(prompt.id)
         if (cache is CacheManager.CacheState.Hit) {
-            return flowOf(cache.value)
+            return flow {
+                for (value in cache.value) {
+                    emit(value)
+                    delay(interval)
+                }
+            }
         }
 
-        var response: GenerateContentResponse? = null
+        val response: MutableList<GenerateContentResponse> = mutableListOf()
         val flow = genModel.generateContentStream(prompt.build()).onEach { generateContentResponse ->
-            response = generateContentResponse
+            response.add(generateContentResponse)
         }.onCompletion {
-            if (it == null && response != null) {
-                cacheManager.put(prompt.id, response!!)
+            if (it == null && response.isNotEmpty()) {
+                cacheManager.put(prompt.id, response)
             }
         }
 
