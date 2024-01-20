@@ -25,7 +25,7 @@ data class AirQualityEntity(
             append("| | |")
             appendLine()
             for (item in dailyForecast.items) {
-                append("| ${item.date} | ${item.getAqi().valueNotNull().airQualityDescription.description} |")
+                append("| ${item.date} | ${item.getAqi().valueNotNull().airQualityDescription.description} |\n")
             }
         }.toString()
     }

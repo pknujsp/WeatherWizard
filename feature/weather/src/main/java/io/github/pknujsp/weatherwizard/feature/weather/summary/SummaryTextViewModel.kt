@@ -5,6 +5,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import dagger.hilt.android.lifecycle.HiltViewModel
 import io.github.pknujsp.weatherwizard.core.common.coroutines.CoDispatcher
 import io.github.pknujsp.weatherwizard.core.common.coroutines.CoDispatcherType
 import io.github.pknujsp.weatherwizard.core.data.ai.SummaryTextRepository
@@ -15,6 +16,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
+@HiltViewModel
 class SummaryTextViewModel @Inject constructor(
     private val summaryTextRepository: SummaryTextRepository,
     @CoDispatcher(CoDispatcherType.SINGLE) private val dispatcher: CoroutineDispatcher,
@@ -23,18 +25,33 @@ class SummaryTextViewModel @Inject constructor(
     private val mutableUiState = MutableSummaryUiState()
     val uiState: SummaryUiState = mutableUiState
 
+    private var model: WeatherDataParser.Model? = null
+
     fun summarize(model: WeatherDataParser.Model) {
+        this.model = model
+        generate(model)
+    }
+
+    fun regenerate() {
+        if (model != null) {
+            generate(model!!)
+        }
+    }
+
+    private fun generate(model: WeatherDataParser.Model) {
         viewModelScope.launch {
-            withContext(dispatcher) {
-                val prompt = WeatherDataParser.parse(model)
-                summaryTextRepository.generateContentStream(0, prompt)
-            }.onStart {
-                mutableUiState.isSummarizing = true
-            }.onCompletion {
-                mutableUiState.isSummarizing = false
-            }.collect {
-                mutableUiState.summaryText += it.text
-            }
+            val prompt = WeatherDataParser.parse(model)
+
+            /* withContext(dispatcher) {
+                 summaryTextRepository.generateContentStream(0, prompt)
+             }.onStart {
+                 mutableUiState.isSummarizing = true
+                 mutableUiState.summaryText = ""
+             }.onCompletion {
+                 mutableUiState.isSummarizing = false
+             }.collect {
+                 mutableUiState.summaryText = mutableUiState.summaryText + it.text
+             }*/
         }
     }
 
@@ -42,6 +59,6 @@ class SummaryTextViewModel @Inject constructor(
 
 private class MutableSummaryUiState : SummaryUiState {
     override var isSummarizing: Boolean by mutableStateOf(true)
-    override var summaryText: String? by mutableStateOf(null)
+    override var summaryText: String by mutableStateOf("")
     override var error: String? by mutableStateOf(null)
 }

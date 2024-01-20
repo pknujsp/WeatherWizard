@@ -151,10 +151,12 @@ fun TopAppBars(
         },
         actions = {
             IconButton(modifier = modifier, onClick = summarize) {
-                Icon(painter = painterResource(id = R.drawable.ic_shine_128_128), contentDescription = null)
+                Icon(painter = painterResource(id = R.drawable.ic_shine_128_128),
+                    modifier = Modifier.size(24.dp),
+                    contentDescription = null)
             }
             IconButton(modifier = modifier, onClick = reload) {
-                Icon(painter = painterResource(id = R.drawable.ic_refresh), contentDescription = null)
+                Icon(painter = painterResource(id = R.drawable.ic_refresh), modifier = Modifier.size(24.dp), contentDescription = null)
             }
         },
         scrollBehavior = scrollBehavior,

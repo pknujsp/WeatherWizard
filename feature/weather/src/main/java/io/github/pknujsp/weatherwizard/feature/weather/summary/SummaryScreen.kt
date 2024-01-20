@@ -13,6 +13,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -33,14 +34,15 @@ import io.github.pknujsp.weatherwizard.core.ui.AlwaysOnBottomSheetDialog
 @Composable
 fun SummaryScreen(model: WeatherDataParser.Model, onDismiss: () -> Unit, summaryTextViewModel: SummaryTextViewModel = hiltViewModel()) {
     val uiState = summaryTextViewModel.uiState
+    LaunchedEffect(model) {
+        summaryTextViewModel.summarize(model)
+    }
     AlwaysOnBottomSheetDialog(title = stringResource(id = R.string.title_ai_summary), onDismiss = onDismiss) {
         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.TopStart) {
-            if (uiState.summaryText != null) {
-                MarkdownText(
-                    modifier = Modifier.padding(8.dp),
-                    markdown = uiState.summaryText!!,
-                )
-            }
+            MarkdownText(
+                modifier = Modifier.padding(8.dp),
+                markdown = uiState.summaryText,
+            )
             if (uiState.isSummarizing) {
                 SummarizingCard()
             }
@@ -52,29 +54,29 @@ fun SummaryScreen(model: WeatherDataParser.Model, onDismiss: () -> Unit, summary
 @Composable
 private fun BoxScope.SummarizingCard(modifier: Modifier = Modifier) {
     ElevatedCard(
-        modifier = modifier
-            .padding(horizontal = 16.dp, vertical = 8.dp)
-            .align(Alignment.BottomCenter),
+        modifier = modifier.align(Alignment.BottomCenter),
         colors = CardDefaults.cardColors(
             containerColor = Color.White,
         ),
     ) {
-        Row(horizontalArrangement = Arrangement.spacedBy(6.dp, Alignment.CenterHorizontally),
+        Row(modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+            horizontalArrangement = Arrangement.spacedBy(6.dp, Alignment.CenterHorizontally),
             verticalAlignment = Alignment.CenterVertically) {
-            CircularProgressIndicator(modifier = Modifier.size(16.dp))
-            Text(text = stringResource(id = R.string.text_summarizing))
+            CircularProgressIndicator(modifier = Modifier.size(16.dp), strokeWidth = 2.dp, color = Color.Black)
+            Text(text = stringResource(id = R.string.text_summarizing), style = TextStyle(color = Color.Black, fontSize = 13.sp))
         }
     }
 }
 
 @Composable
 private fun BoxScope.Footer(modifier: Modifier = Modifier) {
-    Row(modifier = modifier.align(Alignment.BottomEnd),
-        horizontalArrangement = Arrangement.spacedBy(6.dp, Alignment.CenterHorizontally),
-        verticalAlignment = Alignment.CenterVertically) {
+    Row(
+        modifier = modifier.align(Alignment.BottomEnd),
+        horizontalArrangement = Arrangement.spacedBy(4.dp, Alignment.CenterHorizontally),
+    ) {
         Text(text = "with", style = TextStyle(color = Color.Gray, fontSize = 12.sp))
         AsyncImage(model = ImageRequest.Builder(LocalContext.current).data(R.drawable.gemini_300_150).crossfade(false).build(),
-            modifier = modifier.height(20.dp),
+            modifier = modifier.height(23.dp),
             contentDescription = null)
     }
 }
