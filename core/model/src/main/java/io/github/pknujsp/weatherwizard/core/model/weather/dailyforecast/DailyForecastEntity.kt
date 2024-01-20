@@ -22,7 +22,7 @@ data class DailyForecastEntity(
             appendLine()
             append("| 날짜 | 최저/최고 기온 | 하루 날씨 | 오전/오후 날씨 |")
             appendLine()
-            append("| | | | |")
+            append("| --- | --- | --- | --- |")
             appendLine()
             for (item in dayItems) {
                 append("| ${item.dateTime} | ${item.minTemperature}/${item.maxTemperature} | ${

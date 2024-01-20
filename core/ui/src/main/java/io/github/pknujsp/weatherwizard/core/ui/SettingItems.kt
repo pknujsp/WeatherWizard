@@ -323,9 +323,7 @@ fun AlwaysOnBottomSheetDialog(
     ) {
         Column {
             TitleTextWithoutNavigation(title = title)
-            Column(modifier = modifier.verticalScroll(rememberScrollState(), true)) {
-                content()
-            }
+            content()
         }
     }
 }

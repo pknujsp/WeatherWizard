@@ -33,8 +33,7 @@ import io.github.pknujsp.weatherwizard.core.model.weather.hourlyforecast.DetailH
 import io.github.pknujsp.weatherwizard.core.model.weather.hourlyforecast.SimpleHourlyForecast
 import io.github.pknujsp.weatherwizard.core.model.weather.yesterday.YesterdayWeather
 import io.github.pknujsp.weatherwizard.feature.weather.route.NestedWeatherRoutes
-import io.github.pknujsp.weatherwizard.feature.weather.summary.SummaryTextViewModel
-import io.github.pknujsp.weatherwizard.feature.weather.summary.WeatherDataParser
+import io.github.pknujsp.weatherwizard.feature.weather.summary.WeatherSummaryPrompt
 import java.time.ZonedDateTime
 
 private val topAppBarOffsetLimit = (-64).dp
@@ -46,7 +45,7 @@ sealed interface WeatherContentUiState {
         val args: RequestWeatherArguments,
         val weather: Weather,
         val lastUpdatedDateTime: ZonedDateTime,
-        val weatherEntities: WeatherDataParser.Model
+        val weatherEntities: WeatherSummaryPrompt.Model
     ) : WeatherContentUiState {
 
         val dateTime: String = lastUpdatedDateTime.format(dateTimeFormatter)

@@ -313,6 +313,8 @@
     <string name="daily_forecast_comparison_widget">일별 예보 비교</string>
     <string name="title_ai_summary">Ai 요약</string>
     <string name="text_summarizing">요약 중..</string>
+    <string name="stop_summary">요약 중단</string>
     <string name="with">with</string>
+    <string name="stopped_summary">중단됨</string>
 
 </resources>

@@ -14,18 +14,18 @@ internal class SummaryTextRepositoryImpl(
     private val genModel: GenerativeModel, cacheManager: CacheManager<Int, GenerateContentResponse>, cacheCleaner: CacheCleaner
 ) : SummaryTextRepository, RepositoryCacheManager<Int, GenerateContentResponse>(cacheCleaner, cacheManager) {
 
-    override suspend fun generateContentStream(id: Int, prompt: String): Flow<GenerateContentResponse> {
-        val cache = cacheManager.get(id)
+    override suspend fun generateContentStream(prompt: Prompt): Flow<GenerateContentResponse> {
+        val cache = cacheManager.get(prompt.id)
         if (cache is CacheManager.CacheState.Hit) {
             return flowOf(cache.value)
         }
 
         var response: GenerateContentResponse? = null
-        val flow = genModel.generateContentStream(prompt).onEach { generateContentResponse ->
+        val flow = genModel.generateContentStream(prompt.build()).onEach { generateContentResponse ->
             response = generateContentResponse
         }.onCompletion {
             if (it == null && response != null) {
-                cacheManager.put(id, response!!)
+                cacheManager.put(prompt.id, response!!)
             }
         }
 

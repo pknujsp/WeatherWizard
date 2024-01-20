@@ -26,7 +26,7 @@ data class HourlyForecastEntity(
             appendLine()
             append("| 시간 | 날씨 | 기온 | 강수확률 | 강수량 | 습도 | 풍속 |")
             appendLine()
-            append("| | | | | | | |")
+            append("| --- | --- | --- | --- | --- | --- | --- |")
             appendLine()
             for (item in items) {
                 append("${item.dateTime} | ${item.weatherCondition.value.description} | ${item.temperature} | ${item.precipitationProbability} | ${item.precipitationVolume} | ${item.humidity} | ${item.windSpeed}\n")

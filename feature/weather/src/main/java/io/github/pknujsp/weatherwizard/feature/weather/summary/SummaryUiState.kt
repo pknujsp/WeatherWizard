@@ -7,4 +7,6 @@ interface SummaryUiState {
     val isSummarizing: Boolean
     val summaryText: String
     val error: String?
+    val buttonText:Int
+    val isStopped: Boolean
 }
