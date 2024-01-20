@@ -3,7 +3,7 @@ package io.github.pknujsp.weatherwizard.feature.componentservice.widget
 import android.appwidget.AppWidgetManager
 import android.content.Context
 import android.content.Intent
-import android.util.Log
+import android.widget.RemoteViews
 import androidx.hilt.work.HiltWorker
 import androidx.work.WorkerParameters
 import dagger.assisted.Assisted
@@ -15,6 +15,7 @@ import io.github.pknujsp.weatherwizard.core.common.module.KtJson
 import io.github.pknujsp.weatherwizard.core.model.JsonParser
 import io.github.pknujsp.weatherwizard.core.model.coordinate.LocationType
 import io.github.pknujsp.weatherwizard.core.model.widget.WidgetStatus
+import io.github.pknujsp.weatherwizard.core.resource.R
 import io.github.pknujsp.weatherwizard.core.widgetnotification.model.AppComponentCoroutineService
 import io.github.pknujsp.weatherwizard.core.widgetnotification.model.IWorker
 import io.github.pknujsp.weatherwizard.core.widgetnotification.model.LoadWidgetDataArgument
@@ -41,7 +42,14 @@ class WidgetCoroutineService @AssistedInject constructor(
     }
 
     override suspend fun doWork(context: Context, argument: LoadWidgetDataArgument): Result {
-        start(context, argument)
+        try {
+            setLoadingViewToAllWidgets(context)
+            start(context, argument)
+        } catch (e: Exception) {
+            e.printStackTrace()
+        } finally {
+            WidgetProgressManager.clear()
+        }
         return Result.success()
     }
 
@@ -52,14 +60,14 @@ class WidgetCoroutineService @AssistedInject constructor(
             return
         }
 
-        WidgetsInProgress.addAll(widgetEntityList.widgetSettings.map { it.id })
+        WidgetProgressManager.addAll(widgetEntityList.widgetSettings.map { it.id })
 
         if (featureStateManager.retrieveFeaturesState(requiredFeatures, context) is FeatureStateManager.FeatureState.Unavailable) {
             for (widget in widgetEntityList.widgetSettings) {
                 widgetRemoteViewModel.updateResponseData(widget.id, WidgetStatus.RESPONSE_FAILURE)
             }
             val failedWidgetIds = widgetEntityList.widgetSettings.map { it.id }
-            WidgetsInProgress.removeAll(failedWidgetIds)
+            WidgetProgressManager.removeAll(failedWidgetIds)
             sendBroadcast(failedWidgetIds)
             return
         }
@@ -74,7 +82,7 @@ class WidgetCoroutineService @AssistedInject constructor(
                 widgetRemoteViewModel.updateResponseData(it.id, WidgetStatus.RESPONSE_FAILURE)
                 failedWidgetIds.add(it.id)
             }
-            WidgetsInProgress.removeAll(failedWidgetIds)
+            WidgetProgressManager.removeAll(failedWidgetIds)
             sendBroadcast(failedWidgetIds)
 
             if (widgetEntityList.widgetSettings.size == failedWidgetIds.size) {
@@ -94,7 +102,7 @@ class WidgetCoroutineService @AssistedInject constructor(
         }
 
         val completedWidgetIds = responses.map { it.widget.id }
-        WidgetsInProgress.removeAll(completedWidgetIds)
+        WidgetProgressManager.removeAll(completedWidgetIds)
         sendBroadcast(completedWidgetIds)
     }
 
@@ -104,15 +112,35 @@ class WidgetCoroutineService @AssistedInject constructor(
                 action = AppWidgetManager.ACTION_APPWIDGET_UPDATE
                 putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, widgetIds.toTypedArray())
                 context.sendBroadcast(this)
-                Log.d("WidgetCoroutineService", "sendBroadcast: $widgetIds")
             }
+        }
+    }
+
+    private fun setLoadingViewToAllWidgets(context: Context) {
+        val installedWidgets = widgetManager.installedAllWidgetIds
+        if (installedWidgets.isNotEmpty()) {
+            widgetManager.appWidgetManager.updateAppWidget(installedWidgets.toIntArray(),
+                RemoteViews(context.packageName, R.layout.view_loading_widget))
         }
     }
 }
 
-private object WidgetsInProgress {
+private object WidgetProgressManager {
+    private var inProgress = false
     private val mutex = Mutex()
     private val widgetsInProgress = mutableSetOf<Int>()
+
+    suspend fun clear() = mutex.withLock {
+        widgetsInProgress.clear()
+    }
+
+    suspend fun setInProgress(inProgress: Boolean) = mutex.withLock {
+        this.inProgress = inProgress
+    }
+
+    suspend fun inProgress(): Boolean = mutex.withLock {
+        inProgress
+    }
 
     suspend fun contains(widgetId: Int): Boolean = mutex.withLock {
         widgetId in widgetsInProgress
@@ -135,4 +163,5 @@ private object WidgetsInProgress {
     }
 }
 
-internal suspend fun isInProgress(widgetId: Int): Boolean = WidgetsInProgress.contains(widgetId)
+internal suspend fun isInProgress(widgetId: Int): Boolean = WidgetProgressManager.contains(widgetId)
+internal suspend fun widgetInProgress(): Boolean = WidgetProgressManager.inProgress()

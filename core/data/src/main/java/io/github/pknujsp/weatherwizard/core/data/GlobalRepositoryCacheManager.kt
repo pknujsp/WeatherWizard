@@ -3,19 +3,22 @@ package io.github.pknujsp.weatherwizard.core.data
 class GlobalRepositoryCacheManagerImpl(
     private val weatherDataRepository: RepositoryCacheManager<*, *>,
     private val airQualityRepository: RepositoryCacheManager<*, *>,
-    private val rainViewerRepository: RepositoryCacheManager<*, *>
+    private val rainViewerRepository: RepositoryCacheManager<*, *>,
+    private val summaryTextRepository: RepositoryCacheManager<*, *>,
 ) : GlobalRepositoryCacheManager {
 
     override fun startCacheCleaner() {
         weatherDataRepository.startCacheCleaner()
         airQualityRepository.startCacheCleaner()
         rainViewerRepository.startCacheCleaner()
+        summaryTextRepository.startCacheCleaner()
     }
 
     override fun stopCacheCleaner() {
         weatherDataRepository.stopCacheCleaner()
         airQualityRepository.stopCacheCleaner()
         rainViewerRepository.stopCacheCleaner()
+        summaryTextRepository.stopCacheCleaner()
     }
 
 }

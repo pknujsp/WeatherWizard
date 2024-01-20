@@ -106,7 +106,6 @@
     <string name="exact_alarm_permission">정확한 알람 권한</string>
     <string name="again">다시 시도</string>
     <string name="air_quality">대기질</string>
-    <string name="all_in_one">종합</string>
     <string name="current_weather_and_hourly_forecast">현재/시간별 예보</string>
     <string name="server_error_title">서버 오류</string>
     <string name="server_error_message">서버에서 문제가 발생하였습니다</string>
@@ -271,7 +270,6 @@
     <string name="configure">Configure</string>
     <string name="add_widget">Add widget</string>
     <string name="app_widget_description">This is an app widget description</string>
-    <string name="summary_weather_widget_description">종합예보</string>
     <string name="updated_time">업데이트 시각</string>
     <string name="launch_app">앱 실행</string>
     <string name="configure_widget">위젯 추가</string>
@@ -308,5 +306,15 @@
     <string name="go_to_select_target_location">지정하기</string>
     <string name="unknown_address">알수없는 주소</string>
     <string name="unknown_country">알수없는 국가</string>
+
+    <string name="all_in_one_widget">종합 예보</string>
+    <string name="time_hourly_forecast_widget">현재시각 + 현재날씨 + 시간별 예보</string>
+    <string name="hourly_forecast_comparison_widget">시간별 예보 비교</string>
+    <string name="daily_forecast_comparison_widget">일별 예보 비교</string>
+    <string name="title_ai_summary">Ai 요약</string>
+    <string name="text_summarizing">요약 중..</string>
+    <string name="stop_summary">요약 중단</string>
+    <string name="with">with</string>
+    <string name="stopped_summary">중단됨</string>
 
 </resources>

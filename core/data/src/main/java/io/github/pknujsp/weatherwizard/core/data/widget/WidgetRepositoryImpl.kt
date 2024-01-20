@@ -4,6 +4,7 @@ import io.github.pknujsp.weatherwizard.core.common.module.KtJson
 import io.github.pknujsp.weatherwizard.core.database.widget.WidgetDto
 import io.github.pknujsp.weatherwizard.core.database.widget.WidgetLocalDataSource
 import io.github.pknujsp.weatherwizard.core.model.JsonParser
+import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherProvider
 import io.github.pknujsp.weatherwizard.core.model.widget.WidgetStatus
 import io.github.pknujsp.weatherwizard.core.model.widget.WidgetType
 import kotlinx.serialization.json.Json
@@ -22,7 +23,7 @@ class WidgetRepositoryImpl @Inject constructor(
             val jsonEntity = jsonParser.parse<WidgetSettingsJsonEntity>(dto.content)
             WidgetSettingsEntity(id = dto.id,
                 location = jsonEntity.getLocation(),
-                weatherProvider = jsonEntity.getWeatherProvider(),
+                weatherProviders = jsonEntity.getWeatherProviders(),
                 status = dto.status,
                 widgetType = WidgetType.fromKey(dto.widgetType))
         }
@@ -32,7 +33,7 @@ class WidgetRepositoryImpl @Inject constructor(
 
     override suspend fun add(entity: WidgetSettingsEntity): Int {
         val jsonEntity = WidgetSettingsJsonEntity(
-            weatherProvider = entity.weatherProvider.key,
+            weatherProviders = entity.weatherProviders.map { it.key },
             locationType = entity.location.locationType.key,
             latitude = entity.location.latitude,
             longitude = entity.location.longitude,
@@ -51,7 +52,7 @@ class WidgetRepositoryImpl @Inject constructor(
         return WidgetSettingsEntity(id = dto.id,
             location = jsonEntity.getLocation(),
             status = dto.status,
-            weatherProvider = jsonEntity.getWeatherProvider(),
+            weatherProviders = jsonEntity.getWeatherProviders(),
             widgetType = WidgetType.fromKey(dto.widgetType))
     }
 
@@ -91,7 +92,10 @@ class WidgetRepositoryImpl @Inject constructor(
                         latitude = responseData.latitude,
                         longitude = responseData.longitude,
                         entities = responseData.entities.map {
-                            it.toWeatherEntity(jsonParser)
+                            SavedWidgetContentState.Success.EntityWithWeatherProvider(weatherProvider = WeatherProvider.fromKey(it.weatherProvider),
+                                entities = it.entities.map { entity ->
+                                    entity.toWeatherEntity(jsonParser)
+                                })
                         })
                 }
             } else {

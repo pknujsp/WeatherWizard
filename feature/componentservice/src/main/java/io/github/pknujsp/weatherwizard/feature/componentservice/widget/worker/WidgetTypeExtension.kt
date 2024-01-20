@@ -1,18 +1,18 @@
 package io.github.pknujsp.weatherwizard.feature.componentservice.widget.worker
 
 import android.content.ComponentName
-import android.content.Context
 import io.github.pknujsp.weatherwizard.core.model.widget.WidgetType
+import io.github.pknujsp.weatherwizard.feature.componentservice.widget.widgetprovider.DailyForecastComparisonWidgetProvider
+import io.github.pknujsp.weatherwizard.feature.componentservice.widget.widgetprovider.HourlyForecastComparisonWidgetProvider
+import io.github.pknujsp.weatherwizard.feature.componentservice.widget.widgetprovider.SummaryWeatherWidgetProvider
+import io.github.pknujsp.weatherwizard.feature.componentservice.widget.widgetprovider.TimeHourlyForecastWidgetProvider
 
-internal fun WidgetType.Companion.fromProvider(componentName: ComponentName) = when (componentName.className) {
+internal fun WidgetType.Companion.fromComponentName(componentName: ComponentName) = when (componentName.className) {
     SummaryWeatherWidgetProvider::class.java.name -> WidgetType.ALL_IN_ONE
-    else -> WidgetType.ALL_IN_ONE
-}
-
-internal fun WidgetType.Companion.toComponentName(context: Context, type: WidgetType): ComponentName {
-    val widgetProviderClass = when (type) {
-        WidgetType.ALL_IN_ONE -> SummaryWeatherWidgetProvider::class
-        else -> SummaryWeatherWidgetProvider::class
+    TimeHourlyForecastWidgetProvider::class.java.name -> WidgetType.TIME_HOURLY_FORECAST
+    HourlyForecastComparisonWidgetProvider::class.java.name -> WidgetType.HOURLY_FORECAST_COMPARISON
+    DailyForecastComparisonWidgetProvider::class.java.name -> WidgetType.DAILY_FORECAST_COMPARISON
+    else -> {
+        error("Unknown widget provider: ${componentName.className}")
     }
-    return ComponentName(context, widgetProviderClass.java)
 }

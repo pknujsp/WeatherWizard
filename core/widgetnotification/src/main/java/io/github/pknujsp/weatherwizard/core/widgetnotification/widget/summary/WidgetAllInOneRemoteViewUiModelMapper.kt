@@ -8,23 +8,28 @@ import io.github.pknujsp.weatherwizard.core.model.settings.CurrentUnits
 import io.github.pknujsp.weatherwizard.core.model.weather.current.CurrentWeatherEntity
 import io.github.pknujsp.weatherwizard.core.model.weather.dailyforecast.DailyForecastEntity
 import io.github.pknujsp.weatherwizard.core.model.weather.hourlyforecast.HourlyForecastEntity
+import io.github.pknujsp.weatherwizard.core.widgetnotification.widget.WidgetUiModelMapper
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 
-class WidgetAllInOneRemoteViewUiModelMapper : UiModelMapper<SavedWidgetContentState.Success, WidgetAllInOneRemoteViewUiModel> {
+class WidgetAllInOneRemoteViewUiModelMapper : WidgetUiModelMapper<SavedWidgetContentState.Success, WidgetAllInOneRemoteViewUiModel>(
+    hourlyForecastItemsCount = 12,
+    dailyForecastItemsCount = 5
+) {
     override fun mapToUiModel(model: SavedWidgetContentState.Success, units: CurrentUnits): WidgetAllInOneRemoteViewUiModel {
         return model.let {
+            val entity = it.entities.first()
             val dayNightCalculator = DayNightCalculator(it.latitude, it.longitude)
 
-            val currentWeather = it.toEntity<CurrentWeatherEntity>().run {
+            val currentWeather = entity.toEntity<CurrentWeatherEntity>().run {
                 WidgetAllInOneRemoteViewUiModel.CurrentWeather(temperature = temperature.convertUnit(units.temperatureUnit).toString(),
                     feelsLikeTemperature = feelsLikeTemperature.convertUnit(units.temperatureUnit).toString(),
                     weatherIcon = weatherCondition.value.getWeatherIconByTimeOfDay(dayNightCalculator.calculate(it.updatedAt.toCalendar()) == DayNightCalculator.DayNight.DAY))
             }
 
-            val hourlyForecast = it.toEntity<HourlyForecastEntity>().run {
-                items.subList(0, 12).map { item ->
+            val hourlyForecast = entity.toEntity<HourlyForecastEntity>().run {
+                items.subList(0, hourlyForecastItemsCount).map { item ->
                     val calendar = ZonedDateTime.parse(item.dateTime.value)
 
                     WidgetAllInOneRemoteViewUiModel.HourlyForecast(temperature = item.temperature.convertUnit(units.temperatureUnit)
@@ -36,7 +41,7 @@ class WidgetAllInOneRemoteViewUiModelMapper : UiModelMapper<SavedWidgetContentSt
 
             val dateFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("d E", Locale.getDefault())
 
-            val dailyForecast = it.toEntity<DailyForecastEntity>().dayItems.subList(0, 5).map { item ->
+            val dailyForecast = entity.toEntity<DailyForecastEntity>().dayItems.subList(0, dailyForecastItemsCount).map { item ->
                 WidgetAllInOneRemoteViewUiModel.DailyForecast(temperature = "${item.minTemperature.convertUnit(units.temperatureUnit)}/${
                     item.maxTemperature.convertUnit(units.temperatureUnit)
                 }",

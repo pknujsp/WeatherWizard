@@ -8,14 +8,15 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center_vertical"
-        android:layout_marginBottom="4dp">
+        android:layout_marginTop="4dp"
+        android:layout_marginBottom="8dp">
 
         <ImageView
             android:id="@+id/weather_icon"
             android:layout_width="44dp"
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
-            android:layout_marginEnd="6dp"
+            android:layout_marginEnd="8dp"
             android:adjustViewBounds="true"
             android:contentDescription="@string/weather_icon"
             android:scaleType="fitCenter"
@@ -42,7 +43,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignBaseline="@id/temperature"
-                android:layout_marginStart="4dp"
+                android:layout_marginStart="8dp"
                 android:layout_toEndOf="@id/temperature"
                 android:includeFontPadding="false"
                 android:text="@string/feels_like_temperature"
@@ -64,7 +65,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_below="@id/temperature"
-                android:layout_marginTop="-3sp"
+                android:layout_marginTop="-1sp"
                 android:includeFontPadding="false"
                 android:text="@string/clear"
                 android:textColor="@android:color/black"
@@ -78,7 +79,7 @@
         android:layout_height="0dp"
         android:layout_gravity="center_vertical"
         android:layout_marginBottom="4dp"
-        android:layout_weight="2"
+        android:layout_weight="1.9"
         android:orientation="vertical"
         android:weightSum="1">
 

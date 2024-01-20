@@ -1,12 +1,83 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
+
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <application>
         <service
             android:name="androidx.work.impl.foreground.SystemForegroundService"
             android:foregroundServiceType="location"
             tools:node="merge" />
+
+        <receiver
+            android:name=".widget.widgetprovider.SummaryWeatherWidgetProvider"
+            android:enabled="true"
+            android:exported="false"
+            android:label="@string/all_in_one_widget">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.LOCKED_BOOT_COMPLETED" />
+                <action android:name="wyther.intent.action.SCHEDULE_TO_AUTO_REFRESH" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/summary_weather_widget_info" />
+        </receiver>
+
+        <receiver
+            android:name=".widget.widgetprovider.TimeHourlyForecastWidgetProvider"
+            android:enabled="true"
+            android:exported="false"
+            android:label="@string/time_hourly_forecast_widget">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.LOCKED_BOOT_COMPLETED" />
+                <action android:name="wyther.intent.action.SCHEDULE_TO_AUTO_REFRESH" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/time_hourly_forecast_widget_info" />
+        </receiver>
+
+        <receiver
+            android:name=".widget.widgetprovider.DailyForecastComparisonWidgetProvider"
+            android:enabled="true"
+            android:exported="false"
+            android:label="@string/daily_forecast_comparison_widget">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.LOCKED_BOOT_COMPLETED" />
+                <action android:name="wyther.intent.action.SCHEDULE_TO_AUTO_REFRESH" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/daily_forecast_comparison_widget_info" />
+        </receiver>
+
+
+        <receiver
+            android:name=".widget.widgetprovider.HourlyForecastComparisonWidgetProvider"
+            android:enabled="true"
+            android:exported="false"
+            android:label="@string/hourly_forecast_comparison_widget">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.LOCKED_BOOT_COMPLETED" />
+                <action android:name="wyther.intent.action.SCHEDULE_TO_AUTO_REFRESH" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/hourly_forecast_comparison_widget_info" />
+        </receiver>
+
     </application>
 
 </manifest>

@@ -8,6 +8,7 @@ import io.github.pknujsp.weatherwizard.core.model.airquality.AirQualityEntity
 import io.github.pknujsp.weatherwizard.core.model.remoteviews.RemoteViewUiState
 import io.github.pknujsp.weatherwizard.core.model.weather.base.WeatherEntityModel
 import io.github.pknujsp.weatherwizard.core.model.weather.common.MajorWeatherEntityType
+import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherProvider
 import io.github.pknujsp.weatherwizard.core.model.weather.current.CurrentWeatherEntity
 import io.github.pknujsp.weatherwizard.core.model.weather.dailyforecast.DailyForecastEntity
 import io.github.pknujsp.weatherwizard.core.model.weather.hourlyforecast.HourlyForecastEntity
@@ -16,13 +17,18 @@ import java.time.ZonedDateTime
 
 class WidgetRemoteViewUiState(
     val widget: WidgetSettingsEntity,
-    override val lastUpdated: ZonedDateTime?,
-    override val address: String?,
     override val isSuccessful: Boolean,
-    override val model: WeatherResponseEntity?,
-    val latitude: Double,
-    val longitude: Double,
-) : RemoteViewUiState<WeatherResponseEntity> {
+    override val lastUpdated: ZonedDateTime? = null,
+    override val address: String? = null,
+    override val model: List<EntityWithWeatherProvider>? = null,
+    val latitude: Double? = null,
+    val longitude: Double? = null,
+) : RemoteViewUiState<List<WidgetRemoteViewUiState.EntityWithWeatherProvider>> {
+
+    class EntityWithWeatherProvider(
+        val weatherProvider: WeatherProvider,
+        val entity: WeatherResponseEntity,
+    )
 
     private companion object {
         fun realTypeParseToByteArray(jsonParser: JsonParser, majorWeatherEntityType: MajorWeatherEntityType, model: WeatherEntityModel) =
@@ -35,8 +41,10 @@ class WidgetRemoteViewUiState(
             }
     }
 
-    fun toWidgetResponseDBModel(jsonParser: JsonParser) =
-        WidgetResponseDBModel(address = address!!, entities = model!!.export(widget.widgetType.categories.toSet()).map {
-            WidgetResponseDBModel.Entity(it.key.name, realTypeParseToByteArray(jsonParser, it.key, it.value))
-        }, latitude = latitude, longitude = longitude)
+    fun toWidgetResponseDBModel(jsonParser: JsonParser) = WidgetResponseDBModel(entities = model!!.map { entity ->
+        WidgetResponseDBModel.EntityWithWeatherProvider(weatherProvider = entity.weatherProvider.key,
+            entities = entity.entity.export(widget.widgetType.categories.toSet()).map {
+                WidgetResponseDBModel.Entity(it.key.name, realTypeParseToByteArray(jsonParser, it.key, it.value))
+            })
+    }, address = address!!, latitude = latitude!!, longitude = longitude!!)
 }

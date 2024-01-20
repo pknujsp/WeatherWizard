@@ -15,7 +15,7 @@
         android:gravity="center"
         android:text="12"
         android:textColor="@android:color/black"
-        android:textSize="13sp" />
+        android:textSize="@dimen/medium_day_text_size_in_daily_forecast_widget" />
 
     <LinearLayout
         android:id="@+id/weather_icons"
@@ -33,6 +33,6 @@
         android:text="12"
         android:textColor="@android:color/black"
         android:textScaleX="0.9"
-        android:textSize="13sp" />
+        android:textSize="@dimen/small_temperature_text_size_in_daily_forecast_widget" />
 
 </LinearLayout>

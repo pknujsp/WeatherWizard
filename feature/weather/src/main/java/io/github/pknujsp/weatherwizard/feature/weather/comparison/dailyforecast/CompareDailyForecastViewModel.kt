@@ -40,14 +40,14 @@ class CompareDailyForecastViewModel @Inject constructor(
         viewModelScope.launch {
             args.run {
                 withContext(ioDispatcher) {
-                    val weatherDataRequest = WeatherDataRequest()
+                    val weatherDataRequestBuilder = WeatherDataRequest.Builder()
                     weatherProviders.forEach {
-                        weatherDataRequest.addRequest(WeatherDataRequest.Coordinate(latitude, longitude),
-                            setOf(MajorWeatherEntityType.DAILY_FORECAST),
+                        weatherDataRequestBuilder.add(WeatherDataRequest.Coordinate(latitude, longitude),
+                            arrayOf(MajorWeatherEntityType.DAILY_FORECAST),
                             it)
                     }
 
-                    getDailyForecastToCompareUseCase(weatherDataRequest.finalRequests).map { entity ->
+                    getDailyForecastToCompareUseCase(weatherDataRequestBuilder.build()).map { entity ->
                         val (firstDate, endDate) = entity.run {
                             items.maxOf { ZonedDateTime.parse(it.second.dayItems.first().dateTime.value).toLocalDate() } to items.minOf {
                                 ZonedDateTime.parse(it.second.dayItems.last().dateTime.value).toLocalDate()

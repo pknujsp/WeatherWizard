@@ -25,8 +25,8 @@ object ComponentPendingIntentManager {
         context: Context, flags: Int, action: A
     ): PendingIntent? = PendingIntent.getBroadcast(context,
         pendingIntentRequestFactory.requestId(action::class),
-        Intent(context, NotificationServiceReceiver::class.java).apply {
-            this.action = NotificationServiceReceiver.ACTION_PROCESS
+        Intent(context, AppComponentServiceReceiver::class.java).apply {
+            this.action = AppComponentServiceReceiver.ACTION_PROCESS
             putExtras(action.argument.toBundle())
         },
         flags)
@@ -34,8 +34,8 @@ object ComponentPendingIntentManager {
 
     fun <A : ComponentServiceArgument> getIntent(
         context: Context, argument: A
-    ): Intent = Intent(context, NotificationServiceReceiver::class.java).apply {
-        this.action = NotificationServiceReceiver.ACTION_PROCESS
+    ): Intent = Intent(context, AppComponentServiceReceiver::class.java).apply {
+        this.action = AppComponentServiceReceiver.ACTION_PROCESS
         putExtras(argument.toBundle())
     }
 

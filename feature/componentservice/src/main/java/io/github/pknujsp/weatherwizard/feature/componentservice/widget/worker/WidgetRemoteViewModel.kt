@@ -24,110 +24,142 @@ class WidgetRemoteViewModel @Inject constructor(
     getCurrentLocationUseCase: GetCurrentLocationAddress,
 ) : RemoteViewModel(getCurrentLocationUseCase) {
 
-    private var widgetSettingsEntityList: WidgetSettingsEntityList by Delegates.notNull()
+    private var widgets: WidgetSettingsEntityList by Delegates.notNull()
 
     suspend fun loadWidgets(widgetId: Int, requestedAction: Int): WidgetSettingsEntityList {
-        widgetSettingsEntityList = widgetRepository.getAll()
+        widgets = widgetRepository.getAll()
 
         val filteredList = when (requestedAction) {
-            LoadWidgetDataArgument.NEW_WIDGET -> widgetSettingsEntityList.widgetSettings.filter { it.id == widgetId }
-            LoadWidgetDataArgument.UPDATE_ONLY_FAILED -> widgetSettingsEntityList.widgetSettings.filter { it.status == WidgetStatus.RESPONSE_FAILURE }
-            else -> widgetSettingsEntityList.widgetSettings
+            LoadWidgetDataArgument.NEW_WIDGET -> widgets.widgetSettings.filter { it.id == widgetId }
+            LoadWidgetDataArgument.UPDATE_ONLY_FAILED -> widgets.widgetSettings.filter { it.status == WidgetStatus.RESPONSE_FAILURE }
+            else -> widgets.widgetSettings
         }
 
-        widgetSettingsEntityList = WidgetSettingsEntityList(filteredList)
-        return widgetSettingsEntityList
+        widgets = WidgetSettingsEntityList(filteredList)
+        return widgets
     }
 
     suspend fun load(
         excludeWidgets: List<Int>
     ): List<WidgetRemoteViewUiState> {
         if (excludeWidgets.isNotEmpty()) {
-            widgetSettingsEntityList = WidgetSettingsEntityList(widgetSettingsEntityList.widgetSettings.filter { it.id !in excludeWidgets })
+            widgets = WidgetSettingsEntityList(widgets.widgetSettings.filter { it.id !in excludeWidgets })
         }
 
         return loadWeatherData()
     }
 
     private suspend fun loadWeatherData(): List<WidgetRemoteViewUiState> {
-        val weatherDataRequest = WeatherDataRequest()
-        val responseMap = mutableMapOf<WidgetSettingsEntity, WeatherResponseState>()
-        val requestMapWithRequestIdAndWidget = mutableMapOf<Long, MutableList<WidgetSettingsEntity>>()
-        val locationMap = mutableMapOf<WeatherDataRequest.Coordinate, String>()
+        val requestBuilder = WeatherDataRequest.Builder()
+        val requestMap = addRequests(requestBuilder)
+        val requests = requestBuilder.build()
 
-        widgetSettingsEntityList.locationTypeGroups[LocationType.CurrentLocation]?.let { entities ->
+        val responses = coroutineScope {
+            requests.map { request ->
+                async { getWeatherDataUseCase(request, false) }
+            }
+        }.let { defferedList ->
+            defferedList.map { it.await() }
+        }
+
+        return createUiStates(requestMap, responses)
+    }
+
+    private fun createUiStates(
+        requestMap: Map<WidgetSettingsEntity, WeatherDataRequest.Coordinate>,
+        responses: List<WeatherResponseState>,
+    ): List<WidgetRemoteViewUiState> {
+        val responseMap = responses.groupBy {
+            it.location
+        }
+        val uiStates = mutableListOf<WidgetRemoteViewUiState>()
+
+        for (widget in widgets.widgetSettings) {
+            if (widget !in requestMap.keys) {
+                uiStates.add(WidgetRemoteViewUiState(widget = widget, isSuccessful = false))
+                continue
+            }
+
+            val coordinate = requestMap[widget]!!
+            val weatherProviders = widget.weatherProviders
+
+            val responsesByWeatherProvider = responseMap[coordinate]!!.filter {
+                it.weatherProvider in weatherProviders
+            }
+
+            val entities = responsesByWeatherProvider.filterIsInstance<WeatherResponseState.Success>().map { response ->
+                WidgetRemoteViewUiState.EntityWithWeatherProvider(
+                    weatherProvider = response.weatherProvider,
+                    entity = response.entity,
+                )
+            }
+
             if (entities.isNotEmpty()) {
-                when (val currentLocation = getCurrentLocation().first()) {
-                    is CurrentLocationResult.Success -> {
-                        val coordinate = WeatherDataRequest.Coordinate(
-                            latitude = currentLocation.latitude,
-                            longitude = currentLocation.longitude,
-                        )
-                        locationMap[coordinate] = currentLocation.address
-                        entities.forEach {
-                            val requestId = weatherDataRequest.addRequest(
-                                coordinate,
-                                it.widgetType.categories.toSet(),
-                                it.weatherProvider,
-                            )
-                            requestMapWithRequestIdAndWidget.getOrPut(requestId) { mutableListOf() }.add(it)
-                        }
-                    }
+                uiStates.add(WidgetRemoteViewUiState(widget = widget,
+                    isSuccessful = true,
+                    model = entities,
+                    address = coordinate.address,
+                    latitude = coordinate.latitude,
+                    longitude = coordinate.longitude,
+                    lastUpdated = entities[0].entity.responseTime))
+            } else {
+                uiStates.add(WidgetRemoteViewUiState(widget = widget, isSuccessful = false))
+            }
 
-                    else -> {
-                        entities.forEach {
-                            responseMap[it] = WeatherResponseState.Failure(-1, WeatherDataRequest.Coordinate(), it.weatherProvider)
+        }
+
+        return uiStates
+    }
+
+    private suspend fun addRequests(
+        requestBuilder: WeatherDataRequest.Builder,
+    ): Map<WidgetSettingsEntity, WeatherDataRequest.Coordinate> {
+        val requestWidgetMap = mutableMapOf<WidgetSettingsEntity, WeatherDataRequest.Coordinate>()
+
+        if (LocationType.CurrentLocation in widgets.locationTypeGroups && widgets.locationTypeGroups[LocationType.CurrentLocation]!!.isNotEmpty()) {
+            val widgetEntities = widgets.locationTypeGroups[LocationType.CurrentLocation]!!
+            when (val currentLocation = getCurrentLocation().first()) {
+
+                is CurrentLocationResult.Success -> {
+                    val coordinate = WeatherDataRequest.Coordinate(
+                        latitude = currentLocation.latitude,
+                        longitude = currentLocation.longitude,
+                        address = currentLocation.address,
+                    )
+                    widgetEntities.forEach {
+                        requestWidgetMap[it] = coordinate
+                        it.weatherProviders.forEach { weatherProvider ->
+                            requestBuilder.add(
+                                coordinate,
+                                it.widgetType.categories,
+                                weatherProvider,
+                            )
                         }
                     }
                 }
+
+                else -> {}
             }
         }
 
-        widgetSettingsEntityList.locationTypeGroups[LocationType.CustomLocation]?.forEach {
+        widgets.locationTypeGroups[LocationType.CustomLocation]?.forEach {
             val coordinate = WeatherDataRequest.Coordinate(
                 latitude = it.location.latitude,
                 longitude = it.location.longitude,
+                address = it.location.address,
             )
-            locationMap[coordinate] = it.location.address
-            val requestId = weatherDataRequest.addRequest(
-                coordinate,
-                it.widgetType.categories.toSet(),
-                it.weatherProvider,
-            )
-            requestMapWithRequestIdAndWidget.getOrPut(requestId) { mutableListOf() }.add(it)
-        }
 
-        val responses = coroutineScope {
-            weatherDataRequest.finalRequests.map { request ->
-                async { getWeatherDataUseCase(request, false) }
+            it.weatherProviders.forEach { weatherProvider ->
+                requestWidgetMap[it] = coordinate
+                requestBuilder.add(
+                    coordinate,
+                    it.widgetType.categories,
+                    weatherProvider,
+                )
             }
         }
 
-        for (response in responses) {
-            response.await().run {
-                for (widget in requestMapWithRequestIdAndWidget.getValue(requestId)) {
-                    responseMap[widget] = this
-                }
-            }
-        }
-
-        return linkWidgetsWithResponses(responseMap, locationMap)
-    }
-
-    private fun linkWidgetsWithResponses(
-        responses: Map<WidgetSettingsEntity, WeatherResponseState>, locationMap: Map<WeatherDataRequest.Coordinate, String>
-    ): List<WidgetRemoteViewUiState> {
-        return responses.map { (widget, response) ->
-            WidgetRemoteViewUiState(
-                widget = widget,
-                lastUpdated = if (response is WeatherResponseState.Success) response.entity.responseTime else null,
-                address = locationMap[response.location],
-                isSuccessful = response is WeatherResponseState.Success,
-                model = if (response is WeatherResponseState.Success) response.entity else null,
-                latitude = response.location.latitude,
-                longitude = response.location.longitude,
-            )
-        }
+        return requestWidgetMap
     }
 
     suspend fun updateResponseData(id: Int, status: WidgetStatus, responseData: ByteArray? = null) {

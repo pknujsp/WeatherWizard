@@ -3,6 +3,7 @@ package io.github.pknujsp.weatherwizard.core.data.widget
 import io.github.pknujsp.weatherwizard.core.model.EntityModel
 import io.github.pknujsp.weatherwizard.core.model.coordinate.LocationType
 import io.github.pknujsp.weatherwizard.core.model.weather.base.WeatherEntityModel
+import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherProvider
 import io.github.pknujsp.weatherwizard.core.model.widget.WidgetType
 import java.time.ZonedDateTime
 
@@ -21,10 +22,16 @@ sealed interface SavedWidgetContentState : EntityModel {
         val address: String,
         val latitude: Double,
         val longitude: Double,
-        val entities: List<WeatherEntityModel>,
+        val entities: List<EntityWithWeatherProvider>,
     ) : SavedWidgetContentState {
-        inline fun <reified T : WeatherEntityModel> toEntity(): T {
-            return entities.first { it is T } as T
+
+        class EntityWithWeatherProvider(
+            val weatherProvider: WeatherProvider,
+            val entities: List<WeatherEntityModel>,
+        ) {
+            inline fun <reified T : WeatherEntityModel> toEntity(): T {
+                return entities.first { it is T } as T
+            }
         }
     }
 

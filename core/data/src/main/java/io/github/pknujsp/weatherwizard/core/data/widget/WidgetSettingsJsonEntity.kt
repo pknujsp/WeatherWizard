@@ -15,8 +15,9 @@ internal data class WidgetSettingsJsonEntity(
     @SerialName("address") private val address: String,
     @SerialName("country") private val country: String,
     @SerialName("locationType") private val locationType: Int,
-    @SerialName("weatherProvider") private val weatherProvider: Int,
+    @SerialName("weatherProviders") private val weatherProviders: List<Int>,
 ) : EntityModel {
+
     fun getLocation() = LocationTypeModel(
         locationType = LocationType.fromKey(locationType),
         latitude = latitude,
@@ -25,5 +26,5 @@ internal data class WidgetSettingsJsonEntity(
         country = country
     )
 
-    fun getWeatherProvider() = WeatherProvider.fromKey(weatherProvider)
+    fun getWeatherProviders() = weatherProviders.map { WeatherProvider.fromKey(it) }
 }

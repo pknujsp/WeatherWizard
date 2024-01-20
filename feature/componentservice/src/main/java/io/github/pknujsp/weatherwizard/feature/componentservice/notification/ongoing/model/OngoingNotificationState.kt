@@ -14,7 +14,7 @@ import io.github.pknujsp.weatherwizard.core.common.manager.AppAlarmManager
 import io.github.pknujsp.weatherwizard.core.model.notification.enums.RefreshInterval
 import io.github.pknujsp.weatherwizard.core.widgetnotification.model.ComponentServiceAction
 import io.github.pknujsp.weatherwizard.core.widgetnotification.model.OngoingNotificationServiceArgument
-import io.github.pknujsp.weatherwizard.feature.componentservice.NotificationServiceReceiver
+import io.github.pknujsp.weatherwizard.feature.componentservice.AppComponentServiceReceiver
 import io.github.pknujsp.weatherwizard.core.widgetnotification.notification.AppNotificationManager
 import io.github.pknujsp.weatherwizard.feature.componentservice.ComponentPendingIntentManager
 
@@ -51,8 +51,8 @@ class OngoingNotificationState(
             }
 
         if (ongoingNotificationUiState.isEnabled) {
-            Intent(context, NotificationServiceReceiver::class.java).run {
-                this.action = NotificationServiceReceiver.ACTION_PROCESS
+            Intent(context, AppComponentServiceReceiver::class.java).run {
+                this.action = AppComponentServiceReceiver.ACTION_PROCESS
                 putExtras(OngoingNotificationServiceArgument().toBundle())
                 context.sendBroadcast(this)
             }

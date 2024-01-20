@@ -79,23 +79,6 @@
             android:screenOrientation="portrait"
             android:theme="@style/Theme.WidgetActivity" />
 
-        <receiver
-            android:name=".feature.componentservice.widget.worker.SummaryWeatherWidgetProvider"
-            android:enabled="true"
-            android:exported="false"
-            android:label="@string/summary_weather_widget_description">
-            <intent-filter>
-                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
-                <action android:name="android.intent.action.BOOT_COMPLETED" />
-                <action android:name="android.intent.action.LOCKED_BOOT_COMPLETED" />
-                <action android:name="wyther.intent.action.SCHEDULE_TO_AUTO_REFRESH" />
-            </intent-filter>
-
-            <meta-data
-                android:name="android.appwidget.provider"
-                android:resource="@xml/summary_weather_widget_info" />
-        </receiver>
-
         <activity
             android:name=".feature.componentservice.widget.configure.WidgetConfigureActivity"
             android:exported="false"
@@ -106,7 +89,7 @@
         </activity>
 
         <receiver
-            android:name=".feature.componentservice.NotificationServiceReceiver"
+            android:name=".feature.componentservice.AppComponentServiceReceiver"
             android:enabled="true"
             android:exported="false">
             <intent-filter>

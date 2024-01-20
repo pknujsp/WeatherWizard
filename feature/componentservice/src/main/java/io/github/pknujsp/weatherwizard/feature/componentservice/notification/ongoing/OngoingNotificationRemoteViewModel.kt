@@ -32,19 +32,18 @@ class OngoingNotificationRemoteViewModel @Inject constructor(
     ): OngoingNotificationRemoteViewUiState = loadWeatherData(settings)
 
     private suspend fun loadWeatherData(settings: OngoingNotificationSettingsEntity): OngoingNotificationRemoteViewUiState {
-        val weatherDataRequest = WeatherDataRequest()
-        val addressName: String?
+        val weatherDataRequestBuilder = WeatherDataRequest.Builder()
 
         if (settings.location.locationType is LocationType.CurrentLocation) {
             when (val currentLocation = getCurrentLocation().first()) {
                 is CurrentLocationResult.Success -> {
-                    addressName = currentLocation.address
-                    weatherDataRequest.addRequest(
+                    weatherDataRequestBuilder.add(
                         WeatherDataRequest.Coordinate(
                             latitude = currentLocation.latitude,
                             longitude = currentLocation.longitude,
+                            address = currentLocation.address,
                         ),
-                        settings.type.categories.toSet(),
+                        settings.type.categories,
                         settings.weatherProvider,
                     )
                 }
@@ -54,24 +53,24 @@ class OngoingNotificationRemoteViewModel @Inject constructor(
                 }
             }
         } else {
-            addressName = settings.location.address
-            weatherDataRequest.addRequest(
+            weatherDataRequestBuilder.add(
                 settings.location.run {
                     WeatherDataRequest.Coordinate(
                         latitude = latitude,
                         longitude = longitude,
+                        address = address,
                     )
                 },
-                settings.type.categories.toSet(),
+                settings.type.categories,
                 settings.weatherProvider,
             )
         }
 
-        return when (val response = getWeatherDataUseCase(weatherDataRequest.finalRequests[0], false)) {
+        return when (val response = getWeatherDataUseCase(weatherDataRequestBuilder.build()[0], false)) {
             is WeatherResponseState.Success -> OngoingNotificationRemoteViewUiState(notificationIconType = settings.notificationIconType,
                 model = response.entity,
-                address = addressName,
-                lastUpdated = weatherDataRequest.requestedTime,
+                address = response.location.address,
+                lastUpdated = response.entity.responseTime,
                 notificationType = settings.type,
                 isSuccessful = true)
 

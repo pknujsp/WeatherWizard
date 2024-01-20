@@ -7,8 +7,11 @@ import io.github.pknujsp.weatherwizard.core.model.widget.WidgetType
 import io.github.pknujsp.weatherwizard.core.widgetnotification.notification.daily.forecast.DailyNotificationHourlyForecastRemoteViewsCreator
 import io.github.pknujsp.weatherwizard.core.widgetnotification.notification.ongoing.OngoingNotificationRemoteViewsCreator
 import io.github.pknujsp.weatherwizard.core.widgetnotification.notification.remoteview.NotificationRemoteViewsCreator
+import io.github.pknujsp.weatherwizard.core.widgetnotification.widget.dailyforecastcomparison.WidgetDailyForecastComparisonRemoteViewCreator
+import io.github.pknujsp.weatherwizard.core.widgetnotification.widget.hourlyforecastcomparison.WidgetHourlyForecastComparisonRemoteViewCreator
 import io.github.pknujsp.weatherwizard.core.widgetnotification.widget.remoteview.WidgetRemoteViewsCreator
 import io.github.pknujsp.weatherwizard.core.widgetnotification.widget.summary.WidgetAllInOneRemoteViewCreator
+import io.github.pknujsp.weatherwizard.core.widgetnotification.widget.timehourlyforecast.WidgetTimeHourlyForecastRemoteViewCreator
 
 object RemoteViewsCreatorManager {
     inline fun <reified T : NotificationRemoteViewsCreator<RemoteViewUiModel>> getByDailyNotificationType(
@@ -29,6 +32,8 @@ object RemoteViewsCreatorManager {
         widgetType: WidgetType
     ): T = when (widgetType) {
         WidgetType.ALL_IN_ONE -> WidgetAllInOneRemoteViewCreator() as T
-        else -> throw IllegalArgumentException("Unknown widget type: $widgetType")
+        WidgetType.TIME_HOURLY_FORECAST -> WidgetTimeHourlyForecastRemoteViewCreator() as T
+        WidgetType.DAILY_FORECAST_COMPARISON -> WidgetDailyForecastComparisonRemoteViewCreator() as T
+        WidgetType.HOURLY_FORECAST_COMPARISON -> WidgetHourlyForecastComparisonRemoteViewCreator() as T
     }
 }

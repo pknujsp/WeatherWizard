@@ -35,39 +35,37 @@ class DailyNotificationRemoteViewModel @Inject constructor(
     }
 
     private suspend fun loadWeatherData(dailyNotificationSettingsEntity: DailyNotificationSettingsEntity): DailyNotificationRemoteViewUiState {
-        val weatherDataRequest = WeatherDataRequest()
-        var addressName: String? = null
-
+        val weatherDataRequestBuilder = WeatherDataRequest.Builder()
         if (dailyNotificationSettingsEntity.location.locationType is LocationType.CurrentLocation) {
             getCurrentLocation().first().let {
                 if (it is CurrentLocationResult.Success) {
-                    addressName = it.address
-                    weatherDataRequest.addRequest(
+                    weatherDataRequestBuilder.add(
                         WeatherDataRequest.Coordinate(
                             it.latitude,
                             it.longitude,
+                            it.address,
                         ),
-                        dailyNotificationSettingsEntity.type.categories.toSet(),
+                        dailyNotificationSettingsEntity.type.categories,
                         dailyNotificationSettingsEntity.weatherProvider,
                     )
                 }
             }
         } else {
-            addressName = dailyNotificationSettingsEntity.location.address
-            weatherDataRequest.addRequest(
+            weatherDataRequestBuilder.add(
                 WeatherDataRequest.Coordinate(
                     dailyNotificationSettingsEntity.location.latitude,
                     dailyNotificationSettingsEntity.location.longitude,
+                    dailyNotificationSettingsEntity.location.address,
                 ),
-                dailyNotificationSettingsEntity.type.categories.toSet(),
+                dailyNotificationSettingsEntity.type.categories,
                 dailyNotificationSettingsEntity.weatherProvider,
             )
         }
 
-        return when (val response = getWeatherDataUseCase(weatherDataRequest.finalRequests[0], false)) {
+        return when (val response = getWeatherDataUseCase(weatherDataRequestBuilder.build()[0], false)) {
             is WeatherResponseState.Success -> DailyNotificationRemoteViewUiState(model = response.entity,
-                address = addressName,
-                lastUpdated = weatherDataRequest.requestedTime,
+                address = response.location.address,
+                lastUpdated = response.entity.responseTime,
                 notificationType = dailyNotificationSettingsEntity.type,
                 isSuccessful = true)
 

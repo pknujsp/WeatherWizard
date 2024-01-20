@@ -1,6 +1,7 @@
 package io.github.pknujsp.weatherwizard.core.domain.weather
 
 import io.github.pknujsp.weatherwizard.core.common.util.DayNightCalculator
+import io.github.pknujsp.weatherwizard.core.domain.DomainModel
 import io.github.pknujsp.weatherwizard.core.model.weather.base.WeatherEntityModel
 import io.github.pknujsp.weatherwizard.core.model.weather.common.MajorWeatherEntityType
 import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherProvider

@@ -14,10 +14,10 @@ class GetDailyForecastToCompareUseCase @Inject constructor(
         requests: List<WeatherDataRequest.Request>
     ): Result<ToCompareDailyForecastEntity> {
         return requests.map { request ->
-            request.weatherProvider to weatherDataRepository.getWeatherData(RequestWeatherData(latitude = request.location.latitude,
-                longitude = request.location.longitude,
+            request.weatherProvider to weatherDataRepository.getWeatherData(RequestWeatherData(latitude = request.coordinate.latitude,
+                longitude = request.coordinate.longitude,
                 weatherProvider = request.weatherProvider,
-                majorWeatherEntityTypes = request.weatherDataMajorCategories), request.requestId, false)
+                majorWeatherEntityTypes = request.categories), request.requestId, false)
         }.let { responses ->
             if (responses.all { it.second.isSuccess }) {
                 Result.success(ToCompareDailyForecastEntity(responses.map {

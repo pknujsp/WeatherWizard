@@ -16,4 +16,5 @@ dependencies {
     implementation(project(":core:common"))
     implementation(project(":core:model"))
     implementation(libs.bundles.workmanager)
+    implementation(libs.google.generativeai)
 }

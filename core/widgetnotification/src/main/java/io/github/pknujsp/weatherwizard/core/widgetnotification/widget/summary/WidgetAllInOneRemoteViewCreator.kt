@@ -30,10 +30,10 @@ class WidgetAllInOneRemoteViewCreator : WidgetRemoteViewsCreator<WidgetAllInOneR
                     setTextViewText(R.id.temperature, it.temperature)
                 }
             }.let { remoteViews ->
-                remoteViews.subList(0, 6).forEach {
+                remoteViews.subList(0, remoteViews.size / 2).forEach {
                     content.addView(R.id.hourly_forecast_row_1, it)
                 }
-                remoteViews.subList(6, 12).forEach {
+                remoteViews.subList(remoteViews.size / 2, remoteViews.size).forEach {
                     content.addView(R.id.hourly_forecast_row_2, it)
                 }
             }
@@ -64,7 +64,7 @@ class WidgetAllInOneRemoteViewCreator : WidgetRemoteViewsCreator<WidgetAllInOneR
             WidgetAllInOneRemoteViewUiModel.CurrentWeather(temperature.convertUnit(units.temperatureUnit).toString(),
                 feelsLikeTemperature.convertUnit(units.temperatureUnit).toString(),
                 weatherCondition.value.dayWeatherIcon)
-        }, hourlyForecast = MockDataGenerator.hourlyForecastEntity.items.map {
+        }, hourlyForecast = MockDataGenerator.hourlyForecastEntity.items.subList(0, 12).map {
             WidgetAllInOneRemoteViewUiModel.HourlyForecast(it.temperature.convertUnit(units.temperatureUnit).toString(),
                 it.weatherCondition.value.dayWeatherIcon,
                 ZonedDateTime.parse(it.dateTime.value).hour.toString())

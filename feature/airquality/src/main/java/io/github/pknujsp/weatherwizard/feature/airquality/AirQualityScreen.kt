@@ -24,6 +24,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import io.github.pknujsp.weatherwizard.core.model.airquality.AirQualityEntity
 import io.github.pknujsp.weatherwizard.core.model.airquality.SimpleAirQuality
 import io.github.pknujsp.weatherwizard.core.model.weather.RequestWeatherArguments
 import io.github.pknujsp.weatherwizard.core.model.weather.common.AirQualityValueType
@@ -39,7 +40,7 @@ import java.time.ZonedDateTime
 fun AirQualityScreen(
     requestWeatherArguments: RequestWeatherArguments,
     dateTime: ZonedDateTime,
-    onAirQualityLoaded: (AirQualityValueType) -> Unit,
+    onAirQualityLoaded: (AirQualityEntity) -> Unit,
     viewModel: AirQualityViewModel = hiltViewModel()
 ) {
     val airQuality = viewModel.airQuality
@@ -51,7 +52,7 @@ fun AirQualityScreen(
 
     if (!airQuality.isLoading) {
         airQuality.airQuality?.let {
-            airQualityCallback(it.current.aqi)
+            airQualityCallback(airQuality.entity!!)
             SimpleWeatherScreenBackground(cardInfo = CardInfo(title = stringResource(io.github.pknujsp.weatherwizard.core.resource.R.string.air_quality_index),
                 content = {
                     Column(modifier = Modifier

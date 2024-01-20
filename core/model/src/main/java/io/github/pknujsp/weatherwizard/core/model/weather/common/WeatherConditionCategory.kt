@@ -39,15 +39,18 @@ sealed class WeatherConditionCategory(
     @StringRes open val stringRes: Int,
     @DrawableRes open val dayWeatherIcon: Int,
     @DrawableRes open val nightWeatherIcon: Int,
+    val description: String,
     open val flickrGalleryName: FlickrGalleryId
 ) {
 
     fun getWeatherIconByTimeOfDay(isDay: Boolean): Int = if (isDay) dayWeatherIcon else nightWeatherIcon
+
     @Serializable
     data object Clear : WeatherConditionCategory(
         io.github.pknujsp.weatherwizard.core.resource.R.string.clear,
         io.github.pknujsp.weatherwizard.core.resource.R.drawable.ic_weather_clear,
         io.github.pknujsp.weatherwizard.core.resource.R.drawable.ic_full_moon,
+        "맑음",
         FlickrGalleryId.Clear,
     )
 
@@ -56,69 +59,88 @@ sealed class WeatherConditionCategory(
         io.github.pknujsp.weatherwizard.core.resource.R.string.partly_cloudy,
         io.github.pknujsp.weatherwizard.core.resource.R.drawable.ic_partly_cloudy_day,
         io.github.pknujsp.weatherwizard.core.resource.R.drawable.night_partly_cloudy,
+        "구름 조금",
         FlickrGalleryId.PartlyCloudy,
     )
+
     @Serializable
     data object MostlyCloudy : WeatherConditionCategory(
         io.github.pknujsp.weatherwizard.core.resource.R.string.mostly_cloudy,
         io.github.pknujsp.weatherwizard.core.resource.R.drawable.ic_clouds,
         io.github.pknujsp.weatherwizard.core.resource.R.drawable.ic_clouds,
+        "구름 많음",
         FlickrGalleryId.MostlyCloudy,
     )
+
     @Serializable
     data object Overcast : WeatherConditionCategory(
         io.github.pknujsp.weatherwizard.core.resource.R.string.overcast,
         io.github.pknujsp.weatherwizard.core.resource.R.drawable.ic_cloud,
         io.github.pknujsp.weatherwizard.core.resource.R.drawable.ic_cloud,
+        "흐림",
         FlickrGalleryId.Overcast,
     )
+
     @Serializable
     data object Rain : WeatherConditionCategory(
         io.github.pknujsp.weatherwizard.core.resource.R.string.rain,
         io.github.pknujsp.weatherwizard.core.resource.R.drawable.ic_rain,
         io.github.pknujsp.weatherwizard.core.resource.R.drawable.ic_rain,
+        "비",
         FlickrGalleryId.Rain,
     )
+
     @Serializable
     data object RainAndSnow : WeatherConditionCategory(
         io.github.pknujsp.weatherwizard.core.resource.R.string.rain_and_snow,
         io.github.pknujsp.weatherwizard.core.resource.R.drawable.ic_sleet,
         io.github.pknujsp.weatherwizard.core.resource.R.drawable.ic_sleet,
+        "비/눈",
         FlickrGalleryId.Rain,
     )
+
     @Serializable
     data object Snow : WeatherConditionCategory(
         io.github.pknujsp.weatherwizard.core.resource.R.string.snow,
         io.github.pknujsp.weatherwizard.core.resource.R.drawable.ic_snow,
         io.github.pknujsp.weatherwizard.core.resource.R.drawable.ic_snow,
+        "눈",
         FlickrGalleryId.Snow,
     )
+
     @Serializable
     data object Shower : WeatherConditionCategory(
         io.github.pknujsp.weatherwizard.core.resource.R.string.shower,
         io.github.pknujsp.weatherwizard.core.resource.R.drawable.ic_rainfall,
         io.github.pknujsp.weatherwizard.core.resource.R.drawable.ic_rainfall,
+        "소나기",
         FlickrGalleryId.Rain,
     )
+
     @Serializable
     data object Raindrop : WeatherConditionCategory(
         io.github.pknujsp.weatherwizard.core.resource.R.string.raindrop,
         io.github.pknujsp.weatherwizard.core.resource.R.drawable.ic_wet,
         io.github.pknujsp.weatherwizard.core.resource.R.drawable.ic_wet,
+        "빗방울",
         FlickrGalleryId.Rain,
     )
+
     @Serializable
     data object RaindropAndSnowBlizzard : WeatherConditionCategory(
         io.github.pknujsp.weatherwizard.core.resource.R.string.raindrop_and_snow_blizzard,
         io.github.pknujsp.weatherwizard.core.resource.R.drawable.ic_sleet,
         io.github.pknujsp.weatherwizard.core.resource.R.drawable.ic_sleet,
+        "빗방울/눈날림",
         FlickrGalleryId.Rain,
     )
+
     @Serializable
     data object SnowBlizzard : WeatherConditionCategory(
         io.github.pknujsp.weatherwizard.core.resource.R.string.snow_blizzard,
         io.github.pknujsp.weatherwizard.core.resource.R.drawable.ic_light_snow,
         io.github.pknujsp.weatherwizard.core.resource.R.drawable.ic_light_snow,
+        "눈날림",
         FlickrGalleryId.Snow,
     )
 }

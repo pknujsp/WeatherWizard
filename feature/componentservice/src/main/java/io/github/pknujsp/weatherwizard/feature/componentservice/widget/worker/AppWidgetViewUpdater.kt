@@ -84,9 +84,9 @@ class AppWidgetViewUpdater(
                 continue
             }
             val remoteView = if (widget is SavedWidgetContentState.Success) {
-                val uiModelManager = RemoteViewUiModelMapperManager.getByWidgetType(widget.widgetType)
+                val uiModelMapper = RemoteViewUiModelMapperManager.getByWidgetType(widget.widgetType)
 
-                remoteViewsCreatorMap.getValue(widget.widgetType).createContentView(uiModelManager.mapToUiModel(widget, units),
+                remoteViewsCreatorMap.getValue(widget.widgetType).createContentView(uiModelMapper.mapToUiModel(widget, units),
                     DefaultRemoteViewCreator.Header(widget.address, widget.updatedAt),
                     context).also { finalRemoteView ->
                     remoteViewsCacheManager.put(widget.id, finalRemoteView)

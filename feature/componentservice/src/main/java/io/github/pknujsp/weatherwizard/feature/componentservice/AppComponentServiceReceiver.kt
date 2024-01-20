@@ -1,11 +1,10 @@
 package io.github.pknujsp.weatherwizard.feature.componentservice
 
-import android.app.ActivityManager
+import android.appwidget.AppWidgetManager
 import android.content.BroadcastReceiver
 import android.content.Context
-import android.content.Context.ACTIVITY_SERVICE
 import android.content.Intent
-import android.util.Log
+import android.widget.RemoteViews
 import androidx.work.Data
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
@@ -15,10 +14,10 @@ import io.github.pknujsp.weatherwizard.feature.componentservice.notification.ong
 import io.github.pknujsp.weatherwizard.feature.componentservice.widget.WidgetCoroutineService
 
 
-class NotificationServiceReceiver : BroadcastReceiver() {
+class AppComponentServiceReceiver : BroadcastReceiver() {
 
     companion object {
-        const val ACTION_PROCESS = "NOTIFICATION_SERVICE_ACTION"
+        const val ACTION_PROCESS = "APP_COMPONENT_SERVICE_ACTION"
     }
 
     override fun onReceive(context: Context, intent: Intent) {
@@ -50,12 +49,5 @@ class NotificationServiceReceiver : BroadcastReceiver() {
             workManager.enqueue(workRequest)
         }
     }
-
-    @Suppress("DEPRECATION")
-    private fun <T> Context.isServiceRunning(service: Class<T>): Boolean {
-        return (getSystemService(ACTIVITY_SERVICE) as ActivityManager).getRunningServices(Integer.MAX_VALUE)
-            .any { it -> it.service.className == service.name }
-    }
-
 
 }

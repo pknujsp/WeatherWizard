@@ -10,7 +10,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import dagger.hilt.android.AndroidEntryPoint
 import io.github.pknujsp.weatherwizard.core.model.widget.WidgetType
-import io.github.pknujsp.weatherwizard.feature.componentservice.widget.worker.fromProvider
+import io.github.pknujsp.weatherwizard.feature.componentservice.widget.worker.fromComponentName
 
 @AndroidEntryPoint
 class WidgetConfigureActivity : ComponentActivity() {
@@ -29,7 +29,7 @@ class WidgetConfigureActivity : ComponentActivity() {
         val result = Intent().putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, widgetId)
         setResult(RESULT_CANCELED, result)
 
-        val widgetType = WidgetType.fromProvider(AppWidgetManager.getInstance(this).getAppWidgetInfo(widgetId).provider)
+        val widgetType = WidgetType.fromComponentName(AppWidgetManager.getInstance(this).getAppWidgetInfo(widgetId).provider)
         val argumentsOfStartDestination = WidgetRoutes.Configure.argumentsWithDefaultValue(widgetId, widgetType.key)
 
         setContent {

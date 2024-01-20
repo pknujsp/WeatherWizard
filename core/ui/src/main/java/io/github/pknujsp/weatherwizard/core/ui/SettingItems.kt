@@ -28,9 +28,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.HorizontalAlignmentLine
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
@@ -41,9 +39,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
-import io.github.pknujsp.weatherwizard.core.model.settings.IEnum
 import io.github.pknujsp.weatherwizard.core.model.coordinate.LocationType
 import io.github.pknujsp.weatherwizard.core.model.coordinate.LocationTypeModel
+import io.github.pknujsp.weatherwizard.core.model.settings.IEnum
 import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherProvider
 import io.github.pknujsp.weatherwizard.core.resource.R
 import io.github.pknujsp.weatherwizard.core.ui.dialog.BottomSheet
@@ -310,4 +308,22 @@ fun WeatherProvidersScreen(weatherProvider: WeatherProvider, onSelectedItem: (We
     RadioButtons(radioOptions = WeatherProvider.enums, selectedOption = weatherProvider, onOptionSelected = {
         onSelectedItem(it)
     })
+}
+
+
+@Composable
+@OptIn(ExperimentalMaterial3Api::class)
+fun AlwaysOnBottomSheetDialog(
+    modifier: Modifier = Modifier, title: String, onDismiss: () -> Unit, content: @Composable ColumnScope.() -> Unit
+) {
+    BottomSheet(
+        onDismissRequest = {
+            onDismiss()
+        },
+    ) {
+        Column {
+            TitleTextWithoutNavigation(title = title)
+            content()
+        }
+    }
 }

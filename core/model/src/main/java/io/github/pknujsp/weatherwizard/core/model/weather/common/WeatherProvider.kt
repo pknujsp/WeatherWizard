@@ -1,7 +1,5 @@
 package io.github.pknujsp.weatherwizard.core.model.weather.common
 
-import androidx.annotation.DrawableRes
-import androidx.annotation.StringRes
 import io.github.pknujsp.weatherwizard.core.model.settings.BasePreferenceModel
 import io.github.pknujsp.weatherwizard.core.model.settings.PreferenceModel
 

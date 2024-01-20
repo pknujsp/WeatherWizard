@@ -14,7 +14,7 @@ class GetWeatherDataUseCase @Inject constructor(
         request: WeatherDataRequest.Request, bypassCache: Boolean
     ): Result<WeatherModel> {
         val requestWeatherData = request.run {
-            RequestWeatherData(weatherDataMajorCategories, location.latitude, location.longitude, weatherProvider)
+            RequestWeatherData(categories, coordinate.latitude, coordinate.longitude, weatherProvider)
         }
         return try {
             weatherDataRepository.getWeatherData(requestWeatherData, request.requestId, bypassCache)
@@ -29,13 +29,13 @@ class GetWeatherDataUseCase @Inject constructor(
         return request.run {
             load(this, bypassCache).fold(onSuccess = {
                 WeatherResponseState.Success(requestId,
-                    location,
+                    coordinate,
                     weatherProvider,
-                    WeatherResponseEntity(weatherDataMajorCategories, it.list, DayNightCalculator(location.latitude, location.longitude)))
+                    WeatherResponseEntity(categories, it.list, DayNightCalculator(coordinate.latitude, coordinate.longitude)))
             }, onFailure = {
                 WeatherResponseState.Failure(
                     requestId,
-                    location,
+                    coordinate,
                     weatherProvider,
                 )
             })

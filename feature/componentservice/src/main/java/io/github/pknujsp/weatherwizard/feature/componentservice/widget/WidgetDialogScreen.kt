@@ -24,7 +24,7 @@ import io.github.pknujsp.weatherwizard.core.ui.SecondaryButton
 import io.github.pknujsp.weatherwizard.core.ui.ThirdButton
 import io.github.pknujsp.weatherwizard.core.widgetnotification.model.LoadWidgetDataArgument
 import io.github.pknujsp.weatherwizard.feature.componentservice.ComponentPendingIntentManager
-import io.github.pknujsp.weatherwizard.feature.componentservice.NotificationServiceReceiver
+import io.github.pknujsp.weatherwizard.feature.componentservice.AppComponentServiceReceiver
 
 @Preview(showBackground = true, backgroundColor = 0xFFFFFFFF, showSystemUi = true)
 @Composable
@@ -35,8 +35,8 @@ fun WidgetDialogScreen() {
             startActivity(activity, ComponentPendingIntentManager.mainActivityIntent, null)
             activity.finish()
         }, onClickRefresh = {
-            Intent(activity, NotificationServiceReceiver::class.java).run {
-                action = NotificationServiceReceiver.ACTION_PROCESS
+            Intent(activity, AppComponentServiceReceiver::class.java).run {
+                action = AppComponentServiceReceiver.ACTION_PROCESS
                 putExtras(LoadWidgetDataArgument(LoadWidgetDataArgument.UPDATE_ALL).toBundle())
                 activity.sendBroadcast(this)
             }

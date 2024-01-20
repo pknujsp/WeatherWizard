@@ -14,7 +14,7 @@
         android:gravity="center"
         android:text="12"
         android:textColor="@android:color/black"
-        android:textSize="13sp" />
+        android:textSize="@dimen/medium_hour_text_size_in_hourly_forecast_widget" />
 
     <ImageView
         android:id="@+id/weather_icon"
@@ -35,6 +35,6 @@
         android:gravity="center"
         android:text="12"
         android:textColor="@android:color/black"
-        android:textSize="13sp" />
+        android:textSize="@dimen/medium_temperature_text_size_in_hourly_forecast_widget" />
 
 </LinearLayout>

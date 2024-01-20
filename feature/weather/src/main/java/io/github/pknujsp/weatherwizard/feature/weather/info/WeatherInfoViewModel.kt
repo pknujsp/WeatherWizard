@@ -38,6 +38,7 @@ import io.github.pknujsp.weatherwizard.core.model.weather.yesterday.YesterdayWea
 import io.github.pknujsp.weatherwizard.core.model.weather.yesterday.YesterdayWeatherEntity
 import io.github.pknujsp.weatherwizard.core.ui.weather.item.DynamicDateTimeUiCreator
 import io.github.pknujsp.weatherwizard.feature.weather.info.geocode.TargetLocationModel
+import io.github.pknujsp.weatherwizard.feature.weather.summary.WeatherSummaryPrompt
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
@@ -177,17 +178,17 @@ class WeatherInfoViewModel @Inject constructor(
                 val weatherProvider = args.weatherProvider
                 val coordinate = WeatherDataRequest.Coordinate(args.latitude, args.longitude)
 
-                val weatherDataRequest = WeatherDataRequest()
-                weatherDataRequest.addRequest(coordinate, weatherProvider.majorWeatherEntityTypes, weatherProvider)
-
-                val entity = when (val result = getWeatherDataUseCase(weatherDataRequest.finalRequests[0], false)) {
+                val weatherDataRequestBuilder = WeatherDataRequest.Builder()
+                weatherDataRequestBuilder.add(coordinate, weatherProvider.majorWeatherEntityTypes.toTypedArray(), weatherProvider)
+                val request = weatherDataRequestBuilder.build()
+                val entity = when (val result = getWeatherDataUseCase(request.first(), false)) {
                     is WeatherResponseState.Success -> result.entity
                     is WeatherResponseState.Failure -> {
                         return@withContext WeatherContentUiState.Error(FailedReason.SERVER_ERROR)
                     }
                 }
 
-                val requestDateTime = ZonedDateTime.now()
+                val requestDateTime = entity.responseTime
                 val dayNightCalculator = DayNightCalculator(coordinate.latitude, coordinate.longitude, requestDateTime.toTimeZone())
 
                 val currentWeatherEntity = entity.toEntity<CurrentWeatherEntity>()
@@ -216,7 +217,16 @@ class WeatherInfoViewModel @Inject constructor(
                     coordinate.latitude,
                     coordinate.longitude,
                     requestDateTime)
-                WeatherContentUiState.Success(args, weather, requestDateTime)
+
+                val allModel = WeatherSummaryPrompt.Model(
+                    coordinate.latitude to coordinate.longitude,
+                    requestDateTime.toString(),
+                    args.weatherProvider,
+                    currentWeatherEntity,
+                    hourlyForecastEntity,
+                    dailyForecastEntity,
+                )
+                WeatherContentUiState.Success(args, weather, requestDateTime, allModel)
             }
             mutableUiState.emit(newState)
         }
