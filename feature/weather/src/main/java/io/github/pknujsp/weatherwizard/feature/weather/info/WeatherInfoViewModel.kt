@@ -38,6 +38,7 @@ import io.github.pknujsp.weatherwizard.core.model.weather.yesterday.YesterdayWea
 import io.github.pknujsp.weatherwizard.core.model.weather.yesterday.YesterdayWeatherEntity
 import io.github.pknujsp.weatherwizard.core.ui.weather.item.DynamicDateTimeUiCreator
 import io.github.pknujsp.weatherwizard.feature.weather.info.geocode.TargetLocationModel
+import io.github.pknujsp.weatherwizard.feature.weather.summary.WeatherDataParser
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
@@ -216,7 +217,13 @@ class WeatherInfoViewModel @Inject constructor(
                     coordinate.latitude,
                     coordinate.longitude,
                     requestDateTime)
-                WeatherContentUiState.Success(args, weather, requestDateTime)
+
+                val allModel = WeatherDataParser.Model(
+                    currentWeatherEntity,
+                    hourlyForecastEntity,
+                    dailyForecastEntity,
+                )
+                WeatherContentUiState.Success(args, weather, requestDateTime, allModel)
             }
             mutableUiState.emit(newState)
         }
