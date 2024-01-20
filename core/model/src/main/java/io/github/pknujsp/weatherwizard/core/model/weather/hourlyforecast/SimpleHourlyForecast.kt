@@ -20,6 +20,7 @@ import io.github.pknujsp.weatherwizard.core.model.weather.common.TemperatureValu
 import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherConditionValueType
 import io.github.pknujsp.weatherwizard.core.model.weather.common.WindDirectionValueType
 import io.github.pknujsp.weatherwizard.core.model.weather.common.WindSpeedValueType
+import java.lang.StringBuilder
 import java.time.ZonedDateTime
 
 class SimpleHourlyForecast(

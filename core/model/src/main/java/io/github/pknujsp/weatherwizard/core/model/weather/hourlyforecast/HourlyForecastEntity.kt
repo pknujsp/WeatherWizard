@@ -12,11 +12,27 @@ import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherConditio
 import io.github.pknujsp.weatherwizard.core.model.weather.common.WindDirectionValueType
 import io.github.pknujsp.weatherwizard.core.model.weather.common.WindSpeedValueType
 import kotlinx.serialization.Serializable
+import java.lang.StringBuilder
+import java.time.ZonedDateTime
 
 @Serializable
 data class HourlyForecastEntity(
     val items: List<Item>
 ) : WeatherEntityModel() {
+
+    override fun toString(): String {
+        return StringBuilder().apply {
+            append("## 시간별 예보")
+            appendLine()
+            append("| 시간 | 날씨 | 기온 | 강수확률 | 강수량 | 습도 | 풍속 |")
+            appendLine()
+            append("| | | | | | | |")
+            appendLine()
+            for (item in items) {
+                append("${item.dateTime} | ${item.weatherCondition.value.description} | ${item.temperature} | ${item.precipitationProbability} | ${item.precipitationVolume} | ${item.humidity} | ${item.windSpeed}\n")
+            }
+        }.toString()
+    }
 
     @Serializable
     data class Item(

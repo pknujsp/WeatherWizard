@@ -15,6 +15,27 @@ import kotlinx.serialization.Serializable
 data class DailyForecastEntity(
     val dayItems: List<DayItem>,
 ) : WeatherEntityModel() {
+
+    override fun toString(): String {
+        return StringBuilder().apply {
+            append("## 일별 날씨 예보")
+            appendLine()
+            append("| 날짜 | 최저/최고 기온 | 하루 날씨 | 오전/오후 날씨 |")
+            appendLine()
+            append("| | | | |")
+            appendLine()
+            for (item in dayItems) {
+                append("| ${item.dateTime} | ${item.minTemperature}/${item.maxTemperature} | ${
+                    if (item.items.size == 1) item.items[0].weatherCondition.value.description else ""
+                } | ${
+                    if (item.items.size >= 2) "${item.items[0].weatherCondition.value.description}/${
+                        item.items[1].weatherCondition.value.description
+                    }" else ""
+                } |\n")
+            }
+        }.toString()
+    }
+
     @Serializable
     data class DayItem(
         val dateTime: DateTimeValueType,

@@ -18,4 +18,19 @@ data class CurrentWeatherEntity(
     val windSpeed: WindSpeedValueType,
     val windDirection: WindDirectionValueType,
     val precipitationVolume: PrecipitationValueType,
-) : WeatherEntityModel()
+) : WeatherEntityModel() {
+
+
+    override fun toString(): String = """
+        ## 현재 날씨
+        - 날씨 : ${weatherCondition.value.description}
+        - 기온 : $temperature
+        - 체감 온도 : $feelsLikeTemperature
+        - 습도 : $humidity
+        - 풍속 : $windSpeed
+        - 풍향 : $windDirection
+        - 강수량 : $precipitationVolume
+    """.trimIndent()
+
+
+}

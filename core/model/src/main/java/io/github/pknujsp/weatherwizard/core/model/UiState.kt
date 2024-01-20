@@ -19,7 +19,7 @@ sealed interface VarState<out T> {
 
     @Serializable
     data object Uninitialized : VarState<Nothing> {
-        override fun valueNotNull(): Nothing = throw NullPointerException("Value is not initialized.")
+        override fun valueNotNull() = error("Uninitialized")
     }
 
     @Serializable
