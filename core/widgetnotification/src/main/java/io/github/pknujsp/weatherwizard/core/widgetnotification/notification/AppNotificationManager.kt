@@ -29,11 +29,11 @@ class AppNotificationManager(context: Context) {
         }
     }
 
-    private fun createNotificationChannel(notificationType: NotificationType) {
+    private fun createNotificationChannel(context: Context, notificationType: NotificationType) {
         notificationType.run {
             if (notificationManager.getNotificationChannel(channelId) == null) {
-                val channel = NotificationChannel(channelId, channelName, importance).also {
-                    it.description = channelDescription
+                val channel = NotificationChannel(channelId, context.getString(channelName), importance).also {
+                    it.description = context.getString(channelDescription)
                     it.lockscreenVisibility = VISIBILITY_PUBLIC
                 }
 
@@ -46,14 +46,14 @@ class AppNotificationManager(context: Context) {
     private fun createNotification(
         notificationType: NotificationType, context: Context, isOngoing: Boolean = notificationType.ongoing
     ): NotificationCompat.Builder {
-        createNotificationChannel(notificationType)
+        createNotificationChannel(context, notificationType)
 
         return NotificationCompat.Builder(context, notificationType.channelId).apply {
             setSmallIcon(R.drawable.weatherwizard_icon_logo)
             setOngoing(isOngoing)
             setSilent(notificationType.silent)
             setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
-            priority = notificationType.importance
+            priority = notificationType.priority
         }
     }
 
@@ -77,9 +77,9 @@ class AppNotificationManager(context: Context) {
     @SuppressLint("MissingPermission")
     fun notifyNotification(notificationType: NotificationType, context: Context, entity: NotificationViewState) {
         val notificationBulder = createNotification(notificationType, context).apply {
-            entity.icon?.let {
-                setSmallIcon(it)
-            } ?: run {
+            if (entity.icon != null) {
+                setSmallIcon(entity.icon)
+            } else {
                 setSmallIcon(R.drawable.weatherwizard_icon_logo)
             }
             setContentIntent(PendingIntent.getActivity(context,

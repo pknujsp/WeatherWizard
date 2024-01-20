@@ -317,5 +317,11 @@
     <string name="with">with</string>
     <string name="stopped_summary">중단됨, 재시작</string>
     <string name="error_summary">일시적인 오류로 요약에 실패했어요</string>
+    <string name="notification_channel_ongoing_name">상시 알림</string>
+    <string name="notification_channel_ongoing_description">기기 상단바에 항상 표시되는 알림</string>
+    <string name="notification_channel_daily_name">일일 알림</string>
+    <string name="notification_channel_daily_description">매일마다 설정한 시각에 날씨 알림을 표시</string>
+    <string name="notification_channel_working_name">앱 작업 진행 알림</string>
+    <string name="notification_channel_working_description">날씨 데이터 로드와 같이 중요한 작업이 진행 중일 때 표시되는 알림</string>
 
 </resources>
