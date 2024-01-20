@@ -19,11 +19,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
+import dev.jeziellago.compose.markdowntext.MarkdownText
 import io.github.pknujsp.weatherwizard.core.resource.R
 import io.github.pknujsp.weatherwizard.core.ui.AlwaysOnBottomSheetDialog
 
@@ -32,7 +34,13 @@ import io.github.pknujsp.weatherwizard.core.ui.AlwaysOnBottomSheetDialog
 fun SummaryScreen(model: WeatherDataParser.Model, onDismiss: () -> Unit, summaryTextViewModel: SummaryTextViewModel = hiltViewModel()) {
     val uiState = summaryTextViewModel.uiState
     AlwaysOnBottomSheetDialog(title = stringResource(id = R.string.title_ai_summary), onDismiss = onDismiss) {
-        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.BottomCenter) {
+        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.TopStart) {
+            if (uiState.summaryText != null) {
+                MarkdownText(
+                    modifier = Modifier.padding(8.dp),
+                    markdown = uiState.summaryText!!,
+                )
+            }
             if (uiState.isSummarizing) {
                 SummarizingCard()
             }
@@ -44,7 +52,9 @@ fun SummaryScreen(model: WeatherDataParser.Model, onDismiss: () -> Unit, summary
 @Composable
 private fun BoxScope.SummarizingCard(modifier: Modifier = Modifier) {
     ElevatedCard(
-        modifier = modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+        modifier = modifier
+            .padding(horizontal = 16.dp, vertical = 8.dp)
+            .align(Alignment.BottomCenter),
         colors = CardDefaults.cardColors(
             containerColor = Color.White,
         ),
