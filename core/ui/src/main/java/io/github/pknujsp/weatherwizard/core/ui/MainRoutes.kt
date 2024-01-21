@@ -14,7 +14,7 @@ sealed interface MainRoutes : ParentRoutes {
 
     data object Weather : MainRoutes {
         override val route: String = "Weather"
-        override val navIcon: Int = io.github.pknujsp.weatherwizard.core.resource.R.drawable.ic_weather_clear
+        override val navIcon: Int = io.github.pknujsp.weatherwizard.core.resource.R.drawable.ic_weather_clear_day
         override val navTitle: Int = io.github.pknujsp.weatherwizard.core.resource.R.string.nav_weather
         override val isAppearanceLightSystemBars: Boolean = true
     }
