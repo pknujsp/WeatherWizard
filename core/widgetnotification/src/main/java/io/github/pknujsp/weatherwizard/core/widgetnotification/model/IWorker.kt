@@ -6,12 +6,15 @@ import android.os.Build
 import android.os.PowerManager
 import androidx.work.CoroutineWorker
 import androidx.work.ForegroundInfo
+import androidx.work.ListenableWorker
 import androidx.work.WorkerParameters
 import io.github.pknujsp.weatherwizard.core.FeatureStateManager
 import io.github.pknujsp.weatherwizard.core.FeatureStateManagerImpl
 import io.github.pknujsp.weatherwizard.core.common.FeatureType
 import io.github.pknujsp.weatherwizard.core.common.NotificationType
 import io.github.pknujsp.weatherwizard.core.widgetnotification.notification.AppNotificationManager
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import java.time.Duration
 
 interface IWorker {
@@ -20,9 +23,22 @@ interface IWorker {
     val workerId: Int
 }
 
+
 interface AppComponentService {
     val featureStateManager: FeatureStateManager
     val id: Int
+
+    companion object Wake {
+        private const val TAG = "AppComponentService"
+        private const val wakeLockDuration = 60_000L
+
+        fun acquireWakeLock(context: Context): PowerManager.WakeLock {
+            return (context.getSystemService(Context.POWER_SERVICE) as PowerManager).newWakeLock(PowerManager.PARTIAL_WAKE_LOCK,
+                "$TAG:${System.currentTimeMillis()}").apply {
+                acquire(wakeLockDuration)
+            }
+        }
+    }
 }
 
 abstract class AppComponentCoroutineService<T : ComponentServiceArgument>(
@@ -33,20 +49,22 @@ abstract class AppComponentCoroutineService<T : ComponentServiceArgument>(
     override val id: Int = iWorker.workerId
 
     protected val appNotificationManager: AppNotificationManager by lazy { AppNotificationManager(context) }
-    private val wakeLockDuration = Duration.ofMinutes(1).toMillis()
-
-    private val wakeLock: PowerManager.WakeLock
-        get() = (context.getSystemService(Context.POWER_SERVICE) as PowerManager).newWakeLock(PowerManager.PARTIAL_WAKE_LOCK,
-            "AppComponentService::${id}")
 
     override suspend fun doWork(): Result {
-        // wakeLock.acquire(wakeLockDuration)
+        val wakeLock = AppComponentService.acquireWakeLock(context)
         if (isRequiredForegroundService) {
             setForeground(createForegroundInfo())
         }
-        val result = doWork(context, ComponentServiceAction.toInstance(inputData.keyValueMap).argument as T)
 
-        //  wakeLock.release()
+        val result = try {
+            doWork(context, ComponentServiceAction.toInstance(inputData.keyValueMap).argument as T)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            Result.success()
+        } finally {
+            wakeLock.release()
+        }
+
         return result
     }
 
@@ -68,16 +86,19 @@ abstract class AppComponentBackgroundService<T : ComponentServiceArgument>(
 ) : AppComponentService {
     override val featureStateManager: FeatureStateManager by lazy { FeatureStateManagerImpl() }
     override val id: Int = this::class.simpleName.hashCode()
-    private val wakeLockDuration = Duration.ofSeconds(30).toMillis()
-
-    private val wakeLock: PowerManager.WakeLock
-        get() = (context.getSystemService(Context.POWER_SERVICE) as PowerManager).newWakeLock(PowerManager.PARTIAL_WAKE_LOCK,
-            "AppComponentService::${id}")
 
     suspend fun run(argument: T): Result<Unit> {
-        //  wakeLock.acquire(wakeLockDuration)
-        val result = doWork(argument)
-        //  wakeLock.release()
+        val wakeLock = AppComponentService.acquireWakeLock(context)
+
+        val result = try {
+            doWork(argument)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            Result.success(Unit)
+        } finally {
+            wakeLock.release()
+        }
+
         return result
     }
 
