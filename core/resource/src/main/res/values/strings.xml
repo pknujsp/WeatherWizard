@@ -323,5 +323,17 @@
     <string name="notification_channel_daily_description">매일마다 설정한 시각에 날씨 알림을 표시</string>
     <string name="notification_channel_working_name">앱 작업 진행 알림</string>
     <string name="notification_channel_working_description">날씨 데이터 로드와 같이 중요한 작업이 진행 중일 때 표시되는 알림</string>
+    <string name="wind_direction_compass">방위법</string>
+    <string name="wind_direction_degree">각도법</string>
+
+    <!-- 풍향 방위  북", "북동", "동", "남동", "남", "남서", "서", "북서 -->
+    <string name="wind_direction_n">북</string>
+    <string name="wind_direction_ne">북동</string>
+    <string name="wind_direction_e">동</string>
+    <string name="wind_direction_se">남동</string>
+    <string name="wind_direction_s">남</string>
+    <string name="wind_direction_sw">남서</string>
+    <string name="wind_direction_w">서</string>
+    <string name="wind_direction_nw">북서</string>
 
 </resources>
