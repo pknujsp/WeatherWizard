@@ -150,7 +150,7 @@ private fun Item(
                 if (displayPrecipitationVolume) {
                     Row(horizontalArrangement = Arrangement.spacedBy(4.dp), verticalAlignment = Alignment.CenterVertically) {
                         AsyncImage(model = ImageRequest.Builder(context = LocalContext.current)
-                            .data(io.github.pknujsp.weatherwizard.core.resource.R.drawable.raindrop).build(),
+                            .data(io.github.pknujsp.weatherwizard.core.resource.R.drawable.ic_raindrop).build(),
                             modifier = Modifier.size(16.dp),
                             contentDescription = null)
                         Text(text = item.precipitationVolume, style = TextStyle(fontSize = 14.sp, color = Color.Black))
@@ -159,7 +159,7 @@ private fun Item(
                 if (displayRainfallVolume) {
                     Row(horizontalArrangement = Arrangement.spacedBy(4.dp), verticalAlignment = Alignment.CenterVertically) {
                         AsyncImage(model = ImageRequest.Builder(context = LocalContext.current)
-                            .data(io.github.pknujsp.weatherwizard.core.resource.R.drawable.raindrop).build(),
+                            .data(io.github.pknujsp.weatherwizard.core.resource.R.drawable.ic_raindrop).build(),
                             modifier = Modifier.size(14.dp),
                             contentDescription = null)
                         Text(text = item.rainfallVolume, style = TextStyle(fontSize = 13.sp, color = Color.Black))
@@ -168,7 +168,7 @@ private fun Item(
                 if (displaySnowfallVolume) {
                     Row(horizontalArrangement = Arrangement.spacedBy(4.dp), verticalAlignment = Alignment.CenterVertically) {
                         AsyncImage(model = ImageRequest.Builder(context = LocalContext.current)
-                            .data(io.github.pknujsp.weatherwizard.core.resource.R.drawable.snowparticle).build(),
+                            .data(io.github.pknujsp.weatherwizard.core.resource.R.drawable.ic_snow_particle).build(),
                             modifier = Modifier.size(16.dp),
                             contentDescription = null)
                         Text(text = item.snowfallVolume, style = TextStyle(fontSize = 13.sp, color = Color.Black))
