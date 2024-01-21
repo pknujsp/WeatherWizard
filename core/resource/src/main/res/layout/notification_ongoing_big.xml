@@ -36,11 +36,10 @@
                     android:id="@+id/temperature"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:fontFamily="sans-serif-condensed"
                     android:includeFontPadding="false"
                     android:text="12"
                     android:textColor="@android:color/black"
-                    android:textSize="26sp" />
+                    android:textSize="27sp" />
 
                 <TextView
                     android:id="@+id/feels_like_temperature"
@@ -49,10 +48,9 @@
                     android:layout_alignBaseline="@id/temperature"
                     android:layout_marginStart="4dp"
                     android:layout_toEndOf="@id/temperature"
-                    android:fontFamily="sans-serif-condensed"
                     android:includeFontPadding="false"
                     android:text="12"
-                    android:textSize="15sp" />
+                    android:textSize="16sp" />
 
                 <TextView
                     android:id="@+id/yesterday_temperature"
