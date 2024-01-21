@@ -226,7 +226,7 @@ class WeatherInfoViewModel @Inject constructor(
                     hourlyForecastEntity,
                     dailyForecastEntity,
                 )
-                WeatherContentUiState.Success(args, weather, requestDateTime, allModel)
+                WeatherContentUiState.Success(args, weather, requestDateTime, allModel, units)
             }
             mutableUiState.emit(newState)
         }

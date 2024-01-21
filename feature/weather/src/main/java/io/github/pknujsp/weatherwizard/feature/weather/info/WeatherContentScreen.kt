@@ -1,5 +1,6 @@
 package io.github.pknujsp.weatherwizard.feature.weather.info
 
+import androidx.annotation.StringRes
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -14,7 +15,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -31,14 +34,21 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import coil.request.CachePolicy
 import coil.request.ImageRequest
+import io.github.pknujsp.weatherwizard.core.common.util.AStyle
+import io.github.pknujsp.weatherwizard.core.common.util.toAnnotated
+import io.github.pknujsp.weatherwizard.core.model.settings.CurrentUnits
+import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherDataUnit
 import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherProvider
 import io.github.pknujsp.weatherwizard.core.resource.R
 import io.github.pknujsp.weatherwizard.core.ui.BottomSheetDialog
 import io.github.pknujsp.weatherwizard.core.ui.theme.ShadowDirection
+import io.github.pknujsp.weatherwizard.core.ui.theme.outlineTextStyle
 import io.github.pknujsp.weatherwizard.core.ui.theme.shadowBox
 import io.github.pknujsp.weatherwizard.feature.airquality.AirQualityScreen
 import io.github.pknujsp.weatherwizard.feature.flickr.FlickrImageItemScreen
@@ -138,6 +148,7 @@ fun WeatherContentScreen(
                 FlickrImageItemScreen(requestParameter = uiState.weather.flickrRequestParameters, onImageUrlChanged = {
                     imageUrl = it
                 })
+                Footer(Modifier.align(Alignment.End), uiState.currentUnits)
                 Spacer(modifier = Modifier.height(bottomPadding))
             }
             Box(modifier = Modifier
@@ -168,4 +179,23 @@ fun WeatherContentScreen(
             })
         }
     }
+}
+
+
+/**
+ * 풍속, 강수량 단위 표시
+ */
+@Composable
+private fun Footer(modifier: Modifier = Modifier, units: CurrentUnits) {
+    Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(4.dp), horizontalAlignment = Alignment.End) {
+        UnitItem(title = R.string.title_wind_speed_unit, unit = units.windSpeedUnit)
+        UnitItem(title = R.string.title_precipitation_unit, unit = units.precipitationUnit)
+    }
+}
+
+@Composable
+private fun UnitItem(modifier: Modifier = Modifier, @StringRes title: Int, unit: WeatherDataUnit) {
+    Text(text = listOf(AStyle(text = "${stringResource(id = title)} : ", span = SpanStyle(fontSize = 13.sp, color = Color.White)),
+        AStyle(text = unit.symbol, span = SpanStyle(fontSize = 13.sp, color = Color.White))).toAnnotated(),
+        style = LocalTextStyle.current.merge(outlineTextStyle))
 }

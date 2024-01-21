@@ -25,6 +25,7 @@ import androidx.core.view.WindowInsetsControllerCompat
 import io.github.pknujsp.weatherwizard.core.common.StatefulFeature
 import io.github.pknujsp.weatherwizard.core.common.asActivity
 import io.github.pknujsp.weatherwizard.core.model.flickr.FlickrRequestParameters
+import io.github.pknujsp.weatherwizard.core.model.settings.CurrentUnits
 import io.github.pknujsp.weatherwizard.core.model.weather.RequestWeatherArguments
 import io.github.pknujsp.weatherwizard.core.model.weather.current.CurrentWeather
 import io.github.pknujsp.weatherwizard.core.model.weather.dailyforecast.DetailDailyForecast
@@ -45,7 +46,8 @@ sealed interface WeatherContentUiState {
         val args: RequestWeatherArguments,
         val weather: Weather,
         val lastUpdatedDateTime: ZonedDateTime,
-        val weatherEntities: WeatherSummaryPrompt.Model
+        val weatherEntities: WeatherSummaryPrompt.Model,
+        val currentUnits: CurrentUnits,
     ) : WeatherContentUiState {
 
         val dateTime: String = lastUpdatedDateTime.format(dateTimeFormatter)
