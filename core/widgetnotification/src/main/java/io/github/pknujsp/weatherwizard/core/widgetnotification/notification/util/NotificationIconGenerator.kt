@@ -8,6 +8,8 @@ import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.Rect
 import android.text.TextPaint
+import android.util.DisplayMetrics
+import android.util.Size
 import android.util.TypedValue
 import androidx.core.graphics.drawable.IconCompat
 import io.github.pknujsp.weatherwizard.core.common.util.DayNightCalculator
@@ -19,27 +21,22 @@ import io.github.pknujsp.weatherwizard.core.model.weather.current.CurrentWeather
 
 object NotificationIconGenerator {
 
-    private const val ICON_WIDTH = 33f
-    private const val ICON_HEIGHT = 28f
-    private const val FONT_FAMILY = "sans-serif-condensed"
-
-    private val iconWidth = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, ICON_WIDTH, Resources.getSystem().displayMetrics).toInt()
-    private val iconHeight =
-        TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, ICON_HEIGHT, Resources.getSystem().displayMetrics).toInt()
+    private val iconSize: Size = calculateIconSizeForDeviceResolution().run {
+        Size(this, this)
+    }
 
     private val textPaint = TextPaint().apply {
         color = Color.BLACK
-        textSize = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 28f, Resources.getSystem().displayMetrics)
-        typeface = android.graphics.Typeface.create(FONT_FAMILY, android.graphics.Typeface.NORMAL)
+        textSize = iconSize.height - 2f
+        typeface = android.graphics.Typeface.create("sans-serif-condensed", android.graphics.Typeface.NORMAL)
         textAlign = Paint.Align.CENTER
         isAntiAlias = true
-        textScaleX = 0.94f
     }
 
     private fun createTemperatureIcon(temperature: String): IconCompat {
         val textRect = Rect()
         textPaint.getTextBounds(temperature, 0, temperature.length, textRect)
-        val iconBitmap = Bitmap.createBitmap(iconWidth, iconHeight, Bitmap.Config.ARGB_8888)
+        val iconBitmap = Bitmap.createBitmap(iconSize.width, iconSize.height, Bitmap.Config.ARGB_8888)
 
         val canvas = Canvas(iconBitmap)
         val centerXOnCanvas = canvas.width / 2f
@@ -62,4 +59,36 @@ object NotificationIconGenerator {
             weatherResponseEntity.toEntity<CurrentWeatherEntity>().weatherCondition.value.getWeatherIconByTimeOfDay(weatherResponseEntity.dayNightCalculator.calculate(
                 weatherResponseEntity.responseTime.toCalendar()) == DayNightCalculator.DayNight.DAY))
     }
+
+    private fun calculateIconSizeForDeviceResolution(): Int {
+        val metrics = Resources.getSystem().displayMetrics
+        return when (metrics.densityDpi) {
+            DisplayMetrics.DENSITY_LOW -> 24
+            DisplayMetrics.DENSITY_MEDIUM -> 24
+            DisplayMetrics.DENSITY_HIGH -> 36
+            DisplayMetrics.DENSITY_XHIGH -> 48
+            DisplayMetrics.DENSITY_XXHIGH -> 72
+            DisplayMetrics.DENSITY_XXXHIGH -> 96
+            else -> 96
+        }
+    }
 }
+
+/*
+* mdpi
+24x24
+
+hdpi
+36x36
+
+xhdpi
+48x48
+
+xxhdpi
+72x72
+
+xxxhdpi
+96x96
+
+*
+* */

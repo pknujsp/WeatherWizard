@@ -122,7 +122,7 @@ sealed class WeatherConditionCategory(
         io.github.pknujsp.weatherwizard.core.resource.R.string.raindrop,
         io.github.pknujsp.weatherwizard.core.resource.R.drawable.ic_weather_light_rain,
         io.github.pknujsp.weatherwizard.core.resource.R.drawable.ic_weather_light_rain,
-        "빗방울",
+        "약한 비",
         FlickrGalleryId.Rain,
     )
 

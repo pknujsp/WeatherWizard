@@ -104,7 +104,6 @@ fun CurrentWeatherScreen(current: CurrentWeather, yesterdayWeather: YesterdayWea
             // weather icon
             AsyncImage(
                 model = ImageRequest.Builder(LocalContext.current).data(current.weatherIcon).crossfade(false).build(),
-                contentScale = FixedScale(1.7f),
                 contentDescription = stringResource(
                     id = io.github.pknujsp.weatherwizard.core.resource.R.string.weather_icon_description,
                 ),
@@ -112,7 +111,7 @@ fun CurrentWeatherScreen(current: CurrentWeather, yesterdayWeather: YesterdayWea
                     .size(90.dp)
                     .constrainAs(icon) {
                         absoluteRight.linkTo(parent.absoluteRight)
-                        bottom.linkTo(condition.top, 20.dp)
+                        bottom.linkTo(condition.top)
                     },
             )
 
