@@ -35,7 +35,7 @@ import java.time.format.DateTimeFormatter
 
 private val dateFormatter = DateTimeFormatter.ofPattern("M.d\n")
 private val dayFormatter = DateTimeFormatter.ofPattern("E")
-private val barGraphTheme = BarGraphTheme.SMALL
+private val barGraphTheme = BarGraphTheme.Small
 private val dateTimeHeight = (barGraphTheme.dateTextStyle.fontSize.value + barGraphTheme.dayTextStyle.fontSize.value).dp
 
 @Composable
@@ -46,7 +46,7 @@ fun BarGraph(forecast: List<SimpleAirQuality.DailyItem>, dateTime: LocalDate) {
         modifier = Modifier.horizontalScroll(rememberScrollState()),
     ) {
         forecast.forEach { item ->
-            Bar(BarGraphTheme.SMALL, item, dateTime, textMeasurer)
+            Bar(BarGraphTheme.Small, item, dateTime, textMeasurer)
         }
     }
 }

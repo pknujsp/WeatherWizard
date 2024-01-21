@@ -40,33 +40,38 @@ import java.time.ZonedDateTime
 fun AirQualityScreen(
     requestWeatherArguments: RequestWeatherArguments,
     dateTime: ZonedDateTime,
-    onAirQualityLoaded: (AirQualityEntity) -> Unit,
+    onLoadAirQuality: (AirQualityEntity) -> Unit,
     viewModel: AirQualityViewModel = hiltViewModel()
 ) {
     val airQuality = viewModel.airQuality
-    val airQualityCallback by rememberUpdatedState(onAirQualityLoaded)
+    val currentLoadAirQuality by rememberUpdatedState(onLoadAirQuality)
 
     LaunchedEffect(requestWeatherArguments) {
         viewModel.loadAirQuality(requestWeatherArguments.latitude, requestWeatherArguments.longitude)
     }
 
+    LaunchedEffect(airQuality.airQuality) {
+        if (airQuality.entity != null) {
+            currentLoadAirQuality(airQuality.entity!!)
+        }
+    }
+
     if (!airQuality.isLoading) {
-        airQuality.airQuality?.let {
-            airQualityCallback(airQuality.entity!!)
+        if (airQuality.airQuality == null) {
+            SimpleWeatherFailedBox(title = stringResource(id = R.string.air_quality_index),
+                description = stringResource(id = airQuality.failedReason!!.message)) {
+                viewModel.reload()
+            }
+        } else {
             SimpleWeatherScreenBackground(cardInfo = CardInfo(title = stringResource(io.github.pknujsp.weatherwizard.core.resource.R.string.air_quality_index),
                 content = {
                     Column(modifier = Modifier
                         .fillMaxWidth()
                         .padding(start = 12.dp, end = 12.dp, bottom = 8.dp)) {
-                        SimpleCurrentContent(simpleAirQuality = it)
-                        BarGraph(forecast = it.dailyForecast, dateTime.toLocalDate())
+                        SimpleCurrentContent(simpleAirQuality = airQuality.airQuality!!)
+                        BarGraph(forecast = airQuality.airQuality!!.dailyForecast, dateTime.toLocalDate())
                     }
                 }))
-        } ?: run {
-            SimpleWeatherFailedBox(title = stringResource(id = R.string.air_quality_index),
-                description = stringResource(id = airQuality.failedReason!!.message)) {
-                viewModel.reload()
-            }
         }
     }
 }
@@ -74,7 +79,7 @@ fun AirQualityScreen(
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun SimpleCurrentContent(simpleAirQuality: SimpleAirQuality) {
-    FlowItem(pollutantStringResId = WeatherDataCategory.AIR_QUALITY_INDEX.stringId, value = simpleAirQuality.current.aqi)
+    FlowItem(pollutantStringResId = R.string.current_air_quality, value = simpleAirQuality.current.aqi)
     FlowRow(maxItemsInEachRow = 4,
         verticalArrangement = Arrangement.Center,
         horizontalArrangement = Arrangement.Start,
@@ -94,20 +99,20 @@ private fun FlowItem(modifier: Modifier = Modifier, pollutantStringResId: Int, v
     ) {
         Text(
             text = stringResource(id = pollutantStringResId),
-            fontSize = 13.sp,
+            fontSize = 14.sp,
             color = Color.White,
             textAlign = TextAlign.Center,
         )
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(4.dp, Alignment.Start),
+            horizontalArrangement = Arrangement.spacedBy(6.dp, Alignment.Start),
         ) {
             Box(modifier = Modifier
-                .size(14.dp)
+                .size(15.dp)
                 .background(value.airQualityDescription.color, CircleShape))
             Text(
                 text = stringResource(value.airQualityDescription.descriptionStringId),
-                fontSize = 14.sp,
+                fontSize = 15.sp,
                 color = Color.White,
             )
         }
