@@ -44,7 +44,7 @@ class MetNorwayCurrentWeatherResponse(
                 TemperatureUnit.Celsius)
             humidity = HumidityValueType(properties.timeseries[0].data.instant.details.relativeHumidity.toInt(), PercentageUnit)
             windDirection = WindDirectionValueType(properties.timeseries[0].data.instant.details.windFromDirection.toInt(),
-                WindDirectionUnit.Degree)
+                WindDirectionUnit.Degree).convertUnit(WindDirectionUnit.Compass)
             windSpeed = WindSpeedValueType(properties.timeseries[0].data.instant.details.windSpeed, WindSpeedUnit.MeterPerSecond)
             precipitationVolume = PrecipitationValueType(properties.timeseries[0].data.next1Hours!!.details.precipitationAmount,
                 PrecipitationUnit.Millimeter)

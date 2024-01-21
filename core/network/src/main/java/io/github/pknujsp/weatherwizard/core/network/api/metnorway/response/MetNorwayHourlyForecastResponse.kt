@@ -64,7 +64,8 @@ class MetNorwayHourlyForecastResponse(
                         windSpeed.convertUnit( WindSpeedUnit.KilometerPerHour).value,
                         instantDetails.relativeHumidity), TemperatureUnit.Celsius),
                     humidity = HumidityValueType(instantDetails.relativeHumidity.toInt(), PercentageUnit),
-                    windDirection = WindDirectionValueType(instantDetails.windFromDirection.toInt(), WindDirectionUnit.Degree),
+                    windDirection = WindDirectionValueType(instantDetails.windFromDirection.toInt(), WindDirectionUnit.Degree).convertUnit
+                        (WindDirectionUnit.Compass),
                     windSpeed = windSpeed,
                     precipitationVolume = PrecipitationValueType(precipitationVolume, PrecipitationUnit.Millimeter),
                     weatherCondition = weatherCondition!!,

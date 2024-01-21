@@ -75,7 +75,7 @@ internal class KmaResponseMapper : WeatherResponseMapper<WeatherEntityModel> {
                 temperature = TemperatureValueType(temperature, DEFAULT_TEMPERATURE_UNIT),
                 humidity = HumidityValueType(humidity, PercentageUnit),
                 windSpeed = WindSpeedValueType(windSpeed, DEFAULT_WIND_SPEED_UNIT),
-                windDirection = WindDirectionValueType(windDirection, DEFAULT_WIND_DIRECTION_UNIT),
+                windDirection = WindDirectionValueType(windDirection, DEFAULT_WIND_DIRECTION_UNIT).convertUnit(WindDirectionUnit.Compass),
                 feelsLikeTemperature = TemperatureValueType(feelsLikeTemperature, DEFAULT_TEMPERATURE_UNIT),
                 precipitationVolume = PrecipitationValueType(precipitationVolume, DEFAULT_PRECIPITATION_UNIT),
             )
@@ -90,7 +90,7 @@ internal class KmaResponseMapper : WeatherResponseMapper<WeatherEntityModel> {
                 temperature = TemperatureValueType(item.temp, DEFAULT_TEMPERATURE_UNIT),
                 humidity = HumidityValueType(item.humidity, PercentageUnit),
                 windSpeed = WindSpeedValueType(item.windSpeed, DEFAULT_WIND_SPEED_UNIT),
-                windDirection = WindDirectionValueType(item.windDirection, DEFAULT_WIND_DIRECTION_UNIT),
+                windDirection = WindDirectionValueType(item.windDirection, DEFAULT_WIND_DIRECTION_UNIT).convertUnit(WindDirectionUnit.Compass),
                 feelsLikeTemperature = TemperatureValueType(item.feelsLikeTemp, DEFAULT_TEMPERATURE_UNIT),
                 rainfallVolume = RainfallValueType(item.rainVolume, DEFAULT_PRECIPITATION_UNIT),
                 snowfallVolume = SnowfallValueType(item.snowVolume, DEFAULT_PRECIPITATION_UNIT),

@@ -20,7 +20,6 @@ class KmaCurrentWeatherResponse(
     val humidity: Int = currentWeather.humidity
     val windSpeed: Double = currentWeather.windSpeed
     val windDirection: Int = currentWeather.windDirection
-    val yesterdayTemperature: Double = currentWeather.yesterdayTemperature
     val precipitationVolume: Double = currentWeather.precipitationVolume
     val precipitationType: String = currentWeather.precipitationType
 }
