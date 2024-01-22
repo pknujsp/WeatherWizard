@@ -112,7 +112,7 @@ fun BottomSheet(
     ) {
         BoxWithConstraints(Modifier.fillMaxSize()) {
             val density = LocalDensity.current.density
-            val ratio = if (limitHeight) 0.45 else 0.9
+            val ratio = if (limitHeight) 0.48 else 0.8
             val maxHeightDp = ((constraints.maxHeight / density) * ratio).roundToInt().dp
 
             Scrim(

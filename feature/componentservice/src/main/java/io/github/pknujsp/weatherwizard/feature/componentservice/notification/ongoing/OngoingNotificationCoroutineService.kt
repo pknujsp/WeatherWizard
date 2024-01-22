@@ -34,11 +34,11 @@ class OngoingNotificationCoroutineService @AssistedInject constructor(
 ) : AppComponentCoroutineService<OngoingNotificationServiceArgument>(context, params, Companion) {
 
     private val pendingIntentToRefresh: PendingIntent by lazy {
-        ComponentPendingIntentManager.getRefreshPendingIntent(
+        ComponentPendingIntentManager.getPendingIntent(
             context,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
             ComponentServiceAction.OngoingNotification(),
-        )!!
+        ).pendingIntent!!
     }
 
     companion object : IWorker {

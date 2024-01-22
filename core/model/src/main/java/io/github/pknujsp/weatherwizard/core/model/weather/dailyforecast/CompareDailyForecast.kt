@@ -2,6 +2,7 @@ package io.github.pknujsp.weatherwizard.core.model.weather.dailyforecast
 
 import io.github.pknujsp.weatherwizard.core.model.UiModel
 import io.github.pknujsp.weatherwizard.core.model.settings.CurrentUnits
+import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherConditionCategory
 
 class CompareDailyForecast(
     dayItems: List<DailyForecastEntity.DayItem>,
@@ -12,15 +13,13 @@ class CompareDailyForecast(
             id = id,
             minTemperature = dayItem.minTemperature.convertUnit(units.temperatureUnit).toString(),
             maxTemperature = dayItem.maxTemperature.convertUnit(units.temperatureUnit).toString(),
-            weatherConditionIcons = dayItem.items.map { item -> item.weatherCondition.value.dayWeatherIcon },
-            weatherConditions = dayItem.items.map { item -> item.weatherCondition.value.stringRes }
+            weatherConditions = dayItem.items.map { it.weatherCondition.value },
         )
     }
 
 
     data class Item(
         val id: Int, val minTemperature: String, val maxTemperature: String,
-        val weatherConditionIcons: List<Int>,
-        val weatherConditions: List<Int>
+        val weatherConditions: List<WeatherConditionCategory>,
     )
 }

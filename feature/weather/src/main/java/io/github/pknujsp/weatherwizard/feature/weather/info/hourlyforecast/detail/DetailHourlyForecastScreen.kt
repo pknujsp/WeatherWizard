@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -46,7 +47,6 @@ import kotlinx.coroutines.launch
 @Composable
 fun DetailHourlyForecastScreen(hourlyForecast: DetailHourlyForecast, popBackStack: () -> Unit) {
     val coroutineScope = rememberCoroutineScope()
-    var showDialogWithListIndex by remember { mutableStateOf(false to -1) }
 
     BackHandler {
         popBackStack()
@@ -79,20 +79,10 @@ fun DetailHourlyForecastScreen(hourlyForecast: DetailHourlyForecast, popBackStac
                         displayPrecipitationProbability = hourlyForecast.displayPrecipitationProbability,
                         displayPrecipitationVolume = hourlyForecast.displayPrecipitationVolume,
                         displaySnowfallVolume = hourlyForecast.displaySnowfallVolume,
-                        displayRainfallVolume = hourlyForecast.displayRainfallVolume) {
-                        coroutineScope.launch {
-                            showDialogWithListIndex = true to index
-                        }
-                    }
+                        displayRainfallVolume = hourlyForecast.displayRainfallVolume)
                 }
 
             }
-        }
-    }
-
-    if (showDialogWithListIndex.first) {
-        AlertDialog(onDismissRequest = { showDialogWithListIndex = false to -1 }) {
-
         }
     }
 }
@@ -104,7 +94,7 @@ private fun Item(
     displayPrecipitationVolume: Boolean,
     displaySnowfallVolume: Boolean,
     displayRainfallVolume: Boolean,
-    onClick: () -> Unit
+    onClick: (() -> Unit)? = null,
 ) {
     item.run {
         Row(verticalAlignment = Alignment.CenterVertically,
@@ -112,9 +102,7 @@ private fun Item(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(52.dp)
-                .clickable {
-                    onClick()
-                }) {
+                .clickable {}) {
             Text(text = time,
                 style = TextStyle(fontSize = 16.sp, color = Color.Gray),
                 modifier = Modifier
@@ -124,10 +112,10 @@ private fun Item(
             Row(modifier = Modifier
                 .weight(0.3f, true)
                 .padding(end = 16.dp),
-                horizontalArrangement = Arrangement.spacedBy(4.dp),
+                horizontalArrangement = Arrangement.spacedBy(6.dp),
                 verticalAlignment = Alignment.CenterVertically) {
                 AsyncImage(model = ImageRequest.Builder(context = LocalContext.current).data(weatherIcon).build(),
-                    modifier = Modifier.size(44.dp),
+                    modifier = Modifier.fillMaxHeight(),
                     contentDescription = null)
                 Text(text = temperature, style = TextStyle(fontSize = 17.sp, color = Color.Black))
             }
@@ -150,7 +138,7 @@ private fun Item(
                 if (displayPrecipitationVolume) {
                     Row(horizontalArrangement = Arrangement.spacedBy(4.dp), verticalAlignment = Alignment.CenterVertically) {
                         AsyncImage(model = ImageRequest.Builder(context = LocalContext.current)
-                            .data(io.github.pknujsp.weatherwizard.core.resource.R.drawable.raindrop).build(),
+                            .data(io.github.pknujsp.weatherwizard.core.resource.R.drawable.ic_raindrop).build(),
                             modifier = Modifier.size(16.dp),
                             contentDescription = null)
                         Text(text = item.precipitationVolume, style = TextStyle(fontSize = 14.sp, color = Color.Black))
@@ -159,7 +147,7 @@ private fun Item(
                 if (displayRainfallVolume) {
                     Row(horizontalArrangement = Arrangement.spacedBy(4.dp), verticalAlignment = Alignment.CenterVertically) {
                         AsyncImage(model = ImageRequest.Builder(context = LocalContext.current)
-                            .data(io.github.pknujsp.weatherwizard.core.resource.R.drawable.raindrop).build(),
+                            .data(io.github.pknujsp.weatherwizard.core.resource.R.drawable.ic_raindrop).build(),
                             modifier = Modifier.size(14.dp),
                             contentDescription = null)
                         Text(text = item.rainfallVolume, style = TextStyle(fontSize = 13.sp, color = Color.Black))
@@ -168,7 +156,7 @@ private fun Item(
                 if (displaySnowfallVolume) {
                     Row(horizontalArrangement = Arrangement.spacedBy(4.dp), verticalAlignment = Alignment.CenterVertically) {
                         AsyncImage(model = ImageRequest.Builder(context = LocalContext.current)
-                            .data(io.github.pknujsp.weatherwizard.core.resource.R.drawable.snowparticle).build(),
+                            .data(io.github.pknujsp.weatherwizard.core.resource.R.drawable.ic_snow_particle).build(),
                             modifier = Modifier.size(16.dp),
                             contentDescription = null)
                         Text(text = item.snowfallVolume, style = TextStyle(fontSize = 13.sp, color = Color.Black))

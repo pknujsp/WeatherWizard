@@ -7,6 +7,7 @@ import android.app.NotificationChannel
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.util.Log
 import android.widget.RemoteViews
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
@@ -22,18 +23,18 @@ class AppNotificationManager(context: Context) {
 
     private companion object {
         val mainActivityIntent = Intent().apply {
-            val packageName = "io.github.pknujsp.wyther"
+            val packageName = "io.github.pknujsp.weathernet"
             val className = "io.github.pknujsp.weatherwizard.feature.main.MainActivity"
             setClassName(packageName, className)
             flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
         }
     }
 
-    private fun createNotificationChannel(notificationType: NotificationType) {
+    private fun createNotificationChannel(context: Context, notificationType: NotificationType) {
         notificationType.run {
             if (notificationManager.getNotificationChannel(channelId) == null) {
-                val channel = NotificationChannel(channelId, channelName, importance).also {
-                    it.description = channelDescription
+                val channel = NotificationChannel(channelId, context.getString(channelName), importance).also {
+                    it.description = context.getString(channelDescription)
                     it.lockscreenVisibility = VISIBILITY_PUBLIC
                 }
 
@@ -43,17 +44,17 @@ class AppNotificationManager(context: Context) {
 
     }
 
-    private fun createNotification(notificationType: NotificationType, context: Context, isOngoing: Boolean = notificationType.ongoing):
-            NotificationCompat
-            .Builder {
-        createNotificationChannel(notificationType)
+    private fun createNotification(
+        notificationType: NotificationType, context: Context, isOngoing: Boolean = notificationType.ongoing
+    ): NotificationCompat.Builder {
+        createNotificationChannel(context, notificationType)
 
         return NotificationCompat.Builder(context, notificationType.channelId).apply {
             setSmallIcon(R.drawable.weatherwizard_icon_logo)
             setOngoing(isOngoing)
             setSilent(notificationType.silent)
             setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
-            priority = notificationType.importance
+            priority = notificationType.priority
         }
     }
 
@@ -69,7 +70,7 @@ class AppNotificationManager(context: Context) {
 
     fun createForegroundNotification(context: Context, notificationType: NotificationType): Notification {
         return createNotification(notificationType, context).apply {
-            setSmallIcon(R.drawable.weatherwizard_icon_logo).setContentText(context.getString(notificationType.contentText))
+            setContentText(context.getString(notificationType.contentText))
             setContentTitle(context.getString(notificationType.contentTitle))
         }.build()
     }
@@ -77,9 +78,9 @@ class AppNotificationManager(context: Context) {
     @SuppressLint("MissingPermission")
     fun notifyNotification(notificationType: NotificationType, context: Context, entity: NotificationViewState) {
         val notificationBulder = createNotification(notificationType, context).apply {
-            entity.icon?.let {
-                setSmallIcon(it)
-            } ?: run {
+            if (entity.icon != null) {
+                setSmallIcon(entity.icon)
+            } else {
                 setSmallIcon(R.drawable.weatherwizard_icon_logo)
             }
             setContentIntent(PendingIntent.getActivity(context,
@@ -91,18 +92,16 @@ class AppNotificationManager(context: Context) {
             setCustomContentView(if (entity.success) entity.smallContentRemoteViews else entity.smallFailedContentRemoteViews)
         }
 
-        with(NotificationManagerCompat.from(context)) {
-            notify(notificationType.notificationId, notificationBulder.build())
-        }
+        NotificationManagerCompat.from(context).notify(notificationType.notificationId, notificationBulder.build())
+        Log.d("AppNotificationManager", "notify $entity")
     }
 
     @SuppressLint("MissingPermission")
     fun notifyLoadingNotification(notificationType: NotificationType, context: Context) {
         val notificationBulder = createNotification(notificationType, context, false)
-
-        notificationBulder.setSmallIcon(R.drawable.ic_refresh)
-            .setContent(RemoteViews(context.packageName, R.layout.view_loading_notification))
+        notificationBulder.setSmallIcon(R.drawable.ic_refresh).setStyle(NotificationCompat.DecoratedCustomViewStyle())
             .setCustomContentView(RemoteViews(context.packageName, R.layout.view_loading_notification))
         NotificationManagerCompat.from(context).notify(notificationType.notificationId, notificationBulder.build())
+        Log.d("AppNotificationManager", "notify loading")
     }
 }

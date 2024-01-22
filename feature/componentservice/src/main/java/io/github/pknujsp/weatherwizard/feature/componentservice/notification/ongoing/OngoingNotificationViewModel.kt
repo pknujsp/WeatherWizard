@@ -21,10 +21,10 @@ import javax.inject.Inject
 class OngoingNotificationViewModel @Inject constructor(
     private val ongoingNotificationRepository: OngoingNotificationRepository,
     val appAlarmManager: AppAlarmManager,
-    appSettingsRepository: SettingsRepository,
+    private val appSettingsRepository: SettingsRepository,
 ) : ViewModel() {
 
-    val units = appSettingsRepository.settings.replayCache.last().units
+    val units get() = appSettingsRepository.settings.replayCache.last().units
 
     private val _ongoingNotificationUiState = MutableOngoingNotificationUiState(
         ongoingNotificationSettings = OngoingNotificationSettingsEntity().let {

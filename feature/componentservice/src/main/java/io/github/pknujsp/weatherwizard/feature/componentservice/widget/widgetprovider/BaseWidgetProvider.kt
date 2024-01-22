@@ -27,8 +27,7 @@ abstract class BaseWidgetProvider : AppWidgetProvider() {
 
     companion object {
         private val globalScope get() = GlobalScope
-        const val ACTION_SCHEDULE_TO_AUTO_REFRESH = "wyther.intent.action.SCHEDULE_TO_AUTO_REFRESH"
-        private val specialActions = setOf(ACTION_SCHEDULE_TO_AUTO_REFRESH, Intent.ACTION_BOOT_COMPLETED)
+        private val specialActions = setOf(Intent.ACTION_BOOT_COMPLETED)
     }
 
     override fun onUpdate(context: Context, appWidgetManager: AppWidgetManager, appWidgetIds: IntArray) {
@@ -72,8 +71,6 @@ abstract class BaseWidgetProvider : AppWidgetProvider() {
                 globalScope.launch(dispatcher) {
                     if (action == Intent.ACTION_BOOT_COMPLETED) {
                         widgetUpdateBackgroundService.run(WidgetUpdatedArgument(WidgetUpdatedArgument.UPDATE_ALL))
-                    } else if (action == ACTION_SCHEDULE_TO_AUTO_REFRESH) {
-                        widgetUpdateBackgroundService.run(WidgetUpdatedArgument(WidgetUpdatedArgument.SCHEDULE_TO_AUTO_REFRESH))
                     }
                 }
             }

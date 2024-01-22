@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.storage.CacheResetOnProcessCanceled.enabled
+
 plugins {
     id("plugin.android.feature")
 }
@@ -13,6 +15,7 @@ dependencies {
     implementation(project(":core:data"))
     implementation(project(":core:domain"))
     implementation(project(":core:widgetnotification"))
+    implementation(project(":core:ads"))
     implementation(project(":feature:weather"))
     implementation(project(":feature:settings"))
     implementation(project(":feature:favorite"))

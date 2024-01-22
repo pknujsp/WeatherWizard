@@ -13,7 +13,7 @@
         android:adjustViewBounds="true"
         android:contentDescription="@string/weather_icon"
         android:scaleType="fitCenter"
-        android:src="@drawable/ic_weather_clear" />
+        android:src="@drawable/ic_weather_clear_day" />
 
     <RelativeLayout
         android:id="@+id/temperature_container"
@@ -28,9 +28,8 @@
             android:layout_height="wrap_content"
             android:includeFontPadding="false"
             android:text="12"
-            android:fontFamily="sans-serif-condensed"
             android:textColor="@android:color/black"
-            android:textSize="26sp" />
+            android:textSize="27sp" />
 
         <TextView
             android:id="@+id/feels_like_temperature"
@@ -38,11 +37,10 @@
             android:layout_height="wrap_content"
             android:layout_alignBaseline="@id/temperature"
             android:layout_marginStart="4dp"
-            android:fontFamily="sans-serif-condensed"
             android:layout_toEndOf="@id/temperature"
             android:includeFontPadding="false"
             android:text="12"
-            android:textSize="15sp" />
+            android:textSize="16sp" />
 
         <TextView
             android:id="@+id/yesterday_temperature"

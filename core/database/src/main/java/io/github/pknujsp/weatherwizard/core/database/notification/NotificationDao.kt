@@ -12,11 +12,9 @@ interface NotificationDao {
     @Upsert(entity = NotificationDto::class)
     suspend fun insert(notificationDto: NotificationDto): Long
 
-    @Query("SELECT * FROM notifications ORDER BY id DESC")
-    fun getAll(): Flow<List<NotificationDto>>
 
     @Query("SELECT * FROM notifications WHERE notificationType = :notificationTypeId ORDER BY id DESC")
-    fun getAll(notificationTypeId: Int): Flow<List<NotificationDto>>
+    fun getAll(notificationTypeId: Int): Flow<List<NotificationDto>?>
 
     @Query("SELECT * FROM notifications WHERE id = :id")
     suspend fun getById(id: Long): NotificationDto

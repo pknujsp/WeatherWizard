@@ -1,9 +1,11 @@
 package io.github.pknujsp.weatherwizard.feature.map.model
 
+import android.content.Context
 import android.graphics.ColorFilter
 import android.graphics.ColorMatrix
 import android.graphics.ColorMatrixColorFilter
 import androidx.compose.runtime.Stable
+import androidx.compose.runtime.remember
 import io.github.pknujsp.weatherwizard.core.model.UiModel
 import java.time.Duration
 import java.time.Instant
@@ -12,15 +14,15 @@ import java.time.format.DateTimeFormatter
 
 @Stable
 class RadarUiState(
-    val radarTileEntities: List<RadarTileEntity>,
-    val host: String,
-    val defaultIndex: Int,
-    baseTime: ZonedDateTime,
+    val isRadarTileCached: Boolean,
+    val radarTileEntities: List<RadarTileEntity>, val host: String, val defaultIndex: Int, baseTime: ZonedDateTime, context: Context
 ) : UiModel {
 
     companion object {
         private val dateTimeFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("MM.dd E HH:mm")
     }
+
+    val overlays = RadarTilesOverlay(isRadarTileCached, context, host, radarTileEntities)
 
     val times: List<String>
 
@@ -32,9 +34,9 @@ class RadarUiState(
                 pointInTime = if (index == defaultIndex) {
                     ""
                 } else if (time.isAfter(baseTime)) {
-                    "+${Duration.between(baseTime, time).toMinutes()}Min "
+                    "+${Duration.between(baseTime, time).toMinutes()} min "
                 } else {
-                    "${Duration.between(baseTime, time).toMinutes()}Min "
+                    "${Duration.between(baseTime, time).toMinutes()} min "
                 }
                 "$pointInTime${time.format(dateTimeFormatter)}"
             }

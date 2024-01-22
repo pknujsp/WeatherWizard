@@ -9,14 +9,17 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.TimePicker
+import androidx.compose.material3.TimePickerDefaults
 import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -50,10 +53,11 @@ import io.github.pknujsp.weatherwizard.feature.searchlocation.SearchLocationScre
 fun ConfigDailyNotificationScreen(navController: NavController, viewModel: ConfigDailyNotificationViewModel = hiltViewModel()) {
     val notification = rememberDailyNotificationState(viewModel.dailyNotificationUiState, viewModel.notificationAlarmManager)
     val context = LocalContext.current
-    val units = viewModel.units
 
     LaunchedEffect(notification.dailyNotificationUiState.action) {
-        notification.onChangedSettings(context)
+        notification.onChangedSettings(context, popBackStack = {
+            navController.popBackStack()
+        })
     }
 
     when (notification.scheduleExactAlarmPermissionState) {
@@ -79,8 +83,7 @@ fun ConfigDailyNotificationScreen(navController: NavController, viewModel: Confi
                             navController.popBackStack()
                         }
                         RemoteViewsScreen(RemoteViewsCreatorManager.getByDailyNotificationType(dailyNotificationUiState.dailyNotificationSettings.type),
-                            units)
-
+                            viewModel.units)
                         Column(modifier = Modifier
                             .verticalScroll(rememberScrollState())
                             .weight(1f)
@@ -122,7 +125,11 @@ fun ConfigDailyNotificationScreen(navController: NavController, viewModel: Confi
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TimeItem(entity: DailyNotificationSettings) {
-    var time by remember { mutableStateOf(entity.hour to entity.minute) }
+    val time by remember(entity.hour, entity.minute) {
+        derivedStateOf {
+            entity.hour to entity.minute
+        }
+    }
     var expanded by remember { mutableStateOf(false) }
 
     BottomSheetSettingItem(title = stringResource(id = R.string.notification_time),
@@ -146,18 +153,29 @@ fun TimeItem(entity: DailyNotificationSettings) {
                 expanded = false
                 entity.hour = timePickerState.hour
                 entity.minute = timePickerState.minute
-                time = timePickerState.hour to timePickerState.minute
             }) {
 
-            TimePicker(state = timePickerState, modifier = Modifier.fillMaxWidth())
+            TimePicker(
+                state = timePickerState,
+                modifier = Modifier.fillMaxWidth(),
+                colors = TimePickerDefaults.colors(
+                    clockDialColor = Color.LightGray,
+                    periodSelectorSelectedContainerColor = Color.Gray,
+                    periodSelectorUnselectedContainerColor = Color.LightGray,
+                    timeSelectorSelectedContainerColor = Color.Gray,
+                    timeSelectorUnselectedContainerColor = Color.LightGray,
+                    timeSelectorSelectedContentColor = Color.White,
+                    timeSelectorUnselectedContentColor = Color.Black,
+                    periodSelectorSelectedContentColor = Color.White,
+                    periodSelectorUnselectedContentColor = Color.Black,
+                ),
+            )
         }
     }
 }
 
 @Composable
 fun NotificationTypeItem(selectedOption: DailyNotificationType, onSelectedItem: (DailyNotificationType) -> Unit) {
-    val types = remember { DailyNotificationType.enums }
-
     BottomSheetSettingItem(title = stringResource(id = io.github.pknujsp.weatherwizard.core.resource.R.string.data_type),
         selectedItem = selectedOption,
         onSelectedItem = {
@@ -165,5 +183,5 @@ fun NotificationTypeItem(selectedOption: DailyNotificationType, onSelectedItem: 
                 onSelectedItem(it)
             }
         },
-        enums = types)
+        enums = DailyNotificationType.enums)
 }

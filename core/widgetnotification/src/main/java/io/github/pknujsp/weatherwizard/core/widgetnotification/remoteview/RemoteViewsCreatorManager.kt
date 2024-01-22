@@ -6,6 +6,7 @@ import io.github.pknujsp.weatherwizard.core.model.notification.enums.OngoingNoti
 import io.github.pknujsp.weatherwizard.core.model.widget.WidgetType
 import io.github.pknujsp.weatherwizard.core.widgetnotification.notification.daily.forecast.DailyNotificationHourlyForecastRemoteViewsCreator
 import io.github.pknujsp.weatherwizard.core.widgetnotification.notification.ongoing.OngoingNotificationRemoteViewsCreator
+import io.github.pknujsp.weatherwizard.core.widgetnotification.notification.remoteview.DailyNotificationRemoteViewsCreator
 import io.github.pknujsp.weatherwizard.core.widgetnotification.notification.remoteview.NotificationRemoteViewsCreator
 import io.github.pknujsp.weatherwizard.core.widgetnotification.widget.dailyforecastcomparison.WidgetDailyForecastComparisonRemoteViewCreator
 import io.github.pknujsp.weatherwizard.core.widgetnotification.widget.hourlyforecastcomparison.WidgetHourlyForecastComparisonRemoteViewCreator
@@ -14,7 +15,7 @@ import io.github.pknujsp.weatherwizard.core.widgetnotification.widget.summary.Wi
 import io.github.pknujsp.weatherwizard.core.widgetnotification.widget.timehourlyforecast.WidgetTimeHourlyForecastRemoteViewCreator
 
 object RemoteViewsCreatorManager {
-    inline fun <reified T : NotificationRemoteViewsCreator<RemoteViewUiModel>> getByDailyNotificationType(
+    inline fun <reified T : DailyNotificationRemoteViewsCreator<RemoteViewUiModel>> getByDailyNotificationType(
         notificationType: DailyNotificationType
     ): T = when (notificationType) {
         DailyNotificationType.FORECAST -> DailyNotificationHourlyForecastRemoteViewsCreator() as T

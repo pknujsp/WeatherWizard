@@ -1,5 +1,6 @@
 package io.github.pknujsp.weatherwizard.core.ui
 
+import android.text.Layout.Alignment
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
@@ -21,25 +22,24 @@ import androidx.compose.ui.unit.sp
 
 @Composable
 private fun TitleText(title: String, modifier: Modifier = Modifier, textStyle: TextStyle) {
-    Text(text = title, style = LocalTextStyle.current.merge(textStyle), fontWeight = FontWeight.Bold, color = Color.Black,
-        modifier = modifier
-            .wrapContentSize())
+    Text(text = title,
+        style = LocalTextStyle.current.merge(textStyle),
+        fontWeight = FontWeight.Bold,
+        color = Color.Black,
+        modifier = modifier.wrapContentSize())
 }
 
 @Composable
 fun TitleTextWithNavigation(
-    title: String, modifier: Modifier = Modifier,
-    onClickNavigation: () -> Unit
+    title: String, modifier: Modifier = Modifier, onClickNavigation: () -> Unit
 ) {
-    Row(
-        modifier = modifier.padding(bottom = 16.dp, start = 16.dp),
+    Row(modifier = modifier.padding(bottom = 12.dp, start = 16.dp),
         verticalAlignment = androidx.compose.ui.Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(12.dp)
-    ) {
+        horizontalArrangement = Arrangement.spacedBy(12.dp)) {
         IconButton(onClick = onClickNavigation) {
             Icon(Icons.Rounded.ArrowBack, contentDescription = stringResource(io.github.pknujsp.weatherwizard.core.resource.R.string.back))
         }
-        TitleText(title = title, textStyle = TextStyle(fontSize = 24.sp))
+        TitleText(title = title, textStyle = TextStyle(fontSize = 23.sp))
     }
 }
 
@@ -49,9 +49,9 @@ fun TitleTextWithoutNavigation(
 ) {
     TitleText(title = title,
         modifier = modifier
-            .padding(bottom = 16.dp, start = 16.dp)
+            .padding(bottom = 12.dp, start = 16.dp)
             .then(modifier),
-        textStyle = TextStyle(fontSize = 24.sp))
+        textStyle = TextStyle(fontSize = 23.sp))
 }
 
 @Composable

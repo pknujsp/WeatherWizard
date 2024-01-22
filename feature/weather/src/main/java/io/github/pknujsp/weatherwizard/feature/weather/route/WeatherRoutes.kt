@@ -10,7 +10,7 @@ sealed interface WeatherRoutes : Routes {
 
     companion object : ParentRoutes {
         override val route: String = "Weather"
-        @DrawableRes override val navIcon: Int = R.drawable.ic_weather_clear
+        @DrawableRes override val navIcon: Int = R.drawable.ic_weather_clear_day
         @StringRes override val navTitle: Int = R.string.nav_weather
     }
 

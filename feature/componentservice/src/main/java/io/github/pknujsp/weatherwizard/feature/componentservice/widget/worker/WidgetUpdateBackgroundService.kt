@@ -8,7 +8,6 @@ import io.github.pknujsp.weatherwizard.core.common.manager.AppAlarmManager
 import io.github.pknujsp.weatherwizard.core.common.manager.WidgetManager
 import io.github.pknujsp.weatherwizard.core.data.settings.SettingsRepository
 import io.github.pknujsp.weatherwizard.core.data.widget.WidgetRepository
-import io.github.pknujsp.weatherwizard.core.model.notification.enums.RefreshInterval
 import io.github.pknujsp.weatherwizard.core.widgetnotification.model.AppComponentBackgroundService
 import io.github.pknujsp.weatherwizard.core.widgetnotification.model.WidgetUpdatedArgument
 import kotlinx.coroutines.CoroutineDispatcher
@@ -33,11 +32,6 @@ class WidgetUpdateBackgroundService @Inject constructor(
 
     override suspend fun doWork(argument: WidgetUpdatedArgument): Result<Unit> {
         when (argument.action) {
-            WidgetUpdatedArgument.SCHEDULE_TO_AUTO_REFRESH -> {
-                val autoRefreshInterval = RefreshInterval.default
-                AppWidgetAutoRefreshScheduler(widgetManager).scheduleAutoRefresh(context, appAlarmManager, autoRefreshInterval)
-            }
-
             WidgetUpdatedArgument.UPDATE_ALL, WidgetUpdatedArgument.UPDATE_ONLY_SPECIFIC_WIDGETS -> {
                 updateAppWidgetViews(argument, context)
             }

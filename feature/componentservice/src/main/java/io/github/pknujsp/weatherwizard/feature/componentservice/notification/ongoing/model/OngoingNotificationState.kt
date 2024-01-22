@@ -1,8 +1,6 @@
 package io.github.pknujsp.weatherwizard.feature.componentservice.notification.ongoing.model
 
-import android.app.PendingIntent
 import android.content.Context
-import android.content.Intent
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -12,11 +10,10 @@ import androidx.compose.ui.platform.LocalContext
 import io.github.pknujsp.weatherwizard.core.common.NotificationType
 import io.github.pknujsp.weatherwizard.core.common.manager.AppAlarmManager
 import io.github.pknujsp.weatherwizard.core.model.notification.enums.RefreshInterval
-import io.github.pknujsp.weatherwizard.core.widgetnotification.model.ComponentServiceAction
 import io.github.pknujsp.weatherwizard.core.widgetnotification.model.OngoingNotificationServiceArgument
-import io.github.pknujsp.weatherwizard.feature.componentservice.AppComponentServiceReceiver
 import io.github.pknujsp.weatherwizard.core.widgetnotification.notification.AppNotificationManager
 import io.github.pknujsp.weatherwizard.feature.componentservice.ComponentPendingIntentManager
+import io.github.pknujsp.weatherwizard.feature.componentservice.notification.ongoing.OngoingNotificationAutoRefreshScheduler
 
 class OngoingNotificationState(
     val ongoingNotificationUiState: OngoingNotificationUiState,
@@ -25,46 +22,27 @@ class OngoingNotificationState(
 ) {
     var showSearch by mutableStateOf(false)
 
-    fun onChangedSettings(context: Context) {
+    fun onChangedSettings(context: Context, refreshInterval: RefreshInterval, popBackStack: () -> Unit) {
         if (ongoingNotificationUiState.action == OngoingNotificationUiState.Action.NONE) {
             return
         }
-        switchNotification(context)
+        switchNotification(context, refreshInterval)
 
-        when (ongoingNotificationUiState.action) {
-            OngoingNotificationUiState.Action.ENABLED -> {}
-            OngoingNotificationUiState.Action.UPDATED -> {}
-            OngoingNotificationUiState.Action.DISABLED -> {}
-            else -> {
-            }
+        if (ongoingNotificationUiState.action == OngoingNotificationUiState.Action.UPDATED) {
+            popBackStack()
         }
     }
 
     private fun switchNotification(
-        context: Context
+        context: Context, refreshInterval: RefreshInterval
     ) {
-        val action = ComponentServiceAction.OngoingNotification()
-        ComponentPendingIntentManager.getRefreshPendingIntent(context, PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_NO_CREATE, action)
-            ?.let { pendingIntentToCancel ->
-                appAlarmManager.unschedule(pendingIntentToCancel)
-                pendingIntentToCancel.cancel()
-            }
+        val scheduler = OngoingNotificationAutoRefreshScheduler()
 
         if (ongoingNotificationUiState.isEnabled) {
-            Intent(context, AppComponentServiceReceiver::class.java).run {
-                this.action = AppComponentServiceReceiver.ACTION_PROCESS
-                putExtras(OngoingNotificationServiceArgument().toBundle())
-                context.sendBroadcast(this)
-            }
-
-            if (ongoingNotificationUiState.ongoingNotificationSettings.refreshInterval != RefreshInterval.MANUAL) {
-                val pendingIntentToSchedule = ComponentPendingIntentManager.getRefreshPendingIntent(context,
-                    PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
-                    action)!!
-                appAlarmManager.scheduleRepeat(ongoingNotificationUiState.ongoingNotificationSettings.refreshInterval.interval,
-                    pendingIntentToSchedule)
-            }
+            context.sendBroadcast(ComponentPendingIntentManager.getIntent(context, OngoingNotificationServiceArgument()))
+            scheduler.scheduleAutoRefresh(context, appAlarmManager, refreshInterval)
         } else {
+            scheduler.unScheduleAutoRefresh(context, appAlarmManager)
             appNotificationManager.cancelNotification(NotificationType.ONGOING)
         }
     }

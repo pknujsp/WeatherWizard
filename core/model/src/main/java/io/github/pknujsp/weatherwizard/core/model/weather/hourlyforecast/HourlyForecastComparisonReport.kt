@@ -1,16 +1,18 @@
 package io.github.pknujsp.weatherwizard.core.model.weather.hourlyforecast
 
+import androidx.compose.runtime.Stable
 import io.github.pknujsp.weatherwizard.core.model.UiModel
 import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherConditionCategory
 import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherProvider
 import java.time.ZonedDateTime
 
+@Stable
 class HourlyForecastComparisonReport(
     items: List<Pair<WeatherProvider, List<ToCompareHourlyForecastEntity.Item>>>,
     times: List<Pair<Boolean, ZonedDateTime>>,
 ) : UiModel {
 
-    val commonForecasts: Map<WeatherConditionCategory, Item>
+    val commonForecasts: Map<WeatherConditionCategory, String>
 
     init {
         items.run {
@@ -37,23 +39,33 @@ class HourlyForecastComparisonReport(
             }
 
             val dateFormatter = java.time.format.DateTimeFormatter.ofPattern("M.d E")
-            commonForecasts = categories.map { (category, times) ->
-                category to Item(times.parseDateTimeRanges(dateFormatter), category)
-            }.toMap()
+            commonForecasts = categories.mapValues { (_, times) ->
+                times.parseDateTimeRanges(dateFormatter).toMarkdownList()
+            }
         }
+    }
+
+    private fun List<Pair<String, List<String>>>.toMarkdownList(): String {
+        return StringBuilder().apply {
+            for ((day, times) in this@toMarkdownList) {
+                appendLine("- **$day**")
+                for (time in times) {
+                    appendLine("  - $time")
+                }
+            }
+        }.toString()
     }
 
     private fun List<ZonedDateTime>.parseDateTimeRanges(dateFormatter: java.time.format.DateTimeFormatter): List<Pair<String, List<String>>> {
         return groupBy { it.dayOfYear }.let { groups ->
-            val dot = "·"
-            groups.map { (dayOfYear, times) ->
+            groups.map { (_, times) ->
                 val date = times.first().format(dateFormatter)
 
                 val ranges = times.let {
                     var lastTime = times.first().hour + 1
 
                     if (times.size == 1) {
-                        listOf("$dot ${lastTime - 1}")
+                        listOf("${lastTime - 1}")
                     } else {
                         var newTime: Int
                         val hours = mutableListOf<MutableList<Int>>(mutableListOf())
@@ -78,9 +90,9 @@ class HourlyForecastComparisonReport(
 
                         hours.map {
                             if (it.size == 1) {
-                                "$dot ${it.first() - 1}"
+                                "${it.first() - 1}"
                             } else {
-                                "$dot ${it.first() - 1} - ${it.last() - 1}"
+                                "${it.first() - 1} - ${it.last() - 1}"
                             }
                         }
                     }
@@ -92,7 +104,7 @@ class HourlyForecastComparisonReport(
     }
 
     class Item(
-        val times: List<Pair<String, List<String>>>,
+        val times: String,
         val weatherConditionCategory: WeatherConditionCategory,
     )
 }

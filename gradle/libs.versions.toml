@@ -49,6 +49,7 @@ androidx_start_up = "1.1.1"
 androidx_splashscreen = "1.0.1"
 
 android_gms_play_services_location = "21.0.1"
+android_gms_play_services_ads = "22.6.0"
 
 google_oss_plugin = "0.10.6"
 
@@ -58,7 +59,8 @@ lithoAnnotations = "0.48.0"
 mockit = "5.8.0"
 mockitKotlin = "5.2.1"
 robolectric = "4.11.1"
-lottie = "6.2.0"
+lottie = "6.3.0"
+google_errorprone_annotations = "2.18.0"
 
 material = "1.11.0"
 coil = "2.5.0"
@@ -72,15 +74,15 @@ compile_sdk = "34"
 target_sdk = "34"
 min_sdk = "26"
 
-firebase_bom = "32.7.0"
+firebase_bom = "32.7.1"
 firebase_crashlytics_gradle_plugin = "2.9.9"
 ksealedbinding = "1.0.0"
 
-ktlint = "1.1.0"
-ktlint_gradle_plugin = "12.0.3"
+ktlint = "1.1.1"
+ktlint_gradle_plugin = "12.1.0"
 detekt = "1.23.4"
 
-jsoup = "1.17.1"
+jsoup = "1.17.2"
 sunrisesunsetcalculator = "1.2"
 
 osmdroid = "6.1.18"
@@ -100,6 +102,7 @@ androidx-navigation-compose = { group = "androidx.navigation", name = "navigatio
 androidx-lifecycle-runtime-compose = { group = "androidx.lifecycle", name = "lifecycle-runtime-compose", version.ref = "androidx_lifecycle" }
 androidx-hilt-navigation-compose = { module = "androidx.hilt:hilt-navigation-compose", version.ref = "androidx_hilt" }
 androidx-constraintlayout-compose = { module = "androidx.constraintlayout:constraintlayout-compose", version.ref = "androidx_compose_constraintlayout" }
+androidx-constraintlayout = { module = "androidx.constraintlayout:constraintlayout", version.ref = "constraintlayout" }
 
 accompanist-permissions = { module = "com.google.accompanist:accompanist-permissions", version.ref = "accompanist" }
 
@@ -204,6 +207,7 @@ coil = { module = "io.coil-kt:coil-compose", version.ref = "coil" }
 
 compose-markdown = { module = "com.github.jeziellago:compose-markdown", version.ref = "compose_markdown" }
 android_gms_play_services_location = { module = "com.google.android.gms:play-services-location", version.ref = "android_gms_play_services_location" }
+android_gms_play_services_ads = { module = "com.google.android.gms:play-services-ads", version.ref = "android_gms_play_services_ads" }
 
 # lottie --------------------------------------------------------------------------------------------------------------
 lottie = { module = "com.airbnb.android:lottie-compose", version.ref = "lottie" }
@@ -229,6 +233,7 @@ kotlin-reflection = { module = "org.jetbrains.kotlin:kotlin-reflect", version.re
 jsoup = { module = "org.jsoup:jsoup", version.ref = "jsoup" }
 
 google-oss-licenses-plugin = { module = "com.google.android.gms:oss-licenses-plugin", version.ref = "google_oss_plugin" }
+google_errorprone_annotations = { module = "com.google.errorprone:error_prone_annotations", version.ref = "google_errorprone_annotations" }
 
 ksealedbinding-compiler = { module = "io.github.pknujsp:ksealedbinding-compiler", version.ref = "ksealedbinding" }
 ksealedbinding-annotation = { module = "io.github.pknujsp:ksealedbinding-annotation", version.ref = "ksealedbinding" }
@@ -239,7 +244,6 @@ detekt-formatting = { module = "io.gitlab.arturbosch.detekt:detekt-formatting", 
 ksp = { module = "com.google.devtools.ksp:symbol-processing-api", version.ref = "ksp" }
 uiautomator = { group = "androidx.test.uiautomator", name = "uiautomator", version.ref = "uiautomator" }
 benchmark-macro-junit4 = { group = "androidx.benchmark", name = "benchmark-macro-junit4", version.ref = "benchmark-macro-junit4" }
-constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayout" }
 
 [bundles]
 compose-debug = ["androidx-compose-ui-test-manifest", "androidx-compose-ui-tooling"]

@@ -8,11 +8,9 @@ import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBarsPadding
@@ -28,10 +26,8 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -41,32 +37,32 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.Placeholder
 import androidx.compose.ui.text.PlaceholderVerticalAlign
-import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
+import dev.jeziellago.compose.markdowntext.MarkdownText
 import io.github.pknujsp.weatherwizard.core.common.util.AStyle
 import io.github.pknujsp.weatherwizard.core.common.util.toAnnotated
 import io.github.pknujsp.weatherwizard.core.model.UiState
 import io.github.pknujsp.weatherwizard.core.model.onLoading
 import io.github.pknujsp.weatherwizard.core.model.onSuccess
 import io.github.pknujsp.weatherwizard.core.model.weather.RequestWeatherArguments
+import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherConditionCategory
 import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherProvider
 import io.github.pknujsp.weatherwizard.core.model.weather.hourlyforecast.CompareHourlyForecast
 import io.github.pknujsp.weatherwizard.core.model.weather.hourlyforecast.HourlyForecastComparisonReport
+import io.github.pknujsp.weatherwizard.core.resource.R
 import io.github.pknujsp.weatherwizard.core.ui.DynamicDateTime
 import io.github.pknujsp.weatherwizard.core.ui.TitleTextWithNavigation
 import io.github.pknujsp.weatherwizard.core.ui.TitleTextWithoutNavigation
 import io.github.pknujsp.weatherwizard.core.ui.lottie.CancellableLoadingScreen
 import io.github.pknujsp.weatherwizard.core.ui.theme.AppShapes
-import io.github.pknujsp.weatherwizard.core.resource.R
 
 
 @Composable
@@ -77,7 +73,7 @@ fun CompareHourlyForecastScreen(
         popBackStack()
     }
 
-    LaunchedEffect(Unit) {
+    LaunchedEffect(args) {
         viewModel.load(args)
     }
 
@@ -92,16 +88,19 @@ fun CompareHourlyForecastScreen(
         TitleTextWithNavigation(title = stringResource(id = R.string.title_comparison_hourly_forecast)) {
             popBackStack()
         }
-        Column(modifier = Modifier
-            .fillMaxWidth()
-            .weight(1f)
-            .verticalScroll(rememberScrollState())) {
-            CompareForecastCard.CompareCardSurface {
-                hourlyForecast.onLoading {
-                    CancellableLoadingScreen(stringResource(id = R.string.loading_hourly_forecast_data)) {
-                        popBackStack()
-                    }
-                }.onSuccess {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(1f)
+                .verticalScroll(rememberScrollState()),
+            verticalArrangement = Arrangement.spacedBy(16.dp),
+        ) {
+            hourlyForecast.onLoading {
+                CancellableLoadingScreen(stringResource(id = R.string.loading_hourly_forecast_data)) {
+                    popBackStack()
+                }
+            }.onSuccess {
+                CompareForecastCard.CompareCardSurface {
                     Column(verticalArrangement = Arrangement.spacedBy(4.dp), modifier = Modifier.padding(vertical = 16.dp)) {
                         val mainLazyListState = rememberLazyListState()
                         DynamicDateTime(it.dateTimeInfo, mainLazyListState)
@@ -109,8 +108,10 @@ fun CompareHourlyForecastScreen(
                     }
                 }
             }
-            Spacer(modifier = Modifier.height(16.dp))
-            ReportScreen(hourlyForecastComparisonReport)
+
+            if (hourlyForecastComparisonReport is UiState.Success) {
+                CommonForecastItemsScreen((hourlyForecastComparisonReport as UiState.Success<HourlyForecastComparisonReport>).data.commonForecasts)
+            }
         }
     }
 }
@@ -174,7 +175,7 @@ fun Content(compareHourlyForecastInfo: CompareHourlyForecastInfo, lazyListState:
 
 @Composable
 internal fun WeatherDataProviderInfo(weatherProvider: WeatherProvider, height: Dp) {
-    Row(horizontalArrangement = Arrangement.Start,
+    Row(horizontalArrangement = Arrangement.spacedBy(4.dp, Alignment.Start),
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
             .height(height)
@@ -182,12 +183,13 @@ internal fun WeatherDataProviderInfo(weatherProvider: WeatherProvider, height: D
         AsyncImage(
             model = ImageRequest.Builder(LocalContext.current).data(weatherProvider.icon).crossfade(false).build(),
             contentDescription = stringResource(id = R.string.weather_provider),
-            modifier = Modifier.size(18.dp),
+            modifier = Modifier
+                .size(height)
+                .padding(4.dp),
         )
-        Spacer(modifier = Modifier.width(4.dp))
         Text(
             text = stringResource(id = weatherProvider.title),
-            fontSize = 15.sp,
+            fontSize = 14.sp,
             color = Color.White,
         )
     }
@@ -213,7 +215,7 @@ private fun Item(
                 contentDescription = weatherConditionText,
                 modifier = Modifier
                     .padding(4.dp)
-                    .size(32.dp))
+                    .fillMaxWidth())
 
             Text(text = temperature, style = TextStyle(fontSize = 13.sp, color = Color.White))
         }
@@ -221,52 +223,34 @@ private fun Item(
 }
 
 @Composable
-private fun ReportScreen(uiState: UiState<HourlyForecastComparisonReport>) {
-    uiState.onSuccess { model ->
-        Column {
-            TitleTextWithoutNavigation(title = stringResource(id = R.string.title_comparison_report))
-            Row(verticalAlignment = Alignment.Top,
-                horizontalArrangement = Arrangement.Start,
-                modifier = Modifier.horizontalScroll(rememberScrollState())) {
-                model.commonForecasts.forEach { entry ->
-                    Column(
-                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
-                        verticalArrangement = Arrangement.spacedBy(4.dp),
-                    ) {
-                        val aStyle = listOf(AStyle(
-                            contentId = listOf("icon" to InlineTextContent(Placeholder(width = 30.sp,
-                                height = 28.sp,
-                                placeholderVerticalAlign = PlaceholderVerticalAlign.Center)) {
-                                AsyncImage(model = ImageRequest.Builder(LocalContext.current)
-                                    .data(entry.value.weatherConditionCategory.dayWeatherIcon).crossfade(false).build(),
-                                    contentDescription = null)
-                            }),
-                        ),
-                            AStyle(
-                                text = stringResource(id = entry.key.stringRes),
-                            ))
+internal fun CommonForecastItemsScreen(model: Map<WeatherConditionCategory, String>) {
+    Column {
+        TitleTextWithoutNavigation(title = stringResource(id = R.string.title_comparison_report))
+        Row(verticalAlignment = Alignment.Top,
+            horizontalArrangement = Arrangement.Start,
+            modifier = Modifier.horizontalScroll(rememberScrollState())) {
+            model.forEach { entry ->
+                Column(
+                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
+                    verticalArrangement = Arrangement.spacedBy(4.dp),
+                ) {
+                    val aStyle = listOf(AStyle(
+                        contentId = listOf("icon" to InlineTextContent(Placeholder(width = 32.sp,
+                            height = 28.sp,
+                            placeholderVerticalAlign = PlaceholderVerticalAlign.Center)) {
+                            AsyncImage(model = ImageRequest.Builder(LocalContext.current).data(entry.key.dayWeatherIcon).crossfade(false)
+                                .build(), contentDescription = null)
+                        }),
+                    ),
+                        AStyle(
+                            text = stringResource(id = entry.key.stringRes),
+                        ))
 
+                    Text(text = aStyle.toAnnotated(),
+                        style = TextStyle(fontSize = 20.sp, color = Color.Black, fontWeight = FontWeight.Bold),
+                        inlineContent = aStyle.first().inlineContents)
 
-                        Text(text = aStyle.toAnnotated(),
-                            style = TextStyle(fontSize = 20.sp, color = Color.Black, fontWeight = FontWeight.Bold),
-                            inlineContent = aStyle.first().inlineContents)
-
-                        val times = entry.value.times.map {
-                            listOf(
-                                AStyle(
-                                    text = "${it.first}\n",
-                                    span = SpanStyle(fontSize = 16.sp, color = Color.Black, fontWeight = FontWeight.Normal),
-                                ),
-                            ) + it.second.map { time ->
-                                AStyle(
-                                    text = " ${time}\n",
-                                    span = SpanStyle(fontSize = 15.sp, color = Color.Gray, fontWeight = FontWeight.Normal),
-                                )
-                            }
-                        }.flatten().toAnnotated()
-
-                        Text(text = times)
-                    }
+                    MarkdownText(markdown = entry.value, style = TextStyle(fontSize = 15.sp), disableLinkMovementMethod = true)
                 }
             }
         }

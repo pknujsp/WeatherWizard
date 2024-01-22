@@ -20,7 +20,7 @@
             android:adjustViewBounds="true"
             android:contentDescription="@string/weather_icon"
             android:scaleType="fitCenter"
-            android:src="@drawable/ic_weather_clear" />
+            android:src="@drawable/ic_weather_clear_day" />
 
         <RelativeLayout
             android:id="@+id/temperature_container"

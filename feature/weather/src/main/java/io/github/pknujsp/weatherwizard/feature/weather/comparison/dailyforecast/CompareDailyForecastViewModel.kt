@@ -1,5 +1,6 @@
 package io.github.pknujsp.weatherwizard.feature.weather.comparison.dailyforecast
 
+import androidx.annotation.StringRes
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -13,6 +14,7 @@ import io.github.pknujsp.weatherwizard.core.domain.weather.compare.GetDailyForec
 import io.github.pknujsp.weatherwizard.core.model.UiState
 import io.github.pknujsp.weatherwizard.core.model.weather.RequestWeatherArguments
 import io.github.pknujsp.weatherwizard.core.model.weather.common.MajorWeatherEntityType
+import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherConditionCategory
 import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherProvider
 import io.github.pknujsp.weatherwizard.core.model.weather.dailyforecast.CompareDailyForecast
 import io.github.pknujsp.weatherwizard.feature.weather.comparison.common.CompareForecastViewModel
@@ -22,6 +24,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.time.LocalDateTime
 import java.time.ZonedDateTime
 import javax.inject.Inject
 
@@ -54,12 +57,17 @@ class CompareDailyForecastViewModel @Inject constructor(
                             }
                         }
 
+                        val dates2 = mutableListOf<String>()
                         val dates = firstDate.run {
                             var date = firstDate
                             val dateFormatter = java.time.format.DateTimeFormatter.ofPattern("M/d\nE")
+                            val dateFormatter2 = java.time.format.DateTimeFormatter.ofPattern("M/d E")
                             val list = mutableListOf<String>()
+
                             while (date <= endDate) {
                                 list.add(date.format(dateFormatter))
+                                dates2.add(date.format(dateFormatter2))
+
                                 date = date.plusDays(1)
                             }
                             list.toTypedArray()
@@ -77,7 +85,7 @@ class CompareDailyForecastViewModel @Inject constructor(
 
                             provider to CompareDailyForecast(entity.dayItems.subList(firstIndex, endIndex), units)
                         }
-                        UiState.Success(CompareDailyForecastInfo(items, dates))
+                        UiState.Success(CompareDailyForecastInfo(items, dates, dates2))
                     }
                 }.onSuccess { compareDailyForecast ->
                     _dailyForecast.value = compareDailyForecast
@@ -92,15 +100,79 @@ class CompareDailyForecastViewModel @Inject constructor(
 
 @Stable
 class CompareDailyForecastInfo(
-    items: List<Pair<WeatherProvider, CompareDailyForecast>>, val dates: Array<String>
+    items: List<Pair<WeatherProvider, CompareDailyForecast>>, val dates: Array<String>, dates2: List<String>
 ) {
     val weatherDataProviders = items.map { it.first }
+
 
     val items = (0..<items.first().second.items.size).map { i ->
         items.map { it.second.items[i] }
     }
 
+    val commons: Map<WeatherConditionCategory, String>
+
+    init {
+        val tempCommonDayItemMap = mutableMapOf<AmPm, MutableSet<WeatherConditionCategory>>()
+        val finalCommonDayItemMap = mutableMapOf<WeatherConditionCategory, MutableList<DayItem>>()
+
+        dates2.forEachIndexed { index, date ->
+            items.forEach { (_, item) ->
+                item.items[index].run {
+                    for (i in weatherConditions.indices) {
+                        val amPm = toAmPm(weatherConditions.size, i)
+                        val category = weatherConditions[i]
+
+                        if (amPm !in tempCommonDayItemMap) {
+                            tempCommonDayItemMap[amPm] = mutableSetOf()
+                        }
+                        if (category !in tempCommonDayItemMap[amPm]!!) {
+                            tempCommonDayItemMap[amPm]!!.add(category)
+                        } else {
+                            finalCommonDayItemMap.getOrPut(category) { mutableListOf() }.add(DayItem(date, amPm))
+                        }
+                    }
+                }
+            }
+            tempCommonDayItemMap.clear()
+        }
+
+        commons = finalCommonDayItemMap.mapValues { (_, dayItems) ->
+            StringBuilder().apply {
+                dayItems.forEach {
+                    appendLine("- ${it.date} ${amPmStringMap[it.amPm]}")
+                }
+            }.toString()
+        }
+    }
+
     companion object {
         val itemWidth: Dp = 92.dp
+
+        private val amPmStringMap = LocalDateTime.of(2020, 1, 1, 9, 0).run {
+            val formatter = java.time.format.DateTimeFormatter.ofPattern("a")
+            mapOf(AmPm.AM to format(formatter), AmPm.PM to withHour(15).format(formatter), AmPm.ALL to "")
+        }
+
+        private fun toAmPm(itemsCount: Int, index: Int): AmPm {
+            return if (itemsCount == 2) {
+                if (index == 0) {
+                    AmPm.AM
+                } else {
+                    AmPm.PM
+                }
+            } else if (index == 0) {
+                AmPm.ALL
+            } else {
+                AmPm.PM
+            }
+        }
     }
+}
+
+data class DayItem(
+    val date: String, val amPm: AmPm
+)
+
+enum class AmPm {
+    AM, PM, ALL
 }

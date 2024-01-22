@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -16,12 +17,16 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Clear
 import androidx.compose.material.icons.rounded.Delete
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -102,7 +107,7 @@ fun FavoriteAreaListScreen(navController: NavController, viewModel: FavoriteArea
         LazyColumn(modifier = Modifier.weight(1f),
             state = rememberLazyListState(),
             contentPadding = PaddingValues(horizontal = 16.dp, vertical = 6.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp, Alignment.Top)) {
+            verticalArrangement = Arrangement.spacedBy(12.dp, Alignment.Top)) {
             item {
                 CurrentLocationItem(targetLocation, onClick = {
                     viewModel.updateTargetLocation(SelectedLocationModel(LocationType.CurrentLocation))
@@ -159,25 +164,29 @@ fun FavoriteAreaListScreen(navController: NavController, viewModel: FavoriteArea
 private fun FavoriteLocationItem(
     favoriteLocation: FavoriteArea, targetLocationId: Long?, onClick: () -> Unit, onClickDelete: (Long) -> Unit
 ) {
-
-    Row(horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally), verticalAlignment = Alignment.CenterVertically) {
-        IconButton(onClick = {
-            onClickDelete(favoriteLocation.id)
-        }) {
-            Icon(imageVector = Icons.Rounded.Delete, contentDescription = null)
-        }
-        Box(modifier = Modifier
-            .clickable {
-                if (targetLocationId == null || targetLocationId != favoriteLocation.id) {
-                    onClick()
-                }
-            }
+    Box(
+        contentAlignment = Alignment.Center,
+        modifier = Modifier
             .shadow(elevation = 6.dp, shape = AppShapes.medium)
-            .background(color = Color.White, shape = AppShapes.medium)
-            .padding(horizontal = 16.dp, vertical = 8.dp)) {
-            Row(modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Start) {
+            .background(color = Color.White, shape = AppShapes.medium),
+    ) {
+        Row(horizontalArrangement = Arrangement.Start, verticalAlignment = Alignment.CenterVertically) {
+            IconButton(
+                onClick = {
+                    onClickDelete(favoriteLocation.id)
+                },
+                colors = IconButtonDefaults.iconButtonColors(containerColor = Color.Transparent, contentColor = Color.Gray),
+            ) {
+                Icon(imageVector = Icons.Rounded.Clear, contentDescription = null)
+            }
+            Row(modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 8.dp)
+                .clickable {
+                    if (targetLocationId == null || targetLocationId != favoriteLocation.id) {
+                        onClick()
+                    }
+                }, verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Start) {
                 Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.Center) {
                     Text(text = favoriteLocation.countryName, style = TextStyle(fontSize = 12.sp, color = Color.Gray))
                     Text(text = favoriteLocation.areaName, style = TextStyle(fontSize = 15.sp, color = Color.Black))

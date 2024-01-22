@@ -17,7 +17,7 @@ internal class SummaryTextRepositoryImpl(
     private val genModel: GenerativeModel, cacheManager: CacheManager<Int, List<GenerateContentResponse>>, cacheCleaner: CacheCleaner
 ) : SummaryTextRepository, RepositoryCacheManager<Int, List<GenerateContentResponse>>(cacheCleaner, cacheManager) {
 
-    private val interval = 80L
+    private val interval = 100L
 
     override suspend fun generateContentStream(prompt: Prompt): Flow<GenerateContentResponse> {
         val cache = cacheManager.get(prompt.id)

@@ -10,15 +10,18 @@ import org.osmdroid.tileprovider.modules.SqlTileWriter
 import org.osmdroid.tileprovider.modules.TileWriter
 import org.osmdroid.tileprovider.tilesource.OnlineTileSourceBase
 import org.osmdroid.util.MapTileIndex
+import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.TilesOverlay
 
 @Stable
 class RadarTilesOverlay(
+    isRadarTileCached: Boolean,
     context: Context,
     host: String,
     radarTiles: List<RadarTileEntity>,
 ) : UiModel {
-    val overlays: List<Pair<TilesOverlay, OverlayHandler>> = radarTiles.run {
+
+    val overlays: List<OverlayItem> = radarTiles.run {
         mapIndexed { index, it ->
             val handler = OverlayHandler()
             val tileSourceName = "RadarTile_$index"
@@ -39,16 +42,29 @@ class RadarTilesOverlay(
                     }
                 },
                 SqlTileWriter().apply {
-                    purgeCache(tileSourceName)
+                    if (!isRadarTileCached) {
+                        purgeCache()
+                    }
                 }).apply {
                 tileRequestCompleteHandlers.add(handler)
                 setOfflineFirst(false)
             }
-            TilesOverlay(tileProvider, context).apply {
+
+            val tilesOverlay = TilesOverlay(tileProvider, context).apply {
                 loadingBackgroundColor = Color.TRANSPARENT
                 setColorFilter(RadarTileSettingsDefault.ALPHA)
-            } to handler
+            }
+            OverlayItem(tilesOverlay, handler)
         }
     }
 
+    class OverlayItem(
+        val tilesOverlay: TilesOverlay, val handler: OverlayHandler
+    ) {
+        fun destroy(mapView: MapView) {
+            tilesOverlay.onPause()
+            tilesOverlay.onDetach(mapView)
+            handler.destroy()
+        }
+    }
 }

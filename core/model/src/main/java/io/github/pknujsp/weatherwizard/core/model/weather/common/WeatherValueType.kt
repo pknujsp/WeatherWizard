@@ -2,6 +2,7 @@ package io.github.pknujsp.weatherwizard.core.model.weather.common
 
 
 import android.content.Context
+import androidx.annotation.StringRes
 import io.github.pknujsp.weatherwizard.core.resource.R
 import io.github.pknujsp.weatherwizard.core.model.airquality.AirQualityDescription
 import kotlinx.serialization.Serializable
@@ -148,10 +149,26 @@ data class WindDirectionValueType(
     companion object : NoneValue<WindDirectionValueType> {
         override val none: WindDirectionValueType = WindDirectionValueType(Int.MIN_VALUE, WindDirectionUnit.Degree)
 
+        @StringRes private val compassPoints = arrayOf(
+            R.string.wind_direction_n,
+            R.string.wind_direction_ne,
+            R.string.wind_direction_e,
+            R.string.wind_direction_se,
+            R.string.wind_direction_s,
+            R.string.wind_direction_sw,
+            R.string.wind_direction_w,
+            R.string.wind_direction_nw,
+        )
     }
 
     override fun convertUnit(to: WindDirectionUnit): WindDirectionValueType {
-        return WindDirectionValueType(value, to)
+        return when (unit to to) {
+            WindDirectionUnit.Degree to WindDirectionUnit.Compass -> toCompass(value)
+            WindDirectionUnit.Compass to WindDirectionUnit.Degree -> toDegree(value)
+            else -> value
+        }.run {
+            WindDirectionValueType(this, to)
+        }
     }
 
 
@@ -165,6 +182,15 @@ data class WindDirectionValueType(
 
     override fun isNone(): Boolean {
         return value == Int.MIN_VALUE
+    }
+
+    private fun toCompass(degree: Int): Int {
+        val index = ((degree / 45.0) + 0.5).toInt() % 8
+        return compassPoints[index]
+    }
+
+    private fun toDegree(@StringRes compass: Int): Int {
+        return compassPoints.indexOf(compass) * 45
     }
 }
 

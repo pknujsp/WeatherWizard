@@ -5,6 +5,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -73,9 +74,7 @@ private fun Item(
     simpleHourlyForecast.items[index].run {
         val weatherConditionText = stringResource(id = weatherCondition)
         Column(
-            modifier = Modifier
-                .then(modifier)
-                .clickable { onClick(weatherConditionText) },
+            modifier = modifier.clickable { onClick(weatherConditionText) },
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             // 시각
@@ -83,9 +82,7 @@ private fun Item(
             // 아이콘
             AsyncImage(model = ImageRequest.Builder(LocalContext.current).data(weatherIcon).crossfade(false).build(),
                 contentDescription = weatherConditionText,
-                modifier = Modifier
-                    .padding(4.dp)
-                    .size(32.dp))
+                modifier = Modifier.size(38.dp))
 
             // 강수확률
             if (simpleHourlyForecast.displayPrecipitationProbability) {
@@ -143,9 +140,7 @@ private fun Item(
                 drawInfo = drawInfo,
                 linePoint = linePoint,
                 text = temperature,
-                modifier = Modifier
-                    .then(modifier)
-                    .height(100.dp),
+                modifier = modifier.height(90.dp),
             )
         }
     }

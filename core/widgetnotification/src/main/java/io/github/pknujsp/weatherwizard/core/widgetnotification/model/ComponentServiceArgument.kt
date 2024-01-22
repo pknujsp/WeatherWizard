@@ -31,12 +31,11 @@ class WidgetUpdatedArgument(
     companion object {
         const val UPDATE_ALL = 0
         const val UPDATE_ONLY_SPECIFIC_WIDGETS = 1
-        const val SCHEDULE_TO_AUTO_REFRESH = 2
-        const val DELETE = 3
+        const val DELETE = 2
     }
 }
 
-class LoadWidgetDataArgument(
+data class LoadWidgetDataArgument(
     val action: Int, val widgetId: Int = 0
 ) : ComponentServiceArgument() {
     companion object {

@@ -1,8 +1,6 @@
 package io.github.pknujsp.weatherwizard.feature.componentservice
 
-import android.view.ViewGroup
 import android.widget.FrameLayout
-import android.widget.RemoteViews
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
@@ -19,13 +17,16 @@ import io.github.pknujsp.weatherwizard.core.widgetnotification.remoteview.Defaul
 
 @Composable
 fun RemoteViewsScreen(sampleRemoteViews: DefaultRemoteViewCreator, units: CurrentUnits, modifier: Modifier = Modifier) {
-    Box(modifier = modifier.fillMaxWidth(), contentAlignment = androidx.compose.ui.Alignment.Center) {
+    Box(contentAlignment = androidx.compose.ui.Alignment.Center) {
         Surface(
             shape = AppShapes.large,
-            modifier = modifier.padding(16.dp, 12.dp),
+            modifier = modifier.padding(16.dp),
             shadowElevation = 6.dp,
         ) {
-            AndroidView(modifier = modifier.heightIn(max = 330.dp), factory = { context ->
+            AndroidView(modifier = modifier
+                .fillMaxWidth()
+                .heightIn(max = 330.dp)
+                .padding(12.dp), factory = { context ->
                 FrameLayout(context).apply {
                     addView(sampleRemoteViews.createSampleView(context, units).apply(context, this))
                 }

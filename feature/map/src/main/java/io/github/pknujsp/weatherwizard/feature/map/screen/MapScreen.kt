@@ -28,6 +28,7 @@ import androidx.compose.material3.IconToggleButton
 import androidx.compose.material3.ProgressIndicatorDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -108,14 +109,20 @@ private fun MapScreen(
             }.join()
 
             launch {
-                timePosition.filter { time -> time != -1 }.collect { time ->
+                timePosition.filter { time ->
+                    time != -1
+                }.collect { time ->
                     mapView.run {
-                        if (!(overlays.isNotEmpty() and overlays.contains(tiles.overlays[time].first))) {
-                            overlays.removeIf { it !is Marker }
-                            overlays.add(tiles.overlays[time].let {
-                                if (it.second.mView == null) it.second.mView = this
-                                it.first
+                        if (!overlays.contains(tiles.overlays[time].tilesOverlay)) {
+                            val marker = overlays.first { it is Marker }
+                            overlays.clear()
+                            overlays.add(tiles.overlays[time].run {
+                                if (handler.mView == null) {
+                                    handler.mView = mapView
+                                }
+                                tilesOverlay
                             })
+                            overlays.add(marker)
                             invalidate()
                         }
                     }
@@ -124,10 +131,8 @@ private fun MapScreen(
             }
         }
     }, onRelease = { mapView ->
-        tiles.overlays.forEach {
-            it.first.onPause()
-            it.first.onDetach(mapView)
-            it.second.destroy()
+        for (overlay in tiles.overlays) {
+            overlay.destroy(mapView)
         }
 
         mapView.onPause()
@@ -141,6 +146,7 @@ private fun MapView.addCurrentLocationPoiMarker(latitude: Double, longitude: Dou
     Marker(this).run {
         id = POI_MARKER_ID
         position = GeoPoint(latitude, longitude)
+        setUseDataConnection(false)
         setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_CENTER)
         val iconSize = with(density) { 6.dp.toPx().toInt() }
         icon = BitmapDrawable(resources,
@@ -156,14 +162,15 @@ fun SimpleMapScreen(
     val context = LocalContext.current
     val uiState by viewModel.radarUiState.collectAsStateWithLifecycle()
 
+    LaunchedEffect(requestWeatherArguments) {
+        viewModel.load(context)
+    }
+
     uiState.onSuccess {
         SimpleWeatherScreenBackground(cardInfo = CardInfo(title = stringResource(id = R.string.radar)) {
             Column(modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                val overlays = remember {
-                    RadarTilesOverlay(context, it.host, it.radarTileEntities)
-                }
                 val simpleMapController = remember { SimpleMapController() }
 
                 Box(modifier = Modifier
@@ -171,7 +178,7 @@ fun SimpleMapScreen(
                     .height(240.dp)) {
                     MapScreen(requestWeatherArguments.latitude,
                         requestWeatherArguments.longitude,
-                        overlays,
+                        it.overlays,
                         viewModel.timePosition,
                         simpleMapController)
                     MapControllerScreen(simpleMapController, iconSize = 32.dp, bottomSpace = 20.dp)
@@ -183,7 +190,7 @@ fun SimpleMapScreen(
     }.onError {
         SimpleWeatherFailedBox(title = stringResource(id = R.string.radar),
             description = stringResource(id = R.string.failed_to_load_radar)) {
-            viewModel.load()
+            viewModel.load(context)
         }
     }
 

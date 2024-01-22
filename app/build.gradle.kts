@@ -2,14 +2,13 @@ plugins {
     id("plugin.android.application")
     alias(libs.plugins.gms)
     alias(libs.plugins.firebase.crashlytics)
-    alias(libs.plugins.kotlin.android)
 }
 
 android {
     namespace = "io.github.pknujsp.weatherwizard"
 
     defaultConfig {
-        applicationId = "io.github.pknujsp.wyther"
+        applicationId = "io.github.pknujsp.weathernet"
         versionCode = 1
         versionName = "1.0"
 
@@ -41,6 +40,7 @@ android {
     lint {
         checkDependencies = true
         ignoreTestSources = true
+        //resourcePrefix = "gnt_"
     }
 
     hilt {
@@ -56,6 +56,7 @@ dependencies {
     implementation(project(":core:data"))
     implementation(project(":core:resource"))
     implementation(project(":core:widgetnotification"))
+    implementation(project(":core:ads"))
 
     implementation(project(":feature:main"))
     implementation(project(":feature:map"))

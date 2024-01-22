@@ -23,7 +23,7 @@
         android:includeFontPadding="false"
         android:maxLines="1"
         android:text="@string/address"
-        android:textSize="13sp" />
+        android:textSize="14sp" />
 
     <TextView
         android:id="@+id/last_updated"
@@ -33,7 +33,7 @@
         android:includeFontPadding="false"
         android:maxLines="1"
         android:text="@string/last_updated_time"
-        android:textSize="13sp" />
+        android:textSize="14sp" />
 
     <ImageView
         android:layout_width="16dp"

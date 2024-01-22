@@ -15,6 +15,7 @@ data class NotificationViewState(
     val bigFailedContentRemoteViews: RemoteViews? = null,
     val icon: IconCompat? = null,
     val refreshPendingIntent: PendingIntent? = null,
+    val smallContentText: String? = null,
 ) {
     init {
         refreshPendingIntent?.run {

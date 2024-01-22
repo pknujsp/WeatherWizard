@@ -7,6 +7,8 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import io.github.pknujsp.weatherwizard.core.common.manager.AppAlarmManager
+import io.github.pknujsp.weatherwizard.core.common.manager.WidgetManager
 import io.github.pknujsp.weatherwizard.core.data.settings.SettingsRepository
 import io.github.pknujsp.weatherwizard.core.model.notification.enums.RefreshInterval
 import io.github.pknujsp.weatherwizard.core.model.settings.BasePreferenceModel
@@ -20,6 +22,8 @@ import javax.inject.Inject
 class SettingsViewModel @Inject constructor(
     private val settingsRepository: SettingsRepository,
     private val widgetStarter: WidgetStarter,
+    val widgetManager: WidgetManager,
+    val appAlarmManager: AppAlarmManager
 ) : ViewModel() {
 
     private val mutableMainSettingsUiState = MutableMainSettingsUiState(update = ::updatePreference)
@@ -52,7 +56,7 @@ class SettingsViewModel @Inject constructor(
 
     fun reDrawAppWidgets(context: Context) {
         viewModelScope.launch {
-            widgetStarter.start(context)
+            widgetStarter.redrawWidgets(context)
         }
     }
 }

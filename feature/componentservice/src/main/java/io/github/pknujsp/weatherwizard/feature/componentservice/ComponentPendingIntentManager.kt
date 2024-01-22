@@ -11,25 +11,27 @@ object ComponentPendingIntentManager {
 
     val mainActivityIntent: Intent
         get() = Intent().apply {
-            val packageName = "io.github.pknujsp.wyther"
+            val packageName = "io.github.pknujsp.weathernet"
             val className = "io.github.pknujsp.weatherwizard.feature.main.MainActivity"
             setClassName(packageName, className)
             flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
         }
 
     //io.github.pknujsp.weatherwizard.feature.main.MainActivity@fc02654,
-    //package: io.github.pknujsp.wyther,
+    //package: io.github.pknujsp.weathernet,
     //componentName: ComponentInfo{io.github.pknujsp.wyther/io.github.pknujsp.weatherwizard.feature.main.MainActivity}
 
-    fun <A : ComponentServiceAction<out ComponentServiceArgument>> getRefreshPendingIntent(
+    fun <A : ComponentServiceAction<out ComponentServiceArgument>> getPendingIntent(
         context: Context, flags: Int, action: A
-    ): PendingIntent? = PendingIntent.getBroadcast(context,
-        pendingIntentRequestFactory.requestId(action::class),
-        Intent(context, AppComponentServiceReceiver::class.java).apply {
+    ): PendingIntentEntity {
+        val requestCode = pendingIntentRequestFactory.requestId(action::class)
+        val intent = Intent(context, AppComponentServiceReceiver::class.java).apply {
             this.action = AppComponentServiceReceiver.ACTION_PROCESS
             putExtras(action.argument.toBundle())
-        },
-        flags)
+        }
+        val pendingIntent = PendingIntent.getBroadcast(context, requestCode, intent, flags)
+        return PendingIntentEntity(requestCode = requestCode, intent = intent, pendingIntent = pendingIntent)
+    }
 
 
     fun <A : ComponentServiceArgument> getIntent(
@@ -40,3 +42,9 @@ object ComponentPendingIntentManager {
     }
 
 }
+
+class PendingIntentEntity(
+    val requestCode: Int,
+    val intent: Intent,
+    val pendingIntent: PendingIntent? = null,
+)

@@ -1,5 +1,7 @@
 package io.github.pknujsp.weatherwizard.feature.map.screen
 
+import android.content.Context
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -27,7 +29,9 @@ import javax.inject.Inject
 
 @HiltViewModel
 class RainViewerViewModel @Inject constructor(
-    private val radarTilesRepository: RadarTilesRepository, @CoDispatcher(CoDispatcherType.IO) private val dispatcher: CoroutineDispatcher
+    private val radarTilesRepository: RadarTilesRepository,
+    @CoDispatcher(CoDispatcherType.IO) private val dispatcher: CoroutineDispatcher,
+    private val savedStateHandle: SavedStateHandle
 ) : ViewModel(), RadarController {
 
     private val mutablePlaying = MutableStateFlow(false)
@@ -56,27 +60,47 @@ class RainViewerViewModel @Inject constructor(
     companion object {
         const val PLAY_DURATION = 1000L
         private const val PLAY_COUNT = 15
+        private const val RADAR_TILE_FIRST_TIME = "RADAR_TILE_FIRST_TIME"
+        private const val RADAR_TILE_DEFAULT_INDEX = "RADAR_TILE_DEFAULT_INDEX"
     }
 
-    init {
-        load()
-    }
-
-    fun load() {
+    fun load(context: Context) {
         viewModelScope.launch {
             mutableRadarUiState.value = UiState.Loading
 
-            withContext(dispatcher) { radarTilesRepository.getTiles() }.onSuccess {
-                val entities = it.radar.map { entity ->
-                    RadarTileEntity(entity.path, entity.time.toLong())
+            withContext(dispatcher) {
+                radarTilesRepository.getTiles().map {
+                    val entities = it.radar.map { entity ->
+                        RadarTileEntity(entity.path, entity.time.toLong())
+                    }
+                    val isRadarTileCached = isTileSavedInCache(it.radar.first().time, it.currentIndex)
+                    if (!isRadarTileCached) {
+                        saveRadarTileCache(it.radar.first().time, it.currentIndex)
+                    }
+                    RadarUiState(isRadarTileCached, entities, it.host, it.currentIndex, it.requestTime, context)
                 }
-                val radarUiState = RadarUiState(entities, it.host, it.currentIndex, it.requestTime)
-
-                mutableRadarUiState.value = UiState.Success(radarUiState)
-                mutableTimePosition.value = it.currentIndex
+            }.onSuccess {
+                mutableRadarUiState.value = UiState.Success(it)
+                mutableTimePosition.value = it.defaultIndex
             }.onFailure {
                 mutableRadarUiState.value = UiState.Error(it)
             }
+        }
+    }
+
+    private fun saveRadarTileCache(firstTime: Int, defaultIndex: Int) {
+        savedStateHandle[RADAR_TILE_FIRST_TIME] = firstTime
+        savedStateHandle[RADAR_TILE_DEFAULT_INDEX] = defaultIndex
+    }
+
+    private fun isTileSavedInCache(firstTime: Int, defaultIndex: Int): Boolean {
+        val savedFirstTime = savedStateHandle.get<Int>(RADAR_TILE_FIRST_TIME)
+        val savedDefaultIndex = savedStateHandle.get<Int>(RADAR_TILE_DEFAULT_INDEX)
+
+        return if (savedDefaultIndex == null || savedFirstTime == null) {
+            false
+        } else {
+            firstTime == savedFirstTime && defaultIndex == savedDefaultIndex
         }
     }
 
@@ -138,7 +162,4 @@ class RainViewerViewModel @Inject constructor(
         }
     }
 
-    override fun onCleared() {
-        super.onCleared()
-    }
 }

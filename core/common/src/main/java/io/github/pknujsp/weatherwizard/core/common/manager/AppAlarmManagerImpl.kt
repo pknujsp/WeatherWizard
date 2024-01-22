@@ -16,7 +16,8 @@ internal class AppAlarmManagerImpl(context: Context) : AppAlarmManager {
     }
 
     override fun scheduleRepeat(intervalMillis: Long, pendingIntent: PendingIntent) {
-        alarmManager.setRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, SystemClock.elapsedRealtime() - 500L, intervalMillis, pendingIntent)
+        alarmManager.setRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, SystemClock.elapsedRealtime() - 1000L, intervalMillis,
+            pendingIntent)
     }
 
     override fun unschedule(pendingIntent: PendingIntent) {

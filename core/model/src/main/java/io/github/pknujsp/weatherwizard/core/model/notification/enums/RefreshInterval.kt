@@ -1,21 +1,14 @@
 package io.github.pknujsp.weatherwizard.core.model.notification.enums
 
-import io.github.pknujsp.weatherwizard.core.model.settings.BaseEnum
 import io.github.pknujsp.weatherwizard.core.model.settings.BasePreferenceModel
-import io.github.pknujsp.weatherwizard.core.model.settings.IEnum
 import io.github.pknujsp.weatherwizard.core.model.settings.PreferenceModel
 
 
 enum class RefreshInterval(val interval: Long) : PreferenceModel {
-    MANUAL(0L) {
+    MANUAL(0) {
         override val key: Int = ordinal
         override val title: Int = io.github.pknujsp.weatherwizard.core.resource.R.string.manual
         override val icon: Int? = null
-    },
-    MIN_5(java.time.Duration.ofMinutes(15).toMillis()) {
-        override val key: Int = ordinal
-        override val icon: Int? = null
-        override val title: Int = io.github.pknujsp.weatherwizard.core.resource.R.string.min_5
     },
     MIN_15(java.time.Duration.ofMinutes(15).toMillis()) {
         override val key: Int = ordinal

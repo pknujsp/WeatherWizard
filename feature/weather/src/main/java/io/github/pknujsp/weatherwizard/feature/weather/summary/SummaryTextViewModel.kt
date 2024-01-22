@@ -1,5 +1,6 @@
 package io.github.pknujsp.weatherwizard.feature.weather.summary
 
+import androidx.annotation.StringRes
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -10,9 +11,11 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import io.github.pknujsp.weatherwizard.core.common.coroutines.CoDispatcher
 import io.github.pknujsp.weatherwizard.core.common.coroutines.CoDispatcherType
 import io.github.pknujsp.weatherwizard.core.data.ai.SummaryTextRepository
+import io.github.pknujsp.weatherwizard.feature.weather.R
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.onCompletion
+import kotlinx.coroutines.flow.onEmpty
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -35,7 +38,7 @@ class SummaryTextViewModel @Inject constructor(
         generate(model)
     }
 
-    fun regenerate() {
+    private fun regenerate() {
         if (model != null) {
             generate(model!!)
         }
@@ -49,19 +52,27 @@ class SummaryTextViewModel @Inject constructor(
             }.onStart {
                 mutableUiState.isStopped = false
                 mutableUiState.isSummarizing = true
+                mutableUiState.error = null
                 mutableUiState.summaryText = ""
                 mutableUiState.buttonText = io.github.pknujsp.weatherwizard.core.resource.R.string.stop_summary
             }.onCompletion {
+                if (uiState.summaryText.isEmpty()) {
+                    mutableUiState.isStopped = true
+                    mutableUiState.buttonText = io.github.pknujsp.weatherwizard.core.resource.R.string.stopped_summary
+                }
                 mutableUiState.isSummarizing = false
+            }.onEmpty {
+                mutableUiState.error = io.github.pknujsp.weatherwizard.core.resource.R.string.error_summary
             }.collect {
                 mutableUiState.summaryText = mutableUiState.summaryText + it.text
             }
         }
     }
 
-    fun stop() {
+    fun stopOrResume() {
         viewModelScope.launch {
-            if (job?.isActive == false) {
+            if (job?.isActive == false && uiState.isStopped) {
+                regenerate()
                 return@launch
             }
 
@@ -76,6 +87,6 @@ private class MutableSummaryUiState : SummaryUiState {
     override var isSummarizing: Boolean by mutableStateOf(true)
     override var isStopped: Boolean by mutableStateOf(false)
     override var summaryText: String by mutableStateOf("")
-    override var error: String? by mutableStateOf(null)
+    override var error: Int? by mutableStateOf(null)
     override var buttonText: Int by mutableIntStateOf(io.github.pknujsp.weatherwizard.core.resource.R.string.stop_summary)
 }

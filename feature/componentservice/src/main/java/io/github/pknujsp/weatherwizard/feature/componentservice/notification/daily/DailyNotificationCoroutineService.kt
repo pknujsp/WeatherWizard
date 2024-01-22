@@ -16,7 +16,7 @@ import io.github.pknujsp.weatherwizard.core.widgetnotification.model.DailyNotifi
 import io.github.pknujsp.weatherwizard.core.widgetnotification.model.IWorker
 import io.github.pknujsp.weatherwizard.core.widgetnotification.model.NotificationViewState
 import io.github.pknujsp.weatherwizard.core.widgetnotification.model.RemoteViewUiModelMapperManager
-import io.github.pknujsp.weatherwizard.core.widgetnotification.notification.remoteview.NotificationRemoteViewsCreator
+import io.github.pknujsp.weatherwizard.core.widgetnotification.notification.remoteview.DailyNotificationRemoteViewsCreator
 import io.github.pknujsp.weatherwizard.core.widgetnotification.remoteview.RemoteViewCreator
 import io.github.pknujsp.weatherwizard.core.widgetnotification.remoteview.RemoteViewsCreatorManager
 import io.github.pknujsp.weatherwizard.core.widgetnotification.remoteview.UiStateRemoteViewCreator
@@ -65,7 +65,7 @@ class DailyNotificationCoroutineService @AssistedInject constructor(
             val model = uiModelMapper.mapToUiModel(uiModel.model!!, viewModel.units)
             val header = uiModel.header!!
 
-            val creator: NotificationRemoteViewsCreator<RemoteViewUiModel> =
+            val creator: DailyNotificationRemoteViewsCreator<RemoteViewUiModel> =
                 RemoteViewsCreatorManager.getByDailyNotificationType(uiModel.notificationType)
             val smallRemoteView = creator.createSmallContentView(model, header, context)
             val bigRemoteView = creator.createBigContentView(model, header, context)
