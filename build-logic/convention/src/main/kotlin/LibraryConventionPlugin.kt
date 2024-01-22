@@ -24,6 +24,7 @@ class LibraryConventionPlugin : Plugin<Project> {
             dependencies {
                 TEST_IMPLEMENTATION(libs.findBundle("test.local").get())
                 ANDROID_TEST_IMPLEMENTATION(libs.findBundle("test.android").get())
+                IMPLEMENTATION(libs.findBundle("ktx").get())
                 IMPLEMENTATION(project(":core:resource"))
                 IMPLEMENTATION(libs.findLibrary("androidx.core.remoteviews").get())
             }

@@ -12,6 +12,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.core.view.WindowCompat
 import dagger.hilt.android.AndroidEntryPoint
+import io.github.pknujsp.weatherwizard.core.ads.AdMob
 import io.github.pknujsp.weatherwizard.core.common.coroutines.CoDispatcher
 import io.github.pknujsp.weatherwizard.core.common.coroutines.CoDispatcherType
 import io.github.pknujsp.weatherwizard.core.ui.theme.AppColorScheme
@@ -28,7 +29,7 @@ class MainActivity : ComponentActivity() {
 
     private val viewModel: ActivityViewModel by viewModels()
 
-    @Inject @CoDispatcher(CoDispatcherType.SINGLE) lateinit var dispatcher: CoroutineDispatcher
+    @Inject @CoDispatcher(CoDispatcherType.MULTIPLE) lateinit var dispatcher: CoroutineDispatcher
     @Inject lateinit var widgetStarter: WidgetStarter
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -50,6 +51,7 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+        AdMob.initialize(this)
     }
 
     override fun onRestart() {
