@@ -2,25 +2,27 @@ package io.github.pknujsp.weatherwizard.core.widgetnotification.notification.dai
 
 import android.content.Context
 import android.widget.RemoteViews
-import io.github.pknujsp.weatherwizard.core.common.util.DayNightCalculator
-import io.github.pknujsp.weatherwizard.core.common.util.toCalendar
 import io.github.pknujsp.weatherwizard.core.model.mock.MockDataGenerator
 import io.github.pknujsp.weatherwizard.core.model.settings.CurrentUnits
-import io.github.pknujsp.weatherwizard.core.model.weather.dailyforecast.DailyForecastEntity
-import io.github.pknujsp.weatherwizard.core.model.weather.hourlyforecast.HourlyForecastEntity
 import io.github.pknujsp.weatherwizard.core.resource.R
 import io.github.pknujsp.weatherwizard.core.widgetnotification.model.RemoteViewsMockGenerator.Companion.header
-import io.github.pknujsp.weatherwizard.core.widgetnotification.notification.remoteview.NotificationRemoteViewsCreator
-import io.github.pknujsp.weatherwizard.core.widgetnotification.remoteview.UiStateRemoteViewCreator.createBaseView
+import io.github.pknujsp.weatherwizard.core.widgetnotification.notification.remoteview.DailyNotificationRemoteViewsCreator
+import io.github.pknujsp.weatherwizard.core.widgetnotification.remoteview.RemoteViewCreator
 import io.github.pknujsp.weatherwizard.core.widgetnotification.remoteview.addViewSafely
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 
-class DailyNotificationHourlyForecastRemoteViewsCreator : NotificationRemoteViewsCreator<DailyNotificationForecastRemoteViewUiModel>() {
-    override fun createSmallContentView(
-        model: DailyNotificationForecastRemoteViewUiModel, header: Header, context: Context
-    ): RemoteViews {
-        return createBigContentView(model, header, context)
+class DailyNotificationHourlyForecastRemoteViewsCreator :
+    DailyNotificationRemoteViewsCreator<DailyNotificationForecastRemoteViewUiModel>() {
+
+    override fun createSmallContentView(model: DailyNotificationForecastRemoteViewUiModel, header: Header, context: Context): RemoteViews {
+        val contentView = RemoteViews(context.packageName, R.layout.notification_daily_forecast_small).apply {
+            createHourlyForecastView(model, context, 6)
+        }
+        return createBaseView(context, RemoteViewCreator.ContainerType.NOTIFICATION_SMALL).apply {
+            createHeaderView(this, header)
+            addViewSafely(R.id.remote_views_content_container, contentView)
+        }
     }
 
     override fun createSampleView(context: Context, units: CurrentUnits): RemoteViews {
@@ -57,8 +59,7 @@ class DailyNotificationHourlyForecastRemoteViewsCreator : NotificationRemoteView
             createHourlyForecastView(model, context)
             createDailyForecastView(model, context)
         }
-        return createBaseView(context,
-            io.github.pknujsp.weatherwizard.core.widgetnotification.remoteview.RemoteViewCreator.ContainerType.NOTIFICATION_BIG).apply {
+        return createBaseView(context, RemoteViewCreator.ContainerType.NOTIFICATION_BIG).apply {
             createHeaderView(this, header)
             addViewSafely(R.id.remote_views_content_container, contentView)
         }
@@ -66,9 +67,9 @@ class DailyNotificationHourlyForecastRemoteViewsCreator : NotificationRemoteView
 
 
     private fun RemoteViews.createHourlyForecastView(
-        model: DailyNotificationForecastRemoteViewUiModel, context: Context
+        model: DailyNotificationForecastRemoteViewUiModel, context: Context, count: Int = model.hourlyForecast.size
     ) {
-        model.hourlyForecast.forEach {
+        model.hourlyForecast.take(count).forEach {
             addView(R.id.hourly_forecast, RemoteViews(context.packageName, R.layout.view_hourly_forecast_item).apply {
                 setTextViewText(R.id.time, it.dateTime)
                 setImageViewResource(R.id.weather_icon, it.weatherIcon)
