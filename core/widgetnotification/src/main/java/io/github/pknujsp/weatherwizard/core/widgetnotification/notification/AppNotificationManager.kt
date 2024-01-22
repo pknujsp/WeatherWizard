@@ -23,7 +23,7 @@ class AppNotificationManager(context: Context) {
 
     private companion object {
         val mainActivityIntent = Intent().apply {
-            val packageName = "io.github.pknujsp.wyther"
+            val packageName = "io.github.pknujsp.weathernet"
             val className = "io.github.pknujsp.weatherwizard.feature.main.MainActivity"
             setClassName(packageName, className)
             flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
