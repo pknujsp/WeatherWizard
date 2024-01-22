@@ -146,7 +146,7 @@ fun WeatherContentScreen(
                     uiState.weatherEntities.airQuality = aqi
                 })
                 SimpleSunSetRiseScreen(SunSetRiseInfo(uiState.args.latitude, uiState.args.longitude, uiState.lastUpdatedDateTime))
-                AdMob.AdView(modifier = Modifier.fillMaxWidth(), ad = AdMob.Ad.BANNER)
+                AdMob.BannerAd(modifier = Modifier.fillMaxWidth())
                 FlickrImageItemScreen(requestParameter = uiState.weather.flickrRequestParameters, onImageUrlChanged = {
                     imageUrl = it
                 })

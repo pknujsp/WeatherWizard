@@ -335,5 +335,8 @@
     <string name="wind_direction_sw">남서</string>
     <string name="wind_direction_w">서</string>
     <string name="wind_direction_nw">북서</string>
+    <string name="app_close_title">종료</string>
+    <string name="app_close_message">앱을 종료하시겠습니까?</string>
+    <string name="close_app">종료</string>
 
 </resources>

@@ -12,12 +12,24 @@ android {
         buildConfig = true
     }
 
+    viewBinding.enable = true
+
     defaultConfig {
         val properties = Properties()
         properties.load(project.rootProject.file("/local.properties").bufferedReader())
         buildConfigField("String", "ADMOB_APP_ID", "\"${properties["admob_app_id"]}\"")
         buildConfigField("String", "ADMOB_NATIVE_AD_ID", "\"${properties["admob_native_id"]}\"")
         buildConfigField("String", "ADMOB_BANNER_AD_ID", "\"${properties["admob_banner_id"]}\"")
+    }
+
+    buildTypes {
+        release {
+            isMinifyEnabled = false
+            getDefaultProguardFile("proguard-android.txt").also {
+                consumerProguardFiles.add(it)
+            }
+            consumerProguardFiles.add(file("proguard-rules.pgcfg"))
+        }
     }
 }
 
@@ -28,5 +40,7 @@ dependencies {
     implementation(libs.androidx.compose.ui)
     implementation(libs.androidx.compose.foundation)
     implementation(libs.android.gms.play.services.ads)
+    implementation(libs.google.errorprone.annotations)
+    implementation(libs.androidx.constraintlayout)
 
 }

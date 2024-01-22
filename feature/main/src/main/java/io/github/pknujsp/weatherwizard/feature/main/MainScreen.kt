@@ -1,5 +1,7 @@
 package io.github.pknujsp.weatherwizard.feature.main
 
+import androidx.activity.addCallback
+import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -15,11 +17,18 @@ import androidx.compose.material3.NavigationDrawerItem
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -29,10 +38,12 @@ import androidx.navigation.compose.composable
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import io.github.pknujsp.weatherwizard.core.ads.AdMob
+import io.github.pknujsp.weatherwizard.core.common.asActivity
 import io.github.pknujsp.weatherwizard.core.ui.MainRoutes
 import io.github.pknujsp.weatherwizard.core.ui.RootNavControllerViewModel
 import io.github.pknujsp.weatherwizard.feature.componentservice.notification.HostNotificationScreen
 import io.github.pknujsp.weatherwizard.feature.favorite.HostFavoriteScreen
+import io.github.pknujsp.weatherwizard.feature.main.exit.AppCloseDialog
 import io.github.pknujsp.weatherwizard.feature.main.sidebar.favorites.FavoriteLocationsScreen
 import io.github.pknujsp.weatherwizard.feature.settings.HostSettingsScreen
 import io.github.pknujsp.weatherwizard.feature.weather.HostWeatherScreen
@@ -41,6 +52,27 @@ import kotlinx.coroutines.launch
 @Composable
 fun MainScreen(rootNavControllerViewModel: RootNavControllerViewModel = hiltViewModel()) {
     val mainUiState = rememberMainState(rootNavControllerViewModel.requestedRoute)
+    val onBackPressedDispatcherOwner = LocalOnBackPressedDispatcherOwner.current
+    val lifeCycleOwner = LocalLifecycleOwner.current
+    val backDispatcher = remember {
+        onBackPressedDispatcherOwner?.onBackPressedDispatcher
+    }
+    var isCloseAppDialogVisible by remember { mutableStateOf(false) }
+    val currentCloseAppDialogVisible by rememberUpdatedState(newValue = isCloseAppDialogVisible)
+
+    LaunchedEffect(backDispatcher) {
+        backDispatcher?.addCallback(lifeCycleOwner) {
+            isCloseAppDialogVisible = !isCloseAppDialogVisible
+        }
+    }
+
+    if (isCloseAppDialogVisible) {
+        AppCloseDialog {
+            if (currentCloseAppDialogVisible) {
+                isCloseAppDialogVisible = false
+            }
+        }
+    }
 
     NavHost(navController = mainUiState.navController,
         startDestination = MainRoutes.Weather.route,
@@ -82,7 +114,7 @@ private fun WeatherMainScreen(mainUiState: MainUiState) {
                     }
                 }
             }
-            AdMob.AdView(modifier = Modifier.padding(top = 16.dp), ad = AdMob.Ad.BANNER)
+            AdMob.BannerAd(modifier = Modifier.padding(top = 16.dp))
             DrawerFooter()
         }
     }) {
