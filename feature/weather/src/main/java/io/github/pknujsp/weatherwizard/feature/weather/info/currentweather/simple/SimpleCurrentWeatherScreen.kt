@@ -63,7 +63,7 @@ fun CurrentWeatherScreen(current: CurrentWeather, yesterdayWeather: YesterdayWea
             Text(text = listOf(
                 AStyle(
                     current.temperature.value.toInt().toString(),
-                    span = SpanStyle(fontSize = 90.sp, color = textColor, letterSpacing = (-2).sp, fontWeight = FontWeight.Light),
+                    span = SpanStyle(fontSize = 85.sp, color = textColor, letterSpacing = (-4).sp, fontWeight = FontWeight.Light),
                 ),
                 AStyle(current.temperature.unit.symbol,
                     span = SpanStyle(fontSize = 40.sp, color = textColor, fontWeight = FontWeight.Light)),
