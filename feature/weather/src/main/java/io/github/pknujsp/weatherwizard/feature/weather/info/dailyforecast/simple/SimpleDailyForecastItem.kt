@@ -90,11 +90,10 @@ private fun Item(
             Text(text = date, style = TextStyle(fontSize = 13.sp, color = Color.White, textAlign = TextAlign.Center))
             Row(modifier = Modifier
                 .padding(vertical = 8.dp, horizontal = 6.dp)
-                .fillMaxWidth()
-                .height(42.dp),
+                .fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween) {
-                weatherConditionIcons.forEachIndexed { idx, icon ->
+                weatherConditionIcons.forEach { icon ->
                     AsyncImage(model = ImageRequest.Builder(LocalContext.current).data(icon).crossfade(false).build(),
                         contentDescription = null,
                         modifier = Modifier.weight(1f, true))

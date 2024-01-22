@@ -6,7 +6,6 @@ import android.view.LayoutInflater
 import androidx.annotation.MainThread
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.view.isVisible
 import com.google.android.gms.ads.AdListener

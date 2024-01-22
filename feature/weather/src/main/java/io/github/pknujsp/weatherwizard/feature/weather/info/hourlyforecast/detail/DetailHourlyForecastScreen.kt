@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -124,10 +125,10 @@ private fun Item(
             Row(modifier = Modifier
                 .weight(0.3f, true)
                 .padding(end = 16.dp),
-                horizontalArrangement = Arrangement.spacedBy(4.dp),
+                horizontalArrangement = Arrangement.spacedBy(6.dp),
                 verticalAlignment = Alignment.CenterVertically) {
                 AsyncImage(model = ImageRequest.Builder(context = LocalContext.current).data(weatherIcon).build(),
-                    modifier = Modifier.size(44.dp),
+                    modifier = Modifier.fillMaxHeight(),
                     contentDescription = null)
                 Text(text = temperature, style = TextStyle(fontSize = 17.sp, color = Color.Black))
             }

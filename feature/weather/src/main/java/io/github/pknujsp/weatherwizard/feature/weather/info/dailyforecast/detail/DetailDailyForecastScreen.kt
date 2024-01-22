@@ -49,19 +49,13 @@ fun DetailDailyForecastScreen(dailyForecast: DetailDailyForecast, popBackStack: 
     BackHandler {
         popBackStack()
     }
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .systemBarsPadding()
-    ) {
+    Column(modifier = Modifier
+        .fillMaxSize()
+        .systemBarsPadding()) {
         TitleTextWithNavigation(title = stringResource(R.string.daily_forecast)) {
             popBackStack()
         }
-        LazyColumn(
-            state = rememberLazyListState(),
-            modifier = Modifier
-                .fillMaxWidth()
-        ) {
+        LazyColumn(state = rememberLazyListState(), modifier = Modifier.fillMaxWidth()) {
             itemsIndexed(dailyForecast.items) { i, item ->
                 Item(
                     item = item,
@@ -91,7 +85,7 @@ private fun Item(
                 AStyle(text = dayOfWeek, span = SpanStyle(fontSize = 16.sp, color = Color.Black))).toAnnotated(),
                 modifier = Modifier
                     .weight(0.2f, true)
-                    .padding(start = 16.dp),
+                    .padding(start = 20.dp),
                 lineHeight = 20.sp)
 
             Row(modifier = Modifier.weight(0.4f, true),
@@ -113,10 +107,10 @@ private fun Item(
 
             Column(modifier = Modifier
                 .weight(0.4f, true)
-                .padding(end = 16.dp),
+                .padding(end = 12.dp),
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally) {
-                Row(horizontalArrangement = Arrangement.spacedBy(4.dp), verticalAlignment = Alignment.CenterVertically) {
+                Row(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalAlignment = Alignment.CenterVertically) {
                     if (displayPrecipitationProbability) {
                         AsyncImage(model = ImageRequest.Builder(context = LocalContext.current).data(R.drawable.ic_umbrella).build(),
                             modifier = Modifier.size(14.dp),

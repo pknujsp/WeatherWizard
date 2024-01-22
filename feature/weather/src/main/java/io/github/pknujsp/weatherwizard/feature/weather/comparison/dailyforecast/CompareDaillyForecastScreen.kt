@@ -5,6 +5,7 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -40,10 +41,12 @@ import coil.request.ImageRequest
 import io.github.pknujsp.weatherwizard.core.model.onLoading
 import io.github.pknujsp.weatherwizard.core.model.onSuccess
 import io.github.pknujsp.weatherwizard.core.model.weather.RequestWeatherArguments
+import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherConditionCategory
 import io.github.pknujsp.weatherwizard.core.model.weather.dailyforecast.CompareDailyForecast
 import io.github.pknujsp.weatherwizard.core.resource.R
 import io.github.pknujsp.weatherwizard.core.ui.TitleTextWithNavigation
 import io.github.pknujsp.weatherwizard.core.ui.lottie.CancellableLoadingScreen
+import io.github.pknujsp.weatherwizard.feature.weather.comparison.hourlyforecast.CommonForecastItemsScreen
 import io.github.pknujsp.weatherwizard.feature.weather.comparison.hourlyforecast.CompareForecastCard
 import io.github.pknujsp.weatherwizard.feature.weather.comparison.hourlyforecast.WeatherDataProviderInfo
 
@@ -54,7 +57,7 @@ fun CompareDailyForecastScreen(
     BackHandler {
         popBackStack()
     }
-    LaunchedEffect(Unit) {
+    LaunchedEffect(args) {
         viewModel.load(args)
     }
     val forecast by viewModel.dailyForecast.collectAsStateWithLifecycle()
@@ -65,21 +68,27 @@ fun CompareDailyForecastScreen(
         TitleTextWithNavigation(title = stringResource(id = io.github.pknujsp.weatherwizard.core.resource.R.string.title_comparison_daily_forecast)) {
             popBackStack()
         }
-
-        CompareForecastCard.CompareCardSurface {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(1f)
+                .verticalScroll(rememberScrollState()),
+            verticalArrangement = Arrangement.spacedBy(16.dp),
+        ) {
             forecast.onLoading {
                 CancellableLoadingScreen(stringResource(id = R.string.loading_daily_forecast_data)) {
                     popBackStack()
                 }
             }.onSuccess {
-                Column(verticalArrangement = Arrangement.Center,
-                    modifier = Modifier
+                CompareForecastCard.CompareCardSurface {
+                    Box(contentAlignment = Alignment.Center, modifier = Modifier
                         .fillMaxWidth()
-                        .weight(1f)
-                        .verticalScroll(rememberScrollState())
                         .padding(vertical = 16.dp)) {
-                    Content(it)
+                        Content(it)
+                    }
                 }
+
+                CommonForecastItemsScreen(it.commons)
             }
         }
     }
@@ -116,7 +125,9 @@ fun Content(compareDailyForecastInfo: CompareDailyForecastInfo) {
                             modifier = Modifier.height(dateTextHeight))
                         compareDailyForecastInfo.items[i].forEach { item ->
                             Item(item, itemModifier) { conditions ->
-                                Toast.makeText(context, conditions.joinToString(",") { context.getString(it) }, Toast.LENGTH_SHORT).show()
+                                Toast.makeText(context,
+                                    conditions.joinToString(", ") { context.getString(it.stringRes) },
+                                    Toast.LENGTH_SHORT).show()
                             }
                         }
                     }
@@ -149,17 +160,14 @@ fun Content(compareDailyForecastInfo: CompareDailyForecastInfo) {
 
 @Composable
 private fun Item(
-    item: CompareDailyForecast.Item,
-    modifier: Modifier,
-    onClick: (List<Int>) -> Unit
+    item: CompareDailyForecast.Item, modifier: Modifier, onClick: (List<WeatherConditionCategory>) -> Unit
 ) {
     // 날짜, 아이콘, 강수확률, 강수량
     item.run {
         Column(
-            modifier = modifier
-                .clickable {
-                    onClick(weatherConditions)
-                },
+            modifier = modifier.clickable {
+                onClick(weatherConditions)
+            },
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Row(modifier = Modifier
@@ -168,8 +176,8 @@ private fun Item(
                 .height(42.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween) {
-                weatherConditionIcons.forEach { icon ->
-                    AsyncImage(model = ImageRequest.Builder(LocalContext.current).data(icon).crossfade(false).build(),
+                weatherConditions.forEach { icon ->
+                    AsyncImage(model = ImageRequest.Builder(LocalContext.current).data(icon.dayWeatherIcon).crossfade(false).build(),
                         contentDescription = null,
                         modifier = Modifier.weight(1f, true))
                 }

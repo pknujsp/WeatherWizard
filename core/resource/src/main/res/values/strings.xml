@@ -338,5 +338,8 @@
     <string name="app_close_title">종료</string>
     <string name="app_close_message">앱을 종료하시겠습니까?</string>
     <string name="close_app">종료</string>
+    <string name="am">오전</string>
+    <string name="pm">오후</string>
+    <string name="all_day">하루종일</string>
 
 </resources>
