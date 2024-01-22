@@ -1,6 +1,8 @@
 package io.github.pknujsp.weatherwizard.core.widgetnotification.notification.daily.forecast
 
 import android.content.Context
+import android.util.TypedValue
+import android.view.View
 import android.widget.RemoteViews
 import io.github.pknujsp.weatherwizard.core.model.mock.MockDataGenerator
 import io.github.pknujsp.weatherwizard.core.model.settings.CurrentUnits
@@ -17,7 +19,7 @@ class DailyNotificationHourlyForecastRemoteViewsCreator :
 
     override fun createSmallContentView(model: DailyNotificationForecastRemoteViewUiModel, header: Header, context: Context): RemoteViews {
         val contentView = RemoteViews(context.packageName, R.layout.notification_daily_forecast_small).apply {
-            createHourlyForecastView(model, context, 6)
+            createHourlyForecastView(model, context, 6, true)
         }
         return createBaseView(context, RemoteViewCreator.ContainerType.NOTIFICATION_SMALL).apply {
             createHeaderView(this, header)
@@ -67,13 +69,20 @@ class DailyNotificationHourlyForecastRemoteViewsCreator :
 
 
     private fun RemoteViews.createHourlyForecastView(
-        model: DailyNotificationForecastRemoteViewUiModel, context: Context, count: Int = model.hourlyForecast.size
+        model: DailyNotificationForecastRemoteViewUiModel,
+        context: Context,
+        count: Int = model.hourlyForecast.size,
+        excludeTemp: Boolean = false
     ) {
         model.hourlyForecast.take(count).forEach {
             addView(R.id.hourly_forecast, RemoteViews(context.packageName, R.layout.view_hourly_forecast_item).apply {
                 setTextViewText(R.id.time, it.dateTime)
                 setImageViewResource(R.id.weather_icon, it.weatherIcon)
-                setTextViewText(R.id.temperature, it.temperature)
+                if (excludeTemp) {
+                    setViewVisibility(R.id.temperature, View.GONE)
+                } else {
+                    setTextViewText(R.id.temperature, it.temperature)
+                }
             })
         }
     }

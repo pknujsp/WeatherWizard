@@ -23,8 +23,8 @@
         android:layout_weight="1"
         android:adjustViewBounds="true"
         android:contentDescription="@string/weather_icon"
-        android:minWidth="18dp"
-        android:minHeight="18dp"
+        android:minWidth="16dp"
+        android:minHeight="16dp"
         android:scaleType="fitCenter"
         android:src="@drawable/ic_weather_clear_day" />
 
