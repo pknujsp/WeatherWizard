@@ -111,7 +111,7 @@ fun CurrentWeatherScreen(current: CurrentWeather, yesterdayWeather: YesterdayWea
                     .size(90.dp)
                     .constrainAs(icon) {
                         absoluteRight.linkTo(parent.absoluteRight)
-                        bottom.linkTo(condition.top)
+                        bottom.linkTo(condition.top, 12.dp)
                     },
             )
 

@@ -28,6 +28,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
+import io.github.pknujsp.weatherwizard.core.ads.AdMob
 import io.github.pknujsp.weatherwizard.core.ui.MainRoutes
 import io.github.pknujsp.weatherwizard.core.ui.RootNavControllerViewModel
 import io.github.pknujsp.weatherwizard.feature.componentservice.notification.HostNotificationScreen
@@ -81,6 +82,7 @@ private fun WeatherMainScreen(mainUiState: MainUiState) {
                     }
                 }
             }
+            AdMob.AdView(modifier = Modifier.padding(top = 16.dp), ad = AdMob.Ad.BANNER)
             DrawerFooter()
         }
     }) {

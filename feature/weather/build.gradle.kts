@@ -9,6 +9,7 @@ android {
 dependencies {
     implementation(project(":core:domain"))
     implementation(project(":core:data"))
+    implementation(project(":core:ads"))
     implementation(project(":feature:flickr"))
     implementation(project(":feature:map"))
     implementation(project(":feature:airquality"))

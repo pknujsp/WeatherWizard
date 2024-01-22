@@ -40,6 +40,7 @@ import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import coil.request.CachePolicy
 import coil.request.ImageRequest
+import io.github.pknujsp.weatherwizard.core.ads.AdMob
 import io.github.pknujsp.weatherwizard.core.common.util.AStyle
 import io.github.pknujsp.weatherwizard.core.common.util.toAnnotated
 import io.github.pknujsp.weatherwizard.core.model.settings.CurrentUnits
@@ -145,6 +146,7 @@ fun WeatherContentScreen(
                     uiState.weatherEntities.airQuality = aqi
                 })
                 SimpleSunSetRiseScreen(SunSetRiseInfo(uiState.args.latitude, uiState.args.longitude, uiState.lastUpdatedDateTime))
+                AdMob.AdView(modifier = Modifier.fillMaxWidth(), ad = AdMob.Ad.BANNER)
                 FlickrImageItemScreen(requestParameter = uiState.weather.flickrRequestParameters, onImageUrlChanged = {
                     imageUrl = it
                 })
