@@ -36,31 +36,27 @@ private fun LoadingScreen(text: String? = null, onDismissRequest: (() -> Unit)? 
     Dialog(onDismissRequest = {
         onDismissRequest?.invoke()
     },
-        properties = DialogProperties(dismissOnBackPress = false,
+        properties = DialogProperties(
+            dismissOnBackPress = false,
             dismissOnClickOutside = false,
-            decorFitsSystemWindows = false)) {
+        )) {
         Surface(
             shape = AppShapes.extraLarge,
             color = Color.White,
         ) {
-            Column(verticalArrangement = Arrangement.Center,
+            Column(verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterVertically),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(20.dp)) {
+                    .padding(24.dp)) {
                 CircularProgressIndicator(
                     color = Color.Black,
                     trackColor = Color(0xFFD9D9D9),
                 )
                 text?.run {
-                    Text(text = this,
-                        fontSize = 16.sp,
-                        modifier = Modifier.padding(top = 16.dp))
+                    Text(text = this, fontSize = 16.sp)
                 }
-                content?.run {
-                    Spacer(modifier = Modifier.height(16.dp))
-                    this()
-                }
+                content?.invoke()
             }
         }
     }
@@ -73,8 +69,10 @@ fun CancellableLoadingScreen(
     onDismissRequest: () -> Unit,
 ) {
     LoadingScreen(text, onDismissRequest) {
-        PrimaryButton(onClick = onDismissRequest, text = stringResource(id = io.github.pknujsp.weatherwizard.core.resource.R.string
-            .cancel), buttonSize = ButtonSize.SMALL, modifier = Modifier.fillMaxWidth())
+        PrimaryButton(onClick = onDismissRequest,
+            text = stringResource(id = io.github.pknujsp.weatherwizard.core.resource.R.string.cancel),
+            buttonSize = ButtonSize.SMALL,
+            modifier = Modifier.fillMaxWidth())
     }
 }
 

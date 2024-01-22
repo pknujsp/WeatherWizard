@@ -40,7 +40,7 @@ android {
     lint {
         checkDependencies = true
         ignoreTestSources = true
-        resourcePrefix = "gnt_"
+        //resourcePrefix = "gnt_"
     }
 
     hilt {

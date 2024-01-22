@@ -21,16 +21,6 @@ android {
         buildConfigField("String", "ADMOB_NATIVE_AD_ID", "\"${properties["admob_native_id"]}\"")
         buildConfigField("String", "ADMOB_BANNER_AD_ID", "\"${properties["admob_banner_id"]}\"")
     }
-
-    buildTypes {
-        release {
-            isMinifyEnabled = false
-            getDefaultProguardFile("proguard-android.txt").also {
-                consumerProguardFiles.add(it)
-            }
-            consumerProguardFiles.add(file("proguard-rules.pgcfg"))
-        }
-    }
 }
 
 

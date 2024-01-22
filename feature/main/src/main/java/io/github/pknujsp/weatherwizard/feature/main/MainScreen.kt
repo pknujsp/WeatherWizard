@@ -54,15 +54,18 @@ fun MainScreen(rootNavControllerViewModel: RootNavControllerViewModel = hiltView
     val mainUiState = rememberMainState(rootNavControllerViewModel.requestedRoute)
     val onBackPressedDispatcherOwner = LocalOnBackPressedDispatcherOwner.current
     val lifeCycleOwner = LocalLifecycleOwner.current
-    val backDispatcher = remember {
-        onBackPressedDispatcherOwner?.onBackPressedDispatcher
-    }
     var isCloseAppDialogVisible by remember { mutableStateOf(false) }
     val currentCloseAppDialogVisible by rememberUpdatedState(newValue = isCloseAppDialogVisible)
 
-    LaunchedEffect(backDispatcher) {
-        backDispatcher?.addCallback(lifeCycleOwner) {
-            isCloseAppDialogVisible = !isCloseAppDialogVisible
+    LaunchedEffect(Unit) {
+        onBackPressedDispatcherOwner!!.onBackPressedDispatcher.addCallback(lifeCycleOwner) {
+            mainUiState.navController.run {
+                if (currentBackStackEntry != null && currentBackStackEntry!!.destination.route == MainRoutes.Weather.route) {
+                    isCloseAppDialogVisible = true
+                } else {
+                    popBackStack()
+                }
+            }
         }
     }
 
@@ -114,7 +117,9 @@ private fun WeatherMainScreen(mainUiState: MainUiState) {
                     }
                 }
             }
-            AdMob.BannerAd(modifier = Modifier.padding(top = 16.dp))
+            AdMob.BannerAd(modifier = Modifier
+                .padding(top = 16.dp)
+                .align(Alignment.CenterHorizontally))
             DrawerFooter()
         }
     }) {

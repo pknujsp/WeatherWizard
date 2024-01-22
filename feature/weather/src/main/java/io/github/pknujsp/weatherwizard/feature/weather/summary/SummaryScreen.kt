@@ -54,7 +54,7 @@ fun SummaryScreen(model: WeatherSummaryPrompt.Model, onDismiss: () -> Unit, summ
             Column(modifier = Modifier
                 .fillMaxSize()
                 .verticalScroll(scrollState, true)) {
-                MarkdownText(modifier = Modifier.padding(bottom = 42.dp, start = 8.dp, end = 8.dp),
+                MarkdownText(modifier = Modifier.padding(bottom = 48.dp, start = 8.dp, end = 8.dp),
                     style = TextStyle(color = Color.Black, fontSize = 15.sp),
                     isTextSelectable = true,
                     markdown = if (uiState.error != null) stringResource(id = uiState.error!!) else uiState.summaryText,
@@ -102,10 +102,8 @@ private fun BoxScope.Footer(modifier: Modifier = Modifier) {
     Row(modifier = modifier.align(Alignment.BottomEnd),
         horizontalArrangement = Arrangement.spacedBy(2.dp, Alignment.CenterHorizontally),
         verticalAlignment = Alignment.Bottom) {
-        Text(text = "with", style = TextStyle(color = Color.Gray, fontSize = 11.sp))
         AsyncImage(model = ImageRequest.Builder(LocalContext.current).data(R.drawable.gemini_300_150).crossfade(false).build(),
             modifier = modifier.height(24.dp),
-            alignment = Alignment.BottomCenter,
             contentDescription = null)
     }
 }

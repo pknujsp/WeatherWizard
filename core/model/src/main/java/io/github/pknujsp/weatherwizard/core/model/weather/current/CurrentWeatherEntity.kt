@@ -5,6 +5,7 @@ import io.github.pknujsp.weatherwizard.core.model.weather.common.HumidityValueTy
 import io.github.pknujsp.weatherwizard.core.model.weather.common.PrecipitationValueType
 import io.github.pknujsp.weatherwizard.core.model.weather.common.TemperatureValueType
 import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherConditionValueType
+import io.github.pknujsp.weatherwizard.core.model.weather.common.WindDirectionUnit
 import io.github.pknujsp.weatherwizard.core.model.weather.common.WindDirectionValueType
 import io.github.pknujsp.weatherwizard.core.model.weather.common.WindSpeedValueType
 import kotlinx.serialization.Serializable
@@ -28,8 +29,8 @@ data class CurrentWeatherEntity(
         - 체감 온도 : $feelsLikeTemperature
         - 습도 : $humidity
         - 풍속 : $windSpeed
-        - 풍향 : $windDirection
-        - 강수량 : $precipitationVolume
+        - 풍향 : ${windDirection.convertUnit(WindDirectionUnit.Degree)}
+        - 강수량 : ${if (precipitationVolume.isNone()) "" else precipitationVolume.toString()}
     """.trimIndent()
 
 

@@ -47,7 +47,6 @@ import kotlinx.coroutines.launch
 @Composable
 fun DetailHourlyForecastScreen(hourlyForecast: DetailHourlyForecast, popBackStack: () -> Unit) {
     val coroutineScope = rememberCoroutineScope()
-    var showDialogWithListIndex by remember { mutableStateOf(false to -1) }
 
     BackHandler {
         popBackStack()
@@ -80,20 +79,10 @@ fun DetailHourlyForecastScreen(hourlyForecast: DetailHourlyForecast, popBackStac
                         displayPrecipitationProbability = hourlyForecast.displayPrecipitationProbability,
                         displayPrecipitationVolume = hourlyForecast.displayPrecipitationVolume,
                         displaySnowfallVolume = hourlyForecast.displaySnowfallVolume,
-                        displayRainfallVolume = hourlyForecast.displayRainfallVolume) {
-                        coroutineScope.launch {
-                            showDialogWithListIndex = true to index
-                        }
-                    }
+                        displayRainfallVolume = hourlyForecast.displayRainfallVolume)
                 }
 
             }
-        }
-    }
-
-    if (showDialogWithListIndex.first) {
-        AlertDialog(onDismissRequest = { showDialogWithListIndex = false to -1 }) {
-
         }
     }
 }
@@ -105,7 +94,7 @@ private fun Item(
     displayPrecipitationVolume: Boolean,
     displaySnowfallVolume: Boolean,
     displayRainfallVolume: Boolean,
-    onClick: () -> Unit
+    onClick: (() -> Unit)? = null,
 ) {
     item.run {
         Row(verticalAlignment = Alignment.CenterVertically,
@@ -113,9 +102,7 @@ private fun Item(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(52.dp)
-                .clickable {
-                    onClick()
-                }) {
+                .clickable {}) {
             Text(text = time,
                 style = TextStyle(fontSize = 16.sp, color = Color.Gray),
                 modifier = Modifier
