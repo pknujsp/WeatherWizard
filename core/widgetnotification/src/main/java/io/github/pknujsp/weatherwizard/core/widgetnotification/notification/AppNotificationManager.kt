@@ -7,6 +7,7 @@ import android.app.NotificationChannel
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.util.Log
 import android.widget.RemoteViews
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
@@ -92,6 +93,7 @@ class AppNotificationManager(context: Context) {
         }
 
         NotificationManagerCompat.from(context).notify(notificationType.notificationId, notificationBulder.build())
+        Log.d("AppNotificationManager", "notify $entity")
     }
 
     @SuppressLint("MissingPermission")
@@ -100,5 +102,6 @@ class AppNotificationManager(context: Context) {
         notificationBulder.setSmallIcon(R.drawable.ic_refresh).setStyle(NotificationCompat.DecoratedCustomViewStyle())
             .setCustomContentView(RemoteViews(context.packageName, R.layout.view_loading_notification))
         NotificationManagerCompat.from(context).notify(notificationType.notificationId, notificationBulder.build())
+        Log.d("AppNotificationManager", "notify loading")
     }
 }

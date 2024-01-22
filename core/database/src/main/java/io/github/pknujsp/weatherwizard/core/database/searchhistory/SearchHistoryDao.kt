@@ -20,7 +20,7 @@ abstract class SearchHistoryDao {
     abstract suspend fun insert(searchHistoryDto: SearchHistoryDto): Long
 
     @Query("SELECT * FROM search_history ORDER BY id DESC")
-    abstract fun getAll(): Flow<List<SearchHistoryDto>>
+    abstract fun getAll(): Flow<List<SearchHistoryDto>?>
 
     @Query("DELETE FROM search_history")
     abstract suspend fun deleteAll()
