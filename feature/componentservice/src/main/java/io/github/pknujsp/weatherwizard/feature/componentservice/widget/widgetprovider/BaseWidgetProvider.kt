@@ -15,7 +15,9 @@ import io.github.pknujsp.weatherwizard.feature.componentservice.widget.worker.Wi
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
+import java.util.concurrent.ConcurrentHashMap
 import javax.inject.Inject
 
 @OptIn(DelicateCoroutinesApi::class)
@@ -28,14 +30,23 @@ abstract class BaseWidgetProvider : AppWidgetProvider() {
     companion object {
         private val globalScope get() = GlobalScope
         private val specialActions = setOf(Intent.ACTION_BOOT_COMPLETED)
+        private val jobMap = ConcurrentHashMap<IntArray, Job>()
     }
 
     override fun onUpdate(context: Context, appWidgetManager: AppWidgetManager, appWidgetIds: IntArray) {
         if (appWidgetIds.isNotEmpty()) {
             Log.d("WidgetProvider", "onUpdate: ${appWidgetIds.contentToString()}")
-            globalScope.launch(dispatcher) {
+            if (jobMap.containsKey(appWidgetIds) && jobMap[appWidgetIds]?.isActive == true) {
+                return
+            }
+
+            val job = globalScope.launch(dispatcher) {
                 widgetUpdateBackgroundService.run(WidgetUpdatedArgument(WidgetUpdatedArgument.UPDATE_ONLY_SPECIFIC_WIDGETS,
                     appWidgetIds.toTypedArray()))
+            }
+            jobMap[appWidgetIds] = job
+            job.invokeOnCompletion {
+                jobMap.remove(appWidgetIds)
             }
         }
     }

@@ -12,7 +12,6 @@ import android.widget.RemoteViews
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import io.github.pknujsp.weatherwizard.core.common.NotificationType
-import io.github.pknujsp.weatherwizard.core.common.enum.pendingIntentRequestFactory
 import io.github.pknujsp.weatherwizard.core.resource.R
 import io.github.pknujsp.weatherwizard.core.widgetnotification.model.NotificationViewState
 
@@ -84,7 +83,7 @@ class AppNotificationManager(context: Context) {
                 setSmallIcon(R.drawable.weatherwizard_icon_logo)
             }
             setContentIntent(PendingIntent.getActivity(context,
-                pendingIntentRequestFactory.requestId(this@AppNotificationManager::class),
+                this@AppNotificationManager::class.simpleName.hashCode(),
                 mainActivityIntent,
                 PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE))
             setStyle(NotificationCompat.DecoratedCustomViewStyle())

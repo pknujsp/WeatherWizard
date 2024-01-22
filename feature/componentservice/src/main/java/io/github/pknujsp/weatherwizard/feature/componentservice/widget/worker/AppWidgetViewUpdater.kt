@@ -23,6 +23,7 @@ import io.github.pknujsp.weatherwizard.core.widgetnotification.remoteview.Remote
 import io.github.pknujsp.weatherwizard.core.widgetnotification.remoteview.RemoteViewsCreatorManager
 import io.github.pknujsp.weatherwizard.core.widgetnotification.remoteview.UiStateRemoteViewCreator
 import io.github.pknujsp.weatherwizard.core.widgetnotification.widget.remoteview.WidgetRemoteViewsCreator
+import io.github.pknujsp.weatherwizard.feature.componentservice.AppComponentServiceReceiver
 import io.github.pknujsp.weatherwizard.feature.componentservice.ComponentPendingIntentManager
 import io.github.pknujsp.weatherwizard.feature.componentservice.widget.WidgetActivity
 import io.github.pknujsp.weatherwizard.feature.componentservice.widget.isInProgress
@@ -96,7 +97,8 @@ class AppWidgetViewUpdater(
                     PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
                     ComponentServiceAction.LoadWidgetData(LoadWidgetDataArgument(
                         LoadWidgetDataArgument.UPDATE_ONLY_FAILED,
-                    ))).pendingIntent
+                    )),
+                    actionString = AppComponentServiceReceiver.ACTION_REFRESH).pendingIntent
                 UiStateRemoteViewCreator.createView(context,
                     FailedReason.SERVER_ERROR,
                     RemoteViewCreator.ContainerType.WIDGET,
@@ -126,7 +128,8 @@ class AppWidgetViewUpdater(
                     PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
                     ComponentServiceAction.LoadWidgetData(LoadWidgetDataArgument(
                         LoadWidgetDataArgument.UPDATE_ONLY_FAILED,
-                    ))).pendingIntent
+                    )),
+                    actionString = AppComponentServiceReceiver.ACTION_REFRESH).pendingIntent
 
                 for (widget in this) {
                     val failedRemoteView = UiStateRemoteViewCreator.createView(context,

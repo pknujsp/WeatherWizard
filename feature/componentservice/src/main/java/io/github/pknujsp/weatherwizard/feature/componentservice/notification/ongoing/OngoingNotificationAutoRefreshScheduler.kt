@@ -2,26 +2,33 @@ package io.github.pknujsp.weatherwizard.feature.componentservice.notification.on
 
 import android.app.PendingIntent
 import android.content.Context
+import android.util.Log
 import io.github.pknujsp.weatherwizard.core.common.manager.AppAlarmManager
 import io.github.pknujsp.weatherwizard.core.model.notification.enums.RefreshInterval
 import io.github.pknujsp.weatherwizard.core.widgetnotification.model.ComponentServiceAction
 import io.github.pknujsp.weatherwizard.core.widgetnotification.model.ComponentServiceAutoRefreshScheduler
-import io.github.pknujsp.weatherwizard.core.widgetnotification.model.LoadWidgetDataArgument
 import io.github.pknujsp.weatherwizard.core.widgetnotification.model.OngoingNotificationServiceArgument
+import io.github.pknujsp.weatherwizard.feature.componentservice.AppComponentServiceReceiver
 import io.github.pknujsp.weatherwizard.feature.componentservice.ComponentPendingIntentManager
 
 class OngoingNotificationAutoRefreshScheduler : ComponentServiceAutoRefreshScheduler {
 
     private companion object {
-        const val TAG = "OngoingNotificationAutoRefreshScheduler"
-        val requestCode = TAG.hashCode()
+        val REQUEST_CODE = "OngoingNotificationAutoRefreshScheduler".hashCode()
     }
 
-    override fun isScheduled(context: Context, appAlarmManager: AppAlarmManager): AppAlarmManager.ScheduledState {
-        val intent = ComponentPendingIntentManager.getPendingIntent(context,
+    override fun getScheduleState(context: Context): AppAlarmManager.ScheduledState {
+        val pendingIntent = ComponentPendingIntentManager.getPendingIntent(context,
             PendingIntent.FLAG_NO_CREATE or PendingIntent.FLAG_IMMUTABLE,
-            ComponentServiceAction.OngoingNotification(OngoingNotificationServiceArgument())).intent
-        return appAlarmManager.isScheduled(context, requestCode, intent)
+            ComponentServiceAction.OngoingNotification(OngoingNotificationServiceArgument()),
+            REQUEST_CODE,
+            AppComponentServiceReceiver.ACTION_AUTO_REFRESH)
+
+        return if (pendingIntent.pendingIntent == null) {
+            AppAlarmManager.ScheduledState.NotScheduled
+        } else {
+            AppAlarmManager.ScheduledState.Scheduled(pendingIntent.pendingIntent)
+        }
     }
 
     override fun scheduleAutoRefresh(context: Context, appAlarmManager: AppAlarmManager, refreshInterval: RefreshInterval) {
@@ -32,14 +39,18 @@ class OngoingNotificationAutoRefreshScheduler : ComponentServiceAutoRefreshSched
 
         val pendingIntent = ComponentPendingIntentManager.getPendingIntent(context,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
-            ComponentServiceAction.OngoingNotification(OngoingNotificationServiceArgument()))
+            ComponentServiceAction.OngoingNotification(OngoingNotificationServiceArgument()),
+            REQUEST_CODE,
+            AppComponentServiceReceiver.ACTION_AUTO_REFRESH)
         appAlarmManager.scheduleRepeat(refreshInterval.interval, pendingIntent.pendingIntent!!)
     }
 
     override fun unScheduleAutoRefresh(context: Context, appAlarmManager: AppAlarmManager) {
-        val scheduleState = isScheduled(context, appAlarmManager)
+        val scheduleState = getScheduleState(context)
+        Log.d("OngoingNotificationAutoRefreshScheduler", "unScheduleAutoRefresh: $scheduleState")
         if (scheduleState is AppAlarmManager.ScheduledState.Scheduled) {
             appAlarmManager.unschedule(scheduleState.pendingIntent)
+            scheduleState.pendingIntent.cancel()
         }
     }
 }

@@ -3,9 +3,9 @@ package io.github.pknujsp.weatherwizard.feature.componentservice.notification.ma
 import android.app.PendingIntent
 import android.content.Context
 import io.github.pknujsp.weatherwizard.core.common.NotificationType
-import io.github.pknujsp.weatherwizard.core.common.enum.pendingIntentRequestFactory
 import io.github.pknujsp.weatherwizard.core.common.manager.AppAlarmManager
 import io.github.pknujsp.weatherwizard.core.widgetnotification.model.DailyNotificationServiceArgument
+import io.github.pknujsp.weatherwizard.feature.componentservice.AppComponentServiceReceiver
 import io.github.pknujsp.weatherwizard.feature.componentservice.ComponentPendingIntentManager
 import java.time.ZonedDateTime
 import kotlin.random.Random
@@ -31,6 +31,7 @@ class NotificationAlarmManager(
     fun unSchedule(context: Context, notificationId: Long) {
         getPendingIntent(notificationId, context, PendingIntent.FLAG_NO_CREATE or PendingIntent.FLAG_IMMUTABLE)?.run {
             appAlarmManager.unschedule(this)
+            cancel()
         }
     }
 
@@ -40,8 +41,10 @@ class NotificationAlarmManager(
 
     private fun getPendingIntent(notificationId: Long, context: Context, flags: Int): PendingIntent? {
         return PendingIntent.getBroadcast(context,
-            pendingIntentRequestFactory.requestId(NotificationType.DAILY.hashCode() + notificationId.toInt()),
-            ComponentPendingIntentManager.getIntent(context, DailyNotificationServiceArgument(notificationId)),
+            (NotificationType.DAILY.hashCode() + notificationId.toInt()).hashCode(),
+            ComponentPendingIntentManager.getIntent(context,
+                DailyNotificationServiceArgument(notificationId),
+                AppComponentServiceReceiver.ACTION_AUTO_REFRESH),
             flags)
     }
 }

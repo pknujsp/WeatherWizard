@@ -3,7 +3,9 @@ package io.github.pknujsp.weatherwizard.core.widgetnotification.model
 import android.content.Context
 import android.content.pm.ServiceInfo
 import android.os.Build
+import android.os.Looper
 import android.os.PowerManager
+import android.util.Log
 import androidx.work.CoroutineWorker
 import androidx.work.ForegroundInfo
 import androidx.work.ListenableWorker
@@ -13,9 +15,13 @@ import io.github.pknujsp.weatherwizard.core.FeatureStateManagerImpl
 import io.github.pknujsp.weatherwizard.core.common.FeatureType
 import io.github.pknujsp.weatherwizard.core.common.NotificationType
 import io.github.pknujsp.weatherwizard.core.widgetnotification.notification.AppNotificationManager
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.asExecutor
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import java.time.Duration
+import java.util.concurrent.Executors
+import kotlin.coroutines.coroutineContext
 
 interface IWorker {
     val name: String
@@ -26,7 +32,6 @@ interface IWorker {
 
 interface AppComponentService {
     val featureStateManager: FeatureStateManager
-    val id: Int
 
     companion object Wake {
         private const val TAG = "AppComponentService"
@@ -46,7 +51,6 @@ abstract class AppComponentCoroutineService<T : ComponentServiceArgument>(
 ) : CoroutineWorker(context, params), AppComponentService {
     override val featureStateManager: FeatureStateManager by lazy { FeatureStateManagerImpl() }
     open val isRequiredForegroundService: Boolean = true
-    override val id: Int = iWorker.workerId
 
     protected val appNotificationManager: AppNotificationManager by lazy { AppNotificationManager(context) }
 
@@ -55,6 +59,7 @@ abstract class AppComponentCoroutineService<T : ComponentServiceArgument>(
         if (isRequiredForegroundService) {
             setForeground(createForegroundInfo())
         }
+        Log.d(this::class.simpleName, "$wakeLock : ${wakeLock.isHeld}")
 
         val result = try {
             doWork(context, ComponentServiceAction.toInstance(inputData.keyValueMap).argument as T)
@@ -63,6 +68,7 @@ abstract class AppComponentCoroutineService<T : ComponentServiceArgument>(
             Result.success()
         } finally {
             wakeLock.release()
+            Log.d(this::class.simpleName, "$wakeLock : ${wakeLock.isHeld}")
         }
 
         return result
@@ -85,10 +91,10 @@ abstract class AppComponentBackgroundService<T : ComponentServiceArgument>(
     protected val context: Context
 ) : AppComponentService {
     override val featureStateManager: FeatureStateManager by lazy { FeatureStateManagerImpl() }
-    override val id: Int = this::class.simpleName.hashCode()
 
     suspend fun run(argument: T): Result<Unit> {
         val wakeLock = AppComponentService.acquireWakeLock(context)
+        Log.d(this::class.simpleName, "$wakeLock : ${wakeLock.isHeld}")
 
         val result = try {
             doWork(argument)
@@ -97,6 +103,7 @@ abstract class AppComponentBackgroundService<T : ComponentServiceArgument>(
             Result.success(Unit)
         } finally {
             wakeLock.release()
+            Log.d(this::class.simpleName, "$wakeLock : ${wakeLock.isHeld}")
         }
 
         return result

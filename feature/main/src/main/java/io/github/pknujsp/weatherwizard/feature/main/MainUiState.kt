@@ -52,7 +52,7 @@ fun rememberMainState(requestedRoutes: SharedFlow<MainRoutes>, navController: Na
             MainRoutes.Notification.route to MainRoutes.Notification)
     }
     val window = LocalContext.current.asActivity()!!.window
-    val windowInsetsControllerCompat = remember {
+    val windowInsetsControllerCompat = remember(window) {
         WindowInsetsControllerCompat(window, window.decorView)
     }
     val state: MainUiState = remember {

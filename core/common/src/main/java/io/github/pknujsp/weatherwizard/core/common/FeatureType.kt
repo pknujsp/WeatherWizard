@@ -11,7 +11,6 @@ import android.os.Build
 import android.os.PowerManager
 import android.provider.Settings
 import androidx.annotation.RequiresApi
-import io.github.pknujsp.weatherwizard.core.common.enum.pendingIntentRequestFactory
 import io.github.pknujsp.weatherwizard.core.common.manager.FailedReason
 import io.github.pknujsp.weatherwizard.core.common.manager.PermissionType
 import io.github.pknujsp.weatherwizard.core.common.manager.checkSelfPermission
@@ -24,7 +23,7 @@ enum class FeatureType(
 
         override fun getPendingIntent(context: Context): PendingIntent {
             return PendingIntent.getActivity(context,
-                pendingIntentRequestFactory.requestId(this::class),
+                this::class.simpleName.hashCode(),
                 getIntent(context),
                 PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
         }
@@ -38,10 +37,9 @@ enum class FeatureType(
     BACKGROUND_LOCATION_PERMISSION(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, PermissionType.BACKGROUND_LOCATION) {
 
         override fun getPendingIntent(context: Context): PendingIntent {
-            return PendingIntent.getActivity(context,
-                pendingIntentRequestFactory.requestId(this::class),
-                getIntent(context),
-                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
+            return PendingIntent.getActivity(context, this::class.simpleName.hashCode(),
+
+                getIntent(context), PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
         }
 
         override fun getIntent(context: Context) = appSettingsIntent(context)
@@ -54,10 +52,9 @@ enum class FeatureType(
 
         @RequiresApi(Build.VERSION_CODES.S)
         override fun getPendingIntent(context: Context): PendingIntent {
-            return PendingIntent.getActivity(context,
-                pendingIntentRequestFactory.requestId(this::class),
-                getIntent(context),
-                PendingIntent.FLAG_ONE_SHOT or PendingIntent.FLAG_IMMUTABLE)
+            return PendingIntent.getActivity(context, this::class.simpleName.hashCode(),
+
+                getIntent(context), PendingIntent.FLAG_ONE_SHOT or PendingIntent.FLAG_IMMUTABLE)
         }
 
         @RequiresApi(Build.VERSION_CODES.S)
@@ -72,10 +69,9 @@ enum class FeatureType(
     },
     STORAGE_PERMISSION(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, PermissionType.STORAGE) {
         override fun getPendingIntent(context: Context): PendingIntent {
-            return PendingIntent.getActivity(context,
-                pendingIntentRequestFactory.requestId(this::class),
-                getIntent(context),
-                PendingIntent.FLAG_ONE_SHOT or PendingIntent.FLAG_IMMUTABLE)
+            return PendingIntent.getActivity(context, this::class.simpleName.hashCode(),
+
+                getIntent(context), PendingIntent.FLAG_ONE_SHOT or PendingIntent.FLAG_IMMUTABLE)
         }
 
         override fun getIntent(context: Context) = appSettingsIntent(context)
@@ -86,10 +82,9 @@ enum class FeatureType(
     },
     NETWORK(Settings.ACTION_WIRELESS_SETTINGS, FailedReason.NETWORK_UNAVAILABLE) {
         override fun getPendingIntent(context: Context): PendingIntent {
-            return PendingIntent.getActivity(context,
-                pendingIntentRequestFactory.requestId(this::class),
-                getIntent(context),
-                PendingIntent.FLAG_ONE_SHOT or PendingIntent.FLAG_IMMUTABLE)
+            return PendingIntent.getActivity(context, this::class.simpleName.hashCode(),
+
+                getIntent(context), PendingIntent.FLAG_ONE_SHOT or PendingIntent.FLAG_IMMUTABLE)
         }
 
         override fun getIntent(context: Context) = actionIntent(context)
@@ -103,10 +98,9 @@ enum class FeatureType(
     },
     LOCATION_SERVICE(Settings.ACTION_LOCATION_SOURCE_SETTINGS, FailedReason.LOCATION_SERVICE_DISABLED) {
         override fun getPendingIntent(context: Context): PendingIntent {
-            return PendingIntent.getActivity(context,
-                pendingIntentRequestFactory.requestId(this::class),
-                getIntent(context),
-                PendingIntent.FLAG_ONE_SHOT or PendingIntent.FLAG_IMMUTABLE)
+            return PendingIntent.getActivity(context, this::class.simpleName.hashCode(),
+
+                getIntent(context), PendingIntent.FLAG_ONE_SHOT or PendingIntent.FLAG_IMMUTABLE)
         }
 
         override fun getIntent(context: Context): Intent {
@@ -122,10 +116,9 @@ enum class FeatureType(
 
         @RequiresApi(Build.VERSION_CODES.TIRAMISU)
         override fun getPendingIntent(context: Context): PendingIntent {
-            return PendingIntent.getActivity(context,
-                pendingIntentRequestFactory.requestId(this::class),
-                getIntent(context),
-                PendingIntent.FLAG_ONE_SHOT or PendingIntent.FLAG_IMMUTABLE)
+            return PendingIntent.getActivity(context, this::class.simpleName.hashCode(),
+
+                getIntent(context), PendingIntent.FLAG_ONE_SHOT or PendingIntent.FLAG_IMMUTABLE)
         }
 
         @RequiresApi(Build.VERSION_CODES.TIRAMISU)
@@ -143,7 +136,7 @@ enum class FeatureType(
         @RequiresApi(Build.VERSION_CODES.S)
         override fun getPendingIntent(context: Context): PendingIntent {
             return PendingIntent.getActivity(context,
-                pendingIntentRequestFactory.requestId(this::class),
+                this::class.simpleName.hashCode(),
                 getIntent(context),
                 PendingIntent.FLAG_ONE_SHOT or PendingIntent.FLAG_IMMUTABLE)
         }
@@ -178,6 +171,8 @@ fun PermissionType.asFeatureType() = when (this) {
     PermissionType.SCHEDULE_EXACT_ALARM_ABOVE_EQUALS_ON_SDK_31 -> FeatureType.SCHEDULE_EXACT_ALARM_PERMISSION
 }
 
+
+private fun String.toRequestCode() = this.hashCode()
 
 interface FeatureIntent {
     fun getPendingIntent(context: Context): PendingIntent

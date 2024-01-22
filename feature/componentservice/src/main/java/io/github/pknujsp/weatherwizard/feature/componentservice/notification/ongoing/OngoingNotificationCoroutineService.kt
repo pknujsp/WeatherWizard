@@ -24,6 +24,7 @@ import io.github.pknujsp.weatherwizard.core.widgetnotification.notification.util
 import io.github.pknujsp.weatherwizard.core.widgetnotification.remoteview.RemoteViewCreator
 import io.github.pknujsp.weatherwizard.core.widgetnotification.remoteview.RemoteViewsCreatorManager
 import io.github.pknujsp.weatherwizard.core.widgetnotification.remoteview.UiStateRemoteViewCreator
+import io.github.pknujsp.weatherwizard.feature.componentservice.AppComponentServiceReceiver
 import io.github.pknujsp.weatherwizard.feature.componentservice.ComponentPendingIntentManager
 
 @HiltWorker
@@ -34,11 +35,10 @@ class OngoingNotificationCoroutineService @AssistedInject constructor(
 ) : AppComponentCoroutineService<OngoingNotificationServiceArgument>(context, params, Companion) {
 
     private val pendingIntentToRefresh: PendingIntent by lazy {
-        ComponentPendingIntentManager.getPendingIntent(
-            context,
+        ComponentPendingIntentManager.getPendingIntent(context,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
             ComponentServiceAction.OngoingNotification(),
-        ).pendingIntent!!
+            actionString = AppComponentServiceReceiver.ACTION_REFRESH).pendingIntent!!
     }
 
     companion object : IWorker {

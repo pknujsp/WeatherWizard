@@ -9,5 +9,5 @@ interface ComponentServiceAutoRefreshScheduler {
 
     fun unScheduleAutoRefresh(context: Context, appAlarmManager: AppAlarmManager)
 
-    fun isScheduled(context: Context, appAlarmManager: AppAlarmManager): AppAlarmManager.ScheduledState
+    fun getScheduleState(context: Context): AppAlarmManager.ScheduledState
 }

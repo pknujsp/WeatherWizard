@@ -6,7 +6,6 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.widget.RemoteViews
-import io.github.pknujsp.weatherwizard.core.common.enum.pendingIntentRequestFactory
 import kotlin.reflect.KClass
 
 class WidgetManagerImpl(context: Context) : WidgetManager {
@@ -33,7 +32,7 @@ class WidgetManagerImpl(context: Context) : WidgetManager {
     }
 
     private fun getDialogPendingIntent(context: Context, activityCls: KClass<*>) = PendingIntent.getActivity(context,
-        pendingIntentRequestFactory.requestId(activityCls.hashCode()),
+        activityCls.hashCode(),
         Intent(context, activityCls.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK
         },

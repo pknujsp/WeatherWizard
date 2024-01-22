@@ -19,9 +19,8 @@ class WidgetUpdateBackgroundService @Inject constructor(
     @ApplicationContext context: Context,
     @CoDispatcher(CoDispatcherType.SINGLE) private val dispatcher: CoroutineDispatcher,
     private val widgetRepository: WidgetRepository,
-    private val widgetManager: WidgetManager,
-    private val appSettingsRepository: SettingsRepository,
-    private val appAlarmManager: AppAlarmManager
+    widgetManager: WidgetManager,
+    appSettingsRepository: SettingsRepository,
 ) : AppComponentBackgroundService<WidgetUpdatedArgument>(context) {
 
     private val updateAppWidgetViews = AppWidgetViewUpdater(widgetManager,

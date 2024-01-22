@@ -12,6 +12,7 @@ import io.github.pknujsp.weatherwizard.core.common.manager.AppAlarmManager
 import io.github.pknujsp.weatherwizard.core.model.notification.enums.RefreshInterval
 import io.github.pknujsp.weatherwizard.core.widgetnotification.model.OngoingNotificationServiceArgument
 import io.github.pknujsp.weatherwizard.core.widgetnotification.notification.AppNotificationManager
+import io.github.pknujsp.weatherwizard.feature.componentservice.AppComponentServiceReceiver
 import io.github.pknujsp.weatherwizard.feature.componentservice.ComponentPendingIntentManager
 import io.github.pknujsp.weatherwizard.feature.componentservice.notification.ongoing.OngoingNotificationAutoRefreshScheduler
 
@@ -39,7 +40,9 @@ class OngoingNotificationState(
         val scheduler = OngoingNotificationAutoRefreshScheduler()
 
         if (ongoingNotificationUiState.isEnabled) {
-            context.sendBroadcast(ComponentPendingIntentManager.getIntent(context, OngoingNotificationServiceArgument()))
+            context.sendBroadcast(ComponentPendingIntentManager.getIntent(context,
+                OngoingNotificationServiceArgument(),
+                AppComponentServiceReceiver.ACTION_AUTO_REFRESH))
             scheduler.scheduleAutoRefresh(context, appAlarmManager, refreshInterval)
         } else {
             scheduler.unScheduleAutoRefresh(context, appAlarmManager)

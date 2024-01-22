@@ -10,7 +10,7 @@ enum class RefreshInterval(val interval: Long) : PreferenceModel {
         override val title: Int = io.github.pknujsp.weatherwizard.core.resource.R.string.manual
         override val icon: Int? = null
     },
-    MIN_15(java.time.Duration.ofMinutes(15).toMillis()) {
+    MIN_15(java.time.Duration.ofMinutes(1).toMillis()) {
         override val key: Int = ordinal
         override val icon: Int? = null
         override val title: Int = io.github.pknujsp.weatherwizard.core.resource.R.string.min_15

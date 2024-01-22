@@ -7,6 +7,7 @@ import io.github.pknujsp.weatherwizard.core.data.notification.daily.DailyNotific
 import io.github.pknujsp.weatherwizard.core.data.notification.ongoing.OngoingNotificationRepository
 import io.github.pknujsp.weatherwizard.core.widgetnotification.model.OngoingNotificationServiceArgument
 import io.github.pknujsp.weatherwizard.core.widgetnotification.notification.AppNotificationManager
+import io.github.pknujsp.weatherwizard.feature.componentservice.AppComponentServiceReceiver
 import io.github.pknujsp.weatherwizard.feature.componentservice.ComponentPendingIntentManager
 import io.github.pknujsp.weatherwizard.feature.componentservice.notification.manager.NotificationAlarmManager
 import io.github.pknujsp.weatherwizard.feature.componentservice.notification.ongoing.OngoingNotificationAutoRefreshScheduler
@@ -29,7 +30,8 @@ class NotificationStarterImpl(
     private suspend fun startOngoingNotification(context: Context) {
         getOngoingNotification()?.let {
             if (it.enabled && !appNotificationManager.isActiveNotification(NotificationType.ONGOING)) {
-                context.sendBroadcast(ComponentPendingIntentManager.getIntent(context, OngoingNotificationServiceArgument()))
+                context.sendBroadcast(ComponentPendingIntentManager.getIntent(context, OngoingNotificationServiceArgument(),
+                    AppComponentServiceReceiver.ACTION_AUTO_REFRESH))
                 val scheduler = OngoingNotificationAutoRefreshScheduler()
                 scheduler.scheduleAutoRefresh(context, appAlarmManager, it.data.refreshInterval)
             }

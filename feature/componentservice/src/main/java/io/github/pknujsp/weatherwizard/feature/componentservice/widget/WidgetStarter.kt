@@ -1,6 +1,5 @@
 package io.github.pknujsp.weatherwizard.feature.componentservice.widget
 
-import android.app.PendingIntent
 import android.appwidget.AppWidgetManager
 import android.content.Context
 import android.content.Intent
@@ -8,9 +7,6 @@ import io.github.pknujsp.weatherwizard.core.common.manager.AppAlarmManager
 import io.github.pknujsp.weatherwizard.core.common.manager.WidgetManager
 import io.github.pknujsp.weatherwizard.core.data.settings.SettingsRepository
 import io.github.pknujsp.weatherwizard.core.model.notification.enums.RefreshInterval
-import io.github.pknujsp.weatherwizard.core.widgetnotification.model.ComponentServiceAction
-import io.github.pknujsp.weatherwizard.core.widgetnotification.model.LoadWidgetDataArgument
-import io.github.pknujsp.weatherwizard.feature.componentservice.ComponentPendingIntentManager
 import io.github.pknujsp.weatherwizard.feature.componentservice.widget.worker.AppWidgetAutoRefreshScheduler
 
 class WidgetStarterImpl(
@@ -21,7 +17,7 @@ class WidgetStarterImpl(
 
     private fun scheduleAutoRefresh(context: Context, refreshInterval: RefreshInterval) {
         AppWidgetAutoRefreshScheduler(widgetManager).run {
-            if (isScheduled(context, appAlarmManager) is AppAlarmManager.ScheduledState.NotScheduled) {
+            if (getScheduleState(context) is AppAlarmManager.ScheduledState.NotScheduled) {
                 scheduleAutoRefresh(context, appAlarmManager, refreshInterval)
             }
         }

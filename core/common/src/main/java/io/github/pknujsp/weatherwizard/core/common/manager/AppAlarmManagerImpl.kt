@@ -16,16 +16,14 @@ internal class AppAlarmManagerImpl(context: Context) : AppAlarmManager {
     }
 
     override fun scheduleRepeat(intervalMillis: Long, pendingIntent: PendingIntent) {
-        alarmManager.setRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, SystemClock.elapsedRealtime() - 1000L, intervalMillis,
-            pendingIntent)
+        alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, SystemClock.elapsedRealtime() - 1000L, intervalMillis, pendingIntent)
     }
 
     override fun unschedule(pendingIntent: PendingIntent) {
         alarmManager.cancel(pendingIntent)
-        pendingIntent.cancel()
     }
 
-    override fun isScheduled(context: Context, requestId: Int, intent: Intent): AppAlarmManager.ScheduledState =
+    override fun getScheduleState(context: Context, requestId: Int, intent: Intent): AppAlarmManager.ScheduledState =
         PendingIntent.getBroadcast(context, requestId, intent, PendingIntent.FLAG_NO_CREATE or PendingIntent.FLAG_IMMUTABLE)?.run {
             AppAlarmManager.ScheduledState.Scheduled(this)
         } ?: AppAlarmManager.ScheduledState.NotScheduled
@@ -35,7 +33,7 @@ interface AppAlarmManager {
     fun scheduleExact(triggerAtMillis: Long, pendingIntent: PendingIntent)
     fun scheduleRepeat(intervalMillis: Long, pendingIntent: PendingIntent)
     fun unschedule(pendingIntent: PendingIntent)
-    fun isScheduled(context: Context, requestId: Int, intent: Intent): ScheduledState
+    fun getScheduleState(context: Context, requestId: Int, intent: Intent): ScheduledState
 
     sealed interface ScheduledState {
         class Scheduled(val pendingIntent: PendingIntent) : ScheduledState

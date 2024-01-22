@@ -3,7 +3,6 @@ package io.github.pknujsp.weatherwizard.feature.componentservice
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
-import io.github.pknujsp.weatherwizard.core.common.enum.pendingIntentRequestFactory
 import io.github.pknujsp.weatherwizard.core.widgetnotification.model.ComponentServiceAction
 import io.github.pknujsp.weatherwizard.core.widgetnotification.model.ComponentServiceArgument
 
@@ -22,11 +21,10 @@ object ComponentPendingIntentManager {
     //componentName: ComponentInfo{io.github.pknujsp.wyther/io.github.pknujsp.weatherwizard.feature.main.MainActivity}
 
     fun <A : ComponentServiceAction<out ComponentServiceArgument>> getPendingIntent(
-        context: Context, flags: Int, action: A
+        context: Context, flags: Int, action: A, requestCode: Int = action::class.simpleName.hashCode(), actionString: String
     ): PendingIntentEntity {
-        val requestCode = pendingIntentRequestFactory.requestId(action::class)
         val intent = Intent(context, AppComponentServiceReceiver::class.java).apply {
-            this.action = AppComponentServiceReceiver.ACTION_PROCESS
+            this.action = actionString
             putExtras(action.argument.toBundle())
         }
         val pendingIntent = PendingIntent.getBroadcast(context, requestCode, intent, flags)
@@ -35,9 +33,9 @@ object ComponentPendingIntentManager {
 
 
     fun <A : ComponentServiceArgument> getIntent(
-        context: Context, argument: A
+        context: Context, argument: A, actionString: String
     ): Intent = Intent(context, AppComponentServiceReceiver::class.java).apply {
-        this.action = AppComponentServiceReceiver.ACTION_PROCESS
+        this.action = actionString
         putExtras(argument.toBundle())
     }
 
