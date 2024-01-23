@@ -26,7 +26,6 @@ import io.github.pknujsp.weatherwizard.core.widgetnotification.widget.remoteview
 import io.github.pknujsp.weatherwizard.feature.componentservice.AppComponentServiceReceiver
 import io.github.pknujsp.weatherwizard.feature.componentservice.ComponentPendingIntentManager
 import io.github.pknujsp.weatherwizard.feature.componentservice.widget.WidgetActivity
-import io.github.pknujsp.weatherwizard.feature.componentservice.widget.isInProgress
 
 
 class AppWidgetViewUpdater(
@@ -55,7 +54,7 @@ class AppWidgetViewUpdater(
                 }
                 unLoadedWidgetIds
             }
-            widgetsIds.filterNot { isInProgress(it) }.run { widgetRepository.get(this) }.filterNot { it is SavedWidgetContentState.Pending }
+            widgetsIds.run { widgetRepository.get(this) }.filterNot { it is SavedWidgetContentState.Pending }
         }
 
         if (!widgets.checkPrimaryRequiredFeatures(requiredFeatures, context)) {

@@ -1,10 +1,10 @@
 package io.github.pknujsp.weatherwizard.feature.componentservice.widget.worker
 
 import android.content.Context
+import android.util.Log
 import dagger.hilt.android.qualifiers.ApplicationContext
 import io.github.pknujsp.weatherwizard.core.common.coroutines.CoDispatcher
 import io.github.pknujsp.weatherwizard.core.common.coroutines.CoDispatcherType
-import io.github.pknujsp.weatherwizard.core.common.manager.AppAlarmManager
 import io.github.pknujsp.weatherwizard.core.common.manager.WidgetManager
 import io.github.pknujsp.weatherwizard.core.data.settings.SettingsRepository
 import io.github.pknujsp.weatherwizard.core.data.widget.WidgetRepository
@@ -42,6 +42,7 @@ class WidgetUpdateBackgroundService @Inject constructor(
             }
         }
 
+        Log.d("WidgetUpdateBackgroundService", "widget doWork: ${argument.action}")
         return Result.success(Unit)
     }
 

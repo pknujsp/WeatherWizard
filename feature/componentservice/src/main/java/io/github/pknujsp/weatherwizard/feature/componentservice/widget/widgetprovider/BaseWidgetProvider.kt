@@ -6,18 +6,20 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import androidx.work.ExistingWorkPolicy
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.WorkManager
 import dagger.hilt.android.AndroidEntryPoint
 import io.github.pknujsp.weatherwizard.core.common.coroutines.CoDispatcher
 import io.github.pknujsp.weatherwizard.core.common.coroutines.CoDispatcherType
 import io.github.pknujsp.weatherwizard.core.widgetnotification.model.WidgetUpdatedArgument
-import io.github.pknujsp.weatherwizard.feature.componentservice.widget.widgetInProgress
+import io.github.pknujsp.weatherwizard.feature.componentservice.widget.worker.FakeWorker
 import io.github.pknujsp.weatherwizard.feature.componentservice.widget.worker.WidgetUpdateBackgroundService
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
-import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 @OptIn(DelicateCoroutinesApi::class)
@@ -25,68 +27,56 @@ import javax.inject.Inject
 abstract class BaseWidgetProvider : AppWidgetProvider() {
 
     @Inject lateinit var widgetUpdateBackgroundService: WidgetUpdateBackgroundService
-    @Inject @CoDispatcher(CoDispatcherType.MULTIPLE) lateinit var dispatcher: CoroutineDispatcher
+    @Inject @CoDispatcher(CoDispatcherType.IO) lateinit var dispatcher: CoroutineDispatcher
 
     companion object {
+        private const val FAKE_WORK_NAME = "always_pending_work"
         private val globalScope get() = GlobalScope
         private val specialActions = setOf(Intent.ACTION_BOOT_COMPLETED)
-        private val jobMap = ConcurrentHashMap<IntArray, Job>()
     }
 
     override fun onUpdate(context: Context, appWidgetManager: AppWidgetManager, appWidgetIds: IntArray) {
         if (appWidgetIds.isNotEmpty()) {
             Log.d("WidgetProvider", "onUpdate: ${appWidgetIds.contentToString()}")
-            if (jobMap.containsKey(appWidgetIds) && jobMap[appWidgetIds]?.isActive == true) {
-                return
-            }
-
-            val job = globalScope.launch(dispatcher) {
-                widgetUpdateBackgroundService.run(WidgetUpdatedArgument(WidgetUpdatedArgument.UPDATE_ONLY_SPECIFIC_WIDGETS,
-                    appWidgetIds.toTypedArray()))
-            }
-            jobMap[appWidgetIds] = job
-            job.invokeOnCompletion {
-                jobMap.remove(appWidgetIds)
-            }
+            launchWork(WidgetUpdatedArgument(WidgetUpdatedArgument.UPDATE_ONLY_SPECIFIC_WIDGETS, appWidgetIds.toTypedArray()))
         }
     }
 
     override fun onDeleted(context: Context, appWidgetIds: IntArray) {
         if (appWidgetIds.isNotEmpty()) {
             Log.d("WidgetProvider", "onDeleted: ${appWidgetIds.contentToString()}")
-            globalScope.launch(dispatcher) {
-                widgetUpdateBackgroundService.run(WidgetUpdatedArgument(WidgetUpdatedArgument.DELETE, appWidgetIds.toTypedArray()))
-            }
+            launchWork(WidgetUpdatedArgument(WidgetUpdatedArgument.DELETE, appWidgetIds.toTypedArray()))
         }
     }
 
     override fun onEnabled(context: Context) {
-
+        val alwaysPendingWork = OneTimeWorkRequestBuilder<FakeWorker>().setInitialDelay(5000L, TimeUnit.DAYS).build()
+        WorkManager.getInstance(context).enqueueUniqueWork(FAKE_WORK_NAME, ExistingWorkPolicy.KEEP, alwaysPendingWork)
     }
 
     override fun onDisabled(context: Context) {
+        WorkManager.getInstance(context).cancelUniqueWork(FAKE_WORK_NAME)
     }
 
     override fun onAppWidgetOptionsChanged(context: Context?, appWidgetManager: AppWidgetManager?, appWidgetId: Int, newOptions: Bundle?) {
-        globalScope.launch(dispatcher) {
-            Log.d("WidgetProvider", "onAppWidgetOptionsChanged: $appWidgetId")
-            widgetUpdateBackgroundService.run(WidgetUpdatedArgument(WidgetUpdatedArgument.UPDATE_ONLY_SPECIFIC_WIDGETS,
-                arrayOf(appWidgetId)))
-        }
+        Log.d("WidgetProvider", "onAppWidgetOptionsChanged: $appWidgetId")
+        launchWork(WidgetUpdatedArgument(WidgetUpdatedArgument.UPDATE_ONLY_SPECIFIC_WIDGETS, arrayOf(appWidgetId)))
     }
 
     override fun onReceive(context: Context?, intent: Intent?) {
         super.onReceive(context, intent)
         intent?.action?.also { action ->
             if (action in specialActions) {
-                globalScope.launch(dispatcher) {
-                    if (action == Intent.ACTION_BOOT_COMPLETED) {
-                        widgetUpdateBackgroundService.run(WidgetUpdatedArgument(WidgetUpdatedArgument.UPDATE_ALL))
-                    }
+                if (action == Intent.ACTION_BOOT_COMPLETED) {
+                    launchWork(WidgetUpdatedArgument(WidgetUpdatedArgument.UPDATE_ALL))
                 }
             }
         }
+    }
 
-        Log.d("WidgetProvider", "onReceive: ${intent?.action}")
+    private fun launchWork(argument: WidgetUpdatedArgument) {
+        globalScope.launch(dispatcher) {
+            widgetUpdateBackgroundService.run(argument)
+        }
     }
 }

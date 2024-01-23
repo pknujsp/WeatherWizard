@@ -25,7 +25,7 @@ class DailyNotificationServiceArgument(
 ) : ComponentServiceArgument()
 
 
-class WidgetUpdatedArgument(
+data class WidgetUpdatedArgument(
     val action: Int, val widgetIds: Array<Int> = emptyArray(),
 ) : ComponentServiceArgument() {
     companion object {
@@ -33,6 +33,24 @@ class WidgetUpdatedArgument(
         const val UPDATE_ONLY_SPECIFIC_WIDGETS = 1
         const val DELETE = 2
     }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as WidgetUpdatedArgument
+
+        if (action != other.action) return false
+        return widgetIds.contentEquals(other.widgetIds)
+    }
+
+    override fun hashCode(): Int {
+        var result = action
+        result = 31 * result + widgetIds.contentHashCode()
+        return result
+    }
+
+
 }
 
 data class LoadWidgetDataArgument(
