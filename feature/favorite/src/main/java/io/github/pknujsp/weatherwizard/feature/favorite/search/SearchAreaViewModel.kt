@@ -6,7 +6,6 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import io.github.pknujsp.core.annotation.KBindFunc
 import io.github.pknujsp.weatherwizard.core.common.coroutines.CoDispatcher
 import io.github.pknujsp.weatherwizard.core.common.coroutines.CoDispatcherType
-import io.github.pknujsp.weatherwizard.core.common.manager.AppNetworkManager
 import io.github.pknujsp.weatherwizard.core.data.favorite.FavoriteAreaListRepository
 import io.github.pknujsp.weatherwizard.core.data.favorite.SelectedLocationModel
 import io.github.pknujsp.weatherwizard.core.data.favorite.TargetLocationRepository
@@ -14,12 +13,11 @@ import io.github.pknujsp.weatherwizard.core.data.nominatim.NominatimRepository
 import io.github.pknujsp.weatherwizard.core.data.searchhistory.SearchHistoryRepository
 import io.github.pknujsp.weatherwizard.core.model.UiAction
 import io.github.pknujsp.weatherwizard.core.model.UiState
-import io.github.pknujsp.weatherwizard.core.model.favorite.FavoriteAreaListEntity
 import io.github.pknujsp.weatherwizard.core.model.coordinate.LocationType
+import io.github.pknujsp.weatherwizard.core.model.favorite.FavoriteAreaListEntity
 import io.github.pknujsp.weatherwizard.core.model.nominatim.GeoCode
 import io.github.pknujsp.weatherwizard.core.model.nominatim.GeoCodeEntity
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -33,7 +31,6 @@ class SearchAreaViewModel @Inject constructor(
     private val nominatimRepository: NominatimRepository,
     private val favoriteAreaRepository: FavoriteAreaListRepository,
     private val targetLocationRepository: TargetLocationRepository,
-    val appNetworkManager: AppNetworkManager,
     @CoDispatcher(CoDispatcherType.IO) private val ioDispatcher: CoroutineDispatcher
 ) : ViewModel() {
 

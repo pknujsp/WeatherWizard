@@ -1,5 +1,6 @@
 package io.github.pknujsp.weatherwizard.core.ui.feature
 
+import android.content.Context
 import android.net.ConnectivityManager
 import android.net.Network
 import androidx.compose.runtime.Composable
@@ -9,22 +10,27 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.LocalContext
 import io.github.pknujsp.weatherwizard.core.common.manager.AppNetworkManager
+import io.github.pknujsp.weatherwizard.core.common.manager.AppNetworkManagerImpl
 
 @Stable
-interface NetworkUiState {
+interface NetworkState {
     val isNetworkAvailable: Boolean
+    val appNetworkManager: AppNetworkManager
 }
 
-@Stable
-private class MutableNetworkUiState(appNetworkManager: AppNetworkManager) : NetworkUiState {
+private class MutableNetworkState(override val appNetworkManager: AppNetworkManager) : NetworkState {
     override var isNetworkAvailable by mutableStateOf(appNetworkManager.isNetworkAvailable())
 }
 
 @Composable
-fun rememberAppNetworkState(appNetworkManager: AppNetworkManager): NetworkUiState {
-    val networkUiState = remember(appNetworkManager) {
-        MutableNetworkUiState(appNetworkManager)
+fun rememberAppNetworkState(context: Context = LocalContext.current): NetworkState {
+    val appNetworkManager = remember {
+        AppNetworkManagerImpl(context)
+    }
+    val networkUiState = remember {
+        MutableNetworkState(appNetworkManager)
     }
 
     DisposableEffect(appNetworkManager) {

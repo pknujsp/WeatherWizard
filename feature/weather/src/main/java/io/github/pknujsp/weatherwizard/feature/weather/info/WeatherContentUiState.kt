@@ -22,41 +22,55 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import androidx.core.view.WindowInsetsControllerCompat
+import io.github.pknujsp.weatherwizard.core.common.FeatureType
 import io.github.pknujsp.weatherwizard.core.common.StatefulFeature
 import io.github.pknujsp.weatherwizard.core.common.asActivity
 import io.github.pknujsp.weatherwizard.core.model.flickr.FlickrRequestParameters
 import io.github.pknujsp.weatherwizard.core.model.settings.CurrentUnits
 import io.github.pknujsp.weatherwizard.core.model.weather.RequestWeatherArguments
+import io.github.pknujsp.weatherwizard.core.model.weather.yesterday.YesterdayWeather
+import io.github.pknujsp.weatherwizard.core.ui.feature.NetworkState
+import io.github.pknujsp.weatherwizard.core.ui.feature.rememberAppNetworkState
 import io.github.pknujsp.weatherwizard.feature.weather.info.currentweather.model.CurrentWeather
 import io.github.pknujsp.weatherwizard.feature.weather.info.dailyforecast.model.DetailDailyForecast
 import io.github.pknujsp.weatherwizard.feature.weather.info.dailyforecast.model.SimpleDailyForecast
 import io.github.pknujsp.weatherwizard.feature.weather.info.hourlyforecast.model.DetailHourlyForecast
 import io.github.pknujsp.weatherwizard.feature.weather.info.hourlyforecast.model.SimpleHourlyForecast
-import io.github.pknujsp.weatherwizard.core.model.weather.yesterday.YesterdayWeather
 import io.github.pknujsp.weatherwizard.feature.weather.route.NestedWeatherRoutes
 import io.github.pknujsp.weatherwizard.feature.weather.summary.WeatherSummaryPrompt
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.launch
 import java.time.ZonedDateTime
 
 private val topAppBarOffsetLimit = (-64).dp
 
 sealed interface WeatherContentUiState {
-    data class Error(val state: StatefulFeature) : WeatherContentUiState
+    val refresh: () -> Unit
+    val onUnavailableFeature: (FeatureType) -> Unit
 
+    @Stable
+    data class Error(
+        val state: StatefulFeature, override val refresh: () -> Unit, override val onUnavailableFeature: (FeatureType) -> Unit
+    ) : WeatherContentUiState
+
+    @Stable
     data class Success(
         val args: RequestWeatherArguments,
         val weather: Weather,
         val lastUpdatedDateTime: ZonedDateTime,
         val weatherEntities: WeatherSummaryPrompt.Model,
         val currentUnits: CurrentUnits,
+        override val refresh: () -> Unit,
+        override val onUnavailableFeature: (FeatureType) -> Unit
     ) : WeatherContentUiState {
 
         val dateTime: String = lastUpdatedDateTime.format(dateTimeFormatter)
 
         private companion object {
-            private const val DATETIME_FORMAT = "MM.dd HH:mm"
-            private val dateTimeFormatter = java.time.format.DateTimeFormatter.ofPattern(DATETIME_FORMAT)
+            private val dateTimeFormatter = java.time.format.DateTimeFormatter.ofPattern("MM.dd HH:mm")
         }
     }
+
 }
 
 class Weather(
@@ -81,19 +95,16 @@ class Weather(
 private class MutableWeatherMainState @OptIn(ExperimentalMaterial3Api::class) constructor(
     override val scrollState: ScrollState,
     override val scrollBehavior: TopAppBarScrollBehavior,
-    private val windowInsetsController: WindowInsetsControllerCompat
+    private val windowInsetsController: WindowInsetsControllerCompat,
+    override val networkState: NetworkState,
+    private val weatherContentUiState: () -> WeatherContentUiState?,
 ) : WeatherMainState {
     override val nestedRoutes = mutableStateOf(NestedWeatherRoutes.startDestination)
-
-    init {
-        updateWindowInset(true)
-    }
 
     override fun navigate(nestedRoutes: NestedWeatherRoutes) {
         this.nestedRoutes.value = nestedRoutes
         updateWindowInset(nestedRoutes !is NestedWeatherRoutes.Main)
     }
-
 
     override fun updateWindowInset(isAppearanceLight: Boolean) {
         windowInsetsController.run {
@@ -105,41 +116,64 @@ private class MutableWeatherMainState @OptIn(ExperimentalMaterial3Api::class) co
     override suspend fun expandAppBar() {
         scrollState.scrollTo(0)
     }
+
+    override fun refresh() {
+        val weatherContentUiState = weatherContentUiState()
+        if (weatherContentUiState != null) {
+            if (networkState.isNetworkAvailable) {
+                weatherContentUiState.refresh()
+            } else {
+                weatherContentUiState.onUnavailableFeature(FeatureType.NETWORK)
+            }
+        }
+    }
 }
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun rememberWeatherMainState(
+    weatherContentUiState: () -> WeatherContentUiState?,
     scrollState: ScrollState = rememberScrollState(),
     density: Density = LocalDensity.current,
 ): WeatherMainState {
-    val window = LocalContext.current.asActivity()!!.window
-    val initialHeightOffsetLimit = remember {
-        with(density) { topAppBarOffsetLimit.toPx() }
-    }
     val scrollBehavior: TopAppBarScrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(state = rememberTopAppBarState(
-        initialHeightOffsetLimit = initialHeightOffsetLimit,
+        initialHeightOffsetLimit = with(density) { topAppBarOffsetLimit.toPx() },
     ))
-    val state = remember {
-        MutableWeatherMainState(scrollState, scrollBehavior, WindowInsetsControllerCompat(window, window.decorView))
+    val networkState = rememberAppNetworkState()
+    val window = LocalContext.current.asActivity()!!.window
+
+    val state: WeatherMainState = remember {
+        MutableWeatherMainState(scrollState,
+            scrollBehavior,
+            WindowInsetsControllerCompat(window, window.decorView),
+            networkState,
+            weatherContentUiState)
     }
+
     var nestedRoutes by rememberSaveable(saver = Saver(save = { it.value.route },
         restore = { mutableStateOf(NestedWeatherRoutes.getRoute(it)) })) {
-        state.nestedRoutes
+        mutableStateOf(state.nestedRoutes.value)
     }
 
     LaunchedEffect(Unit) {
-        val heightOffsetLimit = -scrollBehavior.state.heightOffsetLimit
-        val collapsedHeightOffset = scrollBehavior.state.heightOffsetLimit
+        launch {
+            val heightOffsetLimit = -scrollBehavior.state.heightOffsetLimit
+            val collapsedHeightOffset = scrollBehavior.state.heightOffsetLimit
 
-        snapshotFlow {
-            scrollState.value
-        }.collect { y ->
-            if (y <= heightOffsetLimit) {
-                scrollBehavior.state.heightOffset = -y.toFloat()
-            } else if (scrollBehavior.state.heightOffset != collapsedHeightOffset) {
-                scrollBehavior.state.heightOffset = collapsedHeightOffset
+            snapshotFlow {
+                scrollState.value
+            }.collect { y ->
+                if (y <= heightOffsetLimit) {
+                    scrollBehavior.state.heightOffset = -y.toFloat()
+                } else if (scrollBehavior.state.heightOffset != collapsedHeightOffset) {
+                    scrollBehavior.state.heightOffset = collapsedHeightOffset
+                }
+            }
+        }
+        launch {
+            snapshotFlow { networkState.isNetworkAvailable }.filter { it }.collect {
+                state.refresh()
             }
         }
     }
@@ -152,9 +186,11 @@ fun rememberWeatherMainState(
 interface WeatherMainState {
     val scrollState: ScrollState
     @OptIn(ExperimentalMaterial3Api::class) val scrollBehavior: TopAppBarScrollBehavior
+    val networkState: NetworkState
 
     val nestedRoutes: State<NestedWeatherRoutes>
     suspend fun expandAppBar()
     fun navigate(nestedRoutes: NestedWeatherRoutes)
     fun updateWindowInset(isAppearanceLight: Boolean)
+    fun refresh()
 }

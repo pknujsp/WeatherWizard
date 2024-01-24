@@ -61,7 +61,7 @@ fun SearchAreaScreen(
         }
     }
 
-    val networkUiState = rememberAppNetworkState(searchAreaViewModel.appNetworkManager)
+    val networkUiState = rememberAppNetworkState()
     var showSearchHistory by remember { mutableStateOf(true) }
 
     Column(modifier = Modifier.fillMaxSize()) {

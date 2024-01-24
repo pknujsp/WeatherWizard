@@ -41,20 +41,30 @@ fun WeatherInfoScreen(
     viewModel: WeatherInfoViewModel = hiltViewModel(),
     targetLocationViewModel: TargetLocationViewModel = hiltViewModel()
 ) {
-    val mainState = rememberWeatherMainState()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val mainState = rememberWeatherMainState(weatherContentUiState = { uiState })
     val topAppBarUiState = targetLocationViewModel.topAppBarUiState
     val isLoading = viewModel.isLoading
     val targetLocation by viewModel.targetLocation.collectAsStateWithLifecycle(initialValue = null)
 
     LaunchedEffect(uiState) {
         if (uiState is WeatherContentUiState.Success) {
+            mainState.updateWindowInset(false)
             mainState.expandAppBar()
+        } else {
+            mainState.updateWindowInset(true)
         }
     }
     LaunchedEffect(targetLocation) {
         targetLocation?.run {
             targetLocationViewModel.setLocation(this)
+        }
+    }
+    LaunchedEffect(Unit) {
+        if (mainState.networkState.isNetworkAvailable) {
+            viewModel.initialJob.start()
+        } else {
+            viewModel.onUnavailableFeature(FeatureType.NETWORK)
         }
     }
 
@@ -65,11 +75,9 @@ fun WeatherInfoScreen(
                     WeatherContentScreen(mainState.scrollState, mainState.scrollBehavior, navigate = {
                         mainState.navigate(it)
                     }, reload = {
-                        viewModel.refresh()
+                        mainState.refresh()
                     }, updateWeatherDataProvider = {
                         viewModel.updateWeatherDataProvider(it)
-                    }, updateWindowInset = {
-                        mainState.updateWindowInset(false)
                     }, uiState as WeatherContentUiState.Success, openDrawer, topAppBarUiState)
                 }
 
@@ -77,7 +85,7 @@ fun WeatherInfoScreen(
                     mainState.updateWindowInset(true)
                     TopAppBarScreen(openDrawer) {
                         ErrorScreen(statefulFeature = (uiState as WeatherContentUiState.Error).state, reload = {
-                            viewModel.refresh()
+                            mainState.refresh()
                         })
                     }
                 }

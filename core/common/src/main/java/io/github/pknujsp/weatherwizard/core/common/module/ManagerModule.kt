@@ -28,9 +28,5 @@ object ManagerModule {
     fun providesAppAlarmManager(@ApplicationContext context: Context): AppAlarmManager = AppAlarmManagerImpl(context)
 
     @Provides
-    @Singleton
-    fun providesAppNetworkManager(@ApplicationContext context: Context): AppNetworkManager = AppNetworkManagerImpl(context)
-
-    @Provides
     fun providesWidgetManager(@ApplicationContext context: Context): WidgetManager = WidgetManagerImpl(context)
 }

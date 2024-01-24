@@ -75,7 +75,6 @@ fun WeatherContentScreen(
     navigate: (NestedWeatherRoutes) -> Unit,
     reload: () -> Unit,
     updateWeatherDataProvider: (WeatherProvider) -> Unit,
-    updateWindowInset: () -> Unit,
     uiState: WeatherContentUiState.Success,
     openDrawer: () -> Unit,
     topAppBarUiState: TopAppBarUiState,
@@ -85,12 +84,6 @@ fun WeatherContentScreen(
     var imageUrl by remember { mutableStateOf("") }
     val weather = uiState.weather
     var showAiSummary by remember { mutableStateOf(false) }
-
-    LaunchedEffect(imageUrl) {
-        if (imageUrl.isNotEmpty()) {
-            updateWindowInset()
-        }
-    }
 
     AsyncImage(
         modifier = Modifier.fillMaxSize(),

@@ -1,5 +1,6 @@
 package io.github.pknujsp.weatherwizard.feature.main
 
+import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Stable
@@ -61,10 +62,12 @@ fun rememberMainState(requestedRoutes: SharedFlow<MainRoutes>, navController: Na
 
     LaunchedEffect(Unit) {
         launch {
-            navController.currentBackStackEntryFlow.filter { it.destination.route != MainRoutes.Weather.route }.collectLatest {
+            navController.currentBackStackEntryFlow.collect {
+                Log.d("MainUiState", "currentBackStackEntry : $it")
+                val isLight = it.destination.route != MainRoutes.Weather.route
                 windowInsetsControllerCompat.run {
-                    isAppearanceLightStatusBars = true
-                    isAppearanceLightNavigationBars = true
+                    isAppearanceLightStatusBars = isLight
+                    isAppearanceLightNavigationBars = isLight
                 }
             }
         }
