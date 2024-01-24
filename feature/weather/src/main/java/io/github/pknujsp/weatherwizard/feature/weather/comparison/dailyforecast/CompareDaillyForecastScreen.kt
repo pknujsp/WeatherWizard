@@ -46,8 +46,8 @@ import io.github.pknujsp.weatherwizard.core.model.weather.dailyforecast.CompareD
 import io.github.pknujsp.weatherwizard.core.resource.R
 import io.github.pknujsp.weatherwizard.core.ui.TitleTextWithNavigation
 import io.github.pknujsp.weatherwizard.core.ui.lottie.CancellableLoadingScreen
-import io.github.pknujsp.weatherwizard.feature.weather.comparison.hourlyforecast.CommonForecastItemsScreen
-import io.github.pknujsp.weatherwizard.feature.weather.comparison.hourlyforecast.CompareForecastCard
+import io.github.pknujsp.weatherwizard.feature.weather.comparison.common.CommonForecastItemsScreen
+import io.github.pknujsp.weatherwizard.feature.weather.comparison.common.CompareForecastCard
 import io.github.pknujsp.weatherwizard.feature.weather.comparison.hourlyforecast.WeatherDataProviderInfo
 
 @Composable

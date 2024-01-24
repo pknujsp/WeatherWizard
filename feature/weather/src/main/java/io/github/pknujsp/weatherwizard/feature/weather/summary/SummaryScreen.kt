@@ -50,12 +50,12 @@ fun SummaryScreen(model: WeatherSummaryPrompt.Model, onDismiss: () -> Unit, summ
         val scrollState = rememberScrollState()
         val coroutineScope = rememberCoroutineScope()
 
-        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.TopStart) {
+        Box(modifier = Modifier.fillMaxSize()) {
             Column(modifier = Modifier
                 .fillMaxSize()
                 .verticalScroll(scrollState, true)) {
-                MarkdownText(modifier = Modifier.padding(bottom = 48.dp, start = 8.dp, end = 8.dp),
-                    style = TextStyle(color = Color.Black, fontSize = 15.sp),
+                MarkdownText(modifier = Modifier.padding(bottom = 48.dp, start = 12.dp, end = 12.dp),
+                    style = TextStyle(color = Color.Black, fontSize = 15.sp, lineHeight = 3.sp),
                     isTextSelectable = true,
                     markdown = if (uiState.error != null) stringResource(id = uiState.error!!) else uiState.summaryText,
                     linkifyMask = Linkify.WEB_URLS,
@@ -82,8 +82,7 @@ private fun BoxScope.SummarizingCard(modifier: Modifier = Modifier, uiState: Sum
     Box(modifier = modifier
         .padding(bottom = 8.dp)
         .align(Alignment.BottomCenter)) {
-        OutlinedButton(onClick = currentStopOrResume,
-            shape = AppShapes.extraLarge) {
+        OutlinedButton(onClick = currentStopOrResume, shape = AppShapes.extraLarge) {
             Row(
                 horizontalArrangement = Arrangement.spacedBy(6.dp, Alignment.CenterHorizontally),
                 verticalAlignment = Alignment.CenterVertically,

@@ -54,6 +54,7 @@ fun SimpleDailyForecastItem(simpleDailyForecast: SimpleDailyForecast) {
     LaunchedEffect(linePoints) {
         lazyListState.scrollToItem(0, 0)
     }
+
     LazyRow(
         modifier = Modifier
             .fillMaxWidth()
@@ -88,9 +89,7 @@ private fun Item(
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Text(text = date, style = TextStyle(fontSize = 13.sp, color = Color.White, textAlign = TextAlign.Center))
-            Row(modifier = Modifier
-                .padding(vertical = 8.dp, horizontal = 6.dp)
-                .fillMaxWidth(),
+            Row(modifier = Modifier.height(38.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween) {
                 weatherConditionIcons.forEach { icon ->
