@@ -73,7 +73,11 @@ fun WeatherInfoScreen(
             when (uiState) {
                 is WeatherContentUiState.Success -> {
                     WeatherContentScreen(mainState.scrollState, mainState.scrollBehavior, navigate = {
-                        mainState.navigate(it)
+                        if (mainState.networkState.isNetworkAvailable) {
+                            mainState.navigate(it)
+                        } else {
+                            viewModel.onUnavailableFeature(FeatureType.NETWORK)
+                        }
                     }, reload = {
                         mainState.refresh()
                     }, updateWeatherDataProvider = {
@@ -82,7 +86,6 @@ fun WeatherInfoScreen(
                 }
 
                 is WeatherContentUiState.Error -> {
-                    mainState.updateWindowInset(true)
                     TopAppBarScreen(openDrawer) {
                         ErrorScreen(statefulFeature = (uiState as WeatherContentUiState.Error).state, reload = {
                             mainState.refresh()

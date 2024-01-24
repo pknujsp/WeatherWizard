@@ -27,10 +27,11 @@ object NotificationIconGenerator {
 
     private val textPaint = TextPaint().apply {
         color = Color.BLACK
-        textSize = iconSize.height - 2f
-        typeface = android.graphics.Typeface.create("sans-serif-condensed", android.graphics.Typeface.NORMAL)
+        textSize = iconSize.height - 3f
+        typeface = android.graphics.Typeface.create("sans-serif-condensed", android.graphics.Typeface.BOLD)
         textAlign = Paint.Align.CENTER
         isAntiAlias = true
+        textScaleX = 0.95f
     }
 
     private fun createTemperatureIcon(temperature: String): IconCompat {
