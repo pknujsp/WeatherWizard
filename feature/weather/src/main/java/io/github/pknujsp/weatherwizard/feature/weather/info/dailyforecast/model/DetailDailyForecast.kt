@@ -1,7 +1,8 @@
-package io.github.pknujsp.weatherwizard.core.model.weather.dailyforecast
+package io.github.pknujsp.weatherwizard.feature.weather.info.dailyforecast.model
 
 import io.github.pknujsp.weatherwizard.core.model.UiModel
 import io.github.pknujsp.weatherwizard.core.model.settings.CurrentUnits
+import io.github.pknujsp.weatherwizard.core.model.weather.dailyforecast.DailyForecastEntity
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 

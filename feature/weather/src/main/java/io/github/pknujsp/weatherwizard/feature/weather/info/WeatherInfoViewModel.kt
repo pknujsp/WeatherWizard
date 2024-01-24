@@ -28,8 +28,8 @@ import io.github.pknujsp.weatherwizard.core.model.weather.common.MajorWeatherEnt
 import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherProvider
 import io.github.pknujsp.weatherwizard.core.model.weather.current.CurrentWeatherEntity
 import io.github.pknujsp.weatherwizard.core.model.weather.dailyforecast.DailyForecastEntity
-import io.github.pknujsp.weatherwizard.core.model.weather.dailyforecast.DetailDailyForecast
-import io.github.pknujsp.weatherwizard.core.model.weather.dailyforecast.SimpleDailyForecast
+import io.github.pknujsp.weatherwizard.feature.weather.info.dailyforecast.model.DetailDailyForecast
+import io.github.pknujsp.weatherwizard.feature.weather.info.dailyforecast.model.SimpleDailyForecast
 import io.github.pknujsp.weatherwizard.core.model.weather.hourlyforecast.HourlyForecastEntity
 import io.github.pknujsp.weatherwizard.core.model.weather.yesterday.YesterdayWeather
 import io.github.pknujsp.weatherwizard.core.model.weather.yesterday.YesterdayWeatherEntity

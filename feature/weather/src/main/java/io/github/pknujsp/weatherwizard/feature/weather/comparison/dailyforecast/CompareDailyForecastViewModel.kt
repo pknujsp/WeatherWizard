@@ -1,6 +1,5 @@
 package io.github.pknujsp.weatherwizard.feature.weather.comparison.dailyforecast
 
-import androidx.annotation.StringRes
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -16,7 +15,7 @@ import io.github.pknujsp.weatherwizard.core.model.weather.RequestWeatherArgument
 import io.github.pknujsp.weatherwizard.core.model.weather.common.MajorWeatherEntityType
 import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherConditionCategory
 import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherProvider
-import io.github.pknujsp.weatherwizard.core.model.weather.dailyforecast.CompareDailyForecast
+import io.github.pknujsp.weatherwizard.feature.weather.info.dailyforecast.model.CompareDailyForecast
 import io.github.pknujsp.weatherwizard.feature.weather.comparison.common.CompareForecastViewModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.MutableStateFlow

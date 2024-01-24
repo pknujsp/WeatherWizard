@@ -28,7 +28,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
-import io.github.pknujsp.weatherwizard.core.model.weather.dailyforecast.SimpleDailyForecast
+import io.github.pknujsp.weatherwizard.feature.weather.info.dailyforecast.model.SimpleDailyForecast
 import io.github.pknujsp.weatherwizard.core.ui.DrawInfo
 import io.github.pknujsp.weatherwizard.core.ui.MultiGraph
 import io.github.pknujsp.weatherwizard.core.ui.NewGraph

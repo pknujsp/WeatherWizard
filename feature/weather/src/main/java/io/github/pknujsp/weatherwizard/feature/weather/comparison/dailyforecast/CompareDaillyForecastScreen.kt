@@ -42,7 +42,7 @@ import io.github.pknujsp.weatherwizard.core.model.onLoading
 import io.github.pknujsp.weatherwizard.core.model.onSuccess
 import io.github.pknujsp.weatherwizard.core.model.weather.RequestWeatherArguments
 import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherConditionCategory
-import io.github.pknujsp.weatherwizard.core.model.weather.dailyforecast.CompareDailyForecast
+import io.github.pknujsp.weatherwizard.feature.weather.info.dailyforecast.model.CompareDailyForecast
 import io.github.pknujsp.weatherwizard.core.resource.R
 import io.github.pknujsp.weatherwizard.core.ui.TitleTextWithNavigation
 import io.github.pknujsp.weatherwizard.core.ui.lottie.CancellableLoadingScreen
