@@ -73,11 +73,14 @@ fun WeatherInfoScreen(
             when (uiState) {
                 is WeatherContentUiState.Success -> {
                     WeatherContentScreen(mainState.scrollState, mainState.scrollBehavior, navigate = {
-                        if (mainState.networkState.isNetworkAvailable) {
+                        if (it.isDependOnNetwork && mainState.networkState.isNetworkAvailable) {
+                            mainState.navigate(it)
+                        } else if (!it.isDependOnNetwork) {
                             mainState.navigate(it)
                         } else {
                             viewModel.onUnavailableFeature(FeatureType.NETWORK)
                         }
+
                     }, reload = {
                         mainState.refresh()
                     }, updateWeatherDataProvider = {

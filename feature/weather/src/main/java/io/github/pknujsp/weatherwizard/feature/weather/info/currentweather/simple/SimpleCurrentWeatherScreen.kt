@@ -63,12 +63,12 @@ fun CurrentWeatherScreen(current: CurrentWeather, yesterdayWeather: YesterdayWea
             Text(text = listOf(
                 AStyle(
                     current.temperature.value.toInt().toString(),
-                    span = SpanStyle(fontSize = 85.sp, color = textColor, letterSpacing = (-4).sp, fontWeight = FontWeight.Light),
+                    span = SpanStyle(fontSize = 80.sp, color = textColor, letterSpacing = (-5).sp, fontWeight = FontWeight.Light),
                 ),
                 AStyle(current.temperature.unit.symbol,
-                    span = SpanStyle(fontSize = 40.sp, color = textColor, fontWeight = FontWeight.Light)),
+                    span = SpanStyle(fontSize = 38.sp, color = textColor, fontWeight = FontWeight.Light)),
             ).toAnnotated(), modifier = Modifier.constrainAs(temp) {
-                absoluteLeft.linkTo(parent.absoluteLeft)
+                absoluteLeft.linkTo(icon.absoluteRight)
                 bottom.linkTo(yesterdayTemp.top)
             }, style = LocalTextStyle.current.merge(notIncludeTextPaddingStyle).merge(outlineTextStyle))
 
@@ -77,12 +77,12 @@ fun CurrentWeatherScreen(current: CurrentWeather, yesterdayWeather: YesterdayWea
                 AStyle("${stringResource(id = WeatherDataCategory.FEELS_LIKE_TEMPERATURE.stringId)} ",
                     span = SpanStyle(fontSize = 15.sp, color = textColor, fontWeight = FontWeight.Light)),
                 AStyle(current.feelsLikeTemperature.value.toInt().toString(),
-                    span = SpanStyle(fontSize = 26.sp, color = textColor, letterSpacing = (-2).sp, fontWeight = FontWeight.Light)),
+                    span = SpanStyle(fontSize = 27.sp, color = textColor, letterSpacing = (-3).sp, fontWeight = FontWeight.Light)),
                 AStyle(current.feelsLikeTemperature.unit.symbol,
                     span = SpanStyle(fontSize = 18.sp, color = textColor, fontWeight = FontWeight.Light)),
             ).toAnnotated(), modifier = Modifier.constrainAs(feelsLikeTemp) {
-                absoluteLeft.linkTo(temp.absoluteRight, 12.dp)
-                baseline.linkTo(temp.baseline)
+                absoluteRight.linkTo(parent.absoluteRight)
+                bottom.linkTo(parent.bottom)
             }, style = LocalTextStyle.current.merge(notIncludeTextPaddingStyle).merge(outlineTextStyle))
 
             // yesterday temperature
@@ -108,10 +108,10 @@ fun CurrentWeatherScreen(current: CurrentWeather, yesterdayWeather: YesterdayWea
                     id = io.github.pknujsp.weatherwizard.core.resource.R.string.weather_icon_description,
                 ),
                 modifier = Modifier
-                    .size(90.dp)
+                    .size(100.dp)
                     .constrainAs(icon) {
-                        absoluteRight.linkTo(parent.absoluteRight)
-                        bottom.linkTo(condition.top, 12.dp)
+                        absoluteLeft.linkTo(parent.absoluteLeft)
+                        bottom.linkTo(temp.bottom)
                     },
             )
 
@@ -119,8 +119,8 @@ fun CurrentWeatherScreen(current: CurrentWeather, yesterdayWeather: YesterdayWea
             Text(
                 text = stringResource(current.weatherCondition.value.stringRes),
                 modifier = Modifier.constrainAs(condition) {
-                    absoluteRight.linkTo(parent.absoluteRight)
-                    bottom.linkTo(parent.bottom)
+                    absoluteLeft.linkTo(temp.absoluteLeft)
+                    bottom.linkTo(temp.top)
                 },
                 style = TextStyle(fontSize = 27.sp, color = textColor, fontWeight = FontWeight.Medium).merge(outlineTextStyle)
                     .merge(notIncludeTextPaddingStyle),
