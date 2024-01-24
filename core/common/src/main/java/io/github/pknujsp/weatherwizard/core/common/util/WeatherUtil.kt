@@ -1,30 +1,89 @@
 package io.github.pknujsp.weatherwizard.core.common.util
 
+
 import kotlin.math.abs
 import kotlin.math.atan
 import kotlin.math.pow
 
-class WeatherUtil {
-    fun calcFeelsLikeTemperature(celsiusTemperature: Double, kmPerHWindSpeed: Double, humidity: Double): Double {
-        return if (celsiusTemperature < 11.0) {
-            /*
-                 - 겨울 체감온도 = 13.12 + 0.6215T - 11.37 V0.16 + 0.3965 V0.16T
-                 * T : 기온(℃), V : 풍속(km/h)
-                  */
-            if (kmPerHWindSpeed <= 4.68) {
-                celsiusTemperature
-            } else {
-                13.12 + 0.6215 * celsiusTemperature - 11.37 * kmPerHWindSpeed.pow(0.16) + 0.3965 * kmPerHWindSpeed.pow(0.16) * celsiusTemperature
-            }
-        } else {
-            /*
-                 - 여름 체감온도 = -0.2442 + 0.55399Tw + 0.45535Ta – 0.0022Tw2 + 0.00278TwTa + 3.5
-                 * Tw = Ta * ATAN[0.151977(RH+8.313659)1/2] + ATAN(Ta+RH) - ATAN(RH-1.67633) + 0.00391838 * RH * 3/2 * ATAN(0.023101RH) - 4.686035
-                 ** Ta : 기온(℃), Tw : 습구온도(Stull의 추정식** 이용), RH : 상대습도(%)
-                  */
-            val tw = celsiusTemperature * atan(abs(0.151977 * (humidity + 8.313659).pow(0.5))) + atan(celsiusTemperature + humidity)
-            -atan(humidity - 1.67633) + 0.00391838 * humidity.pow(1.5) * atan(0.023101 * humidity) - 4.686035
-            -0.2442 + 0.55399 * tw + 0.45535 * celsiusTemperature - 0.0022 * tw.pow(2.0) + 0.00278 * tw * celsiusTemperature + 3.5
-        }
+/**
+ * 이 객체는 "체감 온도"를 계산하기 위한 유틸리티 함수를 제공합니다.
+ */
+object FeelsLikeTemperatureCalculator {
+    // 바람 냉기 공식에 대한 상수
+    private const val WIND_CHILL_CONSTANT_A = 13.12
+    private const val WIND_CHILL_CONSTANT_B = 0.6215
+    private const val WIND_CHILL_CONSTANT_C = -11.37
+    private const val WIND_CHILL_CONSTANT_D = 0.3965
+
+    // 열 지수 공식에 대한 상수
+    private const val HEAT_INDEX_CONSTANT_A = -8.78469475556
+    private const val HEAT_INDEX_CONSTANT_B = 1.61139411
+    private const val HEAT_INDEX_CONSTANT_C = 2.33854883889
+    private const val HEAT_INDEX_CONSTANT_D = -0.14611605
+    private const val HEAT_INDEX_CONSTANT_E = -0.012308094
+    private const val HEAT_INDEX_CONSTANT_F = -0.0164248277778
+    private const val HEAT_INDEX_CONSTANT_G = 0.002211732
+    private const val HEAT_INDEX_CONSTANT_H = 0.00072546
+    private const val HEAT_INDEX_CONSTANT_I = -0.000003582
+    private const val HEAT_INDEX_THRESHOLD_TEMPERATURE = 27.0
+
+    /**
+     * 이 함수는 주어진 매개변수를 기반으로 바람 냉기 온도를 계산합니다.
+     *
+     * @param temperatureInCelsius 실제 온도(섭씨).
+     * @param windSpeedInKmh 풍속(시간당 킬로미터).
+     * @return 바람 냉기 온도(섭씨).
+     */
+    private fun calculateWindChillTemperature(
+        temperatureInCelsius: Double, windSpeedInKmh: Double
+    ): Double {
+        return WIND_CHILL_CONSTANT_A + (WIND_CHILL_CONSTANT_B * temperatureInCelsius) - (WIND_CHILL_CONSTANT_C * windSpeedInKmh.pow(
+            0.16
+        )) + (WIND_CHILL_CONSTANT_D * temperatureInCelsius * windSpeedInKmh.pow(
+            0.16
+        ))
+    }
+
+    /**
+     * 이 함수는 주어진 매개변수를 기반으로 열 지수 온도를 계산합니다.
+     *
+     * @param temperatureInCelsius 실제 온도(섭씨).
+     * @param relativeHumidity 상대 습도(%).
+     * @return 열 지수 온도(섭씨).
+     */
+    private fun calculateHeatIndexTemperature(
+        temperatureInCelsius: Double, relativeHumidity: Double
+    ): Double {
+        // 열 지수 공식에 대한 중간 계산
+        val temperatureSquared = temperatureInCelsius * temperatureInCelsius
+        val humiditySquared = relativeHumidity * relativeHumidity
+        val tempHumidityProduct = temperatureInCelsius * relativeHumidity
+        val tempSquaredHumidityProduct = temperatureSquared * relativeHumidity
+        val tempHumiditySquaredProduct = temperatureInCelsius * humiditySquared
+
+        // 열 지수 공식 적용
+        var heatIndex =
+            HEAT_INDEX_CONSTANT_A + (HEAT_INDEX_CONSTANT_B * temperatureInCelsius) + (HEAT_INDEX_CONSTANT_C * relativeHumidity)
+        heatIndex += (HEAT_INDEX_CONSTANT_D * tempHumidityProduct) + (HEAT_INDEX_CONSTANT_E * temperatureSquared)
+        heatIndex += (HEAT_INDEX_CONSTANT_F * humiditySquared) + (HEAT_INDEX_CONSTANT_G * tempSquaredHumidityProduct)
+        heatIndex += (HEAT_INDEX_CONSTANT_H * tempHumiditySquaredProduct) + (HEAT_INDEX_CONSTANT_I * temperatureSquared * humiditySquared)
+        return heatIndex
+    }
+
+    /**
+     * 이 함수는 주어진 매개변수를 기반으로 "체감 온도"를 계산합니다.
+     * 높은 온도에 대해 열 지수 공식을 사용하고, 낮은 온도에 대해 바람 냉기 공식을 사용합니다.
+     *
+     * @param temperatureInCelsius 실제 온도(섭씨).
+     * @param windSpeedInKmh 풍속(시간당 킬로미터).
+     * @param relativeHumidity 상대 습도(%).
+     * @return "체감 온도"(섭씨).
+     */
+    fun calculateFeelsLikeTemperature(
+        temperatureInCelsius: Double, windSpeedInKmh: Double, relativeHumidity: Double
+    ) = if (temperatureInCelsius >= HEAT_INDEX_THRESHOLD_TEMPERATURE) {
+        calculateHeatIndexTemperature(temperatureInCelsius, relativeHumidity)
+    } else {
+        calculateWindChillTemperature(temperatureInCelsius, windSpeedInKmh)
     }
 }

@@ -18,11 +18,13 @@ plugins {
 }
 
 
+/*
 gradle.allprojects {
     tasks.withType<JavaCompile>().configureEach {
         options.compilerArgs = options.compilerArgs + "-Xmaxerrs" + "5000"
     }
 }
+*/
 
 
 subprojects {

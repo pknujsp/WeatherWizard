@@ -1,6 +1,6 @@
 package io.github.pknujsp.weatherwizard.core.network.api.metnorway.parser
 
-import io.github.pknujsp.weatherwizard.core.common.util.WeatherUtil
+import io.github.pknujsp.weatherwizard.core.common.util.FeelsLikeTemperatureCalculator
 import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherConditionCategory
 import io.github.pknujsp.weatherwizard.core.network.api.metnorway.MetNorwayResponse
 import io.github.pknujsp.weatherwizard.core.network.api.metnorway.response.MetNorwayCurrentWeatherResponse
@@ -10,7 +10,7 @@ import io.github.pknujsp.weatherwizard.core.network.api.metnorway.response.MetNo
 
 internal object MetNorwayParser {
 
-    private val weatherUtil = WeatherUtil()
+    private val weatherUtil = FeelsLikeTemperatureCalculator
 
     private val symbolsMap = mapOf(
         "clearsky" to WeatherConditionCategory.Clear,
@@ -56,9 +56,11 @@ internal object MetNorwayParser {
         "snowshowersandthunder" to WeatherConditionCategory.Snow,
     )
 
-    fun MetNorwayResponse.toCurrentWeather(): MetNorwayCurrentWeatherResponse = MetNorwayCurrentWeatherResponse(this, symbolsMap)
+    fun MetNorwayResponse.toCurrentWeather(): MetNorwayCurrentWeatherResponse =
+        MetNorwayCurrentWeatherResponse(this, symbolsMap)
 
-    fun MetNorwayResponse.toHourlyForecast() = MetNorwayHourlyForecastResponse(this, weatherUtil, symbolsMap)
+    fun MetNorwayResponse.toHourlyForecast() =
+        MetNorwayHourlyForecastResponse(this, weatherUtil, symbolsMap)
 
     fun MetNorwayResponse.toDailyForecast() = MetNorwayDailyForecastResponse(this, symbolsMap)
 
