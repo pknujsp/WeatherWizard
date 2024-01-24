@@ -6,6 +6,7 @@ import android.location.Location
 import android.location.LocationManager
 import com.google.android.gms.location.CurrentLocationRequest
 import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LastLocationRequest
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
 import com.google.android.gms.tasks.CancellationTokenSource
@@ -59,10 +60,12 @@ internal class AppLocationManagerImpl(private val context: Context) : AppLocatio
 
     @SuppressLint("MissingPermission")
     private suspend fun getLastLocation(): Location? = suspendCancellableCoroutine { continuation ->
-        fusedLocationProvider.lastLocation.result?.run {
-            continuation.resume(this)
-        } ?: run {
-            continuation.resume(null)
+        fusedLocationProvider.getLastLocation(LastLocationRequest.Builder().build()).addOnCompleteListener { result ->
+            if (result.isSuccessful) {
+                continuation.resume(result.result ?: null)
+            } else {
+                continuation.resume(null)
+            }
         }
     }
 }

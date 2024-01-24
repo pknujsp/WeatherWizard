@@ -2,6 +2,7 @@ package io.github.pknujsp.weatherwizard.feature.componentservice.notification.on
 
 import android.app.PendingIntent
 import android.content.Context
+import android.util.Log
 import androidx.hilt.work.HiltWorker
 import androidx.work.WorkerParameters
 import dagger.assisted.Assisted
@@ -49,7 +50,9 @@ class OngoingNotificationCoroutineService @AssistedInject constructor(
     }
 
     override suspend fun doWork(context: Context, argument: OngoingNotificationServiceArgument): Result {
+        appNotificationManager.notifyLoadingNotification(NotificationType.ONGOING, context)
         start(context, argument)
+        Log.d("OngoingNotificationCoroutineService", "doWork")
         return Result.success()
     }
 
@@ -57,7 +60,6 @@ class OngoingNotificationCoroutineService @AssistedInject constructor(
         if (!checkFeatureStateAndNotify(requiredFeatures, context)) {
             return
         }
-
         val notificationEntity = remoteViewsModel.loadNotification()
 
         if (notificationEntity.location.locationType is LocationType.CurrentLocation && !checkFeatureStateAndNotify(arrayOf(FeatureType.LOCATION_PERMISSION,
@@ -66,9 +68,8 @@ class OngoingNotificationCoroutineService @AssistedInject constructor(
             return
         }
 
-        appNotificationManager.notifyLoadingNotification(NotificationType.ONGOING, context)
         val uiState = remoteViewsModel.load(notificationEntity)
-
+        Log.d("OngoingNotificationCoroutineService", "uiState: $uiState")
         val notificationState = if (uiState.isSuccessful) {
             val uiModelMapper = RemoteViewUiModelMapperManager.getByOngoingNotificationType(uiState.notificationType)
 

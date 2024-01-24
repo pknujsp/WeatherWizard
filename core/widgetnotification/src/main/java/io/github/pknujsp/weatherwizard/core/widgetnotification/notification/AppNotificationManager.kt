@@ -54,6 +54,7 @@ class AppNotificationManager(context: Context) {
             setOngoing(isOngoing)
             setSilent(notificationType.silent)
             setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+            setWhen(System.currentTimeMillis())
             priority = notificationType.priority
         }
     }
