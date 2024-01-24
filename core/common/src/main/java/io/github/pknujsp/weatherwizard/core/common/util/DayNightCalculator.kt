@@ -8,9 +8,7 @@ import java.util.TimeZone
 
 class DayNightCalculator(latitude: Double, longitude: Double, timeZone: TimeZone = TimeZone.getDefault()) {
 
-    private val calculator = SunriseSunsetCalculator(
-        Location(latitude, longitude), timeZone
-    )
+    private val calculator = SunriseSunsetCalculator(Location(latitude, longitude), timeZone)
 
     private val calendarCacheMap = mutableMapOf<Triple<Int, Int, Int>, Pair<Calendar, Calendar>>()
 
@@ -23,11 +21,11 @@ class DayNightCalculator(latitude: Double, longitude: Double, timeZone: TimeZone
         return if (sunRise.before(currentCalendar) and sunSet.after(currentCalendar)) DayNight.DAY else DayNight.NIGHT
     }
 
-    fun getSunRiseTime(currentCalendar: Calendar): Calendar {
+    private fun getSunRiseTime(currentCalendar: Calendar): Calendar {
         return calculator.getOfficialSunriseCalendarForDate(currentCalendar)
     }
 
-    fun getSunSetTime(currentCalendar: Calendar): Calendar {
+    private fun getSunSetTime(currentCalendar: Calendar): Calendar {
         return calculator.getOfficialSunsetCalendarForDate(currentCalendar)
     }
 
@@ -54,12 +52,20 @@ class DayNightCalculator(latitude: Double, longitude: Double, timeZone: TimeZone
         val secondTime = if (first == SunSetRise.SUN_RISE) {
             getSunSetTime(currentCalendar).toZonedDateTime()
         } else {
-            getSunRiseTime(currentCalendar.run { if (changedDate) this else (clone() as Calendar).apply { add(Calendar.DATE, 1) } })
-                .toZonedDateTime()
+            getSunRiseTime(currentCalendar.run {
+                if (changedDate) this else (clone() as Calendar).apply {
+                    add(Calendar.DATE,
+                        1)
+                }
+            }).toZonedDateTime()
         }
         val thirdTime = if (second == SunSetRise.SUN_RISE) {
-            getSunSetTime(currentCalendar.run { if (changedDate) this else (clone() as Calendar).apply { add(Calendar.DATE, 1) } })
-                .toZonedDateTime()
+            getSunSetTime(currentCalendar.run {
+                if (changedDate) this else (clone() as Calendar).apply {
+                    add(Calendar.DATE,
+                        1)
+                }
+            }).toZonedDateTime()
         } else {
             getSunRiseTime(currentCalendar.run { (clone() as Calendar).apply { add(Calendar.DATE, 1) } }).toZonedDateTime()
         }

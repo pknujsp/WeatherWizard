@@ -44,14 +44,16 @@ class AppWidgetAutoRefreshScheduler(private val widgetManager: WidgetManager) : 
             REQUEST_CODE,
             actionString = AppComponentServiceReceiver.ACTION_AUTO_REFRESH)
         appAlarmManager.scheduleRepeat(refreshInterval.interval, pendingIntent.pendingIntent!!)
+
+        Log.d("AppWidgetAutoRefreshScheduler", "scheduleWidgetAutoRefresh")
     }
 
     override fun unScheduleAutoRefresh(context: Context, appAlarmManager: AppAlarmManager) {
         val scheduleState = getScheduleState(context)
-        Log.d("AppWidgetAutoRefreshScheduler", "unScheduleAutoRefresh: $scheduleState")
         if (scheduleState is AppAlarmManager.ScheduledState.Scheduled) {
             appAlarmManager.unschedule(scheduleState.pendingIntent)
             scheduleState.pendingIntent.cancel()
+            Log.d("AppWidgetAutoRefreshScheduler", "unScheduleWidgetAutoRefresh")
         }
     }
 }

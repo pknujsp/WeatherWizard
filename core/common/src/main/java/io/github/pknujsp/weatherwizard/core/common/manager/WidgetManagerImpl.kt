@@ -31,12 +31,10 @@ class WidgetManagerImpl(context: Context) : WidgetManager {
         return info != null
     }
 
-    private fun getDialogPendingIntent(context: Context, activityCls: KClass<*>) = PendingIntent.getActivity(context,
-        activityCls.hashCode(),
-        Intent(context, activityCls.java).apply {
+    private fun getDialogPendingIntent(context: Context, activityCls: KClass<*>) =
+        PendingIntent.getActivity(context, activityCls.hashCode(), Intent(context, activityCls.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK
-        },
-        PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
+        }, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
 }
 
 interface WidgetManager {

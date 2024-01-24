@@ -32,6 +32,5 @@ object ManagerModule {
     fun providesAppNetworkManager(@ApplicationContext context: Context): AppNetworkManager = AppNetworkManagerImpl(context)
 
     @Provides
-    @Singleton
     fun providesWidgetManager(@ApplicationContext context: Context): WidgetManager = WidgetManagerImpl(context)
 }

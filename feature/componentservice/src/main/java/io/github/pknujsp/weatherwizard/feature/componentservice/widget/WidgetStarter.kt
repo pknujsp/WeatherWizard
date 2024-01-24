@@ -30,13 +30,13 @@ class WidgetStarterImpl(
         }
 
         widgetManager.getProviderByWidgetId(installedWidgetIds.first())?.let { widgetProvider ->
-            // 위젯 뷰 새로고침, 데이터 업데이트 X
-            val intent = Intent().apply {
+            // 위젯 뷰 새로고침
+            Intent().apply {
                 action = AppWidgetManager.ACTION_APPWIDGET_UPDATE
                 component = widgetProvider
                 putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, installedWidgetIds.toIntArray())
+                context.sendBroadcast(this)
             }
-            context.sendBroadcast(intent)
 
             // 위젯 자동 업데이트 예약
             val refreshInterval = settingsRepository.settings.replayCache.last().widgetAutoRefreshInterval

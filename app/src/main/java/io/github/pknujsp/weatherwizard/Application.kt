@@ -17,7 +17,6 @@ import javax.inject.Named
 @HiltAndroidApp
 class Application : Application(), Configuration.Provider {
     @Inject lateinit var workerFactory: HiltWorkerFactory
-
     @Inject @Named(RepositoryInitializerModule.SETTINGS_REPOSITORY) lateinit var settingsRepository: RepositoryInitializer
     @Inject @CoDispatcher(CoDispatcherType.IO) lateinit var ioDispatcher: CoroutineDispatcher
 

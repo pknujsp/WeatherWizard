@@ -24,7 +24,6 @@ object UtilsModule {
         allowSpecialFloatingPointValues = true
     }
 
-
 }
 
 @Qualifier

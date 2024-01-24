@@ -27,6 +27,7 @@ class AppNotificationManager(context: Context) {
             setClassName(packageName, className)
             flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
         }
+        const val MAIN_ACTIVITY_REQUEST_CODE = 235634623
     }
 
     private fun createNotificationChannel(context: Context, notificationType: NotificationType) {
@@ -83,7 +84,7 @@ class AppNotificationManager(context: Context) {
                 setSmallIcon(R.drawable.weatherwizard_icon_logo)
             }
             setContentIntent(PendingIntent.getActivity(context,
-                this@AppNotificationManager::class.simpleName.hashCode(),
+                MAIN_ACTIVITY_REQUEST_CODE,
                 mainActivityIntent,
                 PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE))
             setStyle(NotificationCompat.DecoratedCustomViewStyle())
