@@ -11,7 +11,7 @@ mapsforge = "0.20.0"
 google_generativeai = "0.1.2"
 compose_markdown = "0.4.1"
 
-android_gradle_plugin = "8.2.1"
+android_gradle_plugin = "8.2.2"
 android_desugar_jdk_libs = "2.0.4"
 
 androidx_collection = "1.3.0"
