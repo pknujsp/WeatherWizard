@@ -17,11 +17,10 @@ internal class AppNetworkManagerImpl(context: Context) : AppNetworkManager {
 
     override fun unregisterNetworkCallback() {
         networkCallback?.run { connectivityManager.unregisterNetworkCallback(this) }
+        networkCallback = null
     }
 
-    override fun isNetworkAvailable(): Boolean = connectivityManager.getNetworkCapabilities(connectivityManager.activeNetwork)?.run {
-        hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
-    } ?: false
+    override fun isNetworkAvailable(): Boolean = connectivityManager.activeNetwork != null
 
 }
 
