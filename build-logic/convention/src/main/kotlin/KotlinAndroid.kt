@@ -17,7 +17,7 @@ fun Project.configureKotlinAndroid(
             testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         }
 
-        viewBinding.enable = true
+        // viewBinding.enable = true
 
         compileOptions {
             sourceCompatibility = SharedProperty.javaCompatibility

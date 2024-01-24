@@ -3,7 +3,7 @@ package io.github.pknujsp.weatherwizard.core.widgetnotification.widget.worker.mo
 import io.github.pknujsp.weatherwizard.core.data.widget.WidgetResponseDBModel
 import io.github.pknujsp.weatherwizard.core.data.widget.WidgetSettingsEntity
 import io.github.pknujsp.weatherwizard.core.domain.weather.WeatherResponseEntity
-import io.github.pknujsp.weatherwizard.core.model.JsonParser
+import io.github.pknujsp.weatherwizard.core.data.mapper.JsonParser
 import io.github.pknujsp.weatherwizard.core.model.airquality.AirQualityEntity
 import io.github.pknujsp.weatherwizard.core.model.remoteviews.RemoteViewUiState
 import io.github.pknujsp.weatherwizard.core.model.weather.base.WeatherEntityModel

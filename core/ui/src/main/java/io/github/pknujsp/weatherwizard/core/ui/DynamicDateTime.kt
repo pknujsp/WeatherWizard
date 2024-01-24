@@ -17,24 +17,24 @@ import androidx.compose.ui.text.drawText
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import io.github.pknujsp.weatherwizard.core.model.weather.hourlyforecast.SimpleHourlyForecast
 
 private val textSize = 12.sp
-val textColor = Color.White
+private val textColor = Color.White
 private val space = 2.dp
 
 @Composable
 fun DynamicDateTime(
-    dateTimeInfo: SimpleHourlyForecast.DateTimeInfo, lazyListState: LazyListState
+    dateTimeInfo: DateTimeInfo, lazyListState: LazyListState
 ) {
     DateTime(dateTimeInfo, lazyListState)
 }
 
 @Composable
 private fun DateTime(
-    dateTimeInfo: SimpleHourlyForecast.DateTimeInfo, lazyListState: LazyListState, density: Density = LocalDensity.current
+    dateTimeInfo: DateTimeInfo, lazyListState: LazyListState, density: Density = LocalDensity.current
 ) {
     val textMeasurer = rememberTextMeasurer()
     val textStyle = remember {
@@ -45,7 +45,7 @@ private fun DateTime(
     }
     val columnWidthPx = remember {
         with(density) {
-            SimpleHourlyForecast.itemWidth.toPx().toInt()
+            dateTimeInfo.itemWidth.toPx().toInt()
         }
     }
     val height by remember(textLayoutResult) {
@@ -82,5 +82,12 @@ private fun DateTime(
                 textColor,
                 Offset((dateValue.displayX - amountX).toFloat(), y))
         }
+    }
+}
+
+class DateTimeInfo(val items: List<Item>, val firstItemX: Int, val itemWidth: Dp) {
+    class Item(val beginX: Int, val date: String) {
+        var endX: Int = 0
+        var displayX: Int = beginX
     }
 }

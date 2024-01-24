@@ -9,11 +9,10 @@ import java.time.Duration
 object WidgetViewCacheManagerFactory {
     @Volatile private var cacheManager: CacheManager<Int, RemoteViews>? = null
 
-    fun getInstance(dispatcher: CoroutineDispatcher): CacheManager<Int, RemoteViews> {
-        return synchronized(this) {
-            cacheManager ?: CacheManagerImpl<Int, RemoteViews>(cacheExpiryTime = Duration.ofSeconds(30), dispatcher = dispatcher).also {
-                cacheManager = it
-            }
+    fun getInstance(dispatcher: CoroutineDispatcher): CacheManager<Int, RemoteViews> = synchronized(this) {
+        cacheManager ?: CacheManagerImpl<Int, RemoteViews>(cacheExpiryTime = Duration.ofSeconds(30), dispatcher = dispatcher).also {
+            cacheManager = it
         }
     }
+
 }

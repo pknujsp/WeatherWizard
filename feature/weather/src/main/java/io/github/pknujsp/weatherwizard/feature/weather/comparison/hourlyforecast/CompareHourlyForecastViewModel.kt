@@ -16,12 +16,12 @@ import io.github.pknujsp.weatherwizard.core.model.UiState
 import io.github.pknujsp.weatherwizard.core.model.weather.RequestWeatherArguments
 import io.github.pknujsp.weatherwizard.core.model.weather.common.MajorWeatherEntityType
 import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherProvider
-import io.github.pknujsp.weatherwizard.core.model.weather.hourlyforecast.CompareHourlyForecast
-import io.github.pknujsp.weatherwizard.core.model.weather.hourlyforecast.HourlyForecastComparisonReport
-import io.github.pknujsp.weatherwizard.core.model.weather.hourlyforecast.SimpleHourlyForecast
 import io.github.pknujsp.weatherwizard.core.model.weather.hourlyforecast.ToCompareHourlyForecastEntity
+import io.github.pknujsp.weatherwizard.core.ui.DateTimeInfo
 import io.github.pknujsp.weatherwizard.core.ui.weather.item.DynamicDateTimeUiCreator
 import io.github.pknujsp.weatherwizard.feature.weather.comparison.common.CompareForecastViewModel
+import io.github.pknujsp.weatherwizard.feature.weather.info.hourlyforecast.model.CompareHourlyForecast
+import io.github.pknujsp.weatherwizard.feature.weather.info.hourlyforecast.model.HourlyForecastComparisonReport
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -119,7 +119,7 @@ class CompareHourlyForecastViewModel @Inject constructor(
 
 @Stable
 class CompareHourlyForecastInfo(
-    items: List<Pair<WeatherProvider, CompareHourlyForecast>>, val dateTimeInfo: SimpleHourlyForecast.DateTimeInfo
+    items: List<Pair<WeatherProvider, CompareHourlyForecast>>, val dateTimeInfo: DateTimeInfo
 ) {
     val weatherDataProviders = items.map { it.first }.toTypedArray()
 

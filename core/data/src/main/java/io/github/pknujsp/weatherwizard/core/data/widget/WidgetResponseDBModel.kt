@@ -1,7 +1,7 @@
 package io.github.pknujsp.weatherwizard.core.data.widget
 
 import io.github.pknujsp.weatherwizard.core.model.EntityModel
-import io.github.pknujsp.weatherwizard.core.model.JsonParser
+import io.github.pknujsp.weatherwizard.core.data.mapper.JsonParser
 import io.github.pknujsp.weatherwizard.core.model.airquality.AirQualityEntity
 import io.github.pknujsp.weatherwizard.core.model.weather.base.WeatherEntityModel
 import io.github.pknujsp.weatherwizard.core.model.weather.common.MajorWeatherEntityType

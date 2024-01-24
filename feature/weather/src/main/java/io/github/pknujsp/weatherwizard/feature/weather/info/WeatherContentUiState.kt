@@ -27,11 +27,11 @@ import io.github.pknujsp.weatherwizard.core.common.asActivity
 import io.github.pknujsp.weatherwizard.core.model.flickr.FlickrRequestParameters
 import io.github.pknujsp.weatherwizard.core.model.settings.CurrentUnits
 import io.github.pknujsp.weatherwizard.core.model.weather.RequestWeatherArguments
-import io.github.pknujsp.weatherwizard.core.model.weather.current.CurrentWeather
+import io.github.pknujsp.weatherwizard.feature.weather.info.currentweather.model.CurrentWeather
 import io.github.pknujsp.weatherwizard.core.model.weather.dailyforecast.DetailDailyForecast
 import io.github.pknujsp.weatherwizard.core.model.weather.dailyforecast.SimpleDailyForecast
-import io.github.pknujsp.weatherwizard.core.model.weather.hourlyforecast.DetailHourlyForecast
-import io.github.pknujsp.weatherwizard.core.model.weather.hourlyforecast.SimpleHourlyForecast
+import io.github.pknujsp.weatherwizard.feature.weather.info.hourlyforecast.model.DetailHourlyForecast
+import io.github.pknujsp.weatherwizard.feature.weather.info.hourlyforecast.model.SimpleHourlyForecast
 import io.github.pknujsp.weatherwizard.core.model.weather.yesterday.YesterdayWeather
 import io.github.pknujsp.weatherwizard.feature.weather.route.NestedWeatherRoutes
 import io.github.pknujsp.weatherwizard.feature.weather.summary.WeatherSummaryPrompt

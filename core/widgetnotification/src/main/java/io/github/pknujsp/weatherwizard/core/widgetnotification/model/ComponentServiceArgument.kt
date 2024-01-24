@@ -7,20 +7,24 @@ import kotlin.reflect.full.primaryConstructor
 
 abstract class ComponentServiceArgument {
 
+    private companion object {
+        const val KEY = "KEY"
+    }
+
     private val parametersInConstructor = this::class.primaryConstructor!!.parameters.map { it.name!! }.toSet()
 
     fun toMap() = this::class.declaredMemberProperties.filter { it.name in parametersInConstructor }.associate {
         it.name to it.getter.call(this)!!
-    }.plus("KEY" to this::class.simpleName!!)
+    }.plus(KEY to this::class.simpleName!!)
 
     fun toBundle() = bundleOf(*this@ComponentServiceArgument::class.declaredMemberProperties.filter {
         it.name in parametersInConstructor
-    }.map { it.name to it.getter.call(this)!! }.plus("KEY" to this::class.simpleName!!).toTypedArray())
+    }.map { it.name to it.getter.call(this)!! }.plus(KEY to this::class.simpleName!!).toTypedArray())
 }
 
 class OngoingNotificationServiceArgument : ComponentServiceArgument()
 
-class DailyNotificationServiceArgument(
+data class DailyNotificationServiceArgument(
     val notificationId: Long
 ) : ComponentServiceArgument()
 
@@ -28,9 +32,10 @@ class DailyNotificationServiceArgument(
 data class WidgetUpdatedArgument(
     val action: Int, val widgetIds: Array<Int> = emptyArray(),
 ) : ComponentServiceArgument() {
+
     companion object {
-        const val UPDATE_ALL = 0
-        const val UPDATE_ONLY_SPECIFIC_WIDGETS = 1
+        const val DRAW = 0
+        const val DRAW_ALL = 1
         const val DELETE = 2
     }
 

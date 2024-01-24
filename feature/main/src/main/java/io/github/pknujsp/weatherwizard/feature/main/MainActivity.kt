@@ -29,7 +29,7 @@ class MainActivity : ComponentActivity() {
 
     private val viewModel: ActivityViewModel by viewModels()
 
-    @Inject @CoDispatcher(CoDispatcherType.MULTIPLE) lateinit var dispatcher: CoroutineDispatcher
+    @Inject @CoDispatcher(CoDispatcherType.IO) lateinit var dispatcher: CoroutineDispatcher
     @Inject lateinit var widgetStarter: WidgetStarter
 
     override fun onCreate(savedInstanceState: Bundle?) {

@@ -26,7 +26,6 @@ import kotlin.coroutines.coroutineContext
 interface IWorker {
     val name: String
     val requiredFeatures: Array<FeatureType>
-    val workerId: Int
 }
 
 
@@ -79,9 +78,9 @@ abstract class AppComponentCoroutineService<T : ComponentServiceArgument>(
     private fun createForegroundInfo(): ForegroundInfo {
         val notification = appNotificationManager.createForegroundNotification(context, NotificationType.WORKING)
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            ForegroundInfo(iWorker.workerId, notification, ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION)
+            ForegroundInfo(10, notification, ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION)
         } else {
-            ForegroundInfo(iWorker.workerId, notification)
+            ForegroundInfo(10, notification)
         }
     }
 

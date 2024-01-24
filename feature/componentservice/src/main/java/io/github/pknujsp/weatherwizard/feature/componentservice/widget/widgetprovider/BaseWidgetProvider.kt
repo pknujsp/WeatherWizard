@@ -30,15 +30,13 @@ abstract class BaseWidgetProvider : AppWidgetProvider() {
     @Inject @CoDispatcher(CoDispatcherType.IO) lateinit var dispatcher: CoroutineDispatcher
 
     companion object {
-        private const val FAKE_WORK_NAME = "always_pending_work"
         private val globalScope get() = GlobalScope
-        private val specialActions = setOf(Intent.ACTION_BOOT_COMPLETED)
     }
 
     override fun onUpdate(context: Context, appWidgetManager: AppWidgetManager, appWidgetIds: IntArray) {
         if (appWidgetIds.isNotEmpty()) {
             Log.d("WidgetProvider", "onUpdate: ${appWidgetIds.contentToString()}")
-            launchWork(WidgetUpdatedArgument(WidgetUpdatedArgument.UPDATE_ONLY_SPECIFIC_WIDGETS, appWidgetIds.toTypedArray()))
+            launchWork(WidgetUpdatedArgument(WidgetUpdatedArgument.DRAW, appWidgetIds.toTypedArray()))
         }
     }
 
@@ -50,26 +48,26 @@ abstract class BaseWidgetProvider : AppWidgetProvider() {
     }
 
     override fun onEnabled(context: Context) {
-        val alwaysPendingWork = OneTimeWorkRequestBuilder<FakeWorker>().setInitialDelay(5000L, TimeUnit.DAYS).build()
-        WorkManager.getInstance(context).enqueueUniqueWork(FAKE_WORK_NAME, ExistingWorkPolicy.KEEP, alwaysPendingWork)
+        Log.d("WidgetProvider", "onEnabled")
+        WorkManager.getInstance(context).enqueueFakeWork()
     }
 
     override fun onDisabled(context: Context) {
-        WorkManager.getInstance(context).cancelUniqueWork(FAKE_WORK_NAME)
+        Log.d("WidgetProvider", "onDisabled")
+        WorkManager.getInstance(context).cancelFakeWork()
     }
 
     override fun onAppWidgetOptionsChanged(context: Context?, appWidgetManager: AppWidgetManager?, appWidgetId: Int, newOptions: Bundle?) {
         Log.d("WidgetProvider", "onAppWidgetOptionsChanged: $appWidgetId")
-        launchWork(WidgetUpdatedArgument(WidgetUpdatedArgument.UPDATE_ONLY_SPECIFIC_WIDGETS, arrayOf(appWidgetId)))
+        launchWork(WidgetUpdatedArgument(WidgetUpdatedArgument.DRAW, arrayOf(appWidgetId)))
     }
 
     override fun onReceive(context: Context?, intent: Intent?) {
         super.onReceive(context, intent)
-        intent?.action?.also { action ->
-            if (action in specialActions) {
-                if (action == Intent.ACTION_BOOT_COMPLETED) {
-                    launchWork(WidgetUpdatedArgument(WidgetUpdatedArgument.UPDATE_ALL))
-                }
+        intent?.action.let {
+            if (it == Intent.ACTION_BOOT_COMPLETED || it == Intent.ACTION_MY_PACKAGE_REPLACED && context != null) {
+                WorkManager.getInstance(context!!).enqueueFakeWork()
+                launchWork(WidgetUpdatedArgument(WidgetUpdatedArgument.DRAW_ALL))
             }
         }
     }
@@ -79,4 +77,20 @@ abstract class BaseWidgetProvider : AppWidgetProvider() {
             widgetUpdateBackgroundService.run(argument)
         }
     }
+}
+
+private const val FAKE_WORK_NAME = "always_pending_work"
+
+fun WorkManager.enqueueFakeWork() {
+    val work = getWorkInfosForUniqueWork(FAKE_WORK_NAME)
+    if (work.isDone or work.isCancelled) {
+        return
+    }
+
+    val alwaysPendingWork = OneTimeWorkRequestBuilder<FakeWorker>().setInitialDelay(5000L, TimeUnit.DAYS).build()
+    enqueueUniqueWork(FAKE_WORK_NAME, ExistingWorkPolicy.KEEP, alwaysPendingWork)
+}
+
+fun WorkManager.cancelFakeWork() {
+    cancelUniqueWork(FAKE_WORK_NAME)
 }

@@ -55,8 +55,8 @@ import io.github.pknujsp.weatherwizard.core.model.onSuccess
 import io.github.pknujsp.weatherwizard.core.model.weather.RequestWeatherArguments
 import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherConditionCategory
 import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherProvider
-import io.github.pknujsp.weatherwizard.core.model.weather.hourlyforecast.CompareHourlyForecast
-import io.github.pknujsp.weatherwizard.core.model.weather.hourlyforecast.HourlyForecastComparisonReport
+import io.github.pknujsp.weatherwizard.feature.weather.info.hourlyforecast.model.CompareHourlyForecast
+import io.github.pknujsp.weatherwizard.feature.weather.info.hourlyforecast.model.HourlyForecastComparisonReport
 import io.github.pknujsp.weatherwizard.core.resource.R
 import io.github.pknujsp.weatherwizard.core.ui.DynamicDateTime
 import io.github.pknujsp.weatherwizard.core.ui.TitleTextWithNavigation

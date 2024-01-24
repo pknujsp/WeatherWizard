@@ -172,8 +172,6 @@ fun PermissionType.asFeatureType() = when (this) {
 }
 
 
-private fun String.toRequestCode() = this.hashCode()
-
 interface FeatureIntent {
     fun getPendingIntent(context: Context): PendingIntent
     fun getIntent(context: Context): Intent

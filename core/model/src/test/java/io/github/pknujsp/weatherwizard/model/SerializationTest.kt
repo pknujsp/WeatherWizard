@@ -1,7 +1,7 @@
 package io.github.pknujsp.weatherwizard.model
 
 import io.github.pknujsp.weatherwizard.core.common.module.UtilsModule
-import io.github.pknujsp.weatherwizard.core.model.JsonParser
+import io.github.pknujsp.weatherwizard.core.data.json.JsonParser
 import io.github.pknujsp.weatherwizard.core.model.weather.common.DateTimeValueType
 import io.github.pknujsp.weatherwizard.core.model.weather.common.HumidityValueType
 import io.github.pknujsp.weatherwizard.core.model.weather.common.PercentageUnit
@@ -28,7 +28,7 @@ import java.time.ZonedDateTime
 @Config(manifest = Config.NONE)
 class SerializationTest {
 
-    val jsonParser = JsonParser(UtilsModule.providesKtJson())
+    val jsonParser = io.github.pknujsp.weatherwizard.core.data.json.JsonParser(UtilsModule.providesKtJson())
 
     @Test
     fun weather_entity_to_bytearray() {

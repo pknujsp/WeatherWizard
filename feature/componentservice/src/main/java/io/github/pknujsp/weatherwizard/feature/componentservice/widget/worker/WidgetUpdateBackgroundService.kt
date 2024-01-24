@@ -3,36 +3,35 @@ package io.github.pknujsp.weatherwizard.feature.componentservice.widget.worker
 import android.content.Context
 import android.util.Log
 import dagger.hilt.android.qualifiers.ApplicationContext
-import io.github.pknujsp.weatherwizard.core.common.coroutines.CoDispatcher
-import io.github.pknujsp.weatherwizard.core.common.coroutines.CoDispatcherType
 import io.github.pknujsp.weatherwizard.core.common.manager.WidgetManager
 import io.github.pknujsp.weatherwizard.core.data.settings.SettingsRepository
 import io.github.pknujsp.weatherwizard.core.data.widget.WidgetRepository
 import io.github.pknujsp.weatherwizard.core.widgetnotification.model.AppComponentBackgroundService
 import io.github.pknujsp.weatherwizard.core.widgetnotification.model.WidgetUpdatedArgument
-import kotlinx.coroutines.CoroutineDispatcher
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
 class WidgetUpdateBackgroundService @Inject constructor(
     @ApplicationContext context: Context,
-    @CoDispatcher(CoDispatcherType.SINGLE) private val dispatcher: CoroutineDispatcher,
     private val widgetRepository: WidgetRepository,
     widgetManager: WidgetManager,
     appSettingsRepository: SettingsRepository,
 ) : AppComponentBackgroundService<WidgetUpdatedArgument>(context) {
 
-    private val updateAppWidgetViews = AppWidgetViewUpdater(widgetManager,
-        widgetRepository,
-        featureStateManager,
-        appSettingsRepository,
-        WidgetViewCacheManagerFactory.getInstance(dispatcher))
+    private val updateAppWidgetViews by lazy {
+        AppWidgetViewUpdater(
+            widgetManager,
+            widgetRepository,
+            featureStateManager,
+            appSettingsRepository.settings.replayCache.last().units,
+        )
+    }
 
     override suspend fun doWork(argument: WidgetUpdatedArgument): Result<Unit> {
         when (argument.action) {
-            WidgetUpdatedArgument.UPDATE_ALL, WidgetUpdatedArgument.UPDATE_ONLY_SPECIFIC_WIDGETS -> {
-                updateAppWidgetViews(argument, context)
+            WidgetUpdatedArgument.DRAW, WidgetUpdatedArgument.DRAW_ALL -> {
+                updateAppWidgetViews(context, argument.widgetIds.toList())
             }
 
             WidgetUpdatedArgument.DELETE -> {

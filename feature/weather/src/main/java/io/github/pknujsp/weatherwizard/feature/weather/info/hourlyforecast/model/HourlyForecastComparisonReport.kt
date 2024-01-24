@@ -1,9 +1,10 @@
-package io.github.pknujsp.weatherwizard.core.model.weather.hourlyforecast
+package io.github.pknujsp.weatherwizard.feature.weather.info.hourlyforecast.model
 
 import androidx.compose.runtime.Stable
 import io.github.pknujsp.weatherwizard.core.model.UiModel
 import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherConditionCategory
 import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherProvider
+import io.github.pknujsp.weatherwizard.core.model.weather.hourlyforecast.ToCompareHourlyForecastEntity
 import java.time.ZonedDateTime
 
 @Stable

@@ -47,7 +47,7 @@ class OngoingNotificationCoroutineService @AssistedInject constructor(
             FeatureType.NETWORK,
             FeatureType.POST_NOTIFICATION_PERMISSION,
         )
-        override val workerId: Int = name.hashCode()
+
     }
 
     override suspend fun doWork(context: Context, argument: OngoingNotificationServiceArgument): Result {

@@ -35,7 +35,7 @@ class DailyNotificationCoroutineService @AssistedInject constructor(
             FeatureType.POST_NOTIFICATION_PERMISSION,
             FeatureType.SCHEDULE_EXACT_ALARM_PERMISSION,
         )
-        override val workerId: Int = name.hashCode()
+
     }
 
 
