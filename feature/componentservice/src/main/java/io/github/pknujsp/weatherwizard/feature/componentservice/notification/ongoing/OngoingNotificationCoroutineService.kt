@@ -2,7 +2,6 @@ package io.github.pknujsp.weatherwizard.feature.componentservice.notification.on
 
 import android.app.PendingIntent
 import android.content.Context
-import android.util.Log
 import androidx.hilt.work.HiltWorker
 import androidx.work.WorkerParameters
 import dagger.assisted.Assisted
@@ -47,7 +46,6 @@ class OngoingNotificationCoroutineService @AssistedInject constructor(
             FeatureType.NETWORK,
             FeatureType.POST_NOTIFICATION_PERMISSION,
         )
-
     }
 
     override suspend fun doWork(context: Context, argument: OngoingNotificationServiceArgument): Result {
@@ -115,23 +113,25 @@ class OngoingNotificationCoroutineService @AssistedInject constructor(
                 refreshPendingIntent = pendingIntentToRefresh)
         }
         appNotificationManager.notifyNotification(NotificationType.ONGOING, context, notificationState)
-        Log.d("OngoingNotificationService", "notify $notificationState")
     }
 
     private fun checkFeatureStateAndNotify(featureTypes: Array<FeatureType>, context: Context): Boolean {
         return when (val state = featureStateManager.retrieveFeaturesState(featureTypes, context)) {
             is FeatureStateManager.FeatureState.Unavailable -> {
+                val pendingIntent = state.featureType.getPendingIntent(context)
+
                 val smallRemoteViews = UiStateRemoteViewCreator.createView(context,
                     state.featureType,
                     RemoteViewCreator.ContainerType.NOTIFICATION_SMALL,
                     viewSizeType = UiStateRemoteViewCreator.ViewSizeType.SMALL,
-                    state.featureType.getPendingIntent(context),
+                    pendingIntent,
                     visibilityOfCompleteButton = true)
+
                 val bigRemoteViews = UiStateRemoteViewCreator.createView(context,
                     state.featureType,
                     RemoteViewCreator.ContainerType.NOTIFICATION_BIG,
                     viewSizeType = UiStateRemoteViewCreator.ViewSizeType.BIG,
-                    state.featureType.getPendingIntent(context),
+                    pendingIntent,
                     visibilityOfCompleteButton = true)
 
                 val notificationViewState = NotificationViewState(false,

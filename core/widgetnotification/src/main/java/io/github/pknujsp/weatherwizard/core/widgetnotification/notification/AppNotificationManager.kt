@@ -92,7 +92,6 @@ class AppNotificationManager(context: Context) {
         }
 
         NotificationManagerCompat.from(context).notify(notificationType.notificationId, notificationBulder.build())
-        Log.d("AppNotificationManager", "notify $entity")
     }
 
     @SuppressLint("MissingPermission")
@@ -101,6 +100,5 @@ class AppNotificationManager(context: Context) {
         notificationBulder.setSmallIcon(R.drawable.ic_refresh).setStyle(NotificationCompat.DecoratedCustomViewStyle())
             .setCustomContentView(RemoteViews(context.packageName, R.layout.view_loading_notification))
         NotificationManagerCompat.from(context).notify(notificationType.notificationId, notificationBulder.build())
-        Log.d("AppNotificationManager", "notify loading")
     }
 }
