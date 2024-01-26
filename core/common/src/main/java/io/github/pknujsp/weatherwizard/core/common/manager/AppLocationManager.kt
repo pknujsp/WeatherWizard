@@ -15,7 +15,7 @@ import kotlinx.coroutines.suspendCancellableCoroutine
 import java.time.Duration
 import kotlin.coroutines.resume
 
-internal class AppLocationManagerImpl(private val context: Context) : AppLocationManager {
+private class AppLocationManagerImpl(private val context: Context) : AppLocationManager {
     private val fusedLocationProvider: FusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(context)
     private val locationManager: LocationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
     private val maxUpdateAgeMillis = Duration.ofMinutes(30).toMillis()
@@ -26,6 +26,7 @@ internal class AppLocationManagerImpl(private val context: Context) : AppLocatio
 
     override val isPermissionGranted: Boolean
         get() = context.checkSelfPermission(PermissionType.LOCATION)
+
 
     @SuppressLint("MissingPermission")
     override suspend fun getCurrentLocation(): AppLocationManager.LocationResult {
@@ -70,7 +71,15 @@ internal class AppLocationManagerImpl(private val context: Context) : AppLocatio
     }
 }
 
-interface AppLocationManager {
+interface AppLocationManager : AppComponentManager {
+    companion object : AppComponentManagerInitializer {
+        private var instance: AppLocationManager? = null
+
+        override fun getInstance(context: Context): AppLocationManager = synchronized(this) {
+            instance ?: AppLocationManagerImpl(context).also { instance = it }
+        }
+    }
+
     val isGpsProviderEnabled: Boolean
     val isPermissionGranted: Boolean
     suspend fun getCurrentLocation(): LocationResult

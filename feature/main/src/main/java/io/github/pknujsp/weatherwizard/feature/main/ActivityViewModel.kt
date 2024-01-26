@@ -1,24 +1,29 @@
 package io.github.pknujsp.weatherwizard.feature.main
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import io.github.pknujsp.weatherwizard.core.common.coroutines.CoDispatcher
+import io.github.pknujsp.weatherwizard.core.common.coroutines.CoDispatcherType
 import io.github.pknujsp.weatherwizard.core.data.GlobalRepositoryCacheManager
-import io.github.pknujsp.weatherwizard.feature.main.notification.NotificationStarter
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class ActivityViewModel @Inject constructor(
     private val globalRepositoryCacheManager: GlobalRepositoryCacheManager,
-    val notificationStarter: NotificationStarter,
-) : ViewModel() {
+    @CoDispatcher(CoDispatcherType.IO) private val ioDispatcher: kotlinx.coroutines.CoroutineDispatcher,
+) : ViewModel(), GlobalRepositoryCacheManager by globalRepositoryCacheManager {
 
-    fun startCacheCleaner() {
-        globalRepositoryCacheManager.startCacheCleaner()
+    override fun startCacheCleaner() {
+        viewModelScope.launch(ioDispatcher) {
+            globalRepositoryCacheManager.startCacheCleaner()
+        }
     }
 
-    fun stopCacheCleaner() {
-        globalRepositoryCacheManager.stopCacheCleaner()
+    override fun stopCacheCleaner() {
+        viewModelScope.launch(ioDispatcher) {
+            globalRepositoryCacheManager.stopCacheCleaner()
+        }
     }
-
-
 }

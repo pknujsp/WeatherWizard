@@ -1,4 +1,4 @@
-package io.github.pknujsp.weatherwizard.core.widgetnotification.notification
+package io.github.pknujsp.weatherwizard.core.common.manager
 
 import android.annotation.SuppressLint
 import android.app.Notification
@@ -7,16 +7,15 @@ import android.app.NotificationChannel
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
-import android.util.Log
 import android.widget.RemoteViews
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
+import androidx.core.graphics.drawable.IconCompat
 import io.github.pknujsp.weatherwizard.core.common.NotificationType
 import io.github.pknujsp.weatherwizard.core.resource.R
-import io.github.pknujsp.weatherwizard.core.widgetnotification.model.NotificationViewState
 
 
-class AppNotificationManager(context: Context) {
+private class AppNotificationManagerImpl(private val context: Context) : AppNotificationManager {
     private val notificationManager: android.app.NotificationManager =
         context.getSystemService(Context.NOTIFICATION_SERVICE) as android.app.NotificationManager
 
@@ -59,17 +58,17 @@ class AppNotificationManager(context: Context) {
         }
     }
 
-    fun cancelNotification(notificationType: NotificationType) {
+    override fun cancelNotification(notificationType: NotificationType) {
         if (notificationManager.activeNotifications.any { it.id == notificationType.notificationId }) {
             notificationManager.cancel(notificationType.notificationId)
         }
     }
 
-    fun isActiveNotification(notificationType: NotificationType): Boolean =
+    override fun isActiveNotification(notificationType: NotificationType): Boolean =
         notificationManager.activeNotifications.any { it.id == notificationType.notificationId }
 
 
-    fun createForegroundNotification(context: Context, notificationType: NotificationType): Notification {
+    override fun createForegroundNotification(context: Context, notificationType: NotificationType): Notification {
         return createNotification(notificationType, context).apply {
             setContentText(context.getString(notificationType.contentText))
             setContentTitle(context.getString(notificationType.contentTitle))
@@ -77,7 +76,7 @@ class AppNotificationManager(context: Context) {
     }
 
     @SuppressLint("MissingPermission")
-    fun notifyNotification(notificationType: NotificationType, context: Context, entity: NotificationViewState) {
+    override fun notifyNotification(notificationType: NotificationType, context: Context, entity: ExtendedNotification) {
         val notificationBulder = createNotification(notificationType, context).apply {
             if (entity.icon != null) {
                 setSmallIcon(entity.icon)
@@ -97,10 +96,35 @@ class AppNotificationManager(context: Context) {
     }
 
     @SuppressLint("MissingPermission")
-    fun notifyLoadingNotification(notificationType: NotificationType, context: Context) {
+    override fun notifyLoadingNotification(notificationType: NotificationType, context: Context) {
         val notificationBulder = createNotification(notificationType, context, false)
         notificationBulder.setSmallIcon(R.drawable.ic_refresh).setStyle(NotificationCompat.DecoratedCustomViewStyle())
             .setCustomContentView(RemoteViews(context.packageName, R.layout.view_loading_notification))
         NotificationManagerCompat.from(context).notify(notificationType.notificationId, notificationBulder.build())
     }
 }
+
+interface AppNotificationManager : AppComponentManager {
+    companion object : AppComponentManagerInitializer {
+        private var instance: AppNotificationManager? = null
+
+        override fun getInstance(context: Context): AppNotificationManager = synchronized(this) {
+            instance ?: AppNotificationManagerImpl(context).also { instance = it }
+        }
+    }
+
+    fun cancelNotification(notificationType: NotificationType)
+    fun isActiveNotification(notificationType: NotificationType): Boolean
+    fun createForegroundNotification(context: Context, notificationType: NotificationType): Notification
+    fun notifyNotification(notificationType: NotificationType, context: Context, entity: ExtendedNotification)
+    fun notifyLoadingNotification(notificationType: NotificationType, context: Context)
+}
+
+class ExtendedNotification(
+    val success: Boolean,
+    val icon: IconCompat? = null,
+    val smallContentRemoteViews: RemoteViews? = null,
+    val bigContentRemoteViews: RemoteViews? = null,
+    val smallFailedContentRemoteViews: RemoteViews? = null,
+    val bigFailedContentRemoteViews: RemoteViews? = null
+)

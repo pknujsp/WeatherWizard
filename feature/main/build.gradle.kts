@@ -14,7 +14,6 @@ dependencies {
     implementation(libs.androidx.activity)
     implementation(project(":core:data"))
     implementation(project(":core:domain"))
-    implementation(project(":core:widgetnotification"))
     implementation(project(":core:ads"))
     implementation(project(":feature:weather"))
     implementation(project(":feature:settings"))

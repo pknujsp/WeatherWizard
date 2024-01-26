@@ -14,7 +14,6 @@ import io.github.pknujsp.weatherwizard.core.model.notification.enums.RefreshInte
 import io.github.pknujsp.weatherwizard.core.model.settings.BasePreferenceModel
 import io.github.pknujsp.weatherwizard.core.model.settings.PreferenceModel
 import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherProvider
-import io.github.pknujsp.weatherwizard.feature.componentservice.widget.WidgetStarter
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 

@@ -8,7 +8,7 @@ import android.content.Intent
 import android.widget.RemoteViews
 import kotlin.reflect.KClass
 
-class WidgetManagerImpl(context: Context) : WidgetManager {
+private class WidgetManagerImpl(private val context: Context) : WidgetManager {
     override val appWidgetManager: AppWidgetManager = AppWidgetManager.getInstance(context)
     private val packageName: String = context.packageName
 
@@ -18,6 +18,7 @@ class WidgetManagerImpl(context: Context) : WidgetManager {
         }.flatMap { providerInfo ->
             appWidgetManager.getAppWidgetIds(providerInfo.provider).toList()
         }
+
 
     override fun getProviderByWidgetId(appWidgetId: Int) = appWidgetManager.getAppWidgetInfo(appWidgetId)?.provider
 
@@ -37,7 +38,16 @@ class WidgetManagerImpl(context: Context) : WidgetManager {
         }, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
 }
 
-interface WidgetManager {
+interface WidgetManager : AppComponentManager {
+
+    companion object : AppComponentManagerInitializer {
+        private var instance: WidgetManager? = null
+
+        override fun getInstance(context: Context): WidgetManager = synchronized(this) {
+            instance ?: WidgetManagerImpl(context).also { instance = it }
+        }
+    }
+
     val appWidgetManager: AppWidgetManager
     val installedAllWidgetIds: List<Int>
     fun updateWidget(appWidgetId: Int, remoteView: RemoteViews, context: Context, activityCls: KClass<*>)

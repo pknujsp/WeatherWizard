@@ -5,9 +5,9 @@ import io.github.pknujsp.weatherwizard.core.common.manager.AppAlarmManager
 import io.github.pknujsp.weatherwizard.core.model.notification.enums.RefreshInterval
 
 interface ComponentServiceAutoRefreshScheduler {
-    fun scheduleAutoRefresh(context: Context, appAlarmManager: AppAlarmManager, refreshInterval: RefreshInterval)
+    fun scheduleAutoRefresh(context: Context, refreshInterval: RefreshInterval)
 
-    fun unScheduleAutoRefresh(context: Context, appAlarmManager: AppAlarmManager)
+    fun unScheduleAutoRefresh(context: Context)
 
     fun getScheduleState(context: Context): AppAlarmManager.ScheduledState
 }

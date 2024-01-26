@@ -51,7 +51,7 @@ import io.github.pknujsp.weatherwizard.feature.searchlocation.SearchLocationScre
 
 @Composable
 fun ConfigDailyNotificationScreen(navController: NavController, viewModel: ConfigDailyNotificationViewModel = hiltViewModel()) {
-    val notification = rememberDailyNotificationState(viewModel.dailyNotificationUiState, viewModel.notificationAlarmManager)
+    val notification = rememberDailyNotificationState(viewModel.dailyNotificationUiState)
     val context = LocalContext.current
 
     LaunchedEffect(notification.dailyNotificationUiState.action) {

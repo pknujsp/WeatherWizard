@@ -4,6 +4,9 @@ import android.app.PendingIntent
 import android.content.Context
 import android.util.Log
 import io.github.pknujsp.weatherwizard.core.common.manager.AppAlarmManager
+import io.github.pknujsp.weatherwizard.core.common.manager.AppComponentManager
+import io.github.pknujsp.weatherwizard.core.common.manager.AppComponentManagerFactory
+import io.github.pknujsp.weatherwizard.core.common.manager.AppComponentManagerInitializer
 import io.github.pknujsp.weatherwizard.core.common.manager.WidgetManager
 import io.github.pknujsp.weatherwizard.core.model.notification.enums.RefreshInterval
 import io.github.pknujsp.weatherwizard.core.widgetnotification.model.ComponentServiceAction
@@ -12,7 +15,9 @@ import io.github.pknujsp.weatherwizard.core.widgetnotification.model.LoadWidgetD
 import io.github.pknujsp.weatherwizard.feature.componentservice.AppComponentServiceReceiver
 import io.github.pknujsp.weatherwizard.feature.componentservice.ComponentPendingIntentManager
 
-class AppWidgetAutoRefreshScheduler(private val widgetManager: WidgetManager) : ComponentServiceAutoRefreshScheduler {
+private class WidgetAlarmManagerImpl(private val context: Context) : WidgetAlarmManager {
+    private val widgetManager: WidgetManager = AppComponentManagerFactory.getManager(context, WidgetManager::class)
+    private val appAlarmManager: AppAlarmManager = AppComponentManagerFactory.getManager(context, AppAlarmManager::class)
 
     private companion object {
         val REQUEST_CODE = "AppWidgetAutoRefreshScheduler".hashCode()
@@ -32,8 +37,8 @@ class AppWidgetAutoRefreshScheduler(private val widgetManager: WidgetManager) : 
         }
     }
 
-    override fun scheduleAutoRefresh(context: Context, appAlarmManager: AppAlarmManager, refreshInterval: RefreshInterval) {
-        unScheduleAutoRefresh(context, appAlarmManager)
+    override fun scheduleAutoRefresh(context: Context, refreshInterval: RefreshInterval) {
+        unScheduleAutoRefresh(context)
         if (widgetManager.installedAllWidgetIds.isEmpty() || refreshInterval == RefreshInterval.MANUAL) {
             return
         }
@@ -48,12 +53,22 @@ class AppWidgetAutoRefreshScheduler(private val widgetManager: WidgetManager) : 
         Log.d("AppWidgetAutoRefreshScheduler", "scheduleWidgetAutoRefresh")
     }
 
-    override fun unScheduleAutoRefresh(context: Context, appAlarmManager: AppAlarmManager) {
+    override fun unScheduleAutoRefresh(context: Context) {
         val scheduleState = getScheduleState(context)
         if (scheduleState is AppAlarmManager.ScheduledState.Scheduled) {
             appAlarmManager.unschedule(scheduleState.pendingIntent)
             scheduleState.pendingIntent.cancel()
             Log.d("AppWidgetAutoRefreshScheduler", "unScheduleWidgetAutoRefresh")
+        }
+    }
+}
+
+interface WidgetAlarmManager : AppComponentManager, ComponentServiceAutoRefreshScheduler {
+    companion object : AppComponentManagerInitializer {
+        private var instance: WidgetAlarmManager? = null
+
+        override fun getInstance(context: Context): WidgetAlarmManager = synchronized(this) {
+            instance ?: WidgetAlarmManagerImpl(context).also { instance = it }
         }
     }
 }

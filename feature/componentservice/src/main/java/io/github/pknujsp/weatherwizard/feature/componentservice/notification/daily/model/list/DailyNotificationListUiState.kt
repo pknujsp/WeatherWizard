@@ -11,7 +11,7 @@ import io.github.pknujsp.weatherwizard.core.model.UiModel
 import io.github.pknujsp.weatherwizard.core.model.coordinate.LocationTypeModel
 import io.github.pknujsp.weatherwizard.core.model.notification.enums.DailyNotificationType
 import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherProvider
-import io.github.pknujsp.weatherwizard.feature.componentservice.notification.manager.NotificationAlarmManager
+import io.github.pknujsp.weatherwizard.feature.componentservice.manager.DailyNotificationAlarmManager
 
 data class DailyNotificationSettingsListItem(
     val isEnabled: Boolean,
@@ -33,7 +33,7 @@ data class DailyNotificationListUiState(
 class DailyNotificationListState(
     private val switch: (Long, Boolean) -> Unit,
     private val delete: (Long) -> Unit,
-    private val alarmManager: NotificationAlarmManager,
+    private val alarmManager: DailyNotificationAlarmManager,
     val lazyListState: LazyListState
 ) {
     private fun changeAlarmSchedule(context: Context, isEnabled: Boolean, settings: DailyNotificationSettingsListItem) {
@@ -62,8 +62,8 @@ class DailyNotificationListState(
 fun rememberDailyNotificationListState(
     switch: (Long, Boolean) -> Unit,
     delete: (Long) -> Unit,
-    notificationAlarmManager: NotificationAlarmManager,
+    dailyNotificationAlarmManager: DailyNotificationAlarmManager,
     lazyListState: LazyListState = rememberLazyListState(),
-) = remember(switch, delete, notificationAlarmManager, lazyListState) {
-    DailyNotificationListState(switch, delete, notificationAlarmManager, lazyListState)
+) = remember(switch, delete, dailyNotificationAlarmManager, lazyListState) {
+    DailyNotificationListState(switch, delete, dailyNotificationAlarmManager, lazyListState)
 }

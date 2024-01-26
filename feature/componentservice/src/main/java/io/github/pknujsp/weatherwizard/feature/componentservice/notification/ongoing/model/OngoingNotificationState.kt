@@ -2,25 +2,28 @@ package io.github.pknujsp.weatherwizard.feature.componentservice.notification.on
 
 import android.content.Context
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import io.github.pknujsp.weatherwizard.core.common.NotificationType
-import io.github.pknujsp.weatherwizard.core.common.manager.AppAlarmManager
+import io.github.pknujsp.weatherwizard.core.common.manager.AppComponentManagerFactory
 import io.github.pknujsp.weatherwizard.core.model.notification.enums.RefreshInterval
 import io.github.pknujsp.weatherwizard.core.widgetnotification.model.OngoingNotificationServiceArgument
-import io.github.pknujsp.weatherwizard.core.widgetnotification.notification.AppNotificationManager
 import io.github.pknujsp.weatherwizard.feature.componentservice.AppComponentServiceReceiver
 import io.github.pknujsp.weatherwizard.feature.componentservice.ComponentPendingIntentManager
-import io.github.pknujsp.weatherwizard.feature.componentservice.notification.ongoing.OngoingNotificationAutoRefreshScheduler
+import io.github.pknujsp.weatherwizard.feature.componentservice.manager.AppComponentServiceManagerFactory
 
+@Stable
 class OngoingNotificationState(
+    context: Context,
     val ongoingNotificationUiState: OngoingNotificationUiState,
-    private val appNotificationManager: AppNotificationManager,
-    private val appAlarmManager: AppAlarmManager,
 ) {
+    private val ongoingNotificationAlarmManager =
+        AppComponentServiceManagerFactory.getManager(context, AppComponentServiceManagerFactory.ONGOING_NOTIFICATION_ALARM_MANAGER)
+    private val appNotificationManager = AppComponentManagerFactory.getManager(context, AppComponentManagerFactory.NOTIFICATION_MANAGER)
     var showSearch by mutableStateOf(false)
 
     fun onChangedSettings(context: Context, refreshInterval: RefreshInterval, popBackStack: () -> Unit) {
@@ -37,15 +40,13 @@ class OngoingNotificationState(
     private fun switchNotification(
         context: Context, refreshInterval: RefreshInterval
     ) {
-        val scheduler = OngoingNotificationAutoRefreshScheduler()
-
         if (ongoingNotificationUiState.isEnabled) {
             context.sendBroadcast(ComponentPendingIntentManager.getIntent(context,
                 OngoingNotificationServiceArgument(),
                 AppComponentServiceReceiver.ACTION_AUTO_REFRESH))
-            scheduler.scheduleAutoRefresh(context, appAlarmManager, refreshInterval)
+            ongoingNotificationAlarmManager.scheduleAutoRefresh(context, refreshInterval)
         } else {
-            scheduler.unScheduleAutoRefresh(context, appAlarmManager)
+            ongoingNotificationAlarmManager.unScheduleAutoRefresh(context)
             appNotificationManager.cancelNotification(NotificationType.ONGOING)
         }
     }
@@ -53,7 +54,7 @@ class OngoingNotificationState(
 
 @Composable
 fun rememberOngoingNotificationState(
-    ongoingNotificationUiState: OngoingNotificationUiState, appAlarmManager: AppAlarmManager, context: Context = LocalContext.current
-) = remember(ongoingNotificationUiState, context) {
-    OngoingNotificationState(ongoingNotificationUiState, AppNotificationManager(context), appAlarmManager)
+    ongoingNotificationUiState: OngoingNotificationUiState, context: Context = LocalContext.current
+) = remember(ongoingNotificationUiState) {
+    OngoingNotificationState(context, ongoingNotificationUiState)
 }

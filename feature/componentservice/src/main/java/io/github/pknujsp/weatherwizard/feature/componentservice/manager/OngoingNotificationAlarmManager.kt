@@ -1,9 +1,12 @@
-package io.github.pknujsp.weatherwizard.feature.componentservice.notification.ongoing
+package io.github.pknujsp.weatherwizard.feature.componentservice.manager
 
 import android.app.PendingIntent
 import android.content.Context
 import android.util.Log
 import io.github.pknujsp.weatherwizard.core.common.manager.AppAlarmManager
+import io.github.pknujsp.weatherwizard.core.common.manager.AppComponentManager
+import io.github.pknujsp.weatherwizard.core.common.manager.AppComponentManagerFactory
+import io.github.pknujsp.weatherwizard.core.common.manager.AppComponentManagerInitializer
 import io.github.pknujsp.weatherwizard.core.model.notification.enums.RefreshInterval
 import io.github.pknujsp.weatherwizard.core.widgetnotification.model.ComponentServiceAction
 import io.github.pknujsp.weatherwizard.core.widgetnotification.model.ComponentServiceAutoRefreshScheduler
@@ -11,10 +14,14 @@ import io.github.pknujsp.weatherwizard.core.widgetnotification.model.OngoingNoti
 import io.github.pknujsp.weatherwizard.feature.componentservice.AppComponentServiceReceiver
 import io.github.pknujsp.weatherwizard.feature.componentservice.ComponentPendingIntentManager
 
-class OngoingNotificationAutoRefreshScheduler : ComponentServiceAutoRefreshScheduler {
+private class OngoingNotificationAlarmManagerImpl(
+    private val context: Context
+) : OngoingNotificationAlarmManager {
 
-    private companion object {
-        val REQUEST_CODE = "OngoingNotificationAutoRefreshScheduler".hashCode()
+    private val appAlarmManager: AppAlarmManager = AppComponentManagerFactory.getManager(context, AppAlarmManager::class)
+
+    companion object {
+        private val REQUEST_CODE = "OngoingNotificationAutoRefreshScheduler".hashCode()
     }
 
     override fun getScheduleState(context: Context): AppAlarmManager.ScheduledState {
@@ -31,8 +38,8 @@ class OngoingNotificationAutoRefreshScheduler : ComponentServiceAutoRefreshSched
         }
     }
 
-    override fun scheduleAutoRefresh(context: Context, appAlarmManager: AppAlarmManager, refreshInterval: RefreshInterval) {
-        unScheduleAutoRefresh(context, appAlarmManager)
+    override fun scheduleAutoRefresh(context: Context, refreshInterval: RefreshInterval) {
+        unScheduleAutoRefresh(context)
         if (refreshInterval == RefreshInterval.MANUAL) {
             return
         }
@@ -45,7 +52,7 @@ class OngoingNotificationAutoRefreshScheduler : ComponentServiceAutoRefreshSched
         appAlarmManager.scheduleRepeat(refreshInterval.interval, pendingIntent.pendingIntent!!)
     }
 
-    override fun unScheduleAutoRefresh(context: Context, appAlarmManager: AppAlarmManager) {
+    override fun unScheduleAutoRefresh(context: Context) {
         val scheduleState = getScheduleState(context)
         Log.d("OngoingNotificationAutoRefreshScheduler", "unScheduleAutoRefresh: $scheduleState")
         if (scheduleState is AppAlarmManager.ScheduledState.Scheduled) {
@@ -55,17 +62,12 @@ class OngoingNotificationAutoRefreshScheduler : ComponentServiceAutoRefreshSched
     }
 }
 
+interface OngoingNotificationAlarmManager : AppComponentManager, ComponentServiceAutoRefreshScheduler {
+    companion object : AppComponentManagerInitializer {
+        private var instance: OngoingNotificationAlarmManager? = null
 
-/*Intent(context, AppComponentServiceReceiver::class.java).run {
-                this.action = AppComponentServiceReceiver.ACTION_PROCESS
-                putExtras(OngoingNotificationServiceArgument().toBundle())
-                context.sendBroadcast(this)
-            }
-
-            if (ongoingNotificationUiState.ongoingNotificationSettings.refreshInterval != RefreshInterval.MANUAL) {
-                val pendingIntentToSchedule = ComponentPendingIntentManager.getPendingIntent(context,
-                    PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
-                    action).pendingIntent!!
-                appAlarmManager.scheduleRepeat(ongoingNotificationUiState.ongoingNotificationSettings.refreshInterval.interval,
-                    pendingIntentToSchedule)
-            }*/
+        override fun getInstance(context: Context): OngoingNotificationAlarmManager = synchronized(this) {
+            instance ?: OngoingNotificationAlarmManagerImpl(context).also { instance = it }
+        }
+    }
+}

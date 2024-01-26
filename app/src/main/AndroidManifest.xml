@@ -90,6 +90,7 @@
 
         <receiver
             android:name=".feature.componentservice.AppComponentServiceReceiver"
+            android:directBootAware="true"
             android:enabled="true"
             android:exported="false">
             <intent-filter>

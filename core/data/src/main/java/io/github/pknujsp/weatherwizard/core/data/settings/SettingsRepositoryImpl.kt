@@ -14,12 +14,9 @@ import io.github.pknujsp.weatherwizard.core.model.weather.common.TemperatureUnit
 import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherProvider
 import io.github.pknujsp.weatherwizard.core.model.weather.common.WindSpeedUnit
 import kotlinx.coroutines.channels.BufferOverflow
-import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
-import kotlinx.coroutines.flow.channelFlow
 
 class SettingsRepositoryImpl(
     private val appDataStore: AppDataStore
@@ -40,10 +37,10 @@ class SettingsRepositoryImpl(
 
     override suspend fun <V : PreferenceModel> update(type: BasePreferenceModel<V>, value: V) {
         appDataStore.save(type.key, value.key)
-        init()
+        initialize()
     }
 
-    override suspend fun init() {
+    override suspend fun initialize() {
         load().run {
             mutableSettings.emit(SettingsEntity(units = CurrentUnits(temperatureUnit = this[TemperatureUnit]!! as TemperatureUnit,
                 windSpeedUnit = this[WindSpeedUnit]!! as WindSpeedUnit,

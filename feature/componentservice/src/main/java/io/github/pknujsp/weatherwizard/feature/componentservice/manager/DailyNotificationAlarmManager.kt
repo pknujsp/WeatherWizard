@@ -1,20 +1,23 @@
-package io.github.pknujsp.weatherwizard.feature.componentservice.notification.manager
+package io.github.pknujsp.weatherwizard.feature.componentservice.manager
 
 import android.app.PendingIntent
 import android.content.Context
 import io.github.pknujsp.weatherwizard.core.common.NotificationType
-import io.github.pknujsp.weatherwizard.core.common.manager.AppAlarmManager
+import io.github.pknujsp.weatherwizard.core.common.manager.AppComponentManager
+import io.github.pknujsp.weatherwizard.core.common.manager.AppComponentManagerFactory
+import io.github.pknujsp.weatherwizard.core.common.manager.AppComponentManagerInitializer
 import io.github.pknujsp.weatherwizard.core.widgetnotification.model.DailyNotificationServiceArgument
 import io.github.pknujsp.weatherwizard.feature.componentservice.AppComponentServiceReceiver
 import io.github.pknujsp.weatherwizard.feature.componentservice.ComponentPendingIntentManager
 import java.time.ZonedDateTime
 import kotlin.random.Random
 
-class NotificationAlarmManager(
-    private val appAlarmManager: AppAlarmManager
-) {
+private class DailyNotificationAlarmManagerImpl(
+    private val context: Context
+) : DailyNotificationAlarmManager {
+    private val appAlarmManager = AppComponentManagerFactory.getManager(context, AppComponentManagerFactory.ALARM_MANAGER)
 
-    fun schedule(context: Context, notificationId: Long, hour: Int, minute: Int) {
+    override fun schedule(context: Context, notificationId: Long, hour: Int, minute: Int) {
         val now = ZonedDateTime.now().withSecond(0).let {
             if (hour < it.hour || (hour == it.hour && minute < it.minute)) {
                 it.plusDays(1)
@@ -28,14 +31,14 @@ class NotificationAlarmManager(
         }
     }
 
-    fun unSchedule(context: Context, notificationId: Long) {
+    override fun unSchedule(context: Context, notificationId: Long) {
         getPendingIntent(notificationId, context, PendingIntent.FLAG_NO_CREATE or PendingIntent.FLAG_IMMUTABLE)?.run {
             appAlarmManager.unschedule(this)
             cancel()
         }
     }
 
-    fun isScheduled(context: Context, notificationId: Long): Boolean {
+    override fun isScheduled(context: Context, notificationId: Long): Boolean {
         return getPendingIntent(notificationId, context, PendingIntent.FLAG_NO_CREATE or PendingIntent.FLAG_IMMUTABLE) != null
     }
 
@@ -47,4 +50,19 @@ class NotificationAlarmManager(
                 AppComponentServiceReceiver.ACTION_AUTO_REFRESH),
             flags)
     }
+}
+
+interface DailyNotificationAlarmManager : AppComponentManager {
+
+    companion object : AppComponentManagerInitializer {
+        private var instance: DailyNotificationAlarmManager? = null
+
+        override fun getInstance(context: Context): DailyNotificationAlarmManager = synchronized(this) {
+            instance ?: DailyNotificationAlarmManagerImpl(context).also { instance = it }
+        }
+    }
+
+    fun schedule(context: Context, notificationId: Long, hour: Int, minute: Int)
+    fun unSchedule(context: Context, notificationId: Long)
+    fun isScheduled(context: Context, notificationId: Long): Boolean
 }

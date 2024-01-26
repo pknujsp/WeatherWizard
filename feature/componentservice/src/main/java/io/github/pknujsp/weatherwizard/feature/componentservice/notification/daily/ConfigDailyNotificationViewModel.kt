@@ -1,6 +1,5 @@
 package io.github.pknujsp.weatherwizard.feature.componentservice.notification.daily
 
-import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -10,7 +9,6 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.github.pknujsp.weatherwizard.core.common.coroutines.CoDispatcher
 import io.github.pknujsp.weatherwizard.core.common.coroutines.CoDispatcherType
-import io.github.pknujsp.weatherwizard.core.common.manager.AppAlarmManager
 import io.github.pknujsp.weatherwizard.core.data.notification.daily.DailyNotificationRepository
 import io.github.pknujsp.weatherwizard.core.data.notification.daily.model.DailyNotificationSettingsEntity
 import io.github.pknujsp.weatherwizard.core.data.settings.SettingsRepository
@@ -18,7 +16,6 @@ import io.github.pknujsp.weatherwizard.core.model.notification.NotificationSetti
 import io.github.pknujsp.weatherwizard.feature.componentservice.notification.NotificationRoutes
 import io.github.pknujsp.weatherwizard.feature.componentservice.notification.daily.model.DailyNotificationSettings
 import io.github.pknujsp.weatherwizard.feature.componentservice.notification.daily.model.DailyNotificationUiState
-import io.github.pknujsp.weatherwizard.feature.componentservice.notification.manager.NotificationAlarmManager
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -27,15 +24,13 @@ import javax.inject.Inject
 class ConfigDailyNotificationViewModel @Inject constructor(
     private val dailyNotificationRepository: DailyNotificationRepository,
     @CoDispatcher(CoDispatcherType.IO) private val ioDispatcher: kotlinx.coroutines.CoroutineDispatcher,
-    appAlarmManager: AppAlarmManager,
     savedStateHandle: SavedStateHandle,
-    appSettingsRepository: SettingsRepository
+    private val appSettingsRepository: SettingsRepository
 ) : ViewModel() {
-    val notificationAlarmManager = NotificationAlarmManager(appAlarmManager)
     private val notificationId = savedStateHandle.get<Long>(NotificationRoutes.AddOrEditDaily.arguments.first().name) ?: -1L
     private val isNew get() = notificationId == -1L
 
-    val units = appSettingsRepository.settings.replayCache.last().units
+    val units get() = appSettingsRepository.settings.replayCache.last().units
 
     private val _dailyNoficationUiState =
         MutableDailyNotificationUiState(dailyNotificationSettings = DailyNotificationSettingsEntity().let {
