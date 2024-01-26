@@ -4,6 +4,7 @@ import android.app.PendingIntent
 import android.widget.RemoteViews
 import androidx.core.graphics.drawable.IconCompat
 import io.github.pknujsp.weatherwizard.core.common.NotificationType
+import io.github.pknujsp.weatherwizard.core.common.manager.ExtendedNotification
 import io.github.pknujsp.weatherwizard.core.resource.R
 
 data class NotificationViewState(
@@ -28,4 +29,13 @@ data class NotificationViewState(
             }
         }
     }
+
+    fun toExtendNotification() = ExtendedNotification(
+        success = success,
+        smallContentRemoteViews = smallContentRemoteViews,
+        bigContentRemoteViews = bigContentRemoteViews,
+        smallFailedContentRemoteViews = smallFailedContentRemoteViews,
+        bigFailedContentRemoteViews = bigFailedContentRemoteViews,
+        icon = icon,
+    )
 }

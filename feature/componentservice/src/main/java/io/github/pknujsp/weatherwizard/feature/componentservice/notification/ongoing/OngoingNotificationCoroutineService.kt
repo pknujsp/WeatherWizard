@@ -50,7 +50,7 @@ class OngoingNotificationCoroutineService @AssistedInject constructor(
     }
 
     override suspend fun doWork(context: Context, argument: OngoingNotificationServiceArgument): Result {
-        appNotificationManager.notifyLoadingNotification(NotificationType.ONGOING, context)
+        appNotificationManager.notifyLoadingNotification(NotificationType.ONGOING)
         start(context, argument)
         Log.d("OngoingNotificationCoroutineService", "doWork")
         return Result.success()
@@ -113,7 +113,7 @@ class OngoingNotificationCoroutineService @AssistedInject constructor(
                 notificationType = NotificationType.ONGOING,
                 refreshPendingIntent = pendingIntentToRefresh)
         }
-        appNotificationManager.notifyNotification(NotificationType.ONGOING, context, notificationState)
+        appNotificationManager.notifyNotification(NotificationType.ONGOING, notificationState.toExtendNotification())
     }
 
     private fun checkFeatureStateAndNotify(featureTypes: Array<FeatureType>, context: Context): Boolean {
@@ -140,7 +140,7 @@ class OngoingNotificationCoroutineService @AssistedInject constructor(
                     bigFailedContentRemoteViews = bigRemoteViews,
                     notificationType = NotificationType.ONGOING,
                     refreshPendingIntent = pendingIntentToRefresh)
-                appNotificationManager.notifyNotification(NotificationType.ONGOING, context, notificationViewState)
+                appNotificationManager.notifyNotification(NotificationType.ONGOING, notificationViewState.toExtendNotification())
                 false
             }
 

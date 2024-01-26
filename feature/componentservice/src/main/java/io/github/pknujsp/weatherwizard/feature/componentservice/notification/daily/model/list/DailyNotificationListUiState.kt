@@ -7,6 +7,7 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.remember
+import androidx.compose.ui.platform.LocalContext
 import io.github.pknujsp.weatherwizard.core.model.UiModel
 import io.github.pknujsp.weatherwizard.core.model.coordinate.LocationTypeModel
 import io.github.pknujsp.weatherwizard.core.model.notification.enums.DailyNotificationType
@@ -33,14 +34,16 @@ data class DailyNotificationListUiState(
 class DailyNotificationListState(
     private val switch: (Long, Boolean) -> Unit,
     private val delete: (Long) -> Unit,
-    private val alarmManager: DailyNotificationAlarmManager,
-    val lazyListState: LazyListState
+    val lazyListState: LazyListState,
+    context: Context,
 ) {
+    private val alarmManager: DailyNotificationAlarmManager = DailyNotificationAlarmManager.getInstance(context)
+
     private fun changeAlarmSchedule(context: Context, isEnabled: Boolean, settings: DailyNotificationSettingsListItem) {
         if (isEnabled) {
-            alarmManager.schedule(context, settings.id, settings.hour, settings.minute)
+            alarmManager.schedule(settings.id, settings.hour, settings.minute)
         } else {
-            alarmManager.unSchedule(context, settings.id)
+            alarmManager.unSchedule(settings.id)
         }
     }
 
@@ -62,8 +65,8 @@ class DailyNotificationListState(
 fun rememberDailyNotificationListState(
     switch: (Long, Boolean) -> Unit,
     delete: (Long) -> Unit,
-    dailyNotificationAlarmManager: DailyNotificationAlarmManager,
     lazyListState: LazyListState = rememberLazyListState(),
-) = remember(switch, delete, dailyNotificationAlarmManager, lazyListState) {
-    DailyNotificationListState(switch, delete, dailyNotificationAlarmManager, lazyListState)
+    context: Context = LocalContext.current,
+) = remember(switch, delete, lazyListState) {
+    DailyNotificationListState(switch, delete, lazyListState, context)
 }

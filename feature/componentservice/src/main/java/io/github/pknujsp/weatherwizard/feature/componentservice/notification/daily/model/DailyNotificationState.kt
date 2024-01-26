@@ -29,16 +29,15 @@ class DailyNotificationState(
     fun onChangedSettings(context: Context, popBackStack: () -> Unit) {
         dailyNotificationUiState.run {
             when (action) {
-                DailyNotificationUiState.Action.DISABLED -> dailyNotificationAlarmManager.unSchedule(context, dailyNotificationSettings.id)
+                DailyNotificationUiState.Action.DISABLED -> dailyNotificationAlarmManager.unSchedule(dailyNotificationSettings.id)
                 DailyNotificationUiState.Action.ENABLED, DailyNotificationUiState.Action.UPDATED -> {
                     val id = dailyNotificationSettings.id
 
                     if (!isNew) {
-                        dailyNotificationAlarmManager.unSchedule(context, id)
+                        dailyNotificationAlarmManager.unSchedule(id)
                     }
                     if (isEnabled) {
-                        dailyNotificationAlarmManager.schedule(context,
-                            id,
+                        dailyNotificationAlarmManager.schedule(id,
                             dailyNotificationSettings.hour,
                             dailyNotificationSettings.minute)
                         Toast.makeText(context, "알림이 설정되었습니다.", Toast.LENGTH_SHORT).show()

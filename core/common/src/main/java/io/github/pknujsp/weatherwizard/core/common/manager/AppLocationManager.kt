@@ -27,7 +27,6 @@ private class AppLocationManagerImpl(private val context: Context) : AppLocation
     override val isPermissionGranted: Boolean
         get() = context.checkSelfPermission(PermissionType.LOCATION)
 
-
     @SuppressLint("MissingPermission")
     override suspend fun getCurrentLocation(): AppLocationManager.LocationResult {
         return findCurrentLocation()?.let {

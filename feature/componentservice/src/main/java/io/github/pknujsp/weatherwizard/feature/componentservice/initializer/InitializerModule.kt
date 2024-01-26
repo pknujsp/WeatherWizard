@@ -1,8 +1,6 @@
 package io.github.pknujsp.weatherwizard.feature.componentservice.initializer
 
-import android.appwidget.AppWidgetManager
 import android.content.Context
-import android.content.Intent
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -20,7 +18,7 @@ import io.github.pknujsp.weatherwizard.feature.componentservice.AppComponentServ
 import io.github.pknujsp.weatherwizard.feature.componentservice.ComponentPendingIntentManager
 import io.github.pknujsp.weatherwizard.feature.componentservice.manager.DailyNotificationAlarmManager
 import io.github.pknujsp.weatherwizard.feature.componentservice.manager.OngoingNotificationAlarmManager
-import io.github.pknujsp.weatherwizard.feature.componentservice.widget.worker.WidgetAlarmManager
+import io.github.pknujsp.weatherwizard.feature.componentservice.manager.WidgetAlarmManager
 import kotlinx.coroutines.flow.firstOrNull
 import javax.inject.Named
 
@@ -73,19 +71,16 @@ private class NotificationIntializerImpl(
             if (it.enabled && !appNotificationManager.isActiveNotification(NotificationType.ONGOING)) {
                 context.sendBroadcast(ComponentPendingIntentManager.getIntent(context,
                     OngoingNotificationServiceArgument(),
-                    AppComponentServiceReceiver.ACTION_AUTO_REFRESH))
-                ongoingNotificationAlarmManager.scheduleAutoRefresh(context, it.data.refreshInterval)
+                    AppComponentServiceReceiver.ACTION_REFRESH))
+                ongoingNotificationAlarmManager.scheduleAutoRefresh(it.data.refreshInterval)
             }
         }
     }
 
     private suspend fun initDailyNotifications() {
         getDailyNotifications()?.forEach { dailyNotification ->
-            if (dailyNotification.enabled && !dailyNotificationAlarmManager.isScheduled(context, dailyNotification.id)) {
-                dailyNotificationAlarmManager.schedule(context,
-                    dailyNotification.id,
-                    dailyNotification.data.hour,
-                    dailyNotification.data.minute)
+            if (dailyNotification.enabled && !dailyNotificationAlarmManager.isScheduled(dailyNotification.id)) {
+                dailyNotificationAlarmManager.schedule(dailyNotification.id, dailyNotification.data.hour, dailyNotification.data.minute)
             }
         }
     }
@@ -104,25 +99,13 @@ private class WidgetStarterImpl(
 ) : AppComponentServiceIntializer(context) {
 
     override suspend fun initialize() {
-        val installedWidgetIds = widgetManager.installedAllWidgetIds
-        if (installedWidgetIds.isEmpty()) {
-            return
-        }
-
-        widgetManager.getProviderByWidgetId(installedWidgetIds.first())?.let { widgetProvider ->
-            // 위젯 뷰 새로고침
-            Intent().apply {
-                action = AppWidgetManager.ACTION_APPWIDGET_UPDATE
-                component = widgetProvider
-                putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, installedWidgetIds.toIntArray())
-                context.sendBroadcast(this)
-            }
-
-            // 위젯 자동 업데이트 예약
+        if (widgetManager.redrawAllWidgets()) {
             val refreshInterval = settingsRepository.settings.replayCache.last().widgetAutoRefreshInterval
-            if (widgetAutoRefreshScheduler.getScheduleState(context) is AppAlarmManager.ScheduledState.NotScheduled) {
-                widgetAutoRefreshScheduler.scheduleAutoRefresh(context, refreshInterval)
+            if (widgetAutoRefreshScheduler.getScheduleState() is AppAlarmManager.ScheduledState.NotScheduled) {
+                widgetAutoRefreshScheduler.scheduleAutoRefresh(refreshInterval)
             }
+        }else{
+            widgetAutoRefreshScheduler.unScheduleAutoRefresh()
         }
     }
 

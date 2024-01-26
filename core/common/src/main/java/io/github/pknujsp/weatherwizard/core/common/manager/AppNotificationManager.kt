@@ -68,7 +68,7 @@ private class AppNotificationManagerImpl(private val context: Context) : AppNoti
         notificationManager.activeNotifications.any { it.id == notificationType.notificationId }
 
 
-    override fun createForegroundNotification(context: Context, notificationType: NotificationType): Notification {
+    override fun createForegroundNotification(notificationType: NotificationType): Notification {
         return createNotification(notificationType, context).apply {
             setContentText(context.getString(notificationType.contentText))
             setContentTitle(context.getString(notificationType.contentTitle))
@@ -76,7 +76,7 @@ private class AppNotificationManagerImpl(private val context: Context) : AppNoti
     }
 
     @SuppressLint("MissingPermission")
-    override fun notifyNotification(notificationType: NotificationType, context: Context, entity: ExtendedNotification) {
+    override fun notifyNotification(notificationType: NotificationType, entity: ExtendedNotification) {
         val notificationBulder = createNotification(notificationType, context).apply {
             if (entity.icon != null) {
                 setSmallIcon(entity.icon)
@@ -96,7 +96,7 @@ private class AppNotificationManagerImpl(private val context: Context) : AppNoti
     }
 
     @SuppressLint("MissingPermission")
-    override fun notifyLoadingNotification(notificationType: NotificationType, context: Context) {
+    override fun notifyLoadingNotification(notificationType: NotificationType) {
         val notificationBulder = createNotification(notificationType, context, false)
         notificationBulder.setSmallIcon(R.drawable.ic_refresh).setStyle(NotificationCompat.DecoratedCustomViewStyle())
             .setCustomContentView(RemoteViews(context.packageName, R.layout.view_loading_notification))
@@ -115,9 +115,9 @@ interface AppNotificationManager : AppComponentManager {
 
     fun cancelNotification(notificationType: NotificationType)
     fun isActiveNotification(notificationType: NotificationType): Boolean
-    fun createForegroundNotification(context: Context, notificationType: NotificationType): Notification
-    fun notifyNotification(notificationType: NotificationType, context: Context, entity: ExtendedNotification)
-    fun notifyLoadingNotification(notificationType: NotificationType, context: Context)
+    fun createForegroundNotification(notificationType: NotificationType): Notification
+    fun notifyNotification(notificationType: NotificationType, entity: ExtendedNotification)
+    fun notifyLoadingNotification(notificationType: NotificationType)
 }
 
 class ExtendedNotification(

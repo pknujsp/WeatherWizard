@@ -13,6 +13,8 @@ import dagger.hilt.android.AndroidEntryPoint
 import io.github.pknujsp.weatherwizard.core.common.coroutines.CoDispatcher
 import io.github.pknujsp.weatherwizard.core.common.coroutines.CoDispatcherType
 import io.github.pknujsp.weatherwizard.core.widgetnotification.model.WidgetUpdatedArgument
+import io.github.pknujsp.weatherwizard.feature.componentservice.manager.AppComponentServiceManagerFactory
+import io.github.pknujsp.weatherwizard.feature.componentservice.manager.WidgetAlarmManager
 import io.github.pknujsp.weatherwizard.feature.componentservice.widget.worker.FakeWorker
 import io.github.pknujsp.weatherwizard.feature.componentservice.widget.worker.WidgetUpdateBackgroundService
 import kotlinx.coroutines.CoroutineDispatcher
@@ -54,7 +56,14 @@ abstract class BaseWidgetProvider : AppWidgetProvider() {
 
     override fun onDisabled(context: Context) {
         Log.d("WidgetProvider", "onDisabled")
-        WorkManager.getInstance(context).cancelFakeWork()
+        val pendingResult = goAsync()
+        globalScope.launch(dispatcher) {
+            // WorkManager.getInstance(context).cancelFakeWork()
+            AppComponentServiceManagerFactory.getManager(context, WidgetAlarmManager::class).unScheduleAutoRefresh()
+            launchWork(WidgetUpdatedArgument(WidgetUpdatedArgument.DELETE_ALL)).join()
+        }.invokeOnCompletion {
+            pendingResult.finish()
+        }
     }
 
     override fun onAppWidgetOptionsChanged(context: Context?, appWidgetManager: AppWidgetManager?, appWidgetId: Int, newOptions: Bundle?) {
@@ -72,23 +81,20 @@ abstract class BaseWidgetProvider : AppWidgetProvider() {
         }
     }
 
-    private fun launchWork(argument: WidgetUpdatedArgument) {
-        globalScope.launch(dispatcher) {
-            widgetUpdateBackgroundService.run(argument)
-        }
+    private fun launchWork(argument: WidgetUpdatedArgument) = globalScope.launch(dispatcher) {
+        widgetUpdateBackgroundService.run(argument)
     }
+
 }
 
 private const val FAKE_WORK_NAME = "always_pending_work"
 
 fun WorkManager.enqueueFakeWork() {
     val work = getWorkInfosForUniqueWork(FAKE_WORK_NAME)
-    if (work.isDone or work.isCancelled) {
-        return
+    if (work.isDone or work.isCancelled or work.get().isEmpty()) {
+        val alwaysPendingWork = OneTimeWorkRequestBuilder<FakeWorker>().setInitialDelay(5000L, TimeUnit.DAYS).build()
+        enqueueUniqueWork(FAKE_WORK_NAME, ExistingWorkPolicy.KEEP, alwaysPendingWork)
     }
-
-    val alwaysPendingWork = OneTimeWorkRequestBuilder<FakeWorker>().setInitialDelay(5000L, TimeUnit.DAYS).build()
-    enqueueUniqueWork(FAKE_WORK_NAME, ExistingWorkPolicy.KEEP, alwaysPendingWork)
 }
 
 fun WorkManager.cancelFakeWork() {

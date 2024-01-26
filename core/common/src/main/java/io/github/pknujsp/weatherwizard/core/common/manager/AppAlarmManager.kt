@@ -26,7 +26,7 @@ private class AppAlarmManagerImpl(private val context: Context) : AppAlarmManage
         alarmManager.cancel(pendingIntent)
     }
 
-    override fun getScheduleState(context: Context, requestCode: Int, intent: Intent): AppAlarmManager.ScheduledState =
+    override fun getScheduleState(requestCode: Int, intent: Intent): AppAlarmManager.ScheduledState =
         PendingIntent.getBroadcast(context, requestCode, intent, PendingIntent.FLAG_NO_CREATE or PendingIntent.FLAG_IMMUTABLE)?.run {
             AppAlarmManager.ScheduledState.Scheduled(this)
         } ?: AppAlarmManager.ScheduledState.NotScheduled
@@ -44,7 +44,7 @@ interface AppAlarmManager : AppComponentManager {
     fun scheduleExact(triggerAtMillis: Long, pendingIntent: PendingIntent)
     fun scheduleRepeat(intervalMillis: Long, pendingIntent: PendingIntent)
     fun unschedule(pendingIntent: PendingIntent)
-    fun getScheduleState(context: Context, requestCode: Int, intent: Intent): ScheduledState
+    fun getScheduleState(requestCode: Int, intent: Intent): ScheduledState
 
     sealed interface ScheduledState {
         class Scheduled(val pendingIntent: PendingIntent) : ScheduledState

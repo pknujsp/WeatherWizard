@@ -37,6 +37,7 @@ data class WidgetUpdatedArgument(
         const val DRAW = 0
         const val DRAW_ALL = 1
         const val DELETE = 2
+        const val DELETE_ALL = 3
     }
 
     override fun equals(other: Any?): Boolean {

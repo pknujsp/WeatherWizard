@@ -1,4 +1,4 @@
-package io.github.pknujsp.weatherwizard.feature.componentservice.widget.worker
+package io.github.pknujsp.weatherwizard.feature.componentservice.manager
 
 import android.app.PendingIntent
 import android.content.Context
@@ -23,7 +23,7 @@ private class WidgetAlarmManagerImpl(private val context: Context) : WidgetAlarm
         val REQUEST_CODE = "AppWidgetAutoRefreshScheduler".hashCode()
     }
 
-    override fun getScheduleState(context: Context): AppAlarmManager.ScheduledState {
+    override fun getScheduleState(): AppAlarmManager.ScheduledState {
         val intent = ComponentPendingIntentManager.getPendingIntent(context,
             PendingIntent.FLAG_NO_CREATE or PendingIntent.FLAG_IMMUTABLE,
             ComponentServiceAction.LoadWidgetData(LoadWidgetDataArgument(LoadWidgetDataArgument.UPDATE_ALL)),
@@ -37,8 +37,8 @@ private class WidgetAlarmManagerImpl(private val context: Context) : WidgetAlarm
         }
     }
 
-    override fun scheduleAutoRefresh(context: Context, refreshInterval: RefreshInterval) {
-        unScheduleAutoRefresh(context)
+    override fun scheduleAutoRefresh(refreshInterval: RefreshInterval) {
+        unScheduleAutoRefresh()
         if (widgetManager.installedAllWidgetIds.isEmpty() || refreshInterval == RefreshInterval.MANUAL) {
             return
         }
@@ -53,8 +53,8 @@ private class WidgetAlarmManagerImpl(private val context: Context) : WidgetAlarm
         Log.d("AppWidgetAutoRefreshScheduler", "scheduleWidgetAutoRefresh")
     }
 
-    override fun unScheduleAutoRefresh(context: Context) {
-        val scheduleState = getScheduleState(context)
+    override fun unScheduleAutoRefresh() {
+        val scheduleState = getScheduleState()
         if (scheduleState is AppAlarmManager.ScheduledState.Scheduled) {
             appAlarmManager.unschedule(scheduleState.pendingIntent)
             scheduleState.pendingIntent.cancel()
@@ -62,6 +62,7 @@ private class WidgetAlarmManagerImpl(private val context: Context) : WidgetAlarm
         }
     }
 }
+
 
 interface WidgetAlarmManager : AppComponentManager, ComponentServiceAutoRefreshScheduler {
     companion object : AppComponentManagerInitializer {

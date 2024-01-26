@@ -3,7 +3,6 @@ package io.github.pknujsp.weatherwizard.feature.componentservice.manager
 import android.content.Context
 import io.github.pknujsp.weatherwizard.core.common.manager.AppComponentManager
 import io.github.pknujsp.weatherwizard.core.common.manager.AppComponentManagerFactory
-import io.github.pknujsp.weatherwizard.feature.componentservice.widget.worker.WidgetAlarmManager
 import kotlin.reflect.KClass
 
 object AppComponentServiceManagerFactory : AppComponentManagerFactory {

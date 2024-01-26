@@ -55,6 +55,10 @@ class WidgetRepositoryImpl(
         dataSource.deleteById(id)
     }
 
+    override suspend fun deleteAll() {
+        dataSource.deleteAll()
+    }
+
     override suspend fun updateResponseData(id: Int, status: WidgetStatus, responseData: ByteArray?) {
         dataSource.updateResponseData(id, status, responseData)
     }

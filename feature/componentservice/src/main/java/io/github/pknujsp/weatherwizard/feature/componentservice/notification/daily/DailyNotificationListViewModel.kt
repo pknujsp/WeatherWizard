@@ -17,9 +17,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class DailyNotificationListViewModel @Inject constructor(
-    private val dailyNotificationRepository: DailyNotificationRepository, alarmManager: AppAlarmManager
+    private val dailyNotificationRepository: DailyNotificationRepository
 ) : ViewModel() {
-    val dailyNotificationAlarmManager = DailyNotificationAlarmManager(alarmManager)
     var notifications by mutableStateOf(DailyNotificationListUiState())
         private set
 

@@ -32,6 +32,22 @@ private class WidgetManagerImpl(private val context: Context) : WidgetManager {
         return info != null
     }
 
+    override fun redrawAllWidgets(): Boolean {
+        val installedWidgetIds = installedAllWidgetIds
+        if (installedWidgetIds.isEmpty()) {
+            return false
+        }
+
+        Intent().apply {
+            action = AppWidgetManager.ACTION_APPWIDGET_UPDATE
+            component = getProviderByWidgetId(installedWidgetIds.first())
+            putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, installedWidgetIds.toIntArray())
+            context.sendBroadcast(this)
+        }
+
+        return true
+    }
+
     private fun getDialogPendingIntent(context: Context, activityCls: KClass<*>) =
         PendingIntent.getActivity(context, activityCls.hashCode(), Intent(context, activityCls.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK
@@ -53,4 +69,5 @@ interface WidgetManager : AppComponentManager {
     fun updateWidget(appWidgetId: Int, remoteView: RemoteViews, context: Context, activityCls: KClass<*>)
     fun isBind(appWidgetId: Int): Boolean
     fun getProviderByWidgetId(appWidgetId: Int): ComponentName?
+    fun redrawAllWidgets(): Boolean
 }

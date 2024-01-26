@@ -70,7 +70,7 @@ abstract class AppComponentCoroutineService<T : ComponentServiceArgument>(
     protected abstract suspend fun doWork(context: Context, argument: T): Result
 
     private fun createForegroundInfo(): ForegroundInfo {
-        val notification = appNotificationManager.createForegroundNotification(context, NotificationType.WORKING)
+        val notification = appNotificationManager.createForegroundNotification(NotificationType.WORKING)
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             ForegroundInfo(10, notification, ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION)
         } else {

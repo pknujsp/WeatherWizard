@@ -24,7 +24,7 @@ private class OngoingNotificationAlarmManagerImpl(
         private val REQUEST_CODE = "OngoingNotificationAutoRefreshScheduler".hashCode()
     }
 
-    override fun getScheduleState(context: Context): AppAlarmManager.ScheduledState {
+    override fun getScheduleState(): AppAlarmManager.ScheduledState {
         val pendingIntent = ComponentPendingIntentManager.getPendingIntent(context,
             PendingIntent.FLAG_NO_CREATE or PendingIntent.FLAG_IMMUTABLE,
             ComponentServiceAction.OngoingNotification(OngoingNotificationServiceArgument()),
@@ -38,8 +38,8 @@ private class OngoingNotificationAlarmManagerImpl(
         }
     }
 
-    override fun scheduleAutoRefresh(context: Context, refreshInterval: RefreshInterval) {
-        unScheduleAutoRefresh(context)
+    override fun scheduleAutoRefresh(refreshInterval: RefreshInterval) {
+        unScheduleAutoRefresh()
         if (refreshInterval == RefreshInterval.MANUAL) {
             return
         }
@@ -52,8 +52,8 @@ private class OngoingNotificationAlarmManagerImpl(
         appAlarmManager.scheduleRepeat(refreshInterval.interval, pendingIntent.pendingIntent!!)
     }
 
-    override fun unScheduleAutoRefresh(context: Context) {
-        val scheduleState = getScheduleState(context)
+    override fun unScheduleAutoRefresh() {
+        val scheduleState = getScheduleState()
         Log.d("OngoingNotificationAutoRefreshScheduler", "unScheduleAutoRefresh: $scheduleState")
         if (scheduleState is AppAlarmManager.ScheduledState.Scheduled) {
             appAlarmManager.unschedule(scheduleState.pendingIntent)

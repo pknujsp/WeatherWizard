@@ -1,6 +1,5 @@
 package io.github.pknujsp.weatherwizard.core.common.manager
 
-import android.appwidget.AppWidgetManager
 import android.content.Context
 import kotlin.reflect.KClass
 

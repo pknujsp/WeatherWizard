@@ -76,7 +76,7 @@ class DailyNotificationCoroutineService @AssistedInject constructor(
                 bigContentRemoteViews = bigRemoteView,
                 notificationType = NotificationType.DAILY,
             )
-            appNotificationManager.notifyNotification(NotificationType.DAILY, context, notificationViewState)
+            appNotificationManager.notifyNotification(NotificationType.DAILY, notificationViewState.toExtendNotification())
         } else {
 
             val notificationViewState = NotificationViewState(
@@ -95,7 +95,7 @@ class DailyNotificationCoroutineService @AssistedInject constructor(
                     UiStateRemoteViewCreator.ViewSizeType.BIG),
                 notificationType = NotificationType.DAILY,
             )
-            appNotificationManager.notifyNotification(NotificationType.DAILY, context, notificationViewState)
+            appNotificationManager.notifyNotification(NotificationType.DAILY, notificationViewState.toExtendNotification())
         }
     }
 
@@ -122,7 +122,7 @@ class DailyNotificationCoroutineService @AssistedInject constructor(
                     bigFailedContentRemoteViews = bigRemoteViews,
                     notificationType = NotificationType.DAILY,
                 )
-                appNotificationManager.notifyNotification(NotificationType.DAILY, context, notificationViewState)
+                appNotificationManager.notifyNotification(NotificationType.DAILY, notificationViewState.toExtendNotification())
                 false
             }
 

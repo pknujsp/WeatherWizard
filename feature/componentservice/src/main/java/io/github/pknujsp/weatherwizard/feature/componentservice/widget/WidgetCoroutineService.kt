@@ -8,11 +8,11 @@ import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import io.github.pknujsp.weatherwizard.core.FeatureStateManager
 import io.github.pknujsp.weatherwizard.core.common.FeatureType
+import io.github.pknujsp.weatherwizard.core.common.manager.AppComponentManagerFactory
 import io.github.pknujsp.weatherwizard.core.common.manager.WidgetManager
-import io.github.pknujsp.weatherwizard.core.common.module.KtJson
+import io.github.pknujsp.weatherwizard.core.data.mapper.JsonParser
 import io.github.pknujsp.weatherwizard.core.data.settings.SettingsRepository
 import io.github.pknujsp.weatherwizard.core.data.widget.WidgetRepository
-import io.github.pknujsp.weatherwizard.core.data.mapper.JsonParser
 import io.github.pknujsp.weatherwizard.core.model.coordinate.LocationType
 import io.github.pknujsp.weatherwizard.core.model.widget.WidgetStatus
 import io.github.pknujsp.weatherwizard.core.resource.R
@@ -21,19 +21,18 @@ import io.github.pknujsp.weatherwizard.core.widgetnotification.model.IWorker
 import io.github.pknujsp.weatherwizard.core.widgetnotification.model.LoadWidgetDataArgument
 import io.github.pknujsp.weatherwizard.feature.componentservice.widget.worker.AppWidgetViewUpdater
 import io.github.pknujsp.weatherwizard.feature.componentservice.widget.worker.WidgetRemoteViewModel
-import kotlinx.serialization.json.Json
 
 @HiltWorker
 class WidgetCoroutineService @AssistedInject constructor(
     @Assisted val context: Context,
     @Assisted params: WorkerParameters,
     private val widgetRemoteViewModel: WidgetRemoteViewModel,
-    private val widgetManager: WidgetManager,
     private val jsonParser: JsonParser,
     appSettingsRepository: SettingsRepository,
     widgetRepository: WidgetRepository,
 ) : AppComponentCoroutineService<LoadWidgetDataArgument>(context, params, Companion) {
 
+    private val widgetManager: WidgetManager = AppComponentManagerFactory.getManager(context, AppComponentManagerFactory.WIDGET_MANAGER)
 
     companion object : IWorker {
         override val name: String = "WidgetCoroutineService"

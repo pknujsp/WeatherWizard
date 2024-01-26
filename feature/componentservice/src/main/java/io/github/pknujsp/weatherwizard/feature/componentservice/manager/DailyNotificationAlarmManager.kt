@@ -17,7 +17,7 @@ private class DailyNotificationAlarmManagerImpl(
 ) : DailyNotificationAlarmManager {
     private val appAlarmManager = AppComponentManagerFactory.getManager(context, AppComponentManagerFactory.ALARM_MANAGER)
 
-    override fun schedule(context: Context, notificationId: Long, hour: Int, minute: Int) {
+    override fun schedule(notificationId: Long, hour: Int, minute: Int) {
         val now = ZonedDateTime.now().withSecond(0).let {
             if (hour < it.hour || (hour == it.hour && minute < it.minute)) {
                 it.plusDays(1)
@@ -31,14 +31,14 @@ private class DailyNotificationAlarmManagerImpl(
         }
     }
 
-    override fun unSchedule(context: Context, notificationId: Long) {
+    override fun unSchedule(notificationId: Long) {
         getPendingIntent(notificationId, context, PendingIntent.FLAG_NO_CREATE or PendingIntent.FLAG_IMMUTABLE)?.run {
             appAlarmManager.unschedule(this)
             cancel()
         }
     }
 
-    override fun isScheduled(context: Context, notificationId: Long): Boolean {
+    override fun isScheduled(notificationId: Long): Boolean {
         return getPendingIntent(notificationId, context, PendingIntent.FLAG_NO_CREATE or PendingIntent.FLAG_IMMUTABLE) != null
     }
 
@@ -62,7 +62,7 @@ interface DailyNotificationAlarmManager : AppComponentManager {
         }
     }
 
-    fun schedule(context: Context, notificationId: Long, hour: Int, minute: Int)
-    fun unSchedule(context: Context, notificationId: Long)
-    fun isScheduled(context: Context, notificationId: Long): Boolean
+    fun schedule(notificationId: Long, hour: Int, minute: Int)
+    fun unSchedule(notificationId: Long)
+    fun isScheduled(notificationId: Long): Boolean
 }

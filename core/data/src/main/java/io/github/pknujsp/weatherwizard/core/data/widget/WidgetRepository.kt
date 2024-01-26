@@ -14,5 +14,7 @@ interface WidgetRepository {
 
     suspend fun delete(id: Int)
 
+    suspend fun deleteAll()
+
     suspend fun updateResponseData(id: Int, status: WidgetStatus, responseData: ByteArray?)
 }

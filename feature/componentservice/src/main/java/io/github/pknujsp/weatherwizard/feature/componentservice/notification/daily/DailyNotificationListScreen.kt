@@ -50,7 +50,7 @@ import io.github.pknujsp.weatherwizard.feature.componentservice.notification.dai
 
 @Composable
 fun DailyNotificationListScreen(navController: NavController, viewModel: DailyNotificationListViewModel = hiltViewModel()) {
-    val notificationsState = rememberDailyNotificationListState(viewModel::switch, viewModel::delete, viewModel.dailyNotificationAlarmManager)
+    val notificationsState = rememberDailyNotificationListState(viewModel::switch, viewModel::delete)
     val notificationListUiState = viewModel.notifications
 
     Column(modifier = Modifier.fillMaxSize()) {

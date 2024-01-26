@@ -43,10 +43,10 @@ class OngoingNotificationState(
         if (ongoingNotificationUiState.isEnabled) {
             context.sendBroadcast(ComponentPendingIntentManager.getIntent(context,
                 OngoingNotificationServiceArgument(),
-                AppComponentServiceReceiver.ACTION_AUTO_REFRESH))
-            ongoingNotificationAlarmManager.scheduleAutoRefresh(context, refreshInterval)
+                AppComponentServiceReceiver.ACTION_REFRESH))
+            ongoingNotificationAlarmManager.scheduleAutoRefresh(refreshInterval)
         } else {
-            ongoingNotificationAlarmManager.unScheduleAutoRefresh(context)
+            ongoingNotificationAlarmManager.unScheduleAutoRefresh()
             appNotificationManager.cancelNotification(NotificationType.ONGOING)
         }
     }
