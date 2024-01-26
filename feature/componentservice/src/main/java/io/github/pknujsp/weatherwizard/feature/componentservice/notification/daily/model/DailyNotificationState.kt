@@ -2,7 +2,6 @@ package io.github.pknujsp.weatherwizard.feature.componentservice.notification.da
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.widget.Toast
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -11,8 +10,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import io.github.pknujsp.weatherwizard.core.common.asFeatureType
 import io.github.pknujsp.weatherwizard.core.common.manager.PermissionType
-import io.github.pknujsp.weatherwizard.feature.componentservice.manager.DailyNotificationAlarmManager
 import io.github.pknujsp.weatherwizard.feature.componentservice.manager.AppComponentServiceManagerFactory
+import io.github.pknujsp.weatherwizard.feature.componentservice.manager.DailyNotificationAlarmManager
 
 @SuppressLint("NewApi")
 class DailyNotificationState(
@@ -26,27 +25,30 @@ class DailyNotificationState(
     var showSearch by mutableStateOf(false)
     var scheduleExactAlarmPermissionState by mutableStateOf(permissionType.asFeatureType().isAvailable(context))
 
-    fun onChangedSettings(context: Context, popBackStack: () -> Unit) {
-        dailyNotificationUiState.run {
-            when (action) {
-                DailyNotificationUiState.Action.DISABLED -> dailyNotificationAlarmManager.unSchedule(dailyNotificationSettings.id)
-                DailyNotificationUiState.Action.ENABLED, DailyNotificationUiState.Action.UPDATED -> {
-                    val id = dailyNotificationSettings.id
-
-                    if (!isNew) {
-                        dailyNotificationAlarmManager.unSchedule(id)
-                    }
-                    if (isEnabled) {
-                        dailyNotificationAlarmManager.schedule(id,
-                            dailyNotificationSettings.hour,
-                            dailyNotificationSettings.minute)
-                        Toast.makeText(context, "알림이 설정되었습니다.", Toast.LENGTH_SHORT).show()
-                        popBackStack()
-                    }
-                }
-
-                else -> {}
+    fun onChangedSettings(popBackStack: () -> Unit) {
+        when (val action = dailyNotificationUiState.action) {
+            is DailyNotificationUiState.Action.DISABLED -> dailyNotificationAlarmManager.unSchedule(action.id)
+            is DailyNotificationUiState.Action.ENABLED -> {
+                schedule(action.id)
+                popBackStack()
             }
+
+            is DailyNotificationUiState.Action.UPDATED -> {
+                schedule(action.id)
+                popBackStack()
+            }
+
+            else -> {}
+        }
+    }
+
+    private fun schedule(id: Long) {
+        if (dailyNotificationUiState.isEnabled) {
+            dailyNotificationAlarmManager.schedule(id,
+                dailyNotificationUiState.dailyNotificationSettings.hour,
+                dailyNotificationUiState.dailyNotificationSettings.minute)
+        } else {
+            dailyNotificationAlarmManager.unSchedule(id)
         }
     }
 }

@@ -12,5 +12,7 @@ interface DailyNotificationRepository {
 
     suspend fun updateDailyNotification(entity: NotificationSettingsEntity<DailyNotificationSettingsEntity>)
 
+    suspend fun createDailyNotification(entity: NotificationSettingsEntity<DailyNotificationSettingsEntity>): Long
+
     suspend fun deleteDailyNotification(id: Long)
 }

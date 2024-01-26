@@ -24,31 +24,32 @@ import javax.inject.Inject
 class ConfigDailyNotificationViewModel @Inject constructor(
     private val dailyNotificationRepository: DailyNotificationRepository,
     @CoDispatcher(CoDispatcherType.IO) private val ioDispatcher: kotlinx.coroutines.CoroutineDispatcher,
-    savedStateHandle: SavedStateHandle,
+    private val savedStateHandle: SavedStateHandle,
     private val appSettingsRepository: SettingsRepository
 ) : ViewModel() {
-    private val notificationId = savedStateHandle.get<Long>(NotificationRoutes.AddOrEditDaily.arguments.first().name) ?: -1L
+    private var notificationId = savedStateHandle.get<Long>(NotificationRoutes.AddOrEditDaily.arguments.first().name)!!
     private val isNew get() = notificationId == -1L
 
     val units get() = appSettingsRepository.settings.replayCache.last().units
 
     private val _dailyNoficationUiState =
         MutableDailyNotificationUiState(dailyNotificationSettings = DailyNotificationSettingsEntity().let {
-            DailyNotificationSettings(type = it.type,
+            DailyNotificationSettings(
+                type = it.type,
                 location = it.location,
                 hour = it.hour,
                 minute = it.minute,
-                weatherProvider = it.weatherProvider)
-        }, update = ::update, switch = ::switch, isNew = isNew)
+                weatherProvider = it.weatherProvider,
+            )
+        }, update = ::update, isNew = isNew)
 
     val dailyNotificationUiState: DailyNotificationUiState = _dailyNoficationUiState
 
     init {
         viewModelScope.launch {
             if (!isNew) {
-                dailyNotificationRepository.getDailyNotification(notificationId).run {
-                    _dailyNoficationUiState.dailyNotificationSettings = DailyNotificationSettings(id = id,
-                        type = data.type,
+                withContext(ioDispatcher) { dailyNotificationRepository.getDailyNotification(notificationId) }.run {
+                    _dailyNoficationUiState.dailyNotificationSettings = DailyNotificationSettings(type = data.type,
                         location = data.location,
                         hour = data.hour,
                         minute = data.minute,
@@ -75,44 +76,40 @@ class ConfigDailyNotificationViewModel @Inject constructor(
 
             withContext(ioDispatcher) {
                 val settingsEntity = NotificationSettingsEntity(
-                    id = dailyNotificationUiState.dailyNotificationSettings.id,
+                    id = if (isNew) 0 else notificationId,
                     enabled = dailyNotificationUiState.isEnabled,
                     data = createSettingsEntity(),
                     isInitialized = true,
                 )
-                dailyNotificationRepository.updateDailyNotification(settingsEntity)
+                val updatedNotificationId = dailyNotificationRepository.run {
+                    if (isNew) {
+                        createDailyNotification(settingsEntity)
+                    } else {
+                        updateDailyNotification(settingsEntity)
+                        notificationId
+                    }
+                }
+                updatedNotificationId
+            }.let { updatedNotificationId ->
+                notificationId = updatedNotificationId
+                savedStateHandle[NotificationRoutes.AddOrEditDaily.arguments.first().name] = updatedNotificationId
             }
-            _dailyNoficationUiState.action = DailyNotificationUiState.Action.UPDATED
+            _dailyNoficationUiState.action = DailyNotificationUiState.Action.UPDATED(notificationId)
         }
     }
 
-    private fun switch() {
-        viewModelScope.launch {
-            _dailyNoficationUiState.action = DailyNotificationUiState.Action.NONE
-            dailyNotificationRepository.switch(dailyNotificationUiState.dailyNotificationSettings.id, dailyNotificationUiState.isEnabled)
-            _dailyNoficationUiState.action =
-                if (dailyNotificationUiState.isEnabled) DailyNotificationUiState.Action.ENABLED else DailyNotificationUiState.Action.DISABLED
-        }
-    }
 }
 
 
 private class MutableDailyNotificationUiState(
-    dailyNotificationSettings: DailyNotificationSettings,
-    private val update: () -> Unit,
-    private val switch: () -> Unit,
-    override val isNew: Boolean
+    dailyNotificationSettings: DailyNotificationSettings, private val update: () -> Unit, override val isNew: Boolean
 ) : DailyNotificationUiState {
     override var dailyNotificationSettings by mutableStateOf(dailyNotificationSettings)
     override var isEnabled by mutableStateOf(false)
-    override var action by mutableStateOf(DailyNotificationUiState.Action.NONE)
+    override var action: DailyNotificationUiState.Action by mutableStateOf(DailyNotificationUiState.Action.NONE)
 
     override fun update() {
         update.invoke()
     }
 
-    override fun switch() {
-        isEnabled = !isEnabled
-        switch.invoke()
-    }
 }

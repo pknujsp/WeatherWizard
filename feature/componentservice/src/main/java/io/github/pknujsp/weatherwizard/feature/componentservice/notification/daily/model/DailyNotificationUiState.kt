@@ -11,9 +11,11 @@ interface DailyNotificationUiState {
     val dailyNotificationSettings: DailyNotificationSettings
 
     fun update()
-    fun switch()
 
-    enum class Action {
-        ENABLED, DISABLED, UPDATED, NONE
+    sealed interface Action {
+        data class UPDATED(val id: Long) : Action
+        data class ENABLED(val id: Long) : Action
+        data class DISABLED(val id: Long) : Action
+        data object NONE : Action
     }
 }

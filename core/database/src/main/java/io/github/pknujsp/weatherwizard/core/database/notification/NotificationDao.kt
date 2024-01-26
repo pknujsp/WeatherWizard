@@ -12,7 +12,6 @@ interface NotificationDao {
     @Upsert(entity = NotificationDto::class)
     suspend fun insert(notificationDto: NotificationDto): Long
 
-
     @Query("SELECT * FROM notifications WHERE notificationType = :notificationTypeId ORDER BY id DESC")
     fun getAll(notificationTypeId: Int): Flow<List<NotificationDto>?>
 

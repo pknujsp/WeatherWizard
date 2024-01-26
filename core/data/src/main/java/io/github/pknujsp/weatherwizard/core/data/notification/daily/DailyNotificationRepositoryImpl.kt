@@ -9,7 +9,6 @@ import io.github.pknujsp.weatherwizard.core.database.notification.daily.DailyNot
 import io.github.pknujsp.weatherwizard.core.model.notification.NotificationSettingsEntity
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-import kotlinx.serialization.InternalSerializationApi
 
 class DailyNotificationRepositoryImpl(
     private val dataSource: DailyNotificationLocalDataSource, private val jsonParser: JsonParser
@@ -55,18 +54,7 @@ class DailyNotificationRepositoryImpl(
 
     override suspend fun updateDailyNotification(entity: NotificationSettingsEntity<DailyNotificationSettingsEntity>) {
         entity.run {
-            val encoded = jsonParser.parse(DailyNotificationSettingsJsonEntity(
-                latitude = data.location.latitude,
-                longitude = data.location.longitude,
-                address = data.location.address,
-                country = data.location.country,
-                hour = data.hour,
-                minute = data.minute,
-                locationType = data.location.locationType.key,
-                weatherProvider = data.weatherProvider.key,
-                type = data.type.key,
-            ))
-
+            val encoded = toJsonEntity()
             dataSource.updateDailyNotification(NotificationDto(
                 id = id,
                 enabled = enabled,
@@ -76,8 +64,33 @@ class DailyNotificationRepositoryImpl(
         }
     }
 
+    override suspend fun createDailyNotification(entity: NotificationSettingsEntity<DailyNotificationSettingsEntity>): Long = entity.run {
+        val encoded = toJsonEntity()
+        dataSource.updateDailyNotification(NotificationDto(
+            id = id,
+            enabled = enabled,
+            notificationType = NotificationType.DAILY.notificationId,
+            content = encoded,
+        ))
+    }
+
+
     override suspend fun deleteDailyNotification(id: Long) {
         dataSource.removeDailyNotification(id)
     }
+
+
+    private fun NotificationSettingsEntity<DailyNotificationSettingsEntity>.toJsonEntity() =
+        jsonParser.parse(DailyNotificationSettingsJsonEntity(
+            latitude = data.location.latitude,
+            longitude = data.location.longitude,
+            address = data.location.address,
+            country = data.location.country,
+            hour = data.hour,
+            minute = data.minute,
+            locationType = data.location.locationType.key,
+            weatherProvider = data.weatherProvider.key,
+            type = data.type.key,
+        ))
 
 }
