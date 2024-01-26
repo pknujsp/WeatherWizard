@@ -11,7 +11,6 @@ import android.os.Build
 import android.os.PowerManager
 import android.provider.Settings
 import androidx.annotation.RequiresApi
-import io.github.pknujsp.weatherwizard.core.common.enum.pendingIntentRequestFactory
 import io.github.pknujsp.weatherwizard.core.common.manager.FailedReason
 import io.github.pknujsp.weatherwizard.core.common.manager.PermissionType
 import io.github.pknujsp.weatherwizard.core.common.manager.checkSelfPermission
@@ -24,7 +23,7 @@ enum class FeatureType(
 
         override fun getPendingIntent(context: Context): PendingIntent {
             return PendingIntent.getActivity(context,
-                pendingIntentRequestFactory.requestId(this::class),
+                this::class.simpleName.hashCode(),
                 getIntent(context),
                 PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
         }
@@ -39,7 +38,7 @@ enum class FeatureType(
 
         override fun getPendingIntent(context: Context): PendingIntent {
             return PendingIntent.getActivity(context,
-                pendingIntentRequestFactory.requestId(this::class),
+                this::class.simpleName.hashCode(),
                 getIntent(context),
                 PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
         }
@@ -55,15 +54,13 @@ enum class FeatureType(
         @RequiresApi(Build.VERSION_CODES.S)
         override fun getPendingIntent(context: Context): PendingIntent {
             return PendingIntent.getActivity(context,
-                pendingIntentRequestFactory.requestId(this::class),
+                this::class.simpleName.hashCode(),
                 getIntent(context),
-                PendingIntent.FLAG_ONE_SHOT or PendingIntent.FLAG_IMMUTABLE)
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
         }
 
         @RequiresApi(Build.VERSION_CODES.S)
-        override fun getIntent(context: Context) = actionIntent(context).apply {
-            data = Uri.parse("package:${context.packageName}")
-        }
+        override fun getIntent(context: Context) = appSettingsIntent(context)
 
         @RequiresApi(Build.VERSION_CODES.S)
         override fun isAvailable(context: Context): Boolean =
@@ -73,9 +70,9 @@ enum class FeatureType(
     STORAGE_PERMISSION(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, PermissionType.STORAGE) {
         override fun getPendingIntent(context: Context): PendingIntent {
             return PendingIntent.getActivity(context,
-                pendingIntentRequestFactory.requestId(this::class),
+                this::class.simpleName.hashCode(),
                 getIntent(context),
-                PendingIntent.FLAG_ONE_SHOT or PendingIntent.FLAG_IMMUTABLE)
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
         }
 
         override fun getIntent(context: Context) = appSettingsIntent(context)
@@ -87,26 +84,24 @@ enum class FeatureType(
     NETWORK(Settings.ACTION_WIRELESS_SETTINGS, FailedReason.NETWORK_UNAVAILABLE) {
         override fun getPendingIntent(context: Context): PendingIntent {
             return PendingIntent.getActivity(context,
-                pendingIntentRequestFactory.requestId(this::class),
+                this::class.simpleName.hashCode(),
                 getIntent(context),
-                PendingIntent.FLAG_ONE_SHOT or PendingIntent.FLAG_IMMUTABLE)
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
         }
 
-        override fun getIntent(context: Context) = actionIntent(context)
+        override fun getIntent(context: Context) = actionIntent()
 
         override fun isAvailable(context: Context): Boolean {
             val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-            return connectivityManager.getNetworkCapabilities(connectivityManager.activeNetwork)?.run {
-                hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
-            } ?: false
+            return connectivityManager.activeNetwork != null
         }
     },
     LOCATION_SERVICE(Settings.ACTION_LOCATION_SOURCE_SETTINGS, FailedReason.LOCATION_SERVICE_DISABLED) {
         override fun getPendingIntent(context: Context): PendingIntent {
             return PendingIntent.getActivity(context,
-                pendingIntentRequestFactory.requestId(this::class),
+                this::class.simpleName.hashCode(),
                 getIntent(context),
-                PendingIntent.FLAG_ONE_SHOT or PendingIntent.FLAG_IMMUTABLE)
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
         }
 
         override fun getIntent(context: Context): Intent {
@@ -123,9 +118,9 @@ enum class FeatureType(
         @RequiresApi(Build.VERSION_CODES.TIRAMISU)
         override fun getPendingIntent(context: Context): PendingIntent {
             return PendingIntent.getActivity(context,
-                pendingIntentRequestFactory.requestId(this::class),
+                this::class.simpleName.hashCode(),
                 getIntent(context),
-                PendingIntent.FLAG_ONE_SHOT or PendingIntent.FLAG_IMMUTABLE)
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
         }
 
         @RequiresApi(Build.VERSION_CODES.TIRAMISU)
@@ -143,9 +138,9 @@ enum class FeatureType(
         @RequiresApi(Build.VERSION_CODES.S)
         override fun getPendingIntent(context: Context): PendingIntent {
             return PendingIntent.getActivity(context,
-                pendingIntentRequestFactory.requestId(this::class),
+                this::class.simpleName.hashCode(),
                 getIntent(context),
-                PendingIntent.FLAG_ONE_SHOT or PendingIntent.FLAG_IMMUTABLE)
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
         }
 
         @RequiresApi(Build.VERSION_CODES.S)
@@ -163,10 +158,7 @@ enum class FeatureType(
             data = uri
         }
 
-        fun FeatureType.actionIntent(context: Context) = Intent(intentAction).apply {
-            val uri = Uri.fromParts("package", context.packageName, null)
-            data = uri
-        }
+        fun FeatureType.actionIntent() = Intent(intentAction)
     }
 }
 

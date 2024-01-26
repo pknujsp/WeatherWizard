@@ -10,7 +10,7 @@ import io.github.pknujsp.weatherwizard.core.model.notification.enums.DailyNotifi
 import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherProvider
 
 class DailyNotificationSettings(
-    val id: Long = 0L, type: DailyNotificationType, location: LocationTypeModel, hour: Int, minute: Int, weatherProvider: WeatherProvider
+    type: DailyNotificationType, location: LocationTypeModel, hour: Int, minute: Int, weatherProvider: WeatherProvider
 ) : UiModel {
     var type by mutableStateOf(type)
     var location by mutableStateOf(location)

@@ -10,16 +10,15 @@ import io.github.pknujsp.weatherwizard.core.common.manager.AppAlarmManager
 import io.github.pknujsp.weatherwizard.core.data.notification.daily.DailyNotificationRepository
 import io.github.pknujsp.weatherwizard.feature.componentservice.notification.daily.model.list.DailyNotificationListUiState
 import io.github.pknujsp.weatherwizard.feature.componentservice.notification.daily.model.list.DailyNotificationSettingsListItem
-import io.github.pknujsp.weatherwizard.feature.componentservice.notification.manager.NotificationAlarmManager
+import io.github.pknujsp.weatherwizard.feature.componentservice.manager.DailyNotificationAlarmManager
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class DailyNotificationListViewModel @Inject constructor(
-    private val dailyNotificationRepository: DailyNotificationRepository, alarmManager: AppAlarmManager
+    private val dailyNotificationRepository: DailyNotificationRepository
 ) : ViewModel() {
-    val notificationAlarmManager = NotificationAlarmManager(alarmManager)
     var notifications by mutableStateOf(DailyNotificationListUiState())
         private set
 

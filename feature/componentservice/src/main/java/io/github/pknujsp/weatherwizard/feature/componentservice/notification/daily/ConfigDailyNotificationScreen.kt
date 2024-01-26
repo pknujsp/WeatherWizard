@@ -51,11 +51,10 @@ import io.github.pknujsp.weatherwizard.feature.searchlocation.SearchLocationScre
 
 @Composable
 fun ConfigDailyNotificationScreen(navController: NavController, viewModel: ConfigDailyNotificationViewModel = hiltViewModel()) {
-    val notification = rememberDailyNotificationState(viewModel.dailyNotificationUiState, viewModel.notificationAlarmManager)
-    val context = LocalContext.current
+    val notification = rememberDailyNotificationState(viewModel.dailyNotificationUiState)
 
     LaunchedEffect(notification.dailyNotificationUiState.action) {
-        notification.onChangedSettings(context, popBackStack = {
+        notification.onChangedSettings(popBackStack = {
             navController.popBackStack()
         })
     }
@@ -83,7 +82,8 @@ fun ConfigDailyNotificationScreen(navController: NavController, viewModel: Confi
                             navController.popBackStack()
                         }
                         RemoteViewsScreen(RemoteViewsCreatorManager.getByDailyNotificationType(dailyNotificationUiState.dailyNotificationSettings.type),
-                            viewModel.units)
+                            viewModel.units,
+                            modifier = Modifier.padding(12.dp))
                         Column(modifier = Modifier
                             .verticalScroll(rememberScrollState())
                             .weight(1f)

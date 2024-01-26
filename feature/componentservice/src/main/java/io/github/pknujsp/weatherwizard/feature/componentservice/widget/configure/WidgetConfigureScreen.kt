@@ -34,6 +34,7 @@ import io.github.pknujsp.weatherwizard.core.ui.WeatherProvidersScreen
 import io.github.pknujsp.weatherwizard.core.widgetnotification.model.ComponentServiceAction
 import io.github.pknujsp.weatherwizard.core.widgetnotification.model.LoadWidgetDataArgument
 import io.github.pknujsp.weatherwizard.core.widgetnotification.remoteview.RemoteViewsCreatorManager
+import io.github.pknujsp.weatherwizard.feature.componentservice.AppComponentServiceReceiver
 import io.github.pknujsp.weatherwizard.feature.componentservice.ComponentPendingIntentManager
 import io.github.pknujsp.weatherwizard.feature.componentservice.RemoteViewsScreen
 import io.github.pknujsp.weatherwizard.feature.searchlocation.SearchLocationScreen
@@ -109,7 +110,8 @@ fun WidgetConfigureScreen(
 
 fun createWidgetAndFinish(activity: Activity, widgetId: Int) {
     val newWidgetIntent = ComponentPendingIntentManager.getIntent(activity.applicationContext,
-        LoadWidgetDataArgument(LoadWidgetDataArgument.NEW_WIDGET, widgetId))
+        LoadWidgetDataArgument(LoadWidgetDataArgument.NEW_WIDGET, widgetId),
+        AppComponentServiceReceiver.ACTION_REFRESH)
     activity.sendBroadcast(newWidgetIntent)
 
     val result = Intent().putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, widgetId)

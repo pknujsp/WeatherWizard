@@ -1,22 +1,17 @@
 package io.github.pknujsp.weatherwizard.core.data.widget
 
-import io.github.pknujsp.weatherwizard.core.common.module.KtJson
+import io.github.pknujsp.weatherwizard.core.data.mapper.JsonParser
 import io.github.pknujsp.weatherwizard.core.database.widget.WidgetDto
 import io.github.pknujsp.weatherwizard.core.database.widget.WidgetLocalDataSource
-import io.github.pknujsp.weatherwizard.core.model.JsonParser
 import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherProvider
 import io.github.pknujsp.weatherwizard.core.model.widget.WidgetStatus
 import io.github.pknujsp.weatherwizard.core.model.widget.WidgetType
-import kotlinx.serialization.json.Json
 import java.time.ZonedDateTime
-import javax.inject.Inject
 
-class WidgetRepositoryImpl @Inject constructor(
-    private val dataSource: WidgetLocalDataSource,
-    @KtJson json: Json,
+class WidgetRepositoryImpl(
+    private val dataSource: WidgetLocalDataSource, private val jsonParser: JsonParser
 ) : WidgetRepository {
 
-    private val jsonParser: JsonParser = JsonParser(json)
 
     override suspend fun getAll(): WidgetSettingsEntityList = dataSource.getAll(true).let {
         val list = it.map { dto ->
@@ -58,6 +53,10 @@ class WidgetRepositoryImpl @Inject constructor(
 
     override suspend fun delete(id: Int) {
         dataSource.deleteById(id)
+    }
+
+    override suspend fun deleteAll() {
+        dataSource.deleteAll()
     }
 
     override suspend fun updateResponseData(id: Int, status: WidgetStatus, responseData: ByteArray?) {

@@ -32,6 +32,8 @@ class WidgetLocalDataSourceImpl(
 
     override suspend fun containsId(id: Int): Boolean = widgetDao.containsId(id)
 
+    override suspend fun deleteAll() = widgetDao.deleteAll()
+
 
     override suspend fun updateResponseData(id: Int, status: WidgetStatus, responseData: ByteArray?) {
         val compressed = responseData?.let { compressionTool.compress(it) }

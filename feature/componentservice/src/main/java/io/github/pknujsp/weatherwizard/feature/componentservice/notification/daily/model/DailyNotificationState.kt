@@ -2,7 +2,6 @@ package io.github.pknujsp.weatherwizard.feature.componentservice.notification.da
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.widget.Toast
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -11,36 +10,45 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import io.github.pknujsp.weatherwizard.core.common.asFeatureType
 import io.github.pknujsp.weatherwizard.core.common.manager.PermissionType
-import io.github.pknujsp.weatherwizard.feature.componentservice.notification.manager.NotificationAlarmManager
+import io.github.pknujsp.weatherwizard.feature.componentservice.manager.AppComponentServiceManagerFactory
+import io.github.pknujsp.weatherwizard.feature.componentservice.manager.DailyNotificationAlarmManager
 
 @SuppressLint("NewApi")
 class DailyNotificationState(
-    val dailyNotificationUiState: DailyNotificationUiState, private val notificationAlarmManager: NotificationAlarmManager, context: Context
+    val dailyNotificationUiState: DailyNotificationUiState, context: Context
 ) {
+    private val dailyNotificationAlarmManager: DailyNotificationAlarmManager =
+        AppComponentServiceManagerFactory.getManager(context, AppComponentServiceManagerFactory.DAILY_NOTIFICATION_ALARM_MANAGER)
+
     val permissionType: PermissionType = PermissionType.SCHEDULE_EXACT_ALARM_ABOVE_EQUALS_ON_SDK_31
 
     var showSearch by mutableStateOf(false)
     var scheduleExactAlarmPermissionState by mutableStateOf(permissionType.asFeatureType().isAvailable(context))
 
-    fun onChangedSettings(context: Context, popBackStack: () -> Unit) {
-        dailyNotificationUiState.run {
-            when (action) {
-                DailyNotificationUiState.Action.DISABLED -> notificationAlarmManager.unSchedule(context, dailyNotificationSettings.id)
-                DailyNotificationUiState.Action.ENABLED, DailyNotificationUiState.Action.UPDATED -> {
-                    val id = dailyNotificationSettings.id
-
-                    if (!isNew) {
-                        notificationAlarmManager.unSchedule(context, id)
-                    }
-                    if (isEnabled) {
-                        notificationAlarmManager.schedule(context, id, dailyNotificationSettings.hour, dailyNotificationSettings.minute)
-                        Toast.makeText(context, "알림이 설정되었습니다.", Toast.LENGTH_SHORT).show()
-                        popBackStack()
-                    }
-                }
-
-                else -> {}
+    fun onChangedSettings(popBackStack: () -> Unit) {
+        when (val action = dailyNotificationUiState.action) {
+            is DailyNotificationUiState.Action.DISABLED -> dailyNotificationAlarmManager.unSchedule(action.id)
+            is DailyNotificationUiState.Action.ENABLED -> {
+                schedule(action.id)
+                popBackStack()
             }
+
+            is DailyNotificationUiState.Action.UPDATED -> {
+                schedule(action.id)
+                popBackStack()
+            }
+
+            else -> {}
+        }
+    }
+
+    private fun schedule(id: Long) {
+        if (dailyNotificationUiState.isEnabled) {
+            dailyNotificationAlarmManager.schedule(id,
+                dailyNotificationUiState.dailyNotificationSettings.hour,
+                dailyNotificationUiState.dailyNotificationSettings.minute)
+        } else {
+            dailyNotificationAlarmManager.unSchedule(id)
         }
     }
 }
@@ -49,11 +57,10 @@ class DailyNotificationState(
 @Composable
 fun rememberDailyNotificationState(
     dailyNotificationUiState: DailyNotificationUiState,
-    notificationAlarmManager: NotificationAlarmManager,
     context: Context = LocalContext.current,
 ): DailyNotificationState {
-    val state = remember(dailyNotificationUiState, notificationAlarmManager) {
-        DailyNotificationState(dailyNotificationUiState, notificationAlarmManager, context)
+    val state = remember(dailyNotificationUiState) {
+        DailyNotificationState(dailyNotificationUiState, context)
     }
     return state
 }

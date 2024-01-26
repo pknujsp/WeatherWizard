@@ -55,12 +55,12 @@ sealed interface ComponentServiceAction<T : ComponentServiceArgument> {
         }
     }
 
-     class OngoingNotification(override val argument: OngoingNotificationServiceArgument = OngoingNotificationServiceArgument()) :
+    data class OngoingNotification(override val argument: OngoingNotificationServiceArgument = OngoingNotificationServiceArgument()) :
         ComponentServiceAction<OngoingNotificationServiceArgument>
 
-     class DailyNotification(override val argument: DailyNotificationServiceArgument) :
+    data class DailyNotification(override val argument: DailyNotificationServiceArgument) :
         ComponentServiceAction<DailyNotificationServiceArgument>
 
-     class LoadWidgetData(override val argument: LoadWidgetDataArgument) : ComponentServiceAction<LoadWidgetDataArgument>
+    data class LoadWidgetData(override val argument: LoadWidgetDataArgument) : ComponentServiceAction<LoadWidgetDataArgument>
 
 }

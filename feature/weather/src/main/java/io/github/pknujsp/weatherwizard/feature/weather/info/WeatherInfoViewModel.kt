@@ -7,6 +7,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import io.github.pknujsp.weatherwizard.core.common.FeatureType
 import io.github.pknujsp.weatherwizard.core.common.coroutines.CoDispatcher
 import io.github.pknujsp.weatherwizard.core.common.coroutines.CoDispatcherType
 import io.github.pknujsp.weatherwizard.core.common.manager.FailedReason
@@ -26,20 +27,21 @@ import io.github.pknujsp.weatherwizard.core.model.coordinate.LocationType
 import io.github.pknujsp.weatherwizard.core.model.weather.RequestWeatherArguments
 import io.github.pknujsp.weatherwizard.core.model.weather.common.MajorWeatherEntityType
 import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherProvider
-import io.github.pknujsp.weatherwizard.core.model.weather.current.CurrentWeather
 import io.github.pknujsp.weatherwizard.core.model.weather.current.CurrentWeatherEntity
 import io.github.pknujsp.weatherwizard.core.model.weather.dailyforecast.DailyForecastEntity
-import io.github.pknujsp.weatherwizard.core.model.weather.dailyforecast.DetailDailyForecast
-import io.github.pknujsp.weatherwizard.core.model.weather.dailyforecast.SimpleDailyForecast
-import io.github.pknujsp.weatherwizard.core.model.weather.hourlyforecast.DetailHourlyForecast
+import io.github.pknujsp.weatherwizard.feature.weather.info.dailyforecast.model.DetailDailyForecast
+import io.github.pknujsp.weatherwizard.feature.weather.info.dailyforecast.model.SimpleDailyForecast
 import io.github.pknujsp.weatherwizard.core.model.weather.hourlyforecast.HourlyForecastEntity
-import io.github.pknujsp.weatherwizard.core.model.weather.hourlyforecast.SimpleHourlyForecast
 import io.github.pknujsp.weatherwizard.core.model.weather.yesterday.YesterdayWeather
 import io.github.pknujsp.weatherwizard.core.model.weather.yesterday.YesterdayWeatherEntity
 import io.github.pknujsp.weatherwizard.core.ui.weather.item.DynamicDateTimeUiCreator
+import io.github.pknujsp.weatherwizard.feature.weather.info.currentweather.model.CurrentWeather
 import io.github.pknujsp.weatherwizard.feature.weather.info.geocode.TargetLocationModel
+import io.github.pknujsp.weatherwizard.feature.weather.info.hourlyforecast.model.DetailHourlyForecast
+import io.github.pknujsp.weatherwizard.feature.weather.info.hourlyforecast.model.SimpleHourlyForecast
 import io.github.pknujsp.weatherwizard.feature.weather.summary.WeatherSummaryPrompt
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.channels.BufferOverflow
@@ -47,6 +49,7 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter
@@ -72,12 +75,19 @@ class WeatherInfoViewModel @Inject constructor(
     private val targetLocationRepository: TargetLocationRepository,
     @CoDispatcher(CoDispatcherType.IO) private val dispatcher: CoroutineDispatcher,
 ) : ViewModel() {
+
     private var loadWeatherDataJob: Job? = null
     private var targetLocationJob: Job? = null
 
+    val initialJob = viewModelScope.launch(start = CoroutineStart.LAZY) {
+        targetLocationRepository.targetLocation.distinctUntilChanged().collect { location ->
+            createLocationTypeModel(location)
+        }
+    }
+
     private val units get() = settingsRepository.settings.replayCache.last().units
 
-    var isLoading: Boolean by mutableStateOf(true)
+    var isLoading: Boolean by mutableStateOf(false)
         private set
 
     private val mutableTargetLocations = MutableSharedFlow<TargetLocationModel?>(1, 0, BufferOverflow.DROP_OLDEST)
@@ -94,12 +104,6 @@ class WeatherInfoViewModel @Inject constructor(
     }.onEach {
         loadAllWeatherData(it)
     }.stateIn(viewModelScope, SharingStarted.Eagerly, null)
-
-    init {
-        targetLocationRepository.targetLocation.distinctUntilChanged().onEach { location ->
-            createLocationTypeModel(location)
-        }.launchIn(viewModelScope)
-    }
 
     private suspend fun createLocationTypeModel(location: SelectedLocationModel) {
         targetLocationJob?.cancel()
@@ -120,14 +124,24 @@ class WeatherInfoViewModel @Inject constructor(
             result.first?.run {
                 mutableTargetLocations.emit(this)
             } ?: run {
-                mutableUiState.emit(WeatherContentUiState.Error(result.second!!))
+                mutableUiState.emit(WeatherContentUiState.Error(result.second!!, ::refresh, ::onUnavailableFeature))
             }
         }
     }
 
-    fun refresh() {
+    private fun refresh() {
         viewModelScope.launch {
-            createLocationTypeModel(targetLocationRepository.getCurrentTargetLocation())
+            if (!initialJob.isActive) {
+                initialJob.start()
+            } else {
+                createLocationTypeModel(targetLocationRepository.getCurrentTargetLocation())
+            }
+        }
+    }
+
+    fun onUnavailableFeature(featureType: FeatureType) {
+        viewModelScope.launch {
+            mutableUiState.emit(WeatherContentUiState.Error(featureType, ::refresh, ::onUnavailableFeature))
         }
     }
 
@@ -159,7 +173,7 @@ class WeatherInfoViewModel @Inject constructor(
             targetLocationJob?.cancel()
             loadWeatherDataJob?.cancel()
             isLoading = false
-            mutableUiState.emit(WeatherContentUiState.Error(FailedReason.CANCELED))
+            mutableUiState.emit(WeatherContentUiState.Error(FailedReason.CANCELED, ::refresh, ::onUnavailableFeature))
         }
     }
 
@@ -184,7 +198,7 @@ class WeatherInfoViewModel @Inject constructor(
                 val entity = when (val result = getWeatherDataUseCase(request.first(), false)) {
                     is WeatherResponseState.Success -> result.entity
                     is WeatherResponseState.Failure -> {
-                        return@withContext WeatherContentUiState.Error(FailedReason.SERVER_ERROR)
+                        return@withContext WeatherContentUiState.Error(FailedReason.SERVER_ERROR, ::refresh, ::onUnavailableFeature)
                     }
                 }
 
@@ -226,7 +240,7 @@ class WeatherInfoViewModel @Inject constructor(
                     hourlyForecastEntity,
                     dailyForecastEntity,
                 )
-                WeatherContentUiState.Success(args, weather, requestDateTime, allModel, units)
+                WeatherContentUiState.Success(args, weather, requestDateTime, allModel, units, ::refresh, ::onUnavailableFeature)
             }
             mutableUiState.emit(newState)
         }

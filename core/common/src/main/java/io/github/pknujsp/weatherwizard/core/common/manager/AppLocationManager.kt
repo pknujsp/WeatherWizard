@@ -6,6 +6,7 @@ import android.location.Location
 import android.location.LocationManager
 import com.google.android.gms.location.CurrentLocationRequest
 import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LastLocationRequest
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
 import com.google.android.gms.tasks.CancellationTokenSource
@@ -14,7 +15,7 @@ import kotlinx.coroutines.suspendCancellableCoroutine
 import java.time.Duration
 import kotlin.coroutines.resume
 
-internal class AppLocationManagerImpl(private val context: Context) : AppLocationManager {
+private class AppLocationManagerImpl(private val context: Context) : AppLocationManager {
     private val fusedLocationProvider: FusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(context)
     private val locationManager: LocationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
     private val maxUpdateAgeMillis = Duration.ofMinutes(30).toMillis()
@@ -59,15 +60,25 @@ internal class AppLocationManagerImpl(private val context: Context) : AppLocatio
 
     @SuppressLint("MissingPermission")
     private suspend fun getLastLocation(): Location? = suspendCancellableCoroutine { continuation ->
-        fusedLocationProvider.lastLocation.result?.run {
-            continuation.resume(this)
-        } ?: run {
-            continuation.resume(null)
+        fusedLocationProvider.getLastLocation(LastLocationRequest.Builder().build()).addOnCompleteListener { result ->
+            if (result.isSuccessful) {
+                continuation.resume(result.result ?: null)
+            } else {
+                continuation.resume(null)
+            }
         }
     }
 }
 
-interface AppLocationManager {
+interface AppLocationManager : AppComponentManager {
+    companion object : AppComponentManagerInitializer {
+        private var instance: AppLocationManager? = null
+
+        override fun getInstance(context: Context): AppLocationManager = synchronized(this) {
+            instance ?: AppLocationManagerImpl(context).also { instance = it }
+        }
+    }
+
     val isGpsProviderEnabled: Boolean
     val isPermissionGranted: Boolean
     suspend fun getCurrentLocation(): LocationResult

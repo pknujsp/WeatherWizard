@@ -1,6 +1,6 @@
 package io.github.pknujsp.weatherwizard.core.network.api.metnorway.response
 
-import io.github.pknujsp.weatherwizard.core.common.util.WeatherUtil
+import io.github.pknujsp.weatherwizard.core.common.util.FeelsLikeTemperatureCalculator
 import io.github.pknujsp.weatherwizard.core.model.weather.common.DateTimeValueType
 import io.github.pknujsp.weatherwizard.core.model.weather.common.HumidityValueType
 import io.github.pknujsp.weatherwizard.core.model.weather.common.PercentageUnit
@@ -23,7 +23,7 @@ import java.time.ZonedDateTime
 
 class MetNorwayHourlyForecastResponse(
     metNorwayResponse: MetNorwayResponse,
-    weatherUtil: WeatherUtil,
+    weatherUtil: FeelsLikeTemperatureCalculator,
     symbols: Map<String, WeatherConditionCategory>
 ) : HourlyForecastResponseModel {
     val beginIndexWith3Hours = 0
@@ -39,42 +39,71 @@ class MetNorwayHourlyForecastResponse(
         val night = "_night"
         val day = "_day"
 
-        timeseries.filter { it.data.next1Hours != null || it.data.next6Hours != null }.map { hourly ->
-            hourly.data.instant.details.let { instantDetails ->
-                windSpeed = WindSpeedValueType(
-                    instantDetails.windSpeed,
-                    WindSpeedUnit.MeterPerSecond
-                )
+        timeseries.filter { it.data.next1Hours != null || it.data.next6Hours != null }
+            .map { hourly ->
+                hourly.data.instant.details.let { instantDetails ->
+                    windSpeed = WindSpeedValueType(
+                        instantDetails.windSpeed,
+                        WindSpeedUnit.MeterPerSecond
+                    )
 
-                (hourly.data.next1Hours?.details?.precipitationAmount
-                    ?: hourly.data.next6Hours?.details?.precipitationAmount)?.let { precipitation ->
-                    precipitationVolume = precipitation
-                    hasPrecipitation = precipitation != zero
+                    (hourly.data.next1Hours?.details?.precipitationAmount
+                        ?: hourly.data.next6Hours?.details?.precipitationAmount)?.let { precipitation ->
+                        precipitationVolume = precipitation
+                        hasPrecipitation = precipitation != zero
+                    }
+
+                    (hourly.data.next1Hours?.summary?.symbolCode
+                        ?: hourly.data.next6Hours?.summary?.symbolCode)?.let { symbolCode ->
+                        weatherCondition = WeatherConditionValueType(
+                            symbols[symbolCode.replace(day, "").replace(night, "")]!!
+                        )
+                    }
+
+                    Item(
+                        dateTime = DateTimeValueType(
+                            ZonedDateTime.parse(hourly.time).withZoneSameInstant(zoneId)
+                                .withMinute(0).withSecond
+                                    (0).withNano(0).toString()
+                        ),
+                        temperature = TemperatureValueType(
+                            instantDetails.airTemperature,
+                            TemperatureUnit.Celsius
+                        ),
+                        feelsLikeTemperature = TemperatureValueType(
+                            weatherUtil.calculateFeelsLikeTemperature(
+                                instantDetails.airTemperature,
+                                windSpeed.convertUnit(WindSpeedUnit.KilometerPerHour).value,
+                                instantDetails.relativeHumidity
+                            ), TemperatureUnit.Celsius
+                        ),
+                        humidity = HumidityValueType(
+                            instantDetails.relativeHumidity.toInt(),
+                            PercentageUnit
+                        ),
+                        windDirection = WindDirectionValueType(
+                            instantDetails.windFromDirection.toInt(),
+                            WindDirectionUnit.Degree
+                        ).convertUnit
+                            (WindDirectionUnit.Compass),
+                        windSpeed = windSpeed,
+                        precipitationVolume = PrecipitationValueType(
+                            precipitationVolume,
+                            PrecipitationUnit.Millimeter
+                        ),
+                        weatherCondition = weatherCondition!!,
+                        dewPointTemperature = TemperatureValueType(
+                            instantDetails.dewPointTemperature,
+                            TemperatureUnit.Celsius
+                        ),
+                        airPressure = PressureValueType(
+                            instantDetails.airPressureAtSeaLevel.toInt(),
+                            PressureUnit.Hectopascal
+                        ),
+                    )
+
                 }
-
-                (hourly.data.next1Hours?.summary?.symbolCode ?: hourly.data.next6Hours?.summary?.symbolCode)?.let { symbolCode ->
-                    weatherCondition = WeatherConditionValueType(symbols[symbolCode.replace(day, "").replace(night, "")]!!)
-                }
-
-                Item(
-                    dateTime = DateTimeValueType(ZonedDateTime.parse(hourly.time).withZoneSameInstant(zoneId).withMinute(0).withSecond
-                        (0).withNano(0).toString()),
-                    temperature = TemperatureValueType(instantDetails.airTemperature, TemperatureUnit.Celsius),
-                    feelsLikeTemperature = TemperatureValueType(weatherUtil.calcFeelsLikeTemperature(instantDetails.airTemperature,
-                        windSpeed.convertUnit( WindSpeedUnit.KilometerPerHour).value,
-                        instantDetails.relativeHumidity), TemperatureUnit.Celsius),
-                    humidity = HumidityValueType(instantDetails.relativeHumidity.toInt(), PercentageUnit),
-                    windDirection = WindDirectionValueType(instantDetails.windFromDirection.toInt(), WindDirectionUnit.Degree).convertUnit
-                        (WindDirectionUnit.Compass),
-                    windSpeed = windSpeed,
-                    precipitationVolume = PrecipitationValueType(precipitationVolume, PrecipitationUnit.Millimeter),
-                    weatherCondition = weatherCondition!!,
-                    dewPointTemperature = TemperatureValueType(instantDetails.dewPointTemperature, TemperatureUnit.Celsius),
-                    airPressure = PressureValueType(instantDetails.airPressureAtSeaLevel.toInt(), PressureUnit.Hectopascal),
-                )
-
             }
-        }
 
     }
 

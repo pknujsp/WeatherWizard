@@ -32,7 +32,7 @@ formatting:
     active: false
   ArgumentListWrapping:
     indentSize: 4
-    maxLineLength: 150
+    maxLineLength: 120
   KdocWrapping:
     active: true
     indentSize: 4

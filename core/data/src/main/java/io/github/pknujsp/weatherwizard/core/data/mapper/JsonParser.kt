@@ -1,17 +1,15 @@
-package io.github.pknujsp.weatherwizard.core.model
+package io.github.pknujsp.weatherwizard.core.data.mapper
 
-import io.github.pknujsp.weatherwizard.core.model.weather.base.WeatherEntityModel
-import kotlinx.serialization.BinaryFormat
+import io.github.pknujsp.weatherwizard.core.model.Model
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.InternalSerializationApi
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.decodeFromStream
 import kotlinx.serialization.json.encodeToStream
 import kotlinx.serialization.serializer
-import java.io.BufferedOutputStream
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
-import java.io.OutputStream
+
 
 class JsonParser(
     val json: Json

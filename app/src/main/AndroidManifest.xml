@@ -90,11 +90,12 @@
 
         <receiver
             android:name=".feature.componentservice.AppComponentServiceReceiver"
+            android:directBootAware="true"
             android:enabled="true"
             android:exported="false">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
-                <action android:name="android.intent.action.LOCKED_BOOT_COMPLETED" />
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
                 <action android:name="NOTIFICATION_SERVICE_ACTION" />
                 <action android:name="ACTION_START_NOTIFICATION_SERVICE" />
                 <action android:name="ACTION_STOP_NOTIFICATION_SERVICE" />

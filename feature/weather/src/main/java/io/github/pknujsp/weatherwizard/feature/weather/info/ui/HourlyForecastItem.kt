@@ -1,14 +1,12 @@
-package io.github.pknujsp.weatherwizard.core.ui.weather.item
+package io.github.pknujsp.weatherwizard.feature.weather.info.ui
 
 import android.widget.Toast
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
@@ -29,14 +27,16 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
-import io.github.pknujsp.weatherwizard.core.model.weather.hourlyforecast.SimpleHourlyForecast
 import io.github.pknujsp.weatherwizard.core.ui.DrawInfo
 import io.github.pknujsp.weatherwizard.core.ui.NewGraph
 import io.github.pknujsp.weatherwizard.core.ui.SingleGraph
+import io.github.pknujsp.weatherwizard.feature.weather.info.hourlyforecast.model.SimpleHourlyForecast
 
 
 @Composable
-fun HourlyForecastItem(simpleHourlyForecast: SimpleHourlyForecast, lazyListState: LazyListState) {
+fun HourlyForecastItem(
+    simpleHourlyForecast: SimpleHourlyForecast, lazyListState: LazyListState
+) {
     val context = LocalContext.current
 
     val graphHeight = with(LocalDensity.current) { SimpleHourlyForecast.temperatureGraphHeight.toPx() }
@@ -104,7 +104,8 @@ private fun Item(
                             .then(SimpleHourlyForecast.Item.imageModifier))
                     Text(text = precipitationVolume,
                         style = TextStyle(fontSize = 12.sp,
-                            color = if (simpleHourlyForecast.displayPrecipitationVolume and precipitationVolume.isNotEmpty()) Color.White else Color.Transparent))
+                            color = if (simpleHourlyForecast.displayPrecipitationVolume && precipitationVolume.isNotEmpty()) Color.White
+                            else Color.Transparent))
                 }
             }
             // 강우량

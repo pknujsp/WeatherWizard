@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -17,6 +18,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import io.github.pknujsp.weatherwizard.core.common.manager.AppAlarmManager
+import io.github.pknujsp.weatherwizard.core.common.manager.AppComponentManagerFactory
 import io.github.pknujsp.weatherwizard.core.common.manager.WidgetManager
 import io.github.pknujsp.weatherwizard.core.model.notification.enums.RefreshInterval
 import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherProvider
@@ -26,12 +28,14 @@ import io.github.pknujsp.weatherwizard.core.ui.ButtonSettingItem
 import io.github.pknujsp.weatherwizard.core.ui.CheckBoxSettingItem
 import io.github.pknujsp.weatherwizard.core.ui.ClickableSettingItem
 import io.github.pknujsp.weatherwizard.core.ui.TitleTextWithNavigation
-import io.github.pknujsp.weatherwizard.feature.componentservice.widget.worker.AppWidgetAutoRefreshScheduler
+import io.github.pknujsp.weatherwizard.feature.componentservice.manager.AppComponentServiceManagerFactory
+import kotlinx.coroutines.launch
 
 @Composable
 fun SettingsScreen(navController: NavController, viewModel: SettingsViewModel = hiltViewModel()) {
     val context = LocalContext.current
     val settingsUiState = viewModel.mainSettingsUiState
+    val coroutineScope = rememberCoroutineScope()
 
     val onBackPressedDispatcherOwner = LocalOnBackPressedDispatcherOwner.current
     val backDispatcher = remember {
@@ -66,15 +70,19 @@ fun SettingsScreen(navController: NavController, viewModel: SettingsViewModel = 
         BottomSheetSettingItem(title = stringResource(id = R.string.title_widget_auto_refresh_interval),
             selectedItem = settingsUiState.widgetAutoRefreshInterval,
             onSelectedItem = {
-                it?.run {
-                    settingsUiState.updatePreference(RefreshInterval, this)
-                    rescheduleWidgetAutoRefresh(this, context, viewModel.appAlarmManager, viewModel.widgetManager)
+                it?.let { refreshInterval ->
+                    settingsUiState.updatePreference(RefreshInterval, refreshInterval)
+                    coroutineScope.launch {
+                        rescheduleWidgetAutoRefresh(context, refreshInterval)
+                    }
                 }
             },
             enums = RefreshInterval.enums)
         ClickableSettingItem(title = stringResource(id = R.string.title_refresh_widget),
             description = stringResource(id = R.string.description_refresh_widget)) {
-            viewModel.reDrawAppWidgets(context)
+            coroutineScope.launch {
+                redrawAppWidgets(context)
+            }
         }
     }
 }
@@ -94,8 +102,17 @@ fun HostSettingsScreen() {
 }
 
 private fun rescheduleWidgetAutoRefresh(
-    refreshInterval: RefreshInterval, context: Context, appAlarmManager: AppAlarmManager, widgetManager: WidgetManager
+    context: Context, refreshInterval: RefreshInterval
 ) {
-    val scheduler = AppWidgetAutoRefreshScheduler(widgetManager)
-    scheduler.scheduleAutoRefresh(context, appAlarmManager, refreshInterval)
+    AppComponentServiceManagerFactory.getManager(context, AppComponentServiceManagerFactory.WIDGET_ALARM_MANAGER).run {
+        if (refreshInterval == RefreshInterval.MANUAL) {
+            unScheduleAutoRefresh()
+        } else {
+            scheduleAutoRefresh(refreshInterval)
+        }
+    }
+}
+
+private fun redrawAppWidgets(context: Context) {
+    AppComponentManagerFactory.getManager(context, AppComponentManagerFactory.WIDGET_MANAGER).redrawAllWidgets()
 }

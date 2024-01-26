@@ -20,7 +20,6 @@ import javax.inject.Inject
 @HiltViewModel
 class OngoingNotificationViewModel @Inject constructor(
     private val ongoingNotificationRepository: OngoingNotificationRepository,
-    val appAlarmManager: AppAlarmManager,
     private val appSettingsRepository: SettingsRepository,
 ) : ViewModel() {
 

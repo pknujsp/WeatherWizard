@@ -1,6 +1,6 @@
 package io.github.pknujsp.weatherwizard.core.data
 
-class GlobalRepositoryCacheManagerImpl(
+internal class GlobalRepositoryCacheManagerImpl(
     private val weatherDataRepository: RepositoryCacheManager<*, *>,
     private val airQualityRepository: RepositoryCacheManager<*, *>,
     private val rainViewerRepository: RepositoryCacheManager<*, *>,

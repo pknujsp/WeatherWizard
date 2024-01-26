@@ -4,7 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.res.stringResource
-import io.github.pknujsp.weatherwizard.core.model.weather.dailyforecast.SimpleDailyForecast
+import io.github.pknujsp.weatherwizard.feature.weather.info.dailyforecast.model.SimpleDailyForecast
 import io.github.pknujsp.weatherwizard.core.ui.weather.item.CardInfo
 import io.github.pknujsp.weatherwizard.core.ui.weather.item.SimpleWeatherScreenBackground
 import io.github.pknujsp.weatherwizard.feature.weather.route.NestedWeatherRoutes

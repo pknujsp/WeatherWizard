@@ -7,11 +7,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import io.github.pknujsp.weatherwizard.core.model.weather.hourlyforecast.SimpleHourlyForecast
+import io.github.pknujsp.weatherwizard.feature.weather.info.hourlyforecast.model.SimpleHourlyForecast
 import io.github.pknujsp.weatherwizard.core.resource.R
 import io.github.pknujsp.weatherwizard.core.ui.DynamicDateTime
 import io.github.pknujsp.weatherwizard.core.ui.weather.item.CardInfo
-import io.github.pknujsp.weatherwizard.core.ui.weather.item.HourlyForecastItem
+import io.github.pknujsp.weatherwizard.feature.weather.info.ui.HourlyForecastItem
 import io.github.pknujsp.weatherwizard.core.ui.weather.item.SimpleWeatherScreenBackground
 import io.github.pknujsp.weatherwizard.feature.weather.route.NestedWeatherRoutes
 

@@ -1,4 +1,4 @@
-package io.github.pknujsp.weatherwizard.core.model.weather.current
+package io.github.pknujsp.weatherwizard.feature.weather.info.currentweather.model
 
 import androidx.annotation.DrawableRes
 import androidx.compose.runtime.Stable

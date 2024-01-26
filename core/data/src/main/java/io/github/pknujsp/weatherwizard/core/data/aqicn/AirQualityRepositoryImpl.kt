@@ -3,22 +3,20 @@ package io.github.pknujsp.weatherwizard.core.data.aqicn
 import io.github.pknujsp.weatherwizard.core.data.RepositoryCacheManager
 import io.github.pknujsp.weatherwizard.core.data.cache.CacheCleaner
 import io.github.pknujsp.weatherwizard.core.data.cache.CacheManager
-import io.github.pknujsp.weatherwizard.core.model.JsonParser
+import io.github.pknujsp.weatherwizard.core.data.mapper.JsonParser
 import io.github.pknujsp.weatherwizard.core.model.VarState
 import io.github.pknujsp.weatherwizard.core.model.airquality.AirQualityDescription
 import io.github.pknujsp.weatherwizard.core.model.airquality.AirQualityEntity
 import io.github.pknujsp.weatherwizard.core.model.weather.common.AirQualityValueType
 import io.github.pknujsp.weatherwizard.core.network.api.aqicn.AqiCnDataSource
 import io.github.pknujsp.weatherwizard.core.network.api.aqicn.AqiCnResponse
-import kotlinx.serialization.json.Json
 import java.time.LocalDate
 import java.time.ZonedDateTime
 
 internal class AirQualityRepositoryImpl(
-    private val aqiCnDataSource: AqiCnDataSource, cacheManager: CacheManager<Int, AirQualityEntity>, cacheCleaner: CacheCleaner, json: Json
+    private val aqiCnDataSource: AqiCnDataSource, cacheManager: CacheManager<Int, AirQualityEntity>,
+    cacheCleaner: CacheCleaner,
 ) : AirQualityRepository, RepositoryCacheManager<Int, AirQualityEntity>(cacheCleaner, cacheManager) {
-
-    private val jsonParser by lazy { JsonParser(json) }
 
     private suspend fun load(latitude: Double, longitude: Double): Result<AqiCnResponse> = aqiCnDataSource.getAqiCnData(latitude, longitude)
 

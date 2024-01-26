@@ -3,23 +3,27 @@ package io.github.pknujsp.weatherwizard.core.ui.weather.item
 import android.content.res.Resources
 import android.util.TypedValue
 import androidx.compose.ui.unit.Dp
-import io.github.pknujsp.weatherwizard.core.model.weather.hourlyforecast.SimpleHourlyForecast
+import io.github.pknujsp.weatherwizard.core.ui.DateTimeInfo
 import io.github.pknujsp.weatherwizard.core.ui.UiComponentCreator
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 
-class DynamicDateTimeUiCreator(dates: List<String>, private val itemWidth: Dp) : UiComponentCreator {
-    private val formatter = DateTimeFormatter.ofPattern("M.d\nE")
-    private val dates = dates.map { ZonedDateTime.parse(it).toLocalDate() }
+class DynamicDateTimeUiCreator(times: List<String>, private val itemWidth: Dp) : UiComponentCreator {
 
-    operator fun invoke(): SimpleHourlyForecast.DateTimeInfo {
+    private val dates = times.map { ZonedDateTime.parse(it).toLocalDate() }
+
+    private companion object {
+        private val formatter = DateTimeFormatter.ofPattern("M.d\nE")
+    }
+
+    operator fun invoke(): DateTimeInfo {
         val columnWidthPx =
             TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, itemWidth.value, Resources.getSystem().displayMetrics).toInt()
 
         var date = dates.first()
         var lastDate = date.minusDays(5)
 
-        val itemList = mutableListOf<SimpleHourlyForecast.DateTimeInfo.Item>()
+        val itemList = mutableListOf<DateTimeInfo.Item>()
         var beginX: Int
 
         for (pos in dates.indices) {
@@ -29,11 +33,11 @@ class DynamicDateTimeUiCreator(dates: List<String>, private val itemWidth: Dp) :
                 if (itemList.isNotEmpty()) itemList.last().endX = columnWidthPx * (pos - 1) + (columnWidthPx / 2)
 
                 beginX = (columnWidthPx * pos) + (columnWidthPx / 2)
-                itemList.add(SimpleHourlyForecast.DateTimeInfo.Item(beginX, date.format(formatter)))
+                itemList.add(DateTimeInfo.Item(beginX, date.format(formatter)))
                 lastDate = date
             }
         }
         itemList.last().endX = columnWidthPx * (dates.size - 1) + (columnWidthPx / 2)
-        return SimpleHourlyForecast.DateTimeInfo(itemList, itemList.first().beginX)
+        return DateTimeInfo(itemList, itemList.first().beginX, itemWidth)
     }
 }

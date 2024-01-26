@@ -1,11 +1,13 @@
 package io.github.pknujsp.weatherwizard.core.domain.location
 
+import android.content.Context
+import dagger.hilt.android.qualifiers.ApplicationContext
 import io.github.pknujsp.weatherwizard.core.common.FeatureType
 import io.github.pknujsp.weatherwizard.core.common.coroutines.CoDispatcher
 import io.github.pknujsp.weatherwizard.core.common.coroutines.CoDispatcherType
+import io.github.pknujsp.weatherwizard.core.common.manager.AppComponentManagerFactory
 import io.github.pknujsp.weatherwizard.core.common.manager.AppLocationManager
 import io.github.pknujsp.weatherwizard.core.common.manager.FailedReason
-import io.github.pknujsp.weatherwizard.core.common.manager.PermissionType
 import io.github.pknujsp.weatherwizard.core.data.nominatim.NominatimRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -17,10 +19,13 @@ import javax.inject.Singleton
 
 @Singleton
 internal class GetCurrentLocationUseCase @Inject constructor(
-    override val appLocationManager: AppLocationManager,
+    @ApplicationContext context: Context,
     private val nominatimRepository: NominatimRepository,
     @CoDispatcher(CoDispatcherType.IO) private val dispatcher: CoroutineDispatcher,
 ) : GetCurrentLocationAddress, GetCurrentLocationCoordinate {
+
+    private val appLocationManager: AppLocationManager =
+        AppComponentManagerFactory.getManager(context, AppComponentManagerFactory.LOCATION_MANAGER)
 
     private val mutableGeoCodeFlow: MutableStateFlow<LocationGeoCodeState?> = MutableStateFlow(null)
     override val geoCodeFlow = mutableGeoCodeFlow.asStateFlow()
@@ -99,6 +104,4 @@ internal class GetCurrentLocationUseCase @Inject constructor(
 }
 
 
-interface CurrentLocationUseCase {
-    val appLocationManager: AppLocationManager
-}
+interface CurrentLocationUseCase {}

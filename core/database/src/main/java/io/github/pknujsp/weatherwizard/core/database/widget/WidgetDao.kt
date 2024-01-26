@@ -25,6 +25,9 @@ interface WidgetDao {
     @Query("DELETE FROM widgets WHERE id = :id")
     suspend fun deleteById(id: Int)
 
+    @Query("DELETE FROM widgets")
+    suspend fun deleteAll()
+
     @Query("SELECT EXISTS(SELECT * FROM widgets WHERE id = :id)")
     suspend fun containsId(id: Int): Boolean
 

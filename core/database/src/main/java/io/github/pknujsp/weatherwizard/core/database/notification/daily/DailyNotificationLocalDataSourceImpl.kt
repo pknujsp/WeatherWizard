@@ -16,7 +16,7 @@ class DailyNotificationLocalDataSourceImpl @Inject constructor(
 
     override suspend fun getDailyNotification(id: Long): NotificationDto = notificationDao.getById(id)
 
-    override suspend fun updateDailyNotification(notificationDto: NotificationDto): Boolean = notificationDao.insert(notificationDto) >= 0
+    override suspend fun updateDailyNotification(notificationDto: NotificationDto): Long = notificationDao.insert(notificationDto)
 
     override suspend fun removeDailyNotification(id: Long) = notificationDao.deleteById(id)
 

@@ -24,6 +24,7 @@ import io.github.pknujsp.weatherwizard.core.widgetnotification.notification.util
 import io.github.pknujsp.weatherwizard.core.widgetnotification.remoteview.RemoteViewCreator
 import io.github.pknujsp.weatherwizard.core.widgetnotification.remoteview.RemoteViewsCreatorManager
 import io.github.pknujsp.weatherwizard.core.widgetnotification.remoteview.UiStateRemoteViewCreator
+import io.github.pknujsp.weatherwizard.feature.componentservice.AppComponentServiceReceiver
 import io.github.pknujsp.weatherwizard.feature.componentservice.ComponentPendingIntentManager
 
 @HiltWorker
@@ -34,11 +35,10 @@ class OngoingNotificationCoroutineService @AssistedInject constructor(
 ) : AppComponentCoroutineService<OngoingNotificationServiceArgument>(context, params, Companion) {
 
     private val pendingIntentToRefresh: PendingIntent by lazy {
-        ComponentPendingIntentManager.getPendingIntent(
-            context,
+        ComponentPendingIntentManager.getPendingIntent(context,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
             ComponentServiceAction.OngoingNotification(),
-        ).pendingIntent!!
+            actionString = AppComponentServiceReceiver.ACTION_REFRESH).pendingIntent!!
     }
 
     companion object : IWorker {
@@ -47,11 +47,12 @@ class OngoingNotificationCoroutineService @AssistedInject constructor(
             FeatureType.NETWORK,
             FeatureType.POST_NOTIFICATION_PERMISSION,
         )
-        override val workerId: Int = name.hashCode()
     }
 
     override suspend fun doWork(context: Context, argument: OngoingNotificationServiceArgument): Result {
+        appNotificationManager.notifyLoadingNotification(NotificationType.ONGOING)
         start(context, argument)
+        Log.d("OngoingNotificationCoroutineService", "doWork")
         return Result.success()
     }
 
@@ -59,7 +60,6 @@ class OngoingNotificationCoroutineService @AssistedInject constructor(
         if (!checkFeatureStateAndNotify(requiredFeatures, context)) {
             return
         }
-
         val notificationEntity = remoteViewsModel.loadNotification()
 
         if (notificationEntity.location.locationType is LocationType.CurrentLocation && !checkFeatureStateAndNotify(arrayOf(FeatureType.LOCATION_PERMISSION,
@@ -68,9 +68,8 @@ class OngoingNotificationCoroutineService @AssistedInject constructor(
             return
         }
 
-        appNotificationManager.notifyLoadingNotification(NotificationType.ONGOING, context)
         val uiState = remoteViewsModel.load(notificationEntity)
-
+        Log.d("OngoingNotificationCoroutineService", "uiState: $uiState")
         val notificationState = if (uiState.isSuccessful) {
             val uiModelMapper = RemoteViewUiModelMapperManager.getByOngoingNotificationType(uiState.notificationType)
 
@@ -114,24 +113,26 @@ class OngoingNotificationCoroutineService @AssistedInject constructor(
                 notificationType = NotificationType.ONGOING,
                 refreshPendingIntent = pendingIntentToRefresh)
         }
-        appNotificationManager.notifyNotification(NotificationType.ONGOING, context, notificationState)
-        Log.d("OngoingNotificationService", "notify $notificationState")
+        appNotificationManager.notifyNotification(NotificationType.ONGOING, notificationState.toExtendNotification())
     }
 
     private fun checkFeatureStateAndNotify(featureTypes: Array<FeatureType>, context: Context): Boolean {
         return when (val state = featureStateManager.retrieveFeaturesState(featureTypes, context)) {
             is FeatureStateManager.FeatureState.Unavailable -> {
+                val pendingIntent = state.featureType.getPendingIntent(context)
+
                 val smallRemoteViews = UiStateRemoteViewCreator.createView(context,
                     state.featureType,
                     RemoteViewCreator.ContainerType.NOTIFICATION_SMALL,
                     viewSizeType = UiStateRemoteViewCreator.ViewSizeType.SMALL,
-                    state.featureType.getPendingIntent(context),
+                    pendingIntent,
                     visibilityOfCompleteButton = true)
+
                 val bigRemoteViews = UiStateRemoteViewCreator.createView(context,
                     state.featureType,
                     RemoteViewCreator.ContainerType.NOTIFICATION_BIG,
                     viewSizeType = UiStateRemoteViewCreator.ViewSizeType.BIG,
-                    state.featureType.getPendingIntent(context),
+                    pendingIntent,
                     visibilityOfCompleteButton = true)
 
                 val notificationViewState = NotificationViewState(false,
@@ -139,7 +140,7 @@ class OngoingNotificationCoroutineService @AssistedInject constructor(
                     bigFailedContentRemoteViews = bigRemoteViews,
                     notificationType = NotificationType.ONGOING,
                     refreshPendingIntent = pendingIntentToRefresh)
-                appNotificationManager.notifyNotification(NotificationType.ONGOING, context, notificationViewState)
+                appNotificationManager.notifyNotification(NotificationType.ONGOING, notificationViewState.toExtendNotification())
                 false
             }
 

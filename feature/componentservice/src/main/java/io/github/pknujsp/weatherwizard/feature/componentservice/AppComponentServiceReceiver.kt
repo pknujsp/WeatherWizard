@@ -16,13 +16,16 @@ class AppComponentServiceReceiver : BroadcastReceiver() {
 
     companion object {
         const val ACTION_PROCESS = "APP_COMPONENT_SERVICE_ACTION"
+        const val ACTION_REFRESH = "APP_COMPONENT_SERVICE_ACTION_REFRESH"
+        const val ACTION_AUTO_REFRESH = "APP_COMPONENT_SERVICE_ACTION_AUTO_REFRESH"
     }
 
     override fun onReceive(context: Context, intent: Intent) {
+        if (intent.extras == null) {
+            return
+        }
+
         intent.action?.let {
-            if (intent.extras == null) {
-                return
-            }
             val workRequest = when (val action = ComponentServiceAction.toInstance(intent.extras!!)) {
                 is ComponentServiceAction.OngoingNotification -> {
                     OneTimeWorkRequestBuilder<OngoingNotificationCoroutineService>().setInputData(Data.Builder()

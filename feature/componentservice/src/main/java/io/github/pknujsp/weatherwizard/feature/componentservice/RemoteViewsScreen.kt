@@ -25,8 +25,7 @@ fun RemoteViewsScreen(sampleRemoteViews: DefaultRemoteViewCreator, units: Curren
         ) {
             AndroidView(modifier = modifier
                 .fillMaxWidth()
-                .heightIn(max = 330.dp)
-                .padding(12.dp), factory = { context ->
+                .heightIn(max = 330.dp), factory = { context ->
                 FrameLayout(context).apply {
                     addView(sampleRemoteViews.createSampleView(context, units).apply(context, this))
                 }

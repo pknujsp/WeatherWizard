@@ -4,7 +4,7 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.Ignore
 import androidx.room.PrimaryKey
-import io.github.pknujsp.weatherwizard.core.common.util.toCoordinate
+import kotlin.math.floor
 
 @Entity(tableName = "areas")
 class KmaAreaCodesDto(
@@ -20,3 +20,5 @@ class KmaAreaCodesDto(
     @Ignore val latitude: Double = lat.toCoordinate()
     @Ignore val longitude: Double = lon.toCoordinate()
 }
+
+private fun Double.toCoordinate(): Double = floor(this * 1000.0) / 1000.0

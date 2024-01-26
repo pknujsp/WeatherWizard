@@ -12,6 +12,8 @@ interface WidgetLocalDataSource {
 
     suspend fun deleteById(id: Int)
 
+    suspend fun deleteAll()
+
     suspend fun containsId(id: Int): Boolean
 
     suspend fun updateResponseData(id: Int, status: WidgetStatus, responseData: ByteArray?)

@@ -2,8 +2,6 @@ package io.github.pknujsp.weatherwizard.core.model.flickr
 
 import com.luckycatlabs.sunrisesunset.SunriseSunsetCalculator
 import com.luckycatlabs.sunrisesunset.dto.Location
-import io.github.pknujsp.weatherwizard.core.common.util.DayNightCalculator
-import io.github.pknujsp.weatherwizard.core.common.util.SunSetRise
 import io.github.pknujsp.weatherwizard.core.model.ApiRequestParameter
 import io.github.pknujsp.weatherwizard.core.model.BuildConfig
 import io.github.pknujsp.weatherwizard.core.model.weather.common.WeatherConditionCategory
@@ -55,18 +53,6 @@ data class FlickrRequestParameters(
         }
 
         return FlickrGetPhotosFromGalleryParameter(galleryId)
-    }
-
-    fun isDay(): Boolean {
-        val lastRefreshDateTime: ZonedDateTime = refreshDateTime.withZoneSameInstant(zoneId)
-        val timeZone = SimpleTimeZone(lastRefreshDateTime.offset.totalSeconds * 1000, "")
-        val calculator = DayNightCalculator(latitude, longitude)
-        val currentCalendar: Calendar = Calendar.getInstance(timeZone)
-        currentCalendar.set(lastRefreshDateTime.year, lastRefreshDateTime.monthValue - 1,
-            lastRefreshDateTime.dayOfMonth, lastRefreshDateTime.hour, lastRefreshDateTime.minute,
-            lastRefreshDateTime.second)
-
-        return calculator.calculate(currentCalendar) == DayNightCalculator.DayNight.DAY
     }
 
     fun toGetInfoParameter(photoId: String, secret: String): FlickrGetInfoParameter {

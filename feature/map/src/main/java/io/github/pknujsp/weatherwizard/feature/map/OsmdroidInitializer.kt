@@ -2,6 +2,7 @@ package io.github.pknujsp.weatherwizard.feature.map
 
 import android.app.Application
 import android.content.Context
+import androidx.annotation.WorkerThread
 import androidx.preference.PreferenceManager
 import io.github.pknujsp.weatherwizard.core.resource.R
 import io.github.pknujsp.weatherwizard.feature.map.model.MapSettingsDefault
@@ -16,13 +17,13 @@ import java.util.concurrent.atomic.AtomicBoolean
 object OsmdroidInitializer {
     private const val MAPSFORGE_MAP_FILES_DIR = "mapsforge"
     private const val MAPSFORGE_MAP_FILE_FORMAT = ".map"
-    private const val FILE_SYSTEM_THREADS: Short = 2
+    private const val FILE_SYSTEM_THREADS: Short = 3
     private const val DOWNLOAD_THREADS: Short = 3
 
     private val isInitialized = AtomicBoolean(false)
-
     private var mapsForgeTileSource: MapsForgeTileSource? = null
 
+    @WorkerThread
     fun initialize(application: Application) {
         if (!isInitialized.get()) {
             isInitialized.getAndSet(true)

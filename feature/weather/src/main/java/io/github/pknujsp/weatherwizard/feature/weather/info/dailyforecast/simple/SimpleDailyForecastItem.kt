@@ -28,7 +28,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
-import io.github.pknujsp.weatherwizard.core.model.weather.dailyforecast.SimpleDailyForecast
+import io.github.pknujsp.weatherwizard.feature.weather.info.dailyforecast.model.SimpleDailyForecast
 import io.github.pknujsp.weatherwizard.core.ui.DrawInfo
 import io.github.pknujsp.weatherwizard.core.ui.MultiGraph
 import io.github.pknujsp.weatherwizard.core.ui.NewGraph
@@ -54,6 +54,7 @@ fun SimpleDailyForecastItem(simpleDailyForecast: SimpleDailyForecast) {
     LaunchedEffect(linePoints) {
         lazyListState.scrollToItem(0, 0)
     }
+
     LazyRow(
         modifier = Modifier
             .fillMaxWidth()
@@ -88,9 +89,7 @@ private fun Item(
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Text(text = date, style = TextStyle(fontSize = 13.sp, color = Color.White, textAlign = TextAlign.Center))
-            Row(modifier = Modifier
-                .padding(vertical = 8.dp, horizontal = 6.dp)
-                .fillMaxWidth(),
+            Row(modifier = Modifier.height(38.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween) {
                 weatherConditionIcons.forEach { icon ->

@@ -1,4 +1,4 @@
-package io.github.pknujsp.weatherwizard.core.model.weather.hourlyforecast
+package io.github.pknujsp.weatherwizard.feature.weather.info.hourlyforecast.model
 
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
@@ -39,8 +39,7 @@ class CompareHourlyForecast(
         val rainfallVolume: String = rainfallVolume.toStringWithoutUnit()
         val snowfallVolume: String = snowfallVolume.toStringWithoutUnit()
 
-        @DrawableRes val weatherIcon: Int =
-            weatherCondition.value.getWeatherIconByTimeOfDay(isDay)
+        @DrawableRes val weatherIcon: Int = weatherCondition.value.getWeatherIconByTimeOfDay(isDay)
         @StringRes val weatherCondition: Int = weatherCondition.value.stringRes
 
     }

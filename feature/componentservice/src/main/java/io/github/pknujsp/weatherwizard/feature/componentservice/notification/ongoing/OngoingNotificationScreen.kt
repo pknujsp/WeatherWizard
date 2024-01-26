@@ -42,7 +42,7 @@ import io.github.pknujsp.weatherwizard.feature.searchlocation.SearchLocationScre
 
 @Composable
 fun OngoingNotificationScreen(navController: NavController, viewModel: OngoingNotificationViewModel = hiltViewModel()) {
-    val notificationState = rememberOngoingNotificationState(viewModel.ongoingNotificationUiState, viewModel.appAlarmManager)
+    val notificationState = rememberOngoingNotificationState(viewModel.ongoingNotificationUiState)
     val context = LocalContext.current
 
     LaunchedEffect(notificationState.ongoingNotificationUiState.action, notificationState.ongoingNotificationUiState.changedCount) {
@@ -75,7 +75,7 @@ fun OngoingNotificationScreen(navController: NavController, viewModel: OngoingNo
                     navController.popBackStack()
                 }
                 RemoteViewsScreen(RemoteViewsCreatorManager.getByOngoingNotificationType(OngoingNotificationType.CURRENT_HOURLY_FORECAST),
-                    viewModel.units)
+                    viewModel.units, modifier = Modifier.padding(12.dp))
                 Column(modifier = Modifier
                     .verticalScroll(rememberScrollState())
                     .weight(1f)

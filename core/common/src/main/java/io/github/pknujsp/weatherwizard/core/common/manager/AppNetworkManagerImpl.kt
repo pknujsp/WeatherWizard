@@ -5,7 +5,7 @@ import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.net.NetworkRequest
 
-internal class AppNetworkManagerImpl(context: Context) : AppNetworkManager {
+class AppNetworkManagerImpl(context: Context) : AppNetworkManager {
     private val connectivityManager: ConnectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
     private var networkCallback: ConnectivityManager.NetworkCallback? = null
 
@@ -17,11 +17,10 @@ internal class AppNetworkManagerImpl(context: Context) : AppNetworkManager {
 
     override fun unregisterNetworkCallback() {
         networkCallback?.run { connectivityManager.unregisterNetworkCallback(this) }
+        networkCallback = null
     }
 
-    override fun isNetworkAvailable(): Boolean = connectivityManager.getNetworkCapabilities(connectivityManager.activeNetwork)?.run {
-        hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
-    } ?: false
+    override fun isNetworkAvailable(): Boolean = connectivityManager.activeNetwork != null
 
 }
 
