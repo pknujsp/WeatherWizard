@@ -75,7 +75,7 @@ fun OngoingNotificationScreen(navController: NavController, viewModel: OngoingNo
                     navController.popBackStack()
                 }
                 RemoteViewsScreen(RemoteViewsCreatorManager.getByOngoingNotificationType(OngoingNotificationType.CURRENT_HOURLY_FORECAST),
-                    viewModel.units)
+                    viewModel.units, modifier = Modifier.padding(12.dp))
                 Column(modifier = Modifier
                     .verticalScroll(rememberScrollState())
                     .weight(1f)

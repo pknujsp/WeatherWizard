@@ -83,7 +83,7 @@ fun ConfigDailyNotificationScreen(navController: NavController, viewModel: Confi
                             navController.popBackStack()
                         }
                         RemoteViewsScreen(RemoteViewsCreatorManager.getByDailyNotificationType(dailyNotificationUiState.dailyNotificationSettings.type),
-                            viewModel.units)
+                            viewModel.units, modifier = Modifier.padding(12.dp))
                         Column(modifier = Modifier
                             .verticalScroll(rememberScrollState())
                             .weight(1f)
