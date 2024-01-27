@@ -4,7 +4,7 @@ plugins {
 }
 
 android {
-    namespace = "io.github.pknujsp.weatherwizard.feature.searchlocation"
+    namespace = "io.github.pknujsp.everyweather.feature.searchlocation"
 }
 
 dependencies {

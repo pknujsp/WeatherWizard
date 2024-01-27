@@ -5,7 +5,7 @@ plugins {
 }
 
 android {
-    namespace = "io.github.pknujsp.weatherwizard.core.ads"
+    namespace = "io.github.pknujsp.everyweather.core.ads"
     applyCompose(this)
 
     buildFeatures {
@@ -21,6 +21,15 @@ android {
         buildConfigField("String", "ADMOB_NATIVE_AD_ID", "\"${properties["admob_native_id"]}\"")
         buildConfigField("String", "ADMOB_BANNER_AD_ID", "\"${properties["admob_banner_id"]}\"")
     }
+
+    buildTypes {
+        release {
+            isMinifyEnabled = false
+            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pgcfg")
+            consumerProguardFiles("proguard-rules.pgcfg", "admob-proguard-rules.pro")
+        }
+    }
+
 }
 
 

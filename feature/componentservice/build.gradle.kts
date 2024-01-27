@@ -4,7 +4,7 @@ plugins {
 }
 
 android {
-    namespace = "io.github.pknujsp.weatherwizard.feature.componentservice"
+    namespace = "io.github.pknujsp.everyweather.feature.componentservice"
     buildFeatures {
         viewBinding = true
     }

@@ -3,7 +3,7 @@ plugins {
 }
 
 android {
-    namespace = "io.github.pknujsp.weatherwizard.feature.airquality"
+    namespace = "io.github.pknujsp.everyweather.feature.airquality"
 }
 
 dependencies {

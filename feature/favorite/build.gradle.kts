@@ -3,7 +3,7 @@ plugins {
 }
 
 android {
-    namespace = "io.github.pknujsp.weatherwizard.feature.favorite"
+    namespace = "io.github.pknujsp.everyweather.feature.favorite"
 }
 
 dependencies {

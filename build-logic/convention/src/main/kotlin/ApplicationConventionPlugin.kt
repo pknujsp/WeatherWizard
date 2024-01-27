@@ -8,8 +8,10 @@ class ApplicationConventionPlugin : Plugin<Project> {
     override fun apply(target: Project) {
         with(target) {
             with(pluginManager) {
-                apply("org.jetbrains.kotlin.android")
                 apply("com.android.application")
+                apply("com.google.gms.google-services")
+                apply("com.google.firebase.crashlytics")
+                apply("org.jetbrains.kotlin.android")
                 apply("plugin.android.hilt")
                 apply("androidx.navigation.safeargs.kotlin")
             }

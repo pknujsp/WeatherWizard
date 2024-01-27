@@ -5,7 +5,7 @@ plugins {
 }
 
 android {
-    namespace = "io.github.pknujsp.weatherwizard.core.common"
+    namespace = "io.github.pknujsp.everyweather.core.common"
     applyCompose(this)
 }
 

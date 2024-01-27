@@ -3,7 +3,7 @@ plugins {
 }
 
 android {
-    namespace = "io.github.pknujsp.weatherwizard.core.widgetnotification"
+    namespace = "io.github.pknujsp.everyweather.core.widgetnotification"
 }
 
 dependencies {
