@@ -19,3 +19,14 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
+
+-keep class io.github.pknujsp.core.** { *; }
+-dontwarn io.github.pknujsp.core.compiler.BindFuncProcessor
+
+-keepattributes *Annotation*
+-keepattributes SourceFile,LineNumberTable
+-keep public class * extends java.lang.Exception
+
+-keep class com.crashlytics.** { *; }
+-dontwarn com.crashlytics.**
+-printmapping mapping.txt

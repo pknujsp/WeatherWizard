@@ -1,3 +1,5 @@
+import com.google.firebase.crashlytics.buildtools.gradle.CrashlyticsExtension
+
 plugins {
     id("plugin.android.application")
     alias(libs.plugins.gms)
@@ -19,15 +21,16 @@ android {
 
     buildTypes {
         release {
-            isMinifyEnabled = false
-            isShrinkResources = false
+            isMinifyEnabled = true
+            isShrinkResources = true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
             signingConfig = signingConfigs.getByName("debug")
         }
-        create("benchmark") {
-            initWith(buildTypes.getByName("release"))
-            signingConfig = signingConfigs.getByName("debug")
-            matchingFallbacks += listOf("release")
+        debug {
+            isMinifyEnabled = false
+            configure<CrashlyticsExtension> {
+                mappingFileUploadEnabled = false
+            }
         }
     }
 
@@ -46,6 +49,23 @@ android {
     hilt {
         enableAggregatingTask = true
     }
+
+    flavorDimensions += "environment"
+    productFlavors {
+        create("staging") {
+            dimension = "environment"
+            configure<CrashlyticsExtension> {
+                mappingFileUploadEnabled = false
+            }
+        }
+        create("prod") {
+            dimension = "environment"
+            configure<CrashlyticsExtension> {
+                mappingFileUploadEnabled = true
+            }
+        }
+    }
+
 }
 
 
