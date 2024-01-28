@@ -1,4 +1,4 @@
-package io.github.pknujsp.everyweather.core.ui.feature
+package io.github.pknujsp.everyweather.feature.permoptimize.network
 
 import android.content.Context
 import android.net.ConnectivityManager

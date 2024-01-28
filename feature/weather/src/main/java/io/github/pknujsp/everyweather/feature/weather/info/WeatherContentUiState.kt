@@ -29,8 +29,8 @@ import io.github.pknujsp.everyweather.core.model.flickr.FlickrRequestParameters
 import io.github.pknujsp.everyweather.core.model.settings.CurrentUnits
 import io.github.pknujsp.everyweather.core.model.weather.RequestWeatherArguments
 import io.github.pknujsp.everyweather.core.model.weather.yesterday.YesterdayWeather
-import io.github.pknujsp.everyweather.core.ui.feature.NetworkState
-import io.github.pknujsp.everyweather.core.ui.feature.rememberAppNetworkState
+import io.github.pknujsp.everyweather.feature.permoptimize.network.NetworkState
+import io.github.pknujsp.everyweather.feature.permoptimize.network.rememberAppNetworkState
 import io.github.pknujsp.everyweather.core.ui.theme.SystemBarContentColor
 import io.github.pknujsp.everyweather.core.ui.theme.setNavigationBarContentColor
 import io.github.pknujsp.everyweather.core.ui.theme.setStatusBarContentColor

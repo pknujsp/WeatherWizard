@@ -55,6 +55,10 @@ class OngoingNotificationState(
 @Composable
 fun rememberOngoingNotificationState(
     ongoingNotificationUiState: OngoingNotificationUiState, context: Context = LocalContext.current
-) = remember(ongoingNotificationUiState) {
-    OngoingNotificationState(context, ongoingNotificationUiState)
+): OngoingNotificationState {
+    val state = remember(ongoingNotificationUiState) {
+        OngoingNotificationState(context, ongoingNotificationUiState)
+    }
+
+    return state
 }

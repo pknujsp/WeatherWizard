@@ -30,8 +30,8 @@ import io.github.pknujsp.everyweather.core.common.FeatureType
 import io.github.pknujsp.everyweather.core.common.manager.PermissionType
 import io.github.pknujsp.everyweather.core.resource.R
 import io.github.pknujsp.everyweather.core.ui.TitleTextWithNavigation
-import io.github.pknujsp.everyweather.core.ui.feature.FeatureStateScreen
-import io.github.pknujsp.everyweather.core.ui.feature.PermissionStateScreen
+import io.github.pknujsp.everyweather.feature.permoptimize.feature.FeatureStateScreen
+import io.github.pknujsp.everyweather.feature.permoptimize.permission.PermissionStateScreen
 
 
 @Composable

@@ -22,8 +22,8 @@ import io.github.pknujsp.everyweather.core.common.FeatureType
 import io.github.pknujsp.everyweather.core.common.StatefulFeature
 import io.github.pknujsp.everyweather.core.common.manager.FailedReason
 import io.github.pknujsp.everyweather.core.resource.R
-import io.github.pknujsp.everyweather.core.ui.feature.FailedScreen
-import io.github.pknujsp.everyweather.core.ui.feature.FeatureStateScreen
+import io.github.pknujsp.everyweather.feature.permoptimize.feature.FailedScreen
+import io.github.pknujsp.everyweather.feature.permoptimize.feature.FeatureStateScreen
 import io.github.pknujsp.everyweather.core.ui.lottie.CancellableLoadingScreen
 import io.github.pknujsp.everyweather.feature.weather.comparison.dailyforecast.CompareDailyForecastScreen
 import io.github.pknujsp.everyweather.feature.weather.comparison.hourlyforecast.CompareHourlyForecastScreen

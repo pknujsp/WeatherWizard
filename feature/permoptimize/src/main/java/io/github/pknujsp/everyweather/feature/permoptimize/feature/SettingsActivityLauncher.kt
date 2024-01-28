@@ -1,4 +1,4 @@
-package io.github.pknujsp.everyweather.core.ui.feature
+package io.github.pknujsp.everyweather.feature.permoptimize.feature
 
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -11,7 +11,7 @@ import io.github.pknujsp.everyweather.core.common.FeatureType
 
 
 @Composable
-fun OpenAppSettingsActivity(featureType: FeatureType, onReturnedFromSettings: () -> Unit) {
+fun ShowAppSettingsActivity(featureType: FeatureType, onReturnedFromSettings: () -> Unit) {
     val context = LocalContext.current
     val onReturnedFromSettingsState by rememberUpdatedState(onReturnedFromSettings)
 

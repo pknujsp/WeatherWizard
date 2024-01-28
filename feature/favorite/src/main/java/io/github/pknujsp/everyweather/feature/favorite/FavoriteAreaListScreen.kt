@@ -55,12 +55,12 @@ import io.github.pknujsp.everyweather.core.ui.SecondaryButton
 import io.github.pknujsp.everyweather.core.ui.TitleTextWithNavigation
 import io.github.pknujsp.everyweather.core.ui.dialog.BottomSheet
 import io.github.pknujsp.everyweather.core.ui.dialog.DialogScreen
-import io.github.pknujsp.everyweather.core.ui.feature.OpenAppSettingsActivity
 import io.github.pknujsp.everyweather.core.ui.list.EmptyListScreen
 import io.github.pknujsp.everyweather.core.ui.theme.AppShapes
-import io.github.pknujsp.everyweather.feature.favorite.failure.LoadCurrentLocationFailureScreen
 import io.github.pknujsp.everyweather.feature.favorite.model.LoadCurrentLocationState
 import io.github.pknujsp.everyweather.feature.favorite.model.LocationUiState
+import io.github.pknujsp.everyweather.feature.permoptimize.feature.SmallFeatureStateScreen
+import io.github.pknujsp.everyweather.feature.permoptimize.feature.ShowAppSettingsActivity
 
 @Composable
 fun FavoriteAreaListScreen(navController: NavController, viewModel: FavoriteAreaViewModel = hiltViewModel()) {
@@ -90,7 +90,7 @@ fun FavoriteAreaListScreen(navController: NavController, viewModel: FavoriteArea
     }
 
     if (showSettingsActivity && targetLocation.loadCurrentLocationState is LoadCurrentLocationState.Failed && (targetLocation.loadCurrentLocationState as LoadCurrentLocationState.Failed).statefulFeature.hasRepairAction) {
-        OpenAppSettingsActivity(featureType = (targetLocation.loadCurrentLocationState as LoadCurrentLocationState.Failed).statefulFeature as FeatureType) {
+        ShowAppSettingsActivity(featureType = (targetLocation.loadCurrentLocationState as LoadCurrentLocationState.Failed).statefulFeature as FeatureType) {
             showSettingsActivity = false
             viewModel.loadCurrentLocation()
         }
@@ -243,7 +243,7 @@ private fun CurrentLocationItem(
                         }
 
                         is LoadCurrentLocationState.Failed -> {
-                            LoadCurrentLocationFailureScreen(state.statefulFeature, onClickRetry = {
+                            SmallFeatureStateScreen(state.statefulFeature, onClickRetry = {
                                 onClickRetry()
                             }, onClickAction = {
                                 onClickAction()

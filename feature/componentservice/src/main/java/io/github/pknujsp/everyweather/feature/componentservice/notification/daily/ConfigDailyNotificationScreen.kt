@@ -34,7 +34,7 @@ import io.github.pknujsp.everyweather.core.ui.SecondaryButton
 import io.github.pknujsp.everyweather.core.ui.TitleTextWithNavigation
 import io.github.pknujsp.everyweather.core.ui.WeatherProvidersScreen
 import io.github.pknujsp.everyweather.core.ui.dialog.DialogScreen
-import io.github.pknujsp.everyweather.core.ui.feature.PermissionStateScreen
+import io.github.pknujsp.everyweather.feature.permoptimize.permission.PermissionStateScreen
 import io.github.pknujsp.everyweather.core.widgetnotification.remoteview.RemoteViewsCreatorManager
 import io.github.pknujsp.everyweather.feature.componentservice.RemoteViewsScreen
 import io.github.pknujsp.everyweather.feature.componentservice.notification.daily.model.DailyNotificationSettings

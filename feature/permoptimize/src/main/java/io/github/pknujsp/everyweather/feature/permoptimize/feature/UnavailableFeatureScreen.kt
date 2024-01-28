@@ -1,4 +1,4 @@
-package io.github.pknujsp.everyweather.core.ui.feature
+package io.github.pknujsp.everyweather.feature.permoptimize.feature
 
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Arrangement
@@ -19,10 +19,7 @@ import io.github.pknujsp.everyweather.core.ui.PrimaryButton
 
 @Composable
 fun UnavailableFeatureScreen(featureType: StatefulFeature, onClick: () -> Unit) {
-    FailedScreen(title = featureType.title,
-        alertMessage = featureType.message,
-        actionMessage = featureType.action,
-        onClick = onClick)
+    FailedScreen(title = featureType.title, alertMessage = featureType.message, actionMessage = featureType.action, onClick = onClick)
 }
 
 @Composable

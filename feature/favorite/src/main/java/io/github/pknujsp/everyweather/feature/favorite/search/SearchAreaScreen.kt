@@ -43,8 +43,8 @@ import io.github.pknujsp.everyweather.core.resource.R
 import io.github.pknujsp.everyweather.core.ui.MainRoutes
 import io.github.pknujsp.everyweather.core.ui.RootNavControllerViewModel
 import io.github.pknujsp.everyweather.core.ui.TitleTextWithNavigation
-import io.github.pknujsp.everyweather.core.ui.feature.FeatureStateScreen
-import io.github.pknujsp.everyweather.core.ui.feature.rememberAppNetworkState
+import io.github.pknujsp.everyweather.feature.permoptimize.feature.FeatureStateScreen
+import io.github.pknujsp.everyweather.feature.permoptimize.network.rememberAppNetworkState
 
 @Composable
 fun SearchAreaScreen(
