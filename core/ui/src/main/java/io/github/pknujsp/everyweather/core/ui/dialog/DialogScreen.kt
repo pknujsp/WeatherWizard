@@ -15,8 +15,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import io.github.pknujsp.everyweather.core.ui.PrimaryButton
-import io.github.pknujsp.everyweather.core.ui.SecondaryButton
+import io.github.pknujsp.everyweather.core.ui.button.PrimaryButton
+import io.github.pknujsp.everyweather.core.ui.button.SecondaryButton
 
 
 @Composable

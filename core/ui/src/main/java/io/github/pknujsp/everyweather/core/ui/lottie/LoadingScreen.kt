@@ -17,8 +17,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
-import io.github.pknujsp.everyweather.core.ui.ButtonSize
-import io.github.pknujsp.everyweather.core.ui.PrimaryButton
+import io.github.pknujsp.everyweather.core.resource.R
+import io.github.pknujsp.everyweather.core.ui.button.ButtonSize
+import io.github.pknujsp.everyweather.core.ui.button.PrimaryButton
 import io.github.pknujsp.everyweather.core.ui.theme.AppShapes
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -68,7 +69,7 @@ fun CancellableLoadingScreen(
 ) {
     LoadingScreen(text, onDismissRequest) {
         PrimaryButton(onClick = onDismissRequest,
-            text = stringResource(id = io.github.pknujsp.everyweather.core.resource.R.string.cancel),
+            text = stringResource(id = R.string.cancel),
             buttonSize = ButtonSize.SMALL,
             modifier = Modifier.fillMaxWidth())
     }

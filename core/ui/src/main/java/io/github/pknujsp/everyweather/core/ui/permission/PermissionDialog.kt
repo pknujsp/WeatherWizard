@@ -19,8 +19,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
-import io.github.pknujsp.everyweather.core.ui.PrimaryButton
-import io.github.pknujsp.everyweather.core.ui.SecondaryButton
+import io.github.pknujsp.everyweather.core.resource.R
+import io.github.pknujsp.everyweather.core.ui.button.PrimaryButton
+import io.github.pknujsp.everyweather.core.ui.button.SecondaryButton
 
 
 @Composable
@@ -43,8 +44,8 @@ fun PermissionDialog(onDismissRequest: () -> Unit, onGrantPermission: () -> Unit
             Row(modifier = Modifier
                 .align(Alignment.CenterHorizontally)
                 .fillMaxWidth(), horizontalArrangement = Arrangement.End) {
-                SecondaryButton(text = stringResource(id = io.github.pknujsp.everyweather.core.resource.R.string.close), onClick = onDismissRequest)
-                PrimaryButton(text = stringResource(id = io.github.pknujsp.everyweather.core.resource.R.string.grant_permissions),
+                SecondaryButton(text = stringResource(id = R.string.close), onClick = onDismissRequest)
+                PrimaryButton(text = stringResource(id = R.string.grant_permissions),
                     onClick = onGrantPermission)
             }
         }

@@ -1,7 +1,7 @@
 package io.github.pknujsp.everyweather.feature.weather.route
 
-import io.github.pknujsp.everyweather.core.ui.NestedParentRoutes
-import io.github.pknujsp.everyweather.core.ui.NestedRoutes
+import io.github.pknujsp.everyweather.core.ui.route.NestedParentRoutes
+import io.github.pknujsp.everyweather.core.ui.route.NestedRoutes
 import io.github.pknujsp.everyweather.core.ui.theme.SystemBarContentColor
 
 sealed interface NestedWeatherRoutes : NestedRoutes {

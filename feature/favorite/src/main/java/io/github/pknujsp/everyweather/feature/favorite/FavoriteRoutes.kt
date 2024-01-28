@@ -1,6 +1,6 @@
 package io.github.pknujsp.everyweather.feature.favorite
 
-import io.github.pknujsp.everyweather.core.ui.Routes
+import io.github.pknujsp.everyweather.core.ui.route.Routes
 
 sealed interface FavoriteRoutes : Routes {
 

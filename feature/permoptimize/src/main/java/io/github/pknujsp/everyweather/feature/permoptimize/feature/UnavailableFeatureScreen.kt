@@ -15,7 +15,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import io.github.pknujsp.everyweather.core.common.StatefulFeature
-import io.github.pknujsp.everyweather.core.ui.PrimaryButton
+import io.github.pknujsp.everyweather.core.ui.button.PrimaryButton
 
 @Composable
 fun UnavailableFeatureScreen(featureType: StatefulFeature, onClick: () -> Unit) {

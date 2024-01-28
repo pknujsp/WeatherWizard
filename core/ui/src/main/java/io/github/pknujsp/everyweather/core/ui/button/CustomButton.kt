@@ -1,4 +1,4 @@
-package io.github.pknujsp.everyweather.core.ui
+package io.github.pknujsp.everyweather.core.ui.button
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.PaddingValues

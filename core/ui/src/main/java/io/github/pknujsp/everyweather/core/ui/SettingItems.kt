@@ -44,6 +44,7 @@ import io.github.pknujsp.everyweather.core.model.coordinate.LocationTypeModel
 import io.github.pknujsp.everyweather.core.model.settings.IEnum
 import io.github.pknujsp.everyweather.core.model.weather.common.WeatherProvider
 import io.github.pknujsp.everyweather.core.resource.R
+import io.github.pknujsp.everyweather.core.ui.button.SecondaryButton
 import io.github.pknujsp.everyweather.core.ui.dialog.BottomSheet
 
 
@@ -293,7 +294,7 @@ fun ColumnScope.LocationScreen(selectedLocation: LocationTypeModel, onSelectedIt
             horizontalArrangement = Arrangement.spacedBy(20.dp),
             modifier = Modifier.align(Alignment.End)) {
             Text(text = selectedLocation.address, style = TextStyle(fontSize = 16.sp))
-            SecondaryButton(text = stringResource(id = io.github.pknujsp.everyweather.core.resource.R.string.select_location),
+            SecondaryButton(text = stringResource(id = R.string.select_location),
                 modifier = Modifier.wrapContentSize()) {
                 onClick()
             }

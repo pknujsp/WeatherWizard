@@ -18,9 +18,9 @@ import androidx.compose.ui.unit.sp
 import io.github.pknujsp.everyweather.core.common.FeatureType
 import io.github.pknujsp.everyweather.core.common.StatefulFeature
 import io.github.pknujsp.everyweather.core.resource.R
-import io.github.pknujsp.everyweather.core.ui.ButtonSize
-import io.github.pknujsp.everyweather.core.ui.PrimaryButton
-import io.github.pknujsp.everyweather.core.ui.SecondaryButton
+import io.github.pknujsp.everyweather.core.ui.button.ButtonSize
+import io.github.pknujsp.everyweather.core.ui.button.PrimaryButton
+import io.github.pknujsp.everyweather.core.ui.button.SecondaryButton
 
 @Composable
 fun FeatureStateScreen(featureType: FeatureType, onAvailable: () -> Unit) {

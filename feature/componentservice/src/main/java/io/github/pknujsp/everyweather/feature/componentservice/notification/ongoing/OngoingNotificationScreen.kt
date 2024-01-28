@@ -29,7 +29,7 @@ import io.github.pknujsp.everyweather.core.model.notification.enums.RefreshInter
 import io.github.pknujsp.everyweather.core.resource.R
 import io.github.pknujsp.everyweather.core.ui.BottomSheetSettingItem
 import io.github.pknujsp.everyweather.core.ui.LocationScreen
-import io.github.pknujsp.everyweather.core.ui.SecondaryButton
+import io.github.pknujsp.everyweather.core.ui.button.SecondaryButton
 import io.github.pknujsp.everyweather.core.ui.TitleTextWithNavigation
 import io.github.pknujsp.everyweather.core.ui.WeatherProvidersScreen
 import io.github.pknujsp.everyweather.core.widgetnotification.remoteview.RemoteViewsCreatorManager
@@ -74,7 +74,8 @@ fun OngoingNotificationScreen(navController: NavController, viewModel: OngoingNo
                     navController.popBackStack()
                 }
                 RemoteViewsScreen(RemoteViewsCreatorManager.getByOngoingNotificationType(OngoingNotificationType.CURRENT_HOURLY_FORECAST),
-                    viewModel.units, modifier = Modifier.padding(12.dp))
+                    viewModel.units,
+                    modifier = Modifier.padding(12.dp))
                 Column(modifier = Modifier
                     .verticalScroll(rememberScrollState())
                     .weight(1f)
@@ -107,7 +108,7 @@ fun OngoingNotificationScreen(navController: NavController, viewModel: OngoingNo
                 }
                 if (ongoingNotificationUiState.isEnabled) {
                     Box(modifier = Modifier.padding(12.dp)) {
-                        SecondaryButton(text = stringResource(id = io.github.pknujsp.everyweather.core.resource.R.string.save),
+                        SecondaryButton(text = stringResource(id = R.string.save),
                             modifier = Modifier.fillMaxWidth()) {
                             ongoingNotificationUiState.update()
                         }

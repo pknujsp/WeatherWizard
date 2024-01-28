@@ -1,4 +1,4 @@
-package io.github.pknujsp.everyweather.core.ui
+package io.github.pknujsp.everyweather.core.ui.route
 
 import android.content.res.Resources
 import android.util.DisplayMetrics
@@ -17,6 +17,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import io.github.pknujsp.everyweather.core.ui.NewGraph
 
 @Composable
 fun SingleGraph(

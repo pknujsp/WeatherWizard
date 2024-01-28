@@ -20,7 +20,7 @@ import io.github.pknujsp.everyweather.core.model.weather.common.TemperatureValue
 import io.github.pknujsp.everyweather.core.model.weather.common.WeatherConditionValueType
 import io.github.pknujsp.everyweather.core.model.weather.common.WindDirectionValueType
 import io.github.pknujsp.everyweather.core.model.weather.common.WindSpeedValueType
-import io.github.pknujsp.everyweather.core.ui.DateTimeInfo
+import io.github.pknujsp.everyweather.core.ui.time.DateTimeInfo
 import java.time.ZonedDateTime
 
 class SimpleHourlyForecast(

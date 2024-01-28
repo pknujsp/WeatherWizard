@@ -13,6 +13,7 @@ import io.github.pknujsp.everyweather.core.common.FeatureType
 
 
 private class MutableAppFeatureState(
+    override val featureType: FeatureType
 ) : AppFeatureState {
     override var isAvailable: Boolean by mutableStateOf(false)
     override var isShowSettingsActivity: Boolean by mutableStateOf(false)
@@ -29,7 +30,7 @@ private class MutableAppFeatureState(
 @Composable
 fun rememberAppFeatureState(featureType: FeatureType, context: Context = LocalContext.current): AppFeatureState {
     val manager = remember(featureType) {
-        MutableAppFeatureState()
+        MutableAppFeatureState(featureType)
     }
 
     LaunchedEffect(featureType, manager.isShowSettingsActivity) {
@@ -43,6 +44,7 @@ fun rememberAppFeatureState(featureType: FeatureType, context: Context = LocalCo
 
 @Stable
 interface AppFeatureState {
+    val featureType: FeatureType
     val isAvailable: Boolean
     val isShowSettingsActivity: Boolean
     fun showSettingsActivity()

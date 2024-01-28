@@ -27,9 +27,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
-import io.github.pknujsp.everyweather.core.ui.DrawInfo
+import io.github.pknujsp.everyweather.core.ui.route.DrawInfo
 import io.github.pknujsp.everyweather.core.ui.NewGraph
-import io.github.pknujsp.everyweather.core.ui.SingleGraph
+import io.github.pknujsp.everyweather.core.ui.route.SingleGraph
 import io.github.pknujsp.everyweather.feature.weather.info.hourlyforecast.model.SimpleHourlyForecast
 
 

@@ -3,12 +3,11 @@ package io.github.pknujsp.everyweather.core.ui.weather.item
 import android.content.res.Resources
 import android.util.TypedValue
 import androidx.compose.ui.unit.Dp
-import io.github.pknujsp.everyweather.core.ui.DateTimeInfo
-import io.github.pknujsp.everyweather.core.ui.UiComponentCreator
+import io.github.pknujsp.everyweather.core.ui.time.DateTimeInfo
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 
-class DynamicDateTimeUiCreator(times: List<String>, private val itemWidth: Dp) : UiComponentCreator {
+class DynamicDateTimeUiCreator(times: List<String>, private val itemWidth: Dp) {
 
     private val dates = times.map { ZonedDateTime.parse(it).toLocalDate() }
 

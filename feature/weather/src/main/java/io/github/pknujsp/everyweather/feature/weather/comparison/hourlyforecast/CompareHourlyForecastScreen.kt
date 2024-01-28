@@ -46,7 +46,7 @@ import io.github.pknujsp.everyweather.core.model.onSuccess
 import io.github.pknujsp.everyweather.core.model.weather.RequestWeatherArguments
 import io.github.pknujsp.everyweather.core.model.weather.common.WeatherProvider
 import io.github.pknujsp.everyweather.core.resource.R
-import io.github.pknujsp.everyweather.core.ui.DynamicDateTime
+import io.github.pknujsp.everyweather.core.ui.time.DynamicDateTime
 import io.github.pknujsp.everyweather.core.ui.TitleTextWithNavigation
 import io.github.pknujsp.everyweather.core.ui.lottie.CancellableLoadingScreen
 import io.github.pknujsp.everyweather.feature.weather.comparison.common.CommonForecastItemsScreen

@@ -6,9 +6,9 @@ import androidx.navigation.NamedNavArgument
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
 import io.github.pknujsp.everyweather.core.resource.R
-import io.github.pknujsp.everyweather.core.ui.ParentRoutes
-import io.github.pknujsp.everyweather.core.ui.Routes
-import io.github.pknujsp.everyweather.core.ui.RoutesWithArgument
+import io.github.pknujsp.everyweather.core.ui.route.ParentRoutes
+import io.github.pknujsp.everyweather.core.ui.route.Routes
+import io.github.pknujsp.everyweather.core.ui.route.RoutesWithArgument
 
 sealed interface NotificationRoutes : Routes {
 

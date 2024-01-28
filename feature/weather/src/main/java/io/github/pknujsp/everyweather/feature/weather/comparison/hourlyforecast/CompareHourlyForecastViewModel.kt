@@ -17,7 +17,7 @@ import io.github.pknujsp.everyweather.core.model.weather.RequestWeatherArguments
 import io.github.pknujsp.everyweather.core.model.weather.common.MajorWeatherEntityType
 import io.github.pknujsp.everyweather.core.model.weather.common.WeatherProvider
 import io.github.pknujsp.everyweather.core.model.weather.hourlyforecast.ToCompareHourlyForecastEntity
-import io.github.pknujsp.everyweather.core.ui.DateTimeInfo
+import io.github.pknujsp.everyweather.core.ui.time.DateTimeInfo
 import io.github.pknujsp.everyweather.core.ui.weather.item.DynamicDateTimeUiCreator
 import io.github.pknujsp.everyweather.feature.weather.comparison.common.CompareForecastViewModel
 import io.github.pknujsp.everyweather.feature.weather.info.hourlyforecast.model.CompareHourlyForecast

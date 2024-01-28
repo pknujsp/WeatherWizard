@@ -51,7 +51,7 @@ import io.github.pknujsp.everyweather.core.model.favorite.FavoriteArea
 import io.github.pknujsp.everyweather.core.resource.R
 import io.github.pknujsp.everyweather.core.ui.MainRoutes
 import io.github.pknujsp.everyweather.core.ui.RootNavControllerViewModel
-import io.github.pknujsp.everyweather.core.ui.SecondaryButton
+import io.github.pknujsp.everyweather.core.ui.button.SecondaryButton
 import io.github.pknujsp.everyweather.core.ui.TitleTextWithNavigation
 import io.github.pknujsp.everyweather.core.ui.dialog.BottomSheet
 import io.github.pknujsp.everyweather.core.ui.dialog.DialogScreen

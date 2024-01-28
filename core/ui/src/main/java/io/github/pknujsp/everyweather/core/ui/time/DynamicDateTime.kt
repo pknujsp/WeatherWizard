@@ -1,4 +1,4 @@
-package io.github.pknujsp.everyweather.core.ui
+package io.github.pknujsp.everyweather.core.ui.time
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.fillMaxWidth

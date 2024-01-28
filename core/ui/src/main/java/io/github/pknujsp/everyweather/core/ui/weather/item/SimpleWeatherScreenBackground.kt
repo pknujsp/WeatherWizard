@@ -29,8 +29,9 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import io.github.pknujsp.everyweather.core.resource.R
 import io.github.pknujsp.everyweather.core.ui.PlaceHolder
-import io.github.pknujsp.everyweather.core.ui.SecondaryButton
+import io.github.pknujsp.everyweather.core.ui.button.SecondaryButton
 import io.github.pknujsp.everyweather.core.ui.theme.AppShapes
 
 private val backgroundColor = Color(150, 140, 155, 215)
@@ -91,7 +92,7 @@ fun SimpleWeatherFailedBox(title: String, description: String, onClick: () -> Un
                 style = TextStyle(fontSize = 18.sp, color = Color.White),
                 modifier = Modifier.padding(start = 32.dp, end = 32.dp))
             Text(text = description, style = TextStyle(fontSize = 12.sp, color = Color.White))
-            SecondaryButton(onClick = onClick, text = stringResource(id = io.github.pknujsp.everyweather.core.resource.R.string.reload))
+            SecondaryButton(onClick = onClick, text = stringResource(id = R.string.reload))
         }
     }
 }

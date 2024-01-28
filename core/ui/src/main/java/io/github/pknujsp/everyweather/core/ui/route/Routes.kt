@@ -1,4 +1,4 @@
-package io.github.pknujsp.everyweather.core.ui
+package io.github.pknujsp.everyweather.core.ui.route
 
 import androidx.annotation.StringRes
 import androidx.navigation.NamedNavArgument

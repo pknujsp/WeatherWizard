@@ -38,7 +38,7 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import io.github.pknujsp.everyweather.core.model.coordinate.LocationType
 import io.github.pknujsp.everyweather.core.resource.R
-import io.github.pknujsp.everyweather.core.ui.SecondaryButton
+import io.github.pknujsp.everyweather.core.ui.button.SecondaryButton
 import io.github.pknujsp.everyweather.core.ui.TitleTextWithNavigation
 import io.github.pknujsp.everyweather.core.ui.dialog.BottomSheet
 import io.github.pknujsp.everyweather.core.ui.dialog.DialogScreen
@@ -78,7 +78,7 @@ fun DailyNotificationListScreen(navController: NavController, viewModel: DailyNo
         }
 
         Box(modifier = Modifier.padding(12.dp)) {
-            SecondaryButton(text = stringResource(id = io.github.pknujsp.everyweather.core.resource.R.string.add_daily_notification),
+            SecondaryButton(text = stringResource(id = R.string.add_daily_notification),
                 modifier = Modifier.fillMaxWidth()) {
                 navController.navigate(NotificationRoutes.AddOrEditDaily.routeWithArguments(-1L))
             }

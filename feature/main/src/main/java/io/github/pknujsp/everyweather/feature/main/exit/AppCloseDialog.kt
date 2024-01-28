@@ -16,10 +16,9 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import io.github.pknujsp.everyweather.core.ads.AdMob
 import io.github.pknujsp.everyweather.core.common.asActivity
-import io.github.pknujsp.everyweather.core.ui.PrimaryButton
+import io.github.pknujsp.everyweather.core.ui.button.PrimaryButton
 import io.github.pknujsp.everyweather.core.ui.TitleTextWithoutNavigation
 import io.github.pknujsp.everyweather.core.ui.theme.AppShapes
-import io.github.pknujsp.everyweather.feature.main.R
 
 
 @Composable

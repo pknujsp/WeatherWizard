@@ -3,8 +3,8 @@ package io.github.pknujsp.everyweather.feature.weather.route
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import io.github.pknujsp.everyweather.core.resource.R
-import io.github.pknujsp.everyweather.core.ui.ParentRoutes
-import io.github.pknujsp.everyweather.core.ui.Routes
+import io.github.pknujsp.everyweather.core.ui.route.ParentRoutes
+import io.github.pknujsp.everyweather.core.ui.route.Routes
 
 sealed interface WeatherRoutes : Routes {
 

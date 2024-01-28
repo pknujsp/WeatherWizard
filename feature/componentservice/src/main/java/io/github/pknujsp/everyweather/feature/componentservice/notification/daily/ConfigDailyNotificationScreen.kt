@@ -30,7 +30,7 @@ import io.github.pknujsp.everyweather.core.model.notification.enums.DailyNotific
 import io.github.pknujsp.everyweather.core.resource.R
 import io.github.pknujsp.everyweather.core.ui.BottomSheetSettingItem
 import io.github.pknujsp.everyweather.core.ui.LocationScreen
-import io.github.pknujsp.everyweather.core.ui.SecondaryButton
+import io.github.pknujsp.everyweather.core.ui.button.SecondaryButton
 import io.github.pknujsp.everyweather.core.ui.TitleTextWithNavigation
 import io.github.pknujsp.everyweather.core.ui.WeatherProvidersScreen
 import io.github.pknujsp.everyweather.core.ui.dialog.DialogScreen

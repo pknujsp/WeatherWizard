@@ -9,7 +9,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import io.github.pknujsp.everyweather.feature.weather.info.hourlyforecast.model.SimpleHourlyForecast
 import io.github.pknujsp.everyweather.core.resource.R
-import io.github.pknujsp.everyweather.core.ui.DynamicDateTime
+import io.github.pknujsp.everyweather.core.ui.time.DynamicDateTime
 import io.github.pknujsp.everyweather.core.ui.weather.item.CardInfo
 import io.github.pknujsp.everyweather.feature.weather.info.ui.HourlyForecastItem
 import io.github.pknujsp.everyweather.core.ui.weather.item.SimpleWeatherScreenBackground
