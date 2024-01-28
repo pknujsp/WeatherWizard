@@ -17,9 +17,9 @@ android {
     defaultConfig {
         val properties = Properties()
         properties.load(project.rootProject.file("/local.properties").bufferedReader())
-        buildConfigField("String", "ADMOB_APP_ID", "\"${properties["admob_app_id"]}\"")
         buildConfigField("String", "ADMOB_NATIVE_AD_ID", "\"${properties["admob_native_id"]}\"")
         buildConfigField("String", "ADMOB_BANNER_AD_ID", "\"${properties["admob_banner_id"]}\"")
+        manifestPlaceholders["ADMOB_APP_ID"] = properties.getProperty("admob_app_id")
     }
 
     buildTypes {

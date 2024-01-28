@@ -60,14 +60,13 @@ fun rememberMainState(requestedRoutes: SharedFlow<MainRoutes>, navController: Na
 
     LaunchedEffect(Unit) {
         launch {
-            navController.currentBackStackEntryFlow.collect {
-                Log.d("MainUiState", "currentBackStackEntry : $it")
+/*            navController.currentBackStackEntryFlow.collect {
                 val isLight = it.destination.route != MainRoutes.Weather.route
                 windowInsetsControllerCompat.run {
                     isAppearanceLightStatusBars = isLight
                     isAppearanceLightNavigationBars = isLight
                 }
-            }
+            }*/
         }
         launch {
             requestedRoutes.collect { newRoute ->

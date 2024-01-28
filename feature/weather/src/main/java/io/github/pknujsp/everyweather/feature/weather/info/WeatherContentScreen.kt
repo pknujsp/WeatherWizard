@@ -111,10 +111,9 @@ fun WeatherContentScreen(
         val localConfiguration = LocalConfiguration.current
 
         val screenHeight = remember {
-            val height = with(density) {
+            with(density) {
                 localConfiguration.screenHeightDp + (systemBars.getBottom(this) + systemBars.getTop(this)) / this.density
-            }
-            height.dp
+            }.dp
         }
 
         Box {

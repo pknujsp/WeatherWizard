@@ -66,7 +66,7 @@ import io.github.pknujsp.everyweather.feature.favorite.model.LocationUiState
 fun FavoriteAreaListScreen(navController: NavController, viewModel: FavoriteAreaViewModel = hiltViewModel()) {
     val favoriteLocations by viewModel.favoriteLocations.collectAsStateWithLifecycle()
     val targetLocation = viewModel.locationUiState
-    var showSettingsActivity by remember { mutableStateOf(false) }
+    var showSettingsActivity by remember(targetLocation) { mutableStateOf(false) }
     var selectedLocationToDelete by remember { mutableStateOf<FavoriteArea?>(null) }
 
     val rootNavControllerViewModel: RootNavControllerViewModel =
@@ -89,7 +89,7 @@ fun FavoriteAreaListScreen(navController: NavController, viewModel: FavoriteArea
         }
     }
 
-    if (showSettingsActivity && targetLocation.loadCurrentLocationState is LoadCurrentLocationState.Failed) {
+    if (showSettingsActivity && targetLocation.loadCurrentLocationState is LoadCurrentLocationState.Failed && (targetLocation.loadCurrentLocationState as LoadCurrentLocationState.Failed).statefulFeature.hasRepairAction) {
         OpenAppSettingsActivity(featureType = (targetLocation.loadCurrentLocationState as LoadCurrentLocationState.Failed).statefulFeature as FeatureType) {
             showSettingsActivity = false
             viewModel.loadCurrentLocation()

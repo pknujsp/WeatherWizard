@@ -31,6 +31,9 @@ import io.github.pknujsp.everyweather.core.model.weather.RequestWeatherArguments
 import io.github.pknujsp.everyweather.core.model.weather.yesterday.YesterdayWeather
 import io.github.pknujsp.everyweather.core.ui.feature.NetworkState
 import io.github.pknujsp.everyweather.core.ui.feature.rememberAppNetworkState
+import io.github.pknujsp.everyweather.core.ui.theme.SystemBarContentColor
+import io.github.pknujsp.everyweather.core.ui.theme.setNavigationBarContentColor
+import io.github.pknujsp.everyweather.core.ui.theme.setStatusBarContentColor
 import io.github.pknujsp.everyweather.feature.weather.info.currentweather.model.CurrentWeather
 import io.github.pknujsp.everyweather.feature.weather.info.dailyforecast.model.DetailDailyForecast
 import io.github.pknujsp.everyweather.feature.weather.info.dailyforecast.model.SimpleDailyForecast
@@ -95,7 +98,6 @@ class Weather(
 private class MutableWeatherMainState @OptIn(ExperimentalMaterial3Api::class) constructor(
     override val scrollState: ScrollState,
     override val scrollBehavior: TopAppBarScrollBehavior,
-    private val windowInsetsController: WindowInsetsControllerCompat,
     override val networkState: NetworkState,
     private val weatherContentUiState: () -> WeatherContentUiState?,
 ) : WeatherMainState {
@@ -103,14 +105,6 @@ private class MutableWeatherMainState @OptIn(ExperimentalMaterial3Api::class) co
 
     override fun navigate(nestedRoutes: NestedWeatherRoutes) {
         this.nestedRoutes.value = nestedRoutes
-        updateWindowInset(nestedRoutes !is NestedWeatherRoutes.Main)
-    }
-
-    override fun updateWindowInset(isAppearanceLight: Boolean) {
-        windowInsetsController.run {
-            isAppearanceLightStatusBars = isAppearanceLight
-            isAppearanceLightNavigationBars = isAppearanceLight
-        }
     }
 
     override suspend fun expandAppBar() {
@@ -140,15 +134,15 @@ fun rememberWeatherMainState(
     val scrollBehavior: TopAppBarScrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(state = rememberTopAppBarState(
         initialHeightOffsetLimit = with(density) { topAppBarOffsetLimit.toPx() },
     ))
-    val networkState = rememberAppNetworkState()
-    val window = LocalContext.current.asActivity()!!.window
 
+    val window = LocalContext.current.asActivity()!!.window
+    val windowInsetsControllerCompat = remember(window) {
+        WindowInsetsControllerCompat(window, window.decorView)
+    }
+
+    val networkState = rememberAppNetworkState()
     val state: WeatherMainState = remember {
-        MutableWeatherMainState(scrollState,
-            scrollBehavior,
-            WindowInsetsControllerCompat(window, window.decorView),
-            networkState,
-            weatherContentUiState)
+        MutableWeatherMainState(scrollState, scrollBehavior, networkState, weatherContentUiState)
     }
 
     var nestedRoutes by rememberSaveable(saver = Saver(save = { it.value.route },
@@ -176,6 +170,20 @@ fun rememberWeatherMainState(
                 state.refresh()
             }
         }
+        launch {
+            snapshotFlow { state.nestedRoutes.value }.collect { route ->
+                windowInsetsControllerCompat.run {
+                    val color = if (weatherContentUiState() is WeatherContentUiState.Error && route is NestedWeatherRoutes.Main) {
+                        SystemBarContentColor.BLACK
+                    } else {
+                        route.systemBarContentColor
+                    }
+
+                    setStatusBarContentColor(color)
+                    setNavigationBarContentColor(color)
+                }
+            }
+        }
     }
 
     return state
@@ -191,6 +199,5 @@ interface WeatherMainState {
     val nestedRoutes: State<NestedWeatherRoutes>
     suspend fun expandAppBar()
     fun navigate(nestedRoutes: NestedWeatherRoutes)
-    fun updateWindowInset(isAppearanceLight: Boolean)
     fun refresh()
 }

@@ -19,6 +19,9 @@ import io.github.pknujsp.everyweather.core.common.coroutines.CoDispatcher
 import io.github.pknujsp.everyweather.core.common.coroutines.CoDispatcherType
 import io.github.pknujsp.everyweather.core.ui.theme.AppColorScheme
 import io.github.pknujsp.everyweather.core.ui.theme.MainTheme
+import io.github.pknujsp.everyweather.core.ui.theme.SystemBarContentColor
+import io.github.pknujsp.everyweather.core.ui.theme.setNavigationBarContentColor
+import io.github.pknujsp.everyweather.core.ui.theme.setStatusBarContentColor
 import io.github.pknujsp.everyweather.feature.map.OsmdroidInitializer
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.launch
@@ -28,7 +31,7 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     private val viewModel: ActivityViewModel by viewModels()
-    @Inject @CoDispatcher(CoDispatcherType.IO) lateinit var dispatcher: CoroutineDispatcher
+    // @Inject @CoDispatcher(CoDispatcherType.IO) lateinit var dispatcher: CoroutineDispatcher
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -36,7 +39,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             val coroutineScope = rememberCoroutineScope()
             LifecycleEventEffect(event = Lifecycle.Event.ON_CREATE) {
-                coroutineScope.launch(dispatcher) {
+                coroutineScope.launch {
                     AdMob.initialize(application)
                     OsmdroidInitializer.initialize(application)
                 }
@@ -64,8 +67,8 @@ class MainActivity : ComponentActivity() {
         window.run {
             WindowCompat.setDecorFitsSystemWindows(this, false)
             WindowCompat.getInsetsController(this, decorView).run {
-                isAppearanceLightStatusBars = true
-                isAppearanceLightNavigationBars = true
+                setStatusBarContentColor(SystemBarContentColor.BLACK)
+                setNavigationBarContentColor(SystemBarContentColor.BLACK)
             }
             statusBarColor = Color.TRANSPARENT
             navigationBarColor = Color.TRANSPARENT

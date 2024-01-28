@@ -29,13 +29,13 @@ import io.github.pknujsp.everyweather.core.model.weather.common.MajorWeatherEnti
 import io.github.pknujsp.everyweather.core.model.weather.common.WeatherProvider
 import io.github.pknujsp.everyweather.core.model.weather.current.CurrentWeatherEntity
 import io.github.pknujsp.everyweather.core.model.weather.dailyforecast.DailyForecastEntity
-import io.github.pknujsp.everyweather.feature.weather.info.dailyforecast.model.DetailDailyForecast
-import io.github.pknujsp.everyweather.feature.weather.info.dailyforecast.model.SimpleDailyForecast
 import io.github.pknujsp.everyweather.core.model.weather.hourlyforecast.HourlyForecastEntity
 import io.github.pknujsp.everyweather.core.model.weather.yesterday.YesterdayWeather
 import io.github.pknujsp.everyweather.core.model.weather.yesterday.YesterdayWeatherEntity
 import io.github.pknujsp.everyweather.core.ui.weather.item.DynamicDateTimeUiCreator
 import io.github.pknujsp.everyweather.feature.weather.info.currentweather.model.CurrentWeather
+import io.github.pknujsp.everyweather.feature.weather.info.dailyforecast.model.DetailDailyForecast
+import io.github.pknujsp.everyweather.feature.weather.info.dailyforecast.model.SimpleDailyForecast
 import io.github.pknujsp.everyweather.feature.weather.info.geocode.TargetLocationModel
 import io.github.pknujsp.everyweather.feature.weather.info.hourlyforecast.model.DetailHourlyForecast
 import io.github.pknujsp.everyweather.feature.weather.info.hourlyforecast.model.SimpleHourlyForecast

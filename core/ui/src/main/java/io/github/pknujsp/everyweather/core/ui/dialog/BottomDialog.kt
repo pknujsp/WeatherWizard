@@ -143,7 +143,7 @@ fun BottomSheet(
         }
     }
 
-    LocalContext.current.asActivity()?.window?.let { window ->
+/*    LocalContext.current.asActivity()?.window?.let { window ->
         DisposableEffect(Unit) {
             val firstState: Boolean
             val windowInsetsController: WindowInsetsControllerCompat = WindowCompat.getInsetsController(window, window.decorView).apply {
@@ -154,7 +154,7 @@ fun BottomSheet(
                 windowInsetsController.isAppearanceLightNavigationBars = firstState
             }
         }
-    }
+    }*/
 
     if (sheetState.hasExpandedState) {
         LaunchedEffect(sheetState) {

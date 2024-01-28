@@ -8,6 +8,10 @@
    public static final *** NULL;
 }
 
+-keep public class com.google.android.gms.internal.** {
+   public static *;
+}
+
 -keepnames @com.google.android.gms.common.annotation.KeepName class *
 
 -keepclassmembernames class * {

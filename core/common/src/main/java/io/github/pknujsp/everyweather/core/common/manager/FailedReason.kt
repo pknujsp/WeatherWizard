@@ -8,25 +8,25 @@ enum class FailedReason : StatefulFeature {
         override val title: Int = R.string.server_error_title
         override val message: Int = R.string.server_error_message
         override val action: Int = R.string.reload
-        override val hasRepairAction: Boolean = true
+        override val hasRepairAction: Boolean = false
     },
     UNKNOWN {
         override val title: Int = R.string.unknown_error_title
         override val message: Int = R.string.unknown_error_message
         override val action: Int = R.string.reload
-        override val hasRepairAction: Boolean = true
+        override val hasRepairAction: Boolean = false
     },
     REVERSE_GEOCODE_ERROR {
         override val title: Int = R.string.reverse_geocode_error_title
         override val message: Int = R.string.reverse_geocode_error_message
         override val action: Int = R.string.reload
-        override val hasRepairAction: Boolean = true
+        override val hasRepairAction: Boolean = false
     },
     CANCELED {
         override val title: Int = R.string.title_canceled_work
         override val message: Int = R.string.message_canceled_work
         override val action: Int = R.string.reload
-        override val hasRepairAction: Boolean = true
+        override val hasRepairAction: Boolean = false
     },
     BATTERY_OPTIMIZATION {
         override val title: Int = io.github.pknujsp.everyweather.core.resource.R.string.battery_optimization

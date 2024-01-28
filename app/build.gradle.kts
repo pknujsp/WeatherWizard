@@ -1,4 +1,5 @@
 import com.google.firebase.crashlytics.buildtools.gradle.CrashlyticsExtension
+import org.jetbrains.kotlin.konan.properties.Properties
 
 plugins {
     id("plugin.android.application")
@@ -9,7 +10,7 @@ android {
 
     defaultConfig {
         applicationId = "io.github.pknujsp.everyweather"
-        versionCode = 1
+        versionCode = 2
         versionName = "1.0"
 
         vectorDrawables {

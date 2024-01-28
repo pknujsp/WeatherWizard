@@ -47,10 +47,7 @@ fun WeatherInfoScreen(
 
     LaunchedEffect(uiState) {
         if (uiState is WeatherContentUiState.Success) {
-            mainState.updateWindowInset(false)
             mainState.expandAppBar()
-        } else {
-            mainState.updateWindowInset(true)
         }
     }
     LaunchedEffect(targetLocation) {
