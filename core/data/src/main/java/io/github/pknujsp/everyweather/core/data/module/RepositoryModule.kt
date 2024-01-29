@@ -152,7 +152,10 @@ abstract class RepositoryModule {
                 cacheMaxSize = 5,
                 dispatcher = dispatcher,
             )
-            return SummaryTextRepositoryImpl(GenerativeModel("gemini-pro", BuildConfig.GOOGLE_AI_STUDIO_KEY, generationConfig {}),
+            return SummaryTextRepositoryImpl(GenerativeModel("gemini-pro", BuildConfig.GOOGLE_AI_STUDIO_KEY, generationConfig {
+                temperature = 0.7f
+                topP = 0.5f
+            }),
                 cacheManagerImpl,
                 cacheManagerImpl)
         }
