@@ -40,7 +40,7 @@ fun WeatherInfoScreen(
     targetLocationViewModel: TargetLocationViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    val mainState = rememberWeatherMainState(weatherContentUiState = { uiState })
+    val mainState = rememberWeatherMainState({ uiState })
     val topAppBarUiState = targetLocationViewModel.topAppBarUiState
     val isLoading = viewModel.isLoading
     val targetLocation by viewModel.targetLocation.collectAsStateWithLifecycle(initialValue = null)
@@ -55,10 +55,10 @@ fun WeatherInfoScreen(
             targetLocationViewModel.setLocation(this)
         }
     }
-    LaunchedEffect(Unit) {
-        if (mainState.networkState.isNetworkAvailable) {
+    LaunchedEffect(mainState.networkState.isNetworkAvailable) {
+        if (mainState.networkState.isNetworkAvailable && !viewModel.initialJob.isActive) {
             viewModel.initialJob.start()
-        } else {
+        } else if (!mainState.networkState.isNetworkAvailable) {
             viewModel.onUnavailableFeature(FeatureType.NETWORK)
         }
     }

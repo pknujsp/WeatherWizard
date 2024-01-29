@@ -17,6 +17,7 @@ enum class PermissionType(val permissions: Array<String>, val isUnrelatedSdkDevi
         override val message: Int = io.github.pknujsp.everyweather.core.resource.R.string.location_permission_denied
         override val action: Int = io.github.pknujsp.everyweather.core.resource.R.string.grant_permissions
         override val hasRepairAction: Boolean = true
+        override val hasRetryAction: Boolean = true
     },
     BACKGROUND_LOCATION(if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
         arrayOf(Manifest.permission.ACCESS_BACKGROUND_LOCATION)
@@ -26,6 +27,7 @@ enum class PermissionType(val permissions: Array<String>, val isUnrelatedSdkDevi
         override val title: Int = io.github.pknujsp.everyweather.core.resource.R.string.background_location_permission
         override val message: Int = io.github.pknujsp.everyweather.core.resource.R.string.background_location_permission_denied
         override val action: Int = io.github.pknujsp.everyweather.core.resource.R.string.grant_permissions
+        override val hasRetryAction: Boolean = true
         override val hasRepairAction: Boolean = true
     },
     STORAGE(if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -45,6 +47,7 @@ enum class PermissionType(val permissions: Array<String>, val isUnrelatedSdkDevi
         override val title: Int = io.github.pknujsp.everyweather.core.resource.R.string.storage_permission
         override val message: Int = io.github.pknujsp.everyweather.core.resource.R.string.storage_permission_denied
         override val action: Int = io.github.pknujsp.everyweather.core.resource.R.string.grant_permissions
+        override val hasRetryAction: Boolean = true
         override val hasRepairAction: Boolean = true
     },
 
@@ -54,6 +57,7 @@ enum class PermissionType(val permissions: Array<String>, val isUnrelatedSdkDevi
         override val title: Int = io.github.pknujsp.everyweather.core.resource.R.string.post_notification_permission
         override val message: Int = io.github.pknujsp.everyweather.core.resource.R.string.post_notification_permission_denied
         override val action: Int = io.github.pknujsp.everyweather.core.resource.R.string.grant_permissions
+        override val hasRetryAction: Boolean = true
         override val hasRepairAction: Boolean = true
     },
 
@@ -73,6 +77,7 @@ enum class PermissionType(val permissions: Array<String>, val isUnrelatedSdkDevi
         override val title: Int = io.github.pknujsp.everyweather.core.resource.R.string.exact_alarm_permission
         override val message: Int = io.github.pknujsp.everyweather.core.resource.R.string.exact_alarm_permission_denied
         override val action: Int = io.github.pknujsp.everyweather.core.resource.R.string.grant_permissions
+        override val hasRetryAction: Boolean = true
         override val hasRepairAction: Boolean = true
     };
 }

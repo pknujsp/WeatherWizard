@@ -48,9 +48,8 @@ enum class FeatureType(
             return context.checkSelfPermission(PermissionType.BACKGROUND_LOCATION)
         }
     },
-    BATTERY_OPTIMIZATION(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS, FailedReason.BATTERY_OPTIMIZATION) {
+    BATTERY_OPTIMIZATION(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS, FailedReason.BATTERY_OPTIMIZATION) {
 
-        @RequiresApi(Build.VERSION_CODES.S)
         override fun getPendingIntent(context: Context): PendingIntent {
             return PendingIntent.getActivity(context,
                 this::class.simpleName.hashCode(),
@@ -58,13 +57,13 @@ enum class FeatureType(
                 PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
         }
 
-        @RequiresApi(Build.VERSION_CODES.S)
         override fun getIntent(context: Context) = appSettingsIntent(context)
 
-        @RequiresApi(Build.VERSION_CODES.S)
-        override fun isAvailable(context: Context): Boolean =
-            Build.VERSION.SDK_INT < Build.VERSION_CODES.S || (context.getSystemService(Context.POWER_SERVICE) as PowerManager).isIgnoringBatteryOptimizations(
+        override fun isAvailable(context: Context): Boolean {
+            return Build.VERSION.SDK_INT < Build.VERSION_CODES.S || (context.getSystemService(Context.POWER_SERVICE) as PowerManager).isIgnoringBatteryOptimizations(
                 context.packageName)
+        }
+
     },
     STORAGE_PERMISSION(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, PermissionType.STORAGE) {
         override fun getPendingIntent(context: Context): PendingIntent {
@@ -114,7 +113,6 @@ enum class FeatureType(
     },
     POST_NOTIFICATION_PERMISSION(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, PermissionType.POST_NOTIFICATIONS) {
 
-        @RequiresApi(Build.VERSION_CODES.TIRAMISU)
         override fun getPendingIntent(context: Context): PendingIntent {
             return PendingIntent.getActivity(context,
                 this::class.simpleName.hashCode(),
@@ -122,10 +120,8 @@ enum class FeatureType(
                 PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
         }
 
-        @RequiresApi(Build.VERSION_CODES.TIRAMISU)
         override fun getIntent(context: Context) = appSettingsIntent(context)
 
-        @RequiresApi(Build.VERSION_CODES.TIRAMISU)
         override fun isAvailable(context: Context): Boolean {
             return context.checkSelfPermission(PermissionType.POST_NOTIFICATIONS)
         }
@@ -133,8 +129,6 @@ enum class FeatureType(
     SCHEDULE_EXACT_ALARM_PERMISSION(Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
         PermissionType.SCHEDULE_EXACT_ALARM_ABOVE_EQUALS_ON_SDK_31) {
 
-
-        @RequiresApi(Build.VERSION_CODES.S)
         override fun getPendingIntent(context: Context): PendingIntent {
             return PendingIntent.getActivity(context,
                 this::class.simpleName.hashCode(),
@@ -142,10 +136,8 @@ enum class FeatureType(
                 PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
         }
 
-        @RequiresApi(Build.VERSION_CODES.S)
         override fun getIntent(context: Context) = appSettingsIntent(context)
 
-        @RequiresApi(Build.VERSION_CODES.S)
         override fun isAvailable(context: Context): Boolean {
             return context.checkSelfPermission(PermissionType.SCHEDULE_EXACT_ALARM_ABOVE_EQUALS_ON_SDK_31)
         }
@@ -171,9 +163,9 @@ fun PermissionType.asFeatureType() = when (this) {
 
 
 interface FeatureIntent {
+    fun isAvailable(context: Context): Boolean
     fun getPendingIntent(context: Context): PendingIntent
     fun getIntent(context: Context): Intent
-    fun isAvailable(context: Context): Boolean
 }
 
 interface StatefulFeature {
@@ -181,4 +173,5 @@ interface StatefulFeature {
     val message: Int
     val action: Int
     val hasRepairAction: Boolean
+    val hasRetryAction: Boolean
 }

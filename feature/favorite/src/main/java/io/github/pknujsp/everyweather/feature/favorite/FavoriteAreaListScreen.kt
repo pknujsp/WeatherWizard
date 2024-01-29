@@ -243,7 +243,7 @@ private fun CurrentLocationItem(
                         }
 
                         is LoadCurrentLocationState.Failed -> {
-                            SmallFeatureStateScreen(state.statefulFeature, onClickRetry = {
+                            SmallFeatureStateScreen(state = state.statefulFeature, onClickRetry = {
                                 onClickRetry()
                             }, onClickAction = {
                                 onClickAction()

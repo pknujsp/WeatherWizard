@@ -9,6 +9,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
@@ -45,18 +46,24 @@ fun FeatureStateScreen(featureType: FeatureType, onAvailable: () -> Unit) {
 
 
 @Composable
-fun SmallFeatureStateScreen(state: StatefulFeature, onClickRetry: () -> Unit, onClickAction: () -> Unit) {
-    Column(verticalArrangement = Arrangement.spacedBy(12.dp, Alignment.CenterVertically), horizontalAlignment = Alignment.Start) {
-        Text(text = stringResource(id = state.message),
+fun SmallFeatureStateScreen(modifier: Modifier = Modifier, state: StatefulFeature, onClickRetry: () -> Unit, onClickAction: () -> Unit) {
+    Column(
+        modifier = modifier,
+        verticalArrangement = Arrangement.spacedBy(12.dp, Alignment.CenterVertically),
+    ) {
+        Text(modifier = Modifier.align(Alignment.Start),
+            text = stringResource(id = state.message),
             style = TextStyle(fontSize = 14.sp, color = Color.Black, textAlign = TextAlign.Left))
-        Row(horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End)) {
+        Row(modifier = Modifier.align(Alignment.End), horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End)) {
             if (state.hasRepairAction) {
                 SecondaryButton(text = stringResource(id = state.action), buttonSize = ButtonSize.SMALL) {
                     onClickAction()
                 }
             }
-            PrimaryButton(text = stringResource(id = R.string.reload), buttonSize = ButtonSize.SMALL) {
-                onClickRetry()
+            if (state.hasRetryAction) {
+                PrimaryButton(text = stringResource(id = R.string.reload), buttonSize = ButtonSize.SMALL) {
+                    onClickRetry()
+                }
             }
         }
     }

@@ -29,11 +29,11 @@ import io.github.pknujsp.everyweather.core.model.flickr.FlickrRequestParameters
 import io.github.pknujsp.everyweather.core.model.settings.CurrentUnits
 import io.github.pknujsp.everyweather.core.model.weather.RequestWeatherArguments
 import io.github.pknujsp.everyweather.core.model.weather.yesterday.YesterdayWeather
-import io.github.pknujsp.everyweather.feature.permoptimize.network.NetworkState
-import io.github.pknujsp.everyweather.feature.permoptimize.network.rememberAppNetworkState
 import io.github.pknujsp.everyweather.core.ui.theme.SystemBarContentColor
 import io.github.pknujsp.everyweather.core.ui.theme.setNavigationBarContentColor
 import io.github.pknujsp.everyweather.core.ui.theme.setStatusBarContentColor
+import io.github.pknujsp.everyweather.feature.permoptimize.network.NetworkState
+import io.github.pknujsp.everyweather.feature.permoptimize.network.rememberAppNetworkState
 import io.github.pknujsp.everyweather.feature.weather.info.currentweather.model.CurrentWeather
 import io.github.pknujsp.everyweather.feature.weather.info.dailyforecast.model.DetailDailyForecast
 import io.github.pknujsp.everyweather.feature.weather.info.dailyforecast.model.SimpleDailyForecast
@@ -41,6 +41,7 @@ import io.github.pknujsp.everyweather.feature.weather.info.hourlyforecast.model.
 import io.github.pknujsp.everyweather.feature.weather.info.hourlyforecast.model.SimpleHourlyForecast
 import io.github.pknujsp.everyweather.feature.weather.route.NestedWeatherRoutes
 import io.github.pknujsp.everyweather.feature.weather.summary.WeatherSummaryPrompt
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
 import java.time.ZonedDateTime
@@ -51,12 +52,10 @@ sealed interface WeatherContentUiState {
     val refresh: () -> Unit
     val onUnavailableFeature: (FeatureType) -> Unit
 
-    @Stable
     data class Error(
         val state: StatefulFeature, override val refresh: () -> Unit, override val onUnavailableFeature: (FeatureType) -> Unit
     ) : WeatherContentUiState
 
-    @Stable
     data class Success(
         val args: RequestWeatherArguments,
         val weather: Weather,
@@ -166,18 +165,25 @@ fun rememberWeatherMainState(
             }
         }
         launch {
-            snapshotFlow { networkState.isNetworkAvailable }.filter { it }.collect {
-                state.refresh()
+            snapshotFlow { networkState.isNetworkAvailable }.collect {
+                if (it) {
+                    state.refresh()
+                }
             }
         }
         launch {
-            snapshotFlow { state.nestedRoutes.value }.collect { route ->
+            snapshotFlow { state.nestedRoutes.value }.combine(snapshotFlow {
+                weatherContentUiState()
+            }) { nestedRoutes, weatherContentUiState ->
+                nestedRoutes to weatherContentUiState
+            }.collect { (route, weatherUiState) ->
                 windowInsetsControllerCompat.run {
-                    val color = if (weatherContentUiState() is WeatherContentUiState.Error && route is NestedWeatherRoutes.Main) {
-                        SystemBarContentColor.BLACK
-                    } else {
-                        route.systemBarContentColor
-                    }
+                    val color =
+                        if ((weatherUiState == null || weatherUiState is WeatherContentUiState.Error) && (route is NestedWeatherRoutes.Main)) {
+                            SystemBarContentColor.BLACK
+                        } else {
+                            route.systemBarContentColor
+                        }
 
                     setStatusBarContentColor(color)
                     setNavigationBarContentColor(color)

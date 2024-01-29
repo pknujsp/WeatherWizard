@@ -44,7 +44,7 @@ class OngoingNotificationViewModel @Inject constructor(
             val settingsEntity = ongoingNotificationRepository.getOngoingNotification()
             _ongoingNotificationUiState.apply {
                 isInitialized = settingsEntity.isInitialized
-                ongoingNotificationSettings = OngoingNotificationSettings(
+                settings = OngoingNotificationSettings(
                     id = settingsEntity.id,
                     notificationIconType = settingsEntity.data.notificationIconType,
                     refreshInterval = settingsEntity.data.refreshInterval,
@@ -75,13 +75,13 @@ class OngoingNotificationViewModel @Inject constructor(
     }
 
     private fun createSettingsEntity() = ongoingNotificationUiState.let {
-        NotificationSettingsEntity(id = it.ongoingNotificationSettings.id,
+        NotificationSettingsEntity(id = it.settings.id,
             enabled = it.isEnabled,
             data = OngoingNotificationSettingsEntity(
-                notificationIconType = it.ongoingNotificationSettings.notificationIconType,
-                refreshInterval = it.ongoingNotificationSettings.refreshInterval,
-                weatherProvider = it.ongoingNotificationSettings.weatherProvider,
-                location = it.ongoingNotificationSettings.location,
+                notificationIconType = it.settings.notificationIconType,
+                refreshInterval = it.settings.refreshInterval,
+                weatherProvider = it.settings.weatherProvider,
+                location = it.settings.location,
             ),
             isInitialized = true)
     }
@@ -97,7 +97,7 @@ private class MutableOngoingNotificationUiState(
 
     override var isEnabled by mutableStateOf(false)
     override var action by mutableStateOf(OngoingNotificationUiState.Action.NONE)
-    override var ongoingNotificationSettings by mutableStateOf(ongoingNotificationSettings)
+    override var settings by mutableStateOf(ongoingNotificationSettings)
     override var changedCount by mutableIntStateOf(0)
 
     override fun switch() {

@@ -36,7 +36,6 @@ import io.github.pknujsp.everyweather.core.widgetnotification.remoteview.RemoteV
 import io.github.pknujsp.everyweather.feature.componentservice.RemoteViewsScreen
 import io.github.pknujsp.everyweather.feature.componentservice.notification.ongoing.model.OngoingNotificationSettings
 import io.github.pknujsp.everyweather.feature.componentservice.notification.ongoing.model.rememberOngoingNotificationState
-import io.github.pknujsp.everyweather.feature.permoptimize.feature.ShowAppSettingsActivity
 import io.github.pknujsp.everyweather.feature.permoptimize.feature.SmallFeatureStateScreen
 import io.github.pknujsp.everyweather.feature.searchlocation.SearchLocationScreen
 
@@ -48,13 +47,12 @@ fun OngoingNotificationScreen(navController: NavController, viewModel: OngoingNo
         if (showSearch) {
             SearchLocationScreen(onSelectedLocation = { newLocation ->
                 newLocation?.let {
-                    ongoingNotificationUiState.ongoingNotificationSettings.location =
-                        ongoingNotificationUiState.ongoingNotificationSettings.location.copy(
-                            latitude = it.latitude,
-                            longitude = it.longitude,
-                            address = it.addressName,
-                            country = it.countryName,
-                        )
+                    notificationUiState.settings.location = notificationUiState.settings.location.copy(
+                        latitude = it.latitude,
+                        longitude = it.longitude,
+                        address = it.addressName,
+                        country = it.countryName,
+                    )
                 }
                 showSearch = false
             }, popBackStack = {
@@ -77,15 +75,15 @@ fun OngoingNotificationScreen(navController: NavController, viewModel: OngoingNo
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Text(text = stringResource(id = R.string.switch_ongoing_notification), modifier = Modifier.weight(1f))
                             Switch(
-                                checked = ongoingNotificationUiState.isEnabled,
+                                checked = notificationUiState.isEnabled,
                                 onCheckedChange = {
-                                    ongoingNotificationUiState.switch()
+                                    notificationUiState.switch()
                                 },
                             )
                         }
 
-                        if (ongoingNotificationUiState.isEnabled) {
-                            val settings = ongoingNotificationUiState.ongoingNotificationSettings
+                        if (notificationUiState.isEnabled) {
+                            val settings = notificationUiState.settings
                             LocationScreen(settings.location, onSelectedItem = {
                                 settings.location = settings.location.copy(locationType = it)
                             }) {
@@ -95,8 +93,8 @@ fun OngoingNotificationScreen(navController: NavController, viewModel: OngoingNo
                                 settings.weatherProvider = it
                             }
                             RefreshIntervalScreen(settings)
-                            if (!featureState.isAvailable) {
-                                SmallFeatureStateScreen(state = featureState.featureType, onClickRetry = {
+                            if (!featureState.isAvailable && notificationUiState.settings.refreshInterval != RefreshInterval.MANUAL) {
+                                SmallFeatureStateScreen(Modifier.padding(8.dp), state = featureState.featureType, onClickRetry = {
                                     // ongoingNotificationUiState.update()
                                 }, onClickAction = {
                                     featureState.showSettingsActivity()
@@ -105,10 +103,10 @@ fun OngoingNotificationScreen(navController: NavController, viewModel: OngoingNo
                             NotificationIconScreen(settings)
                         }
                     }
-                    if (ongoingNotificationUiState.isEnabled) {
+                    if (notificationUiState.isEnabled) {
                         Box(modifier = Modifier.padding(12.dp)) {
                             SecondaryButton(text = stringResource(id = R.string.save), modifier = Modifier.fillMaxWidth()) {
-                                ongoingNotificationUiState.update()
+                                notificationUiState.update()
                             }
                         }
                     }
