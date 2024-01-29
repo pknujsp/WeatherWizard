@@ -5,7 +5,7 @@ plugins {
 }
 
 android {
-    namespace = "io.github.pknujsp.weatherwizard.core.database"
+    namespace = "io.github.pknujsp.everyweather.core.database"
 }
 
 ksp {

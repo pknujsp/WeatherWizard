@@ -3,7 +3,7 @@ plugins {
 }
 
 android {
-    namespace = "io.github.pknujsp.weatherwizard.feature.weather"
+    namespace = "io.github.pknujsp.everyweather.feature.weather"
 }
 
 dependencies {
@@ -14,7 +14,8 @@ dependencies {
     implementation(project(":feature:map"))
     implementation(project(":feature:airquality"))
     implementation(project(":feature:sunsetrise"))
-    implementation(libs.androidx.core.ktx)
+    implementation(project(":feature:permoptimize"))
+
     implementation(libs.androidx.appcompat)
     implementation(libs.androidx.constraintlayout.compose)
     implementation(libs.google.generativeai)

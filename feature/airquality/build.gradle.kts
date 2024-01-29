@@ -3,7 +3,7 @@ plugins {
 }
 
 android {
-    namespace = "io.github.pknujsp.weatherwizard.feature.airquality"
+    namespace = "io.github.pknujsp.everyweather.feature.airquality"
 }
 
 dependencies {
@@ -12,4 +12,5 @@ dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.androidx.constraintlayout.compose)
+    implementation(project(":feature:permoptimize"))
 }

@@ -1,3 +1,4 @@
+import com.google.firebase.crashlytics.buildtools.gradle.CrashlyticsExtension
 import org.jetbrains.kotlin.konan.properties.Properties
 
 plugins {
@@ -7,7 +8,15 @@ plugins {
 }
 
 android {
-    namespace = "io.github.pknujsp.weatherwizard.core.network"
+    namespace = "io.github.pknujsp.everyweather.core.network"
+
+    buildTypes {
+        release {
+            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro",
+                "proguard-retrofit2-rules.pro")
+        }
+    }
 }
 
 dependencies {

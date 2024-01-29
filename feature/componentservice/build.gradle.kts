@@ -4,7 +4,7 @@ plugins {
 }
 
 android {
-    namespace = "io.github.pknujsp.weatherwizard.feature.componentservice"
+    namespace = "io.github.pknujsp.everyweather.feature.componentservice"
     buildFeatures {
         viewBinding = true
     }
@@ -18,6 +18,7 @@ dependencies {
     implementation(project(":core:data"))
     implementation(project(":core:widgetnotification"))
     implementation(project(":feature:searchlocation"))
+    implementation(project(":feature:permoptimize"))
 
     implementation(libs.androidx.appcompat)
     implementation(libs.androidx.activity)

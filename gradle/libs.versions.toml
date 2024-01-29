@@ -48,7 +48,7 @@ androidx_start_up = "1.1.1"
 
 androidx_splashscreen = "1.0.1"
 
-android_gms_play_services_location = "21.0.1"
+android_gms_play_services_location = "21.1.0"
 android_gms_play_services_ads = "22.6.0"
 
 google_oss_plugin = "0.10.6"

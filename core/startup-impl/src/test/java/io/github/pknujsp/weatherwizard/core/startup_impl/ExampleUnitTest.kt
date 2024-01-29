@@ -1,4 +1,4 @@
-package io.github.pknujsp.weatherwizard.core.startup_impl
+package io.github.pknujsp.everyweather.core.startup_impl
 
 import org.junit.Test
 

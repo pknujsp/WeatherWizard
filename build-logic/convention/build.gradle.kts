@@ -2,7 +2,7 @@ plugins {
     `kotlin-dsl`
 }
 
-group = "io.github.pknujsp.weatherwizard.buildlogic"
+group = "io.github.pknujsp.everyweather.buildlogic"
 
 java {
     sourceCompatibility = JavaVersion.VERSION_17

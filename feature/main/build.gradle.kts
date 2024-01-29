@@ -5,13 +5,15 @@ plugins {
 }
 
 android {
-    namespace = "io.github.pknujsp.weatherwizard.feature.main"
+    namespace = "io.github.pknujsp.everyweather.feature.main"
 }
 
 dependencies {
     implementation(libs.ksealedbinding.annotation)
     ksp(libs.ksealedbinding.compiler)
     implementation(libs.androidx.activity)
+    implementation(project(":feature:permoptimize"))
+
     implementation(project(":core:data"))
     implementation(project(":core:domain"))
     implementation(project(":core:ads"))

@@ -1,7 +1,7 @@
 package io.github.pknujsp.common
 
-import io.github.pknujsp.weatherwizard.core.common.util.DayNightCalculator
-import io.github.pknujsp.weatherwizard.core.common.util.toCalendar
+import io.github.pknujsp.everyweather.core.common.util.DayNightCalculator
+import io.github.pknujsp.everyweather.core.common.util.toCalendar
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4

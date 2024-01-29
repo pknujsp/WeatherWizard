@@ -1,15 +1,16 @@
+import com.google.firebase.crashlytics.buildtools.gradle.CrashlyticsExtension
+import org.jetbrains.kotlin.konan.properties.Properties
+
 plugins {
     id("plugin.android.application")
-    alias(libs.plugins.gms)
-    alias(libs.plugins.firebase.crashlytics)
 }
 
 android {
-    namespace = "io.github.pknujsp.weatherwizard"
+    namespace = "io.github.pknujsp.everyweather"
 
     defaultConfig {
-        applicationId = "io.github.pknujsp.weathernet"
-        versionCode = 1
+        applicationId = "io.github.pknujsp.everyweather"
+        versionCode = 3
         versionName = "1.0"
 
         vectorDrawables {
@@ -19,33 +20,57 @@ android {
 
     buildTypes {
         release {
-            isMinifyEnabled = false
-            isShrinkResources = false
-            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+            isMinifyEnabled = true
+            isShrinkResources = true
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro",
+                "gms-proguard-rules.pro",
+            )
             signingConfig = signingConfigs.getByName("debug")
+            configure<CrashlyticsExtension> {
+                mappingFileUploadEnabled = true
+            }
         }
-        create("benchmark") {
-            initWith(buildTypes.getByName("release"))
-            signingConfig = signingConfigs.getByName("debug")
-            matchingFallbacks += listOf("release")
+        debug {
+            isMinifyEnabled = false
         }
     }
 
     packaging {
         resources {
-            excludes += "/META-INF/{AL2.0,LGPL2.1}"
+            //excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
     }
 
     lint {
-        checkDependencies = true
-        ignoreTestSources = true
+        //checkDependencies = true
+        //ignoreTestSources = true
         //resourcePrefix = "gnt_"
     }
 
     hilt {
         enableAggregatingTask = true
     }
+
+    /*
+        flavorDimensions += "environment"
+        productFlavors {
+            create("staging") {
+                dimension = "environment"
+                configure<CrashlyticsExtension> {
+                    mappingFileUploadEnabled = false
+                }
+            }
+            create("prod") {
+                dimension = "environment"
+                configure<CrashlyticsExtension> {
+                    mappingFileUploadEnabled = true
+                }
+            }
+        }
+    */
+
 }
 
 
@@ -74,4 +99,5 @@ dependencies {
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.crashlytics)
     implementation(libs.firebase.analytics)
+    implementation(libs.google.errorprone.annotations)
 }
