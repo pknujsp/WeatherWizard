@@ -9,7 +9,8 @@ android {
 dependencies {
     implementation(project(":core:domain"))
     implementation(project(":core:data"))
-    implementation(libs.androidx.core.ktx)
+    implementation(project(":feature:permoptimize"))
+
     implementation(libs.androidx.appcompat)
     implementation(libs.androidx.constraintlayout.compose)
 }

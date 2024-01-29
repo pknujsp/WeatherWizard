@@ -2,6 +2,7 @@ package io.github.pknujsp.everyweather.feature.componentservice.notification.ong
 
 import android.content.Context
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Stable
@@ -10,6 +11,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
+import androidx.navigation.NavController
 import io.github.pknujsp.everyweather.core.common.FeatureType
 import io.github.pknujsp.everyweather.core.common.NotificationType
 import io.github.pknujsp.everyweather.core.common.manager.AppComponentManagerFactory
@@ -19,13 +21,14 @@ import io.github.pknujsp.everyweather.feature.componentservice.AppComponentServi
 import io.github.pknujsp.everyweather.feature.componentservice.ComponentPendingIntentManager
 import io.github.pknujsp.everyweather.feature.componentservice.manager.AppComponentServiceManagerFactory
 import io.github.pknujsp.everyweather.feature.permoptimize.feature.AppFeatureState
+import io.github.pknujsp.everyweather.feature.permoptimize.feature.ShowAppSettingsActivity
 import io.github.pknujsp.everyweather.feature.permoptimize.feature.rememberAppFeatureState
 
 private class MutableOngoingNotificationState(
     context: Context,
     override val ongoingNotificationUiState: OngoingNotificationUiState,
-    private val featureState: AppFeatureState,
-    override val snackbarHostState: SnackbarHostState = SnackbarHostState()
+    override val featureState: AppFeatureState,
+    override val snackbarHostState: SnackbarHostState
 ) : OngoingNotificationState {
     private val ongoingNotificationAlarmManager =
         AppComponentServiceManagerFactory.getManager(context, AppComponentServiceManagerFactory.ONGOING_NOTIFICATION_ALARM_MANAGER)
@@ -33,22 +36,11 @@ private class MutableOngoingNotificationState(
 
     override var showSearch by mutableStateOf(false)
 
-    override fun onChangedSettings(context: Context, refreshInterval: RefreshInterval, popBackStack: () -> Unit) {
-        if (ongoingNotificationUiState.action == OngoingNotificationUiState.Action.NONE) {
-            return
-        }
-        if (switchNotification(context,
-                refreshInterval) && ongoingNotificationUiState.action == OngoingNotificationUiState.Action.UPDATED) {
-            popBackStack()
-        }
-    }
-
-    private fun switchNotification(
+    fun switchNotification(
         context: Context, refreshInterval: RefreshInterval
     ): Boolean {
         if (ongoingNotificationUiState.isEnabled) {
             if (!featureState.isAvailable && refreshInterval != RefreshInterval.MANUAL) {
-                snackbarHostState.showSnackbar(message = featureState.featureType.message)
                 return false
             }
 
@@ -67,26 +59,59 @@ private class MutableOngoingNotificationState(
 
 @Composable
 fun rememberOngoingNotificationState(
-    ongoingNotificationUiState: OngoingNotificationUiState, context: Context = LocalContext.current
+    navController: NavController, ongoingNotificationUiState: OngoingNotificationUiState, context: Context = LocalContext.current
 ): OngoingNotificationState {
     val featureState = rememberAppFeatureState(featureType = FeatureType.BATTERY_OPTIMIZATION)
-    val state = remember(ongoingNotificationUiState) {
-        MutableOngoingNotificationState(context, ongoingNotificationUiState, featureState)
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    val state = remember(navController, ongoingNotificationUiState) {
+        MutableOngoingNotificationState(context, ongoingNotificationUiState, featureState, snackbarHostState)
     }
+
     LaunchedEffect(ongoingNotificationUiState.ongoingNotificationSettings.refreshInterval) {
         val refreshInterval = ongoingNotificationUiState.ongoingNotificationSettings.refreshInterval
         if (refreshInterval != RefreshInterval.MANUAL && !featureState.isAvailable) {
-            // ongoingNotificationUiState.updateState(OngoingNotificationUiState.Action.SWITCH_STOPPED, FeatureType.BATTERY_OPTIMIZATION)
+            showSnackbar(context, featureState.featureType, featureState, snackbarHostState)
+        }
+    }
+    LaunchedEffect(ongoingNotificationUiState.action, ongoingNotificationUiState.changedCount) {
+        if (ongoingNotificationUiState.action != OngoingNotificationUiState.Action.NONE) {
+            if (state.switchNotification(context, ongoingNotificationUiState.ongoingNotificationSettings.refreshInterval)) {
+                if (ongoingNotificationUiState.action == OngoingNotificationUiState.Action.UPDATED) {
+                    navController.popBackStack()
+                }
+            } else {
+                showSnackbar(context, featureState.featureType, featureState, snackbarHostState)
+            }
+        }
+    }
+
+    if (featureState.isShowSettingsActivity) {
+        ShowAppSettingsActivity(featureType = featureState.featureType) {
+            featureState.hideSettingsActivity()
         }
     }
     return state
 }
 
 
+private suspend fun showSnackbar(
+    context: Context, featureType: FeatureType, featureState: AppFeatureState, snackbarHostState: SnackbarHostState
+) {
+    when (snackbarHostState.showSnackbar(message = context.getString(featureType.message))) {
+        SnackbarResult.ActionPerformed -> {
+            featureState.showSettingsActivity()
+        }
+
+        SnackbarResult.Dismissed -> {
+        }
+    }
+}
+
 @Stable
 interface OngoingNotificationState {
+    val featureState: AppFeatureState
     val snackbarHostState: SnackbarHostState
     val ongoingNotificationUiState: OngoingNotificationUiState
-    val showSearch: Boolean
-    fun onChangedSettings(context: Context, refreshInterval: RefreshInterval, popBackStack: () -> Unit)
+    var showSearch: Boolean
 }

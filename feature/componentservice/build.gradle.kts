@@ -18,6 +18,7 @@ dependencies {
     implementation(project(":core:data"))
     implementation(project(":core:widgetnotification"))
     implementation(project(":feature:searchlocation"))
+    implementation(project(":feature:permoptimize"))
 
     implementation(libs.androidx.appcompat)
     implementation(libs.androidx.activity)

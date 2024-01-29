@@ -11,6 +11,9 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import io.github.pknujsp.everyweather.core.common.asActivity
 import io.github.pknujsp.everyweather.core.ui.MainRoutes
+import io.github.pknujsp.everyweather.core.ui.theme.SystemBarContentColor
+import io.github.pknujsp.everyweather.core.ui.theme.setNavigationBarContentColor
+import io.github.pknujsp.everyweather.core.ui.theme.setStatusBarContentColor
 
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.launch
@@ -60,14 +63,14 @@ fun rememberMainState(requestedRoutes: SharedFlow<MainRoutes>, navController: Na
 
     LaunchedEffect(Unit) {
         launch {
-/*            navController.currentBackStackEntryFlow.collect {
-                val isLight = it.destination.route != MainRoutes.Weather.route
+            navController.currentBackStackEntryFlow.collect { backStackEntry ->
                 windowInsetsControllerCompat.run {
-                    isAppearanceLightStatusBars = isLight
-                    isAppearanceLightNavigationBars = isLight
+                    setStatusBarContentColor(SystemBarContentColor.BLACK)
+                    setNavigationBarContentColor(SystemBarContentColor.BLACK)
                 }
-            }*/
+            }
         }
+
         launch {
             requestedRoutes.collect { newRoute ->
                 if (navController.currentBackStackEntry?.destination?.route != newRoute.route) {

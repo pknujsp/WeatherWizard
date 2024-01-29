@@ -32,9 +32,7 @@ class FeatureConventionPlugin : Plugin<Project> {
 
                 IMPLEMENTATION(project(":core:common"))
                 IMPLEMENTATION(project(":core:model"))
-                IMPLEMENTATION(project(":core:ui"))
-                IMPLEMENTATION(project(":feature:permoptimize"))
-            }
+                IMPLEMENTATION(project(":core:ui")) }
         }
     }
 }
