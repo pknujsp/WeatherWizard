@@ -10,7 +10,7 @@ object FeelsLikeTemperatureCalculator {
     // 바람 냉기 공식에 대한 상수
     private const val WIND_CHILL_CONSTANT_A = 13.12
     private const val WIND_CHILL_CONSTANT_B = 0.6215
-    private const val WIND_CHILL_CONSTANT_C = -11.37
+    private const val WIND_CHILL_CONSTANT_C = 11.37
     private const val WIND_CHILL_CONSTANT_D = 0.3965
 
     // 열 지수 공식에 대한 상수
@@ -35,12 +35,14 @@ object FeelsLikeTemperatureCalculator {
     private fun calculateWindChillTemperature(
         temperatureInCelsius: Double, windSpeedInKmh: Double
     ): Double {
-        return WIND_CHILL_CONSTANT_A + (WIND_CHILL_CONSTANT_B * temperatureInCelsius) - (WIND_CHILL_CONSTANT_C * windSpeedInKmh.pow(
-            0.16
-        )) + (WIND_CHILL_CONSTANT_D * temperatureInCelsius * windSpeedInKmh.pow(
-            0.16
-        ))
+        return if (windSpeedInKmh <= 4.68) {
+            temperatureInCelsius
+        } else {
+            WIND_CHILL_CONSTANT_A + WIND_CHILL_CONSTANT_B * temperatureInCelsius - WIND_CHILL_CONSTANT_C * windSpeedInKmh.pow(0.16) + WIND_CHILL_CONSTANT_D * windSpeedInKmh.pow(
+                0.16) * temperatureInCelsius
+        }
     }
+
 
     /**
      * 이 함수는 주어진 매개변수를 기반으로 열 지수 온도를 계산합니다.
@@ -60,8 +62,7 @@ object FeelsLikeTemperatureCalculator {
         val tempHumiditySquaredProduct = temperatureInCelsius * humiditySquared
 
         // 열 지수 공식 적용
-        var heatIndex =
-            HEAT_INDEX_CONSTANT_A + (HEAT_INDEX_CONSTANT_B * temperatureInCelsius) + (HEAT_INDEX_CONSTANT_C * relativeHumidity)
+        var heatIndex = HEAT_INDEX_CONSTANT_A + (HEAT_INDEX_CONSTANT_B * temperatureInCelsius) + (HEAT_INDEX_CONSTANT_C * relativeHumidity)
         heatIndex += (HEAT_INDEX_CONSTANT_D * tempHumidityProduct) + (HEAT_INDEX_CONSTANT_E * temperatureSquared)
         heatIndex += (HEAT_INDEX_CONSTANT_F * humiditySquared) + (HEAT_INDEX_CONSTANT_G * tempSquaredHumidityProduct)
         heatIndex += (HEAT_INDEX_CONSTANT_H * tempHumiditySquaredProduct) + (HEAT_INDEX_CONSTANT_I * temperatureSquared * humiditySquared)

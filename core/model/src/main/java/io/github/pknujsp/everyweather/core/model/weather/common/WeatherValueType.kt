@@ -329,7 +329,7 @@ data class PrecipitationValueType(
     }
 
     override fun toString(): String {
-        return "$value${unit.symbol}"
+        return if (value.isNaN()) "" else "$value${unit.symbol}"
     }
 
     override fun isNone(): Boolean {

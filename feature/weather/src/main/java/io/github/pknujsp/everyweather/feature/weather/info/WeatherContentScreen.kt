@@ -43,6 +43,7 @@ import io.github.pknujsp.everyweather.core.ads.AdMob
 import io.github.pknujsp.everyweather.core.common.util.AStyle
 import io.github.pknujsp.everyweather.core.common.util.toAnnotated
 import io.github.pknujsp.everyweather.core.model.settings.CurrentUnits
+import io.github.pknujsp.everyweather.core.model.weather.common.AirQualityValueType
 import io.github.pknujsp.everyweather.core.model.weather.common.WeatherDataUnit
 import io.github.pknujsp.everyweather.core.model.weather.common.WeatherProvider
 import io.github.pknujsp.everyweather.core.resource.R
@@ -124,22 +125,28 @@ fun WeatherContentScreen(
                     .verticalScroll(scrollState),
                 verticalArrangement = Arrangement.spacedBy(COLUMN_ITEM_SPACING),
             ) {
+                var currentAirQuality by remember { mutableStateOf<AirQualityValueType?>(null) }
+
                 Box(modifier = Modifier.height(screenHeight - DEFAULT_PADDING), contentAlignment = Alignment.BottomStart) {
                     Column(verticalArrangement = Arrangement.spacedBy(COLUMN_ITEM_SPACING)) {
-                        CurrentWeatherScreen(weather.currentWeather, weather.yesterdayWeather)
+                        CurrentWeatherScreen(weather.currentWeather) { currentAirQuality }
                         HourlyForecastScreen(hourlyForecast = weather.simpleHourlyForecast, navigate = navigate)
                     }
                 }
                 SimpleDailyForecastScreen(weather.simpleDailyForecast, navigate)
                 SimpleMapScreen(uiState.args)
                 AirQualityScreen(uiState.args, uiState.lastUpdatedDateTime, onLoadAirQuality = { aqi ->
-                    weather.currentWeather.airQuality = aqi.current.aqi
-                    uiState.weatherEntities.airQuality = aqi
+                    coroutineScope.launch {
+                        currentAirQuality = aqi.current.aqi
+                        uiState.weatherEntities.airQuality = aqi
+                    }
                 })
                 SimpleSunSetRiseScreen(SunSetRiseInfo(uiState.args.latitude, uiState.args.longitude, uiState.lastUpdatedDateTime))
                 AdMob.BannerAd(modifier = Modifier.fillMaxWidth())
                 FlickrImageItemScreen(requestParameter = uiState.weather.flickrRequestParameters, onImageUrlChanged = {
-                    imageUrl = it
+                    coroutineScope.launch {
+                        imageUrl = it
+                    }
                 })
                 Footer(Modifier.align(Alignment.End), uiState.currentUnits)
                 Spacer(modifier = Modifier.height(bottomPadding))

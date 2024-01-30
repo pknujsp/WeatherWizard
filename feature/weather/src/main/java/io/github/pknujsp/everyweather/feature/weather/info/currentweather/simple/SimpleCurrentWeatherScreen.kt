@@ -39,8 +39,8 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import io.github.pknujsp.everyweather.core.common.util.AStyle
 import io.github.pknujsp.everyweather.core.common.util.toAnnotated
+import io.github.pknujsp.everyweather.core.model.weather.common.AirQualityValueType
 import io.github.pknujsp.everyweather.core.model.weather.common.WeatherDataCategory
-import io.github.pknujsp.everyweather.core.model.weather.yesterday.YesterdayWeather
 import io.github.pknujsp.everyweather.core.resource.R
 import io.github.pknujsp.everyweather.core.ui.theme.notIncludeTextPaddingStyle
 import io.github.pknujsp.everyweather.core.ui.theme.outlineTextStyle
@@ -52,7 +52,7 @@ private const val DEFAULT_AUTO_SIZING_TEXT_SIZE = 18
 private val textColor = Color.White
 
 @Composable
-fun CurrentWeatherScreen(current: CurrentWeather, yesterdayWeather: YesterdayWeather?) {
+fun CurrentWeatherScreen(current: CurrentWeather, airQualityValueType: () -> AirQualityValueType?) {
     Column {
         ConstraintLayout(modifier = Modifier
             .fillMaxWidth()
@@ -86,12 +86,14 @@ fun CurrentWeatherScreen(current: CurrentWeather, yesterdayWeather: YesterdayWea
             }, style = LocalTextStyle.current.merge(notIncludeTextPaddingStyle).merge(outlineTextStyle))
 
             // yesterday temperature
-            Box(modifier = Modifier.constrainAs(yesterdayTemp) {
-                absoluteLeft.linkTo(parent.absoluteLeft)
-                bottom.linkTo(parent.bottom)
-            }) {
-                if (yesterdayWeather != null) {
-                    Text(text = yesterdayWeather.text(current.temperature, LocalContext.current).let { texts ->
+            Box(modifier = Modifier
+                .padding(top = 4.dp)
+                .constrainAs(yesterdayTemp) {
+                    absoluteLeft.linkTo(parent.absoluteLeft)
+                    bottom.linkTo(parent.bottom)
+                }) {
+                if (current.yesterdayTemperature != null) {
+                    Text(text = current.text(current.temperature, LocalContext.current).let { texts ->
                         listOf(
                             AStyle(texts[0], span = SpanStyle(fontSize = 14.sp, color = textColor, fontWeight = FontWeight.Light)),
                             AStyle(" ${texts[1]} ", span = SpanStyle(fontSize = 15.sp, color = textColor, fontWeight = FontWeight.Normal)),
@@ -108,10 +110,10 @@ fun CurrentWeatherScreen(current: CurrentWeather, yesterdayWeather: YesterdayWea
                     id = io.github.pknujsp.everyweather.core.resource.R.string.weather_icon_description,
                 ),
                 modifier = Modifier
-                    .size(95.dp)
+                    .size(90.dp)
                     .constrainAs(icon) {
                         absoluteLeft.linkTo(parent.absoluteLeft)
-                        bottom.linkTo(temp.bottom)
+                        bottom.linkTo(condition.top)
                     },
             )
 
@@ -119,10 +121,11 @@ fun CurrentWeatherScreen(current: CurrentWeather, yesterdayWeather: YesterdayWea
             Text(
                 text = stringResource(current.weatherCondition.value.stringRes),
                 modifier = Modifier.constrainAs(condition) {
-                    absoluteLeft.linkTo(icon.absoluteRight)
-                    bottom.linkTo(icon.bottom)
+                    absoluteLeft.linkTo(parent.absoluteLeft)
+                    bottom.linkTo(yesterdayTemp.top)
                 },
-                style = TextStyle(fontSize = 27.sp, color = textColor, fontWeight = FontWeight.Medium).merge(outlineTextStyle)
+                style = TextStyle(fontSize = 25.sp, color = textColor, fontWeight = FontWeight.Medium, letterSpacing = (-1).sp).merge
+                    (outlineTextStyle)
                     .merge(notIncludeTextPaddingStyle),
             )
         }
@@ -131,7 +134,7 @@ fun CurrentWeatherScreen(current: CurrentWeather, yesterdayWeather: YesterdayWea
             FeatureItem(WeatherDataCategory.WIND_SPEED.stringId, current.windSpeed.strength(LocalContext.current))
         }, { FeatureItem(WeatherDataCategory.WIND_DIRECTION.stringId, stringResource(id = current.windDirection.value)) }, {
             FeatureItem(WeatherDataCategory.AIR_QUALITY_INDEX.stringId,
-                stringResource(id = current.airQuality?.airQualityDescription?.descriptionStringId ?: R.string.no_data))
+                stringResource(id = airQualityValueType()?.airQualityDescription?.descriptionStringId ?: R.string.no_data))
         })
 
         NonlazyGrid(horizontalItemCount = 3, totalItemCount = items.size) { index ->
