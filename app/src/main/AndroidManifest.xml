@@ -20,7 +20,6 @@
         android:minSdkVersion="29" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_LOCATION" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
-
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
     <uses-permission
@@ -42,6 +41,9 @@
         android:supportsRtl="false"
         android:theme="@style/Theme.WeatherWizard"
         android:usesCleartextTraffic="true">
+        <profileable
+            android:shell="true"
+            tools:targetApi="29" />
 
         <activity
             android:name=".feature.main.MainActivity"
@@ -79,7 +81,6 @@
             android:noHistory="true"
             android:screenOrientation="portrait"
             android:theme="@style/Theme.WidgetActivity" />
-
         <activity
             android:name=".feature.componentservice.widget.configure.WidgetConfigureActivity"
             android:exported="false"
@@ -102,7 +103,6 @@
                 <action android:name="ACTION_STOP_NOTIFICATION_SERVICE" />
             </intent-filter>
         </receiver>
-
     </application>
 
 </manifest>

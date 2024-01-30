@@ -3,6 +3,7 @@ import org.jetbrains.kotlin.konan.properties.Properties
 
 plugins {
     id("plugin.android.application")
+    alias(libs.plugins.benchmark)
 }
 
 android {
@@ -10,7 +11,7 @@ android {
 
     defaultConfig {
         applicationId = "io.github.pknujsp.everyweather"
-        versionCode = 3
+        versionCode = 4
         versionName = "1.0"
 
         vectorDrawables {
@@ -19,7 +20,7 @@ android {
     }
 
     buildTypes {
-        release {
+        val release = getByName("release") {
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(
@@ -34,6 +35,13 @@ android {
         }
         debug {
             isMinifyEnabled = false
+            isShrinkResources = false
+        }
+        create("benchmark") {
+            initWith(release)
+            matchingFallbacks.add("release")
+            signingConfig = signingConfigs.getByName("debug")
+            proguardFiles("benchmark-rules.pro")
         }
     }
 
@@ -100,4 +108,8 @@ dependencies {
     implementation(libs.firebase.crashlytics)
     implementation(libs.firebase.analytics)
     implementation(libs.google.errorprone.annotations)
+    implementation(libs.androidx.profileinstaller)
+
+    androidTestImplementation(libs.benchmark.macro.junit4)
+    baselineProfile(project(":benchmark"))
 }
