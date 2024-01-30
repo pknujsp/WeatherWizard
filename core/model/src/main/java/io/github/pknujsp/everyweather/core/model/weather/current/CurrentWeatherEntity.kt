@@ -30,7 +30,7 @@ data class CurrentWeatherEntity(
         - 습도 : $humidity
         - 풍속 : $windSpeed
         - 풍향 : ${windDirection.convertUnit(WindDirectionUnit.Degree)}
-        - 강수량 : ${if (precipitationVolume.isNone()) "" else precipitationVolume.toString()}
+        - 강수량 : $precipitationVolume
     """.trimIndent()
 
 

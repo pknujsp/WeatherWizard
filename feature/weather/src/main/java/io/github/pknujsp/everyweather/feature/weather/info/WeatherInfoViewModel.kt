@@ -30,7 +30,6 @@ import io.github.pknujsp.everyweather.core.model.weather.common.WeatherProvider
 import io.github.pknujsp.everyweather.core.model.weather.current.CurrentWeatherEntity
 import io.github.pknujsp.everyweather.core.model.weather.dailyforecast.DailyForecastEntity
 import io.github.pknujsp.everyweather.core.model.weather.hourlyforecast.HourlyForecastEntity
-import io.github.pknujsp.everyweather.core.model.weather.yesterday.YesterdayWeather
 import io.github.pknujsp.everyweather.core.model.weather.yesterday.YesterdayWeatherEntity
 import io.github.pknujsp.everyweather.core.ui.weather.item.DynamicDateTimeUiCreator
 import io.github.pknujsp.everyweather.feature.weather.info.currentweather.model.CurrentWeather
@@ -207,25 +206,25 @@ class WeatherInfoViewModel @Inject constructor(
                 val hourlyForecastEntity = entity.toEntity<HourlyForecastEntity>()
                 val dailyForecastEntity = entity.toEntity<DailyForecastEntity>()
 
-                val currentWeather = createCurrentWeatherUiModel(currentWeatherEntity, dayNightCalculator, requestDateTime.toCalendar())
+                val yesterdayWeather = if (entity.weatherDataMajorCategories.contains(MajorWeatherEntityType.YESTERDAY_WEATHER)) {
+                    entity.toEntity<YesterdayWeatherEntity>()
+                } else {
+                    null
+                }
+
+                val currentWeather =
+                    createCurrentWeatherUiModel(currentWeatherEntity, yesterdayWeather, dayNightCalculator, requestDateTime.toCalendar())
                 val simpleHourlyForecast = createSimpleHourlyForecastUiModel(hourlyForecastEntity, dayNightCalculator)
                 val detailHourlyForecast = createDetailHourlyForecastUiModel(hourlyForecastEntity, dayNightCalculator)
                 val simpleDailyForecast = createSimpleDailyForecastUiModel(dailyForecastEntity)
                 val detailDailyForecast = createDetailDailyForecastUiModel(dailyForecastEntity)
 
-                val yesterdayWeather = if (entity.weatherDataMajorCategories.contains(MajorWeatherEntityType.YESTERDAY_WEATHER)) {
-                    val yesterdayWeatherEntity = entity.toEntity<YesterdayWeatherEntity>()
-                    createYesterdayWeatherUiModel(yesterdayWeatherEntity)
-                } else {
-                    null
-                }
 
                 val weather = Weather(currentWeather,
                     simpleHourlyForecast,
                     detailHourlyForecast,
                     simpleDailyForecast,
                     detailDailyForecast,
-                    yesterdayWeather,
                     coordinate.latitude,
                     coordinate.longitude,
                     requestDateTime)
@@ -246,7 +245,10 @@ class WeatherInfoViewModel @Inject constructor(
 
 
     private fun createCurrentWeatherUiModel(
-        currentWeatherEntity: CurrentWeatherEntity, dayNightCalculator: DayNightCalculator, currentCalendar: Calendar
+        currentWeatherEntity: CurrentWeatherEntity,
+        yesterdayWeatherEntity: YesterdayWeatherEntity?,
+        dayNightCalculator: DayNightCalculator,
+        currentCalendar: Calendar
     ): CurrentWeather {
         return currentWeatherEntity.run {
             val unit = units
@@ -256,6 +258,7 @@ class WeatherInfoViewModel @Inject constructor(
                 humidity = humidity,
                 windSpeed = windSpeed.convertUnit(unit.windSpeedUnit),
                 windDirection = windDirection,
+                yesterdayTemperature = if (yesterdayWeatherEntity != null) yesterdayWeatherEntity.temperature.convertUnit(unit.temperatureUnit) else null,
                 precipitationVolume = precipitationVolume.convertUnit(unit.precipitationUnit),
                 dayNightCalculator = dayNightCalculator,
                 currentCalendar = currentCalendar)
@@ -325,11 +328,4 @@ class WeatherInfoViewModel @Inject constructor(
     private fun createDetailDailyForecastUiModel(
         dailyForecastEntity: DailyForecastEntity
     ) = DetailDailyForecast(dailyForecastEntity, units)
-
-    private fun createYesterdayWeatherUiModel(
-        yesterdayWeatherEntity: YesterdayWeatherEntity
-    ): YesterdayWeather {
-        val temperatureUnit = units.temperatureUnit
-        return YesterdayWeather(temperature = yesterdayWeatherEntity.temperature.convertUnit(temperatureUnit))
-    }
 }

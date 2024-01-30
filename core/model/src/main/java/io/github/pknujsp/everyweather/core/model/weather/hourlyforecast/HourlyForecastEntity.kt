@@ -28,7 +28,9 @@ data class HourlyForecastEntity(
             append("| --- | --- | --- | --- | --- | --- | --- |")
             appendLine()
             for (item in items) {
-                append("${item.dateTime} | ${item.weatherCondition.value.description} | ${item.temperature} | ${item.precipitationProbability} | ${item.precipitationVolume} | ${item.humidity} | ${item.windSpeed}\n")
+                appendLine("${item.dateTime} | ${item.weatherCondition.value.description} | ${item.temperature} | ${
+                    item.precipitationProbability
+                }" + " | ${item.precipitationVolume} | ${item.humidity} | ${item.windSpeed}")
             }
         }.toString()
     }

@@ -28,7 +28,6 @@ import io.github.pknujsp.everyweather.core.common.asActivity
 import io.github.pknujsp.everyweather.core.model.flickr.FlickrRequestParameters
 import io.github.pknujsp.everyweather.core.model.settings.CurrentUnits
 import io.github.pknujsp.everyweather.core.model.weather.RequestWeatherArguments
-import io.github.pknujsp.everyweather.core.model.weather.yesterday.YesterdayWeather
 import io.github.pknujsp.everyweather.core.ui.theme.SystemBarContentColor
 import io.github.pknujsp.everyweather.core.ui.theme.setNavigationBarContentColor
 import io.github.pknujsp.everyweather.core.ui.theme.setStatusBarContentColor
@@ -42,7 +41,6 @@ import io.github.pknujsp.everyweather.feature.weather.info.hourlyforecast.model.
 import io.github.pknujsp.everyweather.feature.weather.route.NestedWeatherRoutes
 import io.github.pknujsp.everyweather.feature.weather.summary.WeatherSummaryPrompt
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
 import java.time.ZonedDateTime
 
@@ -81,7 +79,6 @@ class Weather(
     val detailHourlyForecast: DetailHourlyForecast,
     val simpleDailyForecast: SimpleDailyForecast,
     val detailDailyForecast: DetailDailyForecast,
-    val yesterdayWeather: YesterdayWeather?,
     latitude: Double,
     longitude: Double,
     dateTime: ZonedDateTime
