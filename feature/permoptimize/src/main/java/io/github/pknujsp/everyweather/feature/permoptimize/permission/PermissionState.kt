@@ -31,16 +31,28 @@ private class MutablePermissionManager(
     val fetchPermissionStateFunc: () -> Unit
 ) : PermissionManager {
     override var permissionState: PermissionState? by mutableStateOf(null)
+    override var isShowSettingsActivity: Boolean by mutableStateOf(false)
 
     override fun fetchPermissionState() {
         fetchPermissionStateFunc()
+    }
+
+    override fun showSettingsActivity() {
+        isShowSettingsActivity = true
+    }
+
+    override fun hideSettingsActivity() {
+        isShowSettingsActivity = false
     }
 }
 
 @Stable
 interface PermissionManager {
     val permissionState: PermissionState?
+    val isShowSettingsActivity: Boolean
     fun fetchPermissionState()
+    fun showSettingsActivity()
+    fun hideSettingsActivity()
 }
 
 

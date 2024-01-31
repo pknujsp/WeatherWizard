@@ -46,7 +46,9 @@ fun FeatureStateScreen(featureType: FeatureType, onAvailable: () -> Unit) {
 
 
 @Composable
-fun SmallFeatureStateScreen(modifier: Modifier = Modifier, state: StatefulFeature, onClickRetry: () -> Unit, onClickAction: () -> Unit) {
+fun SmallFeatureStateScreen(
+    modifier: Modifier = Modifier, state: StatefulFeature, onClickRetry: (() -> Unit)? = null, onClickAction: (() -> Unit)? = null
+) {
     Column(
         modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(12.dp, Alignment.CenterVertically),
@@ -57,12 +59,12 @@ fun SmallFeatureStateScreen(modifier: Modifier = Modifier, state: StatefulFeatur
         Row(modifier = Modifier.align(Alignment.End), horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End)) {
             if (state.hasRepairAction) {
                 SecondaryButton(text = stringResource(id = state.action), buttonSize = ButtonSize.SMALL) {
-                    onClickAction()
+                    onClickAction?.invoke()
                 }
             }
             if (state.hasRetryAction) {
                 PrimaryButton(text = stringResource(id = R.string.reload), buttonSize = ButtonSize.SMALL) {
-                    onClickRetry()
+                    onClickRetry?.invoke()
                 }
             }
         }

@@ -94,9 +94,7 @@ fun OngoingNotificationScreen(navController: NavController, viewModel: OngoingNo
                             }
                             RefreshIntervalScreen(settings)
                             if (!featureState.isAvailable && notificationUiState.settings.refreshInterval != RefreshInterval.MANUAL) {
-                                SmallFeatureStateScreen(Modifier.padding(8.dp), state = featureState.featureType, onClickRetry = {
-                                    // ongoingNotificationUiState.update()
-                                }, onClickAction = {
+                                SmallFeatureStateScreen(Modifier.padding(8.dp), state = featureState.featureType, onClickAction = {
                                     featureState.showSettingsActivity()
                                 })
                             }

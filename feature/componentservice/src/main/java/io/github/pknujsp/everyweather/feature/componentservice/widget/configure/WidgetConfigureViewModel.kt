@@ -27,7 +27,10 @@ class WidgetConfigureViewModel @Inject constructor(
     @CoDispatcher(CoDispatcherType.IO) private val ioDispatcher: kotlinx.coroutines.CoroutineDispatcher,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
+
     val units get() = appSettingsRepository.settings.replayCache.last().units
+    val refreshInterval get() = appSettingsRepository.settings.replayCache.last().widgetAutoRefreshInterval
+
     val widget = savedStateHandle.run {
         WidgetModel(get<Int>("widgetId")!!, get<Int>("widgetType")!!, ::save)
     }

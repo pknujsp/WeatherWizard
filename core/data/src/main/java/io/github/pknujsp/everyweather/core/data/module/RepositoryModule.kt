@@ -152,7 +152,7 @@ abstract class RepositoryModule {
                 dispatcher = dispatcher,
             )
             return SummaryTextRepositoryImpl(GenerativeModel("gemini-pro", BuildConfig.GOOGLE_AI_STUDIO_KEY, generationConfig {
-                temperature = 0.8f
+                temperature = 0.7f
             }),
                 cacheManagerImpl,
                 cacheManagerImpl)
