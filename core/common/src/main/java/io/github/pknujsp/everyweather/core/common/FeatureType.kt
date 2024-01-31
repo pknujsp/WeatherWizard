@@ -126,7 +126,9 @@ enum class FeatureType(
             return context.checkSelfPermission(PermissionType.POST_NOTIFICATIONS)
         }
     },
-    SCHEDULE_EXACT_ALARM_PERMISSION(Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+
+    @RequiresApi(Build.VERSION_CODES.S)
+    SCHEDULE_EXACT_ALARM_PERMISSION(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM,
         PermissionType.SCHEDULE_EXACT_ALARM_ABOVE_EQUALS_ON_SDK_31) {
 
         override fun getPendingIntent(context: Context): PendingIntent {

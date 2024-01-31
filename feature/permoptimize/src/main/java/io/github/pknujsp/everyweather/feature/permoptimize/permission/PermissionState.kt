@@ -13,7 +13,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
+import androidx.core.app.ActivityOptionsCompat
 import io.github.pknujsp.everyweather.core.common.asActivity
+import io.github.pknujsp.everyweather.core.common.asFeatureType
 import io.github.pknujsp.everyweather.core.common.manager.PermissionType
 import io.github.pknujsp.everyweather.core.common.manager.checkSelfPermission
 import io.github.pknujsp.everyweather.core.common.manager.shouldShowRequestPermissionRationale
@@ -28,9 +30,10 @@ sealed interface PermissionState {
 }
 
 private class MutablePermissionManager(
-    val fetchPermissionStateFunc: () -> Unit
+    permissionType: PermissionType, context: Context, val fetchPermissionStateFunc: () -> Unit
 ) : PermissionManager {
-    override var permissionState: PermissionState? by mutableStateOf(null)
+    override var permissionState: PermissionState? by mutableStateOf(if (permissionType.asFeatureType()
+            .isAvailable(context)) PermissionState.Granted(permissionType) else PermissionState.Denied(permissionType))
     override var isShowSettingsActivity: Boolean by mutableStateOf(false)
 
     override fun fetchPermissionState() {
@@ -65,7 +68,7 @@ fun rememberPermissionManager(
     var fetchPermissionType by remember(defaultPermissionType) { mutableStateOf<Pair<PermissionType, Long>>(defaultPermissionType to 0) }
 
     val permissionManager = remember {
-        MutablePermissionManager(fetchPermissionStateFunc = {
+        MutablePermissionManager(defaultPermissionType, context, fetchPermissionStateFunc = {
             fetchPermissionType = fetchPermissionType.first to fetchPermissionType.second + 1
         })
     }
@@ -80,7 +83,10 @@ fun rememberPermissionManager(
     }
 
     LaunchedEffect(fetchPermissionType) {
-        permissionManager.permissionState = fetchPermission(activity, fetchPermissionType.first, permissionLauncher)
+        if (fetchPermissionType.second > 0) {
+            permissionLauncher.launch(fetchPermissionType.first.permissions)
+        }
+        //permissionManager.permissionState = fetchPermission(activity, fetchPermissionType.first, permissionLauncher)
     }
     return permissionManager
 }
@@ -91,9 +97,9 @@ private fun fetchPermission(
     activityResultLauncher: ManagedActivityResultLauncher<Array<String>, Map<String, Boolean>>
 ) = when {
     activity.checkSelfPermission(permissionType) -> PermissionState.Granted(permissionType)
-    activity.shouldShowRequestPermissionRationale(permissionType) -> PermissionState.ShouldShowRationale(permissionType)
+    // activity.shouldShowRequestPermissionRationale(permissionType) -> PermissionState.ShouldShowRationale(permissionType)
     else -> {
-        activityResultLauncher.launch(permissionType.permissions)
+        // activityResultLauncher.launch(permissionType.permissions)
         PermissionState.Denied(permissionType)
     }
 }

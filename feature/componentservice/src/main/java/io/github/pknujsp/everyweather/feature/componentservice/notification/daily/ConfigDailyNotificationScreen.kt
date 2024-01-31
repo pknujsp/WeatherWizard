@@ -24,6 +24,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import io.github.pknujsp.everyweather.core.common.manager.PermissionType
 import io.github.pknujsp.everyweather.core.model.coordinate.LocationType
 import io.github.pknujsp.everyweather.core.model.coordinate.LocationTypeModel
 import io.github.pknujsp.everyweather.core.model.notification.enums.DailyNotificationType
@@ -39,6 +40,7 @@ import io.github.pknujsp.everyweather.core.widgetnotification.remoteview.RemoteV
 import io.github.pknujsp.everyweather.feature.componentservice.RemoteViewsScreen
 import io.github.pknujsp.everyweather.feature.componentservice.notification.daily.model.DailyNotificationSettings
 import io.github.pknujsp.everyweather.feature.componentservice.notification.daily.model.rememberDailyNotificationState
+import io.github.pknujsp.everyweather.feature.permoptimize.permission.PermissionState
 import io.github.pknujsp.everyweather.feature.searchlocation.SearchLocationScreen
 
 
@@ -51,65 +53,61 @@ fun ConfigDailyNotificationScreen(navController: NavController, viewModel: Confi
             navController.popBackStack()
         })
     }
+    var permissionGranted by remember { mutableStateOf(false) }
+    PermissionStateScreen(permissionType = PermissionType.SCHEDULE_EXACT_ALARM_ABOVE_EQUALS_ON_SDK_31) {
+        permissionGranted = true
+    }
 
-    when (notification.scheduleExactAlarmPermissionState) {
-        true -> {
-            notification.run {
-                if (showSearch) {
-                    SearchLocationScreen(onSelectedLocation = { newLocation ->
-                        newLocation?.let {
+    if (permissionGranted) {
+        notification.run {
+            if (showSearch) {
+                SearchLocationScreen(onSelectedLocation = { newLocation ->
+                    newLocation?.let {
+                        dailyNotificationUiState.dailyNotificationSettings.location =
+                            LocationTypeModel(locationType = LocationType.CustomLocation,
+                                address = it.addressName,
+                                latitude = it.latitude,
+                                country = it.countryName,
+                                longitude = it.longitude)
+                    }
+                    showSearch = false
+                }, popBackStack = {
+                    showSearch = false
+                })
+            } else {
+                Column {
+                    TitleTextWithNavigation(title = stringResource(id = R.string.add_or_edit_daily_notification)) {
+                        navController.popBackStack()
+                    }
+                    RemoteViewsScreen(RemoteViewsCreatorManager.getByDailyNotificationType(dailyNotificationUiState.dailyNotificationSettings.type),
+                        viewModel.units,
+                        modifier = Modifier.padding(12.dp))
+                    Column(modifier = Modifier
+                        .verticalScroll(rememberScrollState())
+                        .weight(1f)
+                        .padding(horizontal = 16.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                        NotificationTypeItem(dailyNotificationUiState.dailyNotificationSettings.type) {
+                            dailyNotificationUiState.dailyNotificationSettings.type = it
+                        }
+                        TimeItem(dailyNotificationUiState.dailyNotificationSettings)
+                        LocationScreen(dailyNotificationUiState.dailyNotificationSettings.location, onSelectedItem = {
                             dailyNotificationUiState.dailyNotificationSettings.location =
-                                LocationTypeModel(locationType = LocationType.CustomLocation,
-                                    address = it.addressName,
-                                    latitude = it.latitude,
-                                    country = it.countryName,
-                                    longitude = it.longitude)
+                                dailyNotificationUiState.dailyNotificationSettings.location.copy(locationType = it)
+                        }) {
+                            showSearch = true
                         }
-                        showSearch = false
-                    }, popBackStack = {
-                        showSearch = false
-                    })
-                } else {
-                    Column {
-                        TitleTextWithNavigation(title = stringResource(id = R.string.add_or_edit_daily_notification)) {
-                            navController.popBackStack()
+                        WeatherProvidersScreen(dailyNotificationUiState.dailyNotificationSettings.weatherDataProvider) {
+                            dailyNotificationUiState.dailyNotificationSettings.weatherDataProvider = it
                         }
-                        RemoteViewsScreen(RemoteViewsCreatorManager.getByDailyNotificationType(dailyNotificationUiState.dailyNotificationSettings.type),
-                            viewModel.units,
-                            modifier = Modifier.padding(12.dp))
-                        Column(modifier = Modifier
-                            .verticalScroll(rememberScrollState())
-                            .weight(1f)
-                            .padding(horizontal = 16.dp),
-                            verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                            NotificationTypeItem(dailyNotificationUiState.dailyNotificationSettings.type) {
-                                dailyNotificationUiState.dailyNotificationSettings.type = it
-                            }
-                            TimeItem(dailyNotificationUiState.dailyNotificationSettings)
-                            LocationScreen(dailyNotificationUiState.dailyNotificationSettings.location, onSelectedItem = {
-                                dailyNotificationUiState.dailyNotificationSettings.location =
-                                    dailyNotificationUiState.dailyNotificationSettings.location.copy(locationType = it)
-                            }) {
-                                showSearch = true
-                            }
-                            WeatherProvidersScreen(dailyNotificationUiState.dailyNotificationSettings.weatherDataProvider) {
-                                dailyNotificationUiState.dailyNotificationSettings.weatherDataProvider = it
-                            }
-                        }
+                    }
 
-                        Box(modifier = Modifier.padding(12.dp)) {
-                            SecondaryButton(text = stringResource(id = R.string.save), modifier = Modifier.fillMaxWidth()) {
-                                dailyNotificationUiState.update()
-                            }
+                    Box(modifier = Modifier.padding(12.dp)) {
+                        SecondaryButton(text = stringResource(id = R.string.save), modifier = Modifier.fillMaxWidth()) {
+                            dailyNotificationUiState.update()
                         }
                     }
                 }
-            }
-        }
-
-        else -> {
-            PermissionStateScreen(permissionType = notification.permissionType) {
-                notification.scheduleExactAlarmPermissionState = true
             }
         }
     }

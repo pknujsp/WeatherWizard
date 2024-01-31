@@ -341,5 +341,8 @@
     <string name="am">오전</string>
     <string name="pm">오후</string>
     <string name="all_day">하루종일</string>
+    <string name="daily_notification_enabled">알림이 활성화되었어요</string>
+    <string name="daily_notification_disabled">알림이 비활성화 되었어요</string>
+    <string name="deleted_daily_notification">알림을 삭제했어요</string>
 
 </resources>

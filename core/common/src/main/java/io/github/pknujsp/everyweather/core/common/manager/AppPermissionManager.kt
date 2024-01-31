@@ -12,7 +12,13 @@ import io.github.pknujsp.everyweather.core.common.StatefulFeature
 
 
 enum class PermissionType(val permissions: Array<String>, val isUnrelatedSdkDevice: Boolean) : StatefulFeature {
-    LOCATION(arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION), isUnrelatedSdkDevice = false) {
+    LOCATION(arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION).run {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            plusElement(Manifest.permission.FOREGROUND_SERVICE_LOCATION)
+        } else {
+            this
+        }
+    }, isUnrelatedSdkDevice = false) {
         override val title: Int = io.github.pknujsp.everyweather.core.resource.R.string.location_permission
         override val message: Int = io.github.pknujsp.everyweather.core.resource.R.string.location_permission_denied
         override val action: Int = io.github.pknujsp.everyweather.core.resource.R.string.grant_permissions
@@ -62,12 +68,7 @@ enum class PermissionType(val permissions: Array<String>, val isUnrelatedSdkDevi
     },
 
     @RequiresApi(Build.VERSION_CODES.S)
-    SCHEDULE_EXACT_ALARM_ABOVE_EQUALS_ON_SDK_31(if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-        arrayOf(
-            Manifest.permission.SCHEDULE_EXACT_ALARM,
-            Manifest.permission.USE_EXACT_ALARM,
-        )
-    } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+    SCHEDULE_EXACT_ALARM_ABOVE_EQUALS_ON_SDK_31(if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
         arrayOf(
             Manifest.permission.SCHEDULE_EXACT_ALARM,
         )
@@ -86,7 +87,7 @@ enum class PermissionType(val permissions: Array<String>, val isUnrelatedSdkDevi
  * 해당 권한을 부여해야 하는 이유를 설명해야 하는지 확인
  */
 fun Activity.shouldShowRequestPermissionRationale(permissionType: PermissionType): Boolean =
-    permissionType.isUnrelatedSdkDevice or permissionType.permissions.any { ActivityCompat.shouldShowRequestPermissionRationale(this, it) }
+    permissionType.permissions.any { ActivityCompat.shouldShowRequestPermissionRationale(this, it) }
 
 
 /**
