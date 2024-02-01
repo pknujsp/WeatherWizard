@@ -21,7 +21,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import io.github.pknujsp.everyweather.core.common.FeatureType
-import io.github.pknujsp.everyweather.core.common.manager.PermissionType
+import io.github.pknujsp.everyweather.feature.permoptimize.permission.PermissionType
 import io.github.pknujsp.everyweather.core.model.coordinate.LocationType
 import io.github.pknujsp.everyweather.feature.permoptimize.permission.PermissionStateScreen
 import io.github.pknujsp.everyweather.feature.weather.route.WeatherRoutes

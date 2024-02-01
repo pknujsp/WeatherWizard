@@ -1,7 +1,5 @@
 package io.github.pknujsp.everyweather.feature.permoptimize.permission
 
-import androidx.activity.compose.LocalActivityResultRegistryOwner
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -11,10 +9,9 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalView
-import androidx.core.app.ActivityCompat
+import io.github.pknujsp.everyweather.core.common.PermissionType
 import io.github.pknujsp.everyweather.core.common.asActivity
 import io.github.pknujsp.everyweather.core.common.asFeatureType
-import io.github.pknujsp.everyweather.core.common.manager.PermissionType
 import io.github.pknujsp.everyweather.feature.permoptimize.feature.ShowAppSettingsActivity
 import io.github.pknujsp.everyweather.feature.permoptimize.feature.UnavailableFeatureScreen
 import kotlinx.coroutines.launch

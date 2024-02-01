@@ -10,7 +10,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import io.github.pknujsp.everyweather.core.common.StatefulFeature
 import io.github.pknujsp.everyweather.core.common.coroutines.CoDispatcher
 import io.github.pknujsp.everyweather.core.common.coroutines.CoDispatcherType
-import io.github.pknujsp.everyweather.core.common.manager.FailedReason
+import io.github.pknujsp.everyweather.core.common.FailedReason
 import io.github.pknujsp.everyweather.core.data.aqicn.AirQualityRepository
 import io.github.pknujsp.everyweather.core.model.airquality.AirQualityEntity
 import io.github.pknujsp.everyweather.core.model.airquality.SimpleAirQuality

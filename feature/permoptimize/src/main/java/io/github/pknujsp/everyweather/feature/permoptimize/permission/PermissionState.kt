@@ -13,12 +13,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
-import androidx.core.app.ActivityOptionsCompat
 import io.github.pknujsp.everyweather.core.common.asActivity
 import io.github.pknujsp.everyweather.core.common.asFeatureType
-import io.github.pknujsp.everyweather.core.common.manager.PermissionType
-import io.github.pknujsp.everyweather.core.common.manager.checkSelfPermission
-import io.github.pknujsp.everyweather.core.common.manager.shouldShowRequestPermissionRationale
 
 
 sealed interface PermissionState {

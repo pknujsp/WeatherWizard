@@ -5,7 +5,7 @@ import android.content.Context
 import android.util.Log
 import io.github.pknujsp.everyweather.core.FeatureStateManager
 import io.github.pknujsp.everyweather.core.common.FeatureType
-import io.github.pknujsp.everyweather.core.common.manager.FailedReason
+import io.github.pknujsp.everyweather.core.common.FailedReason
 import io.github.pknujsp.everyweather.core.common.manager.WidgetManager
 import io.github.pknujsp.everyweather.core.data.widget.SavedWidgetContentState
 import io.github.pknujsp.everyweather.core.data.widget.WidgetRepository

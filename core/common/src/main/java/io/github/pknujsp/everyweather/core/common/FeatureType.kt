@@ -1,5 +1,6 @@
 package io.github.pknujsp.everyweather.core.common
 
+import android.annotation.SuppressLint
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
@@ -10,9 +11,6 @@ import android.os.Build
 import android.os.PowerManager
 import android.provider.Settings
 import androidx.annotation.RequiresApi
-import io.github.pknujsp.everyweather.core.common.manager.FailedReason
-import io.github.pknujsp.everyweather.core.common.manager.PermissionType
-import io.github.pknujsp.everyweather.core.common.manager.checkSelfPermission
 
 enum class FeatureType(
     protected val intentAction: String,
@@ -48,6 +46,8 @@ enum class FeatureType(
             return context.checkSelfPermission(PermissionType.BACKGROUND_LOCATION)
         }
     },
+
+    @SuppressLint("BatteryLife")
     BATTERY_OPTIMIZATION(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS, FailedReason.BATTERY_OPTIMIZATION) {
 
         override fun getPendingIntent(context: Context): PendingIntent {
@@ -65,20 +65,7 @@ enum class FeatureType(
         }
 
     },
-    STORAGE_PERMISSION(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, PermissionType.STORAGE) {
-        override fun getPendingIntent(context: Context): PendingIntent {
-            return PendingIntent.getActivity(context,
-                this::class.simpleName.hashCode(),
-                getIntent(context),
-                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
-        }
 
-        override fun getIntent(context: Context) = appSettingsIntent(context)
-
-        override fun isAvailable(context: Context): Boolean {
-            return context.checkSelfPermission(PermissionType.STORAGE)
-        }
-    },
     NETWORK(Settings.ACTION_WIRELESS_SETTINGS, FailedReason.NETWORK_UNAVAILABLE) {
         override fun getPendingIntent(context: Context): PendingIntent {
             return PendingIntent.getActivity(context,
@@ -155,10 +142,10 @@ enum class FeatureType(
     }
 }
 
+
 fun PermissionType.asFeatureType() = when (this) {
     PermissionType.LOCATION -> FeatureType.LOCATION_PERMISSION
     PermissionType.BACKGROUND_LOCATION -> FeatureType.BACKGROUND_LOCATION_PERMISSION
-    PermissionType.STORAGE -> FeatureType.STORAGE_PERMISSION
     PermissionType.POST_NOTIFICATIONS -> FeatureType.POST_NOTIFICATION_PERMISSION
     PermissionType.SCHEDULE_EXACT_ALARM_ABOVE_EQUALS_ON_SDK_31 -> FeatureType.SCHEDULE_EXACT_ALARM_PERMISSION
 }

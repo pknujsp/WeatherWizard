@@ -10,7 +10,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import io.github.pknujsp.everyweather.core.common.FeatureType
 import io.github.pknujsp.everyweather.core.common.coroutines.CoDispatcher
 import io.github.pknujsp.everyweather.core.common.coroutines.CoDispatcherType
-import io.github.pknujsp.everyweather.core.common.manager.FailedReason
+import io.github.pknujsp.everyweather.core.common.FailedReason
 import io.github.pknujsp.everyweather.core.common.util.DayNightCalculator
 import io.github.pknujsp.everyweather.core.common.util.toCalendar
 import io.github.pknujsp.everyweather.core.common.util.toTimeZone

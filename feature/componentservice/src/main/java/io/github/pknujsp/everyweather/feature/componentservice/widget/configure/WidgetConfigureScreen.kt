@@ -4,7 +4,6 @@ import android.app.Activity
 import android.appwidget.AppWidgetManager
 import android.content.Context
 import android.content.Intent
-import android.widget.Toast
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -30,7 +29,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import io.github.pknujsp.everyweather.core.common.FeatureType
-import io.github.pknujsp.everyweather.core.common.manager.PermissionType
+import io.github.pknujsp.everyweather.feature.permoptimize.permission.PermissionType
 import io.github.pknujsp.everyweather.core.model.ActionState
 import io.github.pknujsp.everyweather.core.model.coordinate.LocationType
 import io.github.pknujsp.everyweather.core.model.coordinate.LocationTypeModel

@@ -8,11 +8,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
-import io.github.pknujsp.everyweather.core.common.manager.PermissionType
 import io.github.pknujsp.everyweather.feature.componentservice.manager.AppComponentServiceManagerFactory
 import io.github.pknujsp.everyweather.feature.componentservice.manager.DailyNotificationAlarmManager
-import io.github.pknujsp.everyweather.feature.permoptimize.permission.PermissionManager
-import io.github.pknujsp.everyweather.feature.permoptimize.permission.rememberPermissionManager
 
 @SuppressLint("NewApi")
 class DailyNotificationState(

@@ -7,7 +7,7 @@ import io.github.pknujsp.everyweather.core.common.coroutines.CoDispatcher
 import io.github.pknujsp.everyweather.core.common.coroutines.CoDispatcherType
 import io.github.pknujsp.everyweather.core.common.manager.AppComponentManagerFactory
 import io.github.pknujsp.everyweather.core.common.manager.AppLocationManager
-import io.github.pknujsp.everyweather.core.common.manager.FailedReason
+import io.github.pknujsp.everyweather.core.common.FailedReason
 import io.github.pknujsp.everyweather.core.data.nominatim.NominatimRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.MutableStateFlow

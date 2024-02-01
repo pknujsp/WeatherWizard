@@ -24,7 +24,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import io.github.pknujsp.everyweather.core.common.manager.PermissionType
+import io.github.pknujsp.everyweather.feature.permoptimize.permission.PermissionType
 import io.github.pknujsp.everyweather.core.model.coordinate.LocationType
 import io.github.pknujsp.everyweather.core.model.coordinate.LocationTypeModel
 import io.github.pknujsp.everyweather.core.model.notification.enums.DailyNotificationType
@@ -40,7 +40,6 @@ import io.github.pknujsp.everyweather.core.widgetnotification.remoteview.RemoteV
 import io.github.pknujsp.everyweather.feature.componentservice.RemoteViewsScreen
 import io.github.pknujsp.everyweather.feature.componentservice.notification.daily.model.DailyNotificationSettings
 import io.github.pknujsp.everyweather.feature.componentservice.notification.daily.model.rememberDailyNotificationState
-import io.github.pknujsp.everyweather.feature.permoptimize.permission.PermissionState
 import io.github.pknujsp.everyweather.feature.searchlocation.SearchLocationScreen
 
 

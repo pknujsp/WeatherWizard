@@ -21,7 +21,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import io.github.pknujsp.everyweather.core.common.FeatureType
 import io.github.pknujsp.everyweather.core.common.manager.AppComponentManagerFactory
-import io.github.pknujsp.everyweather.core.common.manager.PermissionType
+import io.github.pknujsp.everyweather.feature.permoptimize.permission.PermissionType
 import io.github.pknujsp.everyweather.core.model.notification.enums.RefreshInterval
 import io.github.pknujsp.everyweather.core.model.weather.common.WeatherProvider
 import io.github.pknujsp.everyweather.core.resource.R
@@ -34,7 +34,6 @@ import io.github.pknujsp.everyweather.feature.componentservice.manager.AppCompon
 import io.github.pknujsp.everyweather.feature.permoptimize.feature.ShowAppSettingsActivity
 import io.github.pknujsp.everyweather.feature.permoptimize.feature.SmallFeatureStateScreen
 import io.github.pknujsp.everyweather.feature.permoptimize.feature.rememberAppFeatureState
-import io.github.pknujsp.everyweather.feature.permoptimize.permission.PermissionManager
 import io.github.pknujsp.everyweather.feature.permoptimize.permission.PermissionState
 import io.github.pknujsp.everyweather.feature.permoptimize.permission.rememberPermissionManager
 import kotlinx.coroutines.launch

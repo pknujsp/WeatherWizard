@@ -1,4 +1,4 @@
-package io.github.pknujsp.everyweather.core.common.manager
+package io.github.pknujsp.everyweather.core.common
 
 import io.github.pknujsp.everyweather.core.common.StatefulFeature
 import io.github.pknujsp.everyweather.core.resource.R

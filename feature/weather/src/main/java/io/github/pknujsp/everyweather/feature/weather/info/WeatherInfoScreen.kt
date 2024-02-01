@@ -20,7 +20,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.pknujsp.everyweather.core.common.FeatureType
 import io.github.pknujsp.everyweather.core.common.StatefulFeature
-import io.github.pknujsp.everyweather.core.common.manager.FailedReason
+import io.github.pknujsp.everyweather.core.common.FailedReason
 import io.github.pknujsp.everyweather.core.resource.R
 import io.github.pknujsp.everyweather.feature.permoptimize.feature.FailedScreen
 import io.github.pknujsp.everyweather.feature.permoptimize.feature.FeatureStateScreen
