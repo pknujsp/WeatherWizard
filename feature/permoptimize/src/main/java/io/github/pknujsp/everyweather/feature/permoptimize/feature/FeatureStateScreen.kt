@@ -17,6 +17,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import io.github.pknujsp.everyweather.core.common.FeatureType
+import io.github.pknujsp.everyweather.core.common.PermissionType
 import io.github.pknujsp.everyweather.core.common.StatefulFeature
 import io.github.pknujsp.everyweather.core.resource.R
 import io.github.pknujsp.everyweather.core.ui.button.ButtonSize
@@ -56,6 +57,11 @@ fun SmallFeatureStateScreen(
         Text(modifier = Modifier.align(Alignment.Start),
             text = stringResource(id = state.message),
             style = TextStyle(fontSize = 14.sp, color = Color.Black, textAlign = TextAlign.Left))
+        if (state is PermissionType) {
+            Text(modifier = Modifier.align(Alignment.Start),
+                text = stringResource(id = state.reason),
+                style = TextStyle(fontSize = 14.sp, color = Color.Black, textAlign = TextAlign.Left))
+        }
         Row(modifier = Modifier.align(Alignment.End), horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End)) {
             if (state.hasRepairAction) {
                 SecondaryButton(text = stringResource(id = state.action), buttonSize = ButtonSize.SMALL) {

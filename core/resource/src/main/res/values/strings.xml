@@ -32,7 +32,7 @@
     <string name="higher">높아요</string>
     <string name="lower">낮아요</string>
     <string name="is_">이에요</string>
-    <string name="reload">다시시도</string>
+    <string name="reload">다시 시도</string>
     <string name="loading_weather_data">날씨 정보를 불러오는 중</string>
     <string name="weather_icon">날씨 상태 아이콘</string>
     <string name="before">이전</string>
