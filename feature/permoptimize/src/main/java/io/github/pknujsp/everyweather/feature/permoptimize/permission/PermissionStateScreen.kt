@@ -26,7 +26,7 @@ fun PermissionStateScreen(permissionType: PermissionType, onGranted: () -> Unit)
 
     when (permissionManager.permissionState) {
         is PermissionState.Granted -> grantedCallback()
-        is PermissionState.Denied, is PermissionState.ShouldShowRationale -> {
+        is PermissionState.Denied -> {
             Box {
                 UnavailableFeatureScreen(featureType = permissionManager.permissionState!!.permissionType) {
                     coroutineScope.launch {

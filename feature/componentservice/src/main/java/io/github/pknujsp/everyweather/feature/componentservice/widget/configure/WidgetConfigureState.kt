@@ -8,7 +8,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import io.github.pknujsp.everyweather.core.common.FeatureType
-import io.github.pknujsp.everyweather.feature.permoptimize.permission.PermissionType
+import io.github.pknujsp.everyweather.core.common.PermissionType
 import io.github.pknujsp.everyweather.core.model.notification.enums.RefreshInterval
 import io.github.pknujsp.everyweather.feature.permoptimize.feature.AppFeatureState
 import io.github.pknujsp.everyweather.feature.permoptimize.feature.rememberAppFeatureState

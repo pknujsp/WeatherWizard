@@ -24,22 +24,22 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import io.github.pknujsp.everyweather.feature.permoptimize.permission.PermissionType
+import io.github.pknujsp.everyweather.core.common.PermissionType
 import io.github.pknujsp.everyweather.core.model.coordinate.LocationType
 import io.github.pknujsp.everyweather.core.model.coordinate.LocationTypeModel
 import io.github.pknujsp.everyweather.core.model.notification.enums.DailyNotificationType
 import io.github.pknujsp.everyweather.core.resource.R
 import io.github.pknujsp.everyweather.core.ui.BottomSheetSettingItem
 import io.github.pknujsp.everyweather.core.ui.LocationScreen
-import io.github.pknujsp.everyweather.core.ui.button.SecondaryButton
 import io.github.pknujsp.everyweather.core.ui.TitleTextWithNavigation
 import io.github.pknujsp.everyweather.core.ui.WeatherProvidersScreen
+import io.github.pknujsp.everyweather.core.ui.button.SecondaryButton
 import io.github.pknujsp.everyweather.core.ui.dialog.DialogScreen
-import io.github.pknujsp.everyweather.feature.permoptimize.permission.PermissionStateScreen
 import io.github.pknujsp.everyweather.core.widgetnotification.remoteview.RemoteViewsCreatorManager
 import io.github.pknujsp.everyweather.feature.componentservice.RemoteViewsScreen
 import io.github.pknujsp.everyweather.feature.componentservice.notification.daily.model.DailyNotificationSettings
 import io.github.pknujsp.everyweather.feature.componentservice.notification.daily.model.rememberDailyNotificationState
+import io.github.pknujsp.everyweather.feature.permoptimize.permission.PermissionStateScreen
 import io.github.pknujsp.everyweather.feature.searchlocation.SearchLocationScreen
 
 
