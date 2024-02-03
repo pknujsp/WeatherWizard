@@ -26,10 +26,6 @@ private class AppLocationManagerImpl(private val context: Context) : AppLocation
     override val isGpsProviderEnabled: Boolean
         get() = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
 
-    override val isPermissionGranted: Boolean
-        get() = context.checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED && context.checkSelfPermission(
-            Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
-
     @SuppressLint("MissingPermission")
     override suspend fun getCurrentLocation(): AppLocationManager.LocationResult {
         return findCurrentLocation()?.let {
@@ -83,7 +79,6 @@ interface AppLocationManager : AppComponentManager {
     }
 
     val isGpsProviderEnabled: Boolean
-    val isPermissionGranted: Boolean
     suspend fun getCurrentLocation(): LocationResult
 
     sealed interface LocationResult {

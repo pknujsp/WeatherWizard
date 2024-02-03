@@ -22,7 +22,6 @@ fun PermissionStateScreen(permissionType: PermissionType, onGranted: () -> Unit)
     val permissionManager = rememberPermissionManager(defaultPermissionType = permissionType)
     val coroutineScope = rememberCoroutineScope()
     val grantedCallback by rememberUpdatedState(newValue = onGranted)
-    val activity = LocalView.current.context.asActivity()!!
 
     when (permissionManager.permissionState) {
         is PermissionState.Granted -> grantedCallback()

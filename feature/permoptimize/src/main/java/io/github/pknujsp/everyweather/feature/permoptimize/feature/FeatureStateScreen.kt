@@ -57,9 +57,9 @@ fun SmallFeatureStateScreen(
         Text(modifier = Modifier.align(Alignment.Start),
             text = stringResource(id = state.message),
             style = TextStyle(fontSize = 14.sp, color = Color.Black, textAlign = TextAlign.Left))
-        if (state is PermissionType) {
+        if (state.reason != null) {
             Text(modifier = Modifier.align(Alignment.Start),
-                text = stringResource(id = state.reason),
+                text = stringResource(id = state.reason!!),
                 style = TextStyle(fontSize = 14.sp, color = Color.Black, textAlign = TextAlign.Left))
         }
         Row(modifier = Modifier.align(Alignment.End), horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End)) {

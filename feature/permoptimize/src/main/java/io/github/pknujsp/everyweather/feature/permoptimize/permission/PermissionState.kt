@@ -1,8 +1,6 @@
 package io.github.pknujsp.everyweather.feature.permoptimize.permission
 
-import android.app.Activity
 import android.content.Context
-import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.Composable
@@ -14,7 +12,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import io.github.pknujsp.everyweather.core.common.PermissionType
-import io.github.pknujsp.everyweather.core.common.asActivity
 import io.github.pknujsp.everyweather.core.common.asFeatureType
 
 
@@ -28,8 +25,11 @@ sealed interface PermissionState {
 private class MutablePermissionManager(
     permissionType: PermissionType, context: Context, val fetchPermissionStateFunc: () -> Unit
 ) : PermissionManager {
-    override var permissionState: PermissionState? by mutableStateOf(if (permissionType.asFeatureType()
-            .isAvailable(context)) PermissionState.Granted(permissionType) else PermissionState.Denied(permissionType))
+    override var permissionState: PermissionState by mutableStateOf(if (permissionType.asFeatureType().isAvailable(context)) {
+        PermissionState.Granted(permissionType)
+    } else {
+        PermissionState.Denied(permissionType)
+    })
     override var isShowSettingsActivity: Boolean by mutableStateOf(false)
 
     override fun fetchPermissionState() {
@@ -47,7 +47,7 @@ private class MutablePermissionManager(
 
 @Stable
 interface PermissionManager {
-    val permissionState: PermissionState?
+    val permissionState: PermissionState
     val isShowSettingsActivity: Boolean
     fun fetchPermissionState()
     fun showSettingsActivity()
@@ -68,7 +68,7 @@ fun rememberPermissionManager(
         })
     }
     val permissionLauncher = rememberLauncherForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { result ->
-        permissionManager.permissionState = if (result.all { true }) {
+        permissionManager.permissionState = if (result.all { it.value }) {
             PermissionState.Granted(defaultPermissionType)
         } else {
             PermissionState.Denied(defaultPermissionType)
@@ -76,9 +76,7 @@ fun rememberPermissionManager(
     }
 
     LaunchedEffect(fetchPermissionType) {
-        if (fetchPermissionType.second > 0) {
-            permissionLauncher.launch(fetchPermissionType.first.permissions)
-        }
+        permissionLauncher.launch(fetchPermissionType.first.permissions)
     }
     return permissionManager
 }

@@ -162,6 +162,7 @@ interface StatefulFeature {
     val title: Int
     val message: Int
     val action: Int
+    val reason: Int? get() = null
     val hasRepairAction: Boolean
     val hasRetryAction: Boolean
 }

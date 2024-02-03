@@ -69,12 +69,6 @@ internal class GetCurrentLocationUseCase @Inject constructor(
 
     private suspend fun getCurrentLocation(): CurrentLocationState {
         mutableCurrentLocationFlow.emit(CurrentLocationState.Loading())
-        if (!appLocationManager.isPermissionGranted) {
-            val state = CurrentLocationState.Failure(FeatureType.LOCATION_PERMISSION)
-            mutableCurrentLocationFlow.emit(state)
-            return state
-        }
-
         val result = if (appLocationManager.isGpsProviderEnabled) {
             when (val currentLocation = appLocationManager.getCurrentLocation()) {
                 is AppLocationManager.LocationResult.Success -> {
