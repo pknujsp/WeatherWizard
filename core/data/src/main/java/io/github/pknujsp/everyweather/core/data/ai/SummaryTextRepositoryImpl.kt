@@ -7,6 +7,7 @@ import io.github.pknujsp.everyweather.core.data.cache.CacheCleaner
 import io.github.pknujsp.everyweather.core.data.cache.CacheManager
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.flow.onEach
@@ -31,6 +32,8 @@ internal class SummaryTextRepositoryImpl(
         val response: MutableList<GenerateContentResponse> = mutableListOf()
         val flow = genModel.generateContentStream(prompt.build()).onEach { generateContentResponse ->
             response.add(generateContentResponse)
+        }.catch {
+            response.clear()
         }.onCompletion {
             if (it == null && response.isNotEmpty()) {
                 cacheManager.put(prompt.id, response)

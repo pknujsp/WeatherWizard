@@ -1,6 +1,7 @@
 package io.github.pknujsp.everyweather.feature.weather.summary
 
 import android.text.util.Linkify
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
@@ -12,6 +13,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
@@ -44,24 +46,26 @@ fun SummaryScreen(model: WeatherSummaryPrompt.Model, onDismiss: () -> Unit, summ
     LaunchedEffect(model) {
         summaryTextViewModel.summarize(model)
     }
+
     AlwaysOnBottomSheetDialog(title = stringResource(id = R.string.title_ai_summary), onDismiss = onDismiss) {
         val scrollState = rememberScrollState()
         val coroutineScope = rememberCoroutineScope()
+
+        LaunchedEffect(uiState.summaryText) {
+            scrollState.scrollTo(scrollState.maxValue)
+        }
 
         Box(modifier = Modifier.fillMaxSize()) {
             Column(modifier = Modifier
                 .fillMaxSize()
                 .verticalScroll(scrollState, true)) {
-                MarkdownText(modifier = Modifier.padding(bottom = 48.dp, start = 12.dp, end = 12.dp),
+                MarkdownText(
+                    modifier = Modifier.padding(bottom = 48.dp, start = 12.dp, end = 12.dp),
                     style = TextStyle(color = Color.Black, fontSize = 15.sp, lineHeight = 3.sp),
                     isTextSelectable = true,
                     markdown = if (uiState.error != null) stringResource(id = uiState.error!!) else uiState.summaryText,
                     linkifyMask = Linkify.WEB_URLS,
-                    onTextLayout = {
-                        coroutineScope.launch {
-                            scrollState.scrollTo(scrollState.maxValue)
-                        }
-                    })
+                )
             }
 
             if (uiState.isSummarizing || uiState.isStopped) {
@@ -80,7 +84,8 @@ private fun BoxScope.SummarizingCard(modifier: Modifier = Modifier, uiState: Sum
     Box(modifier = modifier
         .padding(bottom = 8.dp)
         .align(Alignment.BottomCenter)) {
-        OutlinedButton(onClick = currentStopOrResume, shape = AppShapes.extraLarge) {
+        OutlinedButton(onClick = currentStopOrResume, shape = AppShapes.extraLarge,
+            colors= ButtonDefaults.outlinedButtonColors(containerColor = Color.White)) {
             Row(
                 horizontalArrangement = Arrangement.spacedBy(6.dp, Alignment.CenterHorizontally),
                 verticalAlignment = Alignment.CenterVertically,

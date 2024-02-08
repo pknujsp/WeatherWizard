@@ -163,7 +163,7 @@ sealed interface FeatureType : FeatureIntent, StatefulFeature {
 
     @SuppressLint("BatteryLife")
     data object BatteryOptimization : FeatureType {
-        override val intentAction: String = Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS
+        override val intentAction: String = Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS
         override val title: Int = io.github.pknujsp.everyweather.core.resource.R.string.battery_optimization
         override val message: Int = io.github.pknujsp.everyweather.core.resource.R.string.battery_optimization_enabled
         override val action: Int = io.github.pknujsp.everyweather.core.resource.R.string.open_settings_to_ignore_battery_optimization
