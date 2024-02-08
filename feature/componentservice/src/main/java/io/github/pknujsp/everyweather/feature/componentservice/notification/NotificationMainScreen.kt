@@ -27,7 +27,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import io.github.pknujsp.everyweather.core.common.FeatureType
-import io.github.pknujsp.everyweather.core.common.PermissionType
 import io.github.pknujsp.everyweather.core.resource.R
 import io.github.pknujsp.everyweather.core.ui.TitleTextWithNavigation
 import io.github.pknujsp.everyweather.feature.permoptimize.feature.FeatureStateScreen
@@ -63,7 +62,7 @@ private fun NotificationItem(
 fun NotificationMainScreen(navController: NavController) {
     val context = LocalContext.current
 
-    var permissionGranted by remember { mutableStateOf(FeatureType.POST_NOTIFICATION_PERMISSION.isAvailable(context)) }
+    var permissionGranted by remember { mutableStateOf(FeatureType.Permission.PostNotification.isAvailable(context)) }
     var ignoredBatteryOptimization by remember { mutableStateOf(true) }
 
     val onBackPressedDispatcherOwner = LocalOnBackPressedDispatcherOwner.current
@@ -91,9 +90,9 @@ fun NotificationMainScreen(navController: NavController) {
         } else if (!permissionGranted) {
             PermissionStateScreen(onGranted = {
                 permissionGranted = true
-            }, permissionType = PermissionType.POST_NOTIFICATIONS)
+            }, permissionType = FeatureType.Permission.PostNotification)
         } else {
-            FeatureStateScreen(featureType = FeatureType.BATTERY_OPTIMIZATION) {
+            FeatureStateScreen(featureType = FeatureType.BatteryOptimization) {
                 ignoredBatteryOptimization = true
             }
         }

@@ -21,7 +21,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.pknujsp.everyweather.core.common.FailedReason
 import io.github.pknujsp.everyweather.core.common.FeatureType
-import io.github.pknujsp.everyweather.core.common.PermissionType
 import io.github.pknujsp.everyweather.core.common.StatefulFeature
 import io.github.pknujsp.everyweather.core.model.coordinate.LocationType
 import io.github.pknujsp.everyweather.core.resource.R
@@ -69,10 +68,10 @@ fun WeatherInfoScreen(
         mainState.locationPermissionManager.permissionState) {
         targetLocationType.value?.let { selectedLocationModel ->
             if (selectedLocationModel.locationType is LocationType.CurrentLocation && mainState.locationPermissionManager.permissionState is PermissionState.Denied) {
-                mainState.updateUiState(PermissionType.LOCATION)
+                mainState.updateUiState(FeatureType.Permission.Location)
                 return@LaunchedEffect
             } else if (!mainState.networkState.isNetworkAvailable) {
-                mainState.updateUiState(FeatureType.NETWORK)
+                mainState.updateUiState(FeatureType.Network)
                 return@LaunchedEffect
             }
 
@@ -92,7 +91,7 @@ fun WeatherInfoScreen(
                         } else if (!it.isDependOnNetwork) {
                             mainState.navigate(it)
                         } else {
-                            viewModel.onUnavailableFeature(FeatureType.NETWORK)
+                            viewModel.onUnavailableFeature(FeatureType.Network)
                         }
 
                     }, reload = {
@@ -172,7 +171,7 @@ private fun ErrorScreen(statefulFeature: StatefulFeature, reload: () -> Unit) {
             reload()
         }
     } else {
-        FeatureStateScreen(statefulFeature) {
+        FeatureStateScreen(statefulFeature as FeatureType) {
             reload()
         }
     }

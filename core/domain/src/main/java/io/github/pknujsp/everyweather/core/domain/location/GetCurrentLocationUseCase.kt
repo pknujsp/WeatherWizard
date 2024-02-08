@@ -81,7 +81,7 @@ internal class GetCurrentLocationUseCase @Inject constructor(
                 is AppLocationManager.LocationResult.Failure -> CurrentLocationState.Failure(FailedReason.UNKNOWN)
             }
         } else {
-            CurrentLocationState.Failure(FeatureType.LOCATION_SERVICE)
+            CurrentLocationState.Failure(FeatureType.LocationService)
         }
         mutableCurrentLocationFlow.emit(result)
         return result

@@ -44,8 +44,8 @@ class OngoingNotificationCoroutineService @AssistedInject constructor(
     companion object : IWorker {
         override val name: String = "OngoingNotificationWorker"
         override val requiredFeatures: Array<FeatureType> = arrayOf(
-            FeatureType.NETWORK,
-            FeatureType.POST_NOTIFICATION_PERMISSION,
+            FeatureType.Network,
+            FeatureType.Permission.PostNotification,
         )
     }
 
@@ -62,9 +62,10 @@ class OngoingNotificationCoroutineService @AssistedInject constructor(
         }
         val notificationEntity = remoteViewsModel.loadNotification()
 
-        if (notificationEntity.location.locationType is LocationType.CurrentLocation && !checkFeatureStateAndNotify(arrayOf(FeatureType.LOCATION_PERMISSION,
-                FeatureType.LOCATION_SERVICE,
-                FeatureType.BACKGROUND_LOCATION_PERMISSION), context)) {
+        if (notificationEntity.location.locationType is LocationType.CurrentLocation && !checkFeatureStateAndNotify(arrayOf(FeatureType
+            .Permission.Location,
+                FeatureType.LocationService,
+                FeatureType.Permission.BackgroundLocation), context)) {
             return
         }
 

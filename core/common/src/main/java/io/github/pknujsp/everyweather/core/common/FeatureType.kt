@@ -1,9 +1,12 @@
 package io.github.pknujsp.everyweather.core.common
 
+import android.Manifest
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.location.LocationManager
 import android.net.ConnectivityManager
 import android.net.Uri
@@ -11,44 +14,161 @@ import android.os.Build
 import android.os.PowerManager
 import android.provider.Settings
 import androidx.annotation.RequiresApi
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
+import io.github.pknujsp.everyweather.core.resource.R
 
-enum class FeatureType(
-    protected val intentAction: String,
-    protected val statefulFeature: StatefulFeature,
-) : FeatureIntent, StatefulFeature by statefulFeature {
-    LOCATION_PERMISSION(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, PermissionType.LOCATION) {
+sealed interface FeatureType : FeatureIntent, StatefulFeature {
+    val intentAction: String
 
-        override fun getPendingIntent(context: Context): PendingIntent {
-            return PendingIntent.getActivity(context,
-                this::class.simpleName.hashCode(),
-                getIntent(context),
-                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
+    sealed interface Permission : FeatureType {
+        val permissions: Array<String>
+        val isUnrelatedSdkDevice: Boolean
+
+        data object Location : Permission {
+            override val intentAction: String = Settings.ACTION_APPLICATION_DETAILS_SETTINGS
+            override val permissions: Array<String> =
+                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION)
+            override val title: Int = io.github.pknujsp.everyweather.core.resource.R.string.location_permission
+            override val message: Int = io.github.pknujsp.everyweather.core.resource.R.string.location_permission_denied
+            override val action: Int = io.github.pknujsp.everyweather.core.resource.R.string.grant_permissions
+            override val hasRepairAction: Boolean = true
+            override val hasRetryAction: Boolean = true
+            override val reason: Int = io.github.pknujsp.everyweather.core.resource.R.string.location_permission_description
+            override val isUnrelatedSdkDevice: Boolean = false
+
+            override fun getPendingIntent(context: Context): PendingIntent {
+                return PendingIntent.getActivity(context,
+                    this::class.simpleName.hashCode(),
+                    getIntent(context),
+                    PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
+            }
+
+            override fun getIntent(context: Context) = appSettingsIntent(context)
+
+            override fun isAvailable(context: Context): Boolean {
+                return context.checkSelfPermission(this)
+            }
         }
 
-        override fun getIntent(context: Context) = appSettingsIntent(context)
+        data object ForegroundLocation : Permission {
+            override val intentAction: String = Settings.ACTION_APPLICATION_DETAILS_SETTINGS
 
-        override fun isAvailable(context: Context): Boolean {
-            return context.checkSelfPermission(PermissionType.LOCATION)
+            @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE) override val permissions: Array<String> =
+                arrayOf(Manifest.permission.FOREGROUND_SERVICE_LOCATION)
+            override val isUnrelatedSdkDevice: Boolean = Build.VERSION.SDK_INT < Build.VERSION_CODES.UPSIDE_DOWN_CAKE
+            override val title: Int = io.github.pknujsp.everyweather.core.resource.R.string.foreground_service_location_permission
+            override val message: Int = io.github.pknujsp.everyweather.core.resource.R.string.foreground_service_location_permission_denied
+            override val action: Int = io.github.pknujsp.everyweather.core.resource.R.string.grant_permissions
+            override val hasRepairAction: Boolean = true
+            override val hasRetryAction: Boolean = true
+            override val reason: Int =
+                io.github.pknujsp.everyweather.core.resource.R.string.foreground_service_location_permission_description
+
+            override fun getPendingIntent(context: Context): PendingIntent {
+                return PendingIntent.getActivity(context,
+                    this::class.simpleName.hashCode(),
+                    getIntent(context),
+                    PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
+            }
+
+            override fun getIntent(context: Context) = appSettingsIntent(context)
+
+            override fun isAvailable(context: Context): Boolean {
+                return context.checkSelfPermission(this)
+            }
         }
-    },
-    BACKGROUND_LOCATION_PERMISSION(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, PermissionType.BACKGROUND_LOCATION) {
 
-        override fun getPendingIntent(context: Context): PendingIntent {
-            return PendingIntent.getActivity(context,
-                this::class.simpleName.hashCode(),
-                getIntent(context),
-                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
+
+        data object BackgroundLocation : Permission {
+            override val intentAction: String = Settings.ACTION_APPLICATION_DETAILS_SETTINGS
+
+            @RequiresApi(Build.VERSION_CODES.Q) override val permissions: Array<String> =
+                arrayOf(Manifest.permission.ACCESS_BACKGROUND_LOCATION)
+            override val isUnrelatedSdkDevice: Boolean = Build.VERSION.SDK_INT < Build.VERSION_CODES.Q
+            override val title: Int = io.github.pknujsp.everyweather.core.resource.R.string.background_location_permission
+            override val message: Int = io.github.pknujsp.everyweather.core.resource.R.string.background_location_permission_denied
+            override val action: Int = io.github.pknujsp.everyweather.core.resource.R.string.grant_permissions
+            override val hasRetryAction: Boolean = true
+            override val hasRepairAction: Boolean = true
+            override val reason: Int = io.github.pknujsp.everyweather.core.resource.R.string.background_location_permission_description
+
+            override fun getPendingIntent(context: Context): PendingIntent {
+                return PendingIntent.getActivity(context,
+                    this::class.simpleName.hashCode(),
+                    getIntent(context),
+                    PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
+            }
+
+            override fun getIntent(context: Context) = appSettingsIntent(context)
+
+            override fun isAvailable(context: Context): Boolean {
+                return context.checkSelfPermission(this)
+            }
         }
 
-        override fun getIntent(context: Context) = appSettingsIntent(context)
+        data object PostNotification : Permission {
+            override val intentAction: String = Settings.ACTION_APPLICATION_DETAILS_SETTINGS
 
-        override fun isAvailable(context: Context): Boolean {
-            return context.checkSelfPermission(PermissionType.BACKGROUND_LOCATION)
+            @RequiresApi(Build.VERSION_CODES.TIRAMISU) override val permissions: Array<String> =
+                arrayOf(Manifest.permission.POST_NOTIFICATIONS)
+            override val isUnrelatedSdkDevice: Boolean = Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU
+            override val title: Int = io.github.pknujsp.everyweather.core.resource.R.string.post_notification_permission
+            override val message: Int = io.github.pknujsp.everyweather.core.resource.R.string.post_notification_permission_denied
+            override val action: Int = io.github.pknujsp.everyweather.core.resource.R.string.grant_permissions
+            override val hasRetryAction: Boolean = true
+            override val hasRepairAction: Boolean = true
+            override val reason: Int = io.github.pknujsp.everyweather.core.resource.R.string.post_notification_permission_description
+
+            override fun getPendingIntent(context: Context): PendingIntent {
+                return PendingIntent.getActivity(context,
+                    this::class.simpleName.hashCode(),
+                    getIntent(context),
+                    PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
+            }
+
+            override fun getIntent(context: Context) = appSettingsIntent(context)
+
+            override fun isAvailable(context: Context): Boolean {
+                return context.checkSelfPermission(this)
+            }
         }
-    },
+
+        data object ScheduleExactAlarm : Permission {
+            override val intentAction: String = Settings.ACTION_APPLICATION_DETAILS_SETTINGS
+
+            @RequiresApi(Build.VERSION_CODES.S) override val permissions: Array<String> = arrayOf(Manifest.permission.SCHEDULE_EXACT_ALARM)
+            override val isUnrelatedSdkDevice: Boolean = Build.VERSION.SDK_INT < Build.VERSION_CODES.S
+            override val title: Int = io.github.pknujsp.everyweather.core.resource.R.string.exact_alarm_permission
+            override val message: Int = io.github.pknujsp.everyweather.core.resource.R.string.exact_alarm_permission_denied
+            override val action: Int = io.github.pknujsp.everyweather.core.resource.R.string.grant_permissions
+            override val hasRetryAction: Boolean = true
+            override val hasRepairAction: Boolean = true
+            override val reason: Int = io.github.pknujsp.everyweather.core.resource.R.string.exact_alarm_permission_description
+
+            override fun getPendingIntent(context: Context): PendingIntent {
+                return PendingIntent.getActivity(context,
+                    this::class.simpleName.hashCode(),
+                    getIntent(context),
+                    PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
+            }
+
+            override fun getIntent(context: Context) = appSettingsIntent(context)
+
+            override fun isAvailable(context: Context): Boolean {
+                return context.checkSelfPermission(this)
+            }
+        }
+    }
 
     @SuppressLint("BatteryLife")
-    BATTERY_OPTIMIZATION(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS, FailedReason.BATTERY_OPTIMIZATION) {
+    data object BatteryOptimization : FeatureType {
+        override val intentAction: String = Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS
+        override val title: Int = io.github.pknujsp.everyweather.core.resource.R.string.battery_optimization
+        override val message: Int = io.github.pknujsp.everyweather.core.resource.R.string.battery_optimization_enabled
+        override val action: Int = io.github.pknujsp.everyweather.core.resource.R.string.open_settings_to_ignore_battery_optimization
+        override val hasRetryAction: Boolean = false
+        override val hasRepairAction: Boolean = true
 
         override fun getPendingIntent(context: Context): PendingIntent {
             return PendingIntent.getActivity(context,
@@ -64,9 +184,16 @@ enum class FeatureType(
                 context.packageName)
         }
 
-    },
+    }
 
-    NETWORK(Settings.ACTION_WIRELESS_SETTINGS, FailedReason.NETWORK_UNAVAILABLE) {
+    data object Network : FeatureType {
+        override val intentAction: String = Settings.ACTION_WIRELESS_SETTINGS
+        override val title: Int = R.string.network
+        override val message: Int = R.string.network_unavailable
+        override val action: Int = io.github.pknujsp.everyweather.core.resource.R.string.open_settings_for_network
+        override val hasRetryAction: Boolean = true
+        override val hasRepairAction: Boolean = true
+
         override fun getPendingIntent(context: Context): PendingIntent {
             return PendingIntent.getActivity(context,
                 this::class.simpleName.hashCode(),
@@ -80,8 +207,16 @@ enum class FeatureType(
             val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
             return connectivityManager.activeNetwork != null
         }
-    },
-    LOCATION_SERVICE(Settings.ACTION_LOCATION_SOURCE_SETTINGS, FailedReason.LOCATION_SERVICE_DISABLED) {
+    }
+
+    data object LocationService : FeatureType {
+        override val intentAction: String = Settings.ACTION_LOCATION_SOURCE_SETTINGS
+        override val title: Int = io.github.pknujsp.everyweather.core.resource.R.string.location_service
+        override val message: Int = io.github.pknujsp.everyweather.core.resource.R.string.location_service_disabled
+        override val action: Int = io.github.pknujsp.everyweather.core.resource.R.string.open_settings_for_location_service
+        override val hasRetryAction: Boolean = true
+        override val hasRepairAction: Boolean = true
+
         override fun getPendingIntent(context: Context): PendingIntent {
             return PendingIntent.getActivity(context,
                 this::class.simpleName.hashCode(),
@@ -97,40 +232,7 @@ enum class FeatureType(
             val locationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
             return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
         }
-    },
-    POST_NOTIFICATION_PERMISSION(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, PermissionType.POST_NOTIFICATIONS) {
-
-        override fun getPendingIntent(context: Context): PendingIntent {
-            return PendingIntent.getActivity(context,
-                this::class.simpleName.hashCode(),
-                getIntent(context),
-                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
-        }
-
-        override fun getIntent(context: Context) = appSettingsIntent(context)
-
-        override fun isAvailable(context: Context): Boolean {
-            return context.checkSelfPermission(PermissionType.POST_NOTIFICATIONS)
-        }
-    },
-
-    @RequiresApi(Build.VERSION_CODES.S)
-    SCHEDULE_EXACT_ALARM_PERMISSION(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM,
-        PermissionType.SCHEDULE_EXACT_ALARM_ABOVE_EQUALS_ON_SDK_31) {
-
-        override fun getPendingIntent(context: Context): PendingIntent {
-            return PendingIntent.getActivity(context,
-                this::class.simpleName.hashCode(),
-                getIntent(context),
-                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
-        }
-
-        override fun getIntent(context: Context) = appSettingsIntent(context)
-
-        override fun isAvailable(context: Context): Boolean {
-            return context.checkSelfPermission(PermissionType.SCHEDULE_EXACT_ALARM_ABOVE_EQUALS_ON_SDK_31)
-        }
-    }, ;
+    }
 
     private companion object {
         fun FeatureType.appSettingsIntent(context: Context) = Intent(intentAction).apply {
@@ -141,16 +243,6 @@ enum class FeatureType(
         fun FeatureType.actionIntent() = Intent(intentAction)
     }
 }
-
-
-fun PermissionType.asFeatureType() = when (this) {
-    PermissionType.LOCATION -> FeatureType.LOCATION_PERMISSION
-    PermissionType.BACKGROUND_LOCATION -> FeatureType.BACKGROUND_LOCATION_PERMISSION
-    PermissionType.POST_NOTIFICATIONS -> FeatureType.POST_NOTIFICATION_PERMISSION
-    PermissionType.SCHEDULE_EXACT_ALARM_ABOVE_EQUALS_ON_SDK_31 -> FeatureType.SCHEDULE_EXACT_ALARM_PERMISSION
-    PermissionType.FOREGROUND_SERVICE_LOCATION -> FeatureType.LOCATION_PERMISSION
-}
-
 
 interface FeatureIntent {
     fun isAvailable(context: Context): Boolean
@@ -166,3 +258,18 @@ interface StatefulFeature {
     val hasRepairAction: Boolean
     val hasRetryAction: Boolean
 }
+
+/**
+ * 해당 권한을 부여해야 하는 이유를 설명해야 하는지 확인
+ */
+fun Activity.shouldShowRequestPermissionRationale(permissionType: FeatureType.Permission): Boolean =
+    permissionType.permissions.any { ActivityCompat.shouldShowRequestPermissionRationale(this, it) }
+
+
+/**
+ * 해당 권한을 고려할 필요가 없는 SDK 버전이라면 즉시 true를 반환
+ */
+fun Context.checkSelfPermission(permissionType: FeatureType.Permission): Boolean =
+    permissionType.isUnrelatedSdkDevice || permissionType.permissions.all {
+        ContextCompat.checkSelfPermission(this, it) == PackageManager.PERMISSION_GRANTED
+    }

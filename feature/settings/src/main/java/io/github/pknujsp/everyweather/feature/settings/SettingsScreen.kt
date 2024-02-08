@@ -20,7 +20,6 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import io.github.pknujsp.everyweather.core.common.FeatureType
-import io.github.pknujsp.everyweather.core.common.PermissionType
 import io.github.pknujsp.everyweather.core.common.manager.AppComponentManagerFactory
 import io.github.pknujsp.everyweather.core.model.notification.enums.RefreshInterval
 import io.github.pknujsp.everyweather.core.model.weather.common.WeatherProvider
@@ -49,8 +48,8 @@ fun SettingsScreen(navController: NavController, viewModel: SettingsViewModel = 
         onBackPressedDispatcherOwner?.onBackPressedDispatcher
     }
 
-    val batteryOptimizationFeatureState = rememberAppFeatureState(featureType = FeatureType.BATTERY_OPTIMIZATION)
-    val backgroundLocationPermissionManager = rememberPermissionManager(defaultPermissionType = PermissionType.BACKGROUND_LOCATION)
+    val batteryOptimizationFeatureState = rememberAppFeatureState(featureType = FeatureType.BatteryOptimization)
+    val backgroundLocationPermissionManager = rememberPermissionManager(defaultPermissionType = FeatureType.Permission.BackgroundLocation)
 
     Column {
         TitleTextWithNavigation(title = stringResource(id = R.string.nav_settings), onClickNavigation = {
@@ -102,7 +101,7 @@ fun SettingsScreen(navController: NavController, viewModel: SettingsViewModel = 
                 })
             }
             if (backgroundLocationPermissionManager.permissionState !is PermissionState.Granted) {
-                SmallFeatureStateScreen(Modifier.padding(8.dp), state = FeatureType.BACKGROUND_LOCATION_PERMISSION, onClickAction = {
+                SmallFeatureStateScreen(Modifier.padding(8.dp), state = FeatureType.Permission.BackgroundLocation, onClickAction = {
                     backgroundLocationPermissionManager.showSettingsActivity()
                 })
             }
@@ -112,7 +111,7 @@ fun SettingsScreen(navController: NavController, viewModel: SettingsViewModel = 
                     batteryOptimizationFeatureState.hideSettingsActivity()
                 }
             } else if (backgroundLocationPermissionManager.isShowSettingsActivity) {
-                ShowAppSettingsActivity(featureType = FeatureType.BACKGROUND_LOCATION_PERMISSION) {
+                ShowAppSettingsActivity(featureType = FeatureType.Permission.BackgroundLocation) {
                     backgroundLocationPermissionManager.hideSettingsActivity()
                 }
             }

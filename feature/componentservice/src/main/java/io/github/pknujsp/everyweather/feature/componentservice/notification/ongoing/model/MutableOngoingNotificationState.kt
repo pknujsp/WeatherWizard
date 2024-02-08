@@ -62,7 +62,7 @@ private class MutableOngoingNotificationState(
 fun rememberOngoingNotificationState(
     navController: NavController, ongoingNotificationUiState: OngoingNotificationUiState, context: Context = LocalContext.current
 ): OngoingNotificationState {
-    val featureState = rememberAppFeatureState(featureType = FeatureType.BATTERY_OPTIMIZATION)
+    val featureState = rememberAppFeatureState(featureType = FeatureType.BatteryOptimization)
     val snackbarHostState = remember { SnackbarHostState() }
 
     val state = remember(navController, ongoingNotificationUiState) {

@@ -29,7 +29,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import io.github.pknujsp.everyweather.core.common.FeatureType
-import io.github.pknujsp.everyweather.core.common.PermissionType
 import io.github.pknujsp.everyweather.core.model.ActionState
 import io.github.pknujsp.everyweather.core.model.coordinate.LocationType
 import io.github.pknujsp.everyweather.core.model.coordinate.LocationTypeModel
@@ -64,8 +63,8 @@ fun WidgetConfigureScreen(
     val actionState = viewModel.action
 
     val coroutineScope = rememberCoroutineScope()
-    val batteryOptimizationFeatureState = rememberAppFeatureState(featureType = FeatureType.BATTERY_OPTIMIZATION)
-    val backgroundLocationPermissionManager = rememberPermissionManager(defaultPermissionType = PermissionType.BACKGROUND_LOCATION)
+    val batteryOptimizationFeatureState = rememberAppFeatureState(featureType = FeatureType.BatteryOptimization)
+    val backgroundLocationPermissionManager = rememberPermissionManager(defaultPermissionType = FeatureType.Permission.BackgroundLocation)
     val snackbarHostState: SnackbarHostState = remember { SnackbarHostState() }
 
     LaunchedEffect(actionState) {
@@ -127,7 +126,7 @@ fun WidgetConfigureScreen(
                         }
                         if (backgroundLocationPermissionManager.permissionState !is PermissionState.Granted) {
                             SmallFeatureStateScreen(Modifier.padding(8.dp),
-                                state = FeatureType.BACKGROUND_LOCATION_PERMISSION,
+                                state = FeatureType.Permission.BackgroundLocation,
                                 onClickAction = {
                                     backgroundLocationPermissionManager.showSettingsActivity()
                                 })
@@ -152,8 +151,8 @@ fun WidgetConfigureScreen(
                             if (backgroundLocationPermissionManager.permissionState !is PermissionState.Granted) {
                                 coroutineScope.launch {
                                     showSnackbar(context,
-                                        FeatureType.BACKGROUND_LOCATION_PERMISSION.message,
-                                        FeatureType.BACKGROUND_LOCATION_PERMISSION.action,
+                                        FeatureType.Permission.BackgroundLocation.message,
+                                        FeatureType.Permission.BackgroundLocation.action,
                                         snackbarHostState) {
                                         backgroundLocationPermissionManager.showSettingsActivity()
                                     }
@@ -173,7 +172,7 @@ fun WidgetConfigureScreen(
             batteryOptimizationFeatureState.hideSettingsActivity()
         }
     } else if (backgroundLocationPermissionManager.isShowSettingsActivity) {
-        ShowAppSettingsActivity(featureType = FeatureType.BACKGROUND_LOCATION_PERMISSION) {
+        ShowAppSettingsActivity(featureType = FeatureType.Permission.BackgroundLocation) {
             backgroundLocationPermissionManager.hideSettingsActivity()
         }
     }

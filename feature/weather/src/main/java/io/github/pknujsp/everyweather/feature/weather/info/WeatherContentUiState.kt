@@ -23,7 +23,6 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import androidx.core.view.WindowInsetsControllerCompat
 import io.github.pknujsp.everyweather.core.common.FeatureType
-import io.github.pknujsp.everyweather.core.common.PermissionType
 import io.github.pknujsp.everyweather.core.common.StatefulFeature
 import io.github.pknujsp.everyweather.core.common.asActivity
 import io.github.pknujsp.everyweather.core.data.favorite.SelectedLocationModel
@@ -117,7 +116,7 @@ private class MutableWeatherMainState @OptIn(ExperimentalMaterial3Api::class) co
             if (networkState.isNetworkAvailable) {
                 weatherContentUiState.refresh()
             } else {
-                updateUiState(FeatureType.NETWORK)
+                updateUiState(FeatureType.Network)
             }
         }
     }
@@ -147,7 +146,7 @@ fun rememberWeatherMainState(
     }
 
     val networkState = rememberAppNetworkState()
-    val locationPermissionManager = rememberPermissionManager(defaultPermissionType = PermissionType.LOCATION)
+    val locationPermissionManager = rememberPermissionManager(defaultPermissionType = FeatureType.Permission.Location)
 
     val state: WeatherMainState = remember {
         MutableWeatherMainState(

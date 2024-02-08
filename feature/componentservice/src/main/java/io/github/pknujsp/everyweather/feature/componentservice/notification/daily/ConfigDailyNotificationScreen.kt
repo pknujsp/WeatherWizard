@@ -24,7 +24,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import io.github.pknujsp.everyweather.core.common.PermissionType
+import io.github.pknujsp.everyweather.core.common.FeatureType
 import io.github.pknujsp.everyweather.core.model.coordinate.LocationType
 import io.github.pknujsp.everyweather.core.model.coordinate.LocationTypeModel
 import io.github.pknujsp.everyweather.core.model.notification.enums.DailyNotificationType
@@ -53,7 +53,7 @@ fun ConfigDailyNotificationScreen(navController: NavController, viewModel: Confi
         })
     }
     var permissionGranted by remember { mutableStateOf(false) }
-    PermissionStateScreen(permissionType = PermissionType.SCHEDULE_EXACT_ALARM_ABOVE_EQUALS_ON_SDK_31) {
+    PermissionStateScreen(permissionType = FeatureType.Permission.ScheduleExactAlarm) {
         permissionGranted = true
     }
 

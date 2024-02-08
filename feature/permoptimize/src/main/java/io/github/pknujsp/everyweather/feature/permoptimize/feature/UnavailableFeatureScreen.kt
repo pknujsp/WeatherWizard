@@ -14,7 +14,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import io.github.pknujsp.everyweather.core.common.PermissionType
+import io.github.pknujsp.everyweather.core.common.FeatureType
 import io.github.pknujsp.everyweather.core.common.StatefulFeature
 import io.github.pknujsp.everyweather.core.ui.button.PrimaryButton
 
@@ -23,7 +23,7 @@ fun UnavailableFeatureScreen(featureType: StatefulFeature, onClick: () -> Unit) 
     FailedScreen(title = featureType.title,
         alertMessage = featureType.message,
         actionMessage = featureType.action,
-        reason = if (featureType is PermissionType) featureType.reason else null,
+        reason = if (featureType is FeatureType) featureType.reason else null,
         onClick = onClick)
 }
 

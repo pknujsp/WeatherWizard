@@ -8,7 +8,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import io.github.pknujsp.everyweather.core.common.FeatureType
-import io.github.pknujsp.everyweather.core.common.PermissionType
 import io.github.pknujsp.everyweather.core.model.notification.enums.RefreshInterval
 import io.github.pknujsp.everyweather.feature.permoptimize.feature.AppFeatureState
 import io.github.pknujsp.everyweather.feature.permoptimize.feature.rememberAppFeatureState
@@ -21,8 +20,8 @@ import io.github.pknujsp.everyweather.feature.permoptimize.permission.rememberPe
 fun rememberWidgetConfigureState(
     context: Context = LocalContext.current, refreshInterval: RefreshInterval
 ): WidgetConfigureState {
-    val batteryOptimizationFeatureState = rememberAppFeatureState(featureType = FeatureType.BATTERY_OPTIMIZATION)
-    val backgroundLocationPermissionManager = rememberPermissionManager(defaultPermissionType = PermissionType.BACKGROUND_LOCATION)
+    val batteryOptimizationFeatureState = rememberAppFeatureState(featureType = FeatureType.BatteryOptimization)
+    val backgroundLocationPermissionManager = rememberPermissionManager(defaultPermissionType = FeatureType.Permission.BackgroundLocation)
 
     val state = remember(refreshInterval) {
         MutableWidgetConfigureState(batteryOptimizationFeatureState, backgroundLocationPermissionManager)
