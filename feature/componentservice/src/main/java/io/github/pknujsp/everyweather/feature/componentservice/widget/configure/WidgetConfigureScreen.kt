@@ -2,9 +2,7 @@ package io.github.pknujsp.everyweather.feature.componentservice.widget.configure
 
 import android.app.Activity
 import android.appwidget.AppWidgetManager
-import android.content.Context
 import android.content.Intent
-import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -12,10 +10,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
-import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.SnackbarResult
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -44,11 +39,8 @@ import io.github.pknujsp.everyweather.core.widgetnotification.remoteview.RemoteV
 import io.github.pknujsp.everyweather.feature.componentservice.AppComponentServiceReceiver
 import io.github.pknujsp.everyweather.feature.componentservice.ComponentPendingIntentManager
 import io.github.pknujsp.everyweather.feature.componentservice.RemoteViewsScreen
-import io.github.pknujsp.everyweather.feature.permoptimize.feature.ShowAppSettingsActivity
 import io.github.pknujsp.everyweather.feature.permoptimize.feature.SmallFeatureStateScreen
-import io.github.pknujsp.everyweather.feature.permoptimize.feature.rememberAppFeatureState
 import io.github.pknujsp.everyweather.feature.permoptimize.permission.PermissionState
-import io.github.pknujsp.everyweather.feature.permoptimize.permission.rememberPermissionManager
 import io.github.pknujsp.everyweather.feature.searchlocation.SearchLocationScreen
 import kotlinx.coroutines.launch
 
@@ -61,11 +53,8 @@ fun WidgetConfigureScreen(
     val widget = viewModel.widget
     var showSearch by remember { mutableStateOf(false) }
     val actionState = viewModel.action
-
     val coroutineScope = rememberCoroutineScope()
-    val batteryOptimizationFeatureState = rememberAppFeatureState(featureType = FeatureType.BatteryOptimization)
-    val backgroundLocationPermissionManager = rememberPermissionManager(defaultPermissionType = FeatureType.Permission.BackgroundLocation)
-    val snackbarHostState: SnackbarHostState = remember { SnackbarHostState() }
+    val configureState = rememberWidgetConfigureState()
 
     LaunchedEffect(actionState) {
         when (actionState) {
@@ -75,7 +64,7 @@ fun WidgetConfigureScreen(
 
             ConfigureActionState.NO_LOCATION_IS_SELECTED -> {
                 coroutineScope.launch {
-                    showSnackbar(context, message = actionState.message, action = null, snackbarHostState)
+                    configureState.showSnackbar(context, message = actionState.message, action = null)
                 }
             }
 
@@ -97,7 +86,7 @@ fun WidgetConfigureScreen(
             showSearch = false
         })
     } else {
-        CustomBox(snackbarHost = { SnackbarHost(hostState = snackbarHostState) }) {
+        CustomBox(snackbarHost = { SnackbarHost(hostState = configureState.snackHostState) }) {
             Column {
                 TitleTextWithNavigation(title = stringResource(id = R.string.configure_widget)) {
                     (context as Activity).finish()
@@ -117,18 +106,18 @@ fun WidgetConfigureScreen(
                         widget.weatherProvider = it
                     }
                     if (viewModel.refreshInterval != RefreshInterval.MANUAL) {
-                        if (!batteryOptimizationFeatureState.isAvailable) {
+                        if (!configureState.batteryOptimizationFeatureState.isAvailable) {
                             SmallFeatureStateScreen(Modifier.padding(8.dp),
-                                state = batteryOptimizationFeatureState.featureType,
+                                state = configureState.batteryOptimizationFeatureState.featureType,
                                 onClickAction = {
-                                    batteryOptimizationFeatureState.showSettingsActivity()
+                                    configureState.batteryOptimizationFeatureState.showSettingsActivity()
                                 })
                         }
-                        if (backgroundLocationPermissionManager.permissionState !is PermissionState.Granted) {
+                        if (configureState.backgroundLocationPermissionManager.permissionState !is PermissionState.Granted) {
                             SmallFeatureStateScreen(Modifier.padding(8.dp),
                                 state = FeatureType.Permission.BackgroundLocation,
                                 onClickAction = {
-                                    backgroundLocationPermissionManager.showSettingsActivity()
+                                    configureState.backgroundLocationPermissionManager.showSettingsActivity()
                                 })
                         }
                     }
@@ -136,44 +125,29 @@ fun WidgetConfigureScreen(
 
                 Box(modifier = Modifier.padding(12.dp)) {
                     SecondaryButton(text = stringResource(id = R.string.save), modifier = Modifier.fillMaxWidth()) {
-                        if (viewModel.refreshInterval != RefreshInterval.MANUAL) {
-                            if (!batteryOptimizationFeatureState.isAvailable) {
-                                coroutineScope.launch {
-                                    showSnackbar(context,
-                                        batteryOptimizationFeatureState.featureType.message,
-                                        batteryOptimizationFeatureState.featureType.action,
-                                        snackbarHostState) {
-                                        batteryOptimizationFeatureState.showSettingsActivity()
-                                    }
+                        if (!configureState.batteryOptimizationFeatureState.isAvailable) {
+                            coroutineScope.launch {
+                                configureState.showSnackbar(
+                                    context, configureState.batteryOptimizationFeatureState.featureType.message,
+                                    configureState.batteryOptimizationFeatureState.featureType.action,
+                                ) {
+                                    configureState.batteryOptimizationFeatureState.showSettingsActivity()
                                 }
-                                return@SecondaryButton
                             }
-                            if (backgroundLocationPermissionManager.permissionState !is PermissionState.Granted) {
-                                coroutineScope.launch {
-                                    showSnackbar(context,
-                                        FeatureType.Permission.BackgroundLocation.message,
-                                        FeatureType.Permission.BackgroundLocation.action,
-                                        snackbarHostState) {
-                                        backgroundLocationPermissionManager.showSettingsActivity()
-                                    }
+                        } else if (configureState.backgroundLocationPermissionManager.permissionState is PermissionState.Denied) {
+                            coroutineScope.launch {
+                                configureState.showSnackbar(context,
+                                    FeatureType.Permission.BackgroundLocation.message,
+                                    FeatureType.Permission.BackgroundLocation.action) {
+                                    configureState.backgroundLocationPermissionManager.showSettingsActivity()
                                 }
-                                return@SecondaryButton
                             }
+                        } else {
+                            widget.save()
                         }
-                        widget.save()
                     }
                 }
             }
-        }
-    }
-
-    if (batteryOptimizationFeatureState.isShowSettingsActivity) {
-        ShowAppSettingsActivity(featureType = batteryOptimizationFeatureState.featureType) {
-            batteryOptimizationFeatureState.hideSettingsActivity()
-        }
-    } else if (backgroundLocationPermissionManager.isShowSettingsActivity) {
-        ShowAppSettingsActivity(featureType = FeatureType.Permission.BackgroundLocation) {
-            backgroundLocationPermissionManager.hideSettingsActivity()
         }
     }
 
@@ -191,28 +165,6 @@ fun createWidgetAndFinish(activity: Activity, widgetId: Int) {
     activity.finish()
 }
 
-private suspend fun showSnackbar(
-    context: Context,
-    @StringRes message: Int,
-    @StringRes action: Int? = null,
-    snackbarHostState: SnackbarHostState,
-    onAction: (() -> Unit)? = null,
-) {
-    if (onAction == null && action == null) {
-        snackbarHostState.showSnackbar(message = context.getString(message))
-    } else {
-        when (snackbarHostState.showSnackbar(message = context.getString(message),
-            actionLabel = context.getString(action!!),
-            duration = SnackbarDuration.Short)) {
-            SnackbarResult.ActionPerformed -> {
-                onAction!!.invoke()
-            }
-
-            SnackbarResult.Dismissed -> {
-            }
-        }
-    }
-}
 
 enum class ConfigureActionState : ActionState {
     NO_LOCATION_IS_SELECTED {

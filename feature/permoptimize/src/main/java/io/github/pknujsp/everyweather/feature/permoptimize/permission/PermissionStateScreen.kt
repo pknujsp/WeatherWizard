@@ -15,7 +15,6 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun PermissionStateScreen(permissionType: FeatureType.Permission, onGranted: () -> Unit) {
-    var openSettingsActivity by remember { mutableStateOf(false) }
     val permissionManager = rememberPermissionManager(defaultPermissionType = permissionType)
     val coroutineScope = rememberCoroutineScope()
     val grantedCallback by rememberUpdatedState(newValue = onGranted)
@@ -26,20 +25,18 @@ fun PermissionStateScreen(permissionType: FeatureType.Permission, onGranted: () 
             Box {
                 UnavailableFeatureScreen(featureType = permissionManager.permissionState.permissionType) {
                     coroutineScope.launch {
-                        permissionManager.fetchPermissionState()
+                        permissionManager.showSettingsActivity()
                     }
                 }
-                if (openSettingsActivity) {
+                if (permissionManager.isShowSettingsActivity) {
                     ShowAppSettingsActivity(permissionManager.permissionState.permissionType) {
-                        openSettingsActivity = false
                         coroutineScope.launch {
+                            permissionManager.hideSettingsActivity()
                             permissionManager.fetchPermissionState()
                         }
                     }
                 }
             }
         }
-
-        else -> {}
     }
 }

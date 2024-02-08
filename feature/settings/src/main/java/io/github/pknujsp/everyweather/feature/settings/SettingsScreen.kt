@@ -113,6 +113,7 @@ fun SettingsScreen(navController: NavController, viewModel: SettingsViewModel = 
             } else if (backgroundLocationPermissionManager.isShowSettingsActivity) {
                 ShowAppSettingsActivity(featureType = FeatureType.Permission.BackgroundLocation) {
                     backgroundLocationPermissionManager.hideSettingsActivity()
+                    backgroundLocationPermissionManager.fetchPermissionState()
                 }
             }
         }

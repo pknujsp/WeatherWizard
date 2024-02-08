@@ -137,7 +137,19 @@ sealed interface FeatureType : FeatureIntent, StatefulFeature {
         data object ScheduleExactAlarm : Permission {
             override val intentAction: String = Settings.ACTION_APPLICATION_DETAILS_SETTINGS
 
-            @RequiresApi(Build.VERSION_CODES.S) override val permissions: Array<String> = arrayOf(Manifest.permission.SCHEDULE_EXACT_ALARM)
+            @RequiresApi(Build.VERSION_CODES.S) override val permissions: Array<String> =
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    arrayOf(
+                        Manifest.permission.SCHEDULE_EXACT_ALARM,
+                        Manifest.permission.USE_EXACT_ALARM,
+                    )
+                } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                    arrayOf(
+                        Manifest.permission.SCHEDULE_EXACT_ALARM,
+                    )
+                } else {
+                    emptyArray()
+                }
             override val isUnrelatedSdkDevice: Boolean = Build.VERSION.SDK_INT < Build.VERSION_CODES.S
             override val title: Int = io.github.pknujsp.everyweather.core.resource.R.string.exact_alarm_permission
             override val message: Int = io.github.pknujsp.everyweather.core.resource.R.string.exact_alarm_permission_denied
