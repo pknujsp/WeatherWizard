@@ -45,6 +45,7 @@ import io.github.pknujsp.everyweather.core.ui.button.SecondaryButton
 import io.github.pknujsp.everyweather.core.ui.TitleTextWithNavigation
 import io.github.pknujsp.everyweather.core.ui.box.CustomBox
 import io.github.pknujsp.everyweather.core.ui.dialog.BottomSheet
+import io.github.pknujsp.everyweather.core.ui.dialog.CustomModalBottomSheet
 import io.github.pknujsp.everyweather.core.ui.dialog.DialogScreen
 import io.github.pknujsp.everyweather.core.ui.list.EmptyListScreen
 import io.github.pknujsp.everyweather.core.ui.theme.AppShapes
@@ -142,13 +143,13 @@ private fun Item(
                 }
 
                 if (isClickedDelete) {
-                    BottomSheet(
+                    CustomModalBottomSheet(
                         onDismissRequest = {
                             isClickedDelete = false
                         },
                     ) {
                         val message =
-                            stringResource(id = io.github.pknujsp.everyweather.core.resource.R.string.delete_daily_notification_message).let {
+                            stringResource(id = R.string.delete_daily_notification_message).let {
                                 "${item.timeText} $it"
                             }
                         DialogScreen(title = stringResource(id = R.string.delete),

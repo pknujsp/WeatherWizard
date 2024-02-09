@@ -19,6 +19,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -46,6 +47,7 @@ import io.github.pknujsp.everyweather.core.model.weather.common.WeatherProvider
 import io.github.pknujsp.everyweather.core.resource.R
 import io.github.pknujsp.everyweather.core.ui.button.SecondaryButton
 import io.github.pknujsp.everyweather.core.ui.dialog.BottomSheet
+import io.github.pknujsp.everyweather.core.ui.dialog.CustomModalBottomSheet
 
 
 @Composable
@@ -134,7 +136,7 @@ fun <E : IEnum> BottomSheetSettingItem(
     }
 
     if (expanded) {
-        BottomSheet(
+        CustomModalBottomSheet(
             onDismissRequest = {
                 onSelectedItem(null)
                 expanded = false
@@ -189,7 +191,7 @@ fun <E : IEnum> BottomSheetDialog(
     onDismissRequest: () -> Unit
 ) {
     if (expanded()) {
-        BottomSheet(
+        CustomModalBottomSheet(
             onDismissRequest = {
                 onSelectedItem(null)
                 onDismissRequest()
@@ -272,9 +274,8 @@ fun BottomSheetSettingItem(
     }
 
     if (isBottomSheetExpanded) {
-        BottomSheet(
+        CustomModalBottomSheet(
             onDismissRequest = onDismissRequest,
-            limitHeight = limitHeight,
         ) {
             content()
         }
@@ -294,8 +295,7 @@ fun ColumnScope.LocationScreen(selectedLocation: LocationTypeModel, onSelectedIt
             horizontalArrangement = Arrangement.spacedBy(20.dp),
             modifier = Modifier.align(Alignment.End)) {
             Text(text = selectedLocation.address, style = TextStyle(fontSize = 16.sp))
-            SecondaryButton(text = stringResource(id = R.string.select_location),
-                modifier = Modifier.wrapContentSize()) {
+            SecondaryButton(text = stringResource(id = R.string.select_location), modifier = Modifier.wrapContentSize()) {
                 onClick()
             }
         }
@@ -317,14 +317,13 @@ fun WeatherProvidersScreen(weatherProvider: WeatherProvider, onSelectedItem: (We
 fun AlwaysOnBottomSheetDialog(
     modifier: Modifier = Modifier, title: String, onDismiss: () -> Unit, content: @Composable ColumnScope.() -> Unit
 ) {
-    BottomSheet(
+    CustomModalBottomSheet(
         onDismissRequest = {
             onDismiss()
         },
     ) {
-        Column {
-            TitleTextWithoutNavigation(title = title)
-            content()
-        }
+        TitleTextWithoutNavigation(title = title)
+        content()
     }
+
 }

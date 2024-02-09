@@ -54,6 +54,7 @@ import io.github.pknujsp.everyweather.core.ui.RootNavControllerViewModel
 import io.github.pknujsp.everyweather.core.ui.button.SecondaryButton
 import io.github.pknujsp.everyweather.core.ui.TitleTextWithNavigation
 import io.github.pknujsp.everyweather.core.ui.dialog.BottomSheet
+import io.github.pknujsp.everyweather.core.ui.dialog.CustomModalBottomSheet
 import io.github.pknujsp.everyweather.core.ui.dialog.DialogScreen
 import io.github.pknujsp.everyweather.core.ui.list.EmptyListScreen
 import io.github.pknujsp.everyweather.core.ui.theme.AppShapes
@@ -269,7 +270,7 @@ private fun DeleteDialog(
     address: String, onDismissRequest: () -> Unit,
     onConfirmation: () -> Unit,
 ) {
-    BottomSheet(
+    CustomModalBottomSheet(
         onDismissRequest = onDismissRequest,
     ) {
         val message = stringResource(id = R.string.delete_favorite_location_message).let {

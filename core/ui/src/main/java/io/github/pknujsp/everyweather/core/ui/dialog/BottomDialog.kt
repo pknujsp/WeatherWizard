@@ -13,18 +13,31 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.absoluteOffset
+import androidx.compose.foundation.layout.absolutePadding
 import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.consumeWindowInsets
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBars
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeContentPadding
+import androidx.compose.foundation.layout.windowInsetsBottomHeight
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.ModalBottomSheetDefaults
+import androidx.compose.material3.ModalBottomSheetProperties
 import androidx.compose.material3.SheetState
 import androidx.compose.material3.SheetValue.Expanded
 import androidx.compose.material3.SheetValue.Hidden
@@ -35,6 +48,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionContext
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -80,7 +94,7 @@ fun BottomSheet(
     onDismissRequest: () -> Unit,
     navigationBarHeight: Dp = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding(),
     sheetState: SheetState = rememberModalBottomSheetState(),
-    shape: Shape = AppShapes.large,
+    shape: Shape = AppShapes.extraLarge,
     containerColor: Color = BottomSheetDefaults.ContainerColor,
     contentColor: Color = contentColorFor(containerColor),
     tonalElevation: Dp = BottomSheetDefaults.Elevation,
@@ -112,7 +126,7 @@ fun BottomSheet(
     ) {
         BoxWithConstraints(Modifier.fillMaxSize()) {
             val density = LocalDensity.current.density
-            val ratio = if (limitHeight) 0.48 else 0.8
+            val ratio = if (limitHeight) 0.53 else 0.65
             val maxHeightDp = ((constraints.maxHeight / density) * ratio).roundToInt().dp
 
             Scrim(
@@ -142,19 +156,6 @@ fun BottomSheet(
             }
         }
     }
-
-/*    LocalContext.current.asActivity()?.window?.let { window ->
-        DisposableEffect(Unit) {
-            val firstState: Boolean
-            val windowInsetsController: WindowInsetsControllerCompat = WindowCompat.getInsetsController(window, window.decorView).apply {
-                firstState = isAppearanceLightNavigationBars
-                isAppearanceLightNavigationBars = false
-            }
-            onDispose {
-                windowInsetsController.isAppearanceLightNavigationBars = firstState
-            }
-        }
-    }*/
 
     if (sheetState.hasExpandedState) {
         LaunchedEffect(sheetState) {
@@ -347,4 +348,45 @@ private class ModalBottomSheetWindow(
     override fun onGlobalLayout() {
         // No-op
     }
+}
+
+
+@Composable
+@ExperimentalMaterial3Api
+fun CustomModalBottomSheet(
+    onDismissRequest: () -> Unit,
+    modifier: Modifier = Modifier,
+    sheetState: SheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
+    sheetMaxWidth: Dp = BottomSheetDefaults.SheetMaxWidth,
+    shape: Shape = AppShapes.extraLarge,
+    containerColor: Color = BottomSheetDefaults.ContainerColor,
+    contentColor: Color = contentColorFor(containerColor),
+    tonalElevation: Dp = BottomSheetDefaults.Elevation,
+    scrimColor: Color = BottomSheetDefaults.ScrimColor,
+    dragHandle: @Composable (() -> Unit)? = { BottomSheetDefaults.DragHandle() },
+    windowInsets: WindowInsets = WindowInsets(0, 0, 0, 0),
+    properties: ModalBottomSheetProperties = ModalBottomSheetDefaults.properties(),
+    content: @Composable ColumnScope.() -> Unit,
+) {
+    val density = LocalDensity.current.density
+    val height = LocalView.current.height
+    val maxHeightDp = (height * 0.6 / density).roundToInt().dp
+    val bottomPadding = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
+
+    ModalBottomSheet(onDismissRequest = onDismissRequest,
+        modifier = modifier
+            .heightIn(min = 0.dp, max = maxHeightDp)
+            .absolutePadding(left = 12.dp, right = 12.dp)
+            .absoluteOffset(y = (-12 - bottomPadding.value).dp),
+        sheetState = sheetState,
+        sheetMaxWidth = sheetMaxWidth,
+        shape = shape,
+        containerColor = containerColor,
+        contentColor = contentColor,
+        tonalElevation = tonalElevation,
+        scrimColor = scrimColor,
+        dragHandle = dragHandle,
+        windowInsets = windowInsets,
+        properties = properties,
+        content = content)
 }

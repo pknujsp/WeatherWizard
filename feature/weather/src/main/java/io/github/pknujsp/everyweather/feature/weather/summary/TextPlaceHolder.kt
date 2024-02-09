@@ -18,11 +18,12 @@ import io.github.pknujsp.everyweather.core.ui.theme.AppShapes
 
 
 @Composable
-fun TextPlaceHolder(isLoading: () -> Boolean) {
+fun TextPlaceHolder(modifier: Modifier = Modifier, isLoading: () -> Boolean) {
     if (isLoading()) {
-        Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp, Alignment.CenterVertically)) {
+        Column(modifier = modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp, Alignment.CenterVertically)) {
             FakeBoxItem(modifier = Modifier.fillMaxWidth())
-            FakeBoxItem(modifier = Modifier.fillMaxWidth(0.3f))
+            FakeBoxItem(modifier = Modifier.fillMaxWidth())
+            FakeBoxItem(modifier = Modifier.fillMaxWidth(0.4f))
         }
     }
 }
