@@ -66,6 +66,9 @@ fun SummaryScreen(model: WeatherSummaryPrompt.Model, onDismiss: () -> Unit, summ
                     markdown = if (uiState.error != null) stringResource(id = uiState.error!!) else uiState.summaryText,
                     linkifyMask = Linkify.WEB_URLS,
                 )
+                TextPlaceHolder {
+                    uiState.isSummarizing
+                }
             }
 
             if (uiState.isSummarizing || uiState.isStopped) {
@@ -84,8 +87,9 @@ private fun BoxScope.SummarizingCard(modifier: Modifier = Modifier, uiState: Sum
     Box(modifier = modifier
         .padding(bottom = 8.dp)
         .align(Alignment.BottomCenter)) {
-        OutlinedButton(onClick = currentStopOrResume, shape = AppShapes.extraLarge,
-            colors= ButtonDefaults.outlinedButtonColors(containerColor = Color.White)) {
+        OutlinedButton(onClick = currentStopOrResume,
+            shape = AppShapes.extraLarge,
+            colors = ButtonDefaults.outlinedButtonColors(containerColor = Color.White)) {
             Row(
                 horizontalArrangement = Arrangement.spacedBy(6.dp, Alignment.CenterHorizontally),
                 verticalAlignment = Alignment.CenterVertically,
