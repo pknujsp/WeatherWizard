@@ -1,20 +1,26 @@
 package io.github.pknujsp.everyweather.feature.weather
 
-import androidx.compose.animation.core.CubicBezierEasing
+import androidx.compose.animation.core.AnimationSpec
+import androidx.compose.animation.core.AnimationState
+import androidx.compose.animation.core.DecayAnimationSpec
+import androidx.compose.animation.core.EaseInOut
+import androidx.compose.animation.core.animateDecay
+import androidx.compose.animation.core.animateTo
+import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.draggable
+import androidx.compose.foundation.gestures.rememberDraggableState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.WindowInsetsSides
-import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.Surface
 import androidx.compose.material3.TopAppBarScrollBehavior
+import androidx.compose.material3.TopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Stable
@@ -27,18 +33,20 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.layoutId
+import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
+import kotlin.math.abs
 
 
-private val topTitleAlphaEasing = CubicBezierEasing(.8f, 0f, .8f, .15f)
+private val topTitleAlphaEasing = EaseInOut
 private val topAppBarHorizontalPadding = 4.dp
-private val topAppBarTitleInset = 16.dp - topAppBarHorizontalPadding
+private val topAppBarTitleInset = 16.dp
 
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
 internal fun CustomTopAppBar(
     modifier: Modifier = Modifier,
-    windowInsets: WindowInsets = WindowInsets.systemBars.only(WindowInsetsSides.Horizontal + WindowInsetsSides.Top),
+    windowInsets: WindowInsets,
     colors: CustomTopAppBarColors,
     scrollBehavior: TopAppBarScrollBehavior,
     bigTitle: @Composable () -> Unit,
@@ -50,6 +58,15 @@ internal fun CustomTopAppBar(
         @Composable {
             Row(horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically, content = this)
         }
+    }
+    val appBarDragModifier = if (!scrollBehavior.isPinned) {
+        Modifier.draggable(orientation = Orientation.Vertical, state = rememberDraggableState { delta ->
+            scrollBehavior.state.heightOffset += delta
+        }, onDragStopped = { velocity ->
+            settleAppBar(scrollBehavior.state, velocity, scrollBehavior.flingAnimationSpec, scrollBehavior.snapAnimationSpec)
+        })
+    } else {
+        Modifier
     }
     Surface(modifier = modifier, color = Color.Transparent) {
         TopAppBarLayout(
@@ -116,15 +133,18 @@ private fun TopAppBarLayout(
         val bigTitlePlaceable = measurables.first { it.layoutId == BIG_TITLE }.measure(constraints.copy(minWidth = 0))
         val smallTitlePlaceable = measurables.first { it.layoutId == SMALL_TITLE }.measure(constraints.copy(minWidth = 0))
 
-        val layoutHeight = navigationIconPlaceable.height + (bigTitlePlaceable.height * (1f - smallTitleAlpha)).toInt()
+        val collapsedRatio = 1f - smallTitleAlpha
+        val expandedRatio = 1f - collapsedRatio
+        val layoutHeight = navigationIconPlaceable.height + (bigTitlePlaceable.height * collapsedRatio).toInt()
+        val titleInset = topAppBarTitleInset.roundToPx()
 
         layout(constraints.maxWidth, layoutHeight) {
             navigationIconPlaceable.place(x = 0, y = 0)
             actionIconsPlaceable.place(x = constraints.maxWidth - actionIconsPlaceable.width, y = 0)
 
-            bigTitlePlaceable.place(x = topAppBarTitleInset.roundToPx(), y = navigationIconPlaceable.height)
-            smallTitlePlaceable.place(x = navigationIconPlaceable.width + topAppBarTitleInset.roundToPx(),
-                y = (layoutHeight - smallTitlePlaceable.height) / 2)
+            bigTitlePlaceable.place(x = (titleInset + navigationIconPlaceable.width * expandedRatio).toInt(),
+                y = navigationIconPlaceable.height - (bigTitlePlaceable.height * expandedRatio).toInt())
+            smallTitlePlaceable.place(x = navigationIconPlaceable.width + titleInset, y = (layoutHeight - smallTitlePlaceable.height) / 2)
         }
     }
 }
@@ -137,3 +157,47 @@ data class CustomTopAppBarColors(
     val titleContentColor: Color = Color.Black,
     val actionIconContentColor: Color = Color.Black,
 )
+
+@OptIn(ExperimentalMaterial3Api::class)
+private suspend fun settleAppBar(
+    state: TopAppBarState, velocity: Float, flingAnimationSpec: DecayAnimationSpec<Float>?, snapAnimationSpec: AnimationSpec<Float>?
+): Velocity {
+    // Check if the app bar is completely collapsed/expanded. If so, no need to settle the app bar,
+    // and just return Zero Velocity.
+    // Note that we don't check for 0f due to float precision with the collapsedFraction
+    // calculation.
+    if (state.collapsedFraction < 0.01f || state.collapsedFraction == 1f) {
+        return Velocity.Zero
+    }
+    var remainingVelocity = velocity
+    // In case there is an initial velocity that was left after a previous user fling, animate to
+    // continue the motion to expand or collapse the app bar.
+    if (flingAnimationSpec != null && abs(velocity) > 1f) {
+        var lastValue = 0f
+        AnimationState(
+            initialValue = 0f,
+            initialVelocity = velocity,
+        ).animateDecay(flingAnimationSpec) {
+            val delta = value - lastValue
+            val initialHeightOffset = state.heightOffset
+            state.heightOffset = initialHeightOffset + delta
+            val consumed = abs(initialHeightOffset - state.heightOffset)
+            lastValue = value
+            remainingVelocity = this.velocity
+            // avoid rounding errors and stop if anything is unconsumed
+            if (abs(delta - consumed) > 0.5f) this.cancelAnimation()
+        }
+    }
+    // Snap if animation specs were provided.
+    if (snapAnimationSpec != null) {
+        if (state.heightOffset < 0 && state.heightOffset > state.heightOffsetLimit) {
+            AnimationState(initialValue = state.heightOffset).animateTo(if (state.collapsedFraction < 0.5f) {
+                0f
+            } else {
+                state.heightOffsetLimit
+            }, animationSpec = snapAnimationSpec) { state.heightOffset = value }
+        }
+    }
+
+    return Velocity(0f, remainingVelocity)
+}

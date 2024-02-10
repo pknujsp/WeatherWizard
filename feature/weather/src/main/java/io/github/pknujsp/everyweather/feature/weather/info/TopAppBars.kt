@@ -63,13 +63,13 @@ fun TopAppBars(
 ) {
     CustomTopAppBar(
         smallTitle = {
-            Column(modifier = modifier, horizontalAlignment = Alignment.Start, verticalArrangement = Arrangement.Center) {
+            Column(horizontalAlignment = Alignment.Start) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(imageVector = Icons.Rounded.Place,
                         contentDescription = null,
                         tint = Color.White,
                         modifier = Modifier
-                            .size(15.dp)
+                            .size(16.dp)
                             .padding(end = 4.dp))
                     Text(
                         text = topAppBarUiState?.location?.address ?: stringResource(id = R.string.unknown_address),
@@ -80,7 +80,7 @@ fun TopAppBars(
                 }
                 Text(
                     text = weatherContentUiState.dateTime,
-                    fontSize = TextUnit(11f, TextUnitType.Sp),
+                    fontSize = TextUnit(12f, TextUnitType.Sp),
                     color = Color.White,
                     style = LocalTextStyle.current.merge(notIncludeTextPaddingStyle).merge(outlineTextStyle),
                 )
@@ -106,7 +106,7 @@ fun TopAppBars(
                     textAlign = TextAlign.Start,
                     fontWeight = FontWeight.Bold,
                     color = Color.White,
-                    lineHeight = 30.sp,
+                    lineHeight = 28.sp,
                     style = LocalTextStyle.current.merge(outlineTextStyle),
                 )
                 Spacer(modifier = Modifier.height(8.dp))
@@ -170,7 +170,7 @@ fun TopAppBars(
         modifier = modifier
             .background(brush = shadowBox())
             .statusBarsPadding(),
-        windowInsets = WindowInsets(0.dp, 0.dp, 0.dp, 0.dp),
+        windowInsets = WindowInsets(0, 0, 0, 0),
         navigationIcon = {
             IconButton(modifier = modifier, onClick = {
                 openDrawer()

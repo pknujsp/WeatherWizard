@@ -89,7 +89,7 @@ fun WeatherContentScreen(
         modifier = Modifier.fillMaxSize(),
         contentScale = ContentScale.Crop,
         alignment = Alignment.Center,
-        model = ImageRequest.Builder(LocalContext.current).diskCachePolicy(CachePolicy.ENABLED).crossfade(250).data(imageUrl).build(),
+        model = ImageRequest.Builder(LocalContext.current).diskCachePolicy(CachePolicy.ENABLED).crossfade(200).data(imageUrl).build(),
         contentDescription = stringResource(R.string.background_image),
     )
 

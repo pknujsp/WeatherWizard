@@ -41,10 +41,9 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import io.github.pknujsp.everyweather.core.model.coordinate.LocationType
 import io.github.pknujsp.everyweather.core.resource.R
-import io.github.pknujsp.everyweather.core.ui.button.SecondaryButton
 import io.github.pknujsp.everyweather.core.ui.TitleTextWithNavigation
 import io.github.pknujsp.everyweather.core.ui.box.CustomBox
-import io.github.pknujsp.everyweather.core.ui.dialog.BottomSheet
+import io.github.pknujsp.everyweather.core.ui.button.SecondaryButton
 import io.github.pknujsp.everyweather.core.ui.dialog.CustomModalBottomSheet
 import io.github.pknujsp.everyweather.core.ui.dialog.DialogScreen
 import io.github.pknujsp.everyweather.core.ui.list.EmptyListScreen
