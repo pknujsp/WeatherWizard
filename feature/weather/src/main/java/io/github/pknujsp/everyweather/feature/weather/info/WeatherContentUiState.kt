@@ -1,6 +1,9 @@
 package io.github.pknujsp.everyweather.feature.weather.info
 
+import android.util.Log
+import androidx.compose.foundation.MutatePriority
 import androidx.compose.foundation.ScrollState
+import androidx.compose.foundation.gestures.scrollBy
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.TopAppBarDefaults
@@ -47,7 +50,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import java.time.ZonedDateTime
 
-private val topAppBarOffsetLimit = (-64).dp
+private val topAppBarOffsetLimit = (-24).dp
 
 sealed interface WeatherContentUiState {
     val refresh: () -> Unit
@@ -165,20 +168,6 @@ fun rememberWeatherMainState(
     }
 
     LaunchedEffect(Unit) {
-        launch {
-            val heightOffsetLimit = -scrollBehavior.state.heightOffsetLimit
-            val collapsedHeightOffset = scrollBehavior.state.heightOffsetLimit
-
-            snapshotFlow {
-                scrollState.value
-            }.collect { y ->
-                if (y <= heightOffsetLimit) {
-                    scrollBehavior.state.heightOffset = -y.toFloat()
-                } else if (scrollBehavior.state.heightOffset != collapsedHeightOffset) {
-                    scrollBehavior.state.heightOffset = collapsedHeightOffset
-                }
-            }
-        }
         launch {
             snapshotFlow { networkState.isNetworkAvailable }.collect {
                 if (it) {

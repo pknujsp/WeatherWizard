@@ -28,6 +28,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
@@ -93,7 +94,7 @@ fun WeatherContentScreen(
         contentDescription = stringResource(R.string.background_image),
     )
 
-    Scaffold(containerColor = Color.Black.copy(alpha = 0.1f), topBar = {
+    Scaffold(containerColor = Color.Black.copy(alpha = 0.11f), topBar = {
         TopAppBars(
             topAppBarUiState = topAppBarUiState,
             weatherContentUiState = uiState,
@@ -105,7 +106,7 @@ fun WeatherContentScreen(
             onClickedWeatherProviderButton = { onClickedWeatherProviderButton = true },
             scrollBehavior = scrollBehavior,
         )
-    }) { _ ->
+    }, modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection)) { _ ->
         val systemBars = WindowInsets.systemBars
         val density = LocalDensity.current
         val bottomPadding = remember { with(density) { systemBars.getBottom(this).toDp() } }

@@ -14,18 +14,13 @@ data class AirQualityEntity(
 
     override fun toString(): String {
         return StringBuilder().apply {
-            append("## 대기질")
-            appendLine()
-            append("### 현재 : ${current.aqi.airQualityDescription.description}")
-            appendLine()
-            append("### 일별 예보")
-            appendLine()
-            append("| 날짜 | 상태 |")
-            appendLine()
-            append("| --- | --- |")
-            appendLine()
+            appendLine("## 대기질")
+            appendLine("### 현재 : ${current.aqi.airQualityDescription.description}")
+            appendLine("### 일별 예보")
+            appendLine("| 날짜 | 상태 |")
+            appendLine("| --- | --- |")
             for (item in dailyForecast.items) {
-                append("| ${item.date} | ${item.getAqi().valueNotNull().airQualityDescription.description} |\n")
+                appendLine("| ${item.date} | ${item.getAqi().valueNotNull().airQualityDescription.description} |")
             }
         }.toString()
     }

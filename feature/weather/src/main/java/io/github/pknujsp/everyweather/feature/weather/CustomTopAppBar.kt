@@ -68,7 +68,7 @@ internal fun CustomTopAppBar(
     } else {
         Modifier
     }
-    Surface(modifier = modifier, color = Color.Transparent) {
+    Surface(modifier = modifier.then(appBarDragModifier), color = Color.Transparent) {
         TopAppBarLayout(
             modifier = Modifier.windowInsetsPadding(windowInsets),
             navigationIconContentColor = colors.navigationIconContentColor,

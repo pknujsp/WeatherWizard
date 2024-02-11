@@ -21,12 +21,9 @@ data class HourlyForecastEntity(
 
     override fun toString(): String {
         return StringBuilder().apply {
-            append("## 시간별 예보")
-            appendLine()
-            append("| 시간 | 날씨 | 기온 | 강수확률 | 강수량 | 습도 | 풍속 |")
-            appendLine()
-            append("| --- | --- | --- | --- | --- | --- | --- |")
-            appendLine()
+            appendLine("## 시간별 예보")
+            appendLine("| 시간 | 날씨 | 기온 | 강수확률 | 강수량 | 습도 | 풍속 |")
+            appendLine("| --- | --- | --- | --- | --- | --- | --- |")
             for (item in items) {
                 appendLine("${item.dateTime} | ${item.weatherCondition.value.description} | ${item.temperature} | ${
                     item.precipitationProbability
