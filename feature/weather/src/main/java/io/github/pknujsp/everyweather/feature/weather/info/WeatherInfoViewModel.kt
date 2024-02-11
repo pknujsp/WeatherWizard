@@ -232,7 +232,7 @@ class WeatherInfoViewModel @Inject constructor(
 
                 val allModel = WeatherSummaryPrompt.Model(
                     coordinate.latitude to coordinate.longitude,
-                    requestDateTime.toString(),
+                    requestDateTime,
                     args.weatherProvider,
                     currentWeatherEntity,
                     hourlyForecastEntity,

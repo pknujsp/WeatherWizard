@@ -13,6 +13,8 @@ import io.github.pknujsp.everyweather.core.model.weather.common.WindDirectionVal
 import io.github.pknujsp.everyweather.core.model.weather.common.WindSpeedValueType
 import kotlinx.serialization.Serializable
 import java.lang.StringBuilder
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 @Serializable
 data class HourlyForecastEntity(
@@ -25,9 +27,13 @@ data class HourlyForecastEntity(
             appendLine("| 시간 | 날씨 | 기온 | 강수확률 | 강수량 | 습도 | 풍속 |")
             appendLine("| --- | --- | --- | --- | --- | --- | --- |")
             for (item in items) {
-                appendLine("${item.dateTime} | ${item.weatherCondition.value.description} | ${item.temperature} | ${
-                    item.precipitationProbability
-                }" + " | ${item.precipitationVolume} | ${item.humidity} | ${item.windSpeed}")
+                append("${LocalDateTime.parse(item.dateTime.value, DateTimeFormatter.ISO_ZONED_DATE_TIME)} |")
+                append(" ${item.weatherCondition.value.description} |")
+                append(" ${item.temperature} |")
+                append(" ${item.precipitationProbability} |")
+                append(" ${item.precipitationVolume} |")
+                append(" ${item.humidity} |")
+                appendLine(" ${item.windSpeed} |")
             }
         }.toString()
     }

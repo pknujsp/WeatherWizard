@@ -10,6 +10,8 @@ import io.github.pknujsp.everyweather.core.model.weather.common.TemperatureValue
 import io.github.pknujsp.everyweather.core.model.weather.common.WeatherConditionValueType
 import io.github.pknujsp.everyweather.core.model.weather.common.WindSpeedValueType
 import kotlinx.serialization.Serializable
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 
 @Serializable
 data class DailyForecastEntity(
@@ -19,13 +21,14 @@ data class DailyForecastEntity(
     override fun toString(): String {
         return StringBuilder().apply {
             appendLine("## 일별 날씨 예보")
-            appendLine("| 날짜 | 최저/최고 기온 | 하루 날씨 | 오전/오후 날씨 |")
+            appendLine("| 날짜 | 최저 / 최고 기온 | 하루 날씨 | 오전 / 오후 날씨 |")
             appendLine("| --- | --- | --- | --- |")
             for (item in dayItems) {
-                appendLine("| ${item.dateTime} | ${item.minTemperature}/${item.maxTemperature} | ${
+                append("| ${LocalDate.parse(item.dateTime.value, DateTimeFormatter.ISO_ZONED_DATE_TIME)} |")
+                appendLine(" ${item.minTemperature} / ${item.maxTemperature} | ${
                     if (item.items.size == 1) item.items[0].weatherCondition.value.description else ""
                 } | ${
-                    if (item.items.size >= 2) "${item.items[0].weatherCondition.value.description}/${
+                    if (item.items.size >= 2) "${item.items[0].weatherCondition.value.description} / ${
                         item.items[1].weatherCondition.value.description
                     }" else ""
                 } |")
