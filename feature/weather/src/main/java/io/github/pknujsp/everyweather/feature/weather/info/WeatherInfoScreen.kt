@@ -48,7 +48,7 @@ fun WeatherInfoScreen(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     val mainState =
-        rememberWeatherMainState({ uiState }, targetLocationType = targetLocationType, updateUiState = viewModel::onUnavailableFeature)
+        rememberWeatherMainState({ uiState }, updateUiState = viewModel::onUnavailableFeature)
     val topAppBarUiState = targetLocationViewModel.topAppBarUiState
     val isLoading = viewModel.isLoading
 

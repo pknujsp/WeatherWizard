@@ -6,6 +6,8 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
@@ -94,6 +96,14 @@ fun WeatherContentScreen(
         contentDescription = stringResource(R.string.background_image),
     )
 
+    val systemBars = WindowInsets.systemBars
+    val density = LocalDensity.current
+    val systemBarPadding: PaddingValues = remember {
+        with(density) {
+            PaddingValues(top = systemBars.getTop(this).toDp(), bottom = systemBars.getBottom(this).toDp(), start = 0.dp, end = 0.dp)
+        }
+    }
+
     Scaffold(containerColor = Color.Black.copy(alpha = 0.11f), topBar = {
         TopAppBars(
             topAppBarUiState = topAppBarUiState,
@@ -107,78 +117,70 @@ fun WeatherContentScreen(
             scrollBehavior = scrollBehavior,
         )
     }, modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection)) { _ ->
-        val systemBars = WindowInsets.systemBars
-        val density = LocalDensity.current
-        val bottomPadding = remember { with(density) { systemBars.getBottom(this).toDp() } }
         val localConfiguration = LocalConfiguration.current
-
         val screenHeight = remember {
-            with(density) {
-                localConfiguration.screenHeightDp + (systemBars.getBottom(this) + systemBars.getTop(this)) / this.density
-            }.dp
+            (localConfiguration.screenHeightDp + (systemBarPadding.calculateTopPadding() + systemBarPadding.calculateBottomPadding()).value).dp
         }
+        var currentAirQuality by remember { mutableStateOf<AirQualityValueType?>(null) }
 
-        Box {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(horizontal = DEFAULT_PADDING)
-                    .verticalScroll(scrollState),
-                verticalArrangement = Arrangement.spacedBy(COLUMN_ITEM_SPACING),
-            ) {
-                var currentAirQuality by remember { mutableStateOf<AirQualityValueType?>(null) }
-
-                Box(modifier = Modifier.height(screenHeight - DEFAULT_PADDING), contentAlignment = Alignment.BottomStart) {
-                    Column(verticalArrangement = Arrangement.spacedBy(COLUMN_ITEM_SPACING)) {
-                        CurrentWeatherScreen(weather.currentWeather) { currentAirQuality }
-                        HourlyForecastScreen(hourlyForecast = weather.simpleHourlyForecast, navigate = navigate)
-                    }
-                }
-                SimpleDailyForecastScreen(weather.simpleDailyForecast, navigate)
-                SimpleMapScreen(uiState.args)
-                AirQualityScreen(uiState.args, uiState.lastUpdatedDateTime, onLoadAirQuality = { aqi ->
-                    coroutineScope.launch {
-                        currentAirQuality = aqi.current.aqi
-                        uiState.weatherEntities.airQuality = aqi
-                    }
-                })
-                SimpleSunSetRiseScreen(SunSetRiseInfo(uiState.args.latitude, uiState.args.longitude, uiState.lastUpdatedDateTime))
-                AdMob.BannerAd(modifier = Modifier.fillMaxWidth())
-                FlickrImageItemScreen(requestParameter = uiState.weather.flickrRequestParameters, onImageUrlChanged = {
-                    coroutineScope.launch {
-                        imageUrl = it
-                    }
-                })
-                Footer(Modifier.align(Alignment.End), uiState.currentUnits)
-                Spacer(modifier = Modifier.height(bottomPadding))
-            }
-            Box(modifier = Modifier
-                .align(Alignment.BottomCenter)
+        Column(
+            modifier = Modifier
                 .fillMaxWidth()
-                .height(bottomPadding)
-                .background(brush = shadowBox(ShadowDirection.UP)))
-        }
-
-        BottomSheetDialog(title = stringResource(id = R.string.title_weather_data_provider),
-            selectedItem = uiState.args.weatherProvider,
-            onSelectedItem = {
+                .padding(horizontal = DEFAULT_PADDING)
+                .verticalScroll(scrollState),
+            verticalArrangement = Arrangement.spacedBy(COLUMN_ITEM_SPACING),
+        ) {
+            Box(modifier = Modifier.height(screenHeight - DEFAULT_PADDING), contentAlignment = Alignment.BottomStart) {
+                Column(verticalArrangement = Arrangement.spacedBy(COLUMN_ITEM_SPACING)) {
+                    CurrentWeatherScreen(weather.currentWeather) { currentAirQuality }
+                    HourlyForecastScreen(hourlyForecast = weather.simpleHourlyForecast, navigate = navigate)
+                }
+            }
+            SimpleDailyForecastScreen(weather.simpleDailyForecast, navigate)
+            SimpleMapScreen(uiState.args)
+            AirQualityScreen(uiState.args, uiState.lastUpdatedDateTime, onLoadAirQuality = { aqi ->
                 coroutineScope.launch {
-                    it?.let {
-                        if (uiState.args.weatherProvider != it) {
-                            updateWeatherDataProvider(it)
-                        }
+                    currentAirQuality = aqi.current.aqi
+                    uiState.weatherEntities.airQuality = aqi
+                }
+            })
+            SimpleSunSetRiseScreen(SunSetRiseInfo(uiState.args.latitude, uiState.args.longitude, uiState.lastUpdatedDateTime))
+            AdMob.BannerAd(modifier = Modifier.fillMaxWidth())
+            FlickrImageItemScreen(requestParameter = uiState.weather.flickrRequestParameters, onImageUrlChanged = {
+                coroutineScope.launch {
+                    imageUrl = it
+                }
+            })
+            Footer(units = uiState.currentUnits)
+            Spacer(modifier = Modifier.height(systemBarPadding.calculateBottomPadding()))
+        }
+    }
+    Box(modifier = Modifier.fillMaxSize()) {
+        Box(modifier = Modifier
+            .align(Alignment.BottomCenter)
+            .fillMaxWidth()
+            .height(systemBarPadding.calculateBottomPadding())
+            .background(brush = shadowBox(ShadowDirection.UP)))
+    }
+    BottomSheetDialog(title = stringResource(id = R.string.title_weather_data_provider),
+        selectedItem = uiState.args.weatherProvider,
+        onSelectedItem = {
+            coroutineScope.launch {
+                it?.let {
+                    if (uiState.args.weatherProvider != it) {
+                        updateWeatherDataProvider(it)
                     }
                 }
-            },
-            enums = WeatherProvider.enums,
-            expanded = { onClickedWeatherProviderButton },
-            onDismissRequest = { onClickedWeatherProviderButton = false })
+            }
+        },
+        enums = WeatherProvider.enums,
+        expanded = { onClickedWeatherProviderButton },
+        onDismissRequest = { onClickedWeatherProviderButton = false })
 
-        if (showAiSummary) {
-            SummaryScreen(model = uiState.weatherEntities, onDismiss = {
-                showAiSummary = false
-            })
-        }
+    if (showAiSummary) {
+        SummaryScreen(model = uiState.weatherEntities, onDismiss = {
+            showAiSummary = false
+        })
     }
 }
 
@@ -187,8 +189,8 @@ fun WeatherContentScreen(
  * 풍속, 강수량 단위 표시
  */
 @Composable
-private fun Footer(modifier: Modifier = Modifier, units: CurrentUnits) {
-    Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(4.dp), horizontalAlignment = Alignment.End) {
+private fun ColumnScope.Footer(modifier: Modifier = Modifier, units: CurrentUnits) {
+    Column(modifier = modifier.align(Alignment.End), verticalArrangement = Arrangement.spacedBy(4.dp), horizontalAlignment = Alignment.End) {
         UnitItem(title = R.string.title_wind_speed_unit, unit = units.windSpeedUnit)
         UnitItem(title = R.string.title_precipitation_unit, unit = units.precipitationUnit)
     }

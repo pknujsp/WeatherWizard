@@ -1,9 +1,6 @@
 package io.github.pknujsp.everyweather.feature.weather.info
 
-import android.util.Log
-import androidx.compose.foundation.MutatePriority
 import androidx.compose.foundation.ScrollState
-import androidx.compose.foundation.gestures.scrollBy
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.TopAppBarDefaults
@@ -134,14 +131,11 @@ private class MutableWeatherMainState @OptIn(ExperimentalMaterial3Api::class) co
 @Composable
 fun rememberWeatherMainState(
     weatherContentUiState: () -> WeatherContentUiState?,
-    targetLocationType: State<SelectedLocationModel?>,
     updateUiState: (StatefulFeature) -> Unit,
     scrollState: ScrollState = rememberScrollState(),
-    density: Density = LocalDensity.current,
 ): WeatherMainState {
-    val scrollBehavior: TopAppBarScrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(state = rememberTopAppBarState(
-        initialHeightOffsetLimit = with(density) { topAppBarOffsetLimit.toPx() },
-    ))
+    val scrollBehavior: TopAppBarScrollBehavior =
+        TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
 
     val window = LocalContext.current.asActivity()!!.window
     val windowInsetsControllerCompat = remember(window) {
