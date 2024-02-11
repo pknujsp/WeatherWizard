@@ -9,7 +9,6 @@ import androidx.compose.animation.core.animateTo
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.draggable
 import androidx.compose.foundation.gestures.rememberDraggableState
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
@@ -23,7 +22,6 @@ import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.material3.TopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -35,9 +33,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.layoutId
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
+import io.github.pknujsp.everyweather.feature.weather.info.settleAppBar
 import kotlin.math.abs
 
 
@@ -59,26 +57,21 @@ internal fun CustomTopAppBar(
 ) {
     val actionsRow: @Composable (() -> Unit)? = actions?.run {
         @Composable {
-            Row(horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically, content = this)
+            Row(verticalAlignment = Alignment.CenterVertically, content = this)
         }
     }
 
-    val appBarDragModifier = if (!scrollBehavior.isPinned) {
-        Modifier.draggable(orientation = Orientation.Vertical, state = rememberDraggableState { delta ->
-            scrollBehavior.state.heightOffset += delta
-        }, onDragStopped = { velocity ->
-            settleAppBar(scrollBehavior.state, velocity, scrollBehavior.flingAnimationSpec!!, scrollBehavior.snapAnimationSpec!!)
-        })
-    } else {
-        Modifier
-    }
+    val appBarDragModifier = Modifier.draggable(orientation = Orientation.Vertical, state = rememberDraggableState { delta ->
+        scrollBehavior.state.heightOffset += delta
+    }, onDragStopped = { velocity ->
+        settleAppBar(scrollBehavior.state, velocity, scrollBehavior.flingAnimationSpec!!, scrollBehavior.snapAnimationSpec!!)
+    })
 
     Surface(modifier = modifier.then(appBarDragModifier), color = Color.Transparent) {
         TopAppBarLayout(
             modifier = Modifier
                 .windowInsetsPadding(windowInsets)
                 .clipToBounds(),
-            scrollBehavior = scrollBehavior,
             navigationIconContentColor = colors.navigationIconContentColor,
             actionIconContentColor = colors.actionIconContentColor,
             collapsedFraction = { scrollBehavior.state.collapsedFraction },
@@ -93,13 +86,12 @@ internal fun CustomTopAppBar(
 private const val BIG_TITLE = "bigTitle"
 private const val SMALL_TITLE = "smallTitle"
 private const val NAVIGATION_ICON = "navigationIcon"
-private const val ACTION_ICONS = "actionIcons"
+private const val ACTION_ROW = "actionRow"
 
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
 private fun TopAppBarLayout(
     modifier: Modifier,
-    scrollBehavior: TopAppBarScrollBehavior,
     navigationIconContentColor: Color,
     actionIconContentColor: Color,
     collapsedFraction: () -> Float,
@@ -131,7 +123,7 @@ private fun TopAppBarLayout(
             smallTitle()
         }
         Box(Modifier
-            .layoutId(ACTION_ICONS)
+            .layoutId(ACTION_ROW)
             .padding(end = topAppBarHorizontalPadding)) {
             actions?.run {
                 CompositionLocalProvider(LocalContentColor provides actionIconContentColor, content = this)
@@ -139,7 +131,7 @@ private fun TopAppBarLayout(
         }
     }, modifier = modifier.graphicsLayer(clip = false)) { measurables, constraints ->
         val navigationIconPlaceable = measurables.first { it.layoutId == NAVIGATION_ICON }.measure(constraints.copy(minWidth = 0))
-        val actionIconsPlaceable = measurables.first { it.layoutId == ACTION_ICONS }.measure(constraints.copy(minWidth = 0))
+        val actionIconsPlaceable = measurables.first { it.layoutId == ACTION_ROW }.measure(constraints.copy(minWidth = 0))
         val bigTitlePlaceable = measurables.first { it.layoutId == BIG_TITLE }.measure(constraints.copy(minWidth = 0))
         val smallTitlePlaceable = measurables.first { it.layoutId == SMALL_TITLE }.measure(constraints.copy(minWidth = 0))
 
@@ -147,10 +139,6 @@ private fun TopAppBarLayout(
         val expandedRatio = 1f - collapsedRatio
         val layoutHeight = navigationIconPlaceable.height + (bigTitlePlaceable.height * collapsedRatio).toInt()
         val titleInset = topAppBarTitleInset.roundToPx()
-
-        if (scrollBehavior.state.heightOffsetLimit.toInt() != -bigTitlePlaceable.height) {
-            scrollBehavior.state.heightOffsetLimit = -bigTitlePlaceable.height.toFloat()
-        }
 
         layout(constraints.maxWidth, layoutHeight) {
             navigationIconPlaceable.place(x = 0, y = 0)
@@ -171,45 +159,3 @@ data class CustomTopAppBarColors(
     val titleContentColor: Color = Color.Black,
     val actionIconContentColor: Color = Color.Black,
 )
-
-@OptIn(ExperimentalMaterial3Api::class)
-private suspend fun settleAppBar(
-    state: TopAppBarState, velocity: Float, flingAnimationSpec: DecayAnimationSpec<Float>, snapAnimationSpec: AnimationSpec<Float>
-): Velocity {
-    // Check if the app bar is completely collapsed/expanded. If so, no need to settle the app bar,
-    // and just return Zero Velocity.
-    // Note that we don't check for 0f due to float precision with the collapsedFraction
-    // calculation.
-    if (state.collapsedFraction < 0.01f || state.collapsedFraction == 1f) {
-        return Velocity.Zero
-    }
-    var remainingVelocity = velocity
-    // In case there is an initial velocity that was left after a previous user fling, animate to
-    // continue the motion to expand or collapse the app bar.
-    if (abs(velocity) > 1f) {
-        var lastValue = 0f
-        AnimationState(
-            initialValue = 0f,
-            initialVelocity = velocity,
-        ).animateDecay(flingAnimationSpec) {
-            val delta = value - lastValue
-            val initialHeightOffset = state.heightOffset
-            state.heightOffset = initialHeightOffset + delta
-            val consumed = abs(initialHeightOffset - state.heightOffset)
-            lastValue = value
-            remainingVelocity = this.velocity
-            // avoid rounding errors and stop if anything is unconsumed
-            if (abs(delta - consumed) > 0.5f) this.cancelAnimation()
-        }
-    }
-    // Snap if animation specs were provided.
-    if (state.heightOffset < 0 && state.heightOffset > state.heightOffsetLimit) {
-        AnimationState(initialValue = state.heightOffset).animateTo(if (state.collapsedFraction < 0.5f) {
-            0f
-        } else {
-            state.heightOffsetLimit
-        }, animationSpec = snapAnimationSpec) { state.heightOffset = value }
-    }
-
-    return Velocity(0f, remainingVelocity)
-}

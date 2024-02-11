@@ -133,10 +133,8 @@ fun rememberWeatherMainState(
     weatherContentUiState: () -> WeatherContentUiState?,
     updateUiState: (StatefulFeature) -> Unit,
     scrollState: ScrollState = rememberScrollState(),
+    scrollBehavior: TopAppBarScrollBehavior = customExitUntilCollapsedScrollBehavior()
 ): WeatherMainState {
-    val scrollBehavior: TopAppBarScrollBehavior =
-        TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
-
     val window = LocalContext.current.asActivity()!!.window
     val windowInsetsControllerCompat = remember(window) {
         WindowInsetsControllerCompat(window, window.decorView)
