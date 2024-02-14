@@ -18,6 +18,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -60,29 +61,33 @@ fun MainScreen(
     val currentCloseAppDialogVisible by rememberUpdatedState(newValue = isCloseAppDialogVisible)
     val isInitialized = mainViewModel.isInitialized
 
-    LaunchedEffect(Unit) {
-        onBackPressedDispatcherOwner!!.onBackPressedDispatcher.addCallback(lifeCycleOwner) {
-            mainUiState.navController.run {
-                if (currentBackStackEntry != null && currentBackStackEntry!!.destination.route == MainRoutes.Weather.route) {
-                    isCloseAppDialogVisible = true
-                } else {
-                    popBackStack()
+    if (isInitialized != null) {
+        val destination by remember {
+            derivedStateOf { if (isInitialized) MainRoutes.Weather.route else MainRoutes.Onboarding.route }
+        }
+
+        LaunchedEffect(Unit) {
+            onBackPressedDispatcherOwner!!.onBackPressedDispatcher.addCallback(lifeCycleOwner) {
+                mainUiState.navController.run {
+                    if (currentBackStackEntry != null && currentBackStackEntry!!.destination.route == destination) {
+                        isCloseAppDialogVisible = true
+                    } else {
+                        popBackStack()
+                    }
                 }
             }
         }
-    }
 
-    if (isCloseAppDialogVisible) {
-        AppCloseDialog {
-            if (currentCloseAppDialogVisible) {
-                isCloseAppDialogVisible = false
+        if (isCloseAppDialogVisible) {
+            AppCloseDialog {
+                if (currentCloseAppDialogVisible) {
+                    isCloseAppDialogVisible = false
+                }
             }
         }
-    }
 
-    if (isInitialized != null) {
         NavHost(navController = mainUiState.navController,
-            startDestination = if (isInitialized) MainRoutes.Weather.route else MainRoutes.Onboarding.route,
+            startDestination = destination,
             route = MainRoutes.route,
             modifier = Modifier.fillMaxSize()) {
             composable(MainRoutes.Weather.route) {

@@ -47,7 +47,7 @@ private fun BaseIconButton(
     Box(modifier = modifier
         .clickable(onClick = onClick)
         .clip(RectangleShape)
-        .size(appButton.size.paddingValues.calculateTopPadding() * 2)
+        .size(appButton.size.paddingValues.calculateTopPadding())
         .background(appButton.colors.containerColor), contentAlignment = Alignment.Center) {
         Icon(painter = painterResource(id = icon), contentDescription = null, modifier = Modifier.fillMaxSize(), tint = iconColor)
     }

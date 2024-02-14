@@ -68,38 +68,30 @@ fun OnboardingScreen(navigateToStart: () -> Unit) {
         HorizontalPager(state = pagerState, modifier = Modifier
             .fillMaxWidth()
             .weight(1f)) { page ->
-            Card(Modifier
-                .fillMaxWidth(0.8f)
-                .fillMaxHeight(0.8f)
-                .graphicsLayer {
-                    val pageOffset = ((pagerState.currentPage - page) + pagerState.currentPageOffsetFraction).absoluteValue
-                    alpha = lerp(start = 0.5f, stop = 1f, fraction = 1f - pageOffset.coerceIn(0f, 1f))
-                }) {
-                when (val onboardingItem = onboardingItems[page]) {
-                    is DefaultOnboardingItem -> DefaultOnBoardingItem(onboardingItem)
-                    is PemissionOnboardingItem -> PermissionOnBoardingItem(onboardingItem)
-                }
+
+            when (val onboardingItem = onboardingItems[page]) {
+                is DefaultOnboardingItem -> DefaultOnBoardingItem(onboardingItem = onboardingItem)
+                is PemissionOnboardingItem -> PermissionOnBoardingItem(onboardingItem)
             }
+
         }
 
         Box(modifier = Modifier
             .fillMaxWidth()
             .padding(16.dp, 16.dp), contentAlignment = Alignment.Center) {
             Row(Modifier
-                .wrapContentHeight()
-                .fillMaxWidth()
                 .align(Alignment.CenterStart), horizontalArrangement = Arrangement.Center) {
                 repeat(pagerState.pageCount) { iteration ->
-                    val color = if (pagerState.currentPage == iteration) Color.Blue else Color.LightGray
+                    val color = if (pagerState.currentPage == iteration) Color.Black else Color.LightGray
                     Box(modifier = Modifier
                         .padding(2.dp)
                         .clip(CircleShape)
                         .background(color)
-                        .size(16.dp))
+                        .size(14.dp))
                 }
             }
 
-            Row(horizontalArrangement = Arrangement.SpaceBetween) {
+            Row(modifier = Modifier.align(Alignment.CenterEnd), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 if (pagerState.currentPage > 0) {
                     SecondaryIconButton(onClick = {
                         coroutineScope.launch {
@@ -117,11 +109,11 @@ fun OnboardingScreen(navigateToStart: () -> Unit) {
                         }
                     },
                         icon = io.github.pknujsp.everyweather.core.resource.R.drawable.ic_baseline_chevron_right_24,
-                        iconColor = Color.Black,
+                        iconColor = Color.White,
                         buttonSize = IconButtonSize.LARGE)
                 } else {
                     PrimaryButton(text = stringResource(id = io.github.pknujsp.everyweather.core.resource.R.string.onboarding_button_start_app),
-                        buttonSize = ButtonSize.LARGE) {
+                        buttonSize = ButtonSize.MEDIUM) {
                         viewModel.completeOnboarding()
                         coroutineScope.launch {
                             currentNavigateToStart()
@@ -136,9 +128,9 @@ fun OnboardingScreen(navigateToStart: () -> Unit) {
 }
 
 @Composable
-internal fun DefaultOnBoardingItem(onboardingItem: DefaultOnboardingItem) {
-    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-        Column {
+internal fun DefaultOnBoardingItem(modifier: Modifier = Modifier, onboardingItem: DefaultOnboardingItem) {
+    Box(modifier = modifier.padding(24.dp), contentAlignment = Alignment.Center) {
+        Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(16.dp)) {
             AsyncImage(model = ImageRequest.Builder(LocalContext.current).data(onboardingItem.image).build(), contentDescription = null)
             Text(text = stringResource(id = onboardingItem.title),
                 fontSize = 24.sp,
