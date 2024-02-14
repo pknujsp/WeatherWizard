@@ -25,6 +25,7 @@ import androidx.core.view.WindowInsetsControllerCompat
 import io.github.pknujsp.everyweather.core.common.FeatureType
 import io.github.pknujsp.everyweather.core.common.StatefulFeature
 import io.github.pknujsp.everyweather.core.common.asActivity
+import io.github.pknujsp.everyweather.core.data.favorite.SelectedLocationModel
 import io.github.pknujsp.everyweather.core.model.flickr.FlickrRequestParameters
 import io.github.pknujsp.everyweather.core.model.settings.CurrentUnits
 import io.github.pknujsp.everyweather.core.model.weather.RequestWeatherArguments
@@ -33,6 +34,8 @@ import io.github.pknujsp.everyweather.core.ui.theme.setNavigationBarContentColor
 import io.github.pknujsp.everyweather.core.ui.theme.setStatusBarContentColor
 import io.github.pknujsp.everyweather.feature.permoptimize.network.NetworkState
 import io.github.pknujsp.everyweather.feature.permoptimize.network.rememberAppNetworkState
+import io.github.pknujsp.everyweather.feature.permoptimize.permission.PermissionManager
+import io.github.pknujsp.everyweather.feature.permoptimize.permission.rememberPermissionManager
 import io.github.pknujsp.everyweather.feature.weather.info.currentweather.model.CurrentWeather
 import io.github.pknujsp.everyweather.feature.weather.info.dailyforecast.model.DetailDailyForecast
 import io.github.pknujsp.everyweather.feature.weather.info.dailyforecast.model.SimpleDailyForecast
@@ -44,14 +47,13 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import java.time.ZonedDateTime
 
-private val topAppBarOffsetLimit = (-64).dp
+private val topAppBarOffsetLimit = (-24).dp
 
 sealed interface WeatherContentUiState {
     val refresh: () -> Unit
-    val onUnavailableFeature: (FeatureType) -> Unit
 
     data class Error(
-        val state: StatefulFeature, override val refresh: () -> Unit, override val onUnavailableFeature: (FeatureType) -> Unit
+        val state: StatefulFeature, override val refresh: () -> Unit,
     ) : WeatherContentUiState
 
     data class Success(
@@ -61,7 +63,6 @@ sealed interface WeatherContentUiState {
         val weatherEntities: WeatherSummaryPrompt.Model,
         val currentUnits: CurrentUnits,
         override val refresh: () -> Unit,
-        override val onUnavailableFeature: (FeatureType) -> Unit
     ) : WeatherContentUiState {
 
         val dateTime: String = lastUpdatedDateTime.format(dateTimeFormatter)
@@ -96,6 +97,8 @@ private class MutableWeatherMainState @OptIn(ExperimentalMaterial3Api::class) co
     override val scrollBehavior: TopAppBarScrollBehavior,
     override val networkState: NetworkState,
     private val weatherContentUiState: () -> WeatherContentUiState?,
+    override val locationPermissionManager: PermissionManager,
+    private val updateUiStateFunc: (StatefulFeature) -> Unit,
 ) : WeatherMainState {
     override val nestedRoutes = mutableStateOf(NestedWeatherRoutes.startDestination)
 
@@ -113,9 +116,13 @@ private class MutableWeatherMainState @OptIn(ExperimentalMaterial3Api::class) co
             if (networkState.isNetworkAvailable) {
                 weatherContentUiState.refresh()
             } else {
-                weatherContentUiState.onUnavailableFeature(FeatureType.NETWORK)
+                updateUiState(FeatureType.Network)
             }
         }
+    }
+
+    override fun updateUiState(state: StatefulFeature) {
+        updateUiStateFunc(state)
     }
 }
 
@@ -124,21 +131,27 @@ private class MutableWeatherMainState @OptIn(ExperimentalMaterial3Api::class) co
 @Composable
 fun rememberWeatherMainState(
     weatherContentUiState: () -> WeatherContentUiState?,
+    updateUiState: (StatefulFeature) -> Unit,
     scrollState: ScrollState = rememberScrollState(),
-    density: Density = LocalDensity.current,
+    scrollBehavior: TopAppBarScrollBehavior = customExitUntilCollapsedScrollBehavior()
 ): WeatherMainState {
-    val scrollBehavior: TopAppBarScrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(state = rememberTopAppBarState(
-        initialHeightOffsetLimit = with(density) { topAppBarOffsetLimit.toPx() },
-    ))
-
     val window = LocalContext.current.asActivity()!!.window
     val windowInsetsControllerCompat = remember(window) {
         WindowInsetsControllerCompat(window, window.decorView)
     }
 
     val networkState = rememberAppNetworkState()
+    val locationPermissionManager = rememberPermissionManager(defaultPermissionType = FeatureType.Permission.Location)
+
     val state: WeatherMainState = remember {
-        MutableWeatherMainState(scrollState, scrollBehavior, networkState, weatherContentUiState)
+        MutableWeatherMainState(
+            scrollState,
+            scrollBehavior,
+            networkState,
+            weatherContentUiState,
+            locationPermissionManager,
+            updateUiState,
+        )
     }
 
     var nestedRoutes by rememberSaveable(saver = Saver(save = { it.value.route },
@@ -147,20 +160,6 @@ fun rememberWeatherMainState(
     }
 
     LaunchedEffect(Unit) {
-        launch {
-            val heightOffsetLimit = -scrollBehavior.state.heightOffsetLimit
-            val collapsedHeightOffset = scrollBehavior.state.heightOffsetLimit
-
-            snapshotFlow {
-                scrollState.value
-            }.collect { y ->
-                if (y <= heightOffsetLimit) {
-                    scrollBehavior.state.heightOffset = -y.toFloat()
-                } else if (scrollBehavior.state.heightOffset != collapsedHeightOffset) {
-                    scrollBehavior.state.heightOffset = collapsedHeightOffset
-                }
-            }
-        }
         launch {
             snapshotFlow { networkState.isNetworkAvailable }.collect {
                 if (it) {
@@ -198,9 +197,11 @@ interface WeatherMainState {
     val scrollState: ScrollState
     @OptIn(ExperimentalMaterial3Api::class) val scrollBehavior: TopAppBarScrollBehavior
     val networkState: NetworkState
+    val locationPermissionManager: PermissionManager
 
     val nestedRoutes: State<NestedWeatherRoutes>
     suspend fun expandAppBar()
     fun navigate(nestedRoutes: NestedWeatherRoutes)
     fun refresh()
+    fun updateUiState(state: StatefulFeature)
 }

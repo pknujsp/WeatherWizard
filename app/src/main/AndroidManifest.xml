@@ -8,26 +8,22 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission
         android:name="android.permission.SCHEDULE_EXACT_ALARM"
-        android:maxSdkVersion="32"
         android:minSdkVersion="31" />
+
     <uses-permission
         android:name="android.permission.USE_EXACT_ALARM"
         android:minSdkVersion="33" />
+
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission
         android:name="android.permission.ACCESS_BACKGROUND_LOCATION"
         android:minSdkVersion="29" />
+
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_LOCATION" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
-    <uses-permission
-        android:name="android.permission.READ_EXTERNAL_STORAGE"
-        android:maxSdkVersion="32" />
-    <uses-permission
-        android:name="android.permission.WRITE_EXTERNAL_STORAGE"
-        android:maxSdkVersion="29" />
+
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
 
@@ -41,6 +37,7 @@
         android:supportsRtl="false"
         android:theme="@style/Theme.WeatherWizard"
         android:usesCleartextTraffic="true">
+
         <profileable
             android:shell="true"
             tools:targetApi="29" />

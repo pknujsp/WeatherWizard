@@ -32,7 +32,7 @@
     <string name="higher">높아요</string>
     <string name="lower">낮아요</string>
     <string name="is_">이에요</string>
-    <string name="reload">다시시도</string>
+    <string name="reload">다시 시도</string>
     <string name="loading_weather_data">날씨 정보를 불러오는 중</string>
     <string name="weather_icon">날씨 상태 아이콘</string>
     <string name="before">이전</string>
@@ -46,16 +46,12 @@
     <string name="sun_set">일몰</string>
     <string name="refresh">새로고침</string>
     <string name="current_location">현재 위치</string>
-    <string name="location_permission_denied">위치 권한이 허용되어 있지 않아 진행이 불가능 합니다.</string>
     <string name="network_unavailable">네트워크(WIFI, LTE, 5G 등)에 연결되어 있지 않습니다.</string>
     <string name="location_service_disabled">위치 정보 기능이 꺼져있습니다.</string>
-    <string name="open_settings_for_permission">권한 부여</string>
     <string name="open_settings_to_ignore_battery_optimization">제외하기</string>
     <string name="okay">확인</string>
     <string name="open_settings_for_location_service">위치 활성화</string>
-    <string name="title_why_you_need_permissions">권한이 필요합니다</string>
-    <string name="description_why_you_need_permissions">현재 위치의 날씨 정보를 파악하기 위해서는 위치 권한이 필요합니다.</string>
-    <string name="grant_permissions">권한 부여</string>
+
     <string name="close">닫기</string>
     <string name="back">뒤로 가기</string>
     <string name="nav_weather">날씨</string>
@@ -74,7 +70,6 @@
     <string name="title_comparison_hourly_forecast">시간별 예보 비교</string>
     <string name="title_comparison_daily_forecast">일별 예보 비교</string>
     <string name="comparison">비교</string>
-    <string name="storage_permission_denied">저장소 접근 권한이 필요합니다.</string>
     <string name="nav_notification">알림</string>
     <string name="title_ongoing_notification">항상 표시되는 알림</string>
     <string name="title_daily_notification">매일 알림</string>
@@ -92,18 +87,14 @@
     <string name="weather_condition_icon">날씨 아이콘</string>
     <string name="notification_icon_type">알림 아이콘 유형</string>
     <string name="manual">수동</string>
-    <string name="post_notification_permission_denied">알림 표시 권한이 허용되어 있지 않아 진행이 불가능 합니다.</string>
     <string name="current_weather">현재 날씨</string>
     <string name="setting">설정</string>
     <string name="data_type">데이터 유형</string>
-    <string name="exact_alarm_permission_denied">정확한 알람 사용 권한이 필요합니다.</string>
     <string name="no_location_is_selected">위치를 선택해주세요</string>
-    <string name="location_permission">위치 권한</string>
-    <string name="storage_permission">저장소 권한</string>
+
     <string name="network">네트워크</string>
     <string name="location_service">위치 정보</string>
-    <string name="post_notification_permission">알림 표시 권한</string>
-    <string name="exact_alarm_permission">정확한 알람 권한</string>
+
     <string name="again">다시 시도</string>
     <string name="air_quality">대기질</string>
     <string name="current_weather_and_hourly_forecast">현재/시간별 예보</string>
@@ -289,8 +280,7 @@
     <string name="hectopascal">hPa</string>
     <string name="degree">°</string>
     <string name="percentage">%</string>
-    <string name="background_location_permission">백그라운드 위치 권한</string>
-    <string name="background_location_permission_denied">백그라운드 위치 권한이 허용되어 있지 않아 진행이 불가능 합니다.</string>
+
     <string name="reverse_geocode_error_title">현재 위치 주소 로드 오류</string>
     <string name="reverse_geocode_error_message">현재 위치의 주소를 불러오는데 실패하였습니다</string>
     <string name="title_canceled_work">작업 취소</string>
@@ -341,5 +331,15 @@
     <string name="am">오전</string>
     <string name="pm">오후</string>
     <string name="all_day">하루종일</string>
-
+    <string name="daily_notification_enabled">알림이 활성화되었어요</string>
+    <string name="daily_notification_disabled">알림이 비활성화 되었어요</string>
+    <string name="deleted_daily_notification">알림을 삭제했어요</string>
+    <string name="onboarding_title_main">안녕하세요, 에브리웨더 입니다</string>
+    <string name="onboarding_message_main">Ai로 날씨 정보를 요약받고, 여러 날씨 서비스 업체들의 예보 정보를 한눈에 비교해보세요</string>
+    <string name="onboarding_title_notification">알림 기능</string>
+    <string name="onboarding_message_notification">날씨 정보를 알림을 통해 지속적으로 받아볼 수 있어요</string>
+    <string name="onboarding_title_widget">위젯 제공</string>
+    <string name="onboarding_message_widget">앱을 실행할 필요없이 위젯으로도 날씨 정보를 확인할 수 있어요</string>
+    <string name="onboarding_button_start_app">시작하기</string>
+    <string name="nav_onboarding">온보딩</string>
 </resources>

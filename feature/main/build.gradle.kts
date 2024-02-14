@@ -9,8 +9,6 @@ android {
 }
 
 dependencies {
-    implementation(libs.ksealedbinding.annotation)
-    ksp(libs.ksealedbinding.compiler)
     implementation(libs.androidx.activity)
     implementation(project(":feature:permoptimize"))
 
@@ -22,4 +20,5 @@ dependencies {
     implementation(project(":feature:favorite"))
     implementation(project(":feature:componentservice"))
     implementation(project(":feature:map"))
+    implementation(project(":feature:splash"))
 }

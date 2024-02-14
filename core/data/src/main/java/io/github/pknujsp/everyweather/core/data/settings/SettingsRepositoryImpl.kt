@@ -33,6 +33,8 @@ class SettingsRepositoryImpl(
             PrecipitationUnit.Companion,
             WeatherProvider.Companion,
             RefreshInterval.Companion)
+
+        private const val INITIALIZED_KEY = "initialized"
     }
 
     override suspend fun <V : PreferenceModel> update(type: BasePreferenceModel<V>, value: V) {
@@ -46,9 +48,7 @@ class SettingsRepositoryImpl(
                 windSpeedUnit = this[WindSpeedUnit]!! as WindSpeedUnit,
                 precipitationUnit = this[PrecipitationUnit]!! as PrecipitationUnit),
                 weatherProvider = this[WeatherProvider]!! as WeatherProvider,
-                widgetAutoRefreshInterval = this[RefreshInterval]!! as RefreshInterval).apply {
-                Log.d("SettingsRepositoryImpl", "init: $this")
-            })
+                widgetAutoRefreshInterval = this[RefreshInterval]!! as RefreshInterval))
         }
     }
 
@@ -59,5 +59,11 @@ class SettingsRepositoryImpl(
         }
     }
 
+    override suspend fun isInitialized(): Boolean {
+        return appDataStore.readAsInt(INITIALIZED_KEY) is DBEntityState.Exists
+    }
 
+    override suspend fun completeInitialization() {
+        appDataStore.save(INITIALIZED_KEY, 1)
+    }
 }

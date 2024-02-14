@@ -26,12 +26,12 @@ import kotlinx.serialization.Serializable
  */
 @Serializable
 enum class AirQualityDescription(@StringRes val descriptionStringId: Int, val color: Color, val range: IntRange, val description: String) {
-    GOOD(R.string.airquality_0_good, Color(0xFF009865), 0..50, "좋음"),
-    MODERATE(R.string.airquality_1_moderate, Color(0xfffede33), 51..100, "보통"),
-    UNHEALTHY_FOR_SENSITIVE_GROUPS(R.string.airquality_2_unhealthy_for_sensitive_groups, Color(0xFFFF9934), 101..150, "약간 나쁨"),
-    UNHEALTHY(R.string.airquality_3_unhealthy, Color(0xFFCC0033), 151..200, "나쁨"),
-    VERY_UNHEALTHY(R.string.airquality_4_very_unhealthy, Color(0xFF670099), 201..300, "매우 나쁨"),
-    HAZARDOUS(R.string.airquality_5_hazardous, Color(0xFF7E0123), 301..500, "최악");
+    GOOD(R.string.airquality_0_good, Color(0xFF009865), 0..50, "Good"),
+    MODERATE(R.string.airquality_1_moderate, Color(0xfffede33), 51..100, "Moderate"),
+    UNHEALTHY_FOR_SENSITIVE_GROUPS(R.string.airquality_2_unhealthy_for_sensitive_groups, Color(0xFFFF9934), 101..150, "Slightly bad"),
+    UNHEALTHY(R.string.airquality_3_unhealthy, Color(0xFFCC0033), 151..200, "Bad"),
+    VERY_UNHEALTHY(R.string.airquality_4_very_unhealthy, Color(0xFF670099), 201..300, "Very bad"),
+    HAZARDOUS(R.string.airquality_5_hazardous, Color(0xFF7E0123), 301..500, "Hazardous");
 
     companion object {
         fun fromValue(value: Int): AirQualityDescription {

@@ -5,7 +5,7 @@ import android.content.Context
 import android.util.Log
 import io.github.pknujsp.everyweather.core.FeatureStateManager
 import io.github.pknujsp.everyweather.core.common.FeatureType
-import io.github.pknujsp.everyweather.core.common.manager.FailedReason
+import io.github.pknujsp.everyweather.core.common.FailedReason
 import io.github.pknujsp.everyweather.core.common.manager.WidgetManager
 import io.github.pknujsp.everyweather.core.data.widget.SavedWidgetContentState
 import io.github.pknujsp.everyweather.core.data.widget.WidgetRepository
@@ -32,7 +32,7 @@ class AppWidgetViewUpdater(
     private val featureStateManager: FeatureStateManager,
     private val currentUnits: CurrentUnits,
 ) {
-    private val requiredFeatures: Array<FeatureType> = arrayOf(FeatureType.NETWORK)
+    private val requiredFeatures: Array<FeatureType> = arrayOf(FeatureType.Network)
 
     suspend operator fun invoke(context: Context, widgetIds: List<Int>?) {
         val widgets = widgetRepository.get(widgetIds ?: widgetManager.installedAllWidgetIds).filterNot {
@@ -48,9 +48,9 @@ class AppWidgetViewUpdater(
     private fun updateViews(context: Context, widgets: List<SavedWidgetContentState>) {
         val updatedWidgetsCompletely = mutableSetOf<SavedWidgetContentState>()
         widgets.filter { it.locationType is LocationType.CurrentLocation }.let { filtered ->
-            if (!filtered.checkPrimaryRequiredFeatures(arrayOf(FeatureType.LOCATION_PERMISSION,
-                    FeatureType.LOCATION_SERVICE,
-                    FeatureType.BACKGROUND_LOCATION_PERMISSION), context)) {
+            if (!filtered.checkPrimaryRequiredFeatures(arrayOf(FeatureType.Permission.Location,
+                    FeatureType.LocationService,
+                    FeatureType.Permission.BackgroundLocation), context)) {
                 updatedWidgetsCompletely.addAll(filtered)
             }
         }

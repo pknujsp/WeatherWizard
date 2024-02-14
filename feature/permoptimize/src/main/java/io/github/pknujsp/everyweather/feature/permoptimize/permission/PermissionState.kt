@@ -1,8 +1,6 @@
 package io.github.pknujsp.everyweather.feature.permoptimize.permission
 
-import android.app.Activity
 import android.content.Context
-import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.Composable
@@ -13,75 +11,71 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
-import io.github.pknujsp.everyweather.core.common.asActivity
-import io.github.pknujsp.everyweather.core.common.manager.PermissionType
-import io.github.pknujsp.everyweather.core.common.manager.checkSelfPermission
-import io.github.pknujsp.everyweather.core.common.manager.shouldShowRequestPermissionRationale
+import io.github.pknujsp.everyweather.core.common.FeatureType
 
 
 sealed interface PermissionState {
-    val permissionType: PermissionType
+    val permissionType: FeatureType.Permission
 
-    data class Granted(override val permissionType: PermissionType) : PermissionState
-    data class Denied(override val permissionType: PermissionType) : PermissionState
-    data class ShouldShowRationale(override val permissionType: PermissionType) : PermissionState
+    data class Granted(override val permissionType: FeatureType.Permission) : PermissionState
+    data class Denied(override val permissionType: FeatureType.Permission) : PermissionState
 }
 
 private class MutablePermissionManager(
-    val fetchPermissionStateFunc: () -> Unit
+    permissionType: FeatureType.Permission, context: Context, val fetchPermissionStateFunc: () -> Unit
 ) : PermissionManager {
-    override var permissionState: PermissionState? by mutableStateOf(null)
+    override var permissionState: PermissionState by mutableStateOf(if (permissionType.isAvailable(context)) {
+        PermissionState.Granted(permissionType)
+    } else {
+        PermissionState.Denied(permissionType)
+    })
+    override var isShowSettingsActivity: Boolean by mutableStateOf(false)
 
     override fun fetchPermissionState() {
         fetchPermissionStateFunc()
+    }
+
+    override fun showSettingsActivity() {
+        isShowSettingsActivity = true
+    }
+
+    override fun hideSettingsActivity() {
+        isShowSettingsActivity = false
     }
 }
 
 @Stable
 interface PermissionManager {
-    val permissionState: PermissionState?
+    val permissionState: PermissionState
+    val isShowSettingsActivity: Boolean
     fun fetchPermissionState()
+    fun showSettingsActivity()
+    fun hideSettingsActivity()
 }
 
 
 @Composable
 fun rememberPermissionManager(
     context: Context = LocalContext.current,
-    defaultPermissionType: PermissionType,
+    defaultPermissionType: FeatureType.Permission,
 ): PermissionManager {
-    val activity = context.asActivity()!!
-    var fetchPermissionType by remember(defaultPermissionType) { mutableStateOf<Pair<PermissionType, Long>>(defaultPermissionType to 0) }
+    var fetchPermissionType by remember(defaultPermissionType) { mutableStateOf<Pair<FeatureType.Permission, Long>>(defaultPermissionType to 0) }
 
     val permissionManager = remember {
-        MutablePermissionManager(fetchPermissionStateFunc = {
+        MutablePermissionManager(defaultPermissionType, context, fetchPermissionStateFunc = {
             fetchPermissionType = fetchPermissionType.first to fetchPermissionType.second + 1
         })
     }
     val permissionLauncher = rememberLauncherForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { result ->
         permissionManager.permissionState = if (result.all { it.value }) {
-            PermissionState.Granted(fetchPermissionType.first)
-        } else if (activity.shouldShowRequestPermissionRationale(result.entries.first { !it.value }.key)) {
-            PermissionState.ShouldShowRationale(fetchPermissionType.first)
+            PermissionState.Granted(defaultPermissionType)
         } else {
-            PermissionState.Denied(fetchPermissionType.first)
+            PermissionState.Denied(defaultPermissionType)
         }
     }
 
     LaunchedEffect(fetchPermissionType) {
-        permissionManager.permissionState = fetchPermission(activity, fetchPermissionType.first, permissionLauncher)
+        permissionLauncher.launch(fetchPermissionType.first.permissions)
     }
     return permissionManager
-}
-
-private fun fetchPermission(
-    activity: Activity,
-    permissionType: PermissionType,
-    activityResultLauncher: ManagedActivityResultLauncher<Array<String>, Map<String, Boolean>>
-) = when {
-    activity.checkSelfPermission(permissionType) -> PermissionState.Granted(permissionType)
-    activity.shouldShowRequestPermissionRationale(permissionType) -> PermissionState.ShouldShowRationale(permissionType)
-    else -> {
-        activityResultLauncher.launch(permissionType.permissions)
-        PermissionState.Denied(permissionType)
-    }
 }

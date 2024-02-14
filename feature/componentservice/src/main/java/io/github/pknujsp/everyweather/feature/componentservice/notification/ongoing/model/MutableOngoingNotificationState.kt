@@ -11,6 +11,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavController
 import io.github.pknujsp.everyweather.core.common.FeatureType
@@ -24,11 +25,16 @@ import io.github.pknujsp.everyweather.feature.componentservice.manager.AppCompon
 import io.github.pknujsp.everyweather.feature.permoptimize.feature.AppFeatureState
 import io.github.pknujsp.everyweather.feature.permoptimize.feature.ShowAppSettingsActivity
 import io.github.pknujsp.everyweather.feature.permoptimize.feature.rememberAppFeatureState
+import io.github.pknujsp.everyweather.feature.permoptimize.permission.PermissionManager
+import io.github.pknujsp.everyweather.feature.permoptimize.permission.PermissionState
+import io.github.pknujsp.everyweather.feature.permoptimize.permission.rememberPermissionManager
+import kotlinx.coroutines.flow.combine
 
 private class MutableOngoingNotificationState(
     context: Context,
     override val notificationUiState: OngoingNotificationUiState,
-    override val featureState: AppFeatureState,
+    override val batteryOptimizationState: AppFeatureState,
+    override val backgroundLocationPermissionManager: PermissionManager,
     override val snackbarHostState: SnackbarHostState
 ) : OngoingNotificationState {
     private val ongoingNotificationAlarmManager =
@@ -39,12 +45,8 @@ private class MutableOngoingNotificationState(
 
     fun switchNotification(
         context: Context, refreshInterval: RefreshInterval
-    ): Boolean {
+    ) {
         if (notificationUiState.isEnabled) {
-            if (!featureState.isAvailable && refreshInterval != RefreshInterval.MANUAL) {
-                return false
-            }
-
             context.sendBroadcast(ComponentPendingIntentManager.getIntent(context,
                 OngoingNotificationServiceArgument(),
                 AppComponentServiceReceiver.ACTION_REFRESH))
@@ -53,8 +55,6 @@ private class MutableOngoingNotificationState(
             ongoingNotificationAlarmManager.unScheduleAutoRefresh()
             appNotificationManager.cancelNotification(NotificationType.ONGOING)
         }
-
-        return true
     }
 }
 
@@ -62,34 +62,68 @@ private class MutableOngoingNotificationState(
 fun rememberOngoingNotificationState(
     navController: NavController, ongoingNotificationUiState: OngoingNotificationUiState, context: Context = LocalContext.current
 ): OngoingNotificationState {
-    val featureState = rememberAppFeatureState(featureType = FeatureType.BATTERY_OPTIMIZATION)
+    val batteryOptimizationState = rememberAppFeatureState(featureType = FeatureType.BatteryOptimization)
+    val backgroundLocationPermissionManager = rememberPermissionManager(defaultPermissionType = FeatureType.Permission.BackgroundLocation)
     val snackbarHostState = remember { SnackbarHostState() }
 
     val state = remember(navController, ongoingNotificationUiState) {
-        MutableOngoingNotificationState(context, ongoingNotificationUiState, featureState, snackbarHostState)
+        MutableOngoingNotificationState(context,
+            ongoingNotificationUiState,
+            batteryOptimizationState,
+            backgroundLocationPermissionManager,
+            snackbarHostState)
     }
 
     LaunchedEffect(ongoingNotificationUiState.settings.refreshInterval) {
         val refreshInterval = ongoingNotificationUiState.settings.refreshInterval
-        if (refreshInterval != RefreshInterval.MANUAL && !featureState.isAvailable) {
-            showSnackbar(context, featureState.featureType, featureState, snackbarHostState)
+        if (refreshInterval != RefreshInterval.MANUAL && !batteryOptimizationState.isAvailable) {
+            showSnackbar(context, batteryOptimizationState.featureType, batteryOptimizationState::showSettingsActivity, snackbarHostState)
         }
     }
     LaunchedEffect(ongoingNotificationUiState.action, ongoingNotificationUiState.changedCount) {
-        if (ongoingNotificationUiState.action != OngoingNotificationUiState.Action.NONE) {
-            if (state.switchNotification(context, ongoingNotificationUiState.settings.refreshInterval)) {
+        if (ongoingNotificationUiState.action == OngoingNotificationUiState.Action.DISABLED) {
+            state.switchNotification(context, ongoingNotificationUiState.settings.refreshInterval)
+        } else if (ongoingNotificationUiState.action != OngoingNotificationUiState.Action.NONE) {
+            if (!batteryOptimizationState.isAvailable && ongoingNotificationUiState.settings.refreshInterval != RefreshInterval.MANUAL) {
+                showSnackbar(context,
+                    batteryOptimizationState.featureType,
+                    batteryOptimizationState::showSettingsActivity,
+                    snackbarHostState)
+            } else if (backgroundLocationPermissionManager.permissionState is PermissionState.Denied) {
+                showSnackbar(context,
+                    backgroundLocationPermissionManager.permissionState.permissionType,
+                    backgroundLocationPermissionManager::showSettingsActivity,
+                    snackbarHostState)
+            } else {
+                state.switchNotification(context, ongoingNotificationUiState.settings.refreshInterval)
                 if (ongoingNotificationUiState.action == OngoingNotificationUiState.Action.UPDATED) {
                     navController.popBackStack()
                 }
-            } else {
-                showSnackbar(context, featureState.featureType, featureState, snackbarHostState)
             }
         }
     }
 
-    if (featureState.isShowSettingsActivity) {
-        ShowAppSettingsActivity(featureType = featureState.featureType) {
-            featureState.hideSettingsActivity()
+    LaunchedEffect(Unit) {
+        snapshotFlow { batteryOptimizationState.isAvailable }.combine(snapshotFlow { backgroundLocationPermissionManager.permissionState }) { battery, permission ->
+            battery to permission
+        }.collect { (ignoredBatteryOptimization, permissionState) ->
+            if (permissionState is PermissionState.Granted && (ongoingNotificationUiState.settings.refreshInterval == RefreshInterval.MANUAL || ignoredBatteryOptimization)) {
+                if (ongoingNotificationUiState.action == OngoingNotificationUiState.Action.UPDATED || ongoingNotificationUiState.action == OngoingNotificationUiState.Action.ENABLED) {
+                    state.switchNotification(context, ongoingNotificationUiState.settings.refreshInterval)
+                }
+            }
+        }
+    }
+
+    if (batteryOptimizationState.isShowSettingsActivity) {
+        ShowAppSettingsActivity(featureType = batteryOptimizationState.featureType) {
+            batteryOptimizationState.hideSettingsActivity()
+        }
+    }
+    if (backgroundLocationPermissionManager.isShowSettingsActivity) {
+        ShowAppSettingsActivity(featureType = backgroundLocationPermissionManager.permissionState.permissionType) {
+            backgroundLocationPermissionManager.hideSettingsActivity()
+            backgroundLocationPermissionManager.fetchPermissionState()
         }
     }
     return state
@@ -97,13 +131,13 @@ fun rememberOngoingNotificationState(
 
 
 private suspend fun showSnackbar(
-    context: Context, featureType: FeatureType, featureState: AppFeatureState, snackbarHostState: SnackbarHostState
+    context: Context, featureType: FeatureType, showSettingsActivity: () -> Unit, snackbarHostState: SnackbarHostState
 ) {
     when (snackbarHostState.showSnackbar(message = context.getString(featureType.message),
         actionLabel = context.getString(featureType.action),
         duration = SnackbarDuration.Short)) {
         SnackbarResult.ActionPerformed -> {
-            featureState.showSettingsActivity()
+            showSettingsActivity()
         }
 
         SnackbarResult.Dismissed -> {
@@ -113,7 +147,8 @@ private suspend fun showSnackbar(
 
 @Stable
 interface OngoingNotificationState {
-    val featureState: AppFeatureState
+    val batteryOptimizationState: AppFeatureState
+    val backgroundLocationPermissionManager: PermissionManager
     val snackbarHostState: SnackbarHostState
     val notificationUiState: OngoingNotificationUiState
     var showSearch: Boolean

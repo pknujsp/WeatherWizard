@@ -30,7 +30,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import io.github.pknujsp.everyweather.core.resource.R
-import io.github.pknujsp.everyweather.core.ui.PlaceHolder
 import io.github.pknujsp.everyweather.core.ui.button.SecondaryButton
 import io.github.pknujsp.everyweather.core.ui.theme.AppShapes
 
@@ -71,13 +70,6 @@ fun SimpleWeatherScreenBackground(modifier: Modifier = Modifier, cardInfo: CardI
     }
 }
 
-@Composable
-fun SimpleWeatherBackgroundPlaceHolder() {
-    PlaceHolder(Modifier
-        .fillMaxWidth()
-        .height(160.dp)
-        .padding(horizontal = 12.dp, vertical = 8.dp))
-}
 
 @Composable
 fun SimpleWeatherFailedBox(title: String, description: String, onClick: () -> Unit) {

@@ -23,14 +23,16 @@ data class CurrentWeatherEntity(
 
 
     override fun toString(): String = """
-        ## 현재 날씨
-        - 날씨 : ${weatherCondition.value.description}
-        - 기온 : $temperature
-        - 체감 온도 : $feelsLikeTemperature
-        - 습도 : $humidity
-        - 풍속 : $windSpeed
-        - 풍향 : ${windDirection.convertUnit(WindDirectionUnit.Degree)}
-        - 강수량 : $precipitationVolume
+        ## Current Weather
+        
+        - Weather condition : ${weatherCondition.value.description}
+        - Temperature : $temperature
+        - Feels like Temperature : $feelsLikeTemperature
+        - Humidity : $humidity
+        - Wind speed : $windSpeed
+        - Wind direction : ${windDirection.convertUnit(WindDirectionUnit.Degree)}
+        - Precipitation volume : $precipitationVolume
+        
     """.trimIndent()
 
 

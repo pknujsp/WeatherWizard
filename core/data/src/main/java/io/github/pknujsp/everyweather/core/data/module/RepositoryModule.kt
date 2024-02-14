@@ -1,7 +1,10 @@
 package io.github.pknujsp.everyweather.core.data.module
 
 import com.google.ai.client.generativeai.GenerativeModel
+import com.google.ai.client.generativeai.type.BlockThreshold
 import com.google.ai.client.generativeai.type.GenerateContentResponse
+import com.google.ai.client.generativeai.type.HarmCategory
+import com.google.ai.client.generativeai.type.SafetySetting
 import com.google.ai.client.generativeai.type.generationConfig
 import dagger.Binds
 import dagger.Module
@@ -113,7 +116,8 @@ abstract class RepositoryModule {
         @Singleton
         @JvmStatic
         @Provides
-        fun providesTargetAreaRepository(appDataStore: AppDataStore): TargetLocationRepository = TargetLocationRepositoryImpl(appDataStore)
+        fun providesTargetAreaRepository(appDataStore: AppDataStore): TargetLocationRepositoryImpl =
+            TargetLocationRepositoryImpl(appDataStore)
 
         @Singleton
         @JvmStatic
@@ -151,11 +155,19 @@ abstract class RepositoryModule {
                 cacheMaxSize = 5,
                 dispatcher = dispatcher,
             )
-            return SummaryTextRepositoryImpl(GenerativeModel("gemini-pro", BuildConfig.GOOGLE_AI_STUDIO_KEY, generationConfig {
-                temperature = 0.8f
-            }),
-                cacheManagerImpl,
-                cacheManagerImpl)
+            return SummaryTextRepositoryImpl(GenerativeModel("gemini-pro",
+                BuildConfig.GOOGLE_AI_STUDIO_KEY,
+                generationConfig {
+                    temperature = 0.55f
+                    topK = 4
+                    topP = 0.95f
+                },
+                safetySettings = listOf(
+                    SafetySetting(HarmCategory.HARASSMENT, BlockThreshold.NONE),
+                    SafetySetting(HarmCategory.DANGEROUS_CONTENT, BlockThreshold.NONE),
+                    SafetySetting(HarmCategory.HATE_SPEECH, BlockThreshold.NONE),
+                    SafetySetting(HarmCategory.SEXUALLY_EXPLICIT, BlockThreshold.NONE),
+                )), cacheManagerImpl, cacheManagerImpl)
         }
 
 
@@ -192,4 +204,8 @@ abstract class RepositoryModule {
         summaryTextRepositoryImpl: SummaryTextRepositoryImpl
     ): SummaryTextRepository
 
+    @Binds
+    internal abstract fun providesFavoriteAreaRepository(
+        targetLocationRepositoryImpl: TargetLocationRepositoryImpl
+    ): TargetLocationRepository
 }

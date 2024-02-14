@@ -39,4 +39,11 @@ sealed interface MainRoutes : ParentRoutes {
         override val navTitle: Int = io.github.pknujsp.everyweather.core.resource.R.string.nav_settings
         override val systemBarContentColor = SystemBarContentColor.BLACK
     }
+
+    data object Onboarding : MainRoutes {
+        override val route: String = "Onboarding"
+        override val navIcon: Int = io.github.pknujsp.everyweather.core.resource.R.drawable.baseline_settings_24
+        override val navTitle: Int = io.github.pknujsp.everyweather.core.resource.R.string.nav_onboarding
+        override val systemBarContentColor = SystemBarContentColor.BLACK
+    }
 }

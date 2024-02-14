@@ -16,6 +16,8 @@ import androidx.compose.material.icons.rounded.Delete
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
@@ -23,6 +25,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -38,53 +41,64 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import io.github.pknujsp.everyweather.core.model.coordinate.LocationType
 import io.github.pknujsp.everyweather.core.resource.R
-import io.github.pknujsp.everyweather.core.ui.button.SecondaryButton
 import io.github.pknujsp.everyweather.core.ui.TitleTextWithNavigation
-import io.github.pknujsp.everyweather.core.ui.dialog.BottomSheet
+import io.github.pknujsp.everyweather.core.ui.box.CustomBox
+import io.github.pknujsp.everyweather.core.ui.button.SecondaryButton
+import io.github.pknujsp.everyweather.core.ui.dialog.CustomModalBottomSheet
 import io.github.pknujsp.everyweather.core.ui.dialog.DialogScreen
 import io.github.pknujsp.everyweather.core.ui.list.EmptyListScreen
 import io.github.pknujsp.everyweather.core.ui.theme.AppShapes
 import io.github.pknujsp.everyweather.feature.componentservice.notification.NotificationRoutes
 import io.github.pknujsp.everyweather.feature.componentservice.notification.daily.model.list.DailyNotificationSettingsListItem
 import io.github.pknujsp.everyweather.feature.componentservice.notification.daily.model.list.rememberDailyNotificationListState
+import kotlinx.coroutines.launch
 
 @Composable
 fun DailyNotificationListScreen(navController: NavController, viewModel: DailyNotificationListViewModel = hiltViewModel()) {
     val notificationsState = rememberDailyNotificationListState(viewModel::switch, viewModel::delete)
     val notificationListUiState = viewModel.notifications
+    val snackbarHostState = remember { SnackbarHostState() }
+    val coroutineScope = rememberCoroutineScope()
 
-    Column(modifier = Modifier.fillMaxSize()) {
-        TitleTextWithNavigation(title = stringResource(id = R.string.title_daily_notification)) {
-            navController.popBackStack()
-        }
-        val context = LocalContext.current
+    CustomBox(snackbarHost = { SnackbarHost(hostState = snackbarHostState) }) {
+        Column(modifier = Modifier.fillMaxSize()) {
+            TitleTextWithNavigation(title = stringResource(id = R.string.title_daily_notification)) {
+                navController.popBackStack()
+            }
+            val context = LocalContext.current
 
-        LazyColumn(modifier = Modifier.weight(1f), state = notificationsState.lazyListState) {
-            if (notificationListUiState.notifications.isEmpty()) {
-                item {
-                    EmptyListScreen(message = R.string.empty_daily_notification)
-                }
-            } else {
-                items(notificationListUiState.notifications) { notification ->
-                    Item(item = notification, onClick = {
-                        navController.navigate(NotificationRoutes.AddOrEditDaily.routeWithArguments(notification.id))
-                    }, onSwitch = { item ->
-                        notificationsState.switch(item, context)
-                    }, onDelete = {
-                        notificationsState.delete(it, context)
-                    })
+            LazyColumn(modifier = Modifier.weight(1f), state = notificationsState.lazyListState) {
+                if (notificationListUiState.notifications.isEmpty()) {
+                    item {
+                        EmptyListScreen(message = R.string.empty_daily_notification)
+                    }
+                } else {
+                    items(notificationListUiState.notifications) { notification ->
+                        Item(item = notification, onClick = {
+                            navController.navigate(NotificationRoutes.AddOrEditDaily.routeWithArguments(notification.id))
+                        }, onSwitch = { item ->
+                            notificationsState.switch(item, context)
+                            coroutineScope.launch {
+                                snackbarHostState.showSnackbar(message = context.getString(if (item.isEnabled) R.string
+                                    .daily_notification_enabled else R.string.daily_notification_disabled))
+                            }
+                        }, onDelete = {
+                            notificationsState.delete(it, context)
+                            coroutineScope.launch {
+                                snackbarHostState.showSnackbar(message = context.getString(R.string.deleted_daily_notification))
+                            }
+                        })
+                    }
                 }
             }
-        }
 
-        Box(modifier = Modifier.padding(12.dp)) {
-            SecondaryButton(text = stringResource(id = R.string.add_daily_notification),
-                modifier = Modifier.fillMaxWidth()) {
-                navController.navigate(NotificationRoutes.AddOrEditDaily.routeWithArguments(-1L))
+            Box(modifier = Modifier.padding(12.dp)) {
+                SecondaryButton(text = stringResource(id = R.string.add_daily_notification), modifier = Modifier.fillMaxWidth()) {
+                    navController.navigate(NotificationRoutes.AddOrEditDaily.routeWithArguments(-1L))
+                }
             }
         }
     }
-
 }
 
 
@@ -128,13 +142,13 @@ private fun Item(
                 }
 
                 if (isClickedDelete) {
-                    BottomSheet(
+                    CustomModalBottomSheet(
                         onDismissRequest = {
                             isClickedDelete = false
                         },
                     ) {
                         val message =
-                            stringResource(id = io.github.pknujsp.everyweather.core.resource.R.string.delete_daily_notification_message).let {
+                            stringResource(id = R.string.delete_daily_notification_message).let {
                                 "${item.timeText} $it"
                             }
                         DialogScreen(title = stringResource(id = R.string.delete),

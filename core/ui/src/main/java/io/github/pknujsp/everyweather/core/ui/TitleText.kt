@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.rounded.ArrowBack
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -36,7 +37,7 @@ fun TitleTextWithNavigation(
         verticalAlignment = androidx.compose.ui.Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(12.dp)) {
         IconButton(onClick = onClickNavigation) {
-            Icon(Icons.Rounded.ArrowBack, contentDescription = stringResource(io.github.pknujsp.everyweather.core.resource.R.string.back))
+            Icon(Icons.AutoMirrored.Rounded.ArrowBack, contentDescription = stringResource(io.github.pknujsp.everyweather.core.resource.R.string.back))
         }
         TitleText(title = title, textStyle = TextStyle(fontSize = 23.sp))
     }
@@ -50,7 +51,7 @@ fun TitleTextWithoutNavigation(
         modifier = modifier
             .padding(bottom = 12.dp, start = 16.dp)
             .then(modifier),
-        textStyle = TextStyle(fontSize = 23.sp))
+        textStyle = TextStyle(fontSize = 22.sp))
 }
 
 @Composable
@@ -59,7 +60,7 @@ fun MediumTitleTextWithoutNavigation(
 ) {
     TitleText(title = title,
         modifier = modifier
-            .padding(bottom = 10.dp, start = 12.dp)
+            .padding(bottom = 10.dp, start = 16.dp)
             .then(modifier),
-        textStyle = TextStyle(fontSize = 21.sp))
+        textStyle = TextStyle(fontSize = 20.sp))
 }

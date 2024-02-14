@@ -10,6 +10,8 @@ import io.github.pknujsp.everyweather.core.data.RepositoryCacheManager
 import io.github.pknujsp.everyweather.core.data.RepositoryInitializer
 import io.github.pknujsp.everyweather.core.data.ai.SummaryTextRepositoryImpl
 import io.github.pknujsp.everyweather.core.data.aqicn.AirQualityRepositoryImpl
+import io.github.pknujsp.everyweather.core.data.favorite.TargetLocationRepository
+import io.github.pknujsp.everyweather.core.data.favorite.TargetLocationRepositoryImpl
 import io.github.pknujsp.everyweather.core.data.rainviewer.RadarTilesRepositoryImpl
 import io.github.pknujsp.everyweather.core.data.settings.SettingsRepositoryImpl
 import io.github.pknujsp.everyweather.core.data.weather.WeatherDataRepositoryImpl
@@ -24,6 +26,7 @@ object RepositoryInitializerModule {
     const val AIR_QUALITY_REPOSITORY = "AIR_QUALITY_REPOSITORY"
     const val RAIN_VIEWER_REPOSITORY = "RAIN_VIEWER_REPOSITORY"
     const val SETTINGS_REPOSITORY = "SETTINGS_REPOSITORY"
+    const val TARGET_LOCATION_REPOSITORY = "TARGET_LOCATION_REPOSITORY"
     const val SUMMARY_TEXT_REPOSITORY = "SUMMARY_TEXT_REPOSITORY"
 
     @Provides
@@ -45,6 +48,11 @@ object RepositoryInitializerModule {
     @Named(SETTINGS_REPOSITORY)
     internal fun providesSettingsRepositoryInitializer(settingsRepositoryImpl: SettingsRepositoryImpl): RepositoryInitializer =
         settingsRepositoryImpl
+
+    @Provides
+    @Named(TARGET_LOCATION_REPOSITORY)
+    internal fun providesTargetLocationRepositoryInitializer(targetLocationRepositoryImpl: TargetLocationRepositoryImpl): RepositoryInitializer =
+        targetLocationRepositoryImpl
 
     @Provides
     @Named(SUMMARY_TEXT_REPOSITORY)

@@ -11,10 +11,7 @@ import io.github.pknujsp.everyweather.feature.weather.route.WeatherRoutes
 fun HostWeatherScreen(openDrawer: () -> Unit) {
     val navController = rememberNavController()
 
-    NavHost(navController = navController, route = WeatherRoutes.route, startDestination = WeatherRoutes.Main.route) {
-        composable(WeatherRoutes.Main.route) {
-            PrimaryFeatureChecker(navController, openDrawer)
-        }
+    NavHost(navController = navController, route = WeatherRoutes.route, startDestination = WeatherRoutes.Info.route) {
         composable(WeatherRoutes.Info.route) {
             WeatherInfoScreen(openDrawer)
         }

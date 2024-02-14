@@ -1,7 +1,9 @@
 package io.github.pknujsp.everyweather.core.common.manager
 
+import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.pm.PackageManager
 import android.location.Location
 import android.location.LocationManager
 import com.google.android.gms.location.CurrentLocationRequest
@@ -23,9 +25,6 @@ private class AppLocationManagerImpl(private val context: Context) : AppLocation
 
     override val isGpsProviderEnabled: Boolean
         get() = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
-
-    override val isPermissionGranted: Boolean
-        get() = context.checkSelfPermission(PermissionType.LOCATION)
 
     @SuppressLint("MissingPermission")
     override suspend fun getCurrentLocation(): AppLocationManager.LocationResult {
@@ -80,7 +79,6 @@ interface AppLocationManager : AppComponentManager {
     }
 
     val isGpsProviderEnabled: Boolean
-    val isPermissionGranted: Boolean
     suspend fun getCurrentLocation(): LocationResult
 
     sealed interface LocationResult {

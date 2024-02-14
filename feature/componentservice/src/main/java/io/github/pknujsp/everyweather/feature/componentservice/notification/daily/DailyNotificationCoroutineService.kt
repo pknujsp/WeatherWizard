@@ -31,9 +31,9 @@ class DailyNotificationCoroutineService @AssistedInject constructor(
     companion object : IWorker {
         override val name: String = "DailyNotificationWorker"
         override val requiredFeatures: Array<FeatureType> = arrayOf(
-            FeatureType.NETWORK,
-            FeatureType.POST_NOTIFICATION_PERMISSION,
-            FeatureType.SCHEDULE_EXACT_ALARM_PERMISSION,
+            FeatureType.Network,
+            FeatureType.Permission.PostNotification,
+            FeatureType.Permission.ScheduleExactAlarm,
         )
 
     }
@@ -52,9 +52,10 @@ class DailyNotificationCoroutineService @AssistedInject constructor(
         val notificationId = argument.notificationId
         val notificationEntity = viewModel.loadNotification(notificationId)
 
-        if (notificationEntity.location.locationType is LocationType.CurrentLocation && !checkFeatureStateAndNotify(arrayOf(FeatureType.LOCATION_PERMISSION,
-                FeatureType.LOCATION_SERVICE,
-                FeatureType.BACKGROUND_LOCATION_PERMISSION), context)) {
+        if (notificationEntity.location.locationType is LocationType.CurrentLocation && !checkFeatureStateAndNotify(arrayOf(FeatureType
+            .Permission.Location,
+                FeatureType.LocationService,
+                FeatureType.Permission.BackgroundLocation), context)) {
             return
         }
 

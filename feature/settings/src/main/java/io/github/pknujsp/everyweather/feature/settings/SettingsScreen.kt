@@ -3,6 +3,7 @@ package io.github.pknujsp.everyweather.feature.settings
 import android.content.Context
 import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
@@ -12,11 +13,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import io.github.pknujsp.everyweather.core.common.FeatureType
 import io.github.pknujsp.everyweather.core.common.manager.AppComponentManagerFactory
 import io.github.pknujsp.everyweather.core.model.notification.enums.RefreshInterval
 import io.github.pknujsp.everyweather.core.model.weather.common.WeatherProvider
@@ -27,6 +30,11 @@ import io.github.pknujsp.everyweather.core.ui.CheckBoxSettingItem
 import io.github.pknujsp.everyweather.core.ui.ClickableSettingItem
 import io.github.pknujsp.everyweather.core.ui.TitleTextWithNavigation
 import io.github.pknujsp.everyweather.feature.componentservice.manager.AppComponentServiceManagerFactory
+import io.github.pknujsp.everyweather.feature.permoptimize.feature.ShowAppSettingsActivity
+import io.github.pknujsp.everyweather.feature.permoptimize.feature.SmallFeatureStateScreen
+import io.github.pknujsp.everyweather.feature.permoptimize.feature.rememberAppFeatureState
+import io.github.pknujsp.everyweather.feature.permoptimize.permission.PermissionState
+import io.github.pknujsp.everyweather.feature.permoptimize.permission.rememberPermissionManager
 import kotlinx.coroutines.launch
 
 @Composable
@@ -39,6 +47,9 @@ fun SettingsScreen(navController: NavController, viewModel: SettingsViewModel = 
     val backDispatcher = remember {
         onBackPressedDispatcherOwner?.onBackPressedDispatcher
     }
+
+    val batteryOptimizationFeatureState = rememberAppFeatureState(featureType = FeatureType.BatteryOptimization)
+    val backgroundLocationPermissionManager = rememberPermissionManager(defaultPermissionType = FeatureType.Permission.BackgroundLocation)
 
     Column {
         TitleTextWithNavigation(title = stringResource(id = R.string.nav_settings), onClickNavigation = {
@@ -82,6 +93,31 @@ fun SettingsScreen(navController: NavController, viewModel: SettingsViewModel = 
                 redrawAppWidgets(context)
             }
         }
+
+        if (settingsUiState.widgetAutoRefreshInterval != RefreshInterval.MANUAL) {
+            if (!batteryOptimizationFeatureState.isAvailable) {
+                SmallFeatureStateScreen(Modifier.padding(8.dp), state = batteryOptimizationFeatureState.featureType, onClickAction = {
+                    batteryOptimizationFeatureState.showSettingsActivity()
+                })
+            }
+            if (backgroundLocationPermissionManager.permissionState !is PermissionState.Granted) {
+                SmallFeatureStateScreen(Modifier.padding(8.dp), state = FeatureType.Permission.BackgroundLocation, onClickAction = {
+                    backgroundLocationPermissionManager.showSettingsActivity()
+                })
+            }
+
+            if (batteryOptimizationFeatureState.isShowSettingsActivity) {
+                ShowAppSettingsActivity(featureType = batteryOptimizationFeatureState.featureType) {
+                    batteryOptimizationFeatureState.hideSettingsActivity()
+                }
+            } else if (backgroundLocationPermissionManager.isShowSettingsActivity) {
+                ShowAppSettingsActivity(featureType = FeatureType.Permission.BackgroundLocation) {
+                    backgroundLocationPermissionManager.hideSettingsActivity()
+                    backgroundLocationPermissionManager.fetchPermissionState()
+                }
+            }
+        }
+
     }
 }
 

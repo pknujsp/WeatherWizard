@@ -8,8 +8,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
-import io.github.pknujsp.everyweather.core.common.asFeatureType
-import io.github.pknujsp.everyweather.core.common.manager.PermissionType
 import io.github.pknujsp.everyweather.feature.componentservice.manager.AppComponentServiceManagerFactory
 import io.github.pknujsp.everyweather.feature.componentservice.manager.DailyNotificationAlarmManager
 
@@ -20,10 +18,7 @@ class DailyNotificationState(
     private val dailyNotificationAlarmManager: DailyNotificationAlarmManager =
         AppComponentServiceManagerFactory.getManager(context, AppComponentServiceManagerFactory.DAILY_NOTIFICATION_ALARM_MANAGER)
 
-    val permissionType: PermissionType = PermissionType.SCHEDULE_EXACT_ALARM_ABOVE_EQUALS_ON_SDK_31
-
     var showSearch by mutableStateOf(false)
-    var scheduleExactAlarmPermissionState by mutableStateOf(permissionType.asFeatureType().isAvailable(context))
 
     fun onChangedSettings(popBackStack: () -> Unit) {
         when (val action = dailyNotificationUiState.action) {
@@ -62,5 +57,6 @@ fun rememberDailyNotificationState(
     val state = remember(dailyNotificationUiState) {
         DailyNotificationState(dailyNotificationUiState, context)
     }
+
     return state
 }
