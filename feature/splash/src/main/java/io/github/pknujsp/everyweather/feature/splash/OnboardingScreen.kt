@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
@@ -33,6 +34,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.util.lerp
+import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import io.github.pknujsp.everyweather.core.ui.button.ButtonSize
@@ -47,10 +49,13 @@ import kotlin.math.absoluteValue
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun OnboardingScreen(navigateToStart: () -> Unit) {
+    val viewModel: OnboardingViewModel = hiltViewModel()
     val coroutineScope = rememberCoroutineScope()
     val currentNavigateToStart by rememberUpdatedState(newValue = navigateToStart)
 
-    Column(modifier = Modifier.fillMaxSize()) {
+    Column(modifier = Modifier
+        .fillMaxSize()
+        .systemBarsPadding()) {
         val pagerState = rememberPagerState(pageCount = {
             onboardingItems.size
         })
@@ -117,6 +122,7 @@ fun OnboardingScreen(navigateToStart: () -> Unit) {
                 } else {
                     PrimaryButton(text = stringResource(id = io.github.pknujsp.everyweather.core.resource.R.string.onboarding_button_start_app),
                         buttonSize = ButtonSize.LARGE) {
+                        viewModel.completeOnboarding()
                         coroutineScope.launch {
                             currentNavigateToStart()
                         }
@@ -130,7 +136,7 @@ fun OnboardingScreen(navigateToStart: () -> Unit) {
 }
 
 @Composable
-fun DefaultOnBoardingItem(onboardingItem: DefaultOnboardingItem) {
+internal fun DefaultOnBoardingItem(onboardingItem: DefaultOnboardingItem) {
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
         Column {
             AsyncImage(model = ImageRequest.Builder(LocalContext.current).data(onboardingItem.image).build(), contentDescription = null)
@@ -145,6 +151,6 @@ fun DefaultOnBoardingItem(onboardingItem: DefaultOnboardingItem) {
 }
 
 @Composable
-fun PermissionOnBoardingItem(onboardingItem: PemissionOnboardingItem) {
+internal fun PermissionOnBoardingItem(onboardingItem: PemissionOnboardingItem) {
 
 }

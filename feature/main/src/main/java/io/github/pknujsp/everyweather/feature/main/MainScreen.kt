@@ -45,16 +45,20 @@ import io.github.pknujsp.everyweather.feature.favorite.HostFavoriteScreen
 import io.github.pknujsp.everyweather.feature.main.exit.AppCloseDialog
 import io.github.pknujsp.everyweather.feature.main.sidebar.favorites.FavoriteLocationsScreen
 import io.github.pknujsp.everyweather.feature.settings.HostSettingsScreen
+import io.github.pknujsp.everyweather.feature.splash.OnboardingScreen
 import io.github.pknujsp.everyweather.feature.weather.HostWeatherScreen
 import kotlinx.coroutines.launch
 
 @Composable
-fun MainScreen(rootNavControllerViewModel: RootNavControllerViewModel = hiltViewModel()) {
+fun MainScreen(
+    rootNavControllerViewModel: RootNavControllerViewModel = hiltViewModel(), mainViewModel: MainViewModel = hiltViewModel()
+) {
     val mainUiState = rememberMainState(rootNavControllerViewModel.requestedRoute)
     val onBackPressedDispatcherOwner = LocalOnBackPressedDispatcherOwner.current
     val lifeCycleOwner = LocalLifecycleOwner.current
     var isCloseAppDialogVisible by remember { mutableStateOf(false) }
     val currentCloseAppDialogVisible by rememberUpdatedState(newValue = isCloseAppDialogVisible)
+    val isInitialized = mainViewModel.isInitialized
 
     LaunchedEffect(Unit) {
         onBackPressedDispatcherOwner!!.onBackPressedDispatcher.addCallback(lifeCycleOwner) {
@@ -76,21 +80,28 @@ fun MainScreen(rootNavControllerViewModel: RootNavControllerViewModel = hiltView
         }
     }
 
-    NavHost(navController = mainUiState.navController,
-        startDestination = MainRoutes.Weather.route,
-        route = MainRoutes.route,
-        modifier = Modifier.fillMaxSize()) {
-        composable(MainRoutes.Weather.route) {
-            WeatherMainScreen(mainUiState)
-        }
-        composable(MainRoutes.Favorite.route) {
-            HostFavoriteScreen()
-        }
-        composable(MainRoutes.Notification.route) {
-            HostNotificationScreen()
-        }
-        composable(MainRoutes.Settings.route) {
-            HostSettingsScreen()
+    if (isInitialized != null) {
+        NavHost(navController = mainUiState.navController,
+            startDestination = if (isInitialized) MainRoutes.Weather.route else MainRoutes.Onboarding.route,
+            route = MainRoutes.route,
+            modifier = Modifier.fillMaxSize()) {
+            composable(MainRoutes.Weather.route) {
+                WeatherMainScreen(mainUiState)
+            }
+            composable(MainRoutes.Favorite.route) {
+                HostFavoriteScreen()
+            }
+            composable(MainRoutes.Notification.route) {
+                HostNotificationScreen()
+            }
+            composable(MainRoutes.Settings.route) {
+                HostSettingsScreen()
+            }
+            composable(MainRoutes.Onboarding.route) {
+                OnboardingScreen {
+                    mainUiState.navigate(MainRoutes.Weather, true)
+                }
+            }
         }
     }
 }

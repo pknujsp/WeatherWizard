@@ -39,7 +39,7 @@ private class MutableMainUiState(
             launchSingleTop = true
             backStackEntry?.destination?.route?.let {
                 popUpTo(it) {
-                    inclusive = false || route is MainRoutes.Weather
+                    inclusive = force || route is MainRoutes.Weather
                 }
             }
         }

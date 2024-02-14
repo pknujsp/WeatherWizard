@@ -4,21 +4,21 @@ import androidx.compose.runtime.Stable
 import io.github.pknujsp.everyweather.core.common.FeatureType
 
 @Stable
-interface OnboardingItem {
+internal interface OnboardingItem {
     val title: Int
     val message: Int
     val image: Int
 }
 
-class DefaultOnboardingItem(
+internal class DefaultOnboardingItem(
     override val title: Int, override val message: Int, override val image: Int
 ) : OnboardingItem
 
-class PemissionOnboardingItem(
+internal class PemissionOnboardingItem(
     override val title: Int, override val message: Int, override val image: Int, val permissions: List<FeatureType.Permission>
 ) : OnboardingItem
 
-val onboardingItems: List<OnboardingItem> = listOf(
+internal val onboardingItems: List<OnboardingItem> = listOf(
     DefaultOnboardingItem(title = io.github.pknujsp.everyweather.core.resource.R.string.onboarding_title_main,
         message = io.github.pknujsp.everyweather.core.resource.R.string.onboarding_message_main,
         image = io.github.pknujsp.everyweather.core.resource.R.drawable.weatherwizard_icon_logo),

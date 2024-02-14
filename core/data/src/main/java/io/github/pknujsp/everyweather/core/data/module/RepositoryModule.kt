@@ -116,7 +116,8 @@ abstract class RepositoryModule {
         @Singleton
         @JvmStatic
         @Provides
-        fun providesTargetAreaRepository(appDataStore: AppDataStore): TargetLocationRepository = TargetLocationRepositoryImpl(appDataStore)
+        fun providesTargetAreaRepository(appDataStore: AppDataStore): TargetLocationRepositoryImpl =
+            TargetLocationRepositoryImpl(appDataStore)
 
         @Singleton
         @JvmStatic
@@ -203,4 +204,8 @@ abstract class RepositoryModule {
         summaryTextRepositoryImpl: SummaryTextRepositoryImpl
     ): SummaryTextRepository
 
+    @Binds
+    internal abstract fun providesFavoriteAreaRepository(
+        targetLocationRepositoryImpl: TargetLocationRepositoryImpl
+    ): TargetLocationRepository
 }
