@@ -20,8 +20,8 @@ data class DailyForecastEntity(
 
     override fun toString(): String {
         return StringBuilder().apply {
-            appendLine("## 일별 날씨 예보")
-            appendLine("| 날짜 | 최저 / 최고 기온 | 하루 날씨 | 오전 / 오후 날씨 |")
+            appendLine("## Daily Forecast")
+            appendLine("| Date | Min / Max Temperature | Day Weather | AM / PM Weather")
             appendLine("| --- | --- | --- | --- |")
             for (item in dayItems) {
                 append("| ${LocalDate.parse(item.dateTime.value, DateTimeFormatter.ISO_ZONED_DATE_TIME)} |")

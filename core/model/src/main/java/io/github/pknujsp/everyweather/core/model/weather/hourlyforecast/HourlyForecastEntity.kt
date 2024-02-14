@@ -23,8 +23,8 @@ data class HourlyForecastEntity(
 
     override fun toString(): String {
         return StringBuilder().apply {
-            appendLine("## 시간별 예보")
-            appendLine("| 시간 | 날씨 | 기온 | 강수확률 | 강수량 | 습도 | 풍속 |")
+            appendLine("## Hourly Forecast")
+            appendLine("| Time | Weather | Temperature | Precipitation Probability | Precipitation volume | Humidity | Wind Speed")
             appendLine("| --- | --- | --- | --- | --- | --- | --- |")
             for (item in items) {
                 append("${LocalDateTime.parse(item.dateTime.value, DateTimeFormatter.ISO_ZONED_DATE_TIME)} |")

@@ -50,7 +50,7 @@ sealed class WeatherConditionCategory(
         io.github.pknujsp.everyweather.core.resource.R.string.clear,
         io.github.pknujsp.everyweather.core.resource.R.drawable.ic_weather_clear_day,
         io.github.pknujsp.everyweather.core.resource.R.drawable.ic_weather_clear_night,
-        "맑음",
+        "Clear",
         FlickrGalleryId.Clear,
     )
 
@@ -59,7 +59,7 @@ sealed class WeatherConditionCategory(
         io.github.pknujsp.everyweather.core.resource.R.string.partly_cloudy,
         io.github.pknujsp.everyweather.core.resource.R.drawable.ic_weather_partly_cloudy_day,
         io.github.pknujsp.everyweather.core.resource.R.drawable.ic_weather_partly_cloudy_night,
-        "구름 조금",
+        "Partly Cloudy",
         FlickrGalleryId.PartlyCloudy,
     )
 
@@ -68,7 +68,7 @@ sealed class WeatherConditionCategory(
         io.github.pknujsp.everyweather.core.resource.R.string.mostly_cloudy,
         io.github.pknujsp.everyweather.core.resource.R.drawable.ic_weather_mostly_cloudy_day,
         io.github.pknujsp.everyweather.core.resource.R.drawable.ic_weather_mostly_cloudy_night,
-        "구름 많음",
+        "Mostly Cloudy",
         FlickrGalleryId.MostlyCloudy,
     )
 
@@ -77,7 +77,7 @@ sealed class WeatherConditionCategory(
         io.github.pknujsp.everyweather.core.resource.R.string.overcast,
         io.github.pknujsp.everyweather.core.resource.R.drawable.ic_weather_overcast,
         io.github.pknujsp.everyweather.core.resource.R.drawable.ic_weather_overcast,
-        "흐림",
+        "Overcast",
         FlickrGalleryId.Overcast,
     )
 
@@ -86,7 +86,7 @@ sealed class WeatherConditionCategory(
         io.github.pknujsp.everyweather.core.resource.R.string.rain,
         io.github.pknujsp.everyweather.core.resource.R.drawable.ic_weather_rain,
         io.github.pknujsp.everyweather.core.resource.R.drawable.ic_weather_rain,
-        "비",
+        "Rain",
         FlickrGalleryId.Rain,
     )
 
@@ -95,7 +95,7 @@ sealed class WeatherConditionCategory(
         io.github.pknujsp.everyweather.core.resource.R.string.rain_and_snow,
         io.github.pknujsp.everyweather.core.resource.R.drawable.ic_weather_sleet,
         io.github.pknujsp.everyweather.core.resource.R.drawable.ic_weather_sleet,
-        "비/눈",
+        "Sleet",
         FlickrGalleryId.Rain,
     )
 
@@ -104,7 +104,7 @@ sealed class WeatherConditionCategory(
         io.github.pknujsp.everyweather.core.resource.R.string.snow,
         io.github.pknujsp.everyweather.core.resource.R.drawable.ic_weather_snow,
         io.github.pknujsp.everyweather.core.resource.R.drawable.ic_weather_snow,
-        "눈",
+        "Snow",
         FlickrGalleryId.Snow,
     )
 
@@ -113,7 +113,7 @@ sealed class WeatherConditionCategory(
         io.github.pknujsp.everyweather.core.resource.R.string.shower,
         io.github.pknujsp.everyweather.core.resource.R.drawable.ic_weather_shower,
         io.github.pknujsp.everyweather.core.resource.R.drawable.ic_weather_shower,
-        "소나기",
+        "Shower",
         FlickrGalleryId.Rain,
     )
 
@@ -122,7 +122,7 @@ sealed class WeatherConditionCategory(
         io.github.pknujsp.everyweather.core.resource.R.string.raindrop,
         io.github.pknujsp.everyweather.core.resource.R.drawable.ic_weather_light_rain,
         io.github.pknujsp.everyweather.core.resource.R.drawable.ic_weather_light_rain,
-        "약한 비",
+        "Light Rain",
         FlickrGalleryId.Rain,
     )
 
@@ -131,7 +131,7 @@ sealed class WeatherConditionCategory(
         io.github.pknujsp.everyweather.core.resource.R.string.raindrop_and_snow_blizzard,
         io.github.pknujsp.everyweather.core.resource.R.drawable.ic_weather_sleet,
         io.github.pknujsp.everyweather.core.resource.R.drawable.ic_weather_sleet,
-        "빗방울/눈날림",
+        "Light Sleet",
         FlickrGalleryId.Rain,
     )
 
@@ -140,7 +140,7 @@ sealed class WeatherConditionCategory(
         stringRes = io.github.pknujsp.everyweather.core.resource.R.string.snow_blizzard,
         dayWeatherIcon = io.github.pknujsp.everyweather.core.resource.R.drawable.ic_weather_snow,
         nightWeatherIcon = io.github.pknujsp.everyweather.core.resource.R.drawable.ic_weather_snow,
-        description = "눈날림",
+        description = "Snow blizzard",
         flickrGalleryName = FlickrGalleryId.Snow,
     )
 }

@@ -17,69 +17,63 @@ class WeatherSummaryPrompt(
     override val id: Int get() = model.id
 
     private companion object {
-        private const val TIME = "## 날씨 데이터 생성 시점 : "
+        private const val TIME = "## When weather data was generated : "
 
         private val CONSTRUCTION = """
-    ## 위에 제공된 날씨 데이터를 종합적으로 분석하세요(마크다운 형식으로 날씨 데이터가 구성되어 있음)        
-            
-    역할: 방대한 날씨 데이터를 심도깊이 분석하여, 사용자에게 날씨 정보를 간결하고 명확하게 전달하는 전문가
+    ## Analyze the provided weather data above comprehensively (formatted in markdown with weather data)
     
-    지시사항:
-    - 현재 날씨와 시간별, 일별 예보, 대기질 정보를 천천히 상세하게 분석하여, 날씨 정보를 간결하고 명확하게 직관적으로 전달합니다.
-    - 주어진 날씨 데이터 생성 시점을 바탕으로 시간 정보를 올바르게 나타내도록 합니다.
-    - 시간별 예보, 일별 예보의 경우 **전체적인 추세에 집중**하여 분석하세요.
+    Role: An expert who deeply analyzes vast weather data and delivers weather information to users in a concise, clear, and intuitive manner.
     
-    어조:
-    - 답변은 긍정적이고, 흥미롭고, 재미있어야 합니다.
-    - 공손한 표현과 높임말을 사용하지 마세요.
-    - 전문적인 어휘와 문장 구조를 사용하여, 사용자에게 신뢰감을 줍니다.
+    Instructions:
+    - Slowly and in detail analyze the current weather, hourly and daily forecasts, and air quality information, delivering the weather information in a concise, clear, and intuitive manner.
+    - Accurately represent time information based on the given weather data generation time.
+    - For hourly and daily forecasts, **focus on the overall trend** in your analysis.
     
-    답변 품질:
-    - 답변은 모호하거나 논란의 여지가 있거나 주제를 벗어나지 않아야 합니다.
-    - 답변은 간결하고 요점을 명확하게 전달해야 합니다.
-    - 논리와 추론은 엄격하고 지적인 것이어야 합니다.
-    - 날씨 데이터가 어느 지역(장소)에 대한 것인지는 입력에 포함되어 있지 않습니다.
-    - 실제 기상 캐스터, 날씨 전문가가 답변 품질을 평가하므로 잘 작성해야 합니다.
-    - 실제 전문가가 평가하였을 때 평가 점수가 100점 만점에 100점이 되도록 해야 합니다.
+    Tone:
+    - The response should be positive, interesting, and fun.
+    - Do not use polite expressions and honorifics.
+    - Use professional vocabulary and sentence structure to instill confidence in the user.
     
-    답변 지시사항: 
-    - 답변은 단락 별로 최소 50자 이상으로 작성합니다.
-    - 읽기 쉽도록 단락을 나누세요.
+    Answer Quality:
+    - The answer should not be ambiguous, controversial, or off-topic.
+    - The answer must be concise and clearly deliver the main points.
+    - Logic and reasoning must be rigorous and intellectual.
+    - The weather data's specific location (place) is not included in the input.
+    - Since actual weathercasters or weather experts will evaluate the quality of the answer, it must be well-written.
+    - When evaluated by an actual expert, the score should be 100 out of 100.
     
-    답변 형식:
+    Answer Instructions:
+    - Write the answer with a minimum of 50 characters, maximum of 200 characters per paragraph.
+    - Divide the text into paragraphs for easy reading.
+    - **Answer in korean**
     
-    ### **현재**
-    - 현재 날씨를 요약하여, 문장으로만 설명.
+    Answer Format:
     
-    ### **시간별**
-    - 시간별 예보를 분석하여, 문장으로만 설명, 모든 시간별로 나열하지 않고, 중요한 시점에 집중하여 **전체적인 추세**를 파악할 수 있도록 설명.
-    - 강수확률이 30% 이하라면 강수확률이 매우 낮은 것입니다.
+    ### **Current**
+    - Summarize the current weather in sentences only.
     
-    ### **일별**
-    - 일별 예보를 분석하여, 문장으로만 설명, 모든 일별로 나열하지 않고, 중요한 시점에 집중하여 **전체적인 추세**를 파악할 수 있도록 설명.
+    ### **Hourly**
+    - Analyze the hourly forecast in sentences, focusing on important times without listing every hour, to grasp the **overall trend**.
+    - If the probability of precipitation is 30% or less, it is considered very low.
     
-    ### **대기질**
-    - 대기질을 분석하여, 문장으로만 설명.
-
-    ### **안내**
-    - 날씨 데이터를 종합적으로 분석하여, 사용자에게 실용적인 조언을 최소 세 가지 제공합니다.
+    ### **Daily**
+    - Analyze the daily forecast in sentences, focusing on important times without listing every day, to grasp the **overall trend**.
+    
+    ### **Air Quality**
+    - Describe the air quality in sentences.
+    
+    ### **Guidance**
+    - Provide at least three practical pieces of advice to users based on a comprehensive analysis of the weather data.
     
     """.trimIndent()
     }
 
     override fun build(): String = WeakReference(StringBuilder()).get()?.run {
         appendLine(model.currentWeather)
-        appendLine()
-
         appendLine(model.hourlyForecast)
-        appendLine()
-
         appendLine(model.dailyForecast)
-        appendLine()
-
         if (model.airQuality != null) {
             appendLine(model.airQuality)
-            appendLine()
         }
         appendLine(CONSTRUCTION)
         appendLine(TIME)
