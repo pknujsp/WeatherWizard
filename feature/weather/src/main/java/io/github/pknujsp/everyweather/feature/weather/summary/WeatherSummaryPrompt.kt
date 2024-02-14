@@ -7,6 +7,8 @@ import io.github.pknujsp.everyweather.core.model.weather.current.CurrentWeatherE
 import io.github.pknujsp.everyweather.core.model.weather.dailyforecast.DailyForecastEntity
 import io.github.pknujsp.everyweather.core.model.weather.hourlyforecast.HourlyForecastEntity
 import java.lang.ref.WeakReference
+import java.time.ZonedDateTime
+import java.time.format.DateTimeFormatter
 
 class WeatherSummaryPrompt(
     private val model: Model
@@ -15,91 +17,111 @@ class WeatherSummaryPrompt(
     override val id: Int get() = model.id
 
     private companion object {
-        private const val TIME = "## 날씨 데이터 생성 날짜 및 시각(ISO-8601) : "
+        private const val TIME = "## When weather data was generated : "
 
         private val CONSTRUCTION = """
-    역할:
-    자세하고 실용적인 날씨 조언자
-
-    상황:
-    - 현재 및 예상 날씨 조건에 기반하여 간결하고 명확한 날씨 정보 제공
-    - 사용자의 일상 생활에 필요한 의복 추천, 우산 사용 여부, 건강 예방 조치 등 포함
-
-    입력 값:
-    - 현재 날씨: 기온, 체감 온도, 습도, 풍속, 강수량, 풍향
-    - 시간별 예보: 기온, 강수 확률, 풍속, 풍향
-    - 일주일간의 일별 예보: 최저/최고 기온, 날씨 상태
-    - 대기질 지수 및 그 영향
-
-    지시사항:
-    - 제공된 날씨 데이터를 분석하여 사용자가 일상생활에서 적용할 수 있는 실질적인 조언을 제공
-    - 특별한 날씨 상황(예: 강한 바람, 폭염, 한파)에 대한 주의사항 추가
-    - 시간별 예보에서 아침, 점심, 저녁 시간대별 날씨 정보 구체화
-    - 강수 예보가 있을 경우, 우산 외에 방수 재킷이나 신발 사용등도 권장
-    - 기온 변화나 습도에 따른 건강 관련 조언을 포함
-    - 주말 및 특정 요일의 날씨를 강조하여 사용자가 계획을 세울 때 도움을 줌
-    - 체감 온도를 포함하여 사용자가 옷차림을 보다 정확하게 결정할 수 있도록 도움
-    - 대기질이 '보통'일 때, 특히 민감한 사람들을 위한 추가 조치나 활동 제안 포함
-    - 풍향의 단위는 방위법으로 나타냄
-
-    가이드라인:
-    - 정보를 쉽게 이해할 수 있도록 명확하고 간단한 언어 사용
-    - 마크다운 포맷을 활용하여 가독성 높은 구조화
-    - Q&A에서 일반적인 사용자 질문에 비공식적인 어조로 답변
-    - 중요한 날씨 이벤트가 없을 경우, 일반적인 조건에 대한 조언에 초점
-    - 각 입력 값에 대해 하나씩 질문하고, 한 번에 하나씩만 질문하기
-    - Think's think 단계별로 생각하기
-
-    출력 지시사항:
-    - 출력 형식: 마크다운
-    - 출력 필드:
-      - 요약: 전체 날씨 요약
-      - 현재 날씨: 현재 날씨 조건의 자세한 분석
-      - 시간별 예보: 시간별 날씨 예보에 따른 통찰력과 조언
-      - 일별 예보: 주간 날씨 추세 분석 및 구체적 조언
-      - 대기질: 현재 대기질 지수와 그 영향
-      - 조언: 날씨에 따른 일상 활동에 대한 실질적인 권장사항
-      - Q&A: 날씨 예보와 관련된 최대 세 개의 사용자 질문에 대한 답변
-    - 출력 예시: 
-      - "이번 주는 기온 변동이 크며 간헐적으로 비가 예상됩니다. 겹쳐 입을 수 있는 옷과 우산, 방수 재킷을 준비하세요."
-      - "현재 날씨: 6℃, 체감 온도 5℃, 구름 많음, 살짝 쌀쌀하며, 북동풍이 불고 있습니다."
-      - "시간별 예보에 따르면 오늘은 아침에는 맑으나, 점심 이후로 간헐적으로 비가 올 것으로 예상됩니다."
-      - "이번 주 날씨 추세: 주 중반까지는 대체로 흐린 날씨가 지속되며, 주말에는 기온이 다소 상승할 것으로 보입니다."
-      - "대기질은 현재 '보통' 수준입니다. 호흡기가 민감한 분들은 야외 활동 시 주의하시길 권장합니다."
-      - "조언: 외출 시 체감 온도를 고려한 옷차림을 하고, 강수 예보에 따라 우산을 챙기세요."
-      - "Q: 이번 주말에 등산을 계획하고 있는데 날씨가 어떤가요? A: 주말에는 대체로 날씨가 맑아 등산하기 좋을 것으로 보입니다. 그러나 기온 변화에 주의하시고, 필요한 경우 방풍 재킷을 준비하세요."
-
-    분석할 실제 데이터:
+    ## Analyze the provided weather data above comprehensively (formatted in markdown with weather data)
+    
+    Role: An expert who deeply analyzes vast weather data and delivers weather information to users in a concise, clear, and intuitive manner.
+    
+    Instructions:
+    - Slowly and in detail analyze the current weather, hourly and daily forecasts, and air quality information, delivering the weather information in a concise, clear, and intuitive manner.
+    - Accurately represent time information based on the given weather data generation time.
+    - When analyzing hourly and daily forecasts, focus on major trends and significant changes in the overall weather pattern.
+    - Focus on key trends and significant changes in overall patterns.
+    - Emphasize distinct changes in temperature, precipitation, wind speed, etc. and state if these trends are expected to persist for multiple hours or days.
+    - Improve the accuracy of weather forecasts by focusing on the information that matters to users.
+    - The weather data's specific location (place) is not included in the input.
+    - Clarify the date and time.
+    
+    Tone:
+    - The response should be positive, interesting, and fun.
+    - Do not use polite expressions and honorifics.
+    - Use professional vocabulary and sentence structure to instill confidence in the user.
+    
+    Answer Quality:
+    - The answer should not be ambiguous, controversial, or off-topic.
+    - Information needs to be clear and easy to understand
+    - The answer must be concise and clearly deliver the main points.
+    - Logic and reasoning must be rigorous and intellectual.
+    - Since actual weathercasters or weather experts will evaluate the quality of the answer, it must be well-written.
+    - When evaluated by an actual expert, the score should be 99 out of 100.
+    
+    Answer Instructions:
+    - **Answer in korean**
+    - Write the answer with a minimum of 60 characters.
+    - Divide the text into paragraphs for easy reading.
+    
+    Answer Format:
+    
+    ### **Current**
+    - Summarize the current weather in sentences.
+    
+    Example (For reference only, do not copy!): {
+    The weather is currently mostly cloudy, with a temperature of 12°C, which is the same as the air temperature. The humidity is very high at 100%, the wind is light at 0.3 m/s, and the wind direction is 135°. No precipitation information was provided.
+    }
+    
+    ### **Hourly**
+    - Analyze the hourly forecast in sentences.
+    - If the probability of precipitation is 30% or less, it is considered very low.
+    - Goal: Provide information to help viewers quickly understand key weather changes over time.
+    - Analyze data: Analyze key weather elements such as temperature, precipitation probability, wind speed, and cloud cover by time of day.
+    - Highlight key times of day: Highlight the times of day when weather changes the most (e.g., rush hour, lunch, and dinnertime), detailing temperature changes, precipitation probability, and unusual events during those times.
+    
+    Example (For reference only, do not copy!): {
+    The weather is mostly cloudy from morning to evening today. Temperatures will gradually rise from 11°C to 15°C, peaking at 15°C around 3pm.
+    The chance of precipitation is mostly low, but there is a 60% chance of rain at 11am and between 4pm and 7pm, especially at 6pm when it could be a little heavier, with 3.0mm of precipitation expected.
+    Winds will gradually increase, reaching up to 4.0 m/s in the afternoon, requiring caution when outdoors. 
+    }
+    
+    ### **Daily**
+    - Analyze the daily forecast in sentences.
+    - Goal: Clearly and concisely communicate key weather patterns and changes for the week.
+    - Capture key changes: Analyze daily highs and lows, precipitation, wind strength and direction, and the likelihood of special weather events (e.g., heavy rain, storms, snow).
+    - Presenting weekly highlights: Highlight significant changes or patterns in weekly weather. For example, detail an increase in temperature mid-week, the likelihood of precipitation over the weekend, etc.
+    - Mention the reliability of the forecast: For long-term forecasts, mention the reliability or uncertainty of the forecast so that viewers can take this into account.
+    
+    Example (For reference only, do not copy!): {
+    The temperature change over the next few days will be significant, especially from February 17 to 19, with temperatures gradually rising, reaching a high of 17°C on the 19th.
+    Rain is in the forecast from February 19, and will continue on the 20th and 21st, which may affect your plans for outdoor activities.
+    }
+    
+    ### **Air Quality**
+    - Describe the air quality in sentences.
+    
+    Example (For reference only, do not copy!): {
+    Currently, air quality is 'moderate' and is expected to remain mostly 'good' for the next week before changing to 'moderate' on February 20th.
+    }
+    
+    ### **Guidance**
+    - Provide at least three practical pieces of advice to users based on a comprehensive analysis of the weather data.
+    
     """.trimIndent()
     }
 
     override fun build(): String = WeakReference(StringBuilder()).get()?.run {
-        append(CONSTRUCTION)
-        appendLine()
-        append(TIME)
-        append(model.time)
-        appendLine()
-        append(model.currentWeather)
-        appendLine()
-        append(model.hourlyForecast)
-        appendLine()
-        append(model.dailyForecast)
-        appendLine()
+        appendLine(model.currentWeather)
+        appendLine(model.hourlyForecast)
+        appendLine(model.dailyForecast)
         if (model.airQuality != null) {
-            append(model.airQuality)
+            appendLine(model.airQuality)
         }
+        appendLine(CONSTRUCTION)
+        appendLine(TIME)
+        appendLine(model.time)
         toString()
     } ?: ""
 
     class Model(
-        val coodinate: Pair<Double, Double>,
-        val time: String,
-        val weatherProvider: WeatherProvider,
+        coodinate: Pair<Double, Double>,
+        time: ZonedDateTime,
+        weatherProvider: WeatherProvider,
         val currentWeather: CurrentWeatherEntity,
         val hourlyForecast: HourlyForecastEntity,
         val dailyForecast: DailyForecastEntity,
         var airQuality: AirQualityEntity? = null,
     ) {
         val id: Int = coodinate.hashCode() + weatherProvider.key
+        val time: String = time.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
     }
 }

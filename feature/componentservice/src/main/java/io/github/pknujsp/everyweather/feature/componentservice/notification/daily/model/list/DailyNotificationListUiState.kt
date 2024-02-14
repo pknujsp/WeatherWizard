@@ -4,6 +4,7 @@ import android.content.Context
 import android.widget.Toast
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.remember
@@ -51,7 +52,6 @@ class DailyNotificationListState(
         val isEnabled = !settings.isEnabled
         switch(settings.id, isEnabled)
         changeAlarmSchedule(context, isEnabled, settings)
-        Toast.makeText(context, "알림이 ${if (isEnabled) "설정되었습니다." else "해제되었습니다."}", Toast.LENGTH_SHORT).show()
     }
 
     fun delete(settings: DailyNotificationSettingsListItem, context: Context) {

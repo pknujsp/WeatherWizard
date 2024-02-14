@@ -13,18 +13,21 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import io.github.pknujsp.everyweather.core.common.FailedReason
 import io.github.pknujsp.everyweather.core.common.FeatureType
 import io.github.pknujsp.everyweather.core.common.StatefulFeature
-import io.github.pknujsp.everyweather.core.common.manager.FailedReason
+import io.github.pknujsp.everyweather.core.model.coordinate.LocationType
 import io.github.pknujsp.everyweather.core.resource.R
+import io.github.pknujsp.everyweather.core.ui.lottie.CancellableLoadingScreen
 import io.github.pknujsp.everyweather.feature.permoptimize.feature.FailedScreen
 import io.github.pknujsp.everyweather.feature.permoptimize.feature.FeatureStateScreen
-import io.github.pknujsp.everyweather.core.ui.lottie.CancellableLoadingScreen
+import io.github.pknujsp.everyweather.feature.permoptimize.permission.PermissionState
 import io.github.pknujsp.everyweather.feature.weather.comparison.dailyforecast.CompareDailyForecastScreen
 import io.github.pknujsp.everyweather.feature.weather.comparison.hourlyforecast.CompareHourlyForecastScreen
 import io.github.pknujsp.everyweather.feature.weather.info.dailyforecast.detail.DetailDailyForecastScreen
@@ -39,11 +42,15 @@ fun WeatherInfoScreen(
     viewModel: WeatherInfoViewModel = hiltViewModel(),
     targetLocationViewModel: TargetLocationViewModel = hiltViewModel()
 ) {
+    val currentOpenDrawer by rememberUpdatedState(newValue = openDrawer)
+    val targetLocation by viewModel.targetLocation.collectAsStateWithLifecycle(null)
+    val targetLocationType = viewModel.targetLocationType.collectAsStateWithLifecycle()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    val mainState = rememberWeatherMainState({ uiState })
+
+    val mainState =
+        rememberWeatherMainState({ uiState }, updateUiState = viewModel::onUnavailableFeature)
     val topAppBarUiState = targetLocationViewModel.topAppBarUiState
     val isLoading = viewModel.isLoading
-    val targetLocation by viewModel.targetLocation.collectAsStateWithLifecycle(initialValue = null)
 
     LaunchedEffect(uiState) {
         if (uiState is WeatherContentUiState.Success) {
@@ -55,11 +62,21 @@ fun WeatherInfoScreen(
             targetLocationViewModel.setLocation(this)
         }
     }
-    LaunchedEffect(mainState.networkState.isNetworkAvailable) {
-        if (mainState.networkState.isNetworkAvailable && !viewModel.initialJob.isActive) {
-            viewModel.initialJob.start()
-        } else if (!mainState.networkState.isNetworkAvailable) {
-            viewModel.onUnavailableFeature(FeatureType.NETWORK)
+    LaunchedEffect(mainState.networkState.isNetworkAvailable,
+        targetLocationType.value,
+        mainState.locationPermissionManager.permissionState) {
+        targetLocationType.value?.let { selectedLocationModel ->
+            if (selectedLocationModel.locationType is LocationType.CurrentLocation && mainState.locationPermissionManager.permissionState is PermissionState.Denied) {
+                mainState.updateUiState(FeatureType.Permission.Location)
+                return@LaunchedEffect
+            } else if (!mainState.networkState.isNetworkAvailable) {
+                mainState.updateUiState(FeatureType.Network)
+                return@LaunchedEffect
+            }
+
+            if (mainState.networkState.isNetworkAvailable && !viewModel.initialJob.isActive) {
+                viewModel.initialJob.start()
+            }
         }
     }
 
@@ -73,18 +90,18 @@ fun WeatherInfoScreen(
                         } else if (!it.isDependOnNetwork) {
                             mainState.navigate(it)
                         } else {
-                            viewModel.onUnavailableFeature(FeatureType.NETWORK)
+                            viewModel.onUnavailableFeature(FeatureType.Network)
                         }
 
                     }, reload = {
                         mainState.refresh()
                     }, updateWeatherDataProvider = {
                         viewModel.updateWeatherDataProvider(it)
-                    }, uiState as WeatherContentUiState.Success, openDrawer, topAppBarUiState)
+                    }, uiState as WeatherContentUiState.Success, currentOpenDrawer, topAppBarUiState)
                 }
 
                 is WeatherContentUiState.Error -> {
-                    TopAppBarScreen(openDrawer) {
+                    TopAppBarScreen(currentOpenDrawer) {
                         ErrorScreen(statefulFeature = (uiState as WeatherContentUiState.Error).state, reload = {
                             mainState.refresh()
                         })
@@ -148,12 +165,12 @@ private fun TopAppBarScreen(openDrawer: () -> Unit, content: @Composable () -> U
 
 @Composable
 private fun ErrorScreen(statefulFeature: StatefulFeature, reload: () -> Unit) {
-    if (statefulFeature is FeatureType) {
-        FeatureStateScreen(featureType = statefulFeature) {
+    if (statefulFeature is FailedReason) {
+        FailedScreen(R.string.title_failed_to_load_weather_data, statefulFeature.message, R.string.reload) {
             reload()
         }
-    } else if (statefulFeature is FailedReason) {
-        FailedScreen(R.string.title_failed_to_load_weather_data, statefulFeature.message, R.string.reload) {
+    } else {
+        FeatureStateScreen(statefulFeature as FeatureType) {
             reload()
         }
     }

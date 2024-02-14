@@ -63,7 +63,7 @@ class SummaryTextViewModel @Inject constructor(
             }.onEmpty {
                 mutableUiState.error = io.github.pknujsp.everyweather.core.resource.R.string.error_summary
             }.collect {
-                mutableUiState.summaryText = mutableUiState.summaryText + it.text
+                mutableUiState.summaryText += it.text
             }
         }
     }

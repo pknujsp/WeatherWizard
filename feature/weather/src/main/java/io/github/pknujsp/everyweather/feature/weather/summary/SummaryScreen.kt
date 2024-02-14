@@ -12,13 +12,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -35,7 +35,6 @@ import dev.jeziellago.compose.markdowntext.MarkdownText
 import io.github.pknujsp.everyweather.core.resource.R
 import io.github.pknujsp.everyweather.core.ui.AlwaysOnBottomSheetDialog
 import io.github.pknujsp.everyweather.core.ui.theme.AppShapes
-import kotlinx.coroutines.launch
 
 
 @Composable
@@ -44,24 +43,27 @@ fun SummaryScreen(model: WeatherSummaryPrompt.Model, onDismiss: () -> Unit, summ
     LaunchedEffect(model) {
         summaryTextViewModel.summarize(model)
     }
+
     AlwaysOnBottomSheetDialog(title = stringResource(id = R.string.title_ai_summary), onDismiss = onDismiss) {
         val scrollState = rememberScrollState()
-        val coroutineScope = rememberCoroutineScope()
+
+        LaunchedEffect(uiState.summaryText) {
+            scrollState.scrollTo(scrollState.maxValue)
+        }
 
         Box(modifier = Modifier.fillMaxSize()) {
             Column(modifier = Modifier
                 .fillMaxSize()
                 .verticalScroll(scrollState, true)) {
-                MarkdownText(modifier = Modifier.padding(bottom = 48.dp, start = 12.dp, end = 12.dp),
+                MarkdownText(
+                    modifier = Modifier.padding(bottom = 16.dp, start = 12.dp, end = 12.dp),
                     style = TextStyle(color = Color.Black, fontSize = 15.sp, lineHeight = 3.sp),
-                    isTextSelectable = true,
                     markdown = if (uiState.error != null) stringResource(id = uiState.error!!) else uiState.summaryText,
                     linkifyMask = Linkify.WEB_URLS,
-                    onTextLayout = {
-                        coroutineScope.launch {
-                            scrollState.scrollTo(scrollState.maxValue)
-                        }
-                    })
+                )
+                TextPlaceHolder {
+                    uiState.isSummarizing
+                }
             }
 
             if (uiState.isSummarizing || uiState.isStopped) {
@@ -69,7 +71,7 @@ fun SummaryScreen(model: WeatherSummaryPrompt.Model, onDismiss: () -> Unit, summ
                     summaryTextViewModel.stopOrResume()
                 })
             }
-            Footer()
+            //Footer()
         }
     }
 }
@@ -80,7 +82,9 @@ private fun BoxScope.SummarizingCard(modifier: Modifier = Modifier, uiState: Sum
     Box(modifier = modifier
         .padding(bottom = 8.dp)
         .align(Alignment.BottomCenter)) {
-        OutlinedButton(onClick = currentStopOrResume, shape = AppShapes.extraLarge) {
+        OutlinedButton(onClick = currentStopOrResume,
+            shape = AppShapes.extraLarge,
+            colors = ButtonDefaults.outlinedButtonColors(containerColor = Color.White)) {
             Row(
                 horizontalArrangement = Arrangement.spacedBy(6.dp, Alignment.CenterHorizontally),
                 verticalAlignment = Alignment.CenterVertically,

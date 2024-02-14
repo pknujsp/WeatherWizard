@@ -6,6 +6,8 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
@@ -20,6 +22,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -28,6 +31,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
@@ -85,39 +89,37 @@ fun WeatherContentScreen(
     val weather = uiState.weather
     var showAiSummary by remember { mutableStateOf(false) }
 
-    AsyncImage(
-        modifier = Modifier.fillMaxSize(),
-        contentScale = ContentScale.Crop,
-        alignment = Alignment.Center,
-        model = ImageRequest.Builder(LocalContext.current).diskCachePolicy(CachePolicy.ENABLED).crossfade(250).data(imageUrl).build(),
-        contentDescription = stringResource(R.string.background_image),
-    )
-
-    Scaffold(containerColor = Color.Black.copy(alpha = 0.1f), topBar = {
-        TopAppBars(
-            topAppBarUiState = topAppBarUiState,
-            weatherContentUiState = uiState,
-            openDrawer = openDrawer,
-            reload = reload,
-            summarize = {
-                showAiSummary = true
-            },
-            onClickedWeatherProviderButton = { onClickedWeatherProviderButton = true },
-            scrollBehavior = scrollBehavior,
-        )
-    }) { _ ->
-        val systemBars = WindowInsets.systemBars
-        val density = LocalDensity.current
-        val bottomPadding = remember { with(density) { systemBars.getBottom(this).toDp() } }
-        val localConfiguration = LocalConfiguration.current
-
-        val screenHeight = remember {
-            with(density) {
-                localConfiguration.screenHeightDp + (systemBars.getBottom(this) + systemBars.getTop(this)) / this.density
-            }.dp
+    val systemBars = WindowInsets.systemBars
+    val density = LocalDensity.current
+    val systemBarPadding: PaddingValues = remember {
+        with(density) {
+            PaddingValues(top = systemBars.getTop(this).toDp(), bottom = systemBars.getBottom(this).toDp(), start = 0.dp, end = 0.dp)
         }
+    }
 
-        Box {
+    Box(modifier = Modifier.fillMaxSize()) {
+        AsyncImage(
+            modifier = Modifier.fillMaxSize(),
+            contentScale = ContentScale.Crop,
+            alignment = Alignment.Center,
+            model = ImageRequest.Builder(LocalContext.current).diskCachePolicy(CachePolicy.ENABLED).crossfade(200).data(imageUrl).build(),
+            contentDescription = stringResource(R.string.background_image),
+        )
+
+        Scaffold(topBar = {
+            CustomTopAppBar(
+                topAppBarUiState = topAppBarUiState,
+                weatherContentUiState = uiState,
+                openDrawer = openDrawer,
+                reload = reload,
+                summarize = {
+                    showAiSummary = true
+                },
+                onClickedWeatherProviderButton = { onClickedWeatherProviderButton = true },
+                scrollBehavior = scrollBehavior,
+            )
+        }, modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
+            containerColor = Color.Black.copy(alpha = 0.11f)) { _ ->
             Column(
                 modifier = Modifier
                     .fillMaxSize()
@@ -125,6 +127,10 @@ fun WeatherContentScreen(
                     .verticalScroll(scrollState),
                 verticalArrangement = Arrangement.spacedBy(COLUMN_ITEM_SPACING),
             ) {
+                val localConfiguration = LocalConfiguration.current
+                val screenHeight = remember {
+                    (localConfiguration.screenHeightDp + (systemBarPadding.calculateTopPadding() + systemBarPadding.calculateBottomPadding()).value).dp
+                }
                 var currentAirQuality by remember { mutableStateOf<AirQualityValueType?>(null) }
 
                 Box(modifier = Modifier.height(screenHeight - DEFAULT_PADDING), contentAlignment = Alignment.BottomStart) {
@@ -148,36 +154,37 @@ fun WeatherContentScreen(
                         imageUrl = it
                     }
                 })
-                Footer(Modifier.align(Alignment.End), uiState.currentUnits)
-                Spacer(modifier = Modifier.height(bottomPadding))
+                Footer(units = uiState.currentUnits)
+                Spacer(modifier = Modifier.height(systemBarPadding.calculateBottomPadding()))
             }
-            Box(modifier = Modifier
-                .align(Alignment.BottomCenter)
-                .fillMaxWidth()
-                .height(bottomPadding)
-                .background(brush = shadowBox(ShadowDirection.UP)))
         }
 
-        BottomSheetDialog(title = stringResource(id = R.string.title_weather_data_provider),
-            selectedItem = uiState.args.weatherProvider,
-            onSelectedItem = {
-                coroutineScope.launch {
-                    it?.let {
-                        if (uiState.args.weatherProvider != it) {
-                            updateWeatherDataProvider(it)
-                        }
+        Box(modifier = Modifier
+            .align(Alignment.BottomCenter)
+            .fillMaxWidth()
+            .height(systemBarPadding.calculateBottomPadding())
+            .background(brush = shadowBox(ShadowDirection.UP)))
+    }
+
+    BottomSheetDialog(title = stringResource(id = R.string.title_weather_data_provider),
+        selectedItem = uiState.args.weatherProvider,
+        onSelectedItem = {
+            coroutineScope.launch {
+                it?.let {
+                    if (uiState.args.weatherProvider != it) {
+                        updateWeatherDataProvider(it)
                     }
                 }
-            },
-            enums = WeatherProvider.enums,
-            expanded = { onClickedWeatherProviderButton },
-            onDismissRequest = { onClickedWeatherProviderButton = false })
+            }
+        },
+        enums = WeatherProvider.enums,
+        expanded = { onClickedWeatherProviderButton },
+        onDismissRequest = { onClickedWeatherProviderButton = false })
 
-        if (showAiSummary) {
-            SummaryScreen(model = uiState.weatherEntities, onDismiss = {
-                showAiSummary = false
-            })
-        }
+    if (showAiSummary) {
+        SummaryScreen(model = uiState.weatherEntities, onDismiss = {
+            showAiSummary = false
+        })
     }
 }
 
@@ -186,8 +193,10 @@ fun WeatherContentScreen(
  * 풍속, 강수량 단위 표시
  */
 @Composable
-private fun Footer(modifier: Modifier = Modifier, units: CurrentUnits) {
-    Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(4.dp), horizontalAlignment = Alignment.End) {
+private fun ColumnScope.Footer(modifier: Modifier = Modifier, units: CurrentUnits) {
+    Column(modifier = modifier.align(Alignment.End),
+        verticalArrangement = Arrangement.spacedBy(4.dp),
+        horizontalAlignment = Alignment.End) {
         UnitItem(title = R.string.title_wind_speed_unit, unit = units.windSpeedUnit)
         UnitItem(title = R.string.title_precipitation_unit, unit = units.precipitationUnit)
     }

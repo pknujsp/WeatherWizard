@@ -7,7 +7,7 @@ import io.github.pknujsp.everyweather.core.common.coroutines.CoDispatcher
 import io.github.pknujsp.everyweather.core.common.coroutines.CoDispatcherType
 import io.github.pknujsp.everyweather.core.common.manager.AppComponentManagerFactory
 import io.github.pknujsp.everyweather.core.common.manager.AppLocationManager
-import io.github.pknujsp.everyweather.core.common.manager.FailedReason
+import io.github.pknujsp.everyweather.core.common.FailedReason
 import io.github.pknujsp.everyweather.core.data.nominatim.NominatimRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -69,12 +69,6 @@ internal class GetCurrentLocationUseCase @Inject constructor(
 
     private suspend fun getCurrentLocation(): CurrentLocationState {
         mutableCurrentLocationFlow.emit(CurrentLocationState.Loading())
-        if (!appLocationManager.isPermissionGranted) {
-            val state = CurrentLocationState.Failure(FeatureType.LOCATION_PERMISSION)
-            mutableCurrentLocationFlow.emit(state)
-            return state
-        }
-
         val result = if (appLocationManager.isGpsProviderEnabled) {
             when (val currentLocation = appLocationManager.getCurrentLocation()) {
                 is AppLocationManager.LocationResult.Success -> {
@@ -87,7 +81,7 @@ internal class GetCurrentLocationUseCase @Inject constructor(
                 is AppLocationManager.LocationResult.Failure -> CurrentLocationState.Failure(FailedReason.UNKNOWN)
             }
         } else {
-            CurrentLocationState.Failure(FeatureType.LOCATION_SERVICE)
+            CurrentLocationState.Failure(FeatureType.LocationService)
         }
         mutableCurrentLocationFlow.emit(result)
         return result

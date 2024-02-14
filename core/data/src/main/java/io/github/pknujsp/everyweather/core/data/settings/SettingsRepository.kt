@@ -8,5 +8,9 @@ import kotlinx.coroutines.flow.SharedFlow
 interface SettingsRepository {
     val settings: SharedFlow<SettingsEntity>
 
+    suspend fun completeInitialization()
+
+    suspend fun isInitialized(): Boolean
+
     suspend fun <V : PreferenceModel> update(type: BasePreferenceModel<V>, value: V)
 }

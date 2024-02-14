@@ -36,7 +36,7 @@ class WidgetCoroutineService @AssistedInject constructor(
 
     companion object : IWorker {
         override val name: String = "WidgetCoroutineService"
-        override val requiredFeatures: Array<FeatureType> = arrayOf(FeatureType.NETWORK)
+        override val requiredFeatures: Array<FeatureType> = arrayOf(FeatureType.Network)
     }
 
     private val widgetViewUpdater = AppWidgetViewUpdater(
@@ -75,9 +75,9 @@ class WidgetCoroutineService @AssistedInject constructor(
         val excludeWidgets = mutableListOf<Int>()
 
         if (LocationType.CurrentLocation in widgetEntityList.locationTypeGroups && featureStateManager.retrieveFeaturesState(arrayOf(
-                FeatureType.LOCATION_PERMISSION,
-                FeatureType.LOCATION_SERVICE,
-                FeatureType.BACKGROUND_LOCATION_PERMISSION), context) is FeatureStateManager.FeatureState.Unavailable) {
+                FeatureType.Permission.Location,
+                FeatureType.LocationService,
+                FeatureType.Permission.BackgroundLocation), context) is FeatureStateManager.FeatureState.Unavailable) {
             widgetEntityList.locationTypeGroups.getValue(LocationType.CurrentLocation).forEach {
                 widgetRemoteViewModel.updateResponseData(it.id, WidgetStatus.RESPONSE_FAILURE)
                 excludeWidgets.add(it.id)

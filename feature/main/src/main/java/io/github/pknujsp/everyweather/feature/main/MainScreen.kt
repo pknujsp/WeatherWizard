@@ -18,6 +18,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -45,52 +46,67 @@ import io.github.pknujsp.everyweather.feature.favorite.HostFavoriteScreen
 import io.github.pknujsp.everyweather.feature.main.exit.AppCloseDialog
 import io.github.pknujsp.everyweather.feature.main.sidebar.favorites.FavoriteLocationsScreen
 import io.github.pknujsp.everyweather.feature.settings.HostSettingsScreen
+import io.github.pknujsp.everyweather.feature.splash.OnboardingScreen
 import io.github.pknujsp.everyweather.feature.weather.HostWeatherScreen
 import kotlinx.coroutines.launch
 
 @Composable
-fun MainScreen(rootNavControllerViewModel: RootNavControllerViewModel = hiltViewModel()) {
+fun MainScreen(
+    rootNavControllerViewModel: RootNavControllerViewModel = hiltViewModel(), mainViewModel: MainViewModel = hiltViewModel()
+) {
     val mainUiState = rememberMainState(rootNavControllerViewModel.requestedRoute)
     val onBackPressedDispatcherOwner = LocalOnBackPressedDispatcherOwner.current
     val lifeCycleOwner = LocalLifecycleOwner.current
     var isCloseAppDialogVisible by remember { mutableStateOf(false) }
     val currentCloseAppDialogVisible by rememberUpdatedState(newValue = isCloseAppDialogVisible)
+    val isInitialized = mainViewModel.isInitialized
 
-    LaunchedEffect(Unit) {
-        onBackPressedDispatcherOwner!!.onBackPressedDispatcher.addCallback(lifeCycleOwner) {
-            mainUiState.navController.run {
-                if (currentBackStackEntry != null && currentBackStackEntry!!.destination.route == MainRoutes.Weather.route) {
-                    isCloseAppDialogVisible = true
-                } else {
-                    popBackStack()
+    if (isInitialized != null) {
+        val destination by remember {
+            derivedStateOf { if (isInitialized) MainRoutes.Weather.route else MainRoutes.Onboarding.route }
+        }
+
+        LaunchedEffect(Unit) {
+            onBackPressedDispatcherOwner!!.onBackPressedDispatcher.addCallback(lifeCycleOwner) {
+                mainUiState.navController.run {
+                    if (currentBackStackEntry != null && currentBackStackEntry!!.destination.route == destination) {
+                        isCloseAppDialogVisible = true
+                    } else {
+                        popBackStack()
+                    }
                 }
             }
         }
-    }
 
-    if (isCloseAppDialogVisible) {
-        AppCloseDialog {
-            if (currentCloseAppDialogVisible) {
-                isCloseAppDialogVisible = false
+        if (isCloseAppDialogVisible) {
+            AppCloseDialog {
+                if (currentCloseAppDialogVisible) {
+                    isCloseAppDialogVisible = false
+                }
             }
         }
-    }
 
-    NavHost(navController = mainUiState.navController,
-        startDestination = MainRoutes.Weather.route,
-        route = MainRoutes.route,
-        modifier = Modifier.fillMaxSize()) {
-        composable(MainRoutes.Weather.route) {
-            WeatherMainScreen(mainUiState)
-        }
-        composable(MainRoutes.Favorite.route) {
-            HostFavoriteScreen()
-        }
-        composable(MainRoutes.Notification.route) {
-            HostNotificationScreen()
-        }
-        composable(MainRoutes.Settings.route) {
-            HostSettingsScreen()
+        NavHost(navController = mainUiState.navController,
+            startDestination = destination,
+            route = MainRoutes.route,
+            modifier = Modifier.fillMaxSize()) {
+            composable(MainRoutes.Weather.route) {
+                WeatherMainScreen(mainUiState)
+            }
+            composable(MainRoutes.Favorite.route) {
+                HostFavoriteScreen()
+            }
+            composable(MainRoutes.Notification.route) {
+                HostNotificationScreen()
+            }
+            composable(MainRoutes.Settings.route) {
+                HostSettingsScreen()
+            }
+            composable(MainRoutes.Onboarding.route) {
+                OnboardingScreen {
+                    mainUiState.navigate(MainRoutes.Weather, true)
+                }
+            }
         }
     }
 }

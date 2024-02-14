@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="foreground_service_location_permission">포그라운드 위치 접근 권한</string>
+    <string name="foreground_service_location_permission_denied">포그라운드 위치 접근 권한이 없어 진행이 불가능 합니다</string>
+    <string name="foreground_service_location_permission_description">해당 권한이 있어야 위젯, 알림을 통해 날씨 정보를 받으실 수 있습니다</string>
+
+    <string name="background_location_permission">백그라운드 위치 접근 권한</string>
+    <string name="background_location_permission_denied">백그라운드 위치 접근 권한이 없어 진행이 불가능 합니다</string>
+    <string name="background_location_permission_description">해당 권한이 있어야 위젯, 알림의 날씨 정보 자동 업데이트를 할 수 있습니다</string>
+
+    <string name="exact_alarm_permission">정확한 알람 사용 권한</string>
+    <string name="exact_alarm_permission_denied">정확한 알람 사용 권한이 없어 진행이 불가능 합니다</string>
+    <string name="exact_alarm_permission_description">해당 권한이 있어야 일일 알림을 사용할 수 있습니다</string>
+
+    <string name="location_permission">위치 접근 권한</string>
+    <string name="location_permission_denied">위치 접근 권한이 없어 진행이 불가능 합니다</string>
+    <string name="location_permission_description">해당 권한이 있어야 날씨 정보를 받으실 수 있습니다</string>
+
+    <string name="storage_permission">저장소 사용 권한</string>
+    <string name="storage_permission_denied">저장소 사용 권한이 없어 진행이 불가능 합니다</string>
+    <string name="storage_permission_description">해당 권한이 있어야 지도 정보를 원활히 받으실 수 있습니다</string>
+
+    <string name="post_notification_permission">알림 표시 권한</string>
+    <string name="post_notification_permission_denied">알림 표시 권한이 없어 진행이 불가능 합니다</string>
+    <string name="post_notification_permission_description">해당 권한이 있어야 날씨 관련 알림을 받으실 수 있습니다</string>
+
+    <string name="open_settings_for_permission">권한 부여</string>
+    <string name="grant_permissions">권한 부여</string>
+
+</resources>

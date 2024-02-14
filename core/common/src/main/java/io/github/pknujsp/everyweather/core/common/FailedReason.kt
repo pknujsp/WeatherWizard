@@ -1,4 +1,4 @@
-package io.github.pknujsp.everyweather.core.common.manager
+package io.github.pknujsp.everyweather.core.common
 
 import io.github.pknujsp.everyweather.core.common.StatefulFeature
 import io.github.pknujsp.everyweather.core.resource.R
@@ -32,13 +32,7 @@ enum class FailedReason : StatefulFeature {
         override val hasRetryAction: Boolean = true
         override val hasRepairAction: Boolean = false
     },
-    BATTERY_OPTIMIZATION {
-        override val title: Int = io.github.pknujsp.everyweather.core.resource.R.string.battery_optimization
-        override val message: Int = io.github.pknujsp.everyweather.core.resource.R.string.battery_optimization_enabled
-        override val action: Int = io.github.pknujsp.everyweather.core.resource.R.string.open_settings_to_ignore_battery_optimization
-        override val hasRetryAction: Boolean = false
-        override val hasRepairAction: Boolean = true
-    },
+
     LOCATION_SERVICE_DISABLED {
         override val title: Int = io.github.pknujsp.everyweather.core.resource.R.string.location_service
         override val message: Int = io.github.pknujsp.everyweather.core.resource.R.string.location_service_disabled
@@ -46,11 +40,5 @@ enum class FailedReason : StatefulFeature {
         override val hasRetryAction: Boolean = true
         override val hasRepairAction: Boolean = true
     },
-    NETWORK_UNAVAILABLE {
-        override val title: Int = R.string.network
-        override val message: Int = R.string.network_unavailable
-        override val action: Int = io.github.pknujsp.everyweather.core.resource.R.string.open_settings_for_network
-        override val hasRetryAction: Boolean = true
-        override val hasRepairAction: Boolean = true
-    },
+
 }

@@ -96,7 +96,7 @@ fun SearchAreaScreen(
                 }
             }
         } else {
-            FeatureStateScreen(featureType = FeatureType.NETWORK) {
+            FeatureStateScreen(featureType = FeatureType.Network) {
 
             }
         }

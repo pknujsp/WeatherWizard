@@ -14,9 +14,6 @@ sealed interface WeatherRoutes : Routes {
         @StringRes override val navTitle: Int = R.string.nav_weather
     }
 
-    data object Main : WeatherRoutes {
-        override val route: String = "Weather/Main"
-    }
 
     data object Info : WeatherRoutes {
         override val route: String = "Weather/Info"

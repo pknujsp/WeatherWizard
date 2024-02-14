@@ -14,22 +14,32 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import io.github.pknujsp.everyweather.core.common.FeatureType
 import io.github.pknujsp.everyweather.core.common.StatefulFeature
 import io.github.pknujsp.everyweather.core.ui.button.PrimaryButton
 
 @Composable
 fun UnavailableFeatureScreen(featureType: StatefulFeature, onClick: () -> Unit) {
-    FailedScreen(title = featureType.title, alertMessage = featureType.message, actionMessage = featureType.action, onClick = onClick)
+    FailedScreen(title = featureType.title,
+        alertMessage = featureType.message,
+        actionMessage = featureType.action,
+        reason = if (featureType is FeatureType) featureType.reason else null,
+        onClick = onClick)
 }
 
 @Composable
-fun FailedScreen(@StringRes title: Int, @StringRes alertMessage: Int, @StringRes actionMessage: Int, onClick: () -> Unit) {
+fun FailedScreen(
+    @StringRes title: Int, @StringRes alertMessage: Int, @StringRes actionMessage: Int, @StringRes reason: Int? = null, onClick: () -> Unit
+) {
     Column(modifier = Modifier
         .padding(horizontal = 16.dp)
         .fillMaxSize(),
         verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterVertically)) {
         Text(text = stringResource(title), style = TextStyle(fontSize = 24.sp, color = Color.Black))
         Text(text = stringResource(alertMessage), style = TextStyle(fontSize = 16.sp, color = Color.DarkGray))
+        if (reason != null) {
+            Text(text = stringResource(reason), style = TextStyle(fontSize = 16.sp, color = Color.DarkGray))
+        }
         PrimaryButton(text = stringResource(id = actionMessage), onClick = {
             onClick()
         }, modifier = Modifier.align(Alignment.End))

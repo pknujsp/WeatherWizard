@@ -22,6 +22,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import io.github.pknujsp.everyweather.core.common.FeatureType
 import io.github.pknujsp.everyweather.core.model.notification.enums.NotificationIconType
 import io.github.pknujsp.everyweather.core.model.notification.enums.OngoingNotificationType
 import io.github.pknujsp.everyweather.core.model.notification.enums.RefreshInterval
@@ -37,6 +38,7 @@ import io.github.pknujsp.everyweather.feature.componentservice.RemoteViewsScreen
 import io.github.pknujsp.everyweather.feature.componentservice.notification.ongoing.model.OngoingNotificationSettings
 import io.github.pknujsp.everyweather.feature.componentservice.notification.ongoing.model.rememberOngoingNotificationState
 import io.github.pknujsp.everyweather.feature.permoptimize.feature.SmallFeatureStateScreen
+import io.github.pknujsp.everyweather.feature.permoptimize.permission.PermissionState
 import io.github.pknujsp.everyweather.feature.searchlocation.SearchLocationScreen
 
 
@@ -93,11 +95,14 @@ fun OngoingNotificationScreen(navController: NavController, viewModel: OngoingNo
                                 settings.weatherProvider = it
                             }
                             RefreshIntervalScreen(settings)
-                            if (!featureState.isAvailable && notificationUiState.settings.refreshInterval != RefreshInterval.MANUAL) {
-                                SmallFeatureStateScreen(Modifier.padding(8.dp), state = featureState.featureType, onClickRetry = {
-                                    // ongoingNotificationUiState.update()
-                                }, onClickAction = {
-                                    featureState.showSettingsActivity()
+                            if (!batteryOptimizationState.isAvailable && notificationUiState.settings.refreshInterval != RefreshInterval.MANUAL) {
+                                SmallFeatureStateScreen(Modifier.padding(8.dp), state = batteryOptimizationState.featureType, onClickAction = {
+                                    batteryOptimizationState.showSettingsActivity()
+                                })
+                            }
+                            if (backgroundLocationPermissionManager.permissionState is PermissionState.Denied) {
+                                SmallFeatureStateScreen(Modifier.padding(8.dp), state = FeatureType.Permission.BackgroundLocation, onClickAction = {
+                                    backgroundLocationPermissionManager.showSettingsActivity()
                                 })
                             }
                             NotificationIconScreen(settings)
