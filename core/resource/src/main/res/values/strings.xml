@@ -334,4 +334,11 @@
     <string name="daily_notification_enabled">알림이 활성화되었어요</string>
     <string name="daily_notification_disabled">알림이 비활성화 되었어요</string>
     <string name="deleted_daily_notification">알림을 삭제했어요</string>
+    <string name="onboarding_title_main">안녕하세요, 에브리웨더 입니다</string>
+    <string name="onboarding_message_main">Ai로 날씨 정보를 요약받고, 여러 날씨 서비스 업체들의 예보 정보를 한눈에 비교해보세요</string>
+    <string name="onboarding_title_notification">알림 기능</string>
+    <string name="onboarding_message_notification">날씨 정보를 알림을 통해 지속적으로 받아볼 수 있어요</string>
+    <string name="onboarding_title_widget">위젯 제공</string>
+    <string name="onboarding_message_widget">앱을 실행할 필요없이 위젯으로도 날씨 정보를 확인할 수 있어요</string>
+    <string name="onboarding_button_start_app">시작하기</string>
 </resources>

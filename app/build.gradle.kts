@@ -37,12 +37,12 @@ android {
             isMinifyEnabled = false
             isShrinkResources = false
         }
-        create("benchmark") {
+/*        create("benchmark") {
             initWith(release)
             matchingFallbacks.add("release")
             signingConfig = signingConfigs.getByName("debug")
             proguardFiles("benchmark-rules.pro")
-        }
+        }*/
     }
 
     packaging {
@@ -111,5 +111,5 @@ dependencies {
     implementation(libs.androidx.profileinstaller)
 
     androidTestImplementation(libs.benchmark.macro.junit4)
-    baselineProfile(project(":benchmark"))
+    //baselineProfile(project(":benchmark"))
 }

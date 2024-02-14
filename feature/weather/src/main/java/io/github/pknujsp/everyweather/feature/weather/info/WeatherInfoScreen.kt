@@ -52,7 +52,6 @@ fun WeatherInfoScreen(
     val topAppBarUiState = targetLocationViewModel.topAppBarUiState
     val isLoading = viewModel.isLoading
 
-
     LaunchedEffect(uiState) {
         if (uiState is WeatherContentUiState.Success) {
             mainState.expandAppBar()

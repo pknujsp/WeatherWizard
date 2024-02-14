@@ -8,7 +8,7 @@ kotlinx_serialization_json = "1.6.2"
 ksp = "1.9.22-1.0.17"
 
 mapsforge = "0.20.0"
-google_generativeai = "0.1.2"
+google_generativeai = "0.2.0"
 compose_markdown = "0.4.1"
 
 android_gradle_plugin = "8.2.2"
@@ -65,7 +65,7 @@ google_errorprone_annotations = "2.18.0"
 
 material = "1.11.0"
 coil = "2.5.0"
-gms = "4.4.0"
+gms = "4.4.1"
 retrofit2 = "2.9.0"
 retrofit2_kotlinx_serialization_json = "1.0.0"
 
@@ -75,7 +75,7 @@ compile_sdk = "34"
 target_sdk = "34"
 min_sdk = "26"
 
-firebase_bom = "32.7.1"
+firebase_bom = "32.7.2"
 firebase_crashlytics_gradle_plugin = "2.9.9"
 ksealedbinding = "1.0.0"
 

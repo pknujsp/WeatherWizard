@@ -65,7 +65,7 @@ private fun BaseButton(
 object AppButtonDefaults {
     @Composable
     fun primary(
-        buttonSize: ButtonSize = ButtonSize.MEDIUM,
+        buttonSize: BaseButtonSize = ButtonSize.MEDIUM,
     ) = AppButton(
         colors = ButtonDefaults.buttonColors(containerColor = Color.Black, contentColor = Color.White),
         size = buttonSize,
@@ -74,7 +74,7 @@ object AppButtonDefaults {
 
     @Composable
     fun secondary(
-        buttonSize: ButtonSize = ButtonSize.MEDIUM,
+        buttonSize: BaseButtonSize = ButtonSize.MEDIUM,
     ) = AppButton(
         colors = ButtonDefaults.buttonColors(containerColor = Color.White, contentColor = Color.Black),
         size = buttonSize,
@@ -83,7 +83,7 @@ object AppButtonDefaults {
 
     @Composable
     fun third(
-        buttonSize: ButtonSize = ButtonSize.MEDIUM,
+        buttonSize: BaseButtonSize = ButtonSize.MEDIUM,
     ) = AppButton(
         colors = ButtonDefaults.buttonColors(containerColor = Color.LightGray, contentColor = Color.White),
         size = buttonSize,
@@ -93,12 +93,17 @@ object AppButtonDefaults {
     @Immutable
     class AppButton(
         val colors: ButtonColors,
-        val size: ButtonSize,
+        val size: BaseButtonSize,
         val border: BorderStroke?,
     )
 }
 
-enum class ButtonSize(val paddingValues: PaddingValues, val fontSize: TextUnit) {
+interface BaseButtonSize {
+    val paddingValues: PaddingValues
+    val fontSize: TextUnit
+}
+
+enum class ButtonSize(override val paddingValues: PaddingValues, override val fontSize: TextUnit) : BaseButtonSize {
     SMALL(PaddingValues(horizontal = 16.dp, vertical = 8.dp), 14.sp), MEDIUM(PaddingValues(horizontal = 24.dp, vertical = 12.dp), 15.sp),
     LARGE(PaddingValues(horizontal = 32.dp, vertical = 16.dp), 16.sp)
 }
