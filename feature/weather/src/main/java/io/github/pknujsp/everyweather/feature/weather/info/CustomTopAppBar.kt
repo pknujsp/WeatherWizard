@@ -8,6 +8,7 @@ import androidx.compose.animation.core.animateDecay
 import androidx.compose.animation.core.animateTo
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.rememberSplineBasedDecay
+import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -40,6 +41,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -66,15 +68,16 @@ import kotlin.math.abs
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CustomTopAppBar(
+fun TopAppBar(
     modifier: Modifier = Modifier,
+    scrollState: ScrollState,
     topAppBarUiState: TopAppBarUiState,
     weatherContentUiState: WeatherContentUiState.Success,
+    nestedScrollConnection: NestedScrollConnection,
     openDrawer: () -> Unit,
     reload: () -> Unit,
     summarize: () -> Unit,
     onClickedWeatherProviderButton: () -> Unit,
-    scrollBehavior: TopAppBarScrollBehavior,
 ) {
     CustomTopAppBar(
         smallTitle = {
@@ -174,7 +177,8 @@ fun CustomTopAppBar(
                 Icon(painter = painterResource(id = R.drawable.ic_refresh), modifier = Modifier.size(24.dp), contentDescription = null)
             }
         },
-        scrollBehavior = scrollBehavior,
+        scrollState = scrollState,
+        nestedScrollConnection = nestedScrollConnection,
         colors = CustomTopAppBarColors(
             containerColor = Color.Transparent,
             scrolledContainerColor = Color.Transparent,
@@ -262,20 +266,21 @@ private class CustomExitUntilCollapsedScrollBehavior(
 
         override suspend fun onPostFling(consumed: Velocity, available: Velocity): Velocity {
             val superConsumed = super.onPostFling(consumed, available)
-            return superConsumed + settleAppBar(state, available.y, flingAnimationSpec, snapAnimationSpec)
+            return superConsumed /* + settleAppBar(state, available.y, flingAnimationSpec, snapAnimationSpec)*/
         }
     }
 }
 
+/*
 @OptIn(ExperimentalMaterial3Api::class)
-suspend fun settleAppBar(
-    state: TopAppBarState, velocity: Float, flingAnimationSpec: DecayAnimationSpec<Float>, snapAnimationSpec: AnimationSpec<Float>
+suspend fun settleAppBar( collapsedFraction: Float,
+    state: ScrollState, velocity: Float, flingAnimationSpec: DecayAnimationSpec<Float>, snapAnimationSpec: AnimationSpec<Float>
 ): Velocity {
     // 앱 바가 완전히 접히거나 확장되었는지 확인합니다. 그렇다면 앱 바를 고정할 필요가 없습니다,
     // 그냥 제로 속도를 반환합니다.
     // 붕괴된 프랙션의 부동 소수점 정밀도 때문에 0f를 확인하지 않는다는 점에 유의하세요.
     // 계산으로 0f를 확인하지 않습니다.
-    if (state.collapsedFraction < 0.01f || state.collapsedFraction == 1f) {
+    if (collapsedFraction < 0.01f || state.collapsedFraction == 1f) {
         return Velocity.Zero
     }
     var remainingVelocity = velocity
@@ -309,4 +314,4 @@ suspend fun settleAppBar(
     }
 
     return Velocity(0f, remainingVelocity)
-}
+}*/

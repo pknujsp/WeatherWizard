@@ -14,7 +14,7 @@ plugins {
     alias(libs.plugins.ktlint)
     alias(libs.plugins.detekt)
     alias(libs.plugins.com.android.test) apply false
-    alias(libs.plugins.benchmark) apply false
+    //alias(libs.plugins.benchmark) apply false
 }
 
 

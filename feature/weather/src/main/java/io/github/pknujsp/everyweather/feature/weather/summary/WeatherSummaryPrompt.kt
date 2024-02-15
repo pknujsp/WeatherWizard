@@ -57,22 +57,12 @@ class WeatherSummaryPrompt(
     ### **Current**
     - Summarize the current weather in sentences.
     
-    Example (For reference only, do not copy!): {
-    The weather is currently mostly cloudy, with a temperature of 12°C, which is the same as the air temperature. The humidity is very high at 100%, the wind is light at 0.3 m/s, and the wind direction is 135°. No precipitation information was provided.
-    }
-    
     ### **Hourly**
     - Analyze the hourly forecast in sentences.
     - If the probability of precipitation is 30% or less, it is considered very low.
     - Goal: Provide information to help viewers quickly understand key weather changes over time.
     - Analyze data: Analyze key weather elements such as temperature, precipitation probability, wind speed, and cloud cover by time of day.
     - Highlight key times of day: Highlight the times of day when weather changes the most (e.g., rush hour, lunch, and dinnertime), detailing temperature changes, precipitation probability, and unusual events during those times.
-    
-    Example (For reference only, do not copy!): {
-    The weather is mostly cloudy from morning to evening today. Temperatures will gradually rise from 11°C to 15°C, peaking at 15°C around 3pm.
-    The chance of precipitation is mostly low, but there is a 60% chance of rain at 11am and between 4pm and 7pm, especially at 6pm when it could be a little heavier, with 3.0mm of precipitation expected.
-    Winds will gradually increase, reaching up to 4.0 m/s in the afternoon, requiring caution when outdoors. 
-    }
     
     ### **Daily**
     - Analyze the daily forecast in sentences.
@@ -81,18 +71,9 @@ class WeatherSummaryPrompt(
     - Presenting weekly highlights: Highlight significant changes or patterns in weekly weather. For example, detail an increase in temperature mid-week, the likelihood of precipitation over the weekend, etc.
     - Mention the reliability of the forecast: For long-term forecasts, mention the reliability or uncertainty of the forecast so that viewers can take this into account.
     
-    Example (For reference only, do not copy!): {
-    The temperature change over the next few days will be significant, especially from February 17 to 19, with temperatures gradually rising, reaching a high of 17°C on the 19th.
-    Rain is in the forecast from February 19, and will continue on the 20th and 21st, which may affect your plans for outdoor activities.
-    }
-    
     ### **Air Quality**
     - Describe the air quality in sentences.
-    
-    Example (For reference only, do not copy!): {
-    Currently, air quality is 'moderate' and is expected to remain mostly 'good' for the next week before changing to 'moderate' on February 20th.
-    }
-    
+
     ### **Guidance**
     - Provide at least three practical pieces of advice to users based on a comprehensive analysis of the weather data.
     

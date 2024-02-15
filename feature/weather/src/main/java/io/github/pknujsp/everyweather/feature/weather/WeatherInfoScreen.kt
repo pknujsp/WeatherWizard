@@ -1,4 +1,4 @@
-package io.github.pknujsp.everyweather.feature.weather.info
+package io.github.pknujsp.everyweather.feature.weather
 
 
 import androidx.compose.foundation.layout.Column
@@ -30,9 +30,13 @@ import io.github.pknujsp.everyweather.feature.permoptimize.feature.FeatureStateS
 import io.github.pknujsp.everyweather.feature.permoptimize.permission.PermissionState
 import io.github.pknujsp.everyweather.feature.weather.comparison.dailyforecast.CompareDailyForecastScreen
 import io.github.pknujsp.everyweather.feature.weather.comparison.hourlyforecast.CompareHourlyForecastScreen
+import io.github.pknujsp.everyweather.feature.weather.info.WeatherContentScreen
+import io.github.pknujsp.everyweather.feature.weather.info.WeatherContentUiState
+import io.github.pknujsp.everyweather.feature.weather.info.WeatherInfoViewModel
 import io.github.pknujsp.everyweather.feature.weather.info.dailyforecast.detail.DetailDailyForecastScreen
 import io.github.pknujsp.everyweather.feature.weather.info.geocode.TargetLocationViewModel
 import io.github.pknujsp.everyweather.feature.weather.info.hourlyforecast.detail.DetailHourlyForecastScreen
+import io.github.pknujsp.everyweather.feature.weather.info.rememberWeatherMainState
 import io.github.pknujsp.everyweather.feature.weather.route.NestedWeatherRoutes
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -84,7 +88,7 @@ fun WeatherInfoScreen(
         is NestedWeatherRoutes.Main -> {
             when (uiState) {
                 is WeatherContentUiState.Success -> {
-                    WeatherContentScreen(mainState.scrollState, mainState.scrollBehavior, navigate = {
+                    WeatherContentScreen(mainState.scrollState, navigate = {
                         if (it.isDependOnNetwork && mainState.networkState.isNetworkAvailable) {
                             mainState.navigate(it)
                         } else if (!it.isDependOnNetwork) {

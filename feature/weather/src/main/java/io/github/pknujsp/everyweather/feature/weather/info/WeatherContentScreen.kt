@@ -3,6 +3,7 @@ package io.github.pknujsp.everyweather.feature.weather.info
 import androidx.annotation.StringRes
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.scrollBy
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -18,11 +19,8 @@ import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.LocalTextStyle
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -30,8 +28,11 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
+import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
@@ -50,7 +51,6 @@ import io.github.pknujsp.everyweather.core.model.settings.CurrentUnits
 import io.github.pknujsp.everyweather.core.model.weather.common.AirQualityValueType
 import io.github.pknujsp.everyweather.core.model.weather.common.WeatherDataUnit
 import io.github.pknujsp.everyweather.core.model.weather.common.WeatherProvider
-import io.github.pknujsp.everyweather.core.resource.R
 import io.github.pknujsp.everyweather.core.ui.BottomSheetDialog
 import io.github.pknujsp.everyweather.core.ui.theme.ShadowDirection
 import io.github.pknujsp.everyweather.core.ui.theme.outlineTextStyle
@@ -68,14 +68,15 @@ import io.github.pknujsp.everyweather.feature.weather.route.NestedWeatherRoutes
 import io.github.pknujsp.everyweather.feature.weather.summary.SummaryScreen
 import kotlinx.coroutines.launch
 
+
 private val DEFAULT_PADDING = 12.dp
 private val COLUMN_ITEM_SPACING = 20.dp
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun WeatherContentScreen(
     scrollState: ScrollState,
-    scrollBehavior: TopAppBarScrollBehavior,
     navigate: (NestedWeatherRoutes) -> Unit,
     reload: () -> Unit,
     updateWeatherDataProvider: (WeatherProvider) -> Unit,
@@ -97,29 +98,33 @@ fun WeatherContentScreen(
         }
     }
 
+    val nestedScrollConnection = remember {
+        object : NestedScrollConnection {
+            override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
+
+                val delta = -available.y
+                coroutineScope.launch {
+                    if (scrollState.isScrollInProgress.not()) {
+                        scrollState.scrollBy(delta)
+                    }
+                }
+                return Offset.Zero
+            }
+        }
+    }
+
     Box(modifier = Modifier.fillMaxSize()) {
         AsyncImage(
             modifier = Modifier.fillMaxSize(),
             contentScale = ContentScale.Crop,
             alignment = Alignment.Center,
             model = ImageRequest.Builder(LocalContext.current).diskCachePolicy(CachePolicy.ENABLED).crossfade(200).data(imageUrl).build(),
-            contentDescription = stringResource(R.string.background_image),
+            contentDescription = stringResource(io.github.pknujsp.everyweather.core.resource.R.string.background_image),
         )
 
-        Scaffold(topBar = {
-            CustomTopAppBar(
-                topAppBarUiState = topAppBarUiState,
-                weatherContentUiState = uiState,
-                openDrawer = openDrawer,
-                reload = reload,
-                summarize = {
-                    showAiSummary = true
-                },
-                onClickedWeatherProviderButton = { onClickedWeatherProviderButton = true },
-                scrollBehavior = scrollBehavior,
-            )
-        }, modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
-            containerColor = Color.Black.copy(alpha = 0.11f)) { _ ->
+        Box(modifier = Modifier
+            .fillMaxSize()
+            .background(Color.Black.copy(alpha = 0.11f), RectangleShape)) {
             Column(
                 modifier = Modifier
                     .fillMaxSize()
@@ -157,34 +162,48 @@ fun WeatherContentScreen(
                 Footer(units = uiState.currentUnits)
                 Spacer(modifier = Modifier.height(systemBarPadding.calculateBottomPadding()))
             }
+
+            TopAppBar(
+                modifier = Modifier.align(Alignment.TopCenter),
+                topAppBarUiState = topAppBarUiState,
+                weatherContentUiState = uiState,
+                openDrawer = openDrawer,
+                reload = reload,
+                summarize = {
+                    showAiSummary = true
+                },
+                onClickedWeatherProviderButton = { onClickedWeatherProviderButton = true },
+                scrollState = scrollState,
+                nestedScrollConnection = nestedScrollConnection
+            )
+
+            Box(modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .fillMaxWidth()
+                .height(systemBarPadding.calculateBottomPadding())
+                .background(brush = shadowBox(ShadowDirection.UP)))
         }
 
-        Box(modifier = Modifier
-            .align(Alignment.BottomCenter)
-            .fillMaxWidth()
-            .height(systemBarPadding.calculateBottomPadding())
-            .background(brush = shadowBox(ShadowDirection.UP)))
-    }
-
-    BottomSheetDialog(title = stringResource(id = R.string.title_weather_data_provider),
-        selectedItem = uiState.args.weatherProvider,
-        onSelectedItem = {
-            coroutineScope.launch {
-                it?.let {
-                    if (uiState.args.weatherProvider != it) {
-                        updateWeatherDataProvider(it)
+        BottomSheetDialog(title = stringResource(id = io.github.pknujsp.everyweather.core.resource.R.string.title_weather_data_provider),
+            selectedItem = uiState.args.weatherProvider,
+            onSelectedItem = {
+                coroutineScope.launch {
+                    it?.let {
+                        if (uiState.args.weatherProvider != it) {
+                            updateWeatherDataProvider(it)
+                        }
                     }
                 }
-            }
-        },
-        enums = WeatherProvider.enums,
-        expanded = { onClickedWeatherProviderButton },
-        onDismissRequest = { onClickedWeatherProviderButton = false })
+            },
+            enums = WeatherProvider.enums,
+            expanded = { onClickedWeatherProviderButton },
+            onDismissRequest = { onClickedWeatherProviderButton = false })
 
-    if (showAiSummary) {
-        SummaryScreen(model = uiState.weatherEntities, onDismiss = {
-            showAiSummary = false
-        })
+        if (showAiSummary) {
+            SummaryScreen(model = uiState.weatherEntities, onDismiss = {
+                showAiSummary = false
+            })
+        }
     }
 }
 
@@ -197,8 +216,8 @@ private fun ColumnScope.Footer(modifier: Modifier = Modifier, units: CurrentUnit
     Column(modifier = modifier.align(Alignment.End),
         verticalArrangement = Arrangement.spacedBy(4.dp),
         horizontalAlignment = Alignment.End) {
-        UnitItem(title = R.string.title_wind_speed_unit, unit = units.windSpeedUnit)
-        UnitItem(title = R.string.title_precipitation_unit, unit = units.precipitationUnit)
+        UnitItem(title = io.github.pknujsp.everyweather.core.resource.R.string.title_wind_speed_unit, unit = units.windSpeedUnit)
+        UnitItem(title = io.github.pknujsp.everyweather.core.resource.R.string.title_precipitation_unit, unit = units.precipitationUnit)
     }
 }
 
