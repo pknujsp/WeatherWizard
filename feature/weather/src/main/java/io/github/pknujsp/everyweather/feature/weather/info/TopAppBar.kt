@@ -1,11 +1,8 @@
 package io.github.pknujsp.everyweather.feature.weather.info
 
 import androidx.compose.animation.core.AnimationSpec
-import androidx.compose.animation.core.AnimationState
 import androidx.compose.animation.core.DecayAnimationSpec
 import androidx.compose.animation.core.Spring
-import androidx.compose.animation.core.animateDecay
-import androidx.compose.animation.core.animateTo
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.rememberSplineBasedDecay
 import androidx.compose.foundation.ScrollState
@@ -41,7 +38,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
-import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -64,7 +60,6 @@ import io.github.pknujsp.everyweather.core.ui.theme.shadowBox
 import io.github.pknujsp.everyweather.feature.weather.CustomTopAppBar
 import io.github.pknujsp.everyweather.feature.weather.CustomTopAppBarColors
 import io.github.pknujsp.everyweather.feature.weather.info.geocode.TopAppBarUiState
-import kotlin.math.abs
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

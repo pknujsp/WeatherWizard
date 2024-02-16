@@ -3,7 +3,7 @@
 
 kotlin = "1.9.22"
 kotlin_compiler_extension = "1.5.9"
-kotlinx_coroutines = "1.8.0-RC2"
+kotlinx_coroutines = "1.8.0"
 kotlinx_serialization_json = "1.6.2"
 ksp = "1.9.22-1.0.17"
 
