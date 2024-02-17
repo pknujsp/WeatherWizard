@@ -16,6 +16,7 @@ import androidx.compose.material3.LocalContentColor
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
@@ -23,6 +24,7 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
@@ -37,6 +39,7 @@ import androidx.compose.ui.layout.layoutId
 import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
 import io.github.pknujsp.everyweather.feature.weather.info.CustomTopAppBarColors
+import kotlinx.coroutines.flow.filterNot
 import kotlinx.coroutines.launch
 
 
@@ -75,21 +78,22 @@ internal fun CustomTopAppBar(
                 }
                 return super.onPostFling(consumed, available)
             }
-
-            override fun onPostScroll(consumed: Offset, available: Offset, source: NestedScrollSource): Offset {
-                return super.onPostScroll(consumed, available, source)
-            }
         }
-    }/*
+    }
 
-        if (scrollState.isScrollInProgress) {
-            DisposableEffect(Unit) {
-                onDispose {
-
+    if (scrollState.isScrollInProgress && scrollState.value != 0) {
+        DisposableEffect(scrollState.isScrollInProgress) {
+            onDispose {
+                Log.d("CustomTopAppBar", "scroll Finished, scrollState.isScrollInProgress: ${scrollState.isScrollInProgress}," +
+                        "scrollState.value: ${scrollState.value}, bigTitleHeight: $bigTitleHeight")
+                if (scrollState.value < bigTitleHeight) {
+                    coroutineScope.launch {
+                        scrollState.animateScrollTo(if (collapsedFraction < 0.5f) 0 else bigTitleHeight)
+                    }
                 }
             }
         }
-    */
+    }
 
     Box(modifier = modifier.nestedScroll(nestedScrollConnection)) {
         TopAppBarLayout(modifier = Modifier
