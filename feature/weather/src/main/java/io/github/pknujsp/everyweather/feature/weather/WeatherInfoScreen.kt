@@ -51,16 +51,11 @@ fun WeatherInfoScreen(
     val targetLocationType = viewModel.targetLocationType.collectAsStateWithLifecycle()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
-    val mainState =
-        rememberWeatherMainState({ uiState }, updateUiState = viewModel::onUnavailableFeature)
+    val mainState = rememberWeatherMainState({ uiState }, updateUiState = viewModel::onUnavailableFeature)
     val topAppBarUiState = targetLocationViewModel.topAppBarUiState
     val isLoading = viewModel.isLoading
 
-    LaunchedEffect(uiState) {
-        if (uiState is WeatherContentUiState.Success) {
-            mainState.expandAppBar()
-        }
-    }
+
     LaunchedEffect(targetLocation) {
         targetLocation?.run {
             targetLocationViewModel.setLocation(this)
@@ -88,7 +83,7 @@ fun WeatherInfoScreen(
         is NestedWeatherRoutes.Main -> {
             when (uiState) {
                 is WeatherContentUiState.Success -> {
-                    WeatherContentScreen(mainState.scrollState, navigate = {
+                    WeatherContentScreen(navigate = {
                         if (it.isDependOnNetwork && mainState.networkState.isNetworkAvailable) {
                             mainState.navigate(it)
                         } else if (!it.isDependOnNetwork) {

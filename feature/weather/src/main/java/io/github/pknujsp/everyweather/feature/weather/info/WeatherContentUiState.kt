@@ -1,11 +1,6 @@
 package io.github.pknujsp.everyweather.feature.weather.info
 
-import androidx.compose.foundation.ScrollState
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.material3.TopAppBarScrollBehavior
-import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Stable
@@ -18,14 +13,11 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import androidx.core.view.WindowInsetsControllerCompat
 import io.github.pknujsp.everyweather.core.common.FeatureType
 import io.github.pknujsp.everyweather.core.common.StatefulFeature
 import io.github.pknujsp.everyweather.core.common.asActivity
-import io.github.pknujsp.everyweather.core.data.favorite.SelectedLocationModel
 import io.github.pknujsp.everyweather.core.model.flickr.FlickrRequestParameters
 import io.github.pknujsp.everyweather.core.model.settings.CurrentUnits
 import io.github.pknujsp.everyweather.core.model.weather.RequestWeatherArguments
@@ -92,9 +84,8 @@ class Weather(
     )
 }
 
-private class MutableWeatherMainState @OptIn(ExperimentalMaterial3Api::class) constructor(
-    override val scrollState: ScrollState,
-    override val scrollBehavior: TopAppBarScrollBehavior,
+@Stable
+private class MutableWeatherMainState(
     override val networkState: NetworkState,
     private val weatherContentUiState: () -> WeatherContentUiState?,
     override val locationPermissionManager: PermissionManager,
@@ -106,9 +97,6 @@ private class MutableWeatherMainState @OptIn(ExperimentalMaterial3Api::class) co
         this.nestedRoutes.value = nestedRoutes
     }
 
-    override suspend fun expandAppBar() {
-        scrollState.scrollTo(0)
-    }
 
     override fun refresh() {
         val weatherContentUiState = weatherContentUiState()
@@ -132,8 +120,6 @@ private class MutableWeatherMainState @OptIn(ExperimentalMaterial3Api::class) co
 fun rememberWeatherMainState(
     weatherContentUiState: () -> WeatherContentUiState?,
     updateUiState: (StatefulFeature) -> Unit,
-    scrollState: ScrollState = rememberScrollState(),
-    scrollBehavior: TopAppBarScrollBehavior = customExitUntilCollapsedScrollBehavior()
 ): WeatherMainState {
     val window = LocalContext.current.asActivity()!!.window
     val windowInsetsControllerCompat = remember(window) {
@@ -145,8 +131,6 @@ fun rememberWeatherMainState(
 
     val state: WeatherMainState = remember {
         MutableWeatherMainState(
-            scrollState,
-            scrollBehavior,
             networkState,
             weatherContentUiState,
             locationPermissionManager,
@@ -194,13 +178,10 @@ fun rememberWeatherMainState(
 
 @Stable
 interface WeatherMainState {
-    val scrollState: ScrollState
-    @OptIn(ExperimentalMaterial3Api::class) val scrollBehavior: TopAppBarScrollBehavior
     val networkState: NetworkState
     val locationPermissionManager: PermissionManager
 
     val nestedRoutes: State<NestedWeatherRoutes>
-    suspend fun expandAppBar()
     fun navigate(nestedRoutes: NestedWeatherRoutes)
     fun refresh()
     fun updateUiState(state: StatefulFeature)

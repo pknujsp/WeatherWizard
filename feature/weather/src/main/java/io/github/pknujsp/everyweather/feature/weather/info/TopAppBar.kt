@@ -2,12 +2,10 @@ package io.github.pknujsp.everyweather.feature.weather.info
 
 import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.core.DecayAnimationSpec
-import androidx.compose.animation.core.Spring
-import androidx.compose.animation.core.spring
-import androidx.compose.animation.rememberSplineBasedDecay
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.FlingBehavior
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -29,8 +27,8 @@ import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.material3.TopAppBarState
-import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Stable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -58,10 +56,8 @@ import io.github.pknujsp.everyweather.core.ui.theme.notIncludeTextPaddingStyle
 import io.github.pknujsp.everyweather.core.ui.theme.outlineTextStyle
 import io.github.pknujsp.everyweather.core.ui.theme.shadowBox
 import io.github.pknujsp.everyweather.feature.weather.CustomTopAppBar
-import io.github.pknujsp.everyweather.feature.weather.CustomTopAppBarColors
 import io.github.pknujsp.everyweather.feature.weather.info.geocode.TopAppBarUiState
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TopAppBar(
     modifier: Modifier = Modifier,
@@ -69,6 +65,7 @@ fun TopAppBar(
     topAppBarUiState: TopAppBarUiState,
     weatherContentUiState: WeatherContentUiState.Success,
     nestedScrollConnection: NestedScrollConnection,
+    flingBehavior: FlingBehavior,
     openDrawer: () -> Unit,
     reload: () -> Unit,
     summarize: () -> Unit,
@@ -173,14 +170,8 @@ fun TopAppBar(
             }
         },
         scrollState = scrollState,
-        nestedScrollConnection = nestedScrollConnection,
-        colors = CustomTopAppBarColors(
-            containerColor = Color.Transparent,
-            scrolledContainerColor = Color.Transparent,
-            titleContentColor = Color.White,
-            navigationIconContentColor = Color.White,
-            actionIconContentColor = Color.White,
-        ),
+        flingBehavior = flingBehavior,
+        colors = defaultCustomTopAppBarColors,
         modifier = modifier
             .background(brush = shadowBox())
             .statusBarsPadding(),
@@ -194,19 +185,6 @@ fun TopAppBar(
         },
     )
 }
-
-@ExperimentalMaterial3Api
-@Composable
-fun customExitUntilCollapsedScrollBehavior(
-    state: TopAppBarState = rememberTopAppBarState(initialHeightOffsetLimit = -100f),
-    snapAnimationSpec: AnimationSpec<Float> = spring(stiffness = Spring.StiffnessMediumLow),
-    flingAnimationSpec: DecayAnimationSpec<Float> = rememberSplineBasedDecay()
-): TopAppBarScrollBehavior = CustomExitUntilCollapsedScrollBehavior(
-    state = state,
-    snapAnimationSpec = snapAnimationSpec,
-    flingAnimationSpec = flingAnimationSpec,
-)
-
 
 @OptIn(ExperimentalMaterial3Api::class)
 private class CustomExitUntilCollapsedScrollBehavior(
@@ -266,47 +244,14 @@ private class CustomExitUntilCollapsedScrollBehavior(
     }
 }
 
-/*
-@OptIn(ExperimentalMaterial3Api::class)
-suspend fun settleAppBar( collapsedFraction: Float,
-    state: ScrollState, velocity: Float, flingAnimationSpec: DecayAnimationSpec<Float>, snapAnimationSpec: AnimationSpec<Float>
-): Velocity {
-    // 앱 바가 완전히 접히거나 확장되었는지 확인합니다. 그렇다면 앱 바를 고정할 필요가 없습니다,
-    // 그냥 제로 속도를 반환합니다.
-    // 붕괴된 프랙션의 부동 소수점 정밀도 때문에 0f를 확인하지 않는다는 점에 유의하세요.
-    // 계산으로 0f를 확인하지 않습니다.
-    if (collapsedFraction < 0.01f || state.collapsedFraction == 1f) {
-        return Velocity.Zero
-    }
-    var remainingVelocity = velocity
-    // 이전 사용자 플링 후 남은 초기 속도가 있는 경우, 다음과 같이 애니메이션을 적용합니다.
-    // 모션을 계속하여 앱 바를 펼치거나 접습니다.
-    if (abs(velocity) > 1f) {
-        var lastValue = 0f
-        AnimationState(
-            initialValue = 0f,
-            initialVelocity = velocity,
-        ).animateDecay(flingAnimationSpec) {
-            val delta = value - lastValue
-            val initialHeightOffset = state.heightOffset
 
-            state.heightOffset = initialHeightOffset + delta
-            val consumed = abs(initialHeightOffset - state.heightOffset)
+@Stable
+data class CustomTopAppBarColors(
+    val containerColor: Color = Color.Transparent,
+    val scrolledContainerColor: Color = Color.Transparent,
+    val navigationIconContentColor: Color = Color.White,
+    val titleContentColor: Color = Color.White,
+    val actionIconContentColor: Color = Color.White,
+)
 
-            lastValue = value
-            remainingVelocity = this.velocity
-            // 반올림 오류를 방지하고 소비되지 않은 항목이 있으면 중지합니다.
-            if (abs(delta - consumed) > 0.5f) this.cancelAnimation()
-        }
-    }
-    // 애니메이션 사양이 제공된 경우 스냅합니다.
-    if (state.heightOffset < 0 && state.heightOffset > state.heightOffsetLimit) {
-        AnimationState(initialValue = state.heightOffset).animateTo(if (state.collapsedFraction < 0.5f) {
-            0f
-        } else {
-            state.heightOffsetLimit
-        }, animationSpec = snapAnimationSpec) { state.heightOffset = value }
-    }
-
-    return Velocity(0f, remainingVelocity)
-}*/
+private val defaultCustomTopAppBarColors = CustomTopAppBarColors()

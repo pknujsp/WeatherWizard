@@ -1,16 +1,11 @@
 package io.github.pknujsp.everyweather.feature.weather
 
-import androidx.compose.animation.core.AnimationSpec
-import androidx.compose.animation.core.DecayAnimationSpec
+import android.util.Log
 import androidx.compose.animation.core.EaseInOut
-import androidx.compose.animation.core.Spring
-import androidx.compose.animation.core.spring
-import androidx.compose.animation.rememberSplineBasedDecay
 import androidx.compose.foundation.ScrollState
+import androidx.compose.foundation.gestures.FlingBehavior
 import androidx.compose.foundation.gestures.Orientation
-import androidx.compose.foundation.gestures.draggable
-import androidx.compose.foundation.gestures.rememberDraggableState
-import androidx.compose.foundation.gestures.scrollBy
+import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
@@ -18,10 +13,9 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material3.LocalContentColor
-import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.Stable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
@@ -32,12 +26,17 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
+import androidx.compose.ui.input.nestedscroll.NestedScrollSource
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.layoutId
+import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
+import io.github.pknujsp.everyweather.feature.weather.info.CustomTopAppBarColors
 import kotlinx.coroutines.launch
 
 
@@ -51,9 +50,7 @@ internal fun CustomTopAppBar(
     windowInsets: WindowInsets,
     colors: CustomTopAppBarColors,
     scrollState: ScrollState,
-    nestedScrollConnection: NestedScrollConnection,
-    snapAnimationSpec: AnimationSpec<Float> = spring(stiffness = Spring.StiffnessMediumLow),
-    flingAnimationSpec: DecayAnimationSpec<Float> = rememberSplineBasedDecay(),
+    flingBehavior: FlingBehavior,
     bigTitle: @Composable () -> Unit,
     smallTitle: @Composable () -> Unit,
     navigationIcon: @Composable (() -> Unit)? = null,
@@ -66,21 +63,38 @@ internal fun CustomTopAppBar(
     }
     val coroutineScope = rememberCoroutineScope()
     var collapsedFraction by remember { mutableFloatStateOf(0f) }
+    var bigTitleHeight by remember { mutableIntStateOf(0) }
+    val nestedScrollConnection = remember {
+        object : NestedScrollConnection {
+            override suspend fun onPostFling(consumed: Velocity, available: Velocity): Velocity {
+                if (scrollState.value < bigTitleHeight) {
+                    Log.d("CustomTopAppBar", "onPostFling: $consumed, $available")
+                    coroutineScope.launch {
+                        scrollState.animateScrollTo(if (collapsedFraction < 0.5f) 0 else bigTitleHeight)
+                    }
+                }
+                return super.onPostFling(consumed, available)
+            }
 
-    val appBarDragModifier = Modifier.draggable(orientation = Orientation.Vertical, state = rememberDraggableState { delta ->
-        coroutineScope.launch {
-            if (scrollState.isScrollInProgress.not()) {
-                scrollState.scrollBy(-delta)
+            override fun onPostScroll(consumed: Offset, available: Offset, source: NestedScrollSource): Offset {
+                return super.onPostScroll(consumed, available, source)
             }
         }
-    }, onDragStopped = { velocity ->
-        //settleAppBar(collapsedFraction, scrollState, velocity, flingAnimationSpec, snapAnimationSpec)
-    })
+    }/*
 
+        if (scrollState.isScrollInProgress) {
+            DisposableEffect(Unit) {
+                onDispose {
 
-    Surface(modifier = modifier.then(appBarDragModifier), color = Color.Transparent) {
+                }
+            }
+        }
+    */
+
+    Box(modifier = modifier.nestedScroll(nestedScrollConnection)) {
         TopAppBarLayout(modifier = Modifier
             .windowInsetsPadding(windowInsets)
+            .scrollable(scrollState, orientation = Orientation.Vertical, flingBehavior = flingBehavior, reverseDirection = true)
             .clipToBounds(),
             navigationIconContentColor = colors.navigationIconContentColor,
             actionIconContentColor = colors.actionIconContentColor,
@@ -91,6 +105,9 @@ internal fun CustomTopAppBar(
             actions = actionsRow,
             collapsedFraction = {
                 collapsedFraction = it
+            },
+            bigTitleHeight = {
+                bigTitleHeight = it
             })
     }
 }
@@ -106,6 +123,7 @@ private fun TopAppBarLayout(
     navigationIconContentColor: Color,
     actionIconContentColor: Color,
     scrollState: ScrollState,
+    bigTitleHeight: (Int) -> Unit,
     collapsedFraction: (Float) -> Unit,
     bigTitle: @Composable (() -> Unit),
     smallTitle: @Composable (() -> Unit),
@@ -120,6 +138,7 @@ private fun TopAppBarLayout(
             topTitleAlphaEasing.transform(collapsedRatio)
         }
     }
+
 
     Layout({
         Box(Modifier
@@ -156,6 +175,7 @@ private fun TopAppBarLayout(
 
         if (bigTitleHeightPx == 0) {
             bigTitleHeightPx = bigTitlePlaceable.height
+            bigTitleHeight(bigTitlePlaceable.height)
         }
 
         val collapsedRatio = 1f - smallTitleAlpha
@@ -173,12 +193,3 @@ private fun TopAppBarLayout(
         }
     }
 }
-
-@Stable
-data class CustomTopAppBarColors(
-    val containerColor: Color = Color.White,
-    val scrolledContainerColor: Color = Color.White,
-    val navigationIconContentColor: Color = Color.Black,
-    val titleContentColor: Color = Color.Black,
-    val actionIconContentColor: Color = Color.Black,
-)

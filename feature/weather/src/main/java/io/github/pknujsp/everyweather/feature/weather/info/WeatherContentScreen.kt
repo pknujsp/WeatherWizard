@@ -3,6 +3,8 @@ package io.github.pknujsp.everyweather.feature.weather.info
 import androidx.annotation.StringRes
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.FlingBehavior
+import androidx.compose.foundation.gestures.ScrollableDefaults
 import androidx.compose.foundation.gestures.scrollBy
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -16,6 +18,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBars
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.LocalTextStyle
@@ -76,7 +79,6 @@ private val COLUMN_ITEM_SPACING = 20.dp
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun WeatherContentScreen(
-    scrollState: ScrollState,
     navigate: (NestedWeatherRoutes) -> Unit,
     reload: () -> Unit,
     updateWeatherDataProvider: (WeatherProvider) -> Unit,
@@ -98,6 +100,8 @@ fun WeatherContentScreen(
         }
     }
 
+    val scrollState = rememberScrollState()
+    val flingBehavior = ScrollableDefaults.flingBehavior()
     val nestedScrollConnection = remember {
         object : NestedScrollConnection {
             override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
@@ -129,7 +133,7 @@ fun WeatherContentScreen(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(horizontal = DEFAULT_PADDING)
-                    .verticalScroll(scrollState),
+                    .verticalScroll(scrollState, flingBehavior = flingBehavior),
                 verticalArrangement = Arrangement.spacedBy(COLUMN_ITEM_SPACING),
             ) {
                 val localConfiguration = LocalConfiguration.current
@@ -174,7 +178,8 @@ fun WeatherContentScreen(
                 },
                 onClickedWeatherProviderButton = { onClickedWeatherProviderButton = true },
                 scrollState = scrollState,
-                nestedScrollConnection = nestedScrollConnection
+                nestedScrollConnection = nestedScrollConnection,
+                flingBehavior = flingBehavior,
             )
 
             Box(modifier = Modifier
