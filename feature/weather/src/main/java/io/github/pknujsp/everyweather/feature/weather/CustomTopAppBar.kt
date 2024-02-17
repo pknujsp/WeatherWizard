@@ -39,6 +39,7 @@ import androidx.compose.ui.layout.layoutId
 import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
 import io.github.pknujsp.everyweather.feature.weather.info.CustomTopAppBarColors
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.filterNot
 import kotlinx.coroutines.launch
 
@@ -67,15 +68,11 @@ internal fun CustomTopAppBar(
     val coroutineScope = rememberCoroutineScope()
     var collapsedFraction by remember { mutableFloatStateOf(0f) }
     var bigTitleHeight by remember { mutableIntStateOf(0) }
+
     val nestedScrollConnection = remember {
         object : NestedScrollConnection {
             override suspend fun onPostFling(consumed: Velocity, available: Velocity): Velocity {
-                if (scrollState.value < bigTitleHeight) {
-                    Log.d("CustomTopAppBar", "onPostFling: $consumed, $available")
-                    coroutineScope.launch {
-                        scrollState.animateScrollTo(if (collapsedFraction < 0.5f) 0 else bigTitleHeight)
-                    }
-                }
+                coroutineScope.onScroll(scrollState, bigTitleHeight, collapsedFraction)
                 return super.onPostFling(consumed, available)
             }
         }
@@ -84,13 +81,7 @@ internal fun CustomTopAppBar(
     if (scrollState.isScrollInProgress && scrollState.value != 0) {
         DisposableEffect(scrollState.isScrollInProgress) {
             onDispose {
-                Log.d("CustomTopAppBar", "scroll Finished, scrollState.isScrollInProgress: ${scrollState.isScrollInProgress}," +
-                        "scrollState.value: ${scrollState.value}, bigTitleHeight: $bigTitleHeight")
-                if (scrollState.value < bigTitleHeight) {
-                    coroutineScope.launch {
-                        scrollState.animateScrollTo(if (collapsedFraction < 0.5f) 0 else bigTitleHeight)
-                    }
-                }
+                coroutineScope.onScroll(scrollState, bigTitleHeight, collapsedFraction)
             }
         }
     }
@@ -194,6 +185,14 @@ private fun TopAppBarLayout(
             bigTitlePlaceable.place(x = (titleInset + navigationIconPlaceable.width * expandedRatio).toInt(),
                 y = navigationIconPlaceable.height - (bigTitlePlaceable.height * expandedRatio).toInt())
             smallTitlePlaceable.place(x = navigationIconPlaceable.width + titleInset, y = (layoutHeight - smallTitlePlaceable.height) / 2)
+        }
+    }
+}
+
+private fun CoroutineScope.onScroll(scrollState: ScrollState, bigTitleHeight: Int, collapsedFraction: Float) {
+    if (scrollState.value < bigTitleHeight) {
+        launch {
+            scrollState.animateScrollTo(if (collapsedFraction < 0.5f) 0 else bigTitleHeight)
         }
     }
 }
