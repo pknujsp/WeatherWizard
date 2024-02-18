@@ -32,7 +32,7 @@ androidx_windowmanager = "1.0.0"
 androidx_remoteviews = "1.0.0"
 androidx_paging = "3.2.1"
 androidx_browser = "1.7.0"
-accompanist = "0.32.0"
+accompanist = "0.34.0"
 dagger = "2.50"
 
 androidx_test_espresso = "3.5.1"
@@ -81,7 +81,7 @@ ksealedbinding = "1.0.0"
 
 ktlint = "1.1.1"
 ktlint_gradle_plugin = "12.1.0"
-detekt = "1.23.4"
+detekt = "1.23.5"
 
 jsoup = "1.17.2"
 sunrisesunsetcalculator = "1.2"
