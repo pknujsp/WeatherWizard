@@ -102,20 +102,6 @@ fun WeatherContentScreen(
 
     val scrollState = rememberScrollState()
     val flingBehavior = ScrollableDefaults.flingBehavior()
-    val nestedScrollConnection = remember {
-        object : NestedScrollConnection {
-            override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
-
-                val delta = -available.y
-                coroutineScope.launch {
-                    if (scrollState.isScrollInProgress.not()) {
-                        scrollState.scrollBy(delta)
-                    }
-                }
-                return Offset.Zero
-            }
-        }
-    }
 
     Box(modifier = Modifier.fillMaxSize()) {
         AsyncImage(
@@ -178,7 +164,6 @@ fun WeatherContentScreen(
                 },
                 onClickedWeatherProviderButton = { onClickedWeatherProviderButton = true },
                 scrollState = scrollState,
-                nestedScrollConnection = nestedScrollConnection,
                 flingBehavior = flingBehavior,
             )
 

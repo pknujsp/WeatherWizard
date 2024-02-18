@@ -1,7 +1,9 @@
 package io.github.pknujsp.everyweather.feature.weather
 
-import android.util.Log
+import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.core.EaseInOut
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.SpringSpec
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.gestures.FlingBehavior
 import androidx.compose.foundation.gestures.Orientation
@@ -16,7 +18,6 @@ import androidx.compose.material3.LocalContentColor
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
@@ -24,15 +25,12 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
-import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.layoutId
@@ -40,7 +38,6 @@ import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
 import io.github.pknujsp.everyweather.feature.weather.info.CustomTopAppBarColors
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.flow.filterNot
 import kotlinx.coroutines.launch
 
 
@@ -134,7 +131,6 @@ private fun TopAppBarLayout(
         }
     }
 
-
     Layout({
         Box(Modifier
             .layoutId(NAVIGATION_ICON)
@@ -189,10 +185,12 @@ private fun TopAppBarLayout(
     }
 }
 
+private val animationSpec: AnimationSpec<Float> = SpringSpec(dampingRatio = Spring.DampingRatioLowBouncy, stiffness = Spring.StiffnessLow)
+
 private fun CoroutineScope.onScroll(scrollState: ScrollState, bigTitleHeight: Int, collapsedFraction: Float) {
     if (scrollState.value < bigTitleHeight) {
         launch {
-            scrollState.animateScrollTo(if (collapsedFraction < 0.5f) 0 else bigTitleHeight)
+            scrollState.animateScrollTo(if (collapsedFraction < 0.5f) 0 else bigTitleHeight, animationSpec)
         }
     }
 }

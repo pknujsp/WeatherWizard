@@ -64,7 +64,6 @@ fun TopAppBar(
     scrollState: ScrollState,
     topAppBarUiState: TopAppBarUiState,
     weatherContentUiState: WeatherContentUiState.Success,
-    nestedScrollConnection: NestedScrollConnection,
     flingBehavior: FlingBehavior,
     openDrawer: () -> Unit,
     reload: () -> Unit,
@@ -184,64 +183,6 @@ fun TopAppBar(
             }
         },
     )
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-private class CustomExitUntilCollapsedScrollBehavior(
-    override val state: TopAppBarState,
-    override val snapAnimationSpec: AnimationSpec<Float>,
-    override val flingAnimationSpec: DecayAnimationSpec<Float>,
-) : TopAppBarScrollBehavior {
-
-    override val isPinned: Boolean = false
-
-    override val nestedScrollConnection = object : NestedScrollConnection {
-        override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
-            // 아래로 스크롤하는 경우 가로채지 마세요. 손가락을 위에서 아래로 스와이프
-            if (available.y > 0f) return Offset.Zero
-
-            val prevHeightOffset = state.heightOffset
-            state.heightOffset += available.y
-            return if (prevHeightOffset != state.heightOffset) {
-                // 상단 앱 바를 접거나 펼치는 중입니다.
-                // Y축의 스크롤만 사용합니다.
-                available.copy(x = 0f)
-            } else {
-                Offset.Zero
-            }
-        }
-
-        override fun onPostScroll(
-            consumed: Offset, available: Offset, source: NestedScrollSource
-        ): Offset {
-            state.contentOffset += consumed.y
-
-            if (available.y < 0f || consumed.y < 0f) {
-                // 위로 스크롤할 때 상태의 높이 오프셋을 업데이트하기만 하면 됩니다.
-                val oldHeightOffset = state.heightOffset
-                state.heightOffset += consumed.y
-                //return Offset(0f, state.heightOffset - oldHeightOffset)
-            }
-
-            if (consumed.y == 0f && available.y > 0) {
-                // 아래로 스크롤할 때 전체 콘텐츠 오프셋을 0으로 재설정합니다. 이렇게 하면 일부 플로트 정밀도의 부정확성을 제거할 수 있습니다.
-                state.contentOffset = 0f
-            }
-
-            if (available.y > 0f) {
-                //소비된 델타 Y가 사전 스크롤에서 사용 가능한 델타 Y로 기록된 것보다 적은 경우 높이 오프셋을 조정합니다.
-                val oldHeightOffset = state.heightOffset
-                state.heightOffset += available.y
-                //return Offset(0f, state.heightOffset - oldHeightOffset)
-            }
-            return Offset.Zero
-        }
-
-        override suspend fun onPostFling(consumed: Velocity, available: Velocity): Velocity {
-            val superConsumed = super.onPostFling(consumed, available)
-            return superConsumed /* + settleAppBar(state, available.y, flingAnimationSpec, snapAnimationSpec)*/
-        }
-    }
 }
 
 

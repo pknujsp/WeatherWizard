@@ -35,9 +35,10 @@ class WeatherSummaryPrompt(
     - Clarify the date and time.
     
     Tone:
-    - The response should be positive, interesting, and fun.
-    - Do not use polite expressions and honorifics.
-    - Use professional vocabulary and sentence structure to instill confidence in the user.
+    - The response should be positive, interesting.
+    - Use a friendly and positive tone.
+    - Avoid using jargon or technical terms.
+    - Use simple and clear language.
     
     Answer Quality:
     - The answer should not be ambiguous, controversial, or off-topic.
@@ -45,37 +46,40 @@ class WeatherSummaryPrompt(
     - The answer must be concise and clearly deliver the main points.
     - Logic and reasoning must be rigorous and intellectual.
     - Since actual weathercasters or weather experts will evaluate the quality of the answer, it must be well-written.
-    - When evaluated by an actual expert, the score should be 99 out of 100.
+    - When evaluated by an actual expert, the score should be 100 out of 100.
+    - The answer should be written in a way that is easy to understand and easy to follow.
+    - This is a really important request. Make sure you write it accurately and clearly.
     
     Answer Instructions:
     - **Answer in korean**
-    - Write the answer with a minimum of 60 characters.
-    - Divide the text into paragraphs for easy reading.
+    - Break your text into paragraphs for better readability.
+    - Avoid responding in one long sentence to improve readability.
+    - Use bullet points to list key points.
+    - Use markdown to format your text.
+    - Do not use markdown tables.
+    - Do not use long lists.
+    - Do not use long sentences.
+    - Do not use HTML tags.
+
+    Answer Format: Use the following format to answer the prompt.
     
-    Answer Format:
+    ### **Current Weather**
     
-    ### **Current**
-    - Summarize the current weather in sentences.
+    ### **Hourly Forecast**
+    - Do not use long sentences.    
+    - Do not use markdown tables.
     
-    ### **Hourly**
-    - Analyze the hourly forecast in sentences.
-    - If the probability of precipitation is 30% or less, it is considered very low.
-    - Goal: Provide information to help viewers quickly understand key weather changes over time.
-    - Analyze data: Analyze key weather elements such as temperature, precipitation probability, wind speed, and cloud cover by time of day.
-    - Highlight key times of day: Highlight the times of day when weather changes the most (e.g., rush hour, lunch, and dinnertime), detailing temperature changes, precipitation probability, and unusual events during those times.
-    
-    ### **Daily**
-    - Analyze the daily forecast in sentences.
-    - Goal: Clearly and concisely communicate key weather patterns and changes for the week.
-    - Capture key changes: Analyze daily highs and lows, precipitation, wind strength and direction, and the likelihood of special weather events (e.g., heavy rain, storms, snow).
-    - Presenting weekly highlights: Highlight significant changes or patterns in weekly weather. For example, detail an increase in temperature mid-week, the likelihood of precipitation over the weekend, etc.
-    - Mention the reliability of the forecast: For long-term forecasts, mention the reliability or uncertainty of the forecast so that viewers can take this into account.
+    ### **Daily Forecast**
+    - Do not use long sentences.
+    - Do not use markdown tables.
     
     ### **Air Quality**
-    - Describe the air quality in sentences.
 
     ### **Guidance**
     - Provide at least three practical pieces of advice to users based on a comprehensive analysis of the weather data.
+    
+    ### **Summary**
+    - Provide a brief summary of the all weather data.
     
     """.trimIndent()
     }

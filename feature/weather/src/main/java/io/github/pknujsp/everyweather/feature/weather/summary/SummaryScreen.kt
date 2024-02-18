@@ -56,7 +56,7 @@ fun SummaryScreen(model: WeatherSummaryPrompt.Model, onDismiss: () -> Unit, summ
                 .fillMaxSize()
                 .verticalScroll(scrollState, true)) {
                 MarkdownText(
-                    modifier = Modifier.padding(bottom = 16.dp, start = 12.dp, end = 12.dp),
+                    modifier = Modifier.padding(start = 12.dp, end = 12.dp),
                     style = TextStyle(color = Color.Black, fontSize = 15.sp, lineHeight = 3.sp),
                     markdown = if (uiState.error != null) stringResource(id = uiState.error!!) else uiState.summaryText,
                     linkifyMask = Linkify.WEB_URLS,
