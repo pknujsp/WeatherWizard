@@ -27,6 +27,7 @@ class LibraryConventionPlugin : Plugin<Project> {
                 IMPLEMENTATION(libs.findBundle("ktx").get())
                 IMPLEMENTATION(project(":core:resource"))
                 IMPLEMENTATION(libs.findLibrary("androidx.core.remoteviews").get())
+                IMPLEMENTATION(libs.findLibrary("google.guava").get())
             }
         }
     }

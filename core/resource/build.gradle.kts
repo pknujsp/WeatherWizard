@@ -4,10 +4,8 @@ plugins {
 
 android {
     namespace = "io.github.pknujsp.everyweather.core.resource"
-
-
 }
 
 dependencies {
-
+    implementation(libs.google.guava)
 }

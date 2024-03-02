@@ -6,7 +6,7 @@ import org.gradle.kotlin.dsl.withType
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 fun Project.configureKotlinAndroid(
-    commonExtension: CommonExtension<*, *, *, *, *>,
+    commonExtension: CommonExtension<*, *, *, *, *, *>,
 ) {
 
     commonExtension.apply {
@@ -16,8 +16,6 @@ fun Project.configureKotlinAndroid(
             minSdk = libs.minSdk
             testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         }
-
-        // viewBinding.enable = true
 
         compileOptions {
             sourceCompatibility = SharedProperty.javaCompatibility
@@ -55,7 +53,7 @@ private fun Project.configureKotlin() {
 }
 
 fun Project.applyCompose(
-    commonExtension: CommonExtension<*, *, *, *, *>,
+    commonExtension: CommonExtension<*, *, *, *, *, *>,
 ) {
 
     commonExtension.apply {
