@@ -14,6 +14,7 @@ import io.github.pknujsp.everyweather.feature.weather.R
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.onCompletion
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.onEmpty
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
@@ -51,6 +52,7 @@ class SummaryTextViewModel @Inject constructor(
             }.onStart {
                 mutableUiState.isStopped = false
                 mutableUiState.isSummarizing = true
+                mutableUiState.isWaitingFirstResponse = true
                 mutableUiState.error = null
                 mutableUiState.summaryText = ""
                 mutableUiState.buttonText = io.github.pknujsp.everyweather.core.resource.R.string.stop_summary
@@ -60,9 +62,13 @@ class SummaryTextViewModel @Inject constructor(
                     mutableUiState.buttonText = io.github.pknujsp.everyweather.core.resource.R.string.stopped_summary
                 }
                 mutableUiState.isSummarizing = false
+                mutableUiState.isWaitingFirstResponse = false
             }.onEmpty {
                 mutableUiState.error = io.github.pknujsp.everyweather.core.resource.R.string.error_summary
             }.collect {
+                if (uiState.isWaitingFirstResponse) {
+                    mutableUiState.isWaitingFirstResponse = false
+                }
                 mutableUiState.summaryText += it.text
             }
         }
@@ -84,6 +90,7 @@ class SummaryTextViewModel @Inject constructor(
 
 private class MutableSummaryUiState : SummaryUiState {
     override var isSummarizing: Boolean by mutableStateOf(true)
+    override var isWaitingFirstResponse: Boolean by mutableStateOf(false)
     override var isStopped: Boolean by mutableStateOf(false)
     override var summaryText: String by mutableStateOf("")
     override var error: Int? by mutableStateOf(null)

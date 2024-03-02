@@ -1,6 +1,7 @@
 package io.github.pknujsp.everyweather.core.ui.dialog
 
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.absoluteOffset
@@ -32,6 +33,8 @@ import io.github.pknujsp.everyweather.core.ui.theme.AppShapes
 import kotlin.math.roundToInt
 
 
+private val ContentPadding = 16.dp
+
 @Composable
 @ExperimentalMaterial3Api
 fun CustomModalBottomSheet(
@@ -45,7 +48,6 @@ fun CustomModalBottomSheet(
     tonalElevation: Dp = BottomSheetDefaults.Elevation,
     scrimColor: Color = BottomSheetDefaults.ScrimColor,
     dragHandle: @Composable (() -> Unit)? = { DragHandle() },
-    windowInsets: WindowInsets = WindowInsets(0, 0, 0, 0),
     properties: ModalBottomSheetProperties = ModalBottomSheetDefaults.properties(),
     content: @Composable ColumnScope.() -> Unit,
 ) {
@@ -67,18 +69,20 @@ fun CustomModalBottomSheet(
         tonalElevation = tonalElevation,
         scrimColor = scrimColor,
         dragHandle = dragHandle,
-        windowInsets = windowInsets,
+        windowInsets = WindowInsets(0, 0, 0, 0),
         properties = properties,
-        content = content)
+        content = {
+            Column(modifier = Modifier.padding(start = ContentPadding, end = ContentPadding, bottom = ContentPadding), content = content)
+        })
 }
 
-private val DragHandleVerticalPadding = 20.dp
+private val DragHandleVerticalPadding = 12.dp
 
 
 @Composable
 private fun DragHandle(
     modifier: Modifier = Modifier,
-    width: Dp = 24.dp,
+    width: Dp = 26.dp,
     height: Dp = 3.dp,
     shape: Shape = AppShapes.extraLarge,
     color: Color = AppColorScheme.onSurfaceVariant.copy(alpha = 0.4f),

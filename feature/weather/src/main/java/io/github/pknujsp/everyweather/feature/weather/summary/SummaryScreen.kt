@@ -52,16 +52,14 @@ fun SummaryScreen(model: WeatherSummaryPrompt.Model, onDismiss: () -> Unit, summ
                 .fillMaxSize()
                 .verticalScroll(scrollState, true)) {
                 MarkdownText(
-                    modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 24.dp),
-                    style = TextStyle(color = Color.Black, fontSize = 15.sp, lineHeight = 3.sp),
+                    style = TextStyle(color = Color.Black, fontSize = 15.sp, lineHeight = 4.sp),
                     markdown = if (uiState.error != null) stringResource(id = uiState.error!!) else uiState.summaryText,
                     linkifyMask = Linkify.WEB_URLS,
                 )
-                TextPlaceHolder {
-                    uiState.isSummarizing
-                }
             }
-
+            TextPlaceHolder {
+                uiState.isWaitingFirstResponse
+            }
             if (uiState.isSummarizing || uiState.isStopped) {
                 SummarizingCard(uiState = uiState, stop = {
                     summaryTextViewModel.stopOrResume()
