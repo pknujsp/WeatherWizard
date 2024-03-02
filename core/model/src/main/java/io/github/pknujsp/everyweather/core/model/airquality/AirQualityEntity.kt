@@ -14,13 +14,12 @@ data class AirQualityEntity(
 
     override fun toString(): String {
         return StringBuilder().apply {
-            appendLine("## Air Quality")
-            appendLine("### Current : ${current.aqi.airQualityDescription.description}")
-            appendLine("### Daily Forecast")
-            appendLine("| Date | Status |")
-            appendLine("| --- | --- |")
+            appendLine("Air Quality")
+            appendLine("- Current : ${current.aqi.airQualityDescription.description}")
+            appendLine("- Daily")
+            appendLine("Date, Status")
             for (item in dailyForecast.items) {
-                appendLine("| ${item.date} | ${item.getAqi().valueNotNull().airQualityDescription.description} |")
+                appendLine("${item.date}, ${item.getAqi().valueNotNull().airQualityDescription.description}")
             }
         }.toString()
     }
