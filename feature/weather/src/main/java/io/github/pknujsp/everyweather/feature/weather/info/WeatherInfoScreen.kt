@@ -1,7 +1,9 @@
 package io.github.pknujsp.everyweather.feature.weather.info
 
 import androidx.annotation.StringRes
+import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.FlingBehavior
 import androidx.compose.foundation.gestures.ScrollableDefaults
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -77,6 +79,8 @@ fun WeatherInfoScreen(
     navigate: (NestedWeatherRoutes) -> Unit,
     openDrawer: () -> Unit,
     weatherContentUiState: WeatherContentUiState.Success,
+    scrollState: ScrollState,
+    flingBehavior: FlingBehavior,
     viewModel: WeatherInfoViewModel = hiltViewModel(),
     targetLocationViewModel: TargetLocationViewModel = hiltViewModel(),
 ) {
@@ -102,9 +106,6 @@ fun WeatherInfoScreen(
     LaunchedEffect(weatherContentUiState) {
         targetLocationViewModel.setLocation(weatherContentUiState.args.targetLocation)
     }
-
-    val scrollState = rememberScrollState()
-    val flingBehavior = ScrollableDefaults.flingBehavior()
 
     Box(modifier = Modifier.fillMaxSize()) {
         AsyncImage(

@@ -1,9 +1,11 @@
 package io.github.pknujsp.everyweather.feature.weather.info
 
+import androidx.compose.foundation.gestures.ScrollableDefaults
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.systemBarsPadding
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -32,6 +34,8 @@ internal fun WeatherContentScreen(
 ) {
     val currentSelectedLocationModel by rememberUpdatedState(newValue = selectedLocationModel)
     val currentOpenDrawer by rememberUpdatedState(newValue = openDrawer)
+    val scrollState = rememberScrollState()
+    val flingBehavior = ScrollableDefaults.flingBehavior()
     val contentState = rememberWeatherContentState {
         viewModel.load(currentSelectedLocationModel)
     }
@@ -39,6 +43,7 @@ internal fun WeatherContentScreen(
     val weatherContentUiState by viewModel.uiState.collectAsStateWithLifecycle(null)
     LaunchedEffect(currentSelectedLocationModel) {
         viewModel.load(currentSelectedLocationModel)
+        scrollState.scrollTo(0)
     }
     LaunchedEffect(weatherContentUiState, contentState.nestedRoutes.value) {
         contentState.setSystemBarColor(if (weatherContentUiState is WeatherContentUiState.Success && contentState.nestedRoutes.value is NestedWeatherRoutes.Main) {
@@ -54,9 +59,14 @@ internal fun WeatherContentScreen(
                 is WeatherContentUiState.Success -> {
                     WeatherInfoScreen(navigate = {
                         contentState.navigate(it)
-                    }, refresh = {
-                        contentState.refresh()
-                    }, openDrawer = openDrawer, weatherContentUiState = weatherContentUiState as WeatherContentUiState.Success)
+                    },
+                        refresh = {
+                            contentState.refresh()
+                        },
+                        openDrawer = openDrawer,
+                        weatherContentUiState = weatherContentUiState as WeatherContentUiState.Success,
+                        scrollState = scrollState,
+                        flingBehavior = flingBehavior)
                 }
 
                 is WeatherContentUiState.Error -> {

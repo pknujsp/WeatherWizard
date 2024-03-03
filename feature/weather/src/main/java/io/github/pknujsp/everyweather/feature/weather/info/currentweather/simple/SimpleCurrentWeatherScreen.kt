@@ -1,6 +1,14 @@
 package io.github.pknujsp.everyweather.feature.weather.info.currentweather.simple
 
 import androidx.annotation.StringRes
+import androidx.compose.animation.core.Easing
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -23,6 +31,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -103,6 +112,12 @@ fun CurrentWeatherScreen(current: CurrentWeather, airQualityValueType: () -> Air
                 }
             }
 
+            val infiniteTransition = rememberInfiniteTransition(label = "")
+            val rotationAngle by infiniteTransition.animateFloat(initialValue = 0f,
+                targetValue = 8f,
+                animationSpec = infiniteRepeatable(animation = tween(4000, easing = LinearEasing), repeatMode = RepeatMode.Reverse),
+                label = "")
+
             // weather icon
             AsyncImage(
                 model = ImageRequest.Builder(LocalContext.current).data(current.weatherIcon).crossfade(false).build(),
@@ -110,6 +125,7 @@ fun CurrentWeatherScreen(current: CurrentWeather, airQualityValueType: () -> Air
                     id = io.github.pknujsp.everyweather.core.resource.R.string.weather_icon_description,
                 ),
                 modifier = Modifier
+                    .rotate(rotationAngle)
                     .size(90.dp)
                     .constrainAs(icon) {
                         absoluteLeft.linkTo(parent.absoluteLeft)
@@ -124,9 +140,8 @@ fun CurrentWeatherScreen(current: CurrentWeather, airQualityValueType: () -> Air
                     absoluteLeft.linkTo(parent.absoluteLeft)
                     bottom.linkTo(yesterdayTemp.top)
                 },
-                style = TextStyle(fontSize = 25.sp, color = textColor, fontWeight = FontWeight.Medium, letterSpacing = (-1).sp).merge
-                    (outlineTextStyle)
-                    .merge(notIncludeTextPaddingStyle),
+                style = TextStyle(fontSize = 25.sp, color = textColor, fontWeight = FontWeight.Medium, letterSpacing = (-1).sp).merge(
+                    outlineTextStyle).merge(notIncludeTextPaddingStyle),
             )
         }
 

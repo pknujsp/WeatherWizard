@@ -307,7 +307,11 @@ fun WeatherProvidersScreen(weatherProvider: WeatherProvider, onSelectedItem: (We
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
 fun ModalBottomSheetDialog(
-    modifier: Modifier = Modifier, title: String, onDismiss: () -> Unit, content: @Composable ColumnScope.() -> Unit
+    modifier: Modifier = Modifier,
+    title: String,
+    freeHeight: Boolean = false,
+    onDismiss: () -> Unit,
+    content: @Composable ColumnScope.() -> Unit
 ) {
     CustomModalBottomSheet(
         onDismissRequest = {
