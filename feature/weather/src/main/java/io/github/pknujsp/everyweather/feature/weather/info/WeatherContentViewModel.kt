@@ -31,7 +31,7 @@ import io.github.pknujsp.everyweather.core.ui.weather.item.DynamicDateTimeUiCrea
 import io.github.pknujsp.everyweather.feature.weather.info.currentweather.model.CurrentWeather
 import io.github.pknujsp.everyweather.feature.weather.info.dailyforecast.model.DetailDailyForecast
 import io.github.pknujsp.everyweather.feature.weather.info.dailyforecast.model.SimpleDailyForecast
-import io.github.pknujsp.everyweather.feature.weather.info.geocode.TargetLocationModel
+import io.github.pknujsp.everyweather.core.model.weather.TargetLocationModel
 import io.github.pknujsp.everyweather.feature.weather.info.hourlyforecast.model.DetailHourlyForecast
 import io.github.pknujsp.everyweather.feature.weather.info.hourlyforecast.model.SimpleHourlyForecast
 import io.github.pknujsp.everyweather.feature.weather.summary.WeatherSummaryPrompt
@@ -40,13 +40,16 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -71,36 +74,36 @@ class WeatherContentViewModel @Inject constructor(
     var isLoading: Boolean by mutableStateOf(false)
         private set
 
-    private val mutableTargetLocations = MutableSharedFlow<TargetLocationModel?>(1, 0, BufferOverflow.DROP_OLDEST)
+    private val mutableTargetLocations = MutableSharedFlow<TargetLocationModel>(1, 0, BufferOverflow.DROP_OLDEST)
 
-    val targetLocation = mutableTargetLocations.filterNotNull().onEach { location ->
-        loadAllWeatherData(RequestWeatherArguments(settingsRepository.settings.replayCache.last().weatherProvider,
-            location.latitude,
-            location.longitude))
+    private val targetLocation = mutableTargetLocations.combine(settingsRepository.settings) { location, settings ->
+        location to settings.weatherProvider
+    }.onEach { (location, weatherProvider) ->
+        isLoading = true
+        loadAllWeatherData(RequestWeatherArguments(weatherProvider, location))
     }.stateIn(viewModelScope, SharingStarted.Eagerly, null)
 
     private val mutableUiState = MutableSharedFlow<WeatherContentUiState>(1, 0, BufferOverflow.DROP_OLDEST)
-
-    val uiState = mutableUiState.asSharedFlow().onEach {
+    val uiState = mutableUiState.onEach {
         isLoading = false
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
+    }.stateIn(viewModelScope, SharingStarted.Eagerly, null)
 
     fun load(selectedLocationModel: SelectedLocationModel) {
         viewModelScope.launch {
             targetLocationJob?.cancel()
             loadWeatherDataJob?.cancel()
+            isLoading = true
 
             targetLocationJob = viewModelScope.launch {
-                isLoading = true
                 val result = withContext(dispatcher) {
                     if (selectedLocationModel.locationType is LocationType.CurrentLocation) {
                         loadCurrentLocation().first()
                     } else {
                         val favoriteLocation = favoriteAreaListRepository.getById(selectedLocationModel.locationId).getOrThrow()
-                        TargetLocationModel(address = favoriteLocation.areaName,
-                            country = favoriteLocation.countryName,
-                            latitude = favoriteLocation.latitude,
-                            longitude = favoriteLocation.longitude) to null
+                        TargetLocationModel(latitude = favoriteLocation.latitude,
+                            longitude = favoriteLocation.longitude,
+                            locationType = LocationType.CustomLocation,
+                            customLocationId = selectedLocationModel.locationId) to null
                     }
                 }
 
@@ -121,7 +124,9 @@ class WeatherContentViewModel @Inject constructor(
         }.collect {
             when (it) {
                 is CurrentLocationState.Success -> {
-                    send(TargetLocationModel(latitude = it.latitude, longitude = it.longitude) to null)
+                    send(TargetLocationModel(latitude = it.latitude,
+                        longitude = it.longitude,
+                        locationType = LocationType.CurrentLocation) to null)
                 }
 
                 is CurrentLocationState.Failure -> {
@@ -137,7 +142,6 @@ class WeatherContentViewModel @Inject constructor(
 
     fun cancel() {
         viewModelScope.launch {
-            isLoading = false
             targetLocationJob?.cancel()
             loadWeatherDataJob?.cancel()
             mutableUiState.emit(WeatherContentUiState.Error(FailedReason.CANCELED))
@@ -149,7 +153,7 @@ class WeatherContentViewModel @Inject constructor(
         loadWeatherDataJob = viewModelScope.launch {
             val newState = withContext(dispatcher) {
                 val weatherProvider = args.weatherProvider
-                val coordinate = WeatherDataRequest.Coordinate(args.latitude, args.longitude)
+                val coordinate = WeatherDataRequest.Coordinate(args.targetLocation.latitude, args.targetLocation.longitude)
 
                 val weatherDataRequestBuilder = WeatherDataRequest.Builder()
                 weatherDataRequestBuilder.add(coordinate, weatherProvider.majorWeatherEntityTypes.toTypedArray(), weatherProvider)
@@ -296,4 +300,6 @@ class WeatherContentViewModel @Inject constructor(
     private fun createDetailDailyForecastUiModel(
         dailyForecastEntity: DailyForecastEntity
     ) = DetailDailyForecast(dailyForecastEntity, settingsRepository.settings.replayCache.last().units)
+
+
 }

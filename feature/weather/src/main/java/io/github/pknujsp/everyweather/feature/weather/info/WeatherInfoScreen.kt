@@ -20,6 +20,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -98,6 +99,10 @@ fun WeatherInfoScreen(
         }
     }
 
+    LaunchedEffect(weatherContentUiState) {
+        targetLocationViewModel.setLocation(weatherContentUiState.args.targetLocation)
+    }
+
     val scrollState = rememberScrollState()
     val flingBehavior = ScrollableDefaults.flingBehavior()
 
@@ -136,12 +141,12 @@ fun WeatherInfoScreen(
                 SimpleMapScreen(weatherContentUiState.args)
                 AirQualityScreen(weatherContentUiState.args, weatherContentUiState.lastUpdatedDateTime, onLoadAirQuality = { aqi ->
                     coroutineScope.launch {
-                        if (currentAirQuality != aqi.current.aqi) currentAirQuality = aqi.current.aqi
+                        currentAirQuality = aqi.current.aqi
                         weatherContentUiState.weatherEntities.airQuality = aqi
                     }
                 })
-                SimpleSunSetRiseScreen(SunSetRiseInfo(weatherContentUiState.args.latitude,
-                    weatherContentUiState.args.longitude,
+                SimpleSunSetRiseScreen(SunSetRiseInfo(weatherContentUiState.args.targetLocation.latitude,
+                    weatherContentUiState.args.targetLocation.longitude,
                     weatherContentUiState.lastUpdatedDateTime))
                 AdMob.BannerAd(modifier = Modifier.fillMaxWidth())
                 FlickrImageItemScreen(requestParameter = weather.flickrRequestParameters, onImageUrlChanged = {

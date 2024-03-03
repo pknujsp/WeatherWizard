@@ -44,7 +44,7 @@ class CompareDailyForecastViewModel @Inject constructor(
                 withContext(ioDispatcher) {
                     val weatherDataRequestBuilder = WeatherDataRequest.Builder()
                     weatherProviders.forEach {
-                        weatherDataRequestBuilder.add(WeatherDataRequest.Coordinate(latitude, longitude),
+                        weatherDataRequestBuilder.add(WeatherDataRequest.Coordinate(targetLocation.latitude, targetLocation.longitude),
                             arrayOf(MajorWeatherEntityType.DAILY_FORECAST),
                             it)
                     }

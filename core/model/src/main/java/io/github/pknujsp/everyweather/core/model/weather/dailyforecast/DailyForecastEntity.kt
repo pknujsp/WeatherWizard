@@ -21,6 +21,7 @@ data class DailyForecastEntity(
     override fun toString(): String {
         return StringBuilder().apply {
             appendLine("Daily Forecast")
+            appendLine("- 일일 예보입니다. 약 7일간의 날씨 예보입니다.")
             appendLine("Date, Min / Max Temperature, Day Weather, AM / PM Weather")
             for (item in dayItems) {
                 append("${LocalDate.parse(item.dateTime.value, DateTimeFormatter.ISO_ZONED_DATE_TIME)}, ")

@@ -23,6 +23,7 @@ data class CurrentWeatherEntity(
 
     override fun toString(): String = """
         Current Weather
+        - 현재 날씨 상태입니다.
         
         - Weather condition : ${weatherCondition.value.description}
         - Temperature : $temperature

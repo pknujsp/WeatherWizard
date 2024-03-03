@@ -158,7 +158,7 @@ abstract class RepositoryModule {
             return SummaryTextRepositoryImpl(GenerativeModel("gemini-1.0-pro-latest",
                 BuildConfig.GOOGLE_AI_STUDIO_KEY,
                 generationConfig {
-                    temperature = 0.55f
+                    temperature = 0.4f
                 },
                 safetySettings = listOf(
                     SafetySetting(HarmCategory.HARASSMENT, BlockThreshold.NONE),

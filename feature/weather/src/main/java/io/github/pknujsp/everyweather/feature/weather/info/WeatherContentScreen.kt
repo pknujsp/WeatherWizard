@@ -30,14 +30,15 @@ internal fun WeatherContentScreen(
     openDrawer: () -> Unit,
     viewModel: WeatherContentViewModel = hiltViewModel(),
 ) {
+    val currentSelectedLocationModel by rememberUpdatedState(newValue = selectedLocationModel)
     val currentOpenDrawer by rememberUpdatedState(newValue = openDrawer)
     val contentState = rememberWeatherContentState {
-        viewModel.load(selectedLocationModel)
+        viewModel.load(currentSelectedLocationModel)
     }
 
-    val weatherContentUiState by viewModel.uiState.collectAsStateWithLifecycle()
-    LaunchedEffect(selectedLocationModel) {
-        viewModel.load(selectedLocationModel)
+    val weatherContentUiState by viewModel.uiState.collectAsStateWithLifecycle(null)
+    LaunchedEffect(currentSelectedLocationModel) {
+        viewModel.load(currentSelectedLocationModel)
     }
     LaunchedEffect(weatherContentUiState, contentState.nestedRoutes.value) {
         contentState.setSystemBarColor(if (weatherContentUiState is WeatherContentUiState.Success && contentState.nestedRoutes.value is NestedWeatherRoutes.Main) {

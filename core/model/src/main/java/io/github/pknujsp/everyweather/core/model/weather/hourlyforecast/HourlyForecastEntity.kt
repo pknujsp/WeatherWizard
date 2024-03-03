@@ -24,6 +24,7 @@ data class HourlyForecastEntity(
     override fun toString(): String {
         return StringBuilder().apply {
             appendLine("Hourly Forecast")
+            appendLine("- 시간별 예보입니다. 약 48시간의 날씨 예보입니다.")
             appendLine("Time, Weather, Temperature, Precipitation Probability, Precipitation volume, Humidity, Wind Speed")
             for (item in items) {
                 append("${LocalDateTime.parse(item.dateTime.value, DateTimeFormatter.ISO_ZONED_DATE_TIME)},")

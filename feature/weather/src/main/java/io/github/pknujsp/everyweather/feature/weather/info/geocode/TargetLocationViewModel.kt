@@ -1,5 +1,6 @@
 package io.github.pknujsp.everyweather.feature.weather.info.geocode
 
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -8,13 +9,15 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.github.pknujsp.everyweather.core.common.coroutines.CoDispatcher
 import io.github.pknujsp.everyweather.core.common.coroutines.CoDispatcherType
+import io.github.pknujsp.everyweather.core.data.favorite.FavoriteAreaListRepository
 import io.github.pknujsp.everyweather.core.domain.location.GetCurrentLocationAddress
 import io.github.pknujsp.everyweather.core.domain.location.LocationGeoCodeState
+import io.github.pknujsp.everyweather.core.model.coordinate.LocationType
+import io.github.pknujsp.everyweather.core.model.weather.TargetLocationModel
 import io.github.pknujsp.everyweather.feature.weather.info.LocationUiState
 import io.github.pknujsp.everyweather.feature.weather.info.TopAppBarUiState
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filterNotNull
@@ -27,21 +30,22 @@ import javax.inject.Inject
 
 @HiltViewModel
 class TargetLocationViewModel @Inject constructor(
-    private val getCurrentLocationUseCase: GetCurrentLocationAddress,
+    getCurrentLocationUseCase: GetCurrentLocationAddress,
+    private val favoriteAreaListRepository: FavoriteAreaListRepository,
     @CoDispatcher(CoDispatcherType.IO) private val dispatcher: CoroutineDispatcher
 ) : ViewModel() {
-
     private val mutableTopAppBarUiState = MutableTopAppBarUiState()
     val topAppBarUiState: TopAppBarUiState = mutableTopAppBarUiState
 
     private val mutableLocationFlow = MutableStateFlow<TargetLocationModel?>(null)
 
     init {
-        mutableLocationFlow.asStateFlow().filterNotNull().combine(getCurrentLocationUseCase.geoCodeFlow) { argument, geoCode ->
+        mutableLocationFlow.filterNotNull().combine(getCurrentLocationUseCase.geoCodeFlow) { argument, geoCode ->
             argument to geoCode
         }.map { (argument, geoCode) ->
-            if (argument.address != null) {
-                LocationUiState(argument.address, argument.country)
+            if (argument.locationType is LocationType.CustomLocation) {
+                val location = favoriteAreaListRepository.getById(argument.customLocationId!!)
+                location.fold(onSuccess = { LocationUiState(it.areaName, it.countryName) }, onFailure = { null })
             } else if (geoCode is LocationGeoCodeState.Success) {
                 LocationUiState(geoCode.address, geoCode.country)
             } else {
@@ -59,6 +63,7 @@ class TargetLocationViewModel @Inject constructor(
     }
 }
 
+@Stable
 private class MutableTopAppBarUiState : TopAppBarUiState {
     override var location: LocationUiState? by mutableStateOf(null)
 }
