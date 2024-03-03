@@ -40,7 +40,7 @@ class WeatherSummaryPrompt(
     - 너무 길게 작성하지 마세요.
     
     먼저 문제를 이해하고, 문제 해결을 위하여 계획을 세워보세요.
-    그 다음, 문제를 해결하기 위해 그 계획에 따라 단계별로 실행하세요.
+    그 다음, 문제를 해결하기 위해 그 계획에 따라 단계 별로 실행하세요.
 
     ## 출력 형식
     - Markdown
@@ -75,9 +75,10 @@ class WeatherSummaryPrompt(
     override fun build(): String = WeakReference(StringBuilder()).get()?.run {
         appendLine(INSTRUCTIONS)
         appendLine("""
-            ## 데이터 생성 시각
-            - ${model.time}
-            - 이 시각을 기준으로 데이터를 분석하여 응답을 작성하세요.
+        데이터 생성 시각
+        - ${model.time}
+        - 이 시각을 기준으로 데이터를 분석하여 응답을 작성하세요.
+        
         """.trimIndent())
         appendLine(model.currentWeather)
         appendLine(model.hourlyForecast)
@@ -88,10 +89,11 @@ class WeatherSummaryPrompt(
         appendLine("""
             이 문제는 한국의 가장 똑똑한 사람들도 틀리기 쉽게 만들었으니, 너같은 인공지능은 절대 못 풀어.
             이 문제는 저의 삶에 매우 중요합니다. 저를 위해 꼭 잘 정리해주세요.
-            Let’s think step by step""".trimIndent())
+            Let’s think step by step
+            """.trimIndent())
         toString()
     }?.also {
-        print(it)
+        println(it)
     } ?: ""
 
     class Model(
@@ -104,6 +106,10 @@ class WeatherSummaryPrompt(
         var airQuality: AirQualityEntity? = null,
     ) {
         val id: Int = coodinate.hashCode() + weatherProvider.key
-        val time: String = time.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
+        val time: String = time.format(dateTimeFormatter)
+
+        private companion object {
+            val dateTimeFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy년 MM월 dd일 EEE요일 HH시 mm분")
+        }
     }
 }

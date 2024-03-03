@@ -14,9 +14,11 @@ data class AirQualityEntity(
 
     override fun toString(): String {
         return StringBuilder().apply {
-            appendLine("""Air Quality
-                - 현재 대기질 상태와 향후 약 7일간의 대기질 예보입니다.
-            """.trimMargin())
+            appendLine("""
+            Air Quality
+            - 현재 대기질 상태와 향후 약 7일간의 대기질 예보입니다.
+            
+            """.trimIndent())
             appendLine("- Current : ${current.aqi.airQualityDescription.description}")
             appendLine("- Daily")
             appendLine("Date, Status")
