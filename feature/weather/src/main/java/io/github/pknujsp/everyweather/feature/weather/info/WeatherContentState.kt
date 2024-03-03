@@ -1,6 +1,7 @@
 package io.github.pknujsp.everyweather.feature.weather.info
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.State
@@ -112,6 +113,12 @@ fun rememberWeatherContentState(
         mutableStateOf(state.nestedRoutes.value)
     }
 
+    DisposableEffect(Unit) {
+        onDispose {
+            state.setSystemBarColor(SystemBarContentColor.BLACK)
+        }
+    }
+    
     return state
 }
 

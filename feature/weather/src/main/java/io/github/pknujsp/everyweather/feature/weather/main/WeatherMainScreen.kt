@@ -48,7 +48,10 @@ fun WeatherMainScreen(
     val locationServiceState = rememberAppFeatureState(featureType = FeatureType.LocationService)
 
     if (selectedLocation != null) {
-        LaunchedEffect(selectedLocation) {
+        LaunchedEffect(selectedLocation,
+            networkState.isAvailable,
+            locationServiceState.isAvailable,
+            locationPermissionManager.permissionState) {
             // 네트워크 우선 체크
             isPassed = if (networkState.isAvailable) {
                 when (selectedLocation!!.locationType) {

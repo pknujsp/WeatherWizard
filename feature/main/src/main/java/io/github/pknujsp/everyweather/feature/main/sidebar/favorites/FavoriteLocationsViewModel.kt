@@ -47,7 +47,7 @@ class FavoriteLocationsViewModel @Inject constructor(
         }
     }.flowOn(ioDispatcher).stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
 
-    private val targetLocationFlow = targetLocationRepository.targetLocation.distinctUntilChanged().onEach { targetLocation ->
+    private val targetLocationFlow = targetLocationRepository.targetLocation.onEach { targetLocation ->
         mutableTargetLocationUiState.run {
             locationType = targetLocation.locationType
             locationId = if (targetLocation.locationType is LocationType.CustomLocation) targetLocation.locationId else null
@@ -71,6 +71,7 @@ class FavoriteLocationsViewModel @Inject constructor(
         }
         getCurrentLocationUseCase.geoCodeFlow.filterNotNull().onEach { geoCode ->
             onResultCurrentLocation(geoCode)
+            mutableTargetLocationUiState.isCurrentLocationLoading = false
         }.launchIn(viewModelScope)
     }
 
@@ -84,7 +85,6 @@ class FavoriteLocationsViewModel @Inject constructor(
                 mutableTargetLocationUiState.loadCurrentLocationFailedReason = geoCodeState.reason
             }
         }
-        mutableTargetLocationUiState.isCurrentLocationLoading = false
     }
 
 
