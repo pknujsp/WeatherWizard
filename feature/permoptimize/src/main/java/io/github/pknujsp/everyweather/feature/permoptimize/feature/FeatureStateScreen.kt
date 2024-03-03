@@ -24,19 +24,14 @@ import io.github.pknujsp.everyweather.core.ui.button.PrimaryButton
 import io.github.pknujsp.everyweather.core.ui.button.SecondaryButton
 
 @Composable
-fun FeatureStateScreen(featureType: FeatureType, onAvailable: () -> Unit) {
-    val featureStateManager = rememberAppFeatureState(featureType)
-    val currentOnAvailable by rememberUpdatedState(onAvailable)
-
-    if (featureStateManager.isAvailable) {
-        currentOnAvailable()
-    } else {
+fun FeatureStateScreen(featureStateManager: AppFeatureState) {
+    if (featureStateManager.isAvailable.not()) {
         Box {
-            UnavailableFeatureScreen(featureType = featureType) {
+            UnavailableFeatureScreen(featureType = featureStateManager.featureType) {
                 featureStateManager.showSettingsActivity()
             }
             if (featureStateManager.isShowSettingsActivity) {
-                ShowAppSettingsActivity(featureType) {
+                ShowAppSettingsActivity(featureStateManager.featureType) {
                     featureStateManager.hideSettingsActivity()
                 }
             }

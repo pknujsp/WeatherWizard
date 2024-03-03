@@ -1,7 +1,5 @@
 package io.github.pknujsp.everyweather.feature.weather.info
 
-import androidx.compose.animation.core.AnimationSpec
-import androidx.compose.animation.core.DecayAnimationSpec
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -20,22 +18,16 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Menu
 import androidx.compose.material.icons.rounded.Place
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBarScrollBehavior
-import androidx.compose.material3.TopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
-import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -44,7 +36,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.TextUnitType
-import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
@@ -55,8 +46,6 @@ import io.github.pknujsp.everyweather.core.resource.R
 import io.github.pknujsp.everyweather.core.ui.theme.notIncludeTextPaddingStyle
 import io.github.pknujsp.everyweather.core.ui.theme.outlineTextStyle
 import io.github.pknujsp.everyweather.core.ui.theme.shadowBox
-import io.github.pknujsp.everyweather.feature.weather.CustomTopAppBar
-import io.github.pknujsp.everyweather.feature.weather.info.geocode.TopAppBarUiState
 
 @Composable
 fun TopAppBar(
@@ -185,6 +174,16 @@ fun TopAppBar(
     )
 }
 
+
+@Stable
+interface TopAppBarUiState {
+    val location: LocationUiState?
+}
+
+data class LocationUiState(
+    val address: String?,
+    val country: String?,
+)
 
 @Stable
 data class CustomTopAppBarColors(

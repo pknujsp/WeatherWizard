@@ -40,7 +40,6 @@ private class MutableOngoingNotificationState(
     private val ongoingNotificationAlarmManager =
         AppComponentServiceManagerFactory.getManager(context, AppComponentServiceManagerFactory.ONGOING_NOTIFICATION_ALARM_MANAGER)
     private val appNotificationManager = AppComponentManagerFactory.getManager(context, AppComponentManagerFactory.NOTIFICATION_MANAGER)
-
     override var showSearch by mutableStateOf(false)
 
     fun switchNotification(

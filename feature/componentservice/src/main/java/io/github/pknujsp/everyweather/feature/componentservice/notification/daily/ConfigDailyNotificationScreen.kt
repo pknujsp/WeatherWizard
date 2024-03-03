@@ -39,7 +39,9 @@ import io.github.pknujsp.everyweather.core.widgetnotification.remoteview.RemoteV
 import io.github.pknujsp.everyweather.feature.componentservice.RemoteViewsScreen
 import io.github.pknujsp.everyweather.feature.componentservice.notification.daily.model.DailyNotificationSettings
 import io.github.pknujsp.everyweather.feature.componentservice.notification.daily.model.rememberDailyNotificationState
+import io.github.pknujsp.everyweather.feature.permoptimize.permission.PermissionState
 import io.github.pknujsp.everyweather.feature.permoptimize.permission.PermissionStateScreen
+import io.github.pknujsp.everyweather.feature.permoptimize.permission.rememberPermissionManager
 import io.github.pknujsp.everyweather.feature.searchlocation.SearchLocationScreen
 
 
@@ -52,12 +54,11 @@ fun ConfigDailyNotificationScreen(navController: NavController, viewModel: Confi
             navController.popBackStack()
         })
     }
-    var permissionGranted by remember { mutableStateOf(false) }
-    PermissionStateScreen(permissionType = FeatureType.Permission.ScheduleExactAlarm) {
-        permissionGranted = true
-    }
 
-    if (permissionGranted) {
+    val scheduleExactAlarmPermission = rememberPermissionManager(defaultPermissionType = FeatureType.Permission.ScheduleExactAlarm)
+    PermissionStateScreen(scheduleExactAlarmPermission)
+
+    if (scheduleExactAlarmPermission.permissionState is PermissionState.Granted) {
         notification.run {
             if (showSearch) {
                 SearchLocationScreen(onSelectedLocation = { newLocation ->

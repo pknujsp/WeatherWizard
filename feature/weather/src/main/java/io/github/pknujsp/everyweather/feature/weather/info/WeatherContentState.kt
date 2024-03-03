@@ -1,6 +1,5 @@
 package io.github.pknujsp.everyweather.feature.weather.info
 
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Stable
@@ -13,9 +12,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.unit.dp
 import androidx.core.view.WindowInsetsControllerCompat
-import io.github.pknujsp.everyweather.core.common.FeatureType
 import io.github.pknujsp.everyweather.core.common.StatefulFeature
 import io.github.pknujsp.everyweather.core.common.asActivity
 import io.github.pknujsp.everyweather.core.model.flickr.FlickrRequestParameters
@@ -24,10 +21,6 @@ import io.github.pknujsp.everyweather.core.model.weather.RequestWeatherArguments
 import io.github.pknujsp.everyweather.core.ui.theme.SystemBarContentColor
 import io.github.pknujsp.everyweather.core.ui.theme.setNavigationBarContentColor
 import io.github.pknujsp.everyweather.core.ui.theme.setStatusBarContentColor
-import io.github.pknujsp.everyweather.feature.permoptimize.network.NetworkState
-import io.github.pknujsp.everyweather.feature.permoptimize.network.rememberAppNetworkState
-import io.github.pknujsp.everyweather.feature.permoptimize.permission.PermissionManager
-import io.github.pknujsp.everyweather.feature.permoptimize.permission.rememberPermissionManager
 import io.github.pknujsp.everyweather.feature.weather.info.currentweather.model.CurrentWeather
 import io.github.pknujsp.everyweather.feature.weather.info.dailyforecast.model.DetailDailyForecast
 import io.github.pknujsp.everyweather.feature.weather.info.dailyforecast.model.SimpleDailyForecast
@@ -35,17 +28,12 @@ import io.github.pknujsp.everyweather.feature.weather.info.hourlyforecast.model.
 import io.github.pknujsp.everyweather.feature.weather.info.hourlyforecast.model.SimpleHourlyForecast
 import io.github.pknujsp.everyweather.feature.weather.route.NestedWeatherRoutes
 import io.github.pknujsp.everyweather.feature.weather.summary.WeatherSummaryPrompt
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import java.time.ZonedDateTime
 
-private val topAppBarOffsetLimit = (-24).dp
-
 sealed interface WeatherContentUiState {
-    val refresh: () -> Unit
-
     data class Error(
-        val state: StatefulFeature, override val refresh: () -> Unit,
+        val state: StatefulFeature
     ) : WeatherContentUiState
 
     data class Success(
@@ -54,7 +42,6 @@ sealed interface WeatherContentUiState {
         val lastUpdatedDateTime: ZonedDateTime,
         val weatherEntities: WeatherSummaryPrompt.Model,
         val currentUnits: CurrentUnits,
-        override val refresh: () -> Unit,
     ) : WeatherContentUiState {
 
         val dateTime: String = lastUpdatedDateTime.format(dateTimeFormatter)
@@ -85,57 +72,39 @@ class Weather(
 }
 
 @Stable
-private class MutableWeatherMainState(
-    override val networkState: NetworkState,
-    private val weatherContentUiState: () -> WeatherContentUiState?,
-    override val locationPermissionManager: PermissionManager,
-    private val updateUiStateFunc: (StatefulFeature) -> Unit,
-) : WeatherMainState {
+private class MutableWeatherContentState(
+    private val refreshFunc: () -> Unit, private val windowInsetsControllerCompat: WindowInsetsControllerCompat
+) : WeatherContentState {
     override val nestedRoutes = mutableStateOf(NestedWeatherRoutes.startDestination)
 
     override fun navigate(nestedRoutes: NestedWeatherRoutes) {
         this.nestedRoutes.value = nestedRoutes
     }
 
-
     override fun refresh() {
-        val weatherContentUiState = weatherContentUiState()
-        if (weatherContentUiState != null) {
-            if (networkState.isNetworkAvailable) {
-                weatherContentUiState.refresh()
-            } else {
-                updateUiState(FeatureType.Network)
-            }
-        }
+        refreshFunc()
     }
 
-    override fun updateUiState(state: StatefulFeature) {
-        updateUiStateFunc(state)
+    override fun setSystemBarColor(color: SystemBarContentColor) {
+        windowInsetsControllerCompat.run {
+            setStatusBarContentColor(color)
+            setNavigationBarContentColor(color)
+        }
     }
 }
 
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun rememberWeatherMainState(
-    weatherContentUiState: () -> WeatherContentUiState?,
-    updateUiState: (StatefulFeature) -> Unit,
-): WeatherMainState {
+fun rememberWeatherContentState(
+    refresh: () -> Unit,
+): WeatherContentState {
     val window = LocalContext.current.asActivity()!!.window
     val windowInsetsControllerCompat = remember(window) {
         WindowInsetsControllerCompat(window, window.decorView)
     }
 
-    val networkState = rememberAppNetworkState()
-    val locationPermissionManager = rememberPermissionManager(defaultPermissionType = FeatureType.Permission.Location)
-
-    val state: WeatherMainState = remember {
-        MutableWeatherMainState(
-            networkState,
-            weatherContentUiState,
-            locationPermissionManager,
-            updateUiState,
-        )
+    val state: WeatherContentState = remember {
+        MutableWeatherContentState(refresh, windowInsetsControllerCompat)
     }
 
     var nestedRoutes by rememberSaveable(saver = Saver(save = { it.value.route },
@@ -143,46 +112,14 @@ fun rememberWeatherMainState(
         mutableStateOf(state.nestedRoutes.value)
     }
 
-    LaunchedEffect(Unit) {
-        launch {
-            snapshotFlow { networkState.isNetworkAvailable }.collect {
-                if (it) {
-                    state.refresh()
-                }
-            }
-        }
-        launch {
-            snapshotFlow { state.nestedRoutes.value }.combine(snapshotFlow {
-                weatherContentUiState()
-            }) { nestedRoutes, weatherContentUiState ->
-                nestedRoutes to weatherContentUiState
-            }.collect { (route, weatherUiState) ->
-                windowInsetsControllerCompat.run {
-                    val color =
-                        if ((weatherUiState == null || weatherUiState is WeatherContentUiState.Error) && (route is NestedWeatherRoutes.Main)) {
-                            SystemBarContentColor.BLACK
-                        } else {
-                            route.systemBarContentColor
-                        }
-
-                    setStatusBarContentColor(color)
-                    setNavigationBarContentColor(color)
-                }
-            }
-        }
-    }
-
     return state
 }
 
 
 @Stable
-interface WeatherMainState {
-    val networkState: NetworkState
-    val locationPermissionManager: PermissionManager
-
+interface WeatherContentState {
     val nestedRoutes: State<NestedWeatherRoutes>
+    fun setSystemBarColor(color: SystemBarContentColor)
     fun navigate(nestedRoutes: NestedWeatherRoutes)
     fun refresh()
-    fun updateUiState(state: StatefulFeature)
 }

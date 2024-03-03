@@ -10,6 +10,8 @@ import io.github.pknujsp.everyweather.core.common.coroutines.CoDispatcher
 import io.github.pknujsp.everyweather.core.common.coroutines.CoDispatcherType
 import io.github.pknujsp.everyweather.core.domain.location.GetCurrentLocationAddress
 import io.github.pknujsp.everyweather.core.domain.location.LocationGeoCodeState
+import io.github.pknujsp.everyweather.feature.weather.info.LocationUiState
+import io.github.pknujsp.everyweather.feature.weather.info.TopAppBarUiState
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow

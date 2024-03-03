@@ -29,7 +29,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import dev.jeziellago.compose.markdowntext.MarkdownText
 import io.github.pknujsp.everyweather.core.resource.R
-import io.github.pknujsp.everyweather.core.ui.AlwaysOnBottomSheetDialog
+import io.github.pknujsp.everyweather.core.ui.ModalBottomSheetDialog
 import io.github.pknujsp.everyweather.core.ui.theme.AppShapes
 
 
@@ -40,7 +40,7 @@ fun SummaryScreen(model: WeatherSummaryPrompt.Model, onDismiss: () -> Unit, summ
         summaryTextViewModel.summarize(model)
     }
 
-    AlwaysOnBottomSheetDialog(title = stringResource(id = R.string.title_ai_summary), onDismiss = onDismiss) {
+    ModalBottomSheetDialog(title = stringResource(id = R.string.title_ai_summary), onDismiss = onDismiss) {
         val scrollState = rememberScrollState()
 
         LaunchedEffect(uiState.summaryText) {

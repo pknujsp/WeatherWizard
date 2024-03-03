@@ -11,17 +11,30 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
+import io.github.pknujsp.everyweather.core.common.FeatureType
 import io.github.pknujsp.everyweather.core.common.manager.AppNetworkManager
 import io.github.pknujsp.everyweather.core.common.manager.AppNetworkManagerImpl
+import io.github.pknujsp.everyweather.feature.permoptimize.feature.AppFeatureState
 
 @Stable
-interface NetworkState {
-    val isNetworkAvailable: Boolean
+interface NetworkState : AppFeatureState {
     val appNetworkManager: AppNetworkManager
 }
 
-private class MutableNetworkState(override val appNetworkManager: AppNetworkManager) : NetworkState {
-    override var isNetworkAvailable by mutableStateOf(appNetworkManager.isNetworkAvailable())
+private class MutableNetworkState(
+    override val appNetworkManager: AppNetworkManager,
+    override val featureType: FeatureType = FeatureType.Network,
+) : NetworkState {
+    override var isAvailable by mutableStateOf(appNetworkManager.isNetworkAvailable())
+    override var isShowSettingsActivity by mutableStateOf(false)
+
+    override fun hideSettingsActivity() {
+        isShowSettingsActivity = false
+    }
+
+    override fun showSettingsActivity() {
+        isShowSettingsActivity = true
+    }
 }
 
 @Composable
@@ -37,12 +50,12 @@ fun rememberAppNetworkState(context: Context = LocalContext.current): NetworkSta
         appNetworkManager.registerNetworkCallback(object : ConnectivityManager.NetworkCallback() {
             override fun onAvailable(network: Network) {
                 super.onAvailable(network)
-                networkUiState.isNetworkAvailable = true
+                networkUiState.isAvailable = true
             }
 
             override fun onLost(network: Network) {
                 super.onLost(network)
-                networkUiState.isNetworkAvailable = appNetworkManager.isNetworkAvailable()
+                networkUiState.isAvailable = appNetworkManager.isNetworkAvailable()
             }
         })
 

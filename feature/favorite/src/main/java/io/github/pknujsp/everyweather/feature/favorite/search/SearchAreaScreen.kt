@@ -64,14 +64,14 @@ fun SearchAreaScreen(
 
     Column(modifier = Modifier.fillMaxSize()) {
         TitleTextWithNavigation(title = stringResource(id = io.github.pknujsp.everyweather.core.resource.R.string.add_new_area)) {
-            if (showSearchHistory || !networkUiState.isNetworkAvailable) {
+            if (showSearchHistory || !networkUiState.isAvailable) {
                 navController.popBackStack()
             } else {
                 showSearchHistory = true
             }
         }
 
-        if (networkUiState.isNetworkAvailable) {
+        if (networkUiState.isAvailable) {
             val searchResult by searchAreaViewModel.searchResult.collectAsStateWithLifecycle()
             var query by remember { mutableStateOf("" to 0L) }
 
@@ -96,9 +96,7 @@ fun SearchAreaScreen(
                 }
             }
         } else {
-            FeatureStateScreen(featureType = FeatureType.Network) {
-
-            }
+            FeatureStateScreen(networkUiState)
         }
     }
 }

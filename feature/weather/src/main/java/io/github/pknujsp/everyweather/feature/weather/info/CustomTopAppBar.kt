@@ -1,4 +1,4 @@
-package io.github.pknujsp.everyweather.feature.weather
+package io.github.pknujsp.everyweather.feature.weather.info
 
 import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.core.EaseInOut
@@ -36,7 +36,6 @@ import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.layoutId
 import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
-import io.github.pknujsp.everyweather.feature.weather.info.CustomTopAppBarColors
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
