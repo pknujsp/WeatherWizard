@@ -7,6 +7,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -21,19 +22,25 @@ interface NetworkState : AppFeatureState {
     val appNetworkManager: AppNetworkManager
 }
 
+@Stable
 private class MutableNetworkState(
     override val appNetworkManager: AppNetworkManager,
     override val featureType: FeatureType = FeatureType.Network,
 ) : NetworkState {
-    override var isAvailable by mutableStateOf(appNetworkManager.isNetworkAvailable())
+    override var isChanged: Int by mutableIntStateOf(0)
     override var isShowSettingsActivity by mutableStateOf(false)
 
     override fun hideSettingsActivity() {
         isShowSettingsActivity = false
+        isChanged++
     }
 
     override fun showSettingsActivity() {
         isShowSettingsActivity = true
+    }
+
+    override fun isAvailable(context: Context): Boolean {
+        return appNetworkManager.isNetworkAvailable()
     }
 }
 
@@ -50,12 +57,12 @@ fun rememberAppNetworkState(context: Context = LocalContext.current): NetworkSta
         appNetworkManager.registerNetworkCallback(object : ConnectivityManager.NetworkCallback() {
             override fun onAvailable(network: Network) {
                 super.onAvailable(network)
-                networkUiState.isAvailable = true
+                networkUiState.isChanged++
             }
 
             override fun onLost(network: Network) {
                 super.onLost(network)
-                networkUiState.isAvailable = appNetworkManager.isNetworkAvailable()
+                networkUiState.isChanged++
             }
         })
 

@@ -75,7 +75,7 @@ fun rememberOngoingNotificationState(
 
     LaunchedEffect(ongoingNotificationUiState.settings.refreshInterval) {
         val refreshInterval = ongoingNotificationUiState.settings.refreshInterval
-        if (refreshInterval != RefreshInterval.MANUAL && !batteryOptimizationState.isAvailable) {
+        if (refreshInterval != RefreshInterval.MANUAL && !batteryOptimizationState.isAvailable(context)) {
             showSnackbar(context, batteryOptimizationState.featureType, batteryOptimizationState::showSettingsActivity, snackbarHostState)
         }
     }
@@ -83,7 +83,8 @@ fun rememberOngoingNotificationState(
         if (ongoingNotificationUiState.action == OngoingNotificationUiState.Action.DISABLED) {
             state.switchNotification(context, ongoingNotificationUiState.settings.refreshInterval)
         } else if (ongoingNotificationUiState.action != OngoingNotificationUiState.Action.NONE) {
-            if (!batteryOptimizationState.isAvailable && ongoingNotificationUiState.settings.refreshInterval != RefreshInterval.MANUAL) {
+            if (!batteryOptimizationState.isAvailable(context) && ongoingNotificationUiState.settings.refreshInterval !=
+                RefreshInterval.MANUAL) {
                 showSnackbar(context,
                     batteryOptimizationState.featureType,
                     batteryOptimizationState::showSettingsActivity,
@@ -103,7 +104,8 @@ fun rememberOngoingNotificationState(
     }
 
     LaunchedEffect(Unit) {
-        snapshotFlow { batteryOptimizationState.isAvailable }.combine(snapshotFlow { backgroundLocationPermissionManager.permissionState }) { battery, permission ->
+        snapshotFlow { batteryOptimizationState.isAvailable(context) }.combine(snapshotFlow { backgroundLocationPermissionManager
+            .permissionState }) { battery, permission ->
             battery to permission
         }.collect { (ignoredBatteryOptimization, permissionState) ->
             if (permissionState is PermissionState.Granted && (ongoingNotificationUiState.settings.refreshInterval == RefreshInterval.MANUAL || ignoredBatteryOptimization)) {

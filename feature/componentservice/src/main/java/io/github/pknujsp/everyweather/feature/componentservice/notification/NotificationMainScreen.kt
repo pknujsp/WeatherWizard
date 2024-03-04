@@ -75,7 +75,8 @@ fun NotificationMainScreen(navController: NavController) {
         TitleTextWithNavigation(title = stringResource(id = R.string.nav_notification), onClickNavigation = {
             backDispatcher?.onBackPressed()
         })
-        if (postNotificationPermissionManager.permissionState is PermissionState.Granted && batteryOptimizationState.isAvailable) {
+        if (postNotificationPermissionManager.permissionState is PermissionState.Granted && batteryOptimizationState.isAvailable(
+                LocalContext.current)) {
             Column {
                 NotificationItem(title = stringResource(id = R.string.title_ongoing_notification), description = null, onClick = {
                     navController.navigate(NotificationRoutes.Ongoing.route)

@@ -11,6 +11,7 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
@@ -25,7 +26,7 @@ import io.github.pknujsp.everyweather.core.ui.button.SecondaryButton
 
 @Composable
 fun FeatureStateScreen(featureStateManager: AppFeatureState) {
-    if (featureStateManager.isAvailable.not()) {
+    if (featureStateManager.isAvailable(LocalContext.current).not()) {
         Box {
             UnavailableFeatureScreen(featureType = featureStateManager.featureType) {
                 featureStateManager.showSettingsActivity()

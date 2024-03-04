@@ -18,6 +18,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -95,15 +96,19 @@ fun OngoingNotificationScreen(navController: NavController, viewModel: OngoingNo
                                 settings.weatherProvider = it
                             }
                             RefreshIntervalScreen(settings)
-                            if (!batteryOptimizationState.isAvailable && notificationUiState.settings.refreshInterval != RefreshInterval.MANUAL) {
-                                SmallFeatureStateScreen(Modifier.padding(8.dp), state = batteryOptimizationState.featureType, onClickAction = {
-                                    batteryOptimizationState.showSettingsActivity()
-                                })
+                            if (!batteryOptimizationState.isAvailable(LocalContext.current) && notificationUiState.settings.refreshInterval != RefreshInterval.MANUAL) {
+                                SmallFeatureStateScreen(Modifier.padding(8.dp),
+                                    state = batteryOptimizationState.featureType,
+                                    onClickAction = {
+                                        batteryOptimizationState.showSettingsActivity()
+                                    })
                             }
                             if (backgroundLocationPermissionManager.permissionState is PermissionState.Denied) {
-                                SmallFeatureStateScreen(Modifier.padding(8.dp), state = FeatureType.Permission.BackgroundLocation, onClickAction = {
-                                    backgroundLocationPermissionManager.showSettingsActivity()
-                                })
+                                SmallFeatureStateScreen(Modifier.padding(8.dp),
+                                    state = FeatureType.Permission.BackgroundLocation,
+                                    onClickAction = {
+                                        backgroundLocationPermissionManager.showSettingsActivity()
+                                    })
                             }
                             NotificationIconScreen(settings)
                         }

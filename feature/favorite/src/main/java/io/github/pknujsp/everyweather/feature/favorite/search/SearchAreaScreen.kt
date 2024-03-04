@@ -61,17 +61,18 @@ fun SearchAreaScreen(
 
     val networkUiState = rememberAppNetworkState()
     var showSearchHistory by remember { mutableStateOf(true) }
+    val context = LocalContext.current
 
     Column(modifier = Modifier.fillMaxSize()) {
-        TitleTextWithNavigation(title = stringResource(id = io.github.pknujsp.everyweather.core.resource.R.string.add_new_area)) {
-            if (showSearchHistory || !networkUiState.isAvailable) {
+        TitleTextWithNavigation(title = stringResource(id = R.string.add_new_area)) {
+            if (showSearchHistory || !networkUiState.isAvailable(context)) {
                 navController.popBackStack()
             } else {
                 showSearchHistory = true
             }
         }
 
-        if (networkUiState.isAvailable) {
+        if (networkUiState.isAvailable(LocalContext.current)) {
             val searchResult by searchAreaViewModel.searchResult.collectAsStateWithLifecycle()
             var query by remember { mutableStateOf("" to 0L) }
 

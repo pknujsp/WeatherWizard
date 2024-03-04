@@ -106,7 +106,7 @@ fun WidgetConfigureScreen(
                         widget.weatherProvider = it
                     }
                     if (viewModel.refreshInterval != RefreshInterval.MANUAL) {
-                        if (!configureState.batteryOptimizationFeatureState.isAvailable) {
+                        if (!configureState.batteryOptimizationFeatureState.isAvailable(LocalContext.current)) {
                             SmallFeatureStateScreen(Modifier.padding(8.dp),
                                 state = configureState.batteryOptimizationFeatureState.featureType,
                                 onClickAction = {
@@ -125,7 +125,7 @@ fun WidgetConfigureScreen(
 
                 Box(modifier = Modifier.padding(12.dp)) {
                     SecondaryButton(text = stringResource(id = R.string.save), modifier = Modifier.fillMaxWidth()) {
-                        if (!configureState.batteryOptimizationFeatureState.isAvailable) {
+                        if (!configureState.batteryOptimizationFeatureState.isAvailable(context)) {
                             coroutineScope.launch {
                                 configureState.showSnackbar(
                                     context, configureState.batteryOptimizationFeatureState.featureType.message,
