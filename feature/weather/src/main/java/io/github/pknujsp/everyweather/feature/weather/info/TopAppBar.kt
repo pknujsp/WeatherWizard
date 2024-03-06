@@ -43,6 +43,8 @@ import coil.request.ImageRequest
 import io.github.pknujsp.everyweather.core.common.util.AStyle
 import io.github.pknujsp.everyweather.core.common.util.toAnnotated
 import io.github.pknujsp.everyweather.core.resource.R
+import io.github.pknujsp.everyweather.core.ui.appbar.CustomTopAppBar
+import io.github.pknujsp.everyweather.core.ui.appbar.CustomTopAppBarColors
 import io.github.pknujsp.everyweather.core.ui.theme.notIncludeTextPaddingStyle
 import io.github.pknujsp.everyweather.core.ui.theme.outlineTextStyle
 import io.github.pknujsp.everyweather.core.ui.theme.shadowBox
@@ -53,7 +55,6 @@ fun TopAppBar(
     scrollState: ScrollState,
     topAppBarUiState: TopAppBarUiState,
     weatherContentUiState: WeatherContentUiState.Success,
-    flingBehavior: FlingBehavior,
     openDrawer: () -> Unit,
     reload: () -> Unit,
     summarize: () -> Unit,
@@ -70,7 +71,7 @@ fun TopAppBar(
                             .size(16.dp)
                             .padding(end = 4.dp))
                     Text(
-                        text = topAppBarUiState.location?.address ?: stringResource(id = R.string.unknown_address),
+                        text = topAppBarUiState.address ?: stringResource(id = R.string.unknown_address),
                         color = Color.White,
                         fontSize = 14.sp,
                         style = LocalTextStyle.current.merge(notIncludeTextPaddingStyle).merge(outlineTextStyle),
@@ -92,10 +93,10 @@ fun TopAppBar(
             ) {
                 Text(
                     text = listOf(
-                        AStyle("${topAppBarUiState.location?.address ?: stringResource(id = R.string.unknown_address)}\n",
+                        AStyle("${topAppBarUiState.address ?: stringResource(id = R.string.unknown_address)}\n",
                             span = SpanStyle(fontSize = 25.sp)),
                         AStyle(
-                            topAppBarUiState.location?.country ?: stringResource(id = R.string.unknown_country),
+                            topAppBarUiState.country ?: stringResource(id = R.string.unknown_country),
                             span = SpanStyle(
                                 fontSize = 16.sp,
                             ),
@@ -158,7 +159,6 @@ fun TopAppBar(
             }
         },
         scrollState = scrollState,
-        flingBehavior = flingBehavior,
         colors = defaultCustomTopAppBarColors,
         modifier = modifier
             .background(brush = shadowBox())
@@ -177,21 +177,8 @@ fun TopAppBar(
 
 @Stable
 interface TopAppBarUiState {
-    val location: LocationUiState?
+    val address: String?
+    val country: String?
 }
-
-data class LocationUiState(
-    val address: String?,
-    val country: String?,
-)
-
-@Stable
-data class CustomTopAppBarColors(
-    val containerColor: Color = Color.Transparent,
-    val scrolledContainerColor: Color = Color.Transparent,
-    val navigationIconContentColor: Color = Color.White,
-    val titleContentColor: Color = Color.White,
-    val actionIconContentColor: Color = Color.White,
-)
 
 private val defaultCustomTopAppBarColors = CustomTopAppBarColors()

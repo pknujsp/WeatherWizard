@@ -51,9 +51,9 @@ sealed interface WeatherContentUiState {
             private val dateTimeFormatter = java.time.format.DateTimeFormatter.ofPattern("MM.dd HH:mm")
         }
     }
-
 }
 
+@Stable
 class Weather(
     val currentWeather: CurrentWeather,
     val simpleHourlyForecast: SimpleHourlyForecast,
@@ -118,7 +118,7 @@ fun rememberWeatherContentState(
             state.setSystemBarColor(SystemBarContentColor.BLACK)
         }
     }
-    
+
     return state
 }
 

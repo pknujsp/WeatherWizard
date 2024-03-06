@@ -1,10 +1,7 @@
 package io.github.pknujsp.everyweather.feature.weather.info
 
 import androidx.annotation.StringRes
-import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
-import androidx.compose.foundation.gestures.FlingBehavior
-import androidx.compose.foundation.gestures.ScrollableDefaults
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -79,17 +76,17 @@ fun WeatherInfoScreen(
     navigate: (NestedWeatherRoutes) -> Unit,
     openDrawer: () -> Unit,
     weatherContentUiState: WeatherContentUiState.Success,
-    scrollState: ScrollState,
-    flingBehavior: FlingBehavior,
     viewModel: WeatherInfoViewModel = hiltViewModel(),
     targetLocationViewModel: TargetLocationViewModel = hiltViewModel(),
 ) {
     val currentOpenDrawer by rememberUpdatedState(openDrawer)
     val currentNavigate by rememberUpdatedState(navigate)
     val currentRefresh by rememberUpdatedState(refresh)
+    val scrollState = rememberScrollState()
 
     val topAppBarUiState = targetLocationViewModel.topAppBarUiState
     var onClickedWeatherProviderButton by remember { mutableStateOf(false) }
+
     val coroutineScope = rememberCoroutineScope()
     var imageUrl by remember { mutableStateOf("") }
     var showAiSummary by remember { mutableStateOf(false) }
@@ -115,7 +112,6 @@ fun WeatherInfoScreen(
             model = ImageRequest.Builder(LocalContext.current).diskCachePolicy(CachePolicy.ENABLED).crossfade(200).data(imageUrl).build(),
             contentDescription = stringResource(R.string.background_image),
         )
-
         Box(modifier = Modifier
             .fillMaxSize()
             .background(Color.Black.copy(alpha = 0.11f), RectangleShape)) {
@@ -123,7 +119,7 @@ fun WeatherInfoScreen(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(horizontal = DEFAULT_PADDING)
-                    .verticalScroll(scrollState, flingBehavior = flingBehavior),
+                    .verticalScroll(scrollState),
                 verticalArrangement = Arrangement.spacedBy(COLUMN_ITEM_SPACING),
             ) {
                 val localConfiguration = LocalConfiguration.current
@@ -165,16 +161,13 @@ fun WeatherInfoScreen(
                 weatherContentUiState = weatherContentUiState,
                 openDrawer = currentOpenDrawer,
                 reload = {
-                    coroutineScope.launch {
-                        currentRefresh()
-                    }
+                    currentRefresh()
                 },
                 summarize = {
                     showAiSummary = true
                 },
                 onClickedWeatherProviderButton = { onClickedWeatherProviderButton = true },
                 scrollState = scrollState,
-                flingBehavior = flingBehavior,
             )
 
             Box(modifier = Modifier

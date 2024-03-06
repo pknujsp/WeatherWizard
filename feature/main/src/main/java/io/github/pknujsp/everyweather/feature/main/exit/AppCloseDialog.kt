@@ -31,7 +31,8 @@ internal fun AppCloseDialog(onDismissRequest: () -> Unit) {
                 text = stringResource(io.github.pknujsp.everyweather.core.resource.R.string.app_close_message),
                 fontSize = 16.sp,
             )
-            AdMob.NativeAd(modifier = Modifier.height(IntrinsicSize.Min))
+            AdMob.NativeAd(modifier = Modifier
+                .fillMaxWidth())
             PrimaryButton(modifier = Modifier.fillMaxWidth(),
                 text = stringResource(io.github.pknujsp.everyweather.core.resource.R.string.close_app)) {
                 activity.finish()

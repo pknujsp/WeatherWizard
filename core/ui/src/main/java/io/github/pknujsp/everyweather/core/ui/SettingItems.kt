@@ -314,6 +314,7 @@ fun ModalBottomSheetDialog(
     content: @Composable ColumnScope.() -> Unit
 ) {
     CustomModalBottomSheet(
+        freeHeight = freeHeight,
         onDismissRequest = {
             onDismiss()
         },
