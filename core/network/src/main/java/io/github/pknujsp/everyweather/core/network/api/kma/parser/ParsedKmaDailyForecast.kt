@@ -7,8 +7,8 @@ data class ParsedKmaDailyForecast(
     val amValues: Values? = null,
     val pmValues: Values? = null,
     val singleValues: Values? = null,
-    val minTemp: Double,
-    val maxTemp: Double,
+    val minTemp: Short,
+    val maxTemp: Short,
 ) {
     data class Values(
         var weatherDescription: String = "",

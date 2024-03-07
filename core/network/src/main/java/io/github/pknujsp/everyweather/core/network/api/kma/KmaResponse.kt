@@ -15,8 +15,8 @@ class KmaCurrentWeatherResponse(
 ) : CurrentWeatherResponseModel {
 
     val weatherCondition: String = hourlyForecast.weatherCondition
-    val temperature: Double = currentWeather.temperature
-    val feelsLikeTemperature: Double = currentWeather.feelsLikeTemperature
+    val temperature: Short = currentWeather.temperature
+    val feelsLikeTemperature: Short = currentWeather.feelsLikeTemperature
     val humidity: Int = currentWeather.humidity
     val windSpeed: Double = currentWeather.windSpeed
     val windDirection: Int = currentWeather.windDirection
