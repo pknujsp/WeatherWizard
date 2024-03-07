@@ -38,7 +38,8 @@ class CurrentWeather(
         weatherCondition.value.getWeatherIconByTimeOfDay(dayNightCalculator.calculate(currentCalendar) == DayNightCalculator.DayNight.DAY)
 
     fun text(todayTemperature: TemperatureValueType, context: Context): List<String> {
-        val diffTemperature = TemperatureValueType(todayTemperature.value - yesterdayTemperature!!.value, todayTemperature.unit)
+        val diffTemperature =
+            TemperatureValueType((todayTemperature.value - yesterdayTemperature!!.value).toShort(), todayTemperature.unit)
 
         val text =
             context.getString(if (diffTemperature.value.toInt() == 0) io.github.pknujsp.everyweather.core.resource.R.string.as_yesterday else io.github.pknujsp.everyweather.core.resource.R.string.than_yesterday)
@@ -49,7 +50,7 @@ class CurrentWeather(
         val temp = if (diffTemperature.value.toInt() == 0) {
             context.getString(R.string.same_temperature)
         } else {
-            "${diffTemperature.value.absoluteValue.toInt()}${diffTemperature.unit.symbol}"
+            "${diffTemperature.value}${diffTemperature.unit.symbol}"
         }
 
         return listOf(text, temp, endText)

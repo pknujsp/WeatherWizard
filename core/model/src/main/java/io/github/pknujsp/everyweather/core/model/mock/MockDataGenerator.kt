@@ -24,8 +24,8 @@ open class MockDataGenerator {
     companion object {
         val currentWeatherEntity by lazy {
             CurrentWeatherEntity(weatherCondition = WeatherConditionValueType(WeatherConditionCategory.Clear),
-                temperature = TemperatureValueType(22.0, TemperatureUnit.default),
-                feelsLikeTemperature = TemperatureValueType(21.0, TemperatureUnit.default),
+                temperature = TemperatureValueType(22, TemperatureUnit.default),
+                feelsLikeTemperature = TemperatureValueType(21, TemperatureUnit.default),
                 humidity = HumidityValueType(50, PercentageUnit),
                 windSpeed = WindSpeedValueType(4.5, WindSpeedUnit.default),
                 windDirection = WindDirectionValueType(80, WindDirectionUnit.Degree),
@@ -35,8 +35,8 @@ open class MockDataGenerator {
         val hourlyForecastEntity by lazy {
             val now = ZonedDateTime.now()
             val weatherCondition = WeatherConditionValueType(WeatherConditionCategory.Clear)
-            val temperature = TemperatureValueType(20.0, TemperatureUnit.default)
-            val feelsLikeTemperature = TemperatureValueType(20.0, TemperatureUnit.default)
+            val temperature = TemperatureValueType(20, TemperatureUnit.default)
+            val feelsLikeTemperature = TemperatureValueType(20, TemperatureUnit.default)
             val humidity = HumidityValueType(20, PercentageUnit)
             val windSpeed = WindSpeedValueType(4.5, WindSpeedUnit.default)
             val windDirection = WindDirectionValueType(80, WindDirectionUnit.Degree)
@@ -64,8 +64,8 @@ open class MockDataGenerator {
                     weatherCondition = WeatherConditionValueType(WeatherConditionCategory.Clear),
                 )
             }
-            val minTemperature = TemperatureValueType(17.0, TemperatureUnit.default)
-            val maxTemperature = TemperatureValueType(20.0, TemperatureUnit.default)
+            val minTemperature = TemperatureValueType(17, TemperatureUnit.default)
+            val maxTemperature = TemperatureValueType(20, TemperatureUnit.default)
             val windMinSpeed = WindSpeedValueType(3.0, WindSpeedUnit.default)
             val windMaxSpeed = WindSpeedValueType(6.5, WindSpeedUnit.default)
 

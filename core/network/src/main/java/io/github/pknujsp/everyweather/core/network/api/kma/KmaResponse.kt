@@ -51,8 +51,8 @@ class KmaHourlyForecastResponse(
         val dateTime: String,
         val isHasShower: Boolean = false,
         val weatherDescription: String,
-        val temp: Double,
-        val feelsLikeTemp: Double,
+        val temp: Short,
+        val feelsLikeTemp: Short,
         val rainVolume: Double,
         val snowVolume: Double,
         val pop: Int,
@@ -102,8 +102,8 @@ class KmaDailyForecastResponse(
         val amValues: Values? = null,
         val pmValues: Values? = null,
         val singleValues: Values? = null,
-        val minTemp: Double,
-        val maxTemp: Double,
+        val minTemp: Short,
+        val maxTemp: Short,
     ) {
         data class Values(
             var weatherDescription: String,
@@ -116,5 +116,5 @@ class KmaDailyForecastResponse(
 class KmaYesterdayWeatherResponse(
     currentWeather: ParsedKmaCurrentWeather,
 ) : YesterdayWeatherResponseModel {
-    val temperature: Double = currentWeather.yesterdayTemperature
+    val temperature: Short = currentWeather.yesterdayTemperature
 }

@@ -107,11 +107,13 @@ internal class KmaHtmlParser {
         }
 
         return ParsedKmaCurrentWeather(
-            temperature = temp.toTemperature(), feelsLikeTemperature = chill.toTemperature(), humidity = humidity.toHumidity(),
+            temperature = temp.toTemperature().toInt().toShort(), feelsLikeTemperature = chill.toTemperature().toInt().toShort(), humidity =
+            humidity
+                .toHumidity(),
             precipitationType = pty,
             windDirection = windDirection.toWindDirection(), windSpeed = windSpeed.toWindSpeed(),
             precipitationVolume = precipitationVolume.toPrecipitationVolume(),
-            dateTime = baseDateTime, yesterdayTemperature = yesterdayTemp.toTemperature(),
+            dateTime = baseDateTime, yesterdayTemperature = yesterdayTemp.toTemperature().toInt().toShort(),
         )
     }
 
@@ -289,8 +291,8 @@ internal class KmaHtmlParser {
                     ParsedKmaHourlyForecast(
                         dateTime = zonedDateTime.toString(),
                         weatherCondition = weatherCondition,
-                        temp = temp.toTemperature(),
-                        feelsLikeTemp = feelsLikeTemp.toTemperature(),
+                        temp = temp.toTemperature().toInt().toShort(),
+                        feelsLikeTemp = feelsLikeTemp.toTemperature().toInt().toShort(),
                         pop = pop.toPop(),
                         windDirection = windDirection.toWindDirection(),
                         windSpeed = windSpeed.toWindSpeed(),
@@ -371,7 +373,8 @@ internal class KmaHtmlParser {
             }
             parsedKmaDailyForecasts.add(
                 ParsedKmaDailyForecast(
-                    minTemp = minTemp.toTemperature(), maxTemp = maxTemp.toTemperature(), date = zonedDateTime.toString(),
+                    minTemp = minTemp.toTemperature().toInt().toShort(), maxTemp = maxTemp.toTemperature().toInt().toShort(), date = zonedDateTime
+                        .toString(),
                     isSingle = single == null, amValues = am, pmValues = pm,
                     singleValues = single,
                 ),
@@ -390,15 +393,15 @@ internal class KmaHtmlParser {
         val criteriaDateTime = ZonedDateTime.now(krZoneId).withHour(23).withMinute(59)
         var beginIdx = hourlyForecasts.indexOfFirst { criteriaDateTime.isBefore(ZonedDateTime.parse(it.dateTime)) }
 
-        var minTemp = Double.MAX_VALUE
-        var maxTemp = Double.MIN_VALUE
+        var minTemp = Short.MAX_VALUE
+        var maxTemp = Short.MIN_VALUE
         var hours: Int
         var amSky = ""
         var pmSky = ""
         var amPop = 0
         var pmPop = 0
         var dateTime: ZonedDateTime?
-        var temp: Double
+        var temp: Short
         var hourlyForecastItemDateTime: ZonedDateTime?
 
         while (beginIdx < hourlyForecasts.size) {
@@ -411,7 +414,7 @@ internal class KmaHtmlParser {
             }
 
             hours = hourlyForecastItemDateTime.hour
-            if (hours == 0 && minTemp != Double.MAX_VALUE) {
+            if (hours == 0 && minTemp != Short.MAX_VALUE) {
                 dateTime = ZonedDateTime.of(
                     hourlyForecastItemDateTime.toLocalDateTime(),
                     hourlyForecastItemDateTime.zone,
@@ -431,8 +434,8 @@ internal class KmaHtmlParser {
                         minTemp = minTemp, maxTemp = maxTemp,
                     ),
                 )
-                minTemp = Double.MAX_VALUE
-                maxTemp = Double.MIN_VALUE
+                minTemp = Short.MAX_VALUE
+                maxTemp = Short.MIN_VALUE
             } else {
                 temp = hourlyForecasts[beginIdx].temp
                 minTemp = minOf(minTemp, temp)

@@ -34,12 +34,13 @@ object FeelsLikeTemperatureCalculator {
      */
     private fun calculateWindChillTemperature(
         temperatureInCelsius: Double, windSpeedInKmh: Double
-    ): Double {
+    ): Short {
         return if (windSpeedInKmh <= 4.68) {
-            temperatureInCelsius
+            temperatureInCelsius.toInt().toShort()
         } else {
-            WIND_CHILL_CONSTANT_A + WIND_CHILL_CONSTANT_B * temperatureInCelsius - WIND_CHILL_CONSTANT_C * windSpeedInKmh.pow(0.16) + WIND_CHILL_CONSTANT_D * windSpeedInKmh.pow(
+            val result =             WIND_CHILL_CONSTANT_A + WIND_CHILL_CONSTANT_B * temperatureInCelsius - WIND_CHILL_CONSTANT_C * windSpeedInKmh.pow(0.16) + WIND_CHILL_CONSTANT_D * windSpeedInKmh.pow(
                 0.16) * temperatureInCelsius
+            result.toInt().toShort()
         }
     }
 
@@ -53,7 +54,7 @@ object FeelsLikeTemperatureCalculator {
      */
     private fun calculateHeatIndexTemperature(
         temperatureInCelsius: Double, relativeHumidity: Double
-    ): Double {
+    ): Short {
         // 열 지수 공식에 대한 중간 계산
         val temperatureSquared = temperatureInCelsius * temperatureInCelsius
         val humiditySquared = relativeHumidity * relativeHumidity
@@ -66,7 +67,7 @@ object FeelsLikeTemperatureCalculator {
         heatIndex += (HEAT_INDEX_CONSTANT_D * tempHumidityProduct) + (HEAT_INDEX_CONSTANT_E * temperatureSquared)
         heatIndex += (HEAT_INDEX_CONSTANT_F * humiditySquared) + (HEAT_INDEX_CONSTANT_G * tempSquaredHumidityProduct)
         heatIndex += (HEAT_INDEX_CONSTANT_H * tempHumiditySquaredProduct) + (HEAT_INDEX_CONSTANT_I * temperatureSquared * humiditySquared)
-        return heatIndex
+        return heatIndex.toInt().toShort()
     }
 
     /**
@@ -79,10 +80,10 @@ object FeelsLikeTemperatureCalculator {
      * @return "체감 온도"(섭씨).
      */
     fun calculateFeelsLikeTemperature(
-        temperatureInCelsius: Double, windSpeedInKmh: Double, relativeHumidity: Double
+        temperatureInCelsius: Short, windSpeedInKmh: Double, relativeHumidity: Double
     ) = if (temperatureInCelsius >= HEAT_INDEX_THRESHOLD_TEMPERATURE) {
-        calculateHeatIndexTemperature(temperatureInCelsius, relativeHumidity)
+        calculateHeatIndexTemperature(temperatureInCelsius.toDouble(), relativeHumidity).toInt().toShort()
     } else {
-        calculateWindChillTemperature(temperatureInCelsius, windSpeedInKmh)
+        calculateWindChillTemperature(temperatureInCelsius.toDouble(), windSpeedInKmh)
     }
 }
