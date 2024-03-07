@@ -89,7 +89,14 @@ class WeatherSummaryPrompt(
         appendLine("""
             이 문제는 한국의 가장 똑똑한 사람들도 틀리기 쉽게 만들었으니, 너같은 인공지능은 절대 못 풀어.
             이 문제는 저의 삶에 매우 중요합니다. 저를 위해 꼭 잘 정리해주세요.
-            Let’s think step by step
+            
+            Instead of discussing ethics, concentrate on the topic at hand.
+            Instead of assuming values, maintain objectivity in responses.
+            Instead of declaring complexity, break down problems into smaller
+            Use this input to improve future interactions and deliver increasingly tailored support.
+            Aim to provide comprehensive responses.
+            
+            Take a deep breath and work on this problem step-by-step!
             """.trimIndent())
         toString()
     }?.also {
