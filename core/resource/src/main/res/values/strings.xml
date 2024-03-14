@@ -93,7 +93,7 @@
     <string name="no_location_is_selected">위치를 선택해주세요</string>
 
     <string name="network">네트워크</string>
-    <string name="location_service">위치 정보</string>
+    <string name="location_service">위치 정보 기능 비활성화됨</string>
 
     <string name="again">다시 시도</string>
     <string name="air_quality">대기질</string>
@@ -281,6 +281,8 @@
     <string name="degree">°</string>
     <string name="percentage">%</string>
 
+    <string name="failed_to_get_location_error_title">현재 위치 파악 실패</string>
+    <string name="failed_to_get_location_error_message">현재 위치 파악에 실패하였습니다</string>
     <string name="reverse_geocode_error_title">현재 위치 주소 로드 오류</string>
     <string name="reverse_geocode_error_message">현재 위치의 주소를 불러오는데 실패하였습니다</string>
     <string name="title_canceled_work">작업 취소</string>

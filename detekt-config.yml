@@ -49,9 +49,11 @@ formatting:
     active: false
 
 style:
+  active: false
   MagicNumber:
-    active: false
     ignoreAnnotated: [ 'AllowMagicNumber' ]
+    ignorePropertyDeclaration: true
+    ignoreCompanionObjectPropertyDeclaration: true
   ForbiddenComment:
     active: false
   UnusedPrivateMember:

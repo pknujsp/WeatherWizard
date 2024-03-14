@@ -20,18 +20,21 @@ data class DailyForecastEntity(
 
     override fun toString(): String {
         return StringBuilder().apply {
-            appendLine("## Daily Forecast")
-            appendLine("| Date | Min / Max Temperature | Day Weather | AM / PM Weather")
-            appendLine("| --- | --- | --- | --- |")
+            appendLine("""
+                Daily Forecast
+                - 일일 예보입니다. 약 7일간의 날씨 예보입니다.
+                
+                """.trimIndent())
+            appendLine("Date, Min / Max Temperature, Day Weather, AM / PM Weather")
             for (item in dayItems) {
-                append("| ${LocalDate.parse(item.dateTime.value, DateTimeFormatter.ISO_ZONED_DATE_TIME)} |")
-                appendLine(" ${item.minTemperature} / ${item.maxTemperature} | ${
+                append("${LocalDate.parse(item.dateTime.value, DateTimeFormatter.ISO_ZONED_DATE_TIME)}, ")
+                appendLine("${item.minTemperature} / ${item.maxTemperature}, ${
                     if (item.items.size == 1) item.items[0].weatherCondition.value.description else ""
-                } | ${
+                }, ${
                     if (item.items.size >= 2) "${item.items[0].weatherCondition.value.description} / ${
                         item.items[1].weatherCondition.value.description
                     }" else ""
-                } |")
+                }")
             }
         }.toString()
     }

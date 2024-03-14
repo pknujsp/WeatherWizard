@@ -21,9 +21,9 @@ data class CurrentWeatherEntity(
     val precipitationVolume: PrecipitationValueType,
 ) : WeatherEntityModel() {
 
-
     override fun toString(): String = """
-        ## Current Weather
+        Current Weather
+        - 현재 날씨 상태입니다.
         
         - Weather condition : ${weatherCondition.value.description}
         - Temperature : $temperature
@@ -34,6 +34,4 @@ data class CurrentWeatherEntity(
         - Precipitation volume : $precipitationVolume
         
     """.trimIndent()
-
-
 }

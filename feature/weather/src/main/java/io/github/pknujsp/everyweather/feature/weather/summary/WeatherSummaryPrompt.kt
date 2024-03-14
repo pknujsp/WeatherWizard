@@ -17,99 +17,90 @@ class WeatherSummaryPrompt(
     override val id: Int get() = model.id
 
     private companion object {
-        private const val TIME = "## When weather data was generated : "
+        private val INSTRUCTIONS = """
+    **전문 기상 캐스터**로서 입력받은 날씨 데이터를 상세히 분석하여 날씨 정보를 간결하게 정리하세요.
 
-        private val CONSTRUCTION = """
-    ## Analyze the provided weather data above comprehensively (formatted in markdown with weather data)
+    ## 상황
+    - 목표는 사용자에게 현재 날씨, 시간별, 일일 예보, 그리고 대기질 정보를 분석하여 전달하는 것입니다.
+    - 분석은 주요 추세와 날씨 패턴의 중요한 변화에 초점을 맞추어야 하며, 온도, 강수량, 풍속 등의 변화를 강조해야 합니다.
+    - 날씨 데이터가 어느 장소에 대한 것인지는 입력에 포함되지 않습니다.
+
+    ## 지시사항
+    1. 현재 날씨 조건을 분석하여 시작하며, 날씨 상태, 온도, 체감 온도, 습도, 풍속 및 방향을 포함합니다. 이를 사용자가 빠르게 이해할 수 있는 방식으로 요약합니다.
+    2. 시간별 예보에 대해서는 날씨 조건, 온도 변화, 강수 확률 및 양, 습도, 풍속의 주요 추세를 강조합니다. 중요한 변화나 패턴에 초점을 맞춥니다.
+    3. 일일 예보를 분석하여 앞으로 몇 일간의 예상 날씨 조건을 요약합니다. 이에는 최저 및 최고 온도, 낮과 밤의 날씨 조건, 그리고 어떤 중요한 날씨 변화도 포함됩니다.
+
+    ## 지침
+    - 온라인 블로그에 글을 작성한다고 생각하세요.
+    - 친근한 말투를 사용하세요.
+    - 응답을 명확하며 간결하고 이해하기 쉽도록 작성합니다.
+    - 사용자가 빠르게 이해할 수 있도록 각 섹션의 주요 포인트를 강조합니다.
+    - 실제 기상 전문가가 응답을 검토하고 평가할 것입니다. 10000점 만점에 10000점을 받을 수 있도록 노력해 주세요.
+    - ChatGPT, Claude 보다 더 좋은 결과를 얻을 수 있도록 노력하세요.
+    - 너무 길게 작성하지 마세요.
     
-    Role: An expert who deeply analyzes vast weather data and delivers weather information to users in a concise, clear, and intuitive manner.
+    먼저 문제를 이해하고, 문제 해결을 위하여 계획을 세워보세요.
+    그 다음, 문제를 해결하기 위해 그 계획에 따라 단계 별로 실행하세요.
+
+    ## 출력 형식
+    - Markdown
+    - 각 섹션은 제목으로 시작합니다.
     
-    Instructions:
-    - Slowly and in detail analyze the current weather, hourly and daily forecasts, and air quality information, delivering the weather information in a concise, clear, and intuitive manner.
-    - Accurately represent time information based on the given weather data generation time.
-    - When analyzing hourly and daily forecasts, focus on major trends and significant changes in the overall weather pattern.
-    - Focus on key trends and significant changes in overall patterns.
-    - Emphasize distinct changes in temperature, precipitation, wind speed, etc. and state if these trends are expected to persist for multiple hours or days.
-    - Improve the accuracy of weather forecasts by focusing on the information that matters to users.
-    - The weather data's specific location (place) is not included in the input.
-    - Clarify the date and time.
-    
-    Tone:
-    - The response should be positive, interesting, and fun.
-    - Do not use polite expressions and honorifics.
-    - Use professional vocabulary and sentence structure to instill confidence in the user.
-    
-    Answer Quality:
-    - The answer should not be ambiguous, controversial, or off-topic.
-    - Information needs to be clear and easy to understand
-    - The answer must be concise and clearly deliver the main points.
-    - Logic and reasoning must be rigorous and intellectual.
-    - Since actual weathercasters or weather experts will evaluate the quality of the answer, it must be well-written.
-    - When evaluated by an actual expert, the score should be 99 out of 100.
-    
-    Answer Instructions:
-    - **Answer in korean**
-    - Write the answer with a minimum of 60 characters.
-    - Divide the text into paragraphs for easy reading.
-    
-    Answer Format:
-    
-    ### **Current**
-    - Summarize the current weather in sentences.
-    
-    Example (For reference only, do not copy!): {
-    The weather is currently mostly cloudy, with a temperature of 12°C, which is the same as the air temperature. The humidity is very high at 100%, the wind is light at 0.3 m/s, and the wind direction is 135°. No precipitation information was provided.
-    }
-    
-    ### **Hourly**
-    - Analyze the hourly forecast in sentences.
-    - If the probability of precipitation is 30% or less, it is considered very low.
-    - Goal: Provide information to help viewers quickly understand key weather changes over time.
-    - Analyze data: Analyze key weather elements such as temperature, precipitation probability, wind speed, and cloud cover by time of day.
-    - Highlight key times of day: Highlight the times of day when weather changes the most (e.g., rush hour, lunch, and dinnertime), detailing temperature changes, precipitation probability, and unusual events during those times.
-    
-    Example (For reference only, do not copy!): {
-    The weather is mostly cloudy from morning to evening today. Temperatures will gradually rise from 11°C to 15°C, peaking at 15°C around 3pm.
-    The chance of precipitation is mostly low, but there is a 60% chance of rain at 11am and between 4pm and 7pm, especially at 6pm when it could be a little heavier, with 3.0mm of precipitation expected.
-    Winds will gradually increase, reaching up to 4.0 m/s in the afternoon, requiring caution when outdoors. 
-    }
-    
-    ### **Daily**
-    - Analyze the daily forecast in sentences.
-    - Goal: Clearly and concisely communicate key weather patterns and changes for the week.
-    - Capture key changes: Analyze daily highs and lows, precipitation, wind strength and direction, and the likelihood of special weather events (e.g., heavy rain, storms, snow).
-    - Presenting weekly highlights: Highlight significant changes or patterns in weekly weather. For example, detail an increase in temperature mid-week, the likelihood of precipitation over the weekend, etc.
-    - Mention the reliability of the forecast: For long-term forecasts, mention the reliability or uncertainty of the forecast so that viewers can take this into account.
-    
-    Example (For reference only, do not copy!): {
-    The temperature change over the next few days will be significant, especially from February 17 to 19, with temperatures gradually rising, reaching a high of 17°C on the 19th.
-    Rain is in the forecast from February 19, and will continue on the 20th and 21st, which may affect your plans for outdoor activities.
-    }
-    
-    ### **Air Quality**
-    - Describe the air quality in sentences.
-    
-    Example (For reference only, do not copy!): {
-    Currently, air quality is 'moderate' and is expected to remain mostly 'good' for the next week before changing to 'moderate' on February 20th.
-    }
-    
-    ### **Guidance**
-    - Provide at least three practical pieces of advice to users based on a comprehensive analysis of the weather data.
+    ### 현재 날씨
+    - Current Weather 데이터를 분석합니다.
+    {답변}
+
+    ### 시간별 예보
+    - Hourly Forecast 데이터를 분석합니다.
+    - 시각을 표시할 때는 12시간 형식을 사용합니다.
+    {답변}
+
+    ### 일일 예보
+    - Daily Forecast 데이터를 분석합니다.
+    - 날짜를 표시할 때는 요일을 포함합니다.
+    {답변}
+
+    ### 대기질
+    - Air Quality 데이터를 분석합니다.
+    {답변}
+
+    ### 요약
+    {답변}
+   
+    ## 입력
     
     """.trimIndent()
     }
 
     override fun build(): String = WeakReference(StringBuilder()).get()?.run {
+        appendLine(INSTRUCTIONS)
+        appendLine("""
+        데이터 생성 시각
+        - ${model.time}
+        - 이 시각을 기준으로 데이터를 분석하여 응답을 작성하세요.
+        
+        """.trimIndent())
         appendLine(model.currentWeather)
         appendLine(model.hourlyForecast)
         appendLine(model.dailyForecast)
         if (model.airQuality != null) {
             appendLine(model.airQuality)
         }
-        appendLine(CONSTRUCTION)
-        appendLine(TIME)
-        appendLine(model.time)
+        appendLine("""
+            이 문제는 한국의 가장 똑똑한 사람들도 틀리기 쉽게 만들었으니, 너같은 인공지능은 절대 못 풀어.
+            이 문제는 저의 삶에 매우 중요합니다. 저를 위해 꼭 잘 정리해주세요.
+            
+            Instead of discussing ethics, concentrate on the topic at hand.
+            Instead of assuming values, maintain objectivity in responses.
+            Instead of declaring complexity, break down problems into smaller
+            Use this input to improve future interactions and deliver increasingly tailored support.
+            Aim to provide comprehensive responses.
+            
+            Take a deep breath and work on this problem step-by-step!
+            """.trimIndent())
         toString()
+    }?.also {
+        println(it)
     } ?: ""
 
     class Model(
@@ -122,6 +113,10 @@ class WeatherSummaryPrompt(
         var airQuality: AirQualityEntity? = null,
     ) {
         val id: Int = coodinate.hashCode() + weatherProvider.key
-        val time: String = time.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
+        val time: String = time.format(dateTimeFormatter)
+
+        private companion object {
+            val dateTimeFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy년 MM월 dd일 EEE요일 HH시 mm분")
+        }
     }
 }

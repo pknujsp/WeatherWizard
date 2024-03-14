@@ -39,7 +39,7 @@ fun TitleTextWithNavigation(
         IconButton(onClick = onClickNavigation) {
             Icon(Icons.AutoMirrored.Rounded.ArrowBack, contentDescription = stringResource(io.github.pknujsp.everyweather.core.resource.R.string.back))
         }
-        TitleText(title = title, textStyle = TextStyle(fontSize = 23.sp))
+        TitleText(title = title, textStyle = TextStyle(fontSize = 21.sp))
     }
 }
 
@@ -51,7 +51,7 @@ fun TitleTextWithoutNavigation(
         modifier = modifier
             .padding(bottom = 12.dp, start = 16.dp)
             .then(modifier),
-        textStyle = TextStyle(fontSize = 22.sp))
+        textStyle = TextStyle(fontSize = 21.sp))
 }
 
 @Composable
@@ -62,5 +62,5 @@ fun MediumTitleTextWithoutNavigation(
         modifier = modifier
             .padding(bottom = 10.dp, start = 16.dp)
             .then(modifier),
-        textStyle = TextStyle(fontSize = 20.sp))
+        textStyle = TextStyle(fontSize = 19.sp))
 }

@@ -78,7 +78,7 @@ internal class GetCurrentLocationUseCase @Inject constructor(
                     )
                 }
 
-                is AppLocationManager.LocationResult.Failure -> CurrentLocationState.Failure(FailedReason.UNKNOWN)
+                is AppLocationManager.LocationResult.Failure -> CurrentLocationState.Failure(FailedReason.FAILED_TO_GET_LOCATION)
             }
         } else {
             CurrentLocationState.Failure(FeatureType.LocationService)

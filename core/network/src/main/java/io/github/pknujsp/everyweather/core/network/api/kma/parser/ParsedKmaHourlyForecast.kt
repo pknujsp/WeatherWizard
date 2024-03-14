@@ -4,8 +4,8 @@ package io.github.pknujsp.everyweather.core.network.api.kma.parser
 data class ParsedKmaHourlyForecast(
     val dateTime: String,
     val weatherCondition: String,
-    val temp: Double,
-    val feelsLikeTemp: Double,
+    val temp: Short,
+    val feelsLikeTemp: Short,
     val rainVolume: Double,
     val snowVolume: Double,
     val pop: Int,

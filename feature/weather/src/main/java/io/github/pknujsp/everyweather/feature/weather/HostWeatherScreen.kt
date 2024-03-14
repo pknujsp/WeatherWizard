@@ -4,7 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import io.github.pknujsp.everyweather.feature.weather.info.WeatherInfoScreen
+import io.github.pknujsp.everyweather.feature.weather.main.WeatherMainScreen
 import io.github.pknujsp.everyweather.feature.weather.route.WeatherRoutes
 
 @Composable
@@ -13,8 +13,7 @@ fun HostWeatherScreen(openDrawer: () -> Unit) {
 
     NavHost(navController = navController, route = WeatherRoutes.route, startDestination = WeatherRoutes.Info.route) {
         composable(WeatherRoutes.Info.route) {
-            WeatherInfoScreen(openDrawer)
+            WeatherMainScreen(openDrawer)
         }
     }
-
 }

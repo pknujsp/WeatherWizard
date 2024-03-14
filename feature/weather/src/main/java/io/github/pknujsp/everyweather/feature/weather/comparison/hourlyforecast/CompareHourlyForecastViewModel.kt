@@ -50,7 +50,7 @@ class CompareHourlyForecastViewModel @Inject constructor(
                 withContext(ioDispatcher) {
                     val weatherDataRequestBuilder = WeatherDataRequest.Builder()
                     weatherProviders.forEach {
-                        weatherDataRequestBuilder.add(WeatherDataRequest.Coordinate(latitude, longitude),
+                        weatherDataRequestBuilder.add(WeatherDataRequest.Coordinate(targetLocation.latitude, targetLocation.longitude),
                             arrayOf(MajorWeatherEntityType.HOURLY_FORECAST),
                             it)
                     }
@@ -60,7 +60,7 @@ class CompareHourlyForecastViewModel @Inject constructor(
                                 ZonedDateTime.parse(it.second.last().dateTime.value)
                             }
                         }
-                        val dayNightCalculator = DayNightCalculator(latitude, longitude)
+                        val dayNightCalculator = DayNightCalculator(targetLocation.latitude, targetLocation.longitude)
                         val dayOrNightList = mutableListOf<Pair<Boolean, ZonedDateTime>>()
                         var time = firstTime
                         while (time <= endTime) {

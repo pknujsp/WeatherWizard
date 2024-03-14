@@ -30,7 +30,10 @@ import io.github.pknujsp.everyweather.core.common.FeatureType
 import io.github.pknujsp.everyweather.core.resource.R
 import io.github.pknujsp.everyweather.core.ui.TitleTextWithNavigation
 import io.github.pknujsp.everyweather.feature.permoptimize.feature.FeatureStateScreen
+import io.github.pknujsp.everyweather.feature.permoptimize.feature.rememberAppFeatureState
+import io.github.pknujsp.everyweather.feature.permoptimize.permission.PermissionState
 import io.github.pknujsp.everyweather.feature.permoptimize.permission.PermissionStateScreen
+import io.github.pknujsp.everyweather.feature.permoptimize.permission.rememberPermissionManager
 
 
 @Composable
@@ -60,10 +63,8 @@ private fun NotificationItem(
 @SuppressLint("NewApi")
 @Composable
 fun NotificationMainScreen(navController: NavController) {
-    val context = LocalContext.current
-
-    var permissionGranted by remember { mutableStateOf(FeatureType.Permission.PostNotification.isAvailable(context)) }
-    var ignoredBatteryOptimization by remember { mutableStateOf(true) }
+    val postNotificationPermissionManager = rememberPermissionManager(defaultPermissionType = FeatureType.Permission.PostNotification)
+    val batteryOptimizationState = rememberAppFeatureState(featureType = FeatureType.BatteryOptimization)
 
     val onBackPressedDispatcherOwner = LocalOnBackPressedDispatcherOwner.current
     val backDispatcher = remember {
@@ -74,7 +75,8 @@ fun NotificationMainScreen(navController: NavController) {
         TitleTextWithNavigation(title = stringResource(id = R.string.nav_notification), onClickNavigation = {
             backDispatcher?.onBackPressed()
         })
-        if (permissionGranted and ignoredBatteryOptimization) {
+        if (postNotificationPermissionManager.permissionState is PermissionState.Granted && batteryOptimizationState.isAvailable(
+                LocalContext.current)) {
             Column {
                 NotificationItem(title = stringResource(id = R.string.title_ongoing_notification), description = null, onClick = {
                     navController.navigate(NotificationRoutes.Ongoing.route)
@@ -87,14 +89,10 @@ fun NotificationMainScreen(navController: NavController) {
                     Icon(painterResource(id = R.drawable.ic_forward), contentDescription = "navigate")
                 }
             }
-        } else if (!permissionGranted) {
-            PermissionStateScreen(onGranted = {
-                permissionGranted = true
-            }, permissionType = FeatureType.Permission.PostNotification)
+        } else if (postNotificationPermissionManager.permissionState is PermissionState.Denied) {
+            PermissionStateScreen(postNotificationPermissionManager)
         } else {
-            FeatureStateScreen(featureType = FeatureType.BatteryOptimization) {
-                ignoredBatteryOptimization = true
-            }
+            FeatureStateScreen(batteryOptimizationState)
         }
     }
 }

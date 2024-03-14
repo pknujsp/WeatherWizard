@@ -3,7 +3,7 @@ import org.jetbrains.kotlin.konan.properties.Properties
 
 plugins {
     id("plugin.android.application")
-    alias(libs.plugins.benchmark)
+    //alias(libs.plugins.benchmark)
 }
 
 android {
@@ -20,7 +20,7 @@ android {
     }
 
     buildTypes {
-        val release = getByName("release") {
+        release {
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(
@@ -108,8 +108,8 @@ dependencies {
     implementation(libs.firebase.crashlytics)
     implementation(libs.firebase.analytics)
     implementation(libs.google.errorprone.annotations)
-    implementation(libs.androidx.profileinstaller)
+    //implementation(libs.androidx.profileinstaller)
 
-    androidTestImplementation(libs.benchmark.macro.junit4)
+    //androidTestImplementation(libs.benchmark.macro.junit4)
     //baselineProfile(project(":benchmark"))
 }

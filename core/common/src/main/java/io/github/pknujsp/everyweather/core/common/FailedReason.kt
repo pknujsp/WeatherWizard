@@ -1,6 +1,5 @@
 package io.github.pknujsp.everyweather.core.common
 
-import io.github.pknujsp.everyweather.core.common.StatefulFeature
 import io.github.pknujsp.everyweather.core.resource.R
 
 enum class FailedReason : StatefulFeature {
@@ -32,13 +31,11 @@ enum class FailedReason : StatefulFeature {
         override val hasRetryAction: Boolean = true
         override val hasRepairAction: Boolean = false
     },
-
-    LOCATION_SERVICE_DISABLED {
-        override val title: Int = io.github.pknujsp.everyweather.core.resource.R.string.location_service
-        override val message: Int = io.github.pknujsp.everyweather.core.resource.R.string.location_service_disabled
-        override val action: Int = io.github.pknujsp.everyweather.core.resource.R.string.open_settings_for_location_service
+    FAILED_TO_GET_LOCATION {
+        override val title: Int = R.string.failed_to_get_location_error_title
+        override val message: Int = R.string.failed_to_get_location_error_message
+        override val action: Int = R.string.reload
         override val hasRetryAction: Boolean = true
-        override val hasRepairAction: Boolean = true
-    },
-
+        override val hasRepairAction: Boolean = false
+    };
 }

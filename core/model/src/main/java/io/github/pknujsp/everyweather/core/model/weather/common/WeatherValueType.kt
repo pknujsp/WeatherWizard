@@ -46,18 +46,18 @@ data class WeatherConditionValueType(
 
 @Serializable
 data class TemperatureValueType(
-    override val value: Double,
+    override val value: Short,
     override val unit: TemperatureUnit,
-) : WeatherValueUnitType<Double, TemperatureUnit> {
+) : WeatherValueUnitType<Short, TemperatureUnit> {
 
     companion object : NoneValue<TemperatureValueType> {
-        override val none: TemperatureValueType = TemperatureValueType(Double.MIN_VALUE, TemperatureUnit.Celsius)
+        override val none: TemperatureValueType = TemperatureValueType(Short.MIN_VALUE, TemperatureUnit.Celsius)
     }
 
     override fun convertUnit(to: TemperatureUnit): TemperatureValueType {
         return when (unit to to) {
-            TemperatureUnit.Celsius to TemperatureUnit.Fahrenheit -> value * 9 / 5 + 32
-            TemperatureUnit.Fahrenheit to TemperatureUnit.Celsius -> (value - 32) * 5 / 9
+            TemperatureUnit.Celsius to TemperatureUnit.Fahrenheit -> (value * 9 / 5 + 32).toShort()
+            TemperatureUnit.Fahrenheit to TemperatureUnit.Celsius -> ((value - 32) * 5 / 9).toShort()
             else -> value
         }.run {
             TemperatureValueType(this, to)
@@ -65,19 +65,19 @@ data class TemperatureValueType(
     }
 
     fun toStringWithOnlyDegree(): String {
-        return "${value.toInt()}°"
+        return "${value}°"
     }
 
     override fun isNone(): Boolean {
-        return value == Double.MIN_VALUE
+        return value == Short.MIN_VALUE
     }
 
     override fun toStringWithoutUnit(): String {
-        return if (isNone()) "" else value.toInt().toString()
+        return if (isNone()) "" else value.toString()
     }
 
     override fun toString(): String {
-        return "${value.toInt()}${unit.symbol}"
+        return "${value}${unit.symbol}"
     }
 }
 

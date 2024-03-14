@@ -95,7 +95,7 @@ fun SettingsScreen(navController: NavController, viewModel: SettingsViewModel = 
         }
 
         if (settingsUiState.widgetAutoRefreshInterval != RefreshInterval.MANUAL) {
-            if (!batteryOptimizationFeatureState.isAvailable) {
+            if (!batteryOptimizationFeatureState.isAvailable(LocalContext.current)) {
                 SmallFeatureStateScreen(Modifier.padding(8.dp), state = batteryOptimizationFeatureState.featureType, onClickAction = {
                     batteryOptimizationFeatureState.showSettingsActivity()
                 })

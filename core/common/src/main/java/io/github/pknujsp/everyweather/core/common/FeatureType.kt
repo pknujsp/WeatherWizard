@@ -223,8 +223,8 @@ sealed interface FeatureType : FeatureIntent, StatefulFeature {
 
     data object LocationService : FeatureType {
         override val intentAction: String = Settings.ACTION_LOCATION_SOURCE_SETTINGS
-        override val title: Int = io.github.pknujsp.everyweather.core.resource.R.string.location_service
-        override val message: Int = io.github.pknujsp.everyweather.core.resource.R.string.location_service_disabled
+        override val title: Int = R.string.location_service
+        override val message: Int = R.string.location_service_disabled
         override val action: Int = io.github.pknujsp.everyweather.core.resource.R.string.open_settings_for_location_service
         override val hasRetryAction: Boolean = true
         override val hasRepairAction: Boolean = true

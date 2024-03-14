@@ -177,11 +177,9 @@ fun <E : IEnum> BottomSheetSettingItem(
 }
 
 @Composable
-@OptIn(ExperimentalMaterial3Api::class)
 fun <E : IEnum> BottomSheetDialog(
     modifier: Modifier = Modifier,
     title: String,
-    description: String? = null,
     selectedItem: E,
     onSelectedItem: (E?) -> Unit,
     enums: Array<E>,
@@ -189,42 +187,38 @@ fun <E : IEnum> BottomSheetDialog(
     onDismissRequest: () -> Unit
 ) {
     if (expanded()) {
-        CustomModalBottomSheet(
-            onDismissRequest = {
-                onSelectedItem(null)
+        ModalBottomSheetDialog(
+            title = title,
+            onDismiss = {
                 onDismissRequest()
             },
         ) {
-            Column {
-                TitleTextWithoutNavigation(title = title)
-                Column(modifier = modifier.verticalScroll(rememberScrollState(), true)) {
-                    enums.forEach { enum ->
-                        Row(verticalAlignment = Alignment.CenterVertically, modifier = modifier
-                            .clickable {
-                                onSelectedItem(enum)
-                                onDismissRequest()
-                            }
-                            .fillMaxWidth()) {
-                            enum.icon?.let { icon ->
-                                AsyncImage(model = ImageRequest.Builder(LocalContext.current).data(icon).crossfade(false).build(),
-                                    modifier = modifier
-                                        .size(32.dp)
-                                        .padding(start = 12.dp),
-                                    contentDescription = null)
-                            }
-                            Text(text = stringResource(id = enum.title),
-                                fontSize = 14.sp,
-                                color = Color.Black,
-                                modifier = modifier
-                                    .weight(1f)
-                                    .padding(start = 12.dp))
-                            RadioButton(selected = selectedItem == enum, onClick = {
-                                onSelectedItem(enum)
-                                onDismissRequest()
-                            }, modifier = modifier.padding(end = 12.dp))
+            Column(modifier = modifier.verticalScroll(rememberScrollState(), true)) {
+                enums.forEach { enum ->
+                    Row(verticalAlignment = Alignment.CenterVertically, modifier = modifier
+                        .clickable {
+                            onSelectedItem(enum)
+                            onDismissRequest()
                         }
+                        .fillMaxWidth()) {
+                        enum.icon?.let { icon ->
+                            AsyncImage(model = ImageRequest.Builder(LocalContext.current).data(icon).crossfade(false).build(),
+                                modifier = modifier
+                                    .size(32.dp)
+                                    .padding(start = 12.dp),
+                                contentDescription = null)
+                        }
+                        Text(text = stringResource(id = enum.title),
+                            fontSize = 14.sp,
+                            color = Color.Black,
+                            modifier = modifier
+                                .weight(1f)
+                                .padding(start = 12.dp))
+                        RadioButton(selected = selectedItem == enum, onClick = {
+                            onSelectedItem(enum)
+                            onDismissRequest()
+                        }, modifier = modifier.padding(end = 12.dp))
                     }
-
                 }
             }
         }
@@ -312,10 +306,15 @@ fun WeatherProvidersScreen(weatherProvider: WeatherProvider, onSelectedItem: (We
 
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
-fun AlwaysOnBottomSheetDialog(
-    modifier: Modifier = Modifier, title: String, onDismiss: () -> Unit, content: @Composable ColumnScope.() -> Unit
+fun ModalBottomSheetDialog(
+    modifier: Modifier = Modifier,
+    title: String,
+    freeHeight: Boolean = false,
+    onDismiss: () -> Unit,
+    content: @Composable ColumnScope.() -> Unit
 ) {
     CustomModalBottomSheet(
+        freeHeight = freeHeight,
         onDismissRequest = {
             onDismiss()
         },

@@ -14,13 +14,16 @@ data class AirQualityEntity(
 
     override fun toString(): String {
         return StringBuilder().apply {
-            appendLine("## Air Quality")
-            appendLine("### Current : ${current.aqi.airQualityDescription.description}")
-            appendLine("### Daily Forecast")
-            appendLine("| Date | Status |")
-            appendLine("| --- | --- |")
+            appendLine("""
+            Air Quality
+            - 현재 대기질 상태와 향후 약 7일간의 대기질 예보입니다.
+            
+            """.trimIndent())
+            appendLine("- Current : ${current.aqi.airQualityDescription.description}")
+            appendLine("- Daily")
+            appendLine("Date, Status")
             for (item in dailyForecast.items) {
-                appendLine("| ${item.date} | ${item.getAqi().valueNotNull().airQualityDescription.description} |")
+                appendLine("${item.date}, ${item.getAqi().valueNotNull().airQualityDescription.description}")
             }
         }.toString()
     }

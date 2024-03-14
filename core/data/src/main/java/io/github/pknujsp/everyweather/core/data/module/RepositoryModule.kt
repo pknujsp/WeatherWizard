@@ -155,12 +155,10 @@ abstract class RepositoryModule {
                 cacheMaxSize = 5,
                 dispatcher = dispatcher,
             )
-            return SummaryTextRepositoryImpl(GenerativeModel("gemini-pro",
+            return SummaryTextRepositoryImpl(GenerativeModel("gemini-1.0-pro",
                 BuildConfig.GOOGLE_AI_STUDIO_KEY,
                 generationConfig {
-                    temperature = 0.55f
-                    topK = 4
-                    topP = 0.95f
+                    temperature = 0.42f
                 },
                 safetySettings = listOf(
                     SafetySetting(HarmCategory.HARASSMENT, BlockThreshold.NONE),

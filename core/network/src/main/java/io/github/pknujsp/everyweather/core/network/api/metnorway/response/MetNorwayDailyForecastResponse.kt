@@ -35,19 +35,19 @@ class MetNorwayDailyForecastResponse(
 
                 val date = entry.key
                 val items = entry.value
-                var minTemp = Double.MAX_VALUE
-                var maxTemp = Double.MIN_VALUE
+                var minTemp = Short.MAX_VALUE
+                var maxTemp = Short.MIN_VALUE
 
                 val firstTime = ZonedDateTime.parse(items.first().time)
 
                 items.forEach { item ->
-                    item.data.instant.details.airTemperature.run {
+                    item.data.instant.details.airTemperature.toInt().toShort().run {
                         minTemp = minOf(minTemp, this)
                         maxTemp = maxOf(maxTemp, this)
                     }
                     item.data.next6Hours?.run {
-                        minTemp = minOf(minTemp, details.airTemperatureMin)
-                        maxTemp = maxOf(maxTemp, details.airTemperatureMax)
+                        minTemp = minOf(minTemp, details.airTemperatureMin.toInt().toShort())
+                        maxTemp = maxOf(maxTemp, details.airTemperatureMax.toInt().toShort())
                     }
                 }
 

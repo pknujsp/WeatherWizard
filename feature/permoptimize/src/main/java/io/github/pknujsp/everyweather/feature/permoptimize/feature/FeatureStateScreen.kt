@@ -11,6 +11,7 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
@@ -24,19 +25,14 @@ import io.github.pknujsp.everyweather.core.ui.button.PrimaryButton
 import io.github.pknujsp.everyweather.core.ui.button.SecondaryButton
 
 @Composable
-fun FeatureStateScreen(featureType: FeatureType, onAvailable: () -> Unit) {
-    val featureStateManager = rememberAppFeatureState(featureType)
-    val currentOnAvailable by rememberUpdatedState(onAvailable)
-
-    if (featureStateManager.isAvailable) {
-        currentOnAvailable()
-    } else {
+fun FeatureStateScreen(featureStateManager: AppFeatureState) {
+    if (featureStateManager.isAvailable(LocalContext.current).not()) {
         Box {
-            UnavailableFeatureScreen(featureType = featureType) {
+            UnavailableFeatureScreen(featureType = featureStateManager.featureType) {
                 featureStateManager.showSettingsActivity()
             }
             if (featureStateManager.isShowSettingsActivity) {
-                ShowAppSettingsActivity(featureType) {
+                ShowAppSettingsActivity(featureStateManager.featureType) {
                     featureStateManager.hideSettingsActivity()
                 }
             }

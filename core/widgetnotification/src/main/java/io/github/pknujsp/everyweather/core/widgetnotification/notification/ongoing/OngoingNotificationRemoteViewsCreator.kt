@@ -16,9 +16,9 @@ class OngoingNotificationRemoteViewsCreator : NotificationRemoteViewsCreator<Ong
         val contentView = RemoteViews(context.packageName, R.layout.notification_ongoing_small).apply {
             setImageViewResource(R.id.weather_icon, R.drawable.ic_weather_clear_day)
             setTextViewText(R.id.temperature,
-                TemperatureValueType(16.0, TemperatureUnit.Celsius).convertUnit(units.temperatureUnit).toString())
+                TemperatureValueType(16, TemperatureUnit.Celsius).convertUnit(units.temperatureUnit).toString())
             setTextViewText(R.id.feels_like_temperature,
-                TemperatureValueType(16.0, TemperatureUnit.Celsius).convertUnit(units.temperatureUnit).toString())
+                TemperatureValueType(16, TemperatureUnit.Celsius).convertUnit(units.temperatureUnit).toString())
         }
         return createBaseView(context, RemoteViewCreator.ContainerType.NOTIFICATION_SMALL).apply {
             addViewSafely(R.id.remote_views_content_container, contentView)

@@ -2,16 +2,16 @@
 # kotlin
 
 kotlin = "1.9.22"
-kotlin_compiler_extension = "1.5.9"
-kotlinx_coroutines = "1.8.0-RC2"
-kotlinx_serialization_json = "1.6.2"
+kotlin_compiler_extension = "1.5.10"
+kotlinx_coroutines = "1.8.0"
+kotlinx_serialization_json = "1.6.3"
 ksp = "1.9.22-1.0.17"
 
 mapsforge = "0.20.0"
-google_generativeai = "0.2.0"
+google_generativeai = "0.2.1"
 compose_markdown = "0.4.1"
 
-android_gradle_plugin = "8.2.2"
+android_gradle_plugin = "8.3.0"
 android_desugar_jdk_libs = "2.0.4"
 profileinstaller = "1.3.1"
 
@@ -19,7 +19,7 @@ androidx_collection = "1.4.0"
 androidx_core = "1.12.0"
 androidx_activity = "1.8.2"
 androidx_navigation = "2.7.7"
-androidx_compose_bom = "2024.02.00"
+androidx_compose_bom = "2024.02.02"
 androidx_lifecycle = "2.7.0"
 androidx_datastore = "1.0.0"
 androidx_workmanager = "2.9.0"
@@ -27,13 +27,13 @@ androidx_room = "2.6.1"
 androidx_appcompat = "1.6.1"
 androidx_preference_ktx = "1.2.1"
 androidx_compose_constraintlayout = "1.0.1"
-androidx_hilt = "1.1.0"
+androidx_hilt = "1.2.0"
 androidx_windowmanager = "1.0.0"
 androidx_remoteviews = "1.0.0"
 androidx_paging = "3.2.1"
-androidx_browser = "1.7.0"
-accompanist = "0.32.0"
-dagger = "2.50"
+androidx_browser = "1.8.0"
+accompanist = "0.34.0"
+dagger = "2.51"
 
 androidx_test_espresso = "3.5.1"
 androidx_test_runner = "1.5.2"
@@ -44,19 +44,17 @@ androidx_test_junit = "1.1.5"
 androidx_test_truth = "1.5.0"
 androidx_test_orchestra = "1.4.2"
 androidx_test_arch = "2.2.0"
-androidx_test_hilt = "2.50"
+androidx_test_hilt = "2.51"
 androidx_start_up = "1.1.1"
 
 androidx_splashscreen = "1.0.1"
 
-android_gms_play_services_location = "21.1.0"
+android_gms_play_services_location = "21.2.0"
 android_gms_play_services_ads = "22.6.0"
 
 google_oss_plugin = "0.10.6"
 
 junit = "4.13.2"
-leakcanaryAndroid = "2.8.1"
-lithoAnnotations = "0.48.0"
 mockit = "5.8.0"
 mockitKotlin = "5.2.1"
 robolectric = "4.11.1"
@@ -75,13 +73,13 @@ compile_sdk = "34"
 target_sdk = "34"
 min_sdk = "26"
 
-firebase_bom = "32.7.2"
+firebase_bom = "32.7.3"
 firebase_crashlytics_gradle_plugin = "2.9.9"
 ksealedbinding = "1.0.0"
 
-ktlint = "1.1.1"
+ktlint = "1.2.1"
 ktlint_gradle_plugin = "12.1.0"
-detekt = "1.23.4"
+detekt = "1.23.5"
 
 jsoup = "1.17.2"
 sunrisesunsetcalculator = "1.2"
@@ -91,9 +89,12 @@ uiautomator = "2.2.0"
 benchmark = "1.2.3"
 constraintlayout = "2.1.4"
 
+guava = "33.0.0-android"
+
 
 # 라이브러리 의존성------------------------------------------------------------------------------------------------------------------------
 [libraries]
+google-guava = { module = "com.google.guava:guava", version.ref = "guava" }
 android-desugarjdklibs = { group = "com.android.tools", name = "desugar_jdk_libs", version.ref = "android_desugar_jdk_libs" }
 androidx-splash = { module = "androidx.core:core-splashscreen", version.ref = "androidx_splashscreen" }
 androidx-profileinstaller = { module = "androidx.profileinstaller:profileinstaller", version.ref = "profileinstaller" }

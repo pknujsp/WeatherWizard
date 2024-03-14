@@ -46,10 +46,10 @@ fun AirQualityScreen(
     val currentLoadAirQuality by rememberUpdatedState(onLoadAirQuality)
 
     LaunchedEffect(requestWeatherArguments) {
-        viewModel.loadAirQuality(requestWeatherArguments.latitude, requestWeatherArguments.longitude)
+        viewModel.loadAirQuality(requestWeatherArguments.targetLocation.latitude, requestWeatherArguments.targetLocation.longitude)
     }
 
-    LaunchedEffect(airQuality.airQuality) {
+    LaunchedEffect(requestWeatherArguments, airQuality.airQuality) {
         if (airQuality.entity != null) {
             currentLoadAirQuality(airQuality.entity!!)
         }

@@ -67,12 +67,12 @@ class MetNorwayHourlyForecastResponse(
                                     (0).withNano(0).toString()
                         ),
                         temperature = TemperatureValueType(
-                            instantDetails.airTemperature,
+                            instantDetails.airTemperature.toInt().toShort(),
                             TemperatureUnit.Celsius
                         ),
                         feelsLikeTemperature = TemperatureValueType(
                             weatherUtil.calculateFeelsLikeTemperature(
-                                instantDetails.airTemperature,
+                                instantDetails.airTemperature.toInt().toShort(),
                                 windSpeed.convertUnit(WindSpeedUnit.KilometerPerHour).value,
                                 instantDetails.relativeHumidity
                             ), TemperatureUnit.Celsius
@@ -93,7 +93,7 @@ class MetNorwayHourlyForecastResponse(
                         ),
                         weatherCondition = weatherCondition!!,
                         dewPointTemperature = TemperatureValueType(
-                            instantDetails.dewPointTemperature,
+                            instantDetails.dewPointTemperature.toInt().toShort(),
                             TemperatureUnit.Celsius
                         ),
                         airPressure = PressureValueType(

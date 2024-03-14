@@ -78,11 +78,9 @@ fun MainScreen(
             }
         }
 
-        if (isCloseAppDialogVisible) {
+        if (currentCloseAppDialogVisible) {
             AppCloseDialog {
-                if (currentCloseAppDialogVisible) {
-                    isCloseAppDialogVisible = false
-                }
+                isCloseAppDialogVisible = false
             }
         }
 
