@@ -21,6 +21,7 @@ sealed interface PermissionState {
     data class Denied(override val permissionType: FeatureType.Permission) : PermissionState
 }
 
+@Stable
 private class MutablePermissionManager(
     permissionType: FeatureType.Permission, context: Context, val fetchPermissionStateFunc: () -> Unit
 ) : PermissionManager {
@@ -30,6 +31,7 @@ private class MutablePermissionManager(
         PermissionState.Denied(permissionType)
     })
     override var isShowSettingsActivity: Boolean by mutableStateOf(false)
+        private set
 
     override fun fetchPermissionState() {
         fetchPermissionStateFunc()

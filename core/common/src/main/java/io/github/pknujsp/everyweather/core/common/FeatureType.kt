@@ -18,12 +18,19 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import io.github.pknujsp.everyweather.core.resource.R
 
-sealed interface FeatureType : FeatureIntent, StatefulFeature {
+sealed interface FeatureType<T> : FeatureIntent<T>, StatefulFeature {
     val intentAction: String
 
-    sealed interface Permission : FeatureType {
+    sealed interface Permission : FeatureType<Permission.PermissionState> {
         val permissions: Array<String>
         val isUnrelatedSdkDevice: Boolean
+
+        sealed interface PermissionState {
+            val permissionType: Permission
+
+            data class Granted(override val permissionType: Permission) : PermissionState
+            data class Denied(override val permissionType: Permission) : PermissionState
+        }
 
         data object Location : Permission {
             override val intentAction: String = Settings.ACTION_APPLICATION_DETAILS_SETTINGS
@@ -46,9 +53,9 @@ sealed interface FeatureType : FeatureIntent, StatefulFeature {
 
             override fun getIntent(context: Context) = appSettingsIntent(context)
 
-            override fun isAvailable(context: Context): Boolean {
-                return context.checkSelfPermission(this)
-            }
+            override fun isAvailable(context: Context) =
+                if (context.checkSelfPermission(this)) PermissionState.Granted(this) else PermissionState.Denied(this)
+
         }
 
         data object ForegroundLocation : Permission {
@@ -74,9 +81,8 @@ sealed interface FeatureType : FeatureIntent, StatefulFeature {
 
             override fun getIntent(context: Context) = appSettingsIntent(context)
 
-            override fun isAvailable(context: Context): Boolean {
-                return context.checkSelfPermission(this)
-            }
+            override fun isAvailable(context: Context) =
+                if (context.checkSelfPermission(this)) PermissionState.Granted(this) else PermissionState.Denied(this)
         }
 
 
@@ -102,9 +108,8 @@ sealed interface FeatureType : FeatureIntent, StatefulFeature {
 
             override fun getIntent(context: Context) = appSettingsIntent(context)
 
-            override fun isAvailable(context: Context): Boolean {
-                return context.checkSelfPermission(this)
-            }
+            override fun isAvailable(context: Context) =
+                if (context.checkSelfPermission(this)) PermissionState.Granted(this) else PermissionState.Denied(this)
         }
 
         data object PostNotification : Permission {
@@ -129,9 +134,8 @@ sealed interface FeatureType : FeatureIntent, StatefulFeature {
 
             override fun getIntent(context: Context) = appSettingsIntent(context)
 
-            override fun isAvailable(context: Context): Boolean {
-                return context.checkSelfPermission(this)
-            }
+            override fun isAvailable(context: Context) =
+                if (context.checkSelfPermission(this)) PermissionState.Granted(this) else PermissionState.Denied(this)
         }
 
         data object ScheduleExactAlarm : Permission {
@@ -167,14 +171,13 @@ sealed interface FeatureType : FeatureIntent, StatefulFeature {
 
             override fun getIntent(context: Context) = appSettingsIntent(context)
 
-            override fun isAvailable(context: Context): Boolean {
-                return context.checkSelfPermission(this)
-            }
+            override fun isAvailable(context: Context) =
+                if (context.checkSelfPermission(this)) PermissionState.Granted(this) else PermissionState.Denied(this)
         }
     }
 
     @SuppressLint("BatteryLife")
-    data object BatteryOptimization : FeatureType {
+    data object BatteryOptimization : FeatureType<Boolean> {
         override val intentAction: String = Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS
         override val title: Int = io.github.pknujsp.everyweather.core.resource.R.string.battery_optimization
         override val message: Int = io.github.pknujsp.everyweather.core.resource.R.string.battery_optimization_enabled
@@ -198,7 +201,7 @@ sealed interface FeatureType : FeatureIntent, StatefulFeature {
 
     }
 
-    data object Network : FeatureType {
+    data object Network : FeatureType<Boolean> {
         override val intentAction: String = Settings.ACTION_WIRELESS_SETTINGS
         override val title: Int = R.string.network
         override val message: Int = R.string.network_unavailable
@@ -221,7 +224,7 @@ sealed interface FeatureType : FeatureIntent, StatefulFeature {
         }
     }
 
-    data object LocationService : FeatureType {
+    data object LocationService : FeatureType<Boolean> {
         override val intentAction: String = Settings.ACTION_LOCATION_SOURCE_SETTINGS
         override val title: Int = R.string.location_service
         override val message: Int = R.string.location_service_disabled
@@ -247,17 +250,17 @@ sealed interface FeatureType : FeatureIntent, StatefulFeature {
     }
 
     private companion object {
-        fun FeatureType.appSettingsIntent(context: Context) = Intent(intentAction).apply {
+        fun FeatureType<*>.appSettingsIntent(context: Context) = Intent(intentAction).apply {
             val uri = Uri.fromParts("package", context.packageName, null)
             data = uri
         }
 
-        fun FeatureType.actionIntent() = Intent(intentAction)
+        fun FeatureType<*>.actionIntent() = Intent(intentAction)
     }
 }
 
-interface FeatureIntent {
-    fun isAvailable(context: Context): Boolean
+interface FeatureIntent<T> {
+    fun isAvailable(context: Context): T
     fun getPendingIntent(context: Context): PendingIntent
     fun getIntent(context: Context): Intent
 }

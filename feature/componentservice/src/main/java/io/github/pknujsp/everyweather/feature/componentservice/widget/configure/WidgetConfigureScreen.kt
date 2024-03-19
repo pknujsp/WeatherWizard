@@ -24,6 +24,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import io.github.pknujsp.everyweather.core.common.FeatureType
+import io.github.pknujsp.everyweather.core.common.asActivity
 import io.github.pknujsp.everyweather.core.model.ActionState
 import io.github.pknujsp.everyweather.core.model.coordinate.LocationType
 import io.github.pknujsp.everyweather.core.model.coordinate.LocationTypeModel
@@ -89,7 +90,7 @@ fun WidgetConfigureScreen(
         CustomBox(snackbarHost = { SnackbarHost(hostState = configureState.snackHostState) }) {
             Column {
                 TitleTextWithNavigation(title = stringResource(id = R.string.configure_widget)) {
-                    (context as Activity).finish()
+                    context.asActivity()?.finish()
                 }
                 RemoteViewsScreen(RemoteViewsCreatorManager.getByWidgetType(widget.widgetType), viewModel.units)
                 Column(modifier = Modifier

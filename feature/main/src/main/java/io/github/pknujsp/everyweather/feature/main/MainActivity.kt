@@ -22,6 +22,7 @@ import io.github.pknujsp.everyweather.core.ui.theme.MainTheme
 import io.github.pknujsp.everyweather.core.ui.theme.SystemBarContentColor
 import io.github.pknujsp.everyweather.core.ui.theme.setNavigationBarContentColor
 import io.github.pknujsp.everyweather.core.ui.theme.setStatusBarContentColor
+import io.github.pknujsp.everyweather.core.ui.theme.setWindowStyle
 import io.github.pknujsp.everyweather.feature.map.OsmdroidInitializer
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.launch
@@ -63,20 +64,4 @@ class MainActivity : ComponentActivity() {
         viewModel.stopCacheCleaner()
     }
 
-    private fun setWindowStyle() {
-        window.run {
-            WindowCompat.setDecorFitsSystemWindows(this, false)
-            WindowCompat.getInsetsController(this, decorView).run {
-                setStatusBarContentColor(SystemBarContentColor.BLACK)
-                setNavigationBarContentColor(SystemBarContentColor.BLACK)
-            }
-            statusBarColor = Color.TRANSPARENT
-            navigationBarColor = Color.TRANSPARENT
-
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                isStatusBarContrastEnforced = false
-                isNavigationBarContrastEnforced = false
-            }
-        }
-    }
 }

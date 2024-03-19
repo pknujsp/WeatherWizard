@@ -30,8 +30,7 @@ fun rememberWidgetConfigureState(
         ShowAppSettingsActivity(FeatureType.BatteryOptimization) {
             state.batteryOptimizationFeatureState.hideSettingsActivity()
         }
-    }
-    if (backgroundLocationPermissionManager.isShowSettingsActivity) {
+    } else if (backgroundLocationPermissionManager.isShowSettingsActivity) {
         ShowAppSettingsActivity(FeatureType.Permission.BackgroundLocation) {
             backgroundLocationPermissionManager.hideSettingsActivity()
             backgroundLocationPermissionManager.fetchPermissionState()
@@ -41,6 +40,7 @@ fun rememberWidgetConfigureState(
     return state
 }
 
+@Stable
 private class MutableWidgetConfigureState(
     override val snackHostState: SnackbarHostState,
     override val batteryOptimizationFeatureState: AppFeatureState,
