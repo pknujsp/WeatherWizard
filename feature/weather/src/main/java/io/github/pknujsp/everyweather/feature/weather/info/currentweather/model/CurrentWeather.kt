@@ -19,6 +19,7 @@ import io.github.pknujsp.everyweather.core.model.weather.common.WindDirectionVal
 import io.github.pknujsp.everyweather.core.model.weather.common.WindSpeedValueType
 import io.github.pknujsp.everyweather.core.resource.R
 import java.util.Calendar
+import kotlin.math.abs
 import kotlin.math.absoluteValue
 
 @Stable
@@ -50,7 +51,7 @@ class CurrentWeather(
         val temp = if (diffTemperature.value.toInt() == 0) {
             context.getString(R.string.same_temperature)
         } else {
-            "${diffTemperature.value}${diffTemperature.unit.symbol}"
+            "${abs(diffTemperature.value.toInt())}${diffTemperature.unit.symbol}"
         }
 
         return listOf(text, temp, endText)
