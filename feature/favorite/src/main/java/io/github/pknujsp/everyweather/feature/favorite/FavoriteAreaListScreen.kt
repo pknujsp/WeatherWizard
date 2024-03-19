@@ -90,7 +90,8 @@ fun FavoriteAreaListScreen(navController: NavController, viewModel: FavoriteArea
     }
 
     if (showSettingsActivity && targetLocation.loadCurrentLocationState is LoadCurrentLocationState.Failed && (targetLocation.loadCurrentLocationState as LoadCurrentLocationState.Failed).statefulFeature.hasRepairAction) {
-        ShowAppSettingsActivity(featureType = (targetLocation.loadCurrentLocationState as LoadCurrentLocationState.Failed).statefulFeature as FeatureType) {
+        ShowAppSettingsActivity(featureType = (targetLocation.loadCurrentLocationState as LoadCurrentLocationState.Failed)
+            .statefulFeature as FeatureType<*>) {
             showSettingsActivity = false
             viewModel.loadCurrentLocation()
         }

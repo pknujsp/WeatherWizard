@@ -20,6 +20,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -39,7 +40,6 @@ import io.github.pknujsp.everyweather.core.widgetnotification.remoteview.RemoteV
 import io.github.pknujsp.everyweather.feature.componentservice.RemoteViewsScreen
 import io.github.pknujsp.everyweather.feature.componentservice.notification.daily.model.DailyNotificationSettings
 import io.github.pknujsp.everyweather.feature.componentservice.notification.daily.model.rememberDailyNotificationState
-import io.github.pknujsp.everyweather.feature.permoptimize.permission.PermissionState
 import io.github.pknujsp.everyweather.feature.permoptimize.permission.PermissionStateScreen
 import io.github.pknujsp.everyweather.feature.permoptimize.permission.rememberPermissionManager
 import io.github.pknujsp.everyweather.feature.searchlocation.SearchLocationScreen
@@ -55,10 +55,10 @@ fun ConfigDailyNotificationScreen(navController: NavController, viewModel: Confi
         })
     }
 
-    val scheduleExactAlarmPermission = rememberPermissionManager(defaultPermissionType = FeatureType.Permission.ScheduleExactAlarm)
+    val scheduleExactAlarmPermission = rememberPermissionManager(permissionType = FeatureType.Permission.ScheduleExactAlarm)
     PermissionStateScreen(scheduleExactAlarmPermission)
 
-    if (scheduleExactAlarmPermission.permissionState is PermissionState.Granted) {
+    if (scheduleExactAlarmPermission.isAvailable(LocalContext.current) is FeatureType.Permission.PermissionState.Granted) {
         notification.run {
             if (showSearch) {
                 SearchLocationScreen(onSelectedLocation = { newLocation ->

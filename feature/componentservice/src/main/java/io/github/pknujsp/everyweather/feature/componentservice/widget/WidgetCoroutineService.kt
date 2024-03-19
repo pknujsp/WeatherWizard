@@ -36,7 +36,7 @@ class WidgetCoroutineService @AssistedInject constructor(
 
     companion object : IWorker {
         override val name: String = "WidgetCoroutineService"
-        override val requiredFeatures: Array<FeatureType> = arrayOf(FeatureType.Network)
+        override val requiredFeatures: Array<FeatureType<Boolean>> = arrayOf(FeatureType.Network)
     }
 
     private val widgetViewUpdater = AppWidgetViewUpdater(

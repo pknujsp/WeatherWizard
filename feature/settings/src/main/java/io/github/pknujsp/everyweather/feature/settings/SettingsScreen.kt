@@ -33,7 +33,6 @@ import io.github.pknujsp.everyweather.feature.componentservice.manager.AppCompon
 import io.github.pknujsp.everyweather.feature.permoptimize.feature.ShowAppSettingsActivity
 import io.github.pknujsp.everyweather.feature.permoptimize.feature.SmallFeatureStateScreen
 import io.github.pknujsp.everyweather.feature.permoptimize.feature.rememberAppFeatureState
-import io.github.pknujsp.everyweather.feature.permoptimize.permission.PermissionState
 import io.github.pknujsp.everyweather.feature.permoptimize.permission.rememberPermissionManager
 import kotlinx.coroutines.launch
 
@@ -49,7 +48,7 @@ fun SettingsScreen(navController: NavController, viewModel: SettingsViewModel = 
     }
 
     val batteryOptimizationFeatureState = rememberAppFeatureState(featureType = FeatureType.BatteryOptimization)
-    val backgroundLocationPermissionManager = rememberPermissionManager(defaultPermissionType = FeatureType.Permission.BackgroundLocation)
+    val backgroundLocationPermissionManager = rememberPermissionManager(permissionType = FeatureType.Permission.BackgroundLocation)
 
     Column {
         TitleTextWithNavigation(title = stringResource(id = R.string.nav_settings), onClickNavigation = {
@@ -99,8 +98,7 @@ fun SettingsScreen(navController: NavController, viewModel: SettingsViewModel = 
                 SmallFeatureStateScreen(Modifier.padding(8.dp), state = batteryOptimizationFeatureState.featureType, onClickAction = {
                     batteryOptimizationFeatureState.showSettingsActivity()
                 })
-            }
-            if (backgroundLocationPermissionManager.permissionState !is PermissionState.Granted) {
+            } else if (backgroundLocationPermissionManager.isAvailable(context) is FeatureType.Permission.PermissionState.Denied) {
                 SmallFeatureStateScreen(Modifier.padding(8.dp), state = FeatureType.Permission.BackgroundLocation, onClickAction = {
                     backgroundLocationPermissionManager.showSettingsActivity()
                 })
@@ -113,7 +111,7 @@ fun SettingsScreen(navController: NavController, viewModel: SettingsViewModel = 
             } else if (backgroundLocationPermissionManager.isShowSettingsActivity) {
                 ShowAppSettingsActivity(featureType = FeatureType.Permission.BackgroundLocation) {
                     backgroundLocationPermissionManager.hideSettingsActivity()
-                    backgroundLocationPermissionManager.fetchPermissionState()
+                    backgroundLocationPermissionManager.requestPermission()
                 }
             }
         }

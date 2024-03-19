@@ -23,7 +23,7 @@ fun UnavailableFeatureScreen(featureType: StatefulFeature, onClick: () -> Unit) 
     FailedScreen(title = featureType.title,
         alertMessage = featureType.message,
         actionMessage = featureType.action,
-        reason = if (featureType is FeatureType) featureType.reason else null,
+        reason = if (featureType is FeatureType<*>) featureType.reason else null,
         onClick = onClick)
 }
 

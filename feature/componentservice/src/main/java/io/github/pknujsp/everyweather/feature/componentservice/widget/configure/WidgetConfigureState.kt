@@ -19,7 +19,7 @@ import io.github.pknujsp.everyweather.feature.permoptimize.permission.rememberPe
 fun rememberWidgetConfigureState(
 ): WidgetConfigureState {
     val batteryOptimizationFeatureState = rememberAppFeatureState(featureType = FeatureType.BatteryOptimization)
-    val backgroundLocationPermissionManager = rememberPermissionManager(defaultPermissionType = FeatureType.Permission.BackgroundLocation)
+    val backgroundLocationPermissionManager = rememberPermissionManager(permissionType = FeatureType.Permission.BackgroundLocation)
     val snackHostState = remember { SnackbarHostState() }
 
     val state = remember {
@@ -33,7 +33,7 @@ fun rememberWidgetConfigureState(
     } else if (backgroundLocationPermissionManager.isShowSettingsActivity) {
         ShowAppSettingsActivity(FeatureType.Permission.BackgroundLocation) {
             backgroundLocationPermissionManager.hideSettingsActivity()
-            backgroundLocationPermissionManager.fetchPermissionState()
+            backgroundLocationPermissionManager.requestPermission()
         }
     }
 

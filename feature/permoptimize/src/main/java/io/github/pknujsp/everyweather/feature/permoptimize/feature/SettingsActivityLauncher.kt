@@ -11,7 +11,7 @@ import io.github.pknujsp.everyweather.core.common.FeatureType
 
 
 @Composable
-fun ShowAppSettingsActivity(featureType: FeatureType, onReturnedFromSettings: () -> Unit) {
+fun ShowAppSettingsActivity(featureType: FeatureType<*>, onReturnedFromSettings: () -> Unit) {
     val context = LocalContext.current
     val onReturnedFromSettingsState by rememberUpdatedState(onReturnedFromSettings)
 

@@ -25,7 +25,7 @@ interface NetworkState : AppFeatureState {
 @Stable
 private class MutableNetworkState(
     override val appNetworkManager: AppNetworkManager,
-    override val featureType: FeatureType = FeatureType.Network,
+    override val featureType: FeatureType<Boolean> = FeatureType.Network,
 ) : NetworkState {
     override var isChanged: Int by mutableIntStateOf(0)
     override var isShowSettingsActivity by mutableStateOf(false)
