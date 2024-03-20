@@ -39,7 +39,6 @@ import io.github.pknujsp.everyweather.feature.componentservice.RemoteViewsScreen
 import io.github.pknujsp.everyweather.feature.componentservice.notification.ongoing.model.OngoingNotificationSettings
 import io.github.pknujsp.everyweather.feature.componentservice.notification.ongoing.model.rememberOngoingNotificationState
 import io.github.pknujsp.everyweather.feature.permoptimize.feature.SmallFeatureStateScreen
-import io.github.pknujsp.everyweather.feature.permoptimize.permission.PermissionState
 import io.github.pknujsp.everyweather.feature.searchlocation.SearchLocationScreen
 
 
@@ -103,7 +102,7 @@ fun OngoingNotificationScreen(navController: NavController, viewModel: OngoingNo
                                         batteryOptimizationState.showSettingsActivity()
                                     })
                             }
-                            if (backgroundLocationPermissionManager.permissionState is PermissionState.Denied) {
+                            if (backgroundLocationPermissionManager.isEnabled(LocalContext.current)) {
                                 SmallFeatureStateScreen(Modifier.padding(8.dp),
                                     state = FeatureType.Permission.BackgroundLocation,
                                     onClickAction = {

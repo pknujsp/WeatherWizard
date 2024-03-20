@@ -17,7 +17,7 @@ import io.github.pknujsp.everyweather.core.common.manager.AppNotificationManager
 
 interface IWorker {
     val name: String
-    val requiredFeatures: Array<FeatureType<Boolean>>
+    val requiredFeatures: Array<FeatureType>
 }
 
 

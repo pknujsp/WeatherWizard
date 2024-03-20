@@ -58,7 +58,7 @@ fun ConfigDailyNotificationScreen(navController: NavController, viewModel: Confi
     val scheduleExactAlarmPermission = rememberPermissionManager(permissionType = FeatureType.Permission.ScheduleExactAlarm)
     PermissionStateScreen(scheduleExactAlarmPermission)
 
-    if (scheduleExactAlarmPermission.isAvailable(LocalContext.current) is FeatureType.Permission.PermissionState.Granted) {
+    if (scheduleExactAlarmPermission.isEnabled(LocalContext.current)) {
         notification.run {
             if (showSearch) {
                 SearchLocationScreen(onSelectedLocation = { newLocation ->

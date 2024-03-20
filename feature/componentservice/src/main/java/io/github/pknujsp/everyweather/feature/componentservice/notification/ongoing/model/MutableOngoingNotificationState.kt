@@ -86,7 +86,7 @@ fun rememberOngoingNotificationState(
                     batteryOptimizationState.featureType,
                     batteryOptimizationState::showSettingsActivity,
                     snackbarHostState)
-            } else if (backgroundLocationPermissionManager.isAvailable(context) is FeatureType.Permission.PermissionState.Denied) {
+            } else if (!backgroundLocationPermissionManager.isEnabled(context)) {
                 showSnackbar(context,
                     backgroundLocationPermissionManager.permissionType,
                     backgroundLocationPermissionManager::showSettingsActivity,
@@ -102,7 +102,7 @@ fun rememberOngoingNotificationState(
 
     LaunchedEffect(Unit) {
         snapshotFlow { batteryOptimizationState.isAvailable(context) }.collect { ignoredBatteryOptimization ->
-            if (backgroundLocationPermissionManager.isAvailable(context) is FeatureType.Permission.PermissionState.Granted && (ongoingNotificationUiState.settings.refreshInterval == RefreshInterval.MANUAL || ignoredBatteryOptimization)) {
+            if (backgroundLocationPermissionManager.isEnabled(context) && (ongoingNotificationUiState.settings.refreshInterval == RefreshInterval.MANUAL || ignoredBatteryOptimization)) {
                 if (ongoingNotificationUiState.action == OngoingNotificationUiState.Action.UPDATED || ongoingNotificationUiState.action == OngoingNotificationUiState.Action.ENABLED) {
                     state.switchNotification(context, ongoingNotificationUiState.settings.refreshInterval)
                 }
@@ -126,7 +126,7 @@ fun rememberOngoingNotificationState(
 
 
 private suspend fun showSnackbar(
-    context: Context, featureType: FeatureType<*>, showSettingsActivity: () -> Unit, snackbarHostState: SnackbarHostState
+    context: Context, featureType: FeatureType, showSettingsActivity: () -> Unit, snackbarHostState: SnackbarHostState
 ) {
     when (snackbarHostState.showSnackbar(message = context.getString(featureType.message),
         actionLabel = context.getString(featureType.action),

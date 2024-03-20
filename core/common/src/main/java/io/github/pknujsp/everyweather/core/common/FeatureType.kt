@@ -18,10 +18,10 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import io.github.pknujsp.everyweather.core.resource.R
 
-sealed interface FeatureType<T> : FeatureIntent<T>, StatefulFeature {
+sealed interface FeatureType : FeatureIntent, StatefulFeature {
     val intentAction: String
 
-    sealed interface Permission : FeatureType<Permission.PermissionState> {
+    sealed interface Permission : FeatureType {
         val permissions: Array<String>
         val isUnrelatedSdkDevice: Boolean
 
@@ -53,8 +53,7 @@ sealed interface FeatureType<T> : FeatureIntent<T>, StatefulFeature {
 
             override fun getIntent(context: Context) = appSettingsIntent(context)
 
-            override fun isAvailable(context: Context) =
-                if (context.checkSelfPermission(this)) PermissionState.Granted(this) else PermissionState.Denied(this)
+            override fun isEnabled(context: Context) = context.checkSelfPermission(this)
 
         }
 
@@ -81,8 +80,7 @@ sealed interface FeatureType<T> : FeatureIntent<T>, StatefulFeature {
 
             override fun getIntent(context: Context) = appSettingsIntent(context)
 
-            override fun isAvailable(context: Context) =
-                if (context.checkSelfPermission(this)) PermissionState.Granted(this) else PermissionState.Denied(this)
+            override fun isEnabled(context: Context) = context.checkSelfPermission(this)
         }
 
 
@@ -108,8 +106,7 @@ sealed interface FeatureType<T> : FeatureIntent<T>, StatefulFeature {
 
             override fun getIntent(context: Context) = appSettingsIntent(context)
 
-            override fun isAvailable(context: Context) =
-                if (context.checkSelfPermission(this)) PermissionState.Granted(this) else PermissionState.Denied(this)
+            override fun isEnabled(context: Context) = context.checkSelfPermission(this)
         }
 
         data object PostNotification : Permission {
@@ -134,8 +131,7 @@ sealed interface FeatureType<T> : FeatureIntent<T>, StatefulFeature {
 
             override fun getIntent(context: Context) = appSettingsIntent(context)
 
-            override fun isAvailable(context: Context) =
-                if (context.checkSelfPermission(this)) PermissionState.Granted(this) else PermissionState.Denied(this)
+            override fun isEnabled(context: Context) = context.checkSelfPermission(this)
         }
 
         data object ScheduleExactAlarm : Permission {
@@ -171,13 +167,12 @@ sealed interface FeatureType<T> : FeatureIntent<T>, StatefulFeature {
 
             override fun getIntent(context: Context) = appSettingsIntent(context)
 
-            override fun isAvailable(context: Context) =
-                if (context.checkSelfPermission(this)) PermissionState.Granted(this) else PermissionState.Denied(this)
+            override fun isEnabled(context: Context) = context.checkSelfPermission(this)
         }
     }
 
     @SuppressLint("BatteryLife")
-    data object BatteryOptimization : FeatureType<Boolean> {
+    data object BatteryOptimization : FeatureType {
         override val intentAction: String = Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS
         override val title: Int = io.github.pknujsp.everyweather.core.resource.R.string.battery_optimization
         override val message: Int = io.github.pknujsp.everyweather.core.resource.R.string.battery_optimization_enabled
@@ -194,14 +189,14 @@ sealed interface FeatureType<T> : FeatureIntent<T>, StatefulFeature {
 
         override fun getIntent(context: Context) = appSettingsIntent(context)
 
-        override fun isAvailable(context: Context): Boolean {
+        override fun isEnabled(context: Context): Boolean {
             return Build.VERSION.SDK_INT < Build.VERSION_CODES.S || (context.getSystemService(Context.POWER_SERVICE) as PowerManager).isIgnoringBatteryOptimizations(
                 context.packageName)
         }
 
     }
 
-    data object Network : FeatureType<Boolean> {
+    data object Network : FeatureType {
         override val intentAction: String = Settings.ACTION_WIRELESS_SETTINGS
         override val title: Int = R.string.network
         override val message: Int = R.string.network_unavailable
@@ -218,13 +213,13 @@ sealed interface FeatureType<T> : FeatureIntent<T>, StatefulFeature {
 
         override fun getIntent(context: Context) = actionIntent()
 
-        override fun isAvailable(context: Context): Boolean {
+        override fun isEnabled(context: Context): Boolean {
             val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
             return connectivityManager.activeNetwork != null
         }
     }
 
-    data object LocationService : FeatureType<Boolean> {
+    data object LocationService : FeatureType {
         override val intentAction: String = Settings.ACTION_LOCATION_SOURCE_SETTINGS
         override val title: Int = R.string.location_service
         override val message: Int = R.string.location_service_disabled
@@ -243,24 +238,24 @@ sealed interface FeatureType<T> : FeatureIntent<T>, StatefulFeature {
             return Intent(intentAction)
         }
 
-        override fun isAvailable(context: Context): Boolean {
+        override fun isEnabled(context: Context): Boolean {
             val locationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
             return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
         }
     }
 
     private companion object {
-        fun FeatureType<*>.appSettingsIntent(context: Context) = Intent(intentAction).apply {
+        fun FeatureType.appSettingsIntent(context: Context) = Intent(intentAction).apply {
             val uri = Uri.fromParts("package", context.packageName, null)
             data = uri
         }
 
-        fun FeatureType<*>.actionIntent() = Intent(intentAction)
+        fun FeatureType.actionIntent() = Intent(intentAction)
     }
 }
 
-interface FeatureIntent<T> {
-    fun isAvailable(context: Context): T
+interface FeatureIntent {
+    fun isEnabled(context: Context): Boolean
     fun getPendingIntent(context: Context): PendingIntent
     fun getIntent(context: Context): Intent
 }

@@ -98,7 +98,7 @@ fun SettingsScreen(navController: NavController, viewModel: SettingsViewModel = 
                 SmallFeatureStateScreen(Modifier.padding(8.dp), state = batteryOptimizationFeatureState.featureType, onClickAction = {
                     batteryOptimizationFeatureState.showSettingsActivity()
                 })
-            } else if (backgroundLocationPermissionManager.isAvailable(context) is FeatureType.Permission.PermissionState.Denied) {
+            } else if (!backgroundLocationPermissionManager.isEnabled(context)) {
                 SmallFeatureStateScreen(Modifier.padding(8.dp), state = FeatureType.Permission.BackgroundLocation, onClickAction = {
                     backgroundLocationPermissionManager.showSettingsActivity()
                 })

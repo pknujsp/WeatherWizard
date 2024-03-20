@@ -41,7 +41,6 @@ import io.github.pknujsp.everyweather.feature.componentservice.AppComponentServi
 import io.github.pknujsp.everyweather.feature.componentservice.ComponentPendingIntentManager
 import io.github.pknujsp.everyweather.feature.componentservice.RemoteViewsScreen
 import io.github.pknujsp.everyweather.feature.permoptimize.feature.SmallFeatureStateScreen
-import io.github.pknujsp.everyweather.feature.permoptimize.permission.PermissionState
 import io.github.pknujsp.everyweather.feature.searchlocation.SearchLocationScreen
 import kotlinx.coroutines.launch
 
@@ -114,7 +113,7 @@ fun WidgetConfigureScreen(
                                     configureState.batteryOptimizationFeatureState.showSettingsActivity()
                                 })
                         }
-                        if (configureState.backgroundLocationPermissionManager.permissionState !is PermissionState.Granted) {
+                        if (configureState.backgroundLocationPermissionManager.isEnabled(context)) {
                             SmallFeatureStateScreen(Modifier.padding(8.dp),
                                 state = FeatureType.Permission.BackgroundLocation,
                                 onClickAction = {
@@ -135,7 +134,7 @@ fun WidgetConfigureScreen(
                                     configureState.batteryOptimizationFeatureState.showSettingsActivity()
                                 }
                             }
-                        } else if (configureState.backgroundLocationPermissionManager.permissionState is PermissionState.Denied) {
+                        } else if (configureState.backgroundLocationPermissionManager.isEnabled(context)) {
                             coroutineScope.launch {
                                 configureState.showSnackbar(context,
                                     FeatureType.Permission.BackgroundLocation.message,

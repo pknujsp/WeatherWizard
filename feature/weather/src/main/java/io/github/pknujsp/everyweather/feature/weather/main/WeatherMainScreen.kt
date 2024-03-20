@@ -47,7 +47,7 @@ fun WeatherMainScreen(
             locationServiceState.isChanged) {
             derivedStateOf {
                 networkState.isAvailable(context) && (selectedLocation!!.locationType is LocationType.CustomLocation || (locationServiceState.isAvailable(
-                    context) && locationPermissionManager.isAvailable(context) is FeatureType.Permission.PermissionState.Granted))
+                    context) && locationPermissionManager.isEnabled(context)))
             }
         }
 
