@@ -8,14 +8,12 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-internal class OnboardingViewModel
-    @Inject
-    constructor(
-        private val settingsRepository: SettingsRepository,
-    ) : ViewModel() {
-        fun completeOnboarding() {
-            viewModelScope.launch {
-                settingsRepository.completeInitialization()
-            }
+class OnboardingViewModel @Inject constructor(
+    private val settingsRepository: SettingsRepository,
+) : ViewModel() {
+    fun completeOnboarding() {
+        viewModelScope.launch {
+            settingsRepository.completeInitialization()
         }
     }
+}
