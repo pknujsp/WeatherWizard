@@ -11,19 +11,23 @@ abstract class BaseFeatureStateManager {
     abstract val featureType: FeatureType
 
     var isChanged: Int by mutableIntStateOf(0)
+        private set
     var isShowSettingsActivity: Boolean by mutableStateOf(false)
         private set
 
     fun hideSettingsActivity() {
         isShowSettingsActivity = false
-        isChanged++
+        onChanged()
     }
 
     fun showSettingsActivity() {
         isShowSettingsActivity = true
-        isChanged++
+        onChanged()
     }
 
     fun isEnabled(context: Context) = featureType.isEnabled(context)
 
+    fun onChanged() {
+        isChanged++
+    }
 }

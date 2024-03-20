@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -40,25 +41,25 @@ fun FeatureStateScreen(featureStateManager: BaseFeatureStateManager) {
 
 @Composable
 fun SmallFeatureStateScreen(
-        modifier: Modifier = Modifier,
-        state: StatefulFeature,
-        onClickRetry: (() -> Unit)? = null,
-        onClickAction: (() -> Unit)? = null,
+    modifier: Modifier = Modifier,
+    state: StatefulFeature,
+    onClickRetry: (() -> Unit)? = null,
+    onClickAction: (() -> Unit)? = null,
 ) {
     Column(
-            modifier = modifier,
-            verticalArrangement = Arrangement.spacedBy(12.dp, Alignment.CenterVertically),
+        modifier = modifier,
+        verticalArrangement = Arrangement.spacedBy(12.dp, Alignment.CenterVertically),
     ) {
         Text(
-                modifier = Modifier.align(Alignment.Start),
-                text = stringResource(id = state.message),
-                style = TextStyle(fontSize = 14.sp, color = Color.Black, textAlign = TextAlign.Left),
+            modifier = Modifier.align(Alignment.Start),
+            text = stringResource(id = state.message),
+            style = TextStyle(fontSize = 14.sp, color = Color.Black, textAlign = TextAlign.Left),
         )
         if (state.reason != null) {
             Text(
-                    modifier = Modifier.align(Alignment.Start),
-                    text = stringResource(id = state.reason!!),
-                    style = TextStyle(fontSize = 14.sp, color = Color.Black, textAlign = TextAlign.Left),
+                modifier = Modifier.align(Alignment.Start),
+                text = stringResource(id = state.reason!!),
+                style = TextStyle(fontSize = 14.sp, color = Color.Black, textAlign = TextAlign.Left),
             )
         }
         Row(modifier = Modifier.align(Alignment.End), horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End)) {

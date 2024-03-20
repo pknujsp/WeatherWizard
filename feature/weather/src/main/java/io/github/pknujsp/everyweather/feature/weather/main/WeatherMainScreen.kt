@@ -36,33 +36,29 @@ fun WeatherMainScreen(
     val selectedLocation by viewModel.selectedLocation.collectAsStateWithLifecycle()
 
     val context = LocalContext.current
-    val networkState = rememberNetworkStateManager()
+    val networkStateManager = rememberNetworkStateManager()
     val locationPermissionManager = rememberPermissionStateManager(permissionType = FeatureType.Permission.Location)
-    val locationServiceState = rememberFeatureStateManager(featureType = FeatureType.LocationService)
+    val locationServiceStateManager = rememberFeatureStateManager(featureType = FeatureType.LocationService)
 
     if (selectedLocation != null) {
         val isPassed by remember(
-            networkState.isChanged,
-            locationServiceState.isChanged,
-            locationServiceState.isChanged,
+            networkStateManager.isChanged,
+            locationServiceStateManager.isChanged,
+            locationPermissionManager.isChanged,
         ) {
             derivedStateOf {
-                networkState.isEnabled(context) && (
-                    selectedLocation!!.locationType is LocationType.CustomLocation || (
-                        locationServiceState.isEnabled(
-                            context,
-                        ) && locationPermissionManager.isEnabled(context)
-                    )
-                )
+                networkStateManager.isEnabled(context) && (selectedLocation!!.locationType is LocationType.CustomLocation ||
+                        (locationServiceStateManager.isEnabled(
+                    context) && locationPermissionManager.isEnabled(context)))
             }
         }
 
         if (isPassed) {
             WeatherContentScreen(openDrawer = currentOpenDrawer, selectedLocationModel = selectedLocation!!)
-        } else if (networkState.isEnabled(context).not()) {
-            FeatureStateScreen(featureStateManager = networkState)
-        } else if (locationServiceState.isEnabled(context).not()) {
-            FeatureStateScreen(featureStateManager = locationServiceState)
+        } else if (!networkStateManager.isEnabled(context)) {
+            FeatureStateScreen(featureStateManager = networkStateManager)
+        } else if (!locationServiceStateManager.isEnabled(context)) {
+            FeatureStateScreen(featureStateManager = locationServiceStateManager)
         } else {
             PermissionStateScreen(locationPermissionManager)
         }
@@ -78,11 +74,10 @@ fun TopBar(
     Column(modifier = modifier) {
         TopAppBar(
             title = {},
-            colors =
-                TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color.Transparent,
-                    scrolledContainerColor = Color.Transparent,
-                ),
+            colors = TopAppBarDefaults.topAppBarColors(
+                containerColor = Color.Transparent,
+                scrolledContainerColor = Color.Transparent,
+            ),
             navigationIcon = {
                 IconButton(onClick = openDrawer) {
                     Icon(Icons.Rounded.Menu, contentDescription = null)

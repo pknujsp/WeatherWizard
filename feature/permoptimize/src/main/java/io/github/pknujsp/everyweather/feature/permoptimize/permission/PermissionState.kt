@@ -3,8 +3,10 @@ package io.github.pknujsp.everyweather.feature.permoptimize.permission
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -14,34 +16,40 @@ import io.github.pknujsp.everyweather.feature.permoptimize.BaseFeatureStateManag
 
 @Stable
 private class MutablePermissionStateManager(
-        override val featureType: FeatureType.Permission,
-        val fetchPermissionStateFunc: () -> Unit,
+    override val featureType: FeatureType.Permission,
+    val fetchPermissionStateFunc: () -> Unit,
 ) : PermissionStateManager() {
     override fun requestPermission() {
         fetchPermissionStateFunc()
     }
 }
 
+@Stable
 abstract class PermissionStateManager() : BaseFeatureStateManager() {
     abstract fun requestPermission()
 }
 
 @Composable
 fun rememberPermissionStateManager(
-        permissionType: FeatureType.Permission,
+    permissionType: FeatureType.Permission,
 ): PermissionStateManager {
-    val context = LocalContext.current
     var permissionState by remember {
-        mutableStateOf(permissionType.isEnabled(context))
+        mutableIntStateOf(0)
     }
     val permissionLauncher = rememberLauncherForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { result ->
-        permissionState = result.all { it.value }
+        permissionState++
     }
 
     val permissionManager = remember {
         MutablePermissionStateManager(permissionType, fetchPermissionStateFunc = {
             permissionLauncher.launch(permissionType.permissions)
         })
+    }
+
+    LaunchedEffect(permissionState) {
+        if (permissionState > 0) {
+            permissionManager.onChanged()
+        }
     }
 
     return permissionManager
