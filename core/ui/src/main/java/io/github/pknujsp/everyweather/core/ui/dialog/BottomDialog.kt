@@ -53,7 +53,7 @@ fun CustomModalBottomSheet(
 ) {
     val density = LocalDensity.current.density
     val height = LocalView.current.height
-    val maxHeightDp = (height * if (freeHeight) 0.8 else 0.6 / density).roundToInt().dp
+    val maxHeightDp = (height * ((if (freeHeight) 0.8 else 0.6) / density)).roundToInt().dp
     val bottomPadding = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
 
     ModalBottomSheet(

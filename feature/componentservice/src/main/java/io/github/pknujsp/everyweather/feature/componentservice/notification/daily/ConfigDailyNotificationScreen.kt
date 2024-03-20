@@ -135,7 +135,7 @@ fun TimeItem(entity: DailyNotificationSettings) {
     BottomSheetSettingItem(
         title = stringResource(id = R.string.notification_time),
         isBottomSheetExpanded = expanded,
-        limitHeight = false,
+        freeHeight = true,
         onClick = {
             expanded = true
         },
@@ -148,7 +148,6 @@ fun TimeItem(entity: DailyNotificationSettings) {
 
         DialogScreen(
             title = stringResource(id = R.string.notification_time),
-            message = stringResource(id = R.string.message_notification_time),
             negative = stringResource(id = io.github.pknujsp.everyweather.core.resource.R.string.cancel),
             positive = stringResource(id = io.github.pknujsp.everyweather.core.resource.R.string.okay),
             onClickNegative = { expanded = false },

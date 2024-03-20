@@ -313,14 +313,14 @@ fun <E : IEnum> RadioButtons(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BottomSheetSettingItem(
-    title: String,
-    description: String? = null,
-    currentData: String,
-    isBottomSheetExpanded: Boolean,
-    limitHeight: Boolean = true,
-    onDismissRequest: () -> Unit,
-    onClick: () -> Unit,
-    content: @Composable () -> Unit,
+        title: String,
+        description: String? = null,
+        currentData: String,
+        isBottomSheetExpanded: Boolean,
+        freeHeight: Boolean = true,
+        onDismissRequest: () -> Unit,
+        onClick: () -> Unit,
+        content: @Composable () -> Unit,
 ) {
     SettingItem(title = title, description = description, onClick = onClick) {
         Text(
@@ -332,6 +332,7 @@ fun BottomSheetSettingItem(
     if (isBottomSheetExpanded) {
         CustomModalBottomSheet(
             onDismissRequest = onDismissRequest,
+            freeHeight = freeHeight,
         ) {
             content()
         }
