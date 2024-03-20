@@ -6,6 +6,7 @@ import androidx.compose.runtime.remember
 import io.github.pknujsp.everyweather.core.common.FeatureType
 import io.github.pknujsp.everyweather.feature.permoptimize.BaseFeatureStateManager
 
+@Stable
 private class FeatureStateManagerImpl(override val featureType: FeatureType) : FeatureStateManager()
 
 @Composable

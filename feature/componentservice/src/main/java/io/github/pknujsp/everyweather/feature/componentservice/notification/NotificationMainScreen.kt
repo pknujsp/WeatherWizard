@@ -1,6 +1,5 @@
 package io.github.pknujsp.everyweather.feature.componentservice.notification
 
-import android.annotation.SuppressLint
 import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -12,6 +11,8 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -41,16 +42,14 @@ private fun NotificationItem(
     Row(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(16.dp),
-        modifier =
-            Modifier.clickable(enabled = onClick != null) {
-                onClick?.invoke()
-            },
+        modifier = Modifier.clickable(enabled = onClick != null) {
+            onClick?.invoke()
+        },
     ) {
         Column(
-            modifier =
-                Modifier
-                    .weight(1f)
-                    .padding(top = 16.dp, bottom = 16.dp, start = 16.dp),
+            modifier = Modifier
+                .weight(1f)
+                .padding(top = 16.dp, bottom = 16.dp, start = 16.dp),
         ) {
             Text(text = title, style = TextStyle(fontSize = 16.sp, color = Color.Black))
             description?.let {
@@ -64,43 +63,43 @@ private fun NotificationItem(
     }
 }
 
-@SuppressLint("NewApi")
 @Composable
 fun NotificationMainScreen(navController: NavController) {
-    val postNotificationPermissionManager = rememberPermissionStateManager(permissionType = FeatureType.Permission.PostNotification)
-    val batteryOptimizationState = rememberFeatureStateManager(featureType = FeatureType.BatteryOptimization)
+    val notificationPermissionManager = rememberPermissionStateManager(permissionType = FeatureType.Permission.PostNotification)
+    val batteryOptimizationStateManager = rememberFeatureStateManager(featureType = FeatureType.BatteryOptimization)
+    val context = LocalContext.current
 
     val onBackPressedDispatcherOwner = LocalOnBackPressedDispatcherOwner.current
-    val backDispatcher =
-        remember {
-            onBackPressedDispatcherOwner?.onBackPressedDispatcher
+    val backDispatcher = remember {
+        onBackPressedDispatcherOwner?.onBackPressedDispatcher
+    }
+    val isPassed by remember(notificationPermissionManager.isChanged, batteryOptimizationStateManager.isChanged) {
+        derivedStateOf {
+            notificationPermissionManager.isEnabled(context) && batteryOptimizationStateManager.isEnabled(context)
         }
+    }
 
     Column {
         TitleTextWithNavigation(title = stringResource(id = R.string.nav_notification), onClickNavigation = {
             backDispatcher?.onBackPressed()
         })
-        if (postNotificationPermissionManager.isEnabled(LocalContext.current) &&
-            batteryOptimizationState.isEnabled(
-                LocalContext.current,
-            )
-        ) {
+        if (isPassed) {
             Column {
                 NotificationItem(title = stringResource(id = R.string.title_ongoing_notification), description = null, onClick = {
                     navController.navigate(NotificationRoutes.Ongoing.route)
                 }) {
-                    Icon(painterResource(id = R.drawable.ic_forward), contentDescription = "navigate")
+                    Icon(painterResource(id = R.drawable.ic_forward), contentDescription = null)
                 }
                 NotificationItem(title = stringResource(id = R.string.title_daily_notification), description = null, onClick = {
                     navController.navigate(NotificationRoutes.Daily.route)
                 }) {
-                    Icon(painterResource(id = R.drawable.ic_forward), contentDescription = "navigate")
+                    Icon(painterResource(id = R.drawable.ic_forward), contentDescription = null)
                 }
             }
-        } else if (!postNotificationPermissionManager.isEnabled(LocalContext.current)) {
-            PermissionStateScreen(postNotificationPermissionManager)
+        } else if (!notificationPermissionManager.isEnabled(LocalContext.current)) {
+            PermissionStateScreen(notificationPermissionManager)
         } else {
-            FeatureStateScreen(batteryOptimizationState)
+            FeatureStateScreen(batteryOptimizationStateManager)
         }
     }
 }

@@ -267,8 +267,7 @@ sealed interface FeatureType : FeatureIntent, StatefulFeature {
     private companion object {
         fun FeatureType.appSettingsIntent(context: Context) =
             Intent(intentAction).apply {
-                val uri = Uri.fromParts("package", context.packageName, null)
-                data = uri
+                data = Uri.fromParts("package", context.packageName, null)
             }
 
         fun FeatureType.actionIntent() = Intent(intentAction)
