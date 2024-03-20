@@ -27,9 +27,9 @@ import io.github.pknujsp.everyweather.core.common.FeatureType
 import io.github.pknujsp.everyweather.core.resource.R
 import io.github.pknujsp.everyweather.core.ui.TitleTextWithNavigation
 import io.github.pknujsp.everyweather.feature.permoptimize.feature.FeatureStateScreen
-import io.github.pknujsp.everyweather.feature.permoptimize.feature.rememberAppFeatureState
+import io.github.pknujsp.everyweather.feature.permoptimize.feature.rememberFeatureStateManager
 import io.github.pknujsp.everyweather.feature.permoptimize.permission.PermissionStateScreen
-import io.github.pknujsp.everyweather.feature.permoptimize.permission.rememberPermissionManager
+import io.github.pknujsp.everyweather.feature.permoptimize.permission.rememberPermissionStateManager
 
 @Composable
 private fun NotificationItem(
@@ -67,8 +67,8 @@ private fun NotificationItem(
 @SuppressLint("NewApi")
 @Composable
 fun NotificationMainScreen(navController: NavController) {
-    val postNotificationPermissionManager = rememberPermissionManager(permissionType = FeatureType.Permission.PostNotification)
-    val batteryOptimizationState = rememberAppFeatureState(featureType = FeatureType.BatteryOptimization)
+    val postNotificationPermissionManager = rememberPermissionStateManager(permissionType = FeatureType.Permission.PostNotification)
+    val batteryOptimizationState = rememberFeatureStateManager(featureType = FeatureType.BatteryOptimization)
 
     val onBackPressedDispatcherOwner = LocalOnBackPressedDispatcherOwner.current
     val backDispatcher =
@@ -80,8 +80,8 @@ fun NotificationMainScreen(navController: NavController) {
         TitleTextWithNavigation(title = stringResource(id = R.string.nav_notification), onClickNavigation = {
             backDispatcher?.onBackPressed()
         })
-        if (postNotificationPermissionManager.isEnabled(LocalContext.current) &&
-            batteryOptimizationState.isAvailable(
+        if (postNotificationPermissionManager.featureType.isEnabled(LocalContext.current) &&
+            batteryOptimizationState.featureType.isEnabled(
                 LocalContext.current,
             )
         ) {
@@ -97,7 +97,7 @@ fun NotificationMainScreen(navController: NavController) {
                     Icon(painterResource(id = R.drawable.ic_forward), contentDescription = "navigate")
                 }
             }
-        } else if (!postNotificationPermissionManager.isEnabled(LocalContext.current)) {
+        } else if (!postNotificationPermissionManager.featureType.isEnabled(LocalContext.current)) {
             PermissionStateScreen(postNotificationPermissionManager)
         } else {
             FeatureStateScreen(batteryOptimizationState)

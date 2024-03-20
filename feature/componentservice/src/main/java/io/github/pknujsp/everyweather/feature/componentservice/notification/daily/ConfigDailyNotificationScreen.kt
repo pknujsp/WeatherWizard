@@ -41,7 +41,7 @@ import io.github.pknujsp.everyweather.feature.componentservice.RemoteViewsScreen
 import io.github.pknujsp.everyweather.feature.componentservice.notification.daily.model.DailyNotificationSettings
 import io.github.pknujsp.everyweather.feature.componentservice.notification.daily.model.rememberDailyNotificationState
 import io.github.pknujsp.everyweather.feature.permoptimize.permission.PermissionStateScreen
-import io.github.pknujsp.everyweather.feature.permoptimize.permission.rememberPermissionManager
+import io.github.pknujsp.everyweather.feature.permoptimize.permission.rememberPermissionStateManager
 import io.github.pknujsp.everyweather.feature.searchlocation.SearchLocationScreen
 
 @Composable
@@ -57,10 +57,10 @@ fun ConfigDailyNotificationScreen(
         })
     }
 
-    val scheduleExactAlarmPermission = rememberPermissionManager(permissionType = FeatureType.Permission.ScheduleExactAlarm)
+    val scheduleExactAlarmPermission = rememberPermissionStateManager(permissionType = FeatureType.Permission.ScheduleExactAlarm)
     PermissionStateScreen(scheduleExactAlarmPermission)
 
-    if (scheduleExactAlarmPermission.isEnabled(LocalContext.current)) {
+    if (scheduleExactAlarmPermission.featureType.isEnabled(LocalContext.current)) {
         notification.run {
             if (showSearch) {
                 SearchLocationScreen(onSelectedLocation = { newLocation ->

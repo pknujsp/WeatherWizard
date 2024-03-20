@@ -30,10 +30,10 @@ import io.github.pknujsp.everyweather.core.ui.CheckBoxSettingItem
 import io.github.pknujsp.everyweather.core.ui.ClickableSettingItem
 import io.github.pknujsp.everyweather.core.ui.TitleTextWithNavigation
 import io.github.pknujsp.everyweather.feature.componentservice.manager.AppComponentServiceManagerFactory
-import io.github.pknujsp.everyweather.feature.permoptimize.feature.ShowAppSettingsActivity
+import io.github.pknujsp.everyweather.feature.permoptimize.feature.ShowSettingsActivity
 import io.github.pknujsp.everyweather.feature.permoptimize.feature.SmallFeatureStateScreen
-import io.github.pknujsp.everyweather.feature.permoptimize.feature.rememberAppFeatureState
-import io.github.pknujsp.everyweather.feature.permoptimize.permission.rememberPermissionManager
+import io.github.pknujsp.everyweather.feature.permoptimize.feature.rememberFeatureStateManager
+import io.github.pknujsp.everyweather.feature.permoptimize.permission.rememberPermissionStateManager
 import kotlinx.coroutines.launch
 
 @Composable
@@ -51,8 +51,8 @@ fun SettingsScreen(
             onBackPressedDispatcherOwner?.onBackPressedDispatcher
         }
 
-    val batteryOptimizationFeatureState = rememberAppFeatureState(featureType = FeatureType.BatteryOptimization)
-    val backgroundLocationPermissionManager = rememberPermissionManager(permissionType = FeatureType.Permission.BackgroundLocation)
+    val batteryOptimizationFeatureState = rememberFeatureStateManager(featureType = FeatureType.BatteryOptimization)
+    val backgroundLocationPermissionManager = rememberPermissionStateManager(permissionType = FeatureType.Permission.BackgroundLocation)
 
     Column {
         TitleTextWithNavigation(title = stringResource(id = R.string.nav_settings), onClickNavigation = {
@@ -107,22 +107,22 @@ fun SettingsScreen(
         }
 
         if (settingsUiState.widgetAutoRefreshInterval != RefreshInterval.MANUAL) {
-            if (!batteryOptimizationFeatureState.isAvailable(LocalContext.current)) {
+            if (!batteryOptimizationFeatureState.featureType.isEnabled(LocalContext.current)) {
                 SmallFeatureStateScreen(Modifier.padding(8.dp), state = batteryOptimizationFeatureState.featureType, onClickAction = {
                     batteryOptimizationFeatureState.showSettingsActivity()
                 })
-            } else if (!backgroundLocationPermissionManager.isEnabled(context)) {
+            } else if (!backgroundLocationPermissionManager.featureType.isEnabled(context)) {
                 SmallFeatureStateScreen(Modifier.padding(8.dp), state = FeatureType.Permission.BackgroundLocation, onClickAction = {
                     backgroundLocationPermissionManager.showSettingsActivity()
                 })
             }
 
             if (batteryOptimizationFeatureState.isShowSettingsActivity) {
-                ShowAppSettingsActivity(featureType = batteryOptimizationFeatureState.featureType) {
+                ShowSettingsActivity(featureType = batteryOptimizationFeatureState.featureType) {
                     batteryOptimizationFeatureState.hideSettingsActivity()
                 }
             } else if (backgroundLocationPermissionManager.isShowSettingsActivity) {
-                ShowAppSettingsActivity(featureType = FeatureType.Permission.BackgroundLocation) {
+                ShowSettingsActivity(featureType = FeatureType.Permission.BackgroundLocation) {
                     backgroundLocationPermissionManager.hideSettingsActivity()
                     backgroundLocationPermissionManager.requestPermission()
                 }

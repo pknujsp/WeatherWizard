@@ -43,7 +43,7 @@ import io.github.pknujsp.everyweather.core.ui.MainRoutes
 import io.github.pknujsp.everyweather.core.ui.RootNavControllerViewModel
 import io.github.pknujsp.everyweather.core.ui.TitleTextWithNavigation
 import io.github.pknujsp.everyweather.feature.permoptimize.feature.FeatureStateScreen
-import io.github.pknujsp.everyweather.feature.permoptimize.network.rememberAppNetworkState
+import io.github.pknujsp.everyweather.feature.permoptimize.network.rememberNetworkStateManager
 
 @Composable
 fun SearchAreaScreen(
@@ -59,20 +59,20 @@ fun SearchAreaScreen(
         }
     }
 
-    val networkUiState = rememberAppNetworkState()
+    val networkManager = rememberNetworkStateManager()
     var showSearchHistory by remember { mutableStateOf(true) }
     val context = LocalContext.current
 
     Column(modifier = Modifier.fillMaxSize()) {
         TitleTextWithNavigation(title = stringResource(id = R.string.add_new_area)) {
-            if (showSearchHistory || !networkUiState.isAvailable(context)) {
+            if (showSearchHistory || !networkManager.featureType.isEnabled(context)) {
                 navController.popBackStack()
             } else {
                 showSearchHistory = true
             }
         }
 
-        if (networkUiState.isAvailable(LocalContext.current)) {
+        if (networkManager.featureType.isEnabled(LocalContext.current)) {
             val searchResult by searchAreaViewModel.searchResult.collectAsStateWithLifecycle()
             var query by remember { mutableStateOf("" to 0L) }
 
@@ -97,7 +97,7 @@ fun SearchAreaScreen(
                 }
             }
         } else {
-            FeatureStateScreen(networkUiState)
+            FeatureStateScreen(networkManager)
         }
     }
 }

@@ -21,10 +21,10 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.pknujsp.everyweather.core.common.FeatureType
 import io.github.pknujsp.everyweather.core.model.coordinate.LocationType
 import io.github.pknujsp.everyweather.feature.permoptimize.feature.FeatureStateScreen
-import io.github.pknujsp.everyweather.feature.permoptimize.feature.rememberAppFeatureState
-import io.github.pknujsp.everyweather.feature.permoptimize.network.rememberAppNetworkState
+import io.github.pknujsp.everyweather.feature.permoptimize.feature.rememberFeatureStateManager
+import io.github.pknujsp.everyweather.feature.permoptimize.network.rememberNetworkStateManager
 import io.github.pknujsp.everyweather.feature.permoptimize.permission.PermissionStateScreen
-import io.github.pknujsp.everyweather.feature.permoptimize.permission.rememberPermissionManager
+import io.github.pknujsp.everyweather.feature.permoptimize.permission.rememberPermissionStateManager
 import io.github.pknujsp.everyweather.feature.weather.info.WeatherContentScreen
 
 @Composable
@@ -36,9 +36,9 @@ fun WeatherMainScreen(
     val selectedLocation by viewModel.selectedLocation.collectAsStateWithLifecycle()
 
     val context = LocalContext.current
-    val networkState = rememberAppNetworkState()
-    val locationPermissionManager = rememberPermissionManager(permissionType = FeatureType.Permission.Location)
-    val locationServiceState = rememberAppFeatureState(featureType = FeatureType.LocationService)
+    val networkState = rememberNetworkStateManager()
+    val locationPermissionManager = rememberPermissionStateManager(permissionType = FeatureType.Permission.Location)
+    val locationServiceState = rememberFeatureStateManager(featureType = FeatureType.LocationService)
 
     if (selectedLocation != null) {
         val isPassed by remember(
@@ -47,11 +47,11 @@ fun WeatherMainScreen(
             locationServiceState.isChanged,
         ) {
             derivedStateOf {
-                networkState.isAvailable(context) && (
+                networkState.featureType.isEnabled(context) && (
                     selectedLocation!!.locationType is LocationType.CustomLocation || (
-                        locationServiceState.isAvailable(
+                        locationServiceState.featureType.isEnabled(
                             context,
-                        ) && locationPermissionManager.isEnabled(context)
+                        ) && locationPermissionManager.featureType.isEnabled(context)
                     )
                 )
             }
@@ -59,9 +59,9 @@ fun WeatherMainScreen(
 
         if (isPassed) {
             WeatherContentScreen(openDrawer = currentOpenDrawer, selectedLocationModel = selectedLocation!!)
-        } else if (networkState.isAvailable(context).not()) {
+        } else if (networkState.featureType.isEnabled(context).not()) {
             FeatureStateScreen(featureStateManager = networkState)
-        } else if (locationServiceState.isAvailable(context).not()) {
+        } else if (locationServiceState.featureType.isEnabled(context).not()) {
             FeatureStateScreen(featureStateManager = locationServiceState)
         } else {
             PermissionStateScreen(locationPermissionManager)

@@ -59,7 +59,7 @@ import io.github.pknujsp.everyweather.core.ui.list.EmptyListScreen
 import io.github.pknujsp.everyweather.core.ui.theme.AppShapes
 import io.github.pknujsp.everyweather.feature.favorite.model.LoadCurrentLocationState
 import io.github.pknujsp.everyweather.feature.favorite.model.LocationUiState
-import io.github.pknujsp.everyweather.feature.permoptimize.feature.ShowAppSettingsActivity
+import io.github.pknujsp.everyweather.feature.permoptimize.feature.ShowSettingsActivity
 import io.github.pknujsp.everyweather.feature.permoptimize.feature.SmallFeatureStateScreen
 
 @Composable
@@ -94,7 +94,7 @@ fun FavoriteAreaListScreen(
     }
 
     if (showSettingsActivity && targetLocation.loadCurrentLocationState is LoadCurrentLocationState.Failed && (targetLocation.loadCurrentLocationState as LoadCurrentLocationState.Failed).statefulFeature.hasRepairAction) {
-        ShowAppSettingsActivity(
+        ShowSettingsActivity(
             featureType =
                 (targetLocation.loadCurrentLocationState as LoadCurrentLocationState.Failed)
                     .statefulFeature as FeatureType,

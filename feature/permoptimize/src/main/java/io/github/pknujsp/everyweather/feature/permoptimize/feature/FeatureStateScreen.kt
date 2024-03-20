@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -21,16 +20,17 @@ import io.github.pknujsp.everyweather.core.resource.R
 import io.github.pknujsp.everyweather.core.ui.button.ButtonSize
 import io.github.pknujsp.everyweather.core.ui.button.PrimaryButton
 import io.github.pknujsp.everyweather.core.ui.button.SecondaryButton
+import io.github.pknujsp.everyweather.feature.permoptimize.BaseFeatureStateManager
 
 @Composable
-fun FeatureStateScreen(featureStateManager: AppFeatureState) {
-    if (featureStateManager.isAvailable(LocalContext.current).not()) {
+fun FeatureStateScreen(featureStateManager: BaseFeatureStateManager) {
+    if (!featureStateManager.featureType.isEnabled(LocalContext.current)) {
         Box {
             UnavailableFeatureScreen(featureType = featureStateManager.featureType) {
                 featureStateManager.showSettingsActivity()
             }
             if (featureStateManager.isShowSettingsActivity) {
-                ShowAppSettingsActivity(featureStateManager.featureType) {
+                ShowSettingsActivity(featureStateManager.featureType) {
                     featureStateManager.hideSettingsActivity()
                 }
             }
@@ -40,25 +40,25 @@ fun FeatureStateScreen(featureStateManager: AppFeatureState) {
 
 @Composable
 fun SmallFeatureStateScreen(
-    modifier: Modifier = Modifier,
-    state: StatefulFeature,
-    onClickRetry: (() -> Unit)? = null,
-    onClickAction: (() -> Unit)? = null,
+        modifier: Modifier = Modifier,
+        state: StatefulFeature,
+        onClickRetry: (() -> Unit)? = null,
+        onClickAction: (() -> Unit)? = null,
 ) {
     Column(
-        modifier = modifier,
-        verticalArrangement = Arrangement.spacedBy(12.dp, Alignment.CenterVertically),
+            modifier = modifier,
+            verticalArrangement = Arrangement.spacedBy(12.dp, Alignment.CenterVertically),
     ) {
         Text(
-            modifier = Modifier.align(Alignment.Start),
-            text = stringResource(id = state.message),
-            style = TextStyle(fontSize = 14.sp, color = Color.Black, textAlign = TextAlign.Left),
+                modifier = Modifier.align(Alignment.Start),
+                text = stringResource(id = state.message),
+                style = TextStyle(fontSize = 14.sp, color = Color.Black, textAlign = TextAlign.Left),
         )
         if (state.reason != null) {
             Text(
-                modifier = Modifier.align(Alignment.Start),
-                text = stringResource(id = state.reason!!),
-                style = TextStyle(fontSize = 14.sp, color = Color.Black, textAlign = TextAlign.Left),
+                    modifier = Modifier.align(Alignment.Start),
+                    text = stringResource(id = state.reason!!),
+                    style = TextStyle(fontSize = 14.sp, color = Color.Black, textAlign = TextAlign.Left),
             )
         }
         Row(modifier = Modifier.align(Alignment.End), horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End)) {
