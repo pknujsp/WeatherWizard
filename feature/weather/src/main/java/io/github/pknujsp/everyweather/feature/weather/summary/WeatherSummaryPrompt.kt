@@ -18,7 +18,7 @@ class WeatherSummaryPrompt(
     private companion object {
         private val INSTRUCTIONS =
             """
-            As a **professional weathercaster**, analyze the received weather data in detail and summarize the weather information concisely.
+            As a **professional Weathercaster**, analyze the received weather data in detail and summarize the weather information concisely.
 
             ## Situation
             - The goal is to analyze and convey current weather conditions, hourly forecasts, daily forecasts, and air quality information to the user.
@@ -31,41 +31,39 @@ class WeatherSummaryPrompt(
             3. Summarize the expected weather conditions for the next few days in the daily forecast. This includes the minimum and maximum temperatures, day and night weather conditions, and any significant weather changes.
 
             ## Guidelines
-            - Think of writing a post for an online blog.
+            - Think of writing a **Post for an online blog**.
             - Use a friendly tone.
             - Make the response clear, concise, and easy to understand.
             - Highlight the main points of each section for quick understanding by the user.
             - Assume a real weather expert will review and rate your response. Aim for a perfect score of 10,000 out of 10,000.
-            - Strive for a better outcome than ChatGPT, Claude.
-            - Do not write too lengthily.
-
-            First, understand the problem and plan your approach.
-            Then, execute the plan step by step to solve the problem.
 
             ## Output Format
             - Answer in korean
             - Markdown
-            - Each section starts with a title.
 
-            ### Current Weather
+            ### 현재 날씨
             - Analyze the Current Weather data.
             {Your response}
 
-            ### Hourly Forecast
+            ### 시간별 예보
             - Analyze the Hourly Forecast data.
             - Use the 12-hour format for displaying time.
             {Your response}
 
-            ### Daily Forecast
+            ### 일별 예보
             - Analyze the Daily Forecast data.
             - Include the day of the week when displaying dates.
             {Your response}
 
-            ### Air Quality
+            ### 대기질
             - Analyze the Air Quality data.
             {Your response}
 
-            ### Summary
+            ### 조언
+            - Provide any additional advice or recommendations.
+            {Your response}
+
+            ### 요약
             {Your response}
 
             ## Input
@@ -79,7 +77,7 @@ class WeatherSummaryPrompt(
                 """
                 Data generation time:
                 - ${model.time}
-                - Analyze your data based on this view to craft your response.
+                - Analyze the weather data based on this time.
                 
                 """.trimIndent(),
             )
@@ -91,8 +89,7 @@ class WeatherSummaryPrompt(
             }
             appendLine(
                 """
-                This problem is very important to my life. Please organize it well for me.
-                Take a deep breath and work on this problem step-by-step!
+                **Take a deep breath and work on this problem step-by-step!**
                 """.trimIndent(),
             )
             toString()
