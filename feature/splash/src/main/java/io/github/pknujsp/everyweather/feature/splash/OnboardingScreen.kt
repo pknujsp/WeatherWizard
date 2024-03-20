@@ -56,7 +56,7 @@ fun OnboardingScreen(navigateToStart: () -> Unit) {
             onboardingItems.size
         })
 
-        AsyncImage(modifier = Modifier.width(100.dp).padding(start = 16.dp, top = 16.dp), model = ImageRequest.Builder(LocalContext.current).data(io.github.pknujsp.everyweather.core.resource.R.drawable.textlogo_small).build(), contentDescription = null)
+        AsyncImage(modifier = Modifier.width(120.dp).padding(start = 16.dp, top = 16.dp), model = ImageRequest.Builder(LocalContext.current).data(io.github.pknujsp.everyweather.core.resource.R.drawable.textlogo_small).build(), contentDescription = null)
 
         HorizontalPager(
                 state = pagerState,

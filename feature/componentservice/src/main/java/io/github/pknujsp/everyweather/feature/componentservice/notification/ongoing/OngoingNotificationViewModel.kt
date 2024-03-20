@@ -65,7 +65,7 @@ class OngoingNotificationViewModel
                 ongoingNotificationRepository.switch(ongoingNotificationUiState.isEnabled)
                 _ongoingNotificationUiState.action =
                     if (ongoingNotificationUiState.isEnabled) OngoingNotificationUiState.Action.ENABLED else OngoingNotificationUiState.Action.DISABLED
-                _ongoingNotificationUiState.changedCount++
+                _ongoingNotificationUiState.isChanged++
             }
         }
 
@@ -74,7 +74,7 @@ class OngoingNotificationViewModel
                 val settingsEntity = createSettingsEntity()
                 ongoingNotificationRepository.updateOngoingNotification(settingsEntity)
                 _ongoingNotificationUiState.action = OngoingNotificationUiState.Action.UPDATED
-                _ongoingNotificationUiState.changedCount++
+                _ongoingNotificationUiState.isChanged++
             }
         }
 
@@ -104,7 +104,7 @@ private class MutableOngoingNotificationUiState(
     override var isEnabled by mutableStateOf(false)
     override var action by mutableStateOf(OngoingNotificationUiState.Action.NONE)
     override var settings by mutableStateOf(ongoingNotificationSettings)
-    override var changedCount by mutableIntStateOf(0)
+    override var isChanged by mutableIntStateOf(0)
 
     override fun switch() {
         isEnabled = !isEnabled
