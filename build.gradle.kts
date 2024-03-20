@@ -34,11 +34,12 @@ allprojects {
             parallel = true
             buildUponDefaultConfig = true
             config.setFrom(files("$rootDir/detekt-config.yml"))
+            debug = true
         }
 
         ktlint {
-            debug.set(true)
-            verbose.set(true)
+            debug = true
+            verbose = true
         }
     }
 }

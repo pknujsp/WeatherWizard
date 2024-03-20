@@ -109,8 +109,8 @@ private class WidgetStarterImpl(
             if (widgetAutoRefreshScheduler.getScheduleState() is AppAlarmManager.ScheduledState.NotScheduled) {
                 widgetAutoRefreshScheduler.scheduleAutoRefresh(refreshInterval)
             }
-        } else {
-            widgetAutoRefreshScheduler.unScheduleAutoRefresh()
+            return
         }
+        widgetAutoRefreshScheduler.unScheduleAutoRefresh()
     }
 }
