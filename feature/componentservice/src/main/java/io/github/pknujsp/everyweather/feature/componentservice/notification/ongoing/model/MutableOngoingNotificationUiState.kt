@@ -8,16 +8,9 @@ interface OngoingNotificationUiState {
     val isEnabled: Boolean
     val action: Action
     val isChanged: Int
-    fun update()
-    fun switch()
+    fun update(action: Action)
+    fun switch(enabled: Boolean)
     enum class Action {
-        ENABLED,
-        DISABLED,
-        UPDATED,
-        NONE;
-
-        companion object{
-            val isOn = setOf(ENABLED, UPDATED)
-        }
+        CHECK_UPDATE, UPDATE, LOADING, LOADED, UPDATED;
     }
 }
