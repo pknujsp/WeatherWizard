@@ -33,11 +33,11 @@ internal val onboardingItems: List<OnboardingItem> =
         DefaultOnboardingItem(
             title = io.github.pknujsp.everyweather.core.resource.R.string.onboarding_title_notification,
             message = io.github.pknujsp.everyweather.core.resource.R.string.onboarding_message_notification,
-            image = io.github.pknujsp.everyweather.core.resource.R.drawable.weatherwizard_icon_logo,
+            image = io.github.pknujsp.everyweather.core.resource.R.drawable.notifications,
         ),
         DefaultOnboardingItem(
             title = io.github.pknujsp.everyweather.core.resource.R.string.onboarding_title_widget,
             message = io.github.pknujsp.everyweather.core.resource.R.string.onboarding_message_widget,
-            image = io.github.pknujsp.everyweather.core.resource.R.drawable.weatherwizard_icon_logo,
+            image = io.github.pknujsp.everyweather.core.resource.R.drawable.widgets,
         ),
     )
