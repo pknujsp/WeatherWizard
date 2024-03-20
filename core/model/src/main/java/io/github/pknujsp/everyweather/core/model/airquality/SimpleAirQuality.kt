@@ -11,16 +11,16 @@ data class SimpleAirQuality(
     val info: Info,
     val dailyForecast: List<DailyItem>,
 ) : UiModel {
-
-    val grids = current.run {
-        listOf(
-            AirPollutants.PM10.nameResId to pm10,
-            AirPollutants.PM25.nameResId to o3,
-            AirPollutants.NO2.nameResId to no2,
-            AirPollutants.SO2.nameResId to so2,
-            AirPollutants.CO.nameResId to co,
-        )
-    }
+    val grids =
+        current.run {
+            listOf(
+                AirPollutants.PM10.nameResId to pm10,
+                AirPollutants.PM25.nameResId to o3,
+                AirPollutants.NO2.nameResId to no2,
+                AirPollutants.SO2.nameResId to so2,
+                AirPollutants.CO.nameResId to co,
+            )
+        }
 
     data class Current(
         val aqi: AirQualityValueType,
@@ -39,6 +39,8 @@ data class SimpleAirQuality(
 
     @Stable
     data class DailyItem(
-        val dateTime: LocalDate, val aqi: AirQualityValueType, val barHeightRatio: Float
+        val dateTime: LocalDate,
+        val aqi: AirQualityValueType,
+        val barHeightRatio: Float,
     )
 }

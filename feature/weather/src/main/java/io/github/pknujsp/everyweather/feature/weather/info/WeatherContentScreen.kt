@@ -23,7 +23,6 @@ import io.github.pknujsp.everyweather.feature.weather.info.hourlyforecast.detail
 import io.github.pknujsp.everyweather.feature.weather.main.TopBar
 import io.github.pknujsp.everyweather.feature.weather.route.NestedWeatherRoutes
 
-
 @Composable
 internal fun WeatherContentScreen(
     selectedLocationModel: SelectedLocationModel,
@@ -32,20 +31,23 @@ internal fun WeatherContentScreen(
 ) {
     val currentSelectedLocationModel by rememberUpdatedState(newValue = selectedLocationModel)
     val currentOpenDrawer by rememberUpdatedState(newValue = openDrawer)
-    val contentState = rememberWeatherContentState {
-        viewModel.load(currentSelectedLocationModel)
-    }
+    val contentState =
+        rememberWeatherContentState {
+            viewModel.load(currentSelectedLocationModel)
+        }
 
     val weatherContentUiState by viewModel.uiState.collectAsStateWithLifecycle(null)
     LaunchedEffect(currentSelectedLocationModel) {
         viewModel.load(currentSelectedLocationModel)
     }
     LaunchedEffect(weatherContentUiState, contentState.nestedRoutes.value) {
-        contentState.setSystemBarColor(if (weatherContentUiState is WeatherContentUiState.Success && contentState.nestedRoutes.value is NestedWeatherRoutes.Main) {
-            SystemBarContentColor.WHITE
-        } else {
-            SystemBarContentColor.BLACK
-        })
+        contentState.setSystemBarColor(
+            if (weatherContentUiState is WeatherContentUiState.Success && contentState.nestedRoutes.value is NestedWeatherRoutes.Main) {
+                SystemBarContentColor.WHITE
+            } else {
+                SystemBarContentColor.BLACK
+            },
+        )
     }
 
     when (contentState.nestedRoutes.value) {
@@ -67,15 +69,21 @@ internal fun WeatherContentScreen(
                 is WeatherContentUiState.Error -> {
                     val error = (weatherContentUiState as WeatherContentUiState.Error)
                     Column(modifier = Modifier.fillMaxSize()) {
-                        TopBar(openDrawer = currentOpenDrawer, modifier = Modifier
-                            .systemBarsPadding()
-                            .fillMaxWidth())
-                        FailedScreen(title = error.state.title,
+                        TopBar(
+                            openDrawer = currentOpenDrawer,
+                            modifier =
+                                Modifier
+                                    .systemBarsPadding()
+                                    .fillMaxWidth(),
+                        )
+                        FailedScreen(
+                            title = error.state.title,
                             alertMessage = error.state.message,
                             actionMessage = error.state.action,
                             onClick = {
                                 contentState.refresh()
-                            })
+                            },
+                        )
                     }
                 }
 

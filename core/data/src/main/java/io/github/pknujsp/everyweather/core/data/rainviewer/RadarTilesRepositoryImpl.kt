@@ -7,9 +7,10 @@ import io.github.pknujsp.everyweather.core.model.rainviewer.RadarTiles
 import io.github.pknujsp.everyweather.core.network.api.rainviewer.RainViewerDataSource
 
 internal class RadarTilesRepositoryImpl(
-    private val rainViewerDataSource: RainViewerDataSource, cacheManager: CacheManager<Long, RadarTiles>, cacheCleaner: CacheCleaner
+    private val rainViewerDataSource: RainViewerDataSource,
+    cacheManager: CacheManager<Long, RadarTiles>,
+    cacheCleaner: CacheCleaner,
 ) : RadarTilesRepository, RepositoryCacheManager<Long, RadarTiles>(cacheCleaner, cacheManager) {
-
     private var cacheKey = System.currentTimeMillis()
 
     override suspend fun getTiles(): Result<RadarTiles> {
@@ -32,16 +33,15 @@ internal class RadarTilesRepositoryImpl(
         }
     }
 
-    private suspend fun getCache(
-    ): RadarTiles? = when (val cacheState = cacheManager.get(cacheKey)) {
-        is CacheManager.CacheState.Hit -> {
-            cacheState.value
-        }
+    private suspend fun getCache(): RadarTiles? =
+        when (val cacheState = cacheManager.get(cacheKey)) {
+            is CacheManager.CacheState.Hit -> {
+                cacheState.value
+            }
 
-        else -> {
-            cacheKey = System.currentTimeMillis()
-            null
+            else -> {
+                cacheKey = System.currentTimeMillis()
+                null
+            }
         }
-    }
-
 }

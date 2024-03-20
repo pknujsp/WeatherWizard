@@ -1,10 +1,8 @@
 package io.github.pknujsp.everyweather.feature.componentservice.notification.daily.model.list
 
 import android.content.Context
-import android.widget.Toast
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.remember
@@ -40,7 +38,11 @@ class DailyNotificationListState(
 ) {
     private val alarmManager: DailyNotificationAlarmManager = DailyNotificationAlarmManager.getInstance(context)
 
-    private fun changeAlarmSchedule(context: Context, isEnabled: Boolean, settings: DailyNotificationSettingsListItem) {
+    private fun changeAlarmSchedule(
+        context: Context,
+        isEnabled: Boolean,
+        settings: DailyNotificationSettingsListItem,
+    ) {
         if (isEnabled) {
             alarmManager.schedule(settings.id, settings.hour, settings.minute)
         } else {
@@ -48,18 +50,23 @@ class DailyNotificationListState(
         }
     }
 
-    fun switch(settings: DailyNotificationSettingsListItem, context: Context) {
+    fun switch(
+        settings: DailyNotificationSettingsListItem,
+        context: Context,
+    ) {
         val isEnabled = !settings.isEnabled
         switch(settings.id, isEnabled)
         changeAlarmSchedule(context, isEnabled, settings)
     }
 
-    fun delete(settings: DailyNotificationSettingsListItem, context: Context) {
+    fun delete(
+        settings: DailyNotificationSettingsListItem,
+        context: Context,
+    ) {
         delete(settings.id)
         changeAlarmSchedule(context, false, settings)
     }
 }
-
 
 @Composable
 fun rememberDailyNotificationListState(

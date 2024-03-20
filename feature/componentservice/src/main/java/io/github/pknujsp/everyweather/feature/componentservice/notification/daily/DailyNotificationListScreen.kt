@@ -54,7 +54,10 @@ import io.github.pknujsp.everyweather.feature.componentservice.notification.dail
 import kotlinx.coroutines.launch
 
 @Composable
-fun DailyNotificationListScreen(navController: NavController, viewModel: DailyNotificationListViewModel = hiltViewModel()) {
+fun DailyNotificationListScreen(
+    navController: NavController,
+    viewModel: DailyNotificationListViewModel = hiltViewModel(),
+) {
     val notificationsState = rememberDailyNotificationListState(viewModel::switch, viewModel::delete)
     val notificationListUiState = viewModel.notifications
     val snackbarHostState = remember { SnackbarHostState() }
@@ -79,8 +82,17 @@ fun DailyNotificationListScreen(navController: NavController, viewModel: DailyNo
                         }, onSwitch = { item ->
                             notificationsState.switch(item, context)
                             coroutineScope.launch {
-                                snackbarHostState.showSnackbar(message = context.getString(if (item.isEnabled) R.string
-                                    .daily_notification_enabled else R.string.daily_notification_disabled))
+                                snackbarHostState.showSnackbar(
+                                    message =
+                                        context.getString(
+                                            if (item.isEnabled) {
+                                                R.string
+                                                    .daily_notification_enabled
+                                            } else {
+                                                R.string.daily_notification_disabled
+                                            },
+                                        ),
+                                )
                             }
                         }, onDelete = {
                             notificationsState.delete(it, context)
@@ -101,30 +113,43 @@ fun DailyNotificationListScreen(navController: NavController, viewModel: DailyNo
     }
 }
 
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun Item(
     item: DailyNotificationSettingsListItem,
     onClick: () -> Unit,
     onSwitch: (DailyNotificationSettingsListItem) -> Unit,
-    onDelete: (DailyNotificationSettingsListItem) -> Unit
+    onDelete: (DailyNotificationSettingsListItem) -> Unit,
 ) {
     Surface(shape = AppShapes.large, shadowElevation = 4.dp, modifier = Modifier.padding(16.dp, 8.dp)) {
-        Row(modifier = Modifier
-            .fillMaxWidth()
-            .clickable { onClick() }
-            .padding(16.dp, 12.dp),
+        Row(
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .clickable { onClick() }
+                    .padding(16.dp, 12.dp),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+            horizontalArrangement = Arrangement.spacedBy(16.dp),
+        ) {
             Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                 Text(text = item.timeText, style = TextStyle(fontSize = 30.sp, color = Color.DarkGray, letterSpacing = 0.1.sp))
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                    AsyncImage(model = ImageRequest.Builder(LocalContext.current).data(LocationType.icon).build(),
+                    AsyncImage(
+                        model = ImageRequest.Builder(LocalContext.current).data(LocationType.icon).build(),
                         contentDescription = stringResource(id = item.location.locationType.title),
-                        modifier = Modifier.size(16.dp))
-                    Text(text = if (item.location.locationType is LocationType.CustomLocation) item.location.address else stringResource(id = item.location.locationType.title),
-                        style = TextStyle(fontSize = 16.sp, color = Color.Gray))
+                        modifier = Modifier.size(16.dp),
+                    )
+                    Text(
+                        text =
+                            if (item.location.locationType is LocationType.CustomLocation) {
+                                item.location.address
+                            } else {
+                                stringResource(
+                                    id = item.location.locationType.title,
+                                )
+                            },
+                        style = TextStyle(fontSize = 16.sp, color = Color.Gray),
+                    )
                 }
                 Text(text = stringResource(id = item.type.title), style = TextStyle(fontSize = 14.sp, color = Color.Blue))
             }
@@ -151,7 +176,8 @@ private fun Item(
                             stringResource(id = R.string.delete_daily_notification_message).let {
                                 "${item.timeText} $it"
                             }
-                        DialogScreen(title = stringResource(id = R.string.delete),
+                        DialogScreen(
+                            title = stringResource(id = R.string.delete),
                             message = message,
                             negative = stringResource(id = R.string.cancel),
                             positive = stringResource(id = R.string.delete),
@@ -159,7 +185,8 @@ private fun Item(
                             onClickPositive = {
                                 isClickedDelete = false
                                 onDelete(item)
-                            })
+                            },
+                        )
                     }
                 }
             }

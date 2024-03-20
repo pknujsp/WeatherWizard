@@ -21,7 +21,7 @@ fun CustomBox(
     contentAlignment: Alignment = Alignment.TopStart,
     propagateMinConstraints: Boolean = false,
     snackbarHost: @Composable () -> Unit = {},
-    content: @Composable BoxScope.() -> Unit
+    content: @Composable BoxScope.() -> Unit,
 ) {
     Box(modifier = modifier, contentAlignment = contentAlignment, propagateMinConstraints = propagateMinConstraints) {
         content()
@@ -31,12 +31,13 @@ fun CustomBox(
             val looseConstraints = constraints.copy(minWidth = 0, minHeight = 0)
 
             layout(layoutWidth, layoutHeight) {
-                val snackbarPlaceables = subcompose(CustomBoxLayoutContent.Snackbar, snackbarHost).map {
-                    val leftInset = snackbarPaddingValues.calculateLeftPadding(layoutDirection).toPx().toInt()
-                    val rightInset = snackbarPaddingValues.calculateLeftPadding(layoutDirection).toPx().toInt()
-                    val bottomInset = snackbarPaddingValues.calculateBottomPadding().toPx().toInt()
-                    it.measure(looseConstraints.offset(-leftInset - rightInset, -bottomInset))
-                }
+                val snackbarPlaceables =
+                    subcompose(CustomBoxLayoutContent.Snackbar, snackbarHost).map {
+                        val leftInset = snackbarPaddingValues.calculateLeftPadding(layoutDirection).toPx().toInt()
+                        val rightInset = snackbarPaddingValues.calculateLeftPadding(layoutDirection).toPx().toInt()
+                        val bottomInset = snackbarPaddingValues.calculateBottomPadding().toPx().toInt()
+                        it.measure(looseConstraints.offset(-leftInset - rightInset, -bottomInset))
+                    }
 
                 val snackbarHeight = snackbarPlaceables.maxByOrNull { it.height }?.height ?: 0
                 val snackbarWidth = snackbarPlaceables.maxByOrNull { it.width }?.width ?: 0

@@ -24,8 +24,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import io.github.pknujsp.everyweather.core.resource.R
 import io.github.pknujsp.everyweather.core.model.searchhistory.SearchHistory
+import io.github.pknujsp.everyweather.core.resource.R
 import io.github.pknujsp.everyweather.core.ui.list.EmptyListScreen
 
 @Composable
@@ -46,21 +46,29 @@ internal fun SearchHistoryScreen(
             }
         }
     }
-
 }
 
 @Composable
-private fun SearchHistoryItem(history: SearchHistory, onSearchHistoryItemClicked: (String) -> Unit) {
-    Box(modifier = Modifier
-        .fillMaxWidth()
-        .wrapContentHeight()
-        .clickable {
-            onSearchHistoryItemClicked(history.query)
-        }) {
-        Row(verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier
+private fun SearchHistoryItem(
+    history: SearchHistory,
+    onSearchHistoryItemClicked: (String) -> Unit,
+) {
+    Box(
+        modifier =
+            Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 4.dp)) {
+                .wrapContentHeight()
+                .clickable {
+                    onSearchHistoryItemClicked(history.query)
+                },
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 4.dp),
+        ) {
             Text(text = history.query, modifier = Modifier.weight(1f), fontSize = 16.sp, color = Color.Black)
             IconButton(onClick = {
                 history.onDeleteClicked?.invoke()
@@ -69,6 +77,4 @@ private fun SearchHistoryItem(history: SearchHistory, onSearchHistoryItemClicked
             }
         }
     }
-
-
 }

@@ -1,6 +1,5 @@
 package io.github.pknujsp.everyweather.core.network.api.kma.parser
 
-
 import io.github.pknujsp.everyweather.core.model.weather.common.PrecipitationValueType
 import io.github.pknujsp.everyweather.core.model.weather.common.ProbabilityValueType
 import org.jsoup.nodes.Document
@@ -10,7 +9,6 @@ import java.time.ZoneId
 import java.time.ZonedDateTime
 
 internal class KmaHtmlParser {
-
     private val zoneId = ZoneId.of("Asia/Seoul")
     private val degree = "℃"
     private val mm = "mm"
@@ -23,39 +21,44 @@ internal class KmaHtmlParser {
     private val rainDrop = "빗방울"
     private val snowBlizzard = "눈날림"
 
-    private val conditionDescriptionsMap = mapOf(
-        "비" to "흐리고 비",
-        "비/눈" to "흐리고 비/눈",
-        "눈" to "흐리고 눈",
-        "빗방울" to "흐리고 비",
-        "빗방울/눈날림" to "흐리고 비/눈",
-        "눈날림" to "흐리고 눈",
-        "구름 많음" to "구름많음",
-    )
+    private val conditionDescriptionsMap =
+        mapOf(
+            "비" to "흐리고 비",
+            "비/눈" to "흐리고 비/눈",
+            "눈" to "흐리고 눈",
+            "빗방울" to "흐리고 비",
+            "빗방울/눈날림" to "흐리고 비/눈",
+            "눈날림" to "흐리고 눈",
+            "구름 많음" to "구름많음",
+        )
 
-    private val windDirectionMap = mapOf(
-        "북북동" to 25,
-        "북동" to 45,
-        "동북동" to 67,
-        "동" to 90,
-        "동남동" to 112,
-        "남동" to 135,
-        "남남동" to 157,
-        "남" to 180,
-        "남남서" to 202,
-        "남서" to 225,
-        "서남서" to 247,
-        "서" to 270,
-        "서북서" to 292,
-        "북서" to 315,
-        "북북서" to 337,
-        "북" to 0,
-    )
+    private val windDirectionMap =
+        mapOf(
+            "북북동" to 25,
+            "북동" to 45,
+            "동북동" to 67,
+            "동" to 90,
+            "동남동" to 112,
+            "남동" to 135,
+            "남남동" to 157,
+            "남" to 180,
+            "남남서" to 202,
+            "남서" to 225,
+            "서남서" to 247,
+            "서" to 270,
+            "서북서" to 292,
+            "북서" to 315,
+            "북북서" to 337,
+            "북" to 0,
+        )
 
-    fun parseCurrentConditions(document: Document, baseDateTime: String): ParsedKmaCurrentWeather {
-        //기온(5.8) tmp, 체감(체감 5.8℃) chill, 어제와 기온이 같아요 w-txt, 습도(40) lbl ic-hm val
-        //바람(북서 1.1) lbl ic-wind val, 1시간 강수량(-) lbl rn-hr1 ic-rn val
-        //발효중인 특보 cmp-impact-fct
+    fun parseCurrentConditions(
+        document: Document,
+        baseDateTime: String,
+    ): ParsedKmaCurrentWeather {
+        // 기온(5.8) tmp, 체감(체감 5.8℃) chill, 어제와 기온이 같아요 w-txt, 습도(40) lbl ic-hm val
+        // 바람(북서 1.1) lbl ic-wind val, 1시간 강수량(-) lbl rn-hr1 ic-rn val
+        // 발효중인 특보 cmp-impact-fct
         val rootElements = document.getElementsByClass("cmp-cur-weather")
         val wrap1 = rootElements.select("ul.wrap-1")
         val wrap2 = rootElements.select("ul.wrap-2.no-underline")
@@ -63,10 +66,10 @@ internal class KmaHtmlParser {
         val li = wIconwTemp[0]
         val spans = li.getElementsByTag("span")
         val pty = spans[1].text()
-        //4.8℃ 최저-최고-
+        // 4.8℃ 최저-최고-
         val temp = spans[3].textNodes()[0].text().replace(" ", "")
 
-        //1일전 기온
+        // 1일전 기온
         var yesterdayTemp = wrap1.select("li.w-txt").text().replace(" ", "")
         if (yesterdayTemp.contains("℃")) {
             val t = yesterdayTemp.replace("어제보다", "").replace("높아요", "").replace("낮아요", "").replace("℃", "")
@@ -82,7 +85,7 @@ internal class KmaHtmlParser {
             yesterdayTemp = temp
         }
 
-        //체감(4.8℃)
+        // 체감(4.8℃)
         var chill = spans.select(".chill").text()
         chill = chill.substring(3, chill.length - 2).replace(" ", "")
 
@@ -107,9 +110,10 @@ internal class KmaHtmlParser {
         }
 
         return ParsedKmaCurrentWeather(
-            temperature = temp.toTemperature().toInt().toShort(), feelsLikeTemperature = chill.toTemperature().toInt().toShort(), humidity =
-            humidity
-                .toHumidity(),
+            temperature = temp.toTemperature().toInt().toShort(), feelsLikeTemperature = chill.toTemperature().toInt().toShort(),
+            humidity =
+                humidity
+                    .toHumidity(),
             precipitationType = pty,
             windDirection = windDirection.toWindDirection(), windSpeed = windSpeed.toWindSpeed(),
             precipitationVolume = precipitationVolume.toPrecipitationVolume(),
@@ -120,7 +124,7 @@ internal class KmaHtmlParser {
     fun parseHourlyForecasts(document: Document): List<ParsedKmaHourlyForecast> {
         val elements = document.getElementsByClass("slide-wrap")
 
-        //오늘, 내일, 모레, 글피, 그글피
+        // 오늘, 내일, 모레, 글피, 그글피
         val slides = elements.select("div.slide")
         val parsedKmaHourlyForecasts = mutableListOf<ParsedKmaHourlyForecast>()
         var zonedDateTime = ZonedDateTime.now(zoneId)
@@ -144,7 +148,6 @@ internal class KmaHtmlParser {
                 break
             }
             for (ul in uls) {
-
                 val lis = ul.getElementsByTag("li")
                 date = ul.attr("data-date")
                 localDate = LocalDate.parse(date)
@@ -160,11 +163,12 @@ internal class KmaHtmlParser {
                     hasShower = ul.attr("data-sonagi") == "1"
                 }
                 weatherCondition = lis[1].getElementsByTag("span")[1].text()
-                thunder = if (lis[1].getElementsByTag("span").size >= 3) {
-                    lis[1].getElementsByTag("span")[2].className() == "lgt"
-                } else {
-                    false
-                }
+                thunder =
+                    if (lis[1].getElementsByTag("span").size >= 3) {
+                        lis[1].getElementsByTag("span")[2].className() == "lgt"
+                    } else {
+                        false
+                    }
                 temp = lis[2].getElementsByTag("span")[1].childNode(0).toString().replace(degree, "")
                 feelsLikeTemp = lis[3].getElementsByTag("span")[1].text().replace(degree, "")/*
                 강우+강설
@@ -312,7 +316,7 @@ internal class KmaHtmlParser {
 
     fun parseDailyForecasts(document: Document): MutableList<ParsedKmaDailyForecast> {
         val elements = document.getElementsByClass("slide-wrap")
-        //이후 10일
+        // 이후 10일
         val slides = elements.select("div.slide.day-ten div.daily")
         var zonedDateTime = ZonedDateTime.now(ZoneId.of("Asia/Seoul"))
         zonedDateTime = zonedDateTime.withHour(0).withMinute(0).withSecond(0).withNano(0)
@@ -335,7 +339,7 @@ internal class KmaHtmlParser {
             var single: ParsedKmaDailyForecast.Values? = null
 
             if (uls.size == 2) {
-                //am, pm
+                // am, pm
                 val amLis = uls[0].getElementsByTag("li")
                 val pmLis = uls[1].getElementsByTag("li")
                 weatherDescription = amLis[1].getElementsByTag("span")[1].text()
@@ -343,22 +347,24 @@ internal class KmaHtmlParser {
                 minTemp = minTemp.substring(3, minTemp.length - 1)
                 pop = amLis[3].getElementsByTag("span")[1].text().toPop()
 
-                am = ParsedKmaDailyForecast.Values(
-                    weatherDescription = weatherDescription,
-                    pop = pop,
-                )
+                am =
+                    ParsedKmaDailyForecast.Values(
+                        weatherDescription = weatherDescription,
+                        pop = pop,
+                    )
 
                 weatherDescription = pmLis[1].getElementsByTag("span")[1].text()
                 maxTemp = pmLis[2].getElementsByTag("span")[1].text()
                 maxTemp = maxTemp.substring(3, maxTemp.length - 1)
                 pop = pmLis[3].getElementsByTag("span")[1].text().toPop()
 
-                pm = ParsedKmaDailyForecast.Values(
-                    weatherDescription = weatherDescription,
-                    pop = pop,
-                )
+                pm =
+                    ParsedKmaDailyForecast.Values(
+                        weatherDescription = weatherDescription,
+                        pop = pop,
+                    )
             } else {
-                //single
+                // single
                 val lis = uls[0].getElementsByTag("li")
                 weatherDescription = lis[1].getElementsByTag("span")[1].text()
                 val temps = lis[2].getElementsByTag("span")[1].text().split(" / ").toTypedArray()
@@ -366,16 +372,22 @@ internal class KmaHtmlParser {
                 maxTemp = temps[1].substring(3, temps[1].length - 1)
                 pop = lis[3].getElementsByTag("span")[1].text().toPop()
 
-                single = ParsedKmaDailyForecast.Values(
-                    weatherDescription = weatherDescription,
-                    pop = pop,
-                )
+                single =
+                    ParsedKmaDailyForecast.Values(
+                        weatherDescription = weatherDescription,
+                        pop = pop,
+                    )
             }
             parsedKmaDailyForecasts.add(
                 ParsedKmaDailyForecast(
-                    minTemp = minTemp.toTemperature().toInt().toShort(), maxTemp = maxTemp.toTemperature().toInt().toShort(), date = zonedDateTime
-                        .toString(),
-                    isSingle = single == null, amValues = am, pmValues = pm,
+                    minTemp = minTemp.toTemperature().toInt().toShort(),
+                    maxTemp = maxTemp.toTemperature().toInt().toShort(),
+                    date =
+                        zonedDateTime
+                            .toString(),
+                    isSingle = single == null,
+                    amValues = am,
+                    pmValues = pm,
                     singleValues = single,
                 ),
             )
@@ -415,23 +427,27 @@ internal class KmaHtmlParser {
 
             hours = hourlyForecastItemDateTime.hour
             if (hours == 0 && minTemp != Short.MAX_VALUE) {
-                dateTime = ZonedDateTime.of(
-                    hourlyForecastItemDateTime.toLocalDateTime(),
-                    hourlyForecastItemDateTime.zone,
-                )
+                dateTime =
+                    ZonedDateTime.of(
+                        hourlyForecastItemDateTime.toLocalDateTime(),
+                        hourlyForecastItemDateTime.zone,
+                    )
                 dateTime = dateTime.minusDays(1)
                 dailyForecasts.add(
                     ParsedKmaDailyForecast(
                         date = dateTime.toString(),
-                        amValues = ParsedKmaDailyForecast.Values(
-                            pop = amPop,
-                            weatherDescription = amSky,
-                        ),
-                        pmValues = ParsedKmaDailyForecast.Values(
-                            pop = pmPop,
-                            weatherDescription = pmSky,
-                        ),
-                        minTemp = minTemp, maxTemp = maxTemp,
+                        amValues =
+                            ParsedKmaDailyForecast.Values(
+                                pop = amPop,
+                                weatherDescription = amSky,
+                            ),
+                        pmValues =
+                            ParsedKmaDailyForecast.Values(
+                                pop = pmPop,
+                                weatherDescription = pmSky,
+                            ),
+                        minTemp = minTemp,
+                        maxTemp = maxTemp,
                     ),
                 )
                 minTemp = Short.MAX_VALUE
@@ -456,7 +472,8 @@ internal class KmaHtmlParser {
         return dailyForecasts
     }
 
-    private fun convertHourlyWeatherDescriptionToMid(description: String): String {/*
+    private fun convertHourlyWeatherDescriptionToMid(description: String): String {
+        /*
     hourly -
         <item>맑음</item>
         <item>구름 많음</item>
@@ -482,10 +499,9 @@ internal class KmaHtmlParser {
         <item>흐리고 비/눈</item>
         <item>흐리고 소나기</item>
         <item>소나기</item>
-     */
+         */
         return conditionDescriptionsMap[description] ?: description
     }
-
 
     private fun String.toWindDirection(): Int = windDirectionMap[this] ?: 0
 

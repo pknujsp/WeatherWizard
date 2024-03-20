@@ -8,7 +8,9 @@ interface SummaryUiState {
     val isSummarizing: Boolean
     val summaryText: String
     val isWaitingFirstResponse: Boolean
+
     @get:StringRes val error: Int?
+
     @get:StringRes val buttonText: Int
     val isStopped: Boolean
 }

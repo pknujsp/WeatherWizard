@@ -2,17 +2,21 @@ package io.github.pknujsp.everyweather.feature.componentservice.notification.ong
 
 import androidx.compose.runtime.Stable
 
-
 @Stable
 interface OngoingNotificationUiState {
     val settings: OngoingNotificationSettings
     val isEnabled: Boolean
     val action: Action
     val changedCount: Int
+
     fun update()
+
     fun switch()
 
     enum class Action {
-        ENABLED, DISABLED, UPDATED, NONE
+        ENABLED,
+        DISABLED,
+        UPDATED,
+        NONE,
     }
 }

@@ -32,44 +32,46 @@ fun AnimatedBorderCard(
     borderWidth: Dp = 1.dp,
     gradient: Brush = Brush.sweepGradient(listOf(Color.Blue, Color.White)),
     animationDuration: Int = 5000,
-    content: @Composable () -> Unit
+    content: @Composable () -> Unit,
 ) {
     val infiniteTransition = rememberInfiniteTransition(label = "Infinite Color Animation")
     val fastDegrees by infiniteTransition.animateFloat(
         initialValue = 0f,
         targetValue = 360f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(durationMillis = 5000, easing = LinearEasing),
-            repeatMode = RepeatMode.Restart
-        ),
-        label = "Fastly Animating Infinite Colors"
+        animationSpec =
+            infiniteRepeatable(
+                animation = tween(durationMillis = 5000, easing = LinearEasing),
+                repeatMode = RepeatMode.Restart,
+            ),
+        label = "Fastly Animating Infinite Colors",
     )
 
-
     Surface(
-        modifier = modifier
-            .background(color = Color.LightGray)
-            .clip(shape),
-        shape = shape
+        modifier =
+            modifier
+                .background(color = Color.LightGray)
+                .clip(shape),
+        shape = shape,
     ) {
         Surface(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(borderWidth)
-                .drawWithContent {
-                    if (animation()) {
-                        rotate(degrees = fastDegrees) {
-                            drawCircle(
-                                brush = gradient,
-                                radius = size.width,
-                                blendMode = BlendMode.SrcIn,
-                            )
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(borderWidth)
+                    .drawWithContent {
+                        if (animation()) {
+                            rotate(degrees = fastDegrees) {
+                                drawCircle(
+                                    brush = gradient,
+                                    radius = size.width,
+                                    blendMode = BlendMode.SrcIn,
+                                )
+                            }
                         }
-                    }
-                    drawContent()
-                },
+                        drawContent()
+                    },
             color = MaterialTheme.colorScheme.surface,
-            shape = shape
+            shape = shape,
         ) {
             content()
         }

@@ -4,4 +4,4 @@ import io.github.pknujsp.everyweather.core.model.EntityModel
 import kotlinx.serialization.Serializable
 
 @Serializable
-abstract class WeatherEntityModel : EntityModel {}
+abstract class WeatherEntityModel : EntityModel

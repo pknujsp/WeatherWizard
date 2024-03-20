@@ -1,11 +1,9 @@
 package io.github.pknujsp.everyweather.feature.weather.info.currentweather.simple
 
 import androidx.annotation.StringRes
-import androidx.compose.animation.core.Easing
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
@@ -61,96 +59,142 @@ private const val DEFAULT_AUTO_SIZING_TEXT_SIZE = 18
 private val textColor = Color.White
 
 @Composable
-fun CurrentWeatherScreen(current: CurrentWeather, airQualityValueType: () -> AirQualityValueType?) {
+fun CurrentWeatherScreen(
+    current: CurrentWeather,
+    airQualityValueType: () -> AirQualityValueType?,
+) {
     Column {
-        ConstraintLayout(modifier = Modifier
-            .fillMaxWidth()
-            .padding(bottom = 14.dp, start = 12.dp, end = 12.dp)) {
+        ConstraintLayout(
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 14.dp, start = 12.dp, end = 12.dp),
+        ) {
             val (yesterdayTemp, feelsLikeTemp, icon, condition, temp) = createRefs()
 
             // temperature
-            Text(text = listOf(
-                AStyle(
-                    current.temperature.value.toInt().toString(),
-                    span = SpanStyle(fontSize = 80.sp, color = textColor, letterSpacing = (-5).sp, fontWeight = FontWeight.Light),
-                ),
-                AStyle(current.temperature.unit.symbol,
-                    span = SpanStyle(fontSize = 38.sp, color = textColor, fontWeight = FontWeight.Light)),
-            ).toAnnotated(), modifier = Modifier.constrainAs(temp) {
-                absoluteRight.linkTo(parent.absoluteRight)
-                bottom.linkTo(feelsLikeTemp.top)
-            }, style = LocalTextStyle.current.merge(notIncludeTextPaddingStyle).merge(outlineTextStyle))
+            Text(
+                text =
+                    listOf(
+                        AStyle(
+                            current.temperature.value.toInt().toString(),
+                            span = SpanStyle(fontSize = 80.sp, color = textColor, letterSpacing = (-5).sp, fontWeight = FontWeight.Light),
+                        ),
+                        AStyle(
+                            current.temperature.unit.symbol,
+                            span = SpanStyle(fontSize = 38.sp, color = textColor, fontWeight = FontWeight.Light),
+                        ),
+                    ).toAnnotated(),
+                modifier =
+                    Modifier.constrainAs(temp) {
+                        absoluteRight.linkTo(parent.absoluteRight)
+                        bottom.linkTo(feelsLikeTemp.top)
+                    },
+                style = LocalTextStyle.current.merge(notIncludeTextPaddingStyle).merge(outlineTextStyle),
+            )
 
             // feels like temperature
-            Text(text = listOf(
-                AStyle("${stringResource(id = WeatherDataCategory.FEELS_LIKE_TEMPERATURE.stringId)} ",
-                    span = SpanStyle(fontSize = 16.sp, color = textColor, fontWeight = FontWeight.Light)),
-                AStyle(current.feelsLikeTemperature.value.toInt().toString(),
-                    span = SpanStyle(fontSize = 28.sp, color = textColor, letterSpacing = (-3).sp, fontWeight = FontWeight.Light)),
-                AStyle(current.feelsLikeTemperature.unit.symbol,
-                    span = SpanStyle(fontSize = 18.sp, color = textColor, fontWeight = FontWeight.Light)),
-            ).toAnnotated(), modifier = Modifier.constrainAs(feelsLikeTemp) {
-                absoluteRight.linkTo(parent.absoluteRight)
-                bottom.linkTo(parent.bottom)
-            }, style = LocalTextStyle.current.merge(notIncludeTextPaddingStyle).merge(outlineTextStyle))
+            Text(
+                text =
+                    listOf(
+                        AStyle(
+                            "${stringResource(id = WeatherDataCategory.FEELS_LIKE_TEMPERATURE.stringId)} ",
+                            span = SpanStyle(fontSize = 16.sp, color = textColor, fontWeight = FontWeight.Light),
+                        ),
+                        AStyle(
+                            current.feelsLikeTemperature.value.toInt().toString(),
+                            span = SpanStyle(fontSize = 28.sp, color = textColor, letterSpacing = (-3).sp, fontWeight = FontWeight.Light),
+                        ),
+                        AStyle(
+                            current.feelsLikeTemperature.unit.symbol,
+                            span = SpanStyle(fontSize = 18.sp, color = textColor, fontWeight = FontWeight.Light),
+                        ),
+                    ).toAnnotated(),
+                modifier =
+                    Modifier.constrainAs(feelsLikeTemp) {
+                        absoluteRight.linkTo(parent.absoluteRight)
+                        bottom.linkTo(parent.bottom)
+                    },
+                style = LocalTextStyle.current.merge(notIncludeTextPaddingStyle).merge(outlineTextStyle),
+            )
 
             // yesterday temperature
-            Box(modifier = Modifier
-                .padding(top = 4.dp)
-                .constrainAs(yesterdayTemp) {
-                    absoluteLeft.linkTo(parent.absoluteLeft)
-                    bottom.linkTo(parent.bottom)
-                }) {
+            Box(
+                modifier =
+                    Modifier
+                        .padding(top = 4.dp)
+                        .constrainAs(yesterdayTemp) {
+                            absoluteLeft.linkTo(parent.absoluteLeft)
+                            bottom.linkTo(parent.bottom)
+                        },
+            ) {
                 if (current.yesterdayTemperature != null) {
-                    Text(text = current.text(current.temperature, LocalContext.current).let { texts ->
-                        listOf(
-                            AStyle(texts[0], span = SpanStyle(fontSize = 14.sp, color = textColor, fontWeight = FontWeight.Light)),
-                            AStyle(" ${texts[1]} ", span = SpanStyle(fontSize = 15.sp, color = textColor, fontWeight = FontWeight.Normal)),
-                            AStyle(texts[2], span = SpanStyle(fontSize = 14.sp, color = textColor, fontWeight = FontWeight.Light)),
-                        ).toAnnotated()
-                    }, style = LocalTextStyle.current.merge(notIncludeTextPaddingStyle).merge(outlineTextStyle))
+                    Text(
+                        text =
+                            current.text(current.temperature, LocalContext.current).let { texts ->
+                                listOf(
+                                    AStyle(texts[0], span = SpanStyle(fontSize = 14.sp, color = textColor, fontWeight = FontWeight.Light)),
+                                    AStyle(
+                                        " ${texts[1]} ",
+                                        span = SpanStyle(fontSize = 15.sp, color = textColor, fontWeight = FontWeight.Normal),
+                                    ),
+                                    AStyle(texts[2], span = SpanStyle(fontSize = 14.sp, color = textColor, fontWeight = FontWeight.Light)),
+                                ).toAnnotated()
+                            },
+                        style = LocalTextStyle.current.merge(notIncludeTextPaddingStyle).merge(outlineTextStyle),
+                    )
                 }
             }
 
             val infiniteTransition = rememberInfiniteTransition(label = "")
-            val rotationAngle by infiniteTransition.animateFloat(initialValue = 0f,
+            val rotationAngle by infiniteTransition.animateFloat(
+                initialValue = 0f,
                 targetValue = 8f,
                 animationSpec = infiniteRepeatable(animation = tween(4000, easing = LinearEasing), repeatMode = RepeatMode.Reverse),
-                label = "")
+                label = "",
+            )
 
             // weather icon
             AsyncImage(
                 model = ImageRequest.Builder(LocalContext.current).data(current.weatherIcon).crossfade(false).build(),
-                contentDescription = stringResource(
-                    id = io.github.pknujsp.everyweather.core.resource.R.string.weather_icon_description,
-                ),
-                modifier = Modifier
-                    .rotate(rotationAngle)
-                    .size(90.dp)
-                    .constrainAs(icon) {
-                        absoluteLeft.linkTo(parent.absoluteLeft)
-                        bottom.linkTo(condition.top)
-                    },
+                contentDescription =
+                    stringResource(
+                        id = io.github.pknujsp.everyweather.core.resource.R.string.weather_icon_description,
+                    ),
+                modifier =
+                    Modifier
+                        .rotate(rotationAngle)
+                        .size(90.dp)
+                        .constrainAs(icon) {
+                            absoluteLeft.linkTo(parent.absoluteLeft)
+                            bottom.linkTo(condition.top)
+                        },
             )
 
             // weather condition
             Text(
                 text = stringResource(current.weatherCondition.value.stringRes),
-                modifier = Modifier.constrainAs(condition) {
-                    absoluteLeft.linkTo(parent.absoluteLeft)
-                    bottom.linkTo(yesterdayTemp.top)
-                },
-                style = TextStyle(fontSize = 25.sp, color = textColor, fontWeight = FontWeight.Medium, letterSpacing = (-1).sp).merge(
-                    outlineTextStyle).merge(notIncludeTextPaddingStyle),
+                modifier =
+                    Modifier.constrainAs(condition) {
+                        absoluteLeft.linkTo(parent.absoluteLeft)
+                        bottom.linkTo(yesterdayTemp.top)
+                    },
+                style =
+                    TextStyle(fontSize = 25.sp, color = textColor, fontWeight = FontWeight.Medium, letterSpacing = (-1).sp).merge(
+                        outlineTextStyle,
+                    ).merge(notIncludeTextPaddingStyle),
             )
         }
 
-        val items: List<@Composable () -> Unit> = listOf({
-            FeatureItem(WeatherDataCategory.WIND_SPEED.stringId, current.windSpeed.strength(LocalContext.current))
-        }, { FeatureItem(WeatherDataCategory.WIND_DIRECTION.stringId, stringResource(id = current.windDirection.value)) }, {
-            FeatureItem(WeatherDataCategory.AIR_QUALITY_INDEX.stringId,
-                stringResource(id = airQualityValueType()?.airQualityDescription?.descriptionStringId ?: R.string.no_data))
-        })
+        val items: List<@Composable () -> Unit> =
+            listOf({
+                FeatureItem(WeatherDataCategory.WIND_SPEED.stringId, current.windSpeed.strength(LocalContext.current))
+            }, { FeatureItem(WeatherDataCategory.WIND_DIRECTION.stringId, stringResource(id = current.windDirection.value)) }, {
+                FeatureItem(
+                    WeatherDataCategory.AIR_QUALITY_INDEX.stringId,
+                    stringResource(id = airQualityValueType()?.airQualityDescription?.descriptionStringId ?: R.string.no_data),
+                )
+            })
 
         NonlazyGrid(horizontalItemCount = 3, totalItemCount = items.size) { index ->
             items[index]()
@@ -159,14 +203,19 @@ fun CurrentWeatherScreen(current: CurrentWeather, airQualityValueType: () -> Air
 }
 
 @Composable
-fun FeatureItem(@StringRes label: Int, value: String) {
+fun FeatureItem(
+    @StringRes label: Int,
+    value: String,
+) {
     Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(70.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = Color.White,
-        ),
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .height(70.dp),
+        colors =
+            CardDefaults.cardColors(
+                containerColor = Color.White,
+            ),
     ) {
         Column(modifier = Modifier.padding(12.dp)) {
             Text(text = stringResource(id = label), style = MaterialTheme.typography.labelLarge.copy(color = Color.Black))
@@ -181,7 +230,6 @@ fun FeatureItem(@StringRes label: Int, value: String) {
     }
 }
 
-
 @Composable
 fun NonlazyGrid(
     horizontalItemCount: Int,
@@ -189,12 +237,13 @@ fun NonlazyGrid(
     modifier: Modifier = Modifier,
     itemHorizontalPadding: Dp = 12.dp,
     itemVerticalPadding: Dp = 8.dp,
-    content: @Composable (Int) -> Unit
+    content: @Composable (Int) -> Unit,
 ) {
     Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(itemVerticalPadding)) {
-        val verticalLineCount = remember {
-            (totalItemCount / horizontalItemCount) + if ((totalItemCount % horizontalItemCount) > 0) 1 else 0
-        }
+        val verticalLineCount =
+            remember {
+                (totalItemCount / horizontalItemCount) + if ((totalItemCount % horizontalItemCount) > 0) 1 else 0
+            }
         for (verticalLineId in 0..<verticalLineCount) {
             val firstIndex = verticalLineId * horizontalItemCount
 
@@ -203,9 +252,13 @@ fun NonlazyGrid(
             ) {
                 for (id in 0..<horizontalItemCount) {
                     val index = firstIndex + id
-                    Box(modifier = Modifier
-                        .fillMaxWidth()
-                        .weight(1f), contentAlignment = Alignment.Center) {
+                    Box(
+                        modifier =
+                            Modifier
+                                .fillMaxWidth()
+                                .weight(1f),
+                        contentAlignment = Alignment.Center,
+                    ) {
                         if (index < totalItemCount) {
                             content(index)
                         }
@@ -215,7 +268,6 @@ fun NonlazyGrid(
         }
     }
 }
-
 
 /**
  * [minFontSize] ~ [defaultFontSize] 범위 내에서, [step]만큼 fontSize를 동적으로
@@ -238,7 +290,7 @@ fun AutoAdjustingFontSizeText(
     overflow: TextOverflow = TextOverflow.Clip,
     minFontSize: Int = MIN_AUTO_SIZING_TEXT_SIZE,
     defaultFontSize: Int = DEFAULT_AUTO_SIZING_TEXT_SIZE,
-    step: Int = 1
+    step: Int = 1,
 ) {
     BoxWithConstraints(modifier = modifier) {
         val textOverflow = remember(overflow) { if (overflow == TextOverflow.Ellipsis) TextOverflow.Clip else overflow }
@@ -265,7 +317,6 @@ fun AutoAdjustingFontSizeText(
         }
 * */
 
-
 @Composable
 fun AutoText(
     modifier: Modifier = Modifier,
@@ -274,7 +325,7 @@ fun AutoText(
     overflow: TextOverflow = TextOverflow.Clip,
     minFontSize: Int = MIN_AUTO_SIZING_TEXT_SIZE,
     defaultFontSize: Int = DEFAULT_AUTO_SIZING_TEXT_SIZE,
-    step: Int = 1
+    step: Int = 1,
 ) {
     BoxWithConstraints(modifier = modifier) {
         val textMeasurer = rememberTextMeasurer()

@@ -5,17 +5,18 @@ import io.github.pknujsp.everyweather.core.model.searchhistory.SearchHistory
 import kotlinx.coroutines.flow.map
 
 class SearchHistoryRepositoryImpl(
-    private val searchHistoryLocalDataSource: SearchHistoryLocalDataSource
+    private val searchHistoryLocalDataSource: SearchHistoryLocalDataSource,
 ) : SearchHistoryRepository {
     override suspend fun insert(query: String) {
         searchHistoryLocalDataSource.insert(query)
     }
 
-    override fun getAll() = searchHistoryLocalDataSource.getAll().map {
-        it.map { searchHistoryDto ->
-            SearchHistory(id = searchHistoryDto.id, query = searchHistoryDto.query)
+    override fun getAll() =
+        searchHistoryLocalDataSource.getAll().map {
+            it.map { searchHistoryDto ->
+                SearchHistory(id = searchHistoryDto.id, query = searchHistoryDto.query)
+            }
         }
-    }
 
     override suspend fun deleteAll() {
         searchHistoryLocalDataSource.deleteAll()

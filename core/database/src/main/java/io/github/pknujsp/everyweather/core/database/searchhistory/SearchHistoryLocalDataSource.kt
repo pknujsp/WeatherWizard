@@ -3,7 +3,6 @@ package io.github.pknujsp.everyweather.core.database.searchhistory
 import kotlinx.coroutines.flow.Flow
 
 interface SearchHistoryLocalDataSource {
-
     suspend fun insert(query: String)
 
     fun getAll(): Flow<List<SearchHistoryDto>>
@@ -11,5 +10,4 @@ interface SearchHistoryLocalDataSource {
     suspend fun deleteAll()
 
     suspend fun deleteById(id: Long)
-
 }

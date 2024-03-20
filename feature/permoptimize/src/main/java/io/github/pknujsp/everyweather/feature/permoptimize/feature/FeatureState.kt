@@ -10,7 +10,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import io.github.pknujsp.everyweather.core.common.FeatureType
 
-
 private class MutableAppFeatureState(
     override val featureType: FeatureType,
 ) : AppFeatureState {
@@ -31,19 +30,22 @@ private class MutableAppFeatureState(
 
 @Composable
 fun rememberAppFeatureState(featureType: FeatureType): AppFeatureState {
-    val manager = remember(featureType) {
-        MutableAppFeatureState(featureType)
-    }
+    val manager =
+        remember(featureType) {
+            MutableAppFeatureState(featureType)
+        }
     return manager
 }
-
 
 @Stable
 interface AppFeatureState {
     val featureType: FeatureType
     val isChanged: Int
     val isShowSettingsActivity: Boolean
+
     fun isAvailable(context: Context): Boolean
+
     fun showSettingsActivity()
+
     fun hideSettingsActivity()
 }

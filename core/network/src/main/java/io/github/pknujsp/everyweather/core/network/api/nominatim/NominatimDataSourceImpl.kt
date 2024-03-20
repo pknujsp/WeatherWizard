@@ -8,16 +8,16 @@ import java.util.Locale
 
 internal class NominatimDataSourceImpl(
     private val nominatimNetworkApi: NominatimNetworkApi,
-    @AppLocale locale: Locale
+    @AppLocale locale: Locale,
 ) : NominatimDataSource {
-
     private val lang: String = locale.language
 
     override suspend fun getCode(query: String): Result<GeoCodeResponse> =
         nominatimNetworkApi.geoCode(query = query, lang = lang).onResult()
 
-
-    override suspend fun reverseGeoCode(latitude: Double, longitude: Double): Result<ReverseGeoCodeResponse> =
+    override suspend fun reverseGeoCode(
+        latitude: Double,
+        longitude: Double,
+    ): Result<ReverseGeoCodeResponse> =
         nominatimNetworkApi.reverseGeoCode(latitude = latitude, longitude = longitude, lang = lang).onResult()
-
 }

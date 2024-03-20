@@ -25,7 +25,6 @@ import javax.inject.Named
 @Module
 @InstallIn(SingletonComponent::class)
 object InitializerModule {
-
     const val NOTIFICATION_INITIALIZER = "NOTIFICATION_INITIALIZER"
     const val WIDGET_INITIALIZER = "WIDGET_INITIALIZER"
 
@@ -35,20 +34,23 @@ object InitializerModule {
         @ApplicationContext context: Context,
         ongoingNotificationRepository: OngoingNotificationRepository,
         dailyNotificationRepository: DailyNotificationRepository,
-    ): AppComponentServiceIntializer = NotificationIntializerImpl(context,
-        ongoingNotificationRepository,
-        dailyNotificationRepository,
-        AppNotificationManager.getInstance(context),
-        OngoingNotificationAlarmManager.getInstance(context),
-        DailyNotificationAlarmManager.getInstance(context))
+    ): AppComponentServiceIntializer =
+        NotificationIntializerImpl(
+            context,
+            ongoingNotificationRepository,
+            dailyNotificationRepository,
+            AppNotificationManager.getInstance(context),
+            OngoingNotificationAlarmManager.getInstance(context),
+            DailyNotificationAlarmManager.getInstance(context),
+        )
 
     @Provides
     @Named(WIDGET_INITIALIZER)
     fun providesWidgetInitializer(
-        @ApplicationContext context: Context, settingsRepository: SettingsRepository
+        @ApplicationContext context: Context,
+        settingsRepository: SettingsRepository,
     ): AppComponentServiceIntializer =
         WidgetStarterImpl(context, WidgetManager.getInstance(context), WidgetAlarmManager.getInstance(context), settingsRepository)
-
 }
 
 private class NotificationIntializerImpl(
@@ -59,19 +61,23 @@ private class NotificationIntializerImpl(
     private val ongoingNotificationAlarmManager: OngoingNotificationAlarmManager,
     private val dailyNotificationAlarmManager: DailyNotificationAlarmManager,
 ) : AppComponentServiceIntializer(context) {
-
-    private suspend fun getOngoingNotification() = ongoingNotificationRepository.getOngoingNotification().let {
-        if (it.isInitialized) it else null
-    }
+    private suspend fun getOngoingNotification() =
+        ongoingNotificationRepository.getOngoingNotification().let {
+            if (it.isInitialized) it else null
+        }
 
     private suspend fun getDailyNotifications() = dailyNotificationRepository.getDailyNotifications().firstOrNull()
 
     private suspend fun initOngoingNotification() {
         getOngoingNotification()?.let {
             if (it.enabled && !appNotificationManager.isActiveNotification(NotificationType.ONGOING)) {
-                context.sendBroadcast(ComponentPendingIntentManager.getIntent(context,
-                    OngoingNotificationServiceArgument(),
-                    AppComponentServiceReceiver.ACTION_REFRESH))
+                context.sendBroadcast(
+                    ComponentPendingIntentManager.getIntent(
+                        context,
+                        OngoingNotificationServiceArgument(),
+                        AppComponentServiceReceiver.ACTION_REFRESH,
+                    ),
+                )
                 ongoingNotificationAlarmManager.scheduleAutoRefresh(it.data.refreshInterval)
             }
         }
@@ -97,16 +103,14 @@ private class WidgetStarterImpl(
     private val widgetAutoRefreshScheduler: WidgetAlarmManager,
     private val settingsRepository: SettingsRepository,
 ) : AppComponentServiceIntializer(context) {
-
     override suspend fun initialize() {
         if (widgetManager.redrawAllWidgets()) {
             val refreshInterval = settingsRepository.settings.replayCache.last().widgetAutoRefreshInterval
             if (widgetAutoRefreshScheduler.getScheduleState() is AppAlarmManager.ScheduledState.NotScheduled) {
                 widgetAutoRefreshScheduler.scheduleAutoRefresh(refreshInterval)
             }
-        }else{
+        } else {
             widgetAutoRefreshScheduler.unScheduleAutoRefresh()
         }
     }
-
 }

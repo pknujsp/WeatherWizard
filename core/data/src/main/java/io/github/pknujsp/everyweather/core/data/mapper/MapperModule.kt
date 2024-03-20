@@ -10,7 +10,8 @@ import kotlinx.serialization.json.Json
 @Module
 @InstallIn(SingletonComponent::class)
 object MapperModule {
-
     @Provides
-    fun provideJsonParser(@KtJson json: Json): JsonParser = JsonParser(json)
+    fun provideJsonParser(
+        @KtJson json: Json,
+    ): JsonParser = JsonParser(json)
 }

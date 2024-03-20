@@ -42,17 +42,19 @@ import io.github.pknujsp.everyweather.core.model.onLoading
 import io.github.pknujsp.everyweather.core.model.onSuccess
 import io.github.pknujsp.everyweather.core.model.weather.RequestWeatherArguments
 import io.github.pknujsp.everyweather.core.model.weather.common.WeatherConditionCategory
-import io.github.pknujsp.everyweather.feature.weather.info.dailyforecast.model.CompareDailyForecast
 import io.github.pknujsp.everyweather.core.resource.R
 import io.github.pknujsp.everyweather.core.ui.TitleTextWithNavigation
 import io.github.pknujsp.everyweather.core.ui.lottie.CancellableLoadingScreen
 import io.github.pknujsp.everyweather.feature.weather.comparison.common.CommonForecastItemsScreen
 import io.github.pknujsp.everyweather.feature.weather.comparison.common.CompareForecastCard
 import io.github.pknujsp.everyweather.feature.weather.comparison.hourlyforecast.WeatherDataProviderInfo
+import io.github.pknujsp.everyweather.feature.weather.info.dailyforecast.model.CompareDailyForecast
 
 @Composable
 fun CompareDailyForecastScreen(
-    args: RequestWeatherArguments, viewModel: CompareDailyForecastViewModel = hiltViewModel(), popBackStack: () -> Unit
+    args: RequestWeatherArguments,
+    viewModel: CompareDailyForecastViewModel = hiltViewModel(),
+    popBackStack: () -> Unit,
 ) {
     BackHandler {
         popBackStack()
@@ -62,17 +64,23 @@ fun CompareDailyForecastScreen(
     }
     val forecast by viewModel.dailyForecast.collectAsStateWithLifecycle()
 
-    Column(modifier = Modifier
-        .fillMaxSize()
-        .systemBarsPadding()) {
-        TitleTextWithNavigation(title = stringResource(id = io.github.pknujsp.everyweather.core.resource.R.string.title_comparison_daily_forecast)) {
+    Column(
+        modifier =
+            Modifier
+                .fillMaxSize()
+                .systemBarsPadding(),
+    ) {
+        TitleTextWithNavigation(
+            title = stringResource(id = io.github.pknujsp.everyweather.core.resource.R.string.title_comparison_daily_forecast),
+        ) {
             popBackStack()
         }
         Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .weight(1f)
-                .verticalScroll(rememberScrollState()),
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .weight(1f)
+                    .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
             forecast.onLoading {
@@ -81,9 +89,13 @@ fun CompareDailyForecastScreen(
                 }
             }.onSuccess {
                 CompareForecastCard.CompareCardSurface {
-                    Box(contentAlignment = Alignment.Center, modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 16.dp)) {
+                    Box(
+                        contentAlignment = Alignment.Center,
+                        modifier =
+                            Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 16.dp),
+                    ) {
                         Content(it)
                     }
                 }
@@ -99,35 +111,44 @@ fun Content(compareDailyForecastInfo: CompareDailyForecastInfo) {
     val itemModifier = Modifier.width(CompareDailyForecastInfo.itemWidth)
     val context = LocalContext.current
     val weatherDataProviderInfoHeight = 36.dp
-    val weatherDataProviderInfoHeightPx = with(LocalDensity.current) {
-        weatherDataProviderInfoHeight.toPx().toInt()
-    }
+    val weatherDataProviderInfoHeightPx =
+        with(LocalDensity.current) {
+            weatherDataProviderInfoHeight.toPx().toInt()
+        }
     val dateTextHeight = 36.dp
-    val dateTextHeightPx = with(LocalDensity.current) {
-        dateTextHeight.toPx().toInt()
-    }
+    val dateTextHeightPx =
+        with(LocalDensity.current) {
+            dateTextHeight.toPx().toInt()
+        }
 
     Layout(
         content = {
             LazyRow(
                 verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(Color.Transparent)
-                    .wrapContentHeight(),
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .background(Color.Transparent)
+                        .wrapContentHeight(),
                 state = rememberLazyListState(),
             ) {
                 items(count = compareDailyForecastInfo.items.size, key = { it }) { i ->
-                    Column(horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.spacedBy(weatherDataProviderInfoHeight)) {
-                        Text(text = compareDailyForecastInfo.dates[i],
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.spacedBy(weatherDataProviderInfoHeight),
+                    ) {
+                        Text(
+                            text = compareDailyForecastInfo.dates[i],
                             style = TextStyle(fontSize = 13.sp, color = Color.White, textAlign = TextAlign.Center),
-                            modifier = Modifier.height(dateTextHeight))
+                            modifier = Modifier.height(dateTextHeight),
+                        )
                         compareDailyForecastInfo.items[i].forEach { item ->
                             Item(item, itemModifier) { conditions ->
-                                Toast.makeText(context,
+                                Toast.makeText(
+                                    context,
                                     conditions.joinToString(", ") { context.getString(it.stringRes) },
-                                    Toast.LENGTH_SHORT).show()
+                                    Toast.LENGTH_SHORT,
+                                ).show()
                             }
                         }
                     }
@@ -154,36 +175,42 @@ fun Content(compareDailyForecastInfo: CompareDailyForecastInfo) {
             }
         }
     }
-
 }
-
 
 @Composable
 private fun Item(
-    item: CompareDailyForecast.Item, modifier: Modifier, onClick: (List<WeatherConditionCategory>) -> Unit
+    item: CompareDailyForecast.Item,
+    modifier: Modifier,
+    onClick: (List<WeatherConditionCategory>) -> Unit,
 ) {
     // 날짜, 아이콘, 강수확률, 강수량
     item.run {
         Column(
-            modifier = modifier.clickable {
-                onClick(weatherConditions)
-            },
+            modifier =
+                modifier.clickable {
+                    onClick(weatherConditions)
+                },
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            Row(modifier = Modifier
-                .padding(vertical = 8.dp, horizontal = 6.dp)
-                .fillMaxWidth()
-                .height(42.dp),
+            Row(
+                modifier =
+                    Modifier
+                        .padding(vertical = 8.dp, horizontal = 6.dp)
+                        .fillMaxWidth()
+                        .height(42.dp),
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween) {
+                horizontalArrangement = Arrangement.SpaceBetween,
+            ) {
                 weatherConditions.forEach { icon ->
-                    AsyncImage(model = ImageRequest.Builder(LocalContext.current).data(icon.dayWeatherIcon).crossfade(false).build(),
+                    AsyncImage(
+                        model = ImageRequest.Builder(LocalContext.current).data(icon.dayWeatherIcon).crossfade(false).build(),
                         contentDescription = null,
-                        modifier = Modifier.weight(1f, true))
+                        modifier = Modifier.weight(1f, true),
+                    )
                 }
             }
 
-            Text(text = "${minTemperature}/${maxTemperature}", style = TextStyle(fontSize = 15.sp, color = Color.White))
+            Text(text = "$minTemperature/$maxTemperature", style = TextStyle(fontSize = 15.sp, color = Color.White))
         }
     }
 }

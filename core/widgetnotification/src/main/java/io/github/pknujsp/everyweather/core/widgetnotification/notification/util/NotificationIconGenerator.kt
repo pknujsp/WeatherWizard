@@ -19,18 +19,18 @@ import io.github.pknujsp.everyweather.core.model.settings.CurrentUnits
 import io.github.pknujsp.everyweather.core.model.weather.current.CurrentWeatherEntity
 
 object NotificationIconGenerator {
-
     private val iconSize: Size = getIconSizeForDeviceResolution()
 
-    private val textPaint = TextPaint().apply {
-        color = Color.BLACK
-        textSize = iconSize.height - 7f
-        typeface = android.graphics.Typeface.create("sans-serif-condensed", android.graphics.Typeface.NORMAL)
-        textAlign = Paint.Align.CENTER
-        isAntiAlias = true
-        textScaleX = 0.89f
-        letterSpacing = -0.06f
-    }
+    private val textPaint =
+        TextPaint().apply {
+            color = Color.BLACK
+            textSize = iconSize.height - 7f
+            typeface = android.graphics.Typeface.create("sans-serif-condensed", android.graphics.Typeface.NORMAL)
+            textAlign = Paint.Align.CENTER
+            isAntiAlias = true
+            textScaleX = 0.89f
+            letterSpacing = -0.06f
+        }
 
     private fun createTemperatureIcon(temperature: String): IconCompat {
         val textRect = Rect()
@@ -47,16 +47,28 @@ object NotificationIconGenerator {
         return IconCompat.createWithBitmap(iconBitmap)
     }
 
-
     fun createIcon(
-        context: Context, notificationIconType: NotificationIconType, weatherResponseEntity: WeatherResponseEntity, units: CurrentUnits
+        context: Context,
+        notificationIconType: NotificationIconType,
+        weatherResponseEntity: WeatherResponseEntity,
+        units: CurrentUnits,
     ) = when (notificationIconType) {
-        NotificationIconType.TEMPERATURE -> createTemperatureIcon(weatherResponseEntity.toEntity<CurrentWeatherEntity>().temperature.convertUnit(
-            units.temperatureUnit).toStringWithOnlyDegree())
+        NotificationIconType.TEMPERATURE ->
+            createTemperatureIcon(
+                weatherResponseEntity.toEntity<CurrentWeatherEntity>().temperature.convertUnit(
+                    units.temperatureUnit,
+                ).toStringWithOnlyDegree(),
+            )
 
-        NotificationIconType.ICON -> IconCompat.createWithResource(context,
-            weatherResponseEntity.toEntity<CurrentWeatherEntity>().weatherCondition.value.getWeatherIconByTimeOfDay(weatherResponseEntity.dayNightCalculator.calculate(
-                weatherResponseEntity.responseTime.toCalendar()) == DayNightCalculator.DayNight.DAY))
+        NotificationIconType.ICON ->
+            IconCompat.createWithResource(
+                context,
+                weatherResponseEntity.toEntity<CurrentWeatherEntity>().weatherCondition.value.getWeatherIconByTimeOfDay(
+                    weatherResponseEntity.dayNightCalculator.calculate(
+                        weatherResponseEntity.responseTime.toCalendar(),
+                    ) == DayNightCalculator.DayNight.DAY,
+                ),
+            )
     }
 
     private fun getIconSizeForDeviceResolution(): Size {

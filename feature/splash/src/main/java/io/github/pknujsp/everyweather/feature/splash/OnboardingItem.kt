@@ -11,21 +11,33 @@ internal interface OnboardingItem {
 }
 
 internal class DefaultOnboardingItem(
-    override val title: Int, override val message: Int, override val image: Int
+    override val title: Int,
+    override val message: Int,
+    override val image: Int,
 ) : OnboardingItem
 
 internal class PemissionOnboardingItem(
-    override val title: Int, override val message: Int, override val image: Int, val permissions: List<FeatureType.Permission>
+    override val title: Int,
+    override val message: Int,
+    override val image: Int,
+    val permissions: List<FeatureType.Permission>,
 ) : OnboardingItem
 
-internal val onboardingItems: List<OnboardingItem> = listOf(
-    DefaultOnboardingItem(title = io.github.pknujsp.everyweather.core.resource.R.string.onboarding_title_main,
-        message = io.github.pknujsp.everyweather.core.resource.R.string.onboarding_message_main,
-        image = io.github.pknujsp.everyweather.core.resource.R.drawable.weatherwizard_icon_logo),
-    DefaultOnboardingItem(title = io.github.pknujsp.everyweather.core.resource.R.string.onboarding_title_notification,
-        message = io.github.pknujsp.everyweather.core.resource.R.string.onboarding_message_notification,
-        image = io.github.pknujsp.everyweather.core.resource.R.drawable.weatherwizard_icon_logo),
-    DefaultOnboardingItem(title = io.github.pknujsp.everyweather.core.resource.R.string.onboarding_title_widget,
-        message = io.github.pknujsp.everyweather.core.resource.R.string.onboarding_message_widget,
-        image = io.github.pknujsp.everyweather.core.resource.R.drawable.weatherwizard_icon_logo),
-)
+internal val onboardingItems: List<OnboardingItem> =
+    listOf(
+        DefaultOnboardingItem(
+            title = io.github.pknujsp.everyweather.core.resource.R.string.onboarding_title_main,
+            message = io.github.pknujsp.everyweather.core.resource.R.string.onboarding_message_main,
+            image = io.github.pknujsp.everyweather.core.resource.R.drawable.weatherwizard_icon_logo,
+        ),
+        DefaultOnboardingItem(
+            title = io.github.pknujsp.everyweather.core.resource.R.string.onboarding_title_notification,
+            message = io.github.pknujsp.everyweather.core.resource.R.string.onboarding_message_notification,
+            image = io.github.pknujsp.everyweather.core.resource.R.drawable.weatherwizard_icon_logo,
+        ),
+        DefaultOnboardingItem(
+            title = io.github.pknujsp.everyweather.core.resource.R.string.onboarding_title_widget,
+            message = io.github.pknujsp.everyweather.core.resource.R.string.onboarding_message_widget,
+            image = io.github.pknujsp.everyweather.core.resource.R.drawable.weatherwizard_icon_logo,
+        ),
+    )

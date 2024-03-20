@@ -21,9 +21,7 @@ import io.github.pknujsp.everyweather.core.network.api.metnorway.response.MetNor
 import io.github.pknujsp.everyweather.core.network.api.metnorway.response.MetNorwayDailyForecastResponse
 import io.github.pknujsp.everyweather.core.network.api.metnorway.response.MetNorwayHourlyForecastResponse
 
-
 internal class MetNorwayResponseMapper : WeatherResponseMapper<WeatherEntityModel> {
-
     private companion object : DefaultValueUnit {
         override val DEFAULT_TEMPERATURE_UNIT = TemperatureUnit.Celsius
         override val DEFAULT_WIND_SPEED_UNIT = WindSpeedUnit.MeterPerSecond
@@ -48,41 +46,50 @@ internal class MetNorwayResponseMapper : WeatherResponseMapper<WeatherEntityMode
     }
 
     private fun mapHourlyForecast(response: MetNorwayHourlyForecastResponse): HourlyForecastEntity {
-        return HourlyForecastEntity(response.items.map { item ->
-            HourlyForecastEntity.Item(
-                dateTime = item.dateTime,
-                weatherCondition = item.weatherCondition,
-                temperature = item.temperature,
-                humidity = item.humidity,
-                windSpeed = item.windSpeed,
-                windDirection = item.windDirection,
-                feelsLikeTemperature = item.feelsLikeTemperature,
-                rainfallVolume = RainfallValueType.none,
-                snowfallVolume = SnowfallValueType.none,
-                precipitationVolume = item.precipitationVolume,
-                precipitationProbability = ProbabilityValueType.none,
-            )
-        })
+        return HourlyForecastEntity(
+            response.items.map { item ->
+                HourlyForecastEntity.Item(
+                    dateTime = item.dateTime,
+                    weatherCondition = item.weatherCondition,
+                    temperature = item.temperature,
+                    humidity = item.humidity,
+                    windSpeed = item.windSpeed,
+                    windDirection = item.windDirection,
+                    feelsLikeTemperature = item.feelsLikeTemperature,
+                    rainfallVolume = RainfallValueType.none,
+                    snowfallVolume = SnowfallValueType.none,
+                    precipitationVolume = item.precipitationVolume,
+                    precipitationProbability = ProbabilityValueType.none,
+                )
+            },
+        )
     }
 
     private fun mapDailyForecast(response: MetNorwayDailyForecastResponse): DailyForecastEntity {
-        val dayItems = response.items.groupBy { it.dateTime }.map { (day, dayItems) ->
-            DailyForecastEntity.DayItem(dateTime = day,
-                minTemperature = dayItems[0].minTemperature,
-                maxTemperature = dayItems[0].maxTemperature,
-                windMinSpeed = dayItems[0].windMinSpeed,
-                windMaxSpeed = dayItems[0].windMaxSpeed,
-                items = dayItems.map { item ->
-                    DailyForecastEntity.DayItem.Item(
-                        weatherCondition = item.weatherCondition,
-                        precipitationVolume = item.precipitationVolume,
-                    )
-                })
-        }
+        val dayItems =
+            response.items.groupBy { it.dateTime }.map { (day, dayItems) ->
+                DailyForecastEntity.DayItem(
+                    dateTime = day,
+                    minTemperature = dayItems[0].minTemperature,
+                    maxTemperature = dayItems[0].maxTemperature,
+                    windMinSpeed = dayItems[0].windMinSpeed,
+                    windMaxSpeed = dayItems[0].windMaxSpeed,
+                    items =
+                        dayItems.map { item ->
+                            DailyForecastEntity.DayItem.Item(
+                                weatherCondition = item.weatherCondition,
+                                precipitationVolume = item.precipitationVolume,
+                            )
+                        },
+                )
+            }
         return DailyForecastEntity(dayItems)
     }
 
-    override fun map(apiResponseModel: ApiResponseModel, majorWeatherEntityType: MajorWeatherEntityType) = when (majorWeatherEntityType) {
+    override fun map(
+        apiResponseModel: ApiResponseModel,
+        majorWeatherEntityType: MajorWeatherEntityType,
+    ) = when (majorWeatherEntityType) {
         MajorWeatherEntityType.CURRENT_CONDITION -> mapCurrentWeather(apiResponseModel as MetNorwayCurrentWeatherResponse)
         MajorWeatherEntityType.HOURLY_FORECAST -> mapHourlyForecast(apiResponseModel as MetNorwayHourlyForecastResponse)
         MajorWeatherEntityType.DAILY_FORECAST -> mapDailyForecast(apiResponseModel as MetNorwayDailyForecastResponse)

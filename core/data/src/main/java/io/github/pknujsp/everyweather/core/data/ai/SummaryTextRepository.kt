@@ -9,5 +9,6 @@ interface SummaryTextRepository {
 
 interface Prompt {
     val id: Int
+
     fun build(): String
 }

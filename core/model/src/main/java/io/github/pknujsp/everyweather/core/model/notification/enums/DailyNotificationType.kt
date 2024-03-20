@@ -9,7 +9,7 @@ enum class DailyNotificationType(val categories: Array<MajorWeatherEntityType>) 
         override val title: Int = io.github.pknujsp.everyweather.core.resource.R.string.hourly_and_daily_forecast
         override val icon: Int? = null
         override val key: Int = ordinal
-    };
+    }, ;
 
     companion object : BaseEnum<DailyNotificationType> {
         override val default: DailyNotificationType = FORECAST

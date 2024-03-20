@@ -26,10 +26,10 @@ class CacheManagerImpl<K, V>(
     cacheExpiryTime: Duration = Duration.ofMinutes(5),
     cleaningInterval: Duration = Duration.ofMinutes(5),
     cacheMaxSize: Int = 10,
-    dispatcher: CoroutineDispatcher
-) : CacheManager<K, V>(cacheExpiryTime.toMillis(), cleaningInterval.toMillis(), cacheMaxSize), CacheCleaner,
+    dispatcher: CoroutineDispatcher,
+) : CacheManager<K, V>(cacheExpiryTime.toMillis(), cleaningInterval.toMillis(), cacheMaxSize),
+    CacheCleaner,
     CoroutineScope by CoroutineScope(dispatcher) {
-
     private val cacheActor = cacheManagerActor()
     private val isCacheCleanerRunning = AtomicBoolean(false)
     private val waitTimeForCacheCleaning = 20L
@@ -44,19 +44,20 @@ class CacheManagerImpl<K, V>(
             return
         }
 
-        cacheCleanerJob = launch(SupervisorJob()) {
-            while (true) {
-                delay(cleaningInterval)
+        cacheCleanerJob =
+            launch(SupervisorJob()) {
+                while (true) {
+                    delay(cleaningInterval)
 
-                isCacheCleanerRunning.getAndSet(true)
+                    isCacheCleanerRunning.getAndSet(true)
 
-                val response = CompletableDeferred<Int>()
-                cacheActor.send(CacheMessage.Clear(response))
-                response.await()
+                    val response = CompletableDeferred<Int>()
+                    cacheActor.send(CacheMessage.Clear(response))
+                    response.await()
 
-                isCacheCleanerRunning.getAndSet(false)
+                    isCacheCleanerRunning.getAndSet(false)
+                }
             }
-        }
     }
 
     override fun stop() {
@@ -75,8 +76,11 @@ class CacheManagerImpl<K, V>(
         return response.await()
     }
 
-
-    override suspend fun put(key: K, value: V, cacheExpiryTime: Long) {
+    override suspend fun put(
+        key: K,
+        value: V,
+        cacheExpiryTime: Long,
+    ) {
         cacheActor.send(CacheMessage.Put(key, value, cacheExpiryTime))
     }
 
@@ -93,13 +97,13 @@ class CacheManagerImpl<K, V>(
     }
 
     @OptIn(ObsoleteCoroutinesApi::class)
-    private fun CoroutineScope.cacheManagerActor(
-    ) = actor<CacheMessage<K, V>>(start = CoroutineStart.LAZY) {
-        val cacheMap = LruCache<K, Cache<V>>(cacheMaxSize)
-        for (msg in channel) {
-            msg.process(cacheMap)
+    private fun CoroutineScope.cacheManagerActor() =
+        actor<CacheMessage<K, V>>(start = CoroutineStart.LAZY) {
+            val cacheMap = LruCache<K, Cache<V>>(cacheMaxSize)
+            for (msg in channel) {
+                msg.process(cacheMap)
+            }
         }
-    }
 
     private sealed interface CacheMessage<K, V> {
         fun process(cacheMap: LruCache<K, Cache<V>>)
@@ -131,36 +135,39 @@ class CacheManagerImpl<K, V>(
         }
 
         data class Get<K, V>(
-            val key: K, val response: CompletableDeferred<CacheState<V>>
+            val key: K,
+            val response: CompletableDeferred<CacheState<V>>,
         ) : CacheMessage<K, V> {
             override fun process(cacheMap: LruCache<K, Cache<V>>) {
-                val cacheState = cacheMap[key]?.run {
-                    if (isExpired()) {
-                        cacheMap.remove(key)
+                val cacheState =
+                    cacheMap[key]?.run {
+                        if (isExpired()) {
+                            cacheMap.remove(key)
+                            CacheState.Miss
+                        } else {
+                            CacheState.Hit(value)
+                        }
+                    } ?: run {
                         CacheState.Miss
-                    } else {
-                        CacheState.Hit(value)
                     }
-                } ?: run {
-                    CacheState.Miss
-                }
                 response.complete(cacheState)
             }
         }
 
         data class Entries<K, V>(
-            val response: CompletableDeferred<List<Pair<K, Cache<V>>>>
+            val response: CompletableDeferred<List<Pair<K, Cache<V>>>>,
         ) : CacheMessage<K, V> {
             override fun process(cacheMap: LruCache<K, Cache<V>>) {
                 response.complete(cacheMap.snapshot().map { it.key to it.value })
             }
         }
     }
-
 }
 
 data class Cache<V>(
-    val value: V, val cacheExpiryTime: Long, val addedTime: Long = System.currentTimeMillis()
+    val value: V,
+    val cacheExpiryTime: Long,
+    val addedTime: Long = System.currentTimeMillis(),
 ) {
     fun isExpired(now: Long = System.currentTimeMillis()): Boolean = now - addedTime > cacheExpiryTime
 }

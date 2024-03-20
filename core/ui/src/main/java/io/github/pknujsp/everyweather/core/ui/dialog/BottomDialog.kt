@@ -32,7 +32,6 @@ import io.github.pknujsp.everyweather.core.ui.theme.AppColorScheme
 import io.github.pknujsp.everyweather.core.ui.theme.AppShapes
 import kotlin.math.roundToInt
 
-
 private val ContentPadding = 16.dp
 
 @Composable
@@ -57,11 +56,13 @@ fun CustomModalBottomSheet(
     val maxHeightDp = (height * if (freeHeight) 0.8 else 0.6 / density).roundToInt().dp
     val bottomPadding = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
 
-    ModalBottomSheet(onDismissRequest = onDismissRequest,
-        modifier = modifier
-            .heightIn(min = 0.dp, max = maxHeightDp)
-            .absolutePadding(left = 12.dp, right = 12.dp)
-            .absoluteOffset(y = (-10 - bottomPadding.value).dp),
+    ModalBottomSheet(
+        onDismissRequest = onDismissRequest,
+        modifier =
+            modifier
+                .heightIn(min = 0.dp, max = maxHeightDp)
+                .absolutePadding(left = 12.dp, right = 12.dp)
+                .absoluteOffset(y = (-10 - bottomPadding.value).dp),
         sheetState = sheetState,
         sheetMaxWidth = sheetMaxWidth,
         shape = shape,
@@ -74,11 +75,11 @@ fun CustomModalBottomSheet(
         properties = properties,
         content = {
             Column(modifier = Modifier.padding(start = ContentPadding, end = ContentPadding, bottom = ContentPadding), content = content)
-        })
+        },
+    )
 }
 
 private val DragHandleVerticalPadding = 12.dp
-
 
 @Composable
 private fun DragHandle(

@@ -1,6 +1,5 @@
 package io.github.pknujsp.everyweather.core.common.util
 
-
 import kotlin.math.pow
 
 /**
@@ -33,17 +32,20 @@ object FeelsLikeTemperatureCalculator {
      * @return 바람 냉기 온도(섭씨).
      */
     private fun calculateWindChillTemperature(
-        temperatureInCelsius: Double, windSpeedInKmh: Double
+        temperatureInCelsius: Double,
+        windSpeedInKmh: Double,
     ): Short {
         return if (windSpeedInKmh <= 4.68) {
             temperatureInCelsius.toInt().toShort()
         } else {
-            val result =             WIND_CHILL_CONSTANT_A + WIND_CHILL_CONSTANT_B * temperatureInCelsius - WIND_CHILL_CONSTANT_C * windSpeedInKmh.pow(0.16) + WIND_CHILL_CONSTANT_D * windSpeedInKmh.pow(
-                0.16) * temperatureInCelsius
+            val result =
+                WIND_CHILL_CONSTANT_A + WIND_CHILL_CONSTANT_B * temperatureInCelsius - WIND_CHILL_CONSTANT_C * windSpeedInKmh.pow(0.16) + WIND_CHILL_CONSTANT_D *
+                    windSpeedInKmh.pow(
+                        0.16,
+                    ) * temperatureInCelsius
             result.toInt().toShort()
         }
     }
-
 
     /**
      * 이 함수는 주어진 매개변수를 기반으로 열 지수 온도를 계산합니다.
@@ -53,7 +55,8 @@ object FeelsLikeTemperatureCalculator {
      * @return 열 지수 온도(섭씨).
      */
     private fun calculateHeatIndexTemperature(
-        temperatureInCelsius: Double, relativeHumidity: Double
+        temperatureInCelsius: Double,
+        relativeHumidity: Double,
     ): Short {
         // 열 지수 공식에 대한 중간 계산
         val temperatureSquared = temperatureInCelsius * temperatureInCelsius
@@ -80,7 +83,9 @@ object FeelsLikeTemperatureCalculator {
      * @return "체감 온도"(섭씨).
      */
     fun calculateFeelsLikeTemperature(
-        temperatureInCelsius: Short, windSpeedInKmh: Double, relativeHumidity: Double
+        temperatureInCelsius: Short,
+        windSpeedInKmh: Double,
+        relativeHumidity: Double,
     ) = if (temperatureInCelsius >= HEAT_INDEX_THRESHOLD_TEMPERATURE) {
         calculateHeatIndexTemperature(temperatureInCelsius.toDouble(), relativeHumidity).toInt().toShort()
     } else {

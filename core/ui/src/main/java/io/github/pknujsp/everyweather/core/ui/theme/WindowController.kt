@@ -15,7 +15,8 @@ fun WindowInsetsControllerCompat.setNavigationBarContentColor(color: SystemBarCo
 }
 
 enum class SystemBarContentColor(val isLight: Boolean) {
-    WHITE(false), BLACK(true)
+    WHITE(false),
+    BLACK(true),
 }
 
 fun ComponentActivity.setWindowStyle() {

@@ -46,25 +46,29 @@ private class MutableNetworkState(
 
 @Composable
 fun rememberAppNetworkState(context: Context = LocalContext.current): NetworkState {
-    val appNetworkManager = remember {
-        AppNetworkManagerImpl(context)
-    }
-    val networkUiState = remember {
-        MutableNetworkState(appNetworkManager)
-    }
+    val appNetworkManager =
+        remember {
+            AppNetworkManagerImpl(context)
+        }
+    val networkUiState =
+        remember {
+            MutableNetworkState(appNetworkManager)
+        }
 
     DisposableEffect(appNetworkManager) {
-        appNetworkManager.registerNetworkCallback(object : ConnectivityManager.NetworkCallback() {
-            override fun onAvailable(network: Network) {
-                super.onAvailable(network)
-                networkUiState.isChanged++
-            }
+        appNetworkManager.registerNetworkCallback(
+            object : ConnectivityManager.NetworkCallback() {
+                override fun onAvailable(network: Network) {
+                    super.onAvailable(network)
+                    networkUiState.isChanged++
+                }
 
-            override fun onLost(network: Network) {
-                super.onLost(network)
-                networkUiState.isChanged++
-            }
-        })
+                override fun onLost(network: Network) {
+                    super.onLost(network)
+                    networkUiState.isChanged++
+                }
+            },
+        )
 
         onDispose {
             appNetworkManager.unregisterNetworkCallback()

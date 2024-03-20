@@ -20,7 +20,10 @@ object FlickrNetworkModule {
 
     @Provides
     @Singleton
-    fun providesFlickrNetworkApi(okHttpClient: OkHttpClient, @KtJson json: Json): FlickrNetworkApi =
+    fun providesFlickrNetworkApi(
+        okHttpClient: OkHttpClient,
+        @KtJson json: Json,
+    ): FlickrNetworkApi =
         Retrofit.Builder().client(okHttpClient).baseUrl(flickrUrl).addCallAdapterFactory(NetworkApiCallAdapterFactory())
             .addConverterFactory(json.asConverterFactory("application/json".toMediaType())).build().create(FlickrNetworkApi::class.java)
 

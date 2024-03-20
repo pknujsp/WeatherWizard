@@ -7,7 +7,6 @@ import io.github.pknujsp.everyweather.core.model.weather.common.WeatherProvider
 import io.github.pknujsp.everyweather.core.model.widget.WidgetType
 import java.time.ZonedDateTime
 
-
 sealed interface SavedWidgetContentState : EntityModel {
     val id: Int
     val widgetType: WidgetType
@@ -24,7 +23,6 @@ sealed interface SavedWidgetContentState : EntityModel {
         val longitude: Double,
         val entities: List<EntityWithWeatherProvider>,
     ) : SavedWidgetContentState {
-
         class EntityWithWeatherProvider(
             val weatherProvider: WeatherProvider,
             val entities: List<WeatherEntityModel>,

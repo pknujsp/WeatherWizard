@@ -8,7 +8,5 @@ import io.github.pknujsp.everyweather.core.model.DBEntityModel
 data class SearchHistoryDto(
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0,
-    val query: String
-) : DBEntityModel {
-
-}
+    val query: String,
+) : DBEntityModel

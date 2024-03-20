@@ -1,6 +1,5 @@
 package io.github.pknujsp.everyweather.core.network.api.metnorway
 
-
 import io.github.pknujsp.everyweather.core.model.ApiResponseModel
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -9,9 +8,8 @@ import kotlinx.serialization.Serializable
 data class MetNorwayResponse(
     @SerialName("geometry") val geometry: Geometry,
     @SerialName("properties") val properties: Properties,
-    @SerialName("type") val type: String = "" // Feature
+    @SerialName("type") val type: String = "", // Feature
 ) : ApiResponseModel {
-
     /**
      * @param coordinates [longitude, latitude, ?]
      * @param type Point
@@ -19,18 +17,18 @@ data class MetNorwayResponse(
     @Serializable
     data class Geometry(
         @SerialName("coordinates") val coordinates: List<String>,
-        @SerialName("type") val type: String = "" // Point
+        @SerialName("type") val type: String = "", // Point
     )
 
     @Serializable
     data class Properties(
         @SerialName("meta") val meta: Meta,
-        @SerialName("timeseries") val timeseries: List<Timesery>
+        @SerialName("timeseries") val timeseries: List<Timesery>,
     ) {
         @Serializable
         data class Meta(
             @SerialName("units") val units: Units,
-            @SerialName("updated_at") val updatedAt: String = "" // 2023-09-24T13:30:33Z
+            @SerialName("updated_at") val updatedAt: String = "", // 2023-09-24T13:30:33Z
         ) {
             /**
              * @param airPressureAtSeaLevel hPa
@@ -65,7 +63,7 @@ data class MetNorwayResponse(
                 @SerialName("relative_humidity") val relativeHumidity: String = "", // %
                 @SerialName("ultraviolet_index_clear_sky") val ultravioletIndexClearSky: String = "", // 1
                 @SerialName("wind_from_direction") val windFromDirection: String = "", // degrees
-                @SerialName("wind_speed") val windSpeed: String = "" // m/s
+                @SerialName("wind_speed") val windSpeed: String = "", // m/s
             )
         }
 
@@ -76,18 +74,18 @@ data class MetNorwayResponse(
         @Serializable
         data class Timesery(
             @SerialName("data") val data: Data,
-            @SerialName("time") val time: String = "" // 2023-09-24T15:00:00Z
+            @SerialName("time") val time: String = "", // 2023-09-24T15:00:00Z
         ) {
             @Serializable
             data class Data(
                 @SerialName("instant") val instant: Instant,
                 @SerialName("next_12_hours") val next12Hours: Next12Hours? = null,
                 @SerialName("next_1_hours") val next1Hours: Next1Hours? = null,
-                @SerialName("next_6_hours") val next6Hours: Next6Hours? = null
+                @SerialName("next_6_hours") val next6Hours: Next6Hours? = null,
             ) {
                 @Serializable
                 data class Instant(
-                    @SerialName("details") val details: Details
+                    @SerialName("details") val details: Details,
                 ) {
                     /**
                      * @param airPressureAtSeaLevel 1018.1hPa
@@ -116,36 +114,34 @@ data class MetNorwayResponse(
                         @SerialName("relative_humidity") val relativeHumidity: Double = 0.0, // 87.4
                         @SerialName("ultraviolet_index_clear_sky") val ultravioletIndexClearSky: Double = 0.0, // 0.0
                         @SerialName("wind_from_direction") val windFromDirection: Double = 0.0, // 29.9
-                        @SerialName("wind_speed") val windSpeed: Double = 0.0 // 2.3
+                        @SerialName("wind_speed") val windSpeed: Double = 0.0, // 2.3
                     )
                 }
 
                 @Serializable
                 data class Next12Hours(
-                    @SerialName("summary") val summary: Summary
+                    @SerialName("summary") val summary: Summary,
                 ) {
-
                     /**
                      * @param symbolCode partlycloudy_day
                      */
                     @Serializable
                     data class Summary(
-                        @SerialName("symbol_code") val symbolCode: String = "" // partlycloudy_day
+                        @SerialName("symbol_code") val symbolCode: String = "", // partlycloudy_day
                     )
                 }
 
                 @Serializable
                 data class Next1Hours(
                     @SerialName("details") val details: Details,
-                    @SerialName("summary") val summary: Summary
+                    @SerialName("summary") val summary: Summary,
                 ) {
-
                     /**
                      * @param precipitationAmount 0.0
                      */
                     @Serializable
                     data class Details(
-                        @SerialName("precipitation_amount") val precipitationAmount: Double = 0.0 // 0.0
+                        @SerialName("precipitation_amount") val precipitationAmount: Double = 0.0, // 0.0
                     )
 
                     /**
@@ -153,16 +149,15 @@ data class MetNorwayResponse(
                      */
                     @Serializable
                     data class Summary(
-                        @SerialName("symbol_code") val symbolCode: String = "" // partlycloudy_night
+                        @SerialName("symbol_code") val symbolCode: String = "", // partlycloudy_night
                     )
                 }
 
                 @Serializable
                 data class Next6Hours(
                     @SerialName("details") val details: Details,
-                    @SerialName("summary") val summary: Summary
+                    @SerialName("summary") val summary: Summary,
                 ) {
-
                     /**
                      * @param airTemperatureMax 16.4celsius
                      * @param airTemperatureMin 15.4celsius
@@ -172,7 +167,7 @@ data class MetNorwayResponse(
                     data class Details(
                         @SerialName("air_temperature_max") val airTemperatureMax: Double = 0.0, // 16.4
                         @SerialName("air_temperature_min") val airTemperatureMin: Double = 0.0, // 15.4
-                        @SerialName("precipitation_amount") val precipitationAmount: Double = 0.0 // 0.0
+                        @SerialName("precipitation_amount") val precipitationAmount: Double = 0.0, // 0.0
                     )
 
                     /**
@@ -180,7 +175,7 @@ data class MetNorwayResponse(
                      */
                     @Serializable
                     data class Summary(
-                        @SerialName("symbol_code") val symbolCode: String = "" // partlycloudy_night
+                        @SerialName("symbol_code") val symbolCode: String = "", // partlycloudy_night
                     )
                 }
             }

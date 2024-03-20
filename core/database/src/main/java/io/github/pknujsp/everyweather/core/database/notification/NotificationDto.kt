@@ -6,5 +6,8 @@ import io.github.pknujsp.everyweather.core.model.DBEntityModel
 
 @Entity(tableName = "notifications")
 data class NotificationDto(
-    @PrimaryKey(autoGenerate = true) val id: Long = 0, val enabled: Boolean = false, val notificationType: Int, val content: String = ""
+    @PrimaryKey(autoGenerate = true) val id: Long = 0,
+    val enabled: Boolean = false,
+    val notificationType: Int,
+    val content: String = "",
 ) : DBEntityModel

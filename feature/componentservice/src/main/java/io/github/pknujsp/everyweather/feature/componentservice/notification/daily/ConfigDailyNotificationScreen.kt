@@ -44,9 +44,11 @@ import io.github.pknujsp.everyweather.feature.permoptimize.permission.Permission
 import io.github.pknujsp.everyweather.feature.permoptimize.permission.rememberPermissionManager
 import io.github.pknujsp.everyweather.feature.searchlocation.SearchLocationScreen
 
-
 @Composable
-fun ConfigDailyNotificationScreen(navController: NavController, viewModel: ConfigDailyNotificationViewModel = hiltViewModel()) {
+fun ConfigDailyNotificationScreen(
+    navController: NavController,
+    viewModel: ConfigDailyNotificationViewModel = hiltViewModel(),
+) {
     val notification = rememberDailyNotificationState(viewModel.dailyNotificationUiState)
 
     LaunchedEffect(notification.dailyNotificationUiState.action) {
@@ -64,11 +66,13 @@ fun ConfigDailyNotificationScreen(navController: NavController, viewModel: Confi
                 SearchLocationScreen(onSelectedLocation = { newLocation ->
                     newLocation?.let {
                         dailyNotificationUiState.dailyNotificationSettings.location =
-                            LocationTypeModel(locationType = LocationType.CustomLocation,
+                            LocationTypeModel(
+                                locationType = LocationType.CustomLocation,
                                 address = it.addressName,
                                 latitude = it.latitude,
                                 country = it.countryName,
-                                longitude = it.longitude)
+                                longitude = it.longitude,
+                            )
                     }
                     showSearch = false
                 }, popBackStack = {
@@ -79,14 +83,19 @@ fun ConfigDailyNotificationScreen(navController: NavController, viewModel: Confi
                     TitleTextWithNavigation(title = stringResource(id = R.string.add_or_edit_daily_notification)) {
                         navController.popBackStack()
                     }
-                    RemoteViewsScreen(RemoteViewsCreatorManager.getByDailyNotificationType(dailyNotificationUiState.dailyNotificationSettings.type),
+                    RemoteViewsScreen(
+                        RemoteViewsCreatorManager.getByDailyNotificationType(dailyNotificationUiState.dailyNotificationSettings.type),
                         viewModel.units,
-                        modifier = Modifier.padding(12.dp))
-                    Column(modifier = Modifier
-                        .verticalScroll(rememberScrollState())
-                        .weight(1f)
-                        .padding(horizontal = 16.dp),
-                        verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                        modifier = Modifier.padding(12.dp),
+                    )
+                    Column(
+                        modifier =
+                            Modifier
+                                .verticalScroll(rememberScrollState())
+                                .weight(1f)
+                                .padding(horizontal = 16.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp),
+                    ) {
                         NotificationTypeItem(dailyNotificationUiState.dailyNotificationSettings.type) {
                             dailyNotificationUiState.dailyNotificationSettings.type = it
                         }
@@ -123,7 +132,8 @@ fun TimeItem(entity: DailyNotificationSettings) {
     }
     var expanded by remember { mutableStateOf(false) }
 
-    BottomSheetSettingItem(title = stringResource(id = R.string.notification_time),
+    BottomSheetSettingItem(
+        title = stringResource(id = R.string.notification_time),
         isBottomSheetExpanded = expanded,
         limitHeight = false,
         onClick = {
@@ -132,10 +142,12 @@ fun TimeItem(entity: DailyNotificationSettings) {
         onDismissRequest = {
             expanded = false
         },
-        currentData = entity.timeText) {
+        currentData = entity.timeText,
+    ) {
         val timePickerState = rememberTimePickerState(initialHour = time.first, initialMinute = time.second, is24Hour = false)
 
-        DialogScreen(title = stringResource(id = R.string.notification_time),
+        DialogScreen(
+            title = stringResource(id = R.string.notification_time),
             message = stringResource(id = R.string.message_notification_time),
             negative = stringResource(id = io.github.pknujsp.everyweather.core.resource.R.string.cancel),
             positive = stringResource(id = io.github.pknujsp.everyweather.core.resource.R.string.okay),
@@ -144,35 +156,41 @@ fun TimeItem(entity: DailyNotificationSettings) {
                 expanded = false
                 entity.hour = timePickerState.hour
                 entity.minute = timePickerState.minute
-            }) {
-
+            },
+        ) {
             TimePicker(
                 state = timePickerState,
                 modifier = Modifier.fillMaxWidth(),
-                colors = TimePickerDefaults.colors(
-                    clockDialColor = Color.LightGray,
-                    periodSelectorSelectedContainerColor = Color.Gray,
-                    periodSelectorUnselectedContainerColor = Color.LightGray,
-                    timeSelectorSelectedContainerColor = Color.Gray,
-                    timeSelectorUnselectedContainerColor = Color.LightGray,
-                    timeSelectorSelectedContentColor = Color.White,
-                    timeSelectorUnselectedContentColor = Color.Black,
-                    periodSelectorSelectedContentColor = Color.White,
-                    periodSelectorUnselectedContentColor = Color.Black,
-                ),
+                colors =
+                    TimePickerDefaults.colors(
+                        clockDialColor = Color.LightGray,
+                        periodSelectorSelectedContainerColor = Color.Gray,
+                        periodSelectorUnselectedContainerColor = Color.LightGray,
+                        timeSelectorSelectedContainerColor = Color.Gray,
+                        timeSelectorUnselectedContainerColor = Color.LightGray,
+                        timeSelectorSelectedContentColor = Color.White,
+                        timeSelectorUnselectedContentColor = Color.Black,
+                        periodSelectorSelectedContentColor = Color.White,
+                        periodSelectorUnselectedContentColor = Color.Black,
+                    ),
             )
         }
     }
 }
 
 @Composable
-fun NotificationTypeItem(selectedOption: DailyNotificationType, onSelectedItem: (DailyNotificationType) -> Unit) {
-    BottomSheetSettingItem(title = stringResource(id = io.github.pknujsp.everyweather.core.resource.R.string.data_type),
+fun NotificationTypeItem(
+    selectedOption: DailyNotificationType,
+    onSelectedItem: (DailyNotificationType) -> Unit,
+) {
+    BottomSheetSettingItem(
+        title = stringResource(id = io.github.pknujsp.everyweather.core.resource.R.string.data_type),
         selectedItem = selectedOption,
         onSelectedItem = {
             if (it != null) {
                 onSelectedItem(it)
             }
         },
-        enums = DailyNotificationType.enums)
+        enums = DailyNotificationType.enums,
+    )
 }

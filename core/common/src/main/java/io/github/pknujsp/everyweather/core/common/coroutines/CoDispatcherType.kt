@@ -13,13 +13,15 @@ import javax.inject.Qualifier
 annotation class CoDispatcher(val coDispatcherType: CoDispatcherType)
 
 enum class CoDispatcherType {
-    DEFAULT, IO, MAIN, SINGLE
+    DEFAULT,
+    IO,
+    MAIN,
+    SINGLE,
 }
 
 @Module
 @InstallIn(SingletonComponent::class)
 internal object CoDispatcherModule {
-
     @Provides
     @CoDispatcher(CoDispatcherType.IO)
     fun providesIoDispatcher(): CoroutineDispatcher = Dispatchers.IO
@@ -35,5 +37,4 @@ internal object CoDispatcherModule {
     @Provides
     @CoDispatcher(CoDispatcherType.SINGLE)
     fun providesSingleDispatcher(): CoroutineDispatcher = Dispatchers.IO.limitedParallelism(1)
-
 }

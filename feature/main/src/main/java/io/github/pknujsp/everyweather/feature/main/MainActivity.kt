@@ -1,7 +1,5 @@
 package io.github.pknujsp.everyweather.feature.main
 
-import android.graphics.Color
-import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -10,7 +8,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
-import androidx.core.view.WindowCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LifecycleEventEffect
 import dagger.hilt.android.AndroidEntryPoint
@@ -19,20 +16,19 @@ import io.github.pknujsp.everyweather.core.common.coroutines.CoDispatcher
 import io.github.pknujsp.everyweather.core.common.coroutines.CoDispatcherType
 import io.github.pknujsp.everyweather.core.ui.theme.AppColorScheme
 import io.github.pknujsp.everyweather.core.ui.theme.MainTheme
-import io.github.pknujsp.everyweather.core.ui.theme.SystemBarContentColor
-import io.github.pknujsp.everyweather.core.ui.theme.setNavigationBarContentColor
-import io.github.pknujsp.everyweather.core.ui.theme.setStatusBarContentColor
 import io.github.pknujsp.everyweather.core.ui.theme.setWindowStyle
 import io.github.pknujsp.everyweather.feature.map.OsmdroidInitializer
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     private val viewModel: ActivityViewModel by viewModels()
-    @CoDispatcher(CoDispatcherType.IO) @Inject lateinit var ioDispatcher: CoroutineDispatcher
+
+    @CoDispatcher(CoDispatcherType.IO)
+    @Inject
+    lateinit var ioDispatcher: CoroutineDispatcher
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -63,5 +59,4 @@ class MainActivity : ComponentActivity() {
         super.onStop()
         viewModel.stopCacheCleaner()
     }
-
 }

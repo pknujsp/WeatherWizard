@@ -4,13 +4,11 @@ import io.github.pknujsp.everyweather.core.network.api.AirQualityResponseModel
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
-
 @Serializable
 data class AqiCnResponse(
     @SerialName("status") val status: String,
-    @SerialName("data") val data: Data
+    @SerialName("data") val data: Data,
 ) : AirQualityResponseModel {
-
     @Serializable
     data class Data(
         @SerialName("aqi")
@@ -30,13 +28,12 @@ data class AqiCnResponse(
         @SerialName("forecast")
         val forecast: Forecast,
     ) {
-
         @Serializable
         data class Attribution(
             @SerialName("url")
             val url: String,
             @SerialName("name")
-            val name: String
+            val name: String,
         )
 
         @Serializable
@@ -46,7 +43,7 @@ data class AqiCnResponse(
             @SerialName("name")
             val name: String,
             @SerialName("url")
-            val url: String
+            val url: String,
         )
 
         @Serializable
@@ -66,11 +63,10 @@ data class AqiCnResponse(
             @SerialName("so2")
             val so2: Pollutant,
         ) {
-
             @Serializable
             data class Pollutant(
                 @SerialName("v")
-                val v: String
+                val v: String,
             )
         }
 
@@ -83,15 +79,14 @@ data class AqiCnResponse(
             @SerialName("v")
             val v: String,
             @SerialName("iso")
-            val iso: String
+            val iso: String,
         )
 
         @Serializable
         data class Forecast(
             @SerialName("daily")
-            val daily: Daily
+            val daily: Daily,
         ) {
-
             @Serializable
             data class Daily(
                 @SerialName("o3")
@@ -101,7 +96,6 @@ data class AqiCnResponse(
                 @SerialName("pm25")
                 val pm25: List<ForecastPollutant>,
             ) {
-
                 @Serializable
                 data class ForecastPollutant(
                     @SerialName("avg")
@@ -111,10 +105,9 @@ data class AqiCnResponse(
                     @SerialName("max")
                     val max: String,
                     @SerialName("min")
-                    val min: String
+                    val min: String,
                 )
             }
         }
-
     }
 }

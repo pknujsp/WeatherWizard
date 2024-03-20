@@ -10,7 +10,7 @@ dependencies {
     implementation(project(":core:data"))
     implementation(project(":core:domain"))
     implementation(project(":feature:map"))
-    implementation (project(":feature:permoptimize"))
+    implementation(project(":feature:permoptimize"))
 
     implementation(libs.androidx.appcompat)
     implementation(libs.androidx.constraintlayout.compose)

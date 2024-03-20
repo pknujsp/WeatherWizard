@@ -10,13 +10,16 @@ import io.github.pknujsp.everyweather.feature.componentservice.notification.dail
 import io.github.pknujsp.everyweather.feature.componentservice.notification.daily.DailyNotificationListScreen
 import io.github.pknujsp.everyweather.feature.componentservice.notification.ongoing.OngoingNotificationScreen
 
-
 @Composable
 fun HostNotificationScreen() {
     val navController = rememberNavController()
 
-    NavHost(navController = navController, route = NotificationRoutes.route, startDestination = NotificationRoutes.Main.route,
-        modifier = Modifier.systemBarsPadding()) {
+    NavHost(
+        navController = navController,
+        route = NotificationRoutes.route,
+        startDestination = NotificationRoutes.Main.route,
+        modifier = Modifier.systemBarsPadding(),
+    ) {
         composable(NotificationRoutes.Main.route) {
             NotificationMainScreen(navController = navController)
         }
@@ -29,6 +32,5 @@ fun HostNotificationScreen() {
         composable(NotificationRoutes.AddOrEditDaily.route, arguments = NotificationRoutes.AddOrEditDaily.arguments) {
             ConfigDailyNotificationScreen(navController)
         }
-
     }
 }

@@ -29,6 +29,7 @@ sealed interface FeatureType : FeatureIntent, StatefulFeature {
             val permissionType: Permission
 
             data class Granted(override val permissionType: Permission) : PermissionState
+
             data class Denied(override val permissionType: Permission) : PermissionState
         }
 
@@ -45,22 +46,24 @@ sealed interface FeatureType : FeatureIntent, StatefulFeature {
             override val isUnrelatedSdkDevice: Boolean = false
 
             override fun getPendingIntent(context: Context): PendingIntent {
-                return PendingIntent.getActivity(context,
+                return PendingIntent.getActivity(
+                    context,
                     this::class.simpleName.hashCode(),
                     getIntent(context),
-                    PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
+                    PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
+                )
             }
 
             override fun getIntent(context: Context) = appSettingsIntent(context)
 
             override fun isEnabled(context: Context) = context.checkSelfPermission(this)
-
         }
 
         data object ForegroundLocation : Permission {
             override val intentAction: String = Settings.ACTION_APPLICATION_DETAILS_SETTINGS
 
-            @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE) override val permissions: Array<String> =
+            @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+            override val permissions: Array<String> =
                 arrayOf(Manifest.permission.FOREGROUND_SERVICE_LOCATION)
             override val isUnrelatedSdkDevice: Boolean = Build.VERSION.SDK_INT < Build.VERSION_CODES.UPSIDE_DOWN_CAKE
             override val title: Int = io.github.pknujsp.everyweather.core.resource.R.string.foreground_service_location_permission
@@ -72,10 +75,12 @@ sealed interface FeatureType : FeatureIntent, StatefulFeature {
                 io.github.pknujsp.everyweather.core.resource.R.string.foreground_service_location_permission_description
 
             override fun getPendingIntent(context: Context): PendingIntent {
-                return PendingIntent.getActivity(context,
+                return PendingIntent.getActivity(
+                    context,
                     this::class.simpleName.hashCode(),
                     getIntent(context),
-                    PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
+                    PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
+                )
             }
 
             override fun getIntent(context: Context) = appSettingsIntent(context)
@@ -83,11 +88,11 @@ sealed interface FeatureType : FeatureIntent, StatefulFeature {
             override fun isEnabled(context: Context) = context.checkSelfPermission(this)
         }
 
-
         data object BackgroundLocation : Permission {
             override val intentAction: String = Settings.ACTION_APPLICATION_DETAILS_SETTINGS
 
-            @RequiresApi(Build.VERSION_CODES.Q) override val permissions: Array<String> =
+            @RequiresApi(Build.VERSION_CODES.Q)
+            override val permissions: Array<String> =
                 arrayOf(Manifest.permission.ACCESS_BACKGROUND_LOCATION)
             override val isUnrelatedSdkDevice: Boolean = Build.VERSION.SDK_INT < Build.VERSION_CODES.Q
             override val title: Int = io.github.pknujsp.everyweather.core.resource.R.string.background_location_permission
@@ -98,10 +103,12 @@ sealed interface FeatureType : FeatureIntent, StatefulFeature {
             override val reason: Int = io.github.pknujsp.everyweather.core.resource.R.string.background_location_permission_description
 
             override fun getPendingIntent(context: Context): PendingIntent {
-                return PendingIntent.getActivity(context,
+                return PendingIntent.getActivity(
+                    context,
                     this::class.simpleName.hashCode(),
                     getIntent(context),
-                    PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
+                    PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
+                )
             }
 
             override fun getIntent(context: Context) = appSettingsIntent(context)
@@ -112,7 +119,8 @@ sealed interface FeatureType : FeatureIntent, StatefulFeature {
         data object PostNotification : Permission {
             override val intentAction: String = Settings.ACTION_APPLICATION_DETAILS_SETTINGS
 
-            @RequiresApi(Build.VERSION_CODES.TIRAMISU) override val permissions: Array<String> =
+            @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+            override val permissions: Array<String> =
                 arrayOf(Manifest.permission.POST_NOTIFICATIONS)
             override val isUnrelatedSdkDevice: Boolean = Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU
             override val title: Int = io.github.pknujsp.everyweather.core.resource.R.string.post_notification_permission
@@ -123,10 +131,12 @@ sealed interface FeatureType : FeatureIntent, StatefulFeature {
             override val reason: Int = io.github.pknujsp.everyweather.core.resource.R.string.post_notification_permission_description
 
             override fun getPendingIntent(context: Context): PendingIntent {
-                return PendingIntent.getActivity(context,
+                return PendingIntent.getActivity(
+                    context,
                     this::class.simpleName.hashCode(),
                     getIntent(context),
-                    PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
+                    PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
+                )
             }
 
             override fun getIntent(context: Context) = appSettingsIntent(context)
@@ -137,7 +147,8 @@ sealed interface FeatureType : FeatureIntent, StatefulFeature {
         data object ScheduleExactAlarm : Permission {
             override val intentAction: String = Settings.ACTION_APPLICATION_DETAILS_SETTINGS
 
-            @RequiresApi(Build.VERSION_CODES.S) override val permissions: Array<String> =
+            @RequiresApi(Build.VERSION_CODES.S)
+            override val permissions: Array<String> =
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                     arrayOf(
                         Manifest.permission.SCHEDULE_EXACT_ALARM,
@@ -159,10 +170,12 @@ sealed interface FeatureType : FeatureIntent, StatefulFeature {
             override val reason: Int = io.github.pknujsp.everyweather.core.resource.R.string.exact_alarm_permission_description
 
             override fun getPendingIntent(context: Context): PendingIntent {
-                return PendingIntent.getActivity(context,
+                return PendingIntent.getActivity(
+                    context,
                     this::class.simpleName.hashCode(),
                     getIntent(context),
-                    PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
+                    PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
+                )
             }
 
             override fun getIntent(context: Context) = appSettingsIntent(context)
@@ -181,19 +194,22 @@ sealed interface FeatureType : FeatureIntent, StatefulFeature {
         override val hasRepairAction: Boolean = true
 
         override fun getPendingIntent(context: Context): PendingIntent {
-            return PendingIntent.getActivity(context,
+            return PendingIntent.getActivity(
+                context,
                 this::class.simpleName.hashCode(),
                 getIntent(context),
-                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
+            )
         }
 
         override fun getIntent(context: Context) = appSettingsIntent(context)
 
         override fun isEnabled(context: Context): Boolean {
-            return Build.VERSION.SDK_INT < Build.VERSION_CODES.S || (context.getSystemService(Context.POWER_SERVICE) as PowerManager).isIgnoringBatteryOptimizations(
-                context.packageName)
+            return Build.VERSION.SDK_INT < Build.VERSION_CODES.S ||
+                (context.getSystemService(Context.POWER_SERVICE) as PowerManager).isIgnoringBatteryOptimizations(
+                    context.packageName,
+                )
         }
-
     }
 
     data object Network : FeatureType {
@@ -205,10 +221,12 @@ sealed interface FeatureType : FeatureIntent, StatefulFeature {
         override val hasRepairAction: Boolean = true
 
         override fun getPendingIntent(context: Context): PendingIntent {
-            return PendingIntent.getActivity(context,
+            return PendingIntent.getActivity(
+                context,
                 this::class.simpleName.hashCode(),
                 getIntent(context),
-                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
+            )
         }
 
         override fun getIntent(context: Context) = actionIntent()
@@ -228,10 +246,12 @@ sealed interface FeatureType : FeatureIntent, StatefulFeature {
         override val hasRepairAction: Boolean = true
 
         override fun getPendingIntent(context: Context): PendingIntent {
-            return PendingIntent.getActivity(context,
+            return PendingIntent.getActivity(
+                context,
                 this::class.simpleName.hashCode(),
                 getIntent(context),
-                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
+            )
         }
 
         override fun getIntent(context: Context): Intent {
@@ -245,10 +265,11 @@ sealed interface FeatureType : FeatureIntent, StatefulFeature {
     }
 
     private companion object {
-        fun FeatureType.appSettingsIntent(context: Context) = Intent(intentAction).apply {
-            val uri = Uri.fromParts("package", context.packageName, null)
-            data = uri
-        }
+        fun FeatureType.appSettingsIntent(context: Context) =
+            Intent(intentAction).apply {
+                val uri = Uri.fromParts("package", context.packageName, null)
+                data = uri
+            }
 
         fun FeatureType.actionIntent() = Intent(intentAction)
     }
@@ -256,7 +277,9 @@ sealed interface FeatureType : FeatureIntent, StatefulFeature {
 
 interface FeatureIntent {
     fun isEnabled(context: Context): Boolean
+
     fun getPendingIntent(context: Context): PendingIntent
+
     fun getIntent(context: Context): Intent
 }
 
@@ -275,11 +298,11 @@ interface StatefulFeature {
 fun Activity.shouldShowRequestPermissionRationale(permissionType: FeatureType.Permission): Boolean =
     permissionType.permissions.any { ActivityCompat.shouldShowRequestPermissionRationale(this, it) }
 
-
 /**
  * 해당 권한을 고려할 필요가 없는 SDK 버전이라면 즉시 true를 반환
  */
 fun Context.checkSelfPermission(permissionType: FeatureType.Permission): Boolean =
-    permissionType.isUnrelatedSdkDevice || permissionType.permissions.all {
-        ContextCompat.checkSelfPermission(this, it) == PackageManager.PERMISSION_GRANTED
-    }
+    permissionType.isUnrelatedSdkDevice ||
+        permissionType.permissions.all {
+            ContextCompat.checkSelfPermission(this, it) == PackageManager.PERMISSION_GRANTED
+        }

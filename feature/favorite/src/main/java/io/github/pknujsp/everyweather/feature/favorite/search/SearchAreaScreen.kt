@@ -38,7 +38,6 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
-import io.github.pknujsp.everyweather.core.common.FeatureType
 import io.github.pknujsp.everyweather.core.resource.R
 import io.github.pknujsp.everyweather.core.ui.MainRoutes
 import io.github.pknujsp.everyweather.core.ui.RootNavControllerViewModel
@@ -50,7 +49,8 @@ import io.github.pknujsp.everyweather.feature.permoptimize.network.rememberAppNe
 fun SearchAreaScreen(
     navController: NavController,
     searchAreaViewModel: SearchAreaViewModel = hiltViewModel(),
-    rootNavControllerViewModel: RootNavControllerViewModel = hiltViewModel(viewModelStoreOwner = (LocalContext.current as ComponentActivity))
+    rootNavControllerViewModel: RootNavControllerViewModel =
+        hiltViewModel(viewModelStoreOwner = (LocalContext.current as ComponentActivity)),
 ) {
     val uiAction by searchAreaViewModel.uiAction.collectAsStateWithLifecycle()
     LaunchedEffect(uiAction) {
@@ -104,14 +104,21 @@ fun SearchAreaScreen(
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
-fun SearchBar(modifier: Modifier, query: Pair<String, Long>, onChangeQuery: (String) -> Unit, onSendQuery: (String) -> Unit) {
-    Row(modifier = modifier
-        .fillMaxWidth()
-        .background(Color.Transparent, shape = RectangleShape)
-        .padding(horizontal = 12.dp, vertical = 4.dp),
+fun SearchBar(
+    modifier: Modifier,
+    query: Pair<String, Long>,
+    onChangeQuery: (String) -> Unit,
+    onSendQuery: (String) -> Unit,
+) {
+    Row(
+        modifier =
+            modifier
+                .fillMaxWidth()
+                .background(Color.Transparent, shape = RectangleShape)
+                .padding(horizontal = 12.dp, vertical = 4.dp),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
         val context = LocalContext.current
         val messageIfEmpty = stringResource(id = R.string.search_area)
         val keyboardController = LocalSoftwareKeyboardController.current
@@ -122,7 +129,8 @@ fun SearchBar(modifier: Modifier, query: Pair<String, Long>, onChangeQuery: (Str
         }
 
         Icon(imageVector = Icons.Rounded.Search, contentDescription = stringResource(R.string.search), tint = Color.Black)
-        TextField(value = text,
+        TextField(
+            value = text,
             label = { Text(text = stringResource(id = R.string.search_area)) },
             onValueChange = {
                 text = it
@@ -130,23 +138,25 @@ fun SearchBar(modifier: Modifier, query: Pair<String, Long>, onChangeQuery: (Str
             },
             singleLine = true,
             modifier = Modifier.fillMaxWidth(),
-            colors = TextFieldDefaults.colors(
-                unfocusedContainerColor = Color.Transparent,
-                focusedContainerColor = Color.Transparent,
-                focusedIndicatorColor = Color.Transparent,
-                unfocusedIndicatorColor = Color.Transparent,
-                focusedLabelColor = Color.Gray,
-            ),
+            colors =
+                TextFieldDefaults.colors(
+                    unfocusedContainerColor = Color.Transparent,
+                    focusedContainerColor = Color.Transparent,
+                    focusedIndicatorColor = Color.Transparent,
+                    unfocusedIndicatorColor = Color.Transparent,
+                    focusedLabelColor = Color.Gray,
+                ),
             shape = RectangleShape,
             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
-            keyboardActions = KeyboardActions(onSearch = {
-                if (text.isNotEmpty()) {
-                    keyboardController?.hide()
-                    onSendQuery(text)
-                } else {
-                    Toast.makeText(context, messageIfEmpty, Toast.LENGTH_SHORT).show()
-                }
-            }),
+            keyboardActions =
+                KeyboardActions(onSearch = {
+                    if (text.isNotEmpty()) {
+                        keyboardController?.hide()
+                        onSendQuery(text)
+                    } else {
+                        Toast.makeText(context, messageIfEmpty, Toast.LENGTH_SHORT).show()
+                    }
+                }),
             trailingIcon = {
                 if (text.isNotEmpty()) {
                     IconButton(onClick = {
@@ -156,6 +166,7 @@ fun SearchBar(modifier: Modifier, query: Pair<String, Long>, onChangeQuery: (Str
                         Icon(imageVector = Icons.Rounded.Clear, contentDescription = stringResource(id = R.string.clear_query))
                     }
                 }
-            })
+            },
+        )
     }
 }

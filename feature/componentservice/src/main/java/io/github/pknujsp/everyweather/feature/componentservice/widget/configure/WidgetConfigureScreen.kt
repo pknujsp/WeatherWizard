@@ -44,11 +44,8 @@ import io.github.pknujsp.everyweather.feature.permoptimize.feature.SmallFeatureS
 import io.github.pknujsp.everyweather.feature.searchlocation.SearchLocationScreen
 import kotlinx.coroutines.launch
 
-
 @Composable
-fun WidgetConfigureScreen(
-    viewModel: WidgetConfigureViewModel = hiltViewModel()
-) {
+fun WidgetConfigureScreen(viewModel: WidgetConfigureViewModel = hiltViewModel()) {
     val context = LocalContext.current
     val widget = viewModel.widget
     var showSearch by remember { mutableStateOf(false) }
@@ -75,11 +72,14 @@ fun WidgetConfigureScreen(
     if (showSearch) {
         SearchLocationScreen(onSelectedLocation = { newLocation ->
             newLocation?.let {
-                widget.location = LocationTypeModel(locationType = LocationType.CustomLocation,
-                    address = it.addressName,
-                    latitude = it.latitude,
-                    country = it.countryName,
-                    longitude = it.longitude)
+                widget.location =
+                    LocationTypeModel(
+                        locationType = LocationType.CustomLocation,
+                        address = it.addressName,
+                        latitude = it.latitude,
+                        country = it.countryName,
+                        longitude = it.longitude,
+                    )
             }
             showSearch = false
         }, popBackStack = {
@@ -92,11 +92,14 @@ fun WidgetConfigureScreen(
                     context.asActivity()?.finish()
                 }
                 RemoteViewsScreen(RemoteViewsCreatorManager.getByWidgetType(widget.widgetType), viewModel.units)
-                Column(modifier = Modifier
-                    .verticalScroll(rememberScrollState())
-                    .weight(1f)
-                    .padding(horizontal = 16.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                Column(
+                    modifier =
+                        Modifier
+                            .verticalScroll(rememberScrollState())
+                            .weight(1f)
+                            .padding(horizontal = 16.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                ) {
                     LocationScreen(widget.location, onSelectedItem = {
                         widget.location = widget.location.copy(locationType = it)
                     }) {
@@ -107,18 +110,22 @@ fun WidgetConfigureScreen(
                     }
                     if (viewModel.refreshInterval != RefreshInterval.MANUAL) {
                         if (!configureState.batteryOptimizationFeatureState.isAvailable(LocalContext.current)) {
-                            SmallFeatureStateScreen(Modifier.padding(8.dp),
+                            SmallFeatureStateScreen(
+                                Modifier.padding(8.dp),
                                 state = configureState.batteryOptimizationFeatureState.featureType,
                                 onClickAction = {
                                     configureState.batteryOptimizationFeatureState.showSettingsActivity()
-                                })
+                                },
+                            )
                         }
                         if (configureState.backgroundLocationPermissionManager.isEnabled(context)) {
-                            SmallFeatureStateScreen(Modifier.padding(8.dp),
+                            SmallFeatureStateScreen(
+                                Modifier.padding(8.dp),
                                 state = FeatureType.Permission.BackgroundLocation,
                                 onClickAction = {
                                     configureState.backgroundLocationPermissionManager.showSettingsActivity()
-                                })
+                                },
+                            )
                         }
                     }
                 }
@@ -128,7 +135,8 @@ fun WidgetConfigureScreen(
                         if (!configureState.batteryOptimizationFeatureState.isAvailable(context)) {
                             coroutineScope.launch {
                                 configureState.showSnackbar(
-                                    context, configureState.batteryOptimizationFeatureState.featureType.message,
+                                    context,
+                                    configureState.batteryOptimizationFeatureState.featureType.message,
                                     configureState.batteryOptimizationFeatureState.featureType.action,
                                 ) {
                                     configureState.batteryOptimizationFeatureState.showSettingsActivity()
@@ -136,9 +144,11 @@ fun WidgetConfigureScreen(
                             }
                         } else if (configureState.backgroundLocationPermissionManager.isEnabled(context)) {
                             coroutineScope.launch {
-                                configureState.showSnackbar(context,
+                                configureState.showSnackbar(
+                                    context,
                                     FeatureType.Permission.BackgroundLocation.message,
-                                    FeatureType.Permission.BackgroundLocation.action) {
+                                    FeatureType.Permission.BackgroundLocation.action,
+                                ) {
                                     configureState.backgroundLocationPermissionManager.showSettingsActivity()
                                 }
                             }
@@ -150,21 +160,24 @@ fun WidgetConfigureScreen(
             }
         }
     }
-
 }
 
-
-fun createWidgetAndFinish(activity: Activity, widgetId: Int) {
-    val newWidgetIntent = ComponentPendingIntentManager.getIntent(activity.applicationContext,
-        LoadWidgetDataArgument(LoadWidgetDataArgument.NEW_WIDGET, widgetId),
-        AppComponentServiceReceiver.ACTION_REFRESH)
+fun createWidgetAndFinish(
+    activity: Activity,
+    widgetId: Int,
+) {
+    val newWidgetIntent =
+        ComponentPendingIntentManager.getIntent(
+            activity.applicationContext,
+            LoadWidgetDataArgument(LoadWidgetDataArgument.NEW_WIDGET, widgetId),
+            AppComponentServiceReceiver.ACTION_REFRESH,
+        )
     activity.sendBroadcast(newWidgetIntent)
 
     val result = Intent().putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, widgetId)
     activity.setResult(Activity.RESULT_OK, result)
     activity.finish()
 }
-
 
 enum class ConfigureActionState : ActionState {
     NO_LOCATION_IS_SELECTED {

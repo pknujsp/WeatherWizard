@@ -15,7 +15,8 @@ import io.github.pknujsp.everyweather.core.common.FeatureType
 
 @Stable
 private class MutablePermissionManager(
-    override val permissionType: FeatureType.Permission, val fetchPermissionStateFunc: () -> Unit
+    override val permissionType: FeatureType.Permission,
+    val fetchPermissionStateFunc: () -> Unit,
 ) : PermissionManager, FeatureIntent by permissionType {
     override var isShowSettingsActivity: Boolean by mutableStateOf(false)
         private set
@@ -37,8 +38,11 @@ private class MutablePermissionManager(
 interface PermissionManager : FeatureIntent {
     val isShowSettingsActivity: Boolean
     val permissionType: FeatureType.Permission
+
     fun requestPermission()
+
     fun showSettingsActivity()
+
     fun hideSettingsActivity()
 }
 
@@ -50,15 +54,17 @@ fun rememberPermissionManager(
     var permissionResult by remember {
         mutableStateOf(permissionType.isEnabled(context))
     }
-    val permissionLauncher = rememberLauncherForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { result ->
-        permissionResult = result.all { it.value }
-    }
+    val permissionLauncher =
+        rememberLauncherForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { result ->
+            permissionResult = result.all { it.value }
+        }
 
-    val permissionManager = remember {
-        MutablePermissionManager(permissionType, fetchPermissionStateFunc = {
-            permissionLauncher.launch(permissionType.permissions)
-        })
-    }
+    val permissionManager =
+        remember {
+            MutablePermissionManager(permissionType, fetchPermissionStateFunc = {
+                permissionLauncher.launch(permissionType.permissions)
+            })
+        }
 
     return permissionManager
 }

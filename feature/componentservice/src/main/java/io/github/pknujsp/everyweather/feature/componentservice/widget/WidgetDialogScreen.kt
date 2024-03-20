@@ -23,8 +23,8 @@ import io.github.pknujsp.everyweather.core.ui.button.PrimaryButton
 import io.github.pknujsp.everyweather.core.ui.button.SecondaryButton
 import io.github.pknujsp.everyweather.core.ui.button.ThirdButton
 import io.github.pknujsp.everyweather.core.widgetnotification.model.LoadWidgetDataArgument
-import io.github.pknujsp.everyweather.feature.componentservice.ComponentPendingIntentManager
 import io.github.pknujsp.everyweather.feature.componentservice.AppComponentServiceReceiver
+import io.github.pknujsp.everyweather.feature.componentservice.ComponentPendingIntentManager
 
 @Preview(showBackground = true, backgroundColor = 0xFFFFFFFF, showSystemUi = true)
 @Composable
@@ -47,16 +47,21 @@ fun WidgetDialogScreen() {
     }
 }
 
-
 @Composable
-fun Content(onClickLaunchApp: () -> Unit, onClickRefresh: () -> Unit, onClickCancel: () -> Unit) {
+fun Content(
+    onClickLaunchApp: () -> Unit,
+    onClickRefresh: () -> Unit,
+    onClickCancel: () -> Unit,
+) {
     Column(
         horizontalAlignment = androidx.compose.ui.Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(14.dp),
     ) {
-        AsyncImage(model = ImageRequest.Builder(LocalContext.current).data(R.drawable.textlogo_small).build(),
+        AsyncImage(
+            model = ImageRequest.Builder(LocalContext.current).data(R.drawable.textlogo_small).build(),
             contentDescription = null,
-            modifier = Modifier.height(24.dp))
+            modifier = Modifier.height(24.dp),
+        )
         PrimaryButton(text = stringResource(id = R.string.launch_app), buttonSize = ButtonSize.MEDIUM, modifier = Modifier.fillMaxWidth()) {
             onClickLaunchApp()
         }

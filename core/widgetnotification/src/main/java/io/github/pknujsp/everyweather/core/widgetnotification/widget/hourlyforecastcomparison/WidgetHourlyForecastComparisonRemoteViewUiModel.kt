@@ -8,7 +8,6 @@ import io.github.pknujsp.everyweather.core.model.weather.common.WeatherProvider
 class WidgetHourlyForecastComparisonRemoteViewUiModel(
     val items: List<Item>,
 ) : RemoteViewUiModel {
-
     class Item(
         val weatherProvider: WeatherProvider,
         val currentWeather: CurrentWeather,
@@ -23,6 +22,8 @@ class WidgetHourlyForecastComparisonRemoteViewUiModel(
     }
 
     class HourlyForecast(
-        val temperature: String, @DrawableRes val weatherIcon: Int, val dateTime: String
+        val temperature: String,
+        @DrawableRes val weatherIcon: Int,
+        val dateTime: String,
     )
 }

@@ -5,7 +5,6 @@ import io.github.pknujsp.everyweather.core.model.UiModel
 import io.github.pknujsp.everyweather.core.model.mapper.UiModelMapper
 
 abstract class WidgetUiModelMapper<T : Model, O : UiModel>(
-    protected val hourlyForecastItemsCount: Int, protected val dailyForecastItemsCount: Int
-) : UiModelMapper<T, O> {
-
-}
+    protected val hourlyForecastItemsCount: Int,
+    protected val dailyForecastItemsCount: Int,
+) : UiModelMapper<T, O>

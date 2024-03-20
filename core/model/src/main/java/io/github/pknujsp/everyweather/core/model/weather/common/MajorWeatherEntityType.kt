@@ -13,6 +13,9 @@ import kotlin.reflect.KClass
  * @param entityClass 해당 엔티티의 클래스
  */
 enum class MajorWeatherEntityType(val entityClass: KClass<out WeatherEntityModel>) {
-    CURRENT_CONDITION(CurrentWeatherEntity::class), HOURLY_FORECAST(HourlyForecastEntity::class),
-    DAILY_FORECAST(DailyForecastEntity::class), YESTERDAY_WEATHER(YesterdayWeatherEntity::class), AIR_QUALITY(AirQualityEntity::class);
+    CURRENT_CONDITION(CurrentWeatherEntity::class),
+    HOURLY_FORECAST(HourlyForecastEntity::class),
+    DAILY_FORECAST(DailyForecastEntity::class),
+    YESTERDAY_WEATHER(YesterdayWeatherEntity::class),
+    AIR_QUALITY(AirQualityEntity::class),
 }

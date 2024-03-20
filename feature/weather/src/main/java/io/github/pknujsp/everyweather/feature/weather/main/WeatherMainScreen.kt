@@ -1,6 +1,5 @@
 package io.github.pknujsp.everyweather.feature.weather.main
 
-
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Menu
@@ -42,12 +41,19 @@ fun WeatherMainScreen(
     val locationServiceState = rememberAppFeatureState(featureType = FeatureType.LocationService)
 
     if (selectedLocation != null) {
-        val isPassed by remember(networkState.isChanged,
+        val isPassed by remember(
+            networkState.isChanged,
             locationServiceState.isChanged,
-            locationServiceState.isChanged) {
+            locationServiceState.isChanged,
+        ) {
             derivedStateOf {
-                networkState.isAvailable(context) && (selectedLocation!!.locationType is LocationType.CustomLocation || (locationServiceState.isAvailable(
-                    context) && locationPermissionManager.isEnabled(context)))
+                networkState.isAvailable(context) && (
+                    selectedLocation!!.locationType is LocationType.CustomLocation || (
+                        locationServiceState.isAvailable(
+                            context,
+                        ) && locationPermissionManager.isEnabled(context)
+                    )
+                )
             }
         }
 
@@ -65,17 +71,23 @@ fun WeatherMainScreen(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TopBar(modifier: Modifier, openDrawer: () -> Unit) {
+fun TopBar(
+    modifier: Modifier,
+    openDrawer: () -> Unit,
+) {
     Column(modifier = modifier) {
-        TopAppBar(title = {},
-            colors = TopAppBarDefaults.topAppBarColors(
-                containerColor = Color.Transparent,
-                scrolledContainerColor = Color.Transparent,
-            ),
+        TopAppBar(
+            title = {},
+            colors =
+                TopAppBarDefaults.topAppBarColors(
+                    containerColor = Color.Transparent,
+                    scrolledContainerColor = Color.Transparent,
+                ),
             navigationIcon = {
                 IconButton(onClick = openDrawer) {
                     Icon(Icons.Rounded.Menu, contentDescription = null)
                 }
-            })
+            },
+        )
     }
 }

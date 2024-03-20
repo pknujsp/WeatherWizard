@@ -15,14 +15,16 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import io.github.pknujsp.everyweather.core.ui.TitleTextWithNavigation
 import io.github.pknujsp.everyweather.core.resource.R
+import io.github.pknujsp.everyweather.core.ui.TitleTextWithNavigation
 import io.github.pknujsp.everyweather.feature.favorite.search.SearchBar
 import io.github.pknujsp.everyweather.feature.favorite.search.SearchResultScreen
 
 @Composable
 fun SearchLocationScreen(
-    searchAreaViewModel: SearchLocationViewModel = hiltViewModel(), onSelectedLocation: (PickedLocation?) -> Unit, popBackStack: () -> Unit
+    searchAreaViewModel: SearchLocationViewModel = hiltViewModel(),
+    onSelectedLocation: (PickedLocation?) -> Unit,
+    popBackStack: () -> Unit,
 ) {
     BackHandler {
         popBackStack()

@@ -94,11 +94,12 @@ fun WeatherInfoScreen(
 
     val systemBars = WindowInsets.systemBars
     val density = LocalDensity.current
-    val systemBarPadding: PaddingValues = remember {
-        with(density) {
-            PaddingValues(top = systemBars.getTop(this).toDp(), bottom = systemBars.getBottom(this).toDp(), start = 0.dp, end = 0.dp)
+    val systemBarPadding: PaddingValues =
+        remember {
+            with(density) {
+                PaddingValues(top = systemBars.getTop(this).toDp(), bottom = systemBars.getBottom(this).toDp(), start = 0.dp, end = 0.dp)
+            }
         }
-    }
 
     LaunchedEffect(weatherContentUiState) {
         targetLocationViewModel.setLocation(weatherContentUiState.args.targetLocation)
@@ -112,20 +113,25 @@ fun WeatherInfoScreen(
             model = ImageRequest.Builder(LocalContext.current).diskCachePolicy(CachePolicy.ENABLED).crossfade(200).data(imageUrl).build(),
             contentDescription = stringResource(R.string.background_image),
         )
-        Box(modifier = Modifier
-            .fillMaxSize()
-            .background(Color.Black.copy(alpha = 0.11f), RectangleShape)) {
-            Column(
-                modifier = Modifier
+        Box(
+            modifier =
+                Modifier
                     .fillMaxSize()
-                    .padding(horizontal = DEFAULT_PADDING)
-                    .verticalScroll(scrollState),
+                    .background(Color.Black.copy(alpha = 0.11f), RectangleShape),
+        ) {
+            Column(
+                modifier =
+                    Modifier
+                        .fillMaxSize()
+                        .padding(horizontal = DEFAULT_PADDING)
+                        .verticalScroll(scrollState),
                 verticalArrangement = Arrangement.spacedBy(COLUMN_ITEM_SPACING),
             ) {
                 val localConfiguration = LocalConfiguration.current
-                val screenHeight = remember {
-                    (localConfiguration.screenHeightDp + (systemBarPadding.calculateTopPadding() + systemBarPadding.calculateBottomPadding()).value).dp
-                }
+                val screenHeight =
+                    remember {
+                        (localConfiguration.screenHeightDp + (systemBarPadding.calculateTopPadding() + systemBarPadding.calculateBottomPadding()).value).dp
+                    }
                 var currentAirQuality by remember { mutableStateOf<AirQualityValueType?>(null) }
 
                 Box(modifier = Modifier.height(screenHeight - DEFAULT_PADDING), contentAlignment = Alignment.BottomStart) {
@@ -142,9 +148,13 @@ fun WeatherInfoScreen(
                         weatherContentUiState.weatherEntities.airQuality = aqi
                     }
                 })
-                SimpleSunSetRiseScreen(SunSetRiseInfo(weatherContentUiState.args.targetLocation.latitude,
-                    weatherContentUiState.args.targetLocation.longitude,
-                    weatherContentUiState.lastUpdatedDateTime))
+                SimpleSunSetRiseScreen(
+                    SunSetRiseInfo(
+                        weatherContentUiState.args.targetLocation.latitude,
+                        weatherContentUiState.args.targetLocation.longitude,
+                        weatherContentUiState.lastUpdatedDateTime,
+                    ),
+                )
                 AdMob.BannerAd(modifier = Modifier.fillMaxWidth())
                 FlickrImageItemScreen(requestParameter = weather.flickrRequestParameters, onImageUrlChanged = {
                     coroutineScope.launch {
@@ -170,14 +180,18 @@ fun WeatherInfoScreen(
                 scrollState = scrollState,
             )
 
-            Box(modifier = Modifier
-                .align(Alignment.BottomCenter)
-                .fillMaxWidth()
-                .height(systemBarPadding.calculateBottomPadding())
-                .background(brush = shadowBox(ShadowDirection.UP)))
+            Box(
+                modifier =
+                    Modifier
+                        .align(Alignment.BottomCenter)
+                        .fillMaxWidth()
+                        .height(systemBarPadding.calculateBottomPadding())
+                        .background(brush = shadowBox(ShadowDirection.UP)),
+            )
         }
 
-        BottomSheetDialog(title = stringResource(id = R.string.title_weather_data_provider),
+        BottomSheetDialog(
+            title = stringResource(id = R.string.title_weather_data_provider),
             selectedItem = weatherContentUiState.args.weatherProvider,
             onSelectedItem = {
                 if (it != null && weatherContentUiState.args.weatherProvider != it) {
@@ -186,7 +200,8 @@ fun WeatherInfoScreen(
             },
             enums = WeatherProvider.enums,
             expanded = { onClickedWeatherProviderButton },
-            onDismissRequest = { onClickedWeatherProviderButton = false })
+            onDismissRequest = { onClickedWeatherProviderButton = false },
+        )
 
         if (showAiSummary) {
             SummaryScreen(model = weatherContentUiState.weatherEntities, onDismiss = {
@@ -200,18 +215,32 @@ fun WeatherInfoScreen(
  * 풍속, 강수량 단위 표시
  */
 @Composable
-private fun ColumnScope.Footer(modifier: Modifier = Modifier, units: CurrentUnits) {
-    Column(modifier = modifier.align(Alignment.End),
+private fun ColumnScope.Footer(
+    modifier: Modifier = Modifier,
+    units: CurrentUnits,
+) {
+    Column(
+        modifier = modifier.align(Alignment.End),
         verticalArrangement = Arrangement.spacedBy(4.dp),
-        horizontalAlignment = Alignment.End) {
+        horizontalAlignment = Alignment.End,
+    ) {
         UnitItem(title = R.string.title_wind_speed_unit, unit = units.windSpeedUnit)
         UnitItem(title = R.string.title_precipitation_unit, unit = units.precipitationUnit)
     }
 }
 
 @Composable
-private fun UnitItem(modifier: Modifier = Modifier, @StringRes title: Int, unit: WeatherDataUnit) {
-    Text(text = listOf(AStyle(text = "${stringResource(id = title)} : ", span = SpanStyle(fontSize = 13.sp, color = Color.White)),
-        AStyle(text = unit.symbol, span = SpanStyle(fontSize = 13.sp, color = Color.White))).toAnnotated(),
-        style = LocalTextStyle.current.merge(outlineTextStyle))
+private fun UnitItem(
+    modifier: Modifier = Modifier,
+    @StringRes title: Int,
+    unit: WeatherDataUnit,
+) {
+    Text(
+        text =
+            listOf(
+                AStyle(text = "${stringResource(id = title)} : ", span = SpanStyle(fontSize = 13.sp, color = Color.White)),
+                AStyle(text = unit.symbol, span = SpanStyle(fontSize = 13.sp, color = Color.White)),
+            ).toAnnotated(),
+        style = LocalTextStyle.current.merge(outlineTextStyle),
+    )
 }

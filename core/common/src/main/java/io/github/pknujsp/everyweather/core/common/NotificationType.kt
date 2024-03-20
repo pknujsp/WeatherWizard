@@ -17,7 +17,8 @@ enum class NotificationType(
     @StringRes val contentTitle: Int,
     @StringRes val contentText: Int,
 ) {
-    ONGOING(notificationId = 1,
+    ONGOING(
+        notificationId = 1,
         channelId = "ONGOING",
         channelName = R.string.notification_channel_ongoing_name,
         channelDescription = R.string.notification_channel_ongoing_description,
@@ -26,8 +27,10 @@ enum class NotificationType(
         contentTitle = 0,
         contentText = 0,
         ongoing = true,
-        silent = true),
-    DAILY(notificationId = 2,
+        silent = true,
+    ),
+    DAILY(
+        notificationId = 2,
         channelId = "DAILY",
         channelName = R.string.notification_channel_daily_name,
         channelDescription = R.string.notification_channel_daily_description,
@@ -36,8 +39,10 @@ enum class NotificationType(
         contentTitle = 0,
         contentText = 0,
         ongoing = false,
-        silent = false),
-    WORKING(notificationId = 3,
+        silent = false,
+    ),
+    WORKING(
+        notificationId = 3,
         channelId = "WORKING",
         channelName = R.string.notification_channel_working_name,
         channelDescription = R.string.notification_channel_working_description,
@@ -46,5 +51,6 @@ enum class NotificationType(
         contentTitle = R.string.notification_working_title,
         contentText = R.string.notification_working_text,
         ongoing = false,
-        silent = true),
+        silent = true,
+    ),
 }

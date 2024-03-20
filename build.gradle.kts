@@ -11,12 +11,11 @@ plugins {
     alias(libs.plugins.ksp) apply false
     alias(libs.plugins.kapt) apply false
     alias(libs.plugins.kotlin.parcelize) apply false
-    alias(libs.plugins.ktlint) apply false
-    alias(libs.plugins.detekt) apply false
+    alias(libs.plugins.ktlint)
+    alias(libs.plugins.detekt)
     alias(libs.plugins.com.android.test) apply false
-    //alias(libs.plugins.benchmark) apply false
+    // alias(libs.plugins.benchmark) apply false
 }
-
 
 /*
 gradle.allprojects {
@@ -26,8 +25,6 @@ gradle.allprojects {
 }
 */
 
-
-/*
 allprojects {
     apply(plugin = "org.jlleitschuh.gradle.ktlint")
     apply(plugin = "io.gitlab.arturbosch.detekt")
@@ -44,4 +41,4 @@ allprojects {
             verbose.set(true)
         }
     }
-}*/
+}

@@ -1,6 +1,5 @@
 package io.github.pknujsp.everyweather.core.network.api.flickr
 
-
 import io.github.pknujsp.everyweather.core.model.ApiResponseModel
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -8,10 +7,10 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class GetInfoPhotoResponse(
     @SerialName("photo") val photo: Photo = Photo(),
-    @SerialName("stat") val stat: String = "" // ok
+    @SerialName("stat") val stat: String = "", // ok
 ) : ApiResponseModel {
-
-    val imageUrl: String = """
+    val imageUrl: String =
+        """
         https://live.staticflickr.com/${photo.server}/${photo.id}_${photo.originalSecret.ifEmpty { photo.secret }}${if (photo.originalSecret.isEmpty()) "_b.jpg" else "_o.jpg"}
         """.trimIndent()
 
@@ -34,7 +33,7 @@ data class GetInfoPhotoResponse(
     ) {
         @Serializable
         data class Comments(
-            @SerialName("_content") val content: String = "" // 0
+            @SerialName("_content") val content: String = "", // 0
         )
 
         @Serializable
@@ -43,18 +42,18 @@ data class GetInfoPhotoResponse(
             @SerialName("posted") val posted: String = "", // 1548444483
             @SerialName("taken") val taken: String = "", // 2018-09-09 20:13:01
             @SerialName("takengranularity") val takengranularity: Int = 0, // 0
-            @SerialName("takenunknown") val takenunknown: String = "" // 0
+            @SerialName("takenunknown") val takenunknown: String = "", // 0
         )
 
         @Serializable
         data class Description(
-            @SerialName("_content") val content: String = "" // scenaries
+            @SerialName("_content") val content: String = "", // scenaries
         )
 
         @Serializable
         data class Editability(
             @SerialName("canaddmeta") val canaddmeta: Int = 0, // 0
-            @SerialName("cancomment") val cancomment: Int = 0 // 0
+            @SerialName("cancomment") val cancomment: Int = 0, // 0
         )
 
         @Serializable
@@ -62,7 +61,7 @@ data class GetInfoPhotoResponse(
             @SerialName("iscontact") val iscontact: Int = 0, // 0
             @SerialName("isfamily") val isfamily: Int = 0, // 0
             @SerialName("isfriend") val isfriend: Int = 0, // 0
-            @SerialName("ispublic") val ispublic: Int = 0 // 1
+            @SerialName("ispublic") val ispublic: Int = 0, // 1
         )
 
         @Serializable
@@ -75,40 +74,38 @@ data class GetInfoPhotoResponse(
             @SerialName("locality") val locality: Locality = Locality(),
             @SerialName("longitude") val longitude: String = "", // 127.034727
             @SerialName("neighbourhood") val neighbourhood: Neighbourhood = Neighbourhood(),
-            @SerialName("region") val region: Region = Region()
+            @SerialName("region") val region: Region = Region(),
         ) {
             @Serializable
             data class Country(
                 @SerialName("_content") val content: String = "", // 한국
-                @SerialName("woeid") val woeid: Int = 0 // 23424868
+                @SerialName("woeid") val woeid: Int = 0, // 23424868
             )
 
             @Serializable
             data class County(
                 @SerialName("_content") val content: String = "", // 성동구
-                @SerialName("woeid") val woeid: Int = 0 // 28289286
+                @SerialName("woeid") val woeid: Int = 0, // 28289286
             )
 
             @Serializable
             data class Locality(
                 @SerialName("_content") val content: String = "", // 서울
-                @SerialName("woeid") val woeid: Int = 0 // 1132599
+                @SerialName("woeid") val woeid: Int = 0, // 1132599
             )
 
             @Serializable
             data class Neighbourhood(
                 @SerialName("_content") val content: String = "", // 왕십리
-                @SerialName("woeid") val woeid: Int = 0 // 28835051
+                @SerialName("woeid") val woeid: Int = 0, // 28835051
             )
 
             @Serializable
             data class Region(
                 @SerialName("_content") val content: String = "", // 서울
-                @SerialName("woeid") val woeid: Int = 0 // 20069923
+                @SerialName("woeid") val woeid: Int = 0, // 20069923
             )
         }
-
-
 
         @Serializable
         data class Owner(
@@ -119,30 +116,30 @@ data class GetInfoPhotoResponse(
             @SerialName("nsid") val nsid: String = "", // 73479994@N00
             @SerialName("path_alias") val pathAlias: String = "", // fri13th
             @SerialName("realname") val realname: String = "",
-            @SerialName("username") val username: String = "" // lazy fri13th
+            @SerialName("username") val username: String = "", // lazy fri13th
         ) {
             @Serializable
             data class Gift(
                 @SerialName("eligible_durations") val eligibleDurations: List<String> = listOf(),
                 @SerialName("gift_eligible") val giftEligible: Boolean = false, // true
-                @SerialName("new_flow") val newFlow: Boolean = false // true
+                @SerialName("new_flow") val newFlow: Boolean = false, // true
             )
         }
 
         @Serializable
         data class People(
-            @SerialName("haspeople") val haspeople: Int = 0 // 0
+            @SerialName("haspeople") val haspeople: Int = 0, // 0
         )
 
         @Serializable
         data class Publiceditability(
             @SerialName("canaddmeta") val canaddmeta: Int = 0, // 0
-            @SerialName("cancomment") val cancomment: Int = 0 // 1
+            @SerialName("cancomment") val cancomment: Int = 0, // 1
         )
 
         @Serializable
         data class Tags(
-            @SerialName("tag") val tag: List<Tag> = listOf()
+            @SerialName("tag") val tag: List<Tag> = listOf(),
         ) {
             @Serializable
             data class Tag(
@@ -151,23 +148,23 @@ data class GetInfoPhotoResponse(
                 @SerialName("_content") val content: String = "", // tour
                 @SerialName("id") val id: String = "", // 2972730-32999137498-3768
                 @SerialName("machine_tag") val machineTag: String = "",
-                @SerialName("raw") val raw: String = "" // tour
+                @SerialName("raw") val raw: String = "", // tour
             )
         }
 
         @Serializable
         data class Title(
-            @SerialName("_content") val content: String = "" // scenaries 201809
+            @SerialName("_content") val content: String = "", // scenaries 201809
         )
 
         @Serializable
         data class Urls(
-            @SerialName("url") val url: List<Url> = listOf()
+            @SerialName("url") val url: List<Url> = listOf(),
         ) {
             @Serializable
             data class Url(
                 @SerialName("_content") val content: String = "", // https://www.flickr.com/photos/fri13th/32999137498/
-                @SerialName("type") val type: String = "" // photopage
+                @SerialName("type") val type: String = "", // photopage
             )
         }
 
@@ -176,14 +173,14 @@ data class GetInfoPhotoResponse(
             @SerialName("canblog") val canblog: Int = 0, // 0
             @SerialName("candownload") val candownload: Int = 0, // 1
             @SerialName("canprint") val canprint: Int = 0, // 0
-            @SerialName("canshare") val canshare: Int = 0 // 1
+            @SerialName("canshare") val canshare: Int = 0, // 1
         )
 
         @Serializable
         data class Visibility(
             @SerialName("isfamily") val isfamily: Int = 0, // 0
             @SerialName("isfriend") val isfriend: Int = 0, // 0
-            @SerialName("ispublic") val ispublic: Int = 0 // 1
+            @SerialName("ispublic") val ispublic: Int = 0, // 1
         )
     }
 }

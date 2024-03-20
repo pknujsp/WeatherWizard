@@ -3,7 +3,6 @@ package io.github.pknujsp.everyweather.feature.weather.info
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.FlingBehavior
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -64,12 +63,15 @@ fun TopAppBar(
         smallTitle = {
             Column(horizontalAlignment = Alignment.Start) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(imageVector = Icons.Rounded.Place,
+                    Icon(
+                        imageVector = Icons.Rounded.Place,
                         contentDescription = null,
                         tint = Color.White,
-                        modifier = Modifier
-                            .size(16.dp)
-                            .padding(end = 4.dp))
+                        modifier =
+                            Modifier
+                                .size(16.dp)
+                                .padding(end = 4.dp),
+                    )
                     Text(
                         text = topAppBarUiState.address ?: stringResource(id = R.string.unknown_address),
                         color = Color.White,
@@ -87,21 +89,26 @@ fun TopAppBar(
         },
         bigTitle = {
             Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(end = 62.dp),
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(end = 62.dp),
             ) {
                 Text(
-                    text = listOf(
-                        AStyle("${topAppBarUiState.address ?: stringResource(id = R.string.unknown_address)}\n",
-                            span = SpanStyle(fontSize = 25.sp)),
-                        AStyle(
-                            topAppBarUiState.country ?: stringResource(id = R.string.unknown_country),
-                            span = SpanStyle(
-                                fontSize = 16.sp,
+                    text =
+                        listOf(
+                            AStyle(
+                                "${topAppBarUiState.address ?: stringResource(id = R.string.unknown_address)}\n",
+                                span = SpanStyle(fontSize = 25.sp),
                             ),
-                        ),
-                    ).toAnnotated(),
+                            AStyle(
+                                topAppBarUiState.country ?: stringResource(id = R.string.unknown_country),
+                                span =
+                                    SpanStyle(
+                                        fontSize = 16.sp,
+                                    ),
+                            ),
+                        ).toAnnotated(),
                     textAlign = TextAlign.Start,
                     fontWeight = FontWeight.Bold,
                     color = Color.White,
@@ -123,17 +130,22 @@ fun TopAppBar(
                     Text(
                         text = weatherContentUiState.dateTime,
                         fontSize = 14.sp,
-                        color = Color.White, style = LocalTextStyle.current.merge(outlineTextStyle),
+                        color = Color.White,
+                        style = LocalTextStyle.current.merge(outlineTextStyle),
                     )
                 }
-                Row(horizontalArrangement = Arrangement.Start,
+                Row(
+                    horizontalArrangement = Arrangement.Start,
                     verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.clickable {
-                        onClickedWeatherProviderButton()
-                    }) {
+                    modifier =
+                        Modifier.clickable {
+                            onClickedWeatherProviderButton()
+                        },
+                ) {
                     AsyncImage(
-                        model = ImageRequest.Builder(LocalContext.current).data(weatherContentUiState.args.weatherProvider.icon)
-                            .crossfade(false).build(),
+                        model =
+                            ImageRequest.Builder(LocalContext.current).data(weatherContentUiState.args.weatherProvider.icon)
+                                .crossfade(false).build(),
                         contentDescription = stringResource(id = R.string.weather_provider),
                         modifier = Modifier.size(18.dp),
                     )
@@ -144,15 +156,16 @@ fun TopAppBar(
                         color = Color.White,
                         style = LocalTextStyle.current.merge(outlineTextStyle),
                     )
-
                 }
             }
         },
         actions = {
             IconButton(modifier = modifier, onClick = summarize) {
-                Icon(painter = painterResource(id = R.drawable.ic_shine_128_128),
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_shine_128_128),
                     modifier = Modifier.size(24.dp),
-                    contentDescription = null)
+                    contentDescription = null,
+                )
             }
             IconButton(modifier = modifier, onClick = reload) {
                 Icon(painter = painterResource(id = R.drawable.ic_refresh), modifier = Modifier.size(24.dp), contentDescription = null)
@@ -160,9 +173,10 @@ fun TopAppBar(
         },
         scrollState = scrollState,
         colors = defaultCustomTopAppBarColors,
-        modifier = modifier
-            .background(brush = shadowBox())
-            .statusBarsPadding(),
+        modifier =
+            modifier
+                .background(brush = shadowBox())
+                .statusBarsPadding(),
         windowInsets = WindowInsets(0, 0, 0, 0),
         navigationIcon = {
             IconButton(modifier = modifier, onClick = {
@@ -173,7 +187,6 @@ fun TopAppBar(
         },
     )
 }
-
 
 @Stable
 interface TopAppBarUiState {

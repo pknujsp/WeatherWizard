@@ -12,27 +12,27 @@ class HourlyForecastComparisonReport(
     items: List<Pair<WeatherProvider, List<ToCompareHourlyForecastEntity.Item>>>,
     times: List<Pair<Boolean, ZonedDateTime>>,
 ) : UiModel {
-
     val commonForecasts: Map<WeatherConditionCategory, String>
 
     init {
         items.run {
             val commons = mutableMapOf<Pair<Boolean, ZonedDateTime>, MutableSet<WeatherConditionCategory>>()
             items.forEach { item ->
-                item.second.forEachIndexed() { i, forecast ->
+                item.second.forEachIndexed { i, forecast ->
                     commons.getOrPut(times[i]) { mutableSetOf() }.add(forecast.weatherCondition.value)
                 }
             }
 
-            val sameForecasts = commons.filter { it.value.size == 1 }.run {
-                if (isEmpty()) {
-                    emptyList()
-                } else {
-                    map { (time, categories) ->
-                        time to categories.first()
+            val sameForecasts =
+                commons.filter { it.value.size == 1 }.run {
+                    if (isEmpty()) {
+                        emptyList()
+                    } else {
+                        map { (time, categories) ->
+                            time to categories.first()
+                        }
                     }
                 }
-            }
 
             val categories = mutableMapOf<WeatherConditionCategory, MutableList<ZonedDateTime>>()
             sameForecasts.map { (time, category) ->
@@ -40,9 +40,10 @@ class HourlyForecastComparisonReport(
             }
 
             val dateFormatter = java.time.format.DateTimeFormatter.ofPattern("M.d E")
-            commonForecasts = categories.mapValues { (_, times) ->
-                times.parseDateTimeRanges(dateFormatter).toMarkdownList()
-            }
+            commonForecasts =
+                categories.mapValues { (_, times) ->
+                    times.parseDateTimeRanges(dateFormatter).toMarkdownList()
+                }
         }
     }
 
@@ -57,47 +58,50 @@ class HourlyForecastComparisonReport(
         }.toString()
     }
 
-    private fun List<ZonedDateTime>.parseDateTimeRanges(dateFormatter: java.time.format.DateTimeFormatter): List<Pair<String, List<String>>> {
+    private fun List<ZonedDateTime>.parseDateTimeRanges(
+        dateFormatter: java.time.format.DateTimeFormatter,
+    ): List<Pair<String, List<String>>> {
         return groupBy { it.dayOfYear }.let { groups ->
             groups.map { (_, times) ->
                 val date = times.first().format(dateFormatter)
 
-                val ranges = times.let {
-                    var lastTime = times.first().hour + 1
+                val ranges =
+                    times.let {
+                        var lastTime = times.first().hour + 1
 
-                    if (times.size == 1) {
-                        listOf("${lastTime - 1}")
-                    } else {
-                        var newTime: Int
-                        val hours = mutableListOf<MutableList<Int>>(mutableListOf())
-                        var diff: Int
-                        val lastIdx = times.size - 2
+                        if (times.size == 1) {
+                            listOf("${lastTime - 1}")
+                        } else {
+                            var newTime: Int
+                            val hours = mutableListOf<MutableList<Int>>(mutableListOf())
+                            var diff: Int
+                            val lastIdx = times.size - 2
 
-                        times.drop(1).forEachIndexed { i, dateTime ->
-                            newTime = dateTime.hour + 1
-                            diff = newTime - lastTime
-                            hours.last().add(lastTime)
+                            times.drop(1).forEachIndexed { i, dateTime ->
+                                newTime = dateTime.hour + 1
+                                diff = newTime - lastTime
+                                hours.last().add(lastTime)
 
-                            if (diff != 1) {
-                                hours.add(mutableListOf())
+                                if (diff != 1) {
+                                    hours.add(mutableListOf())
+                                }
+
+                                if (i == lastIdx) {
+                                    hours.last().add(newTime)
+                                }
+
+                                lastTime = newTime
                             }
 
-                            if (i == lastIdx) {
-                                hours.last().add(newTime)
-                            }
-
-                            lastTime = newTime
-                        }
-
-                        hours.map {
-                            if (it.size == 1) {
-                                "${it.first() - 1}"
-                            } else {
-                                "${it.first() - 1} - ${it.last() - 1}"
+                            hours.map {
+                                if (it.size == 1) {
+                                    "${it.first() - 1}"
+                                } else {
+                                    "${it.first() - 1} - ${it.last() - 1}"
+                                }
                             }
                         }
                     }
-                }
 
                 date to ranges
             }

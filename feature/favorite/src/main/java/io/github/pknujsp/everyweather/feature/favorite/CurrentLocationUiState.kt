@@ -8,13 +8,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import io.github.pknujsp.everyweather.core.common.asActivity
 
-
 private class MutableLocationState(
-    private val locationManager: LocationManager
+    private val locationManager: LocationManager,
 ) : LocationState {
     override val isGpsProviderEnabled: Boolean get() = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
 }
-
 
 @Stable
 interface LocationState {
@@ -28,9 +26,10 @@ fun rememberLocationState(context: Context = LocalContext.current): LocationStat
         "activit must not be null"
     }
 
-    val state = remember {
-        MutableLocationState(activity.getSystemService(Context.LOCATION_SERVICE) as LocationManager)
-    }
+    val state =
+        remember {
+            MutableLocationState(activity.getSystemService(Context.LOCATION_SERVICE) as LocationManager)
+        }
 
     return state
 }

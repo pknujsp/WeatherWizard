@@ -30,12 +30,13 @@ data class NotificationViewState(
         }
     }
 
-    fun toExtendNotification() = ExtendedNotification(
-        success = success,
-        smallContentRemoteViews = smallContentRemoteViews,
-        bigContentRemoteViews = bigContentRemoteViews,
-        smallFailedContentRemoteViews = smallFailedContentRemoteViews,
-        bigFailedContentRemoteViews = bigFailedContentRemoteViews,
-        icon = icon,
-    )
+    fun toExtendNotification() =
+        ExtendedNotification(
+            success = success,
+            smallContentRemoteViews = smallContentRemoteViews,
+            bigContentRemoteViews = bigContentRemoteViews,
+            smallFailedContentRemoteViews = smallFailedContentRemoteViews,
+            bigFailedContentRemoteViews = bigFailedContentRemoteViews,
+            icon = icon,
+        )
 }

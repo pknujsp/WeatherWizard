@@ -23,92 +23,111 @@ import io.github.pknujsp.everyweather.feature.componentservice.widget.worker.App
 import io.github.pknujsp.everyweather.feature.componentservice.widget.worker.WidgetRemoteViewModel
 
 @HiltWorker
-class WidgetCoroutineService @AssistedInject constructor(
-    @Assisted val context: Context,
-    @Assisted params: WorkerParameters,
-    private val widgetRemoteViewModel: WidgetRemoteViewModel,
-    private val jsonParser: JsonParser,
-    appSettingsRepository: SettingsRepository,
-    widgetRepository: WidgetRepository,
-) : AppComponentCoroutineService<LoadWidgetDataArgument>(context, params, Companion) {
+class WidgetCoroutineService
+    @AssistedInject
+    constructor(
+        @Assisted val context: Context,
+        @Assisted params: WorkerParameters,
+        private val widgetRemoteViewModel: WidgetRemoteViewModel,
+        private val jsonParser: JsonParser,
+        appSettingsRepository: SettingsRepository,
+        widgetRepository: WidgetRepository,
+    ) : AppComponentCoroutineService<LoadWidgetDataArgument>(context, params, Companion) {
+        private val widgetManager: WidgetManager = AppComponentManagerFactory.getManager(context, AppComponentManagerFactory.WIDGET_MANAGER)
 
-    private val widgetManager: WidgetManager = AppComponentManagerFactory.getManager(context, AppComponentManagerFactory.WIDGET_MANAGER)
-
-    companion object : IWorker {
-        override val name: String = "WidgetCoroutineService"
-        override val requiredFeatures: Array<FeatureType> = arrayOf(FeatureType.Network)
-    }
-
-    private val widgetViewUpdater = AppWidgetViewUpdater(
-        widgetManager,
-        widgetRepository,
-        featureStateManager,
-        appSettingsRepository.settings.replayCache.last().units,
-    )
-
-    override suspend fun doWork(context: Context, argument: LoadWidgetDataArgument): Result {
-        try {
-            setLoadingViewToAllWidgets(context)
-            start(context, argument)
-        } catch (e: Exception) {
-            e.printStackTrace()
-            widgetViewUpdater(context, null)
-        }
-        return Result.success()
-    }
-
-    private suspend fun start(context: Context, argument: LoadWidgetDataArgument) {
-        val widgetEntityList = widgetRemoteViewModel.loadWidgets(argument.widgetId, argument.action)
-
-        if (widgetEntityList.widgetSettings.isEmpty()) {
-            return
+        companion object : IWorker {
+            override val name: String = "WidgetCoroutineService"
+            override val requiredFeatures: Array<FeatureType> = arrayOf(FeatureType.Network)
         }
 
-        if (featureStateManager.retrieveFeaturesState(requiredFeatures, context) is FeatureStateManager.FeatureState.Unavailable) {
-            for (widget in widgetEntityList.widgetSettings) {
-                widgetRemoteViewModel.updateResponseData(widget.id, WidgetStatus.RESPONSE_FAILURE)
+        private val widgetViewUpdater =
+            AppWidgetViewUpdater(
+                widgetManager,
+                widgetRepository,
+                featureStateManager,
+                appSettingsRepository.settings.replayCache.last().units,
+            )
+
+        override suspend fun doWork(
+            context: Context,
+            argument: LoadWidgetDataArgument,
+        ): Result {
+            try {
+                setLoadingViewToAllWidgets(context)
+                start(context, argument)
+            } catch (e: Exception) {
+                e.printStackTrace()
+                widgetViewUpdater(context, null)
             }
-            widgetViewUpdater(context, widgetEntityList.widgetSettings.map { it.id })
-            return
+            return Result.success()
         }
 
-        val excludeWidgets = mutableListOf<Int>()
+        private suspend fun start(
+            context: Context,
+            argument: LoadWidgetDataArgument,
+        ) {
+            val widgetEntityList = widgetRemoteViewModel.loadWidgets(argument.widgetId, argument.action)
 
-        if (LocationType.CurrentLocation in widgetEntityList.locationTypeGroups && featureStateManager.retrieveFeaturesState(arrayOf(
-                FeatureType.Permission.Location,
-                FeatureType.LocationService,
-                FeatureType.Permission.BackgroundLocation), context) is FeatureStateManager.FeatureState.Unavailable) {
-            widgetEntityList.locationTypeGroups.getValue(LocationType.CurrentLocation).forEach {
-                widgetRemoteViewModel.updateResponseData(it.id, WidgetStatus.RESPONSE_FAILURE)
-                excludeWidgets.add(it.id)
-            }
-            widgetViewUpdater(context, excludeWidgets)
-
-            if (widgetEntityList.widgetSettings.size == excludeWidgets.size) {
+            if (widgetEntityList.widgetSettings.isEmpty()) {
                 return
             }
-        }
 
-        val responses = widgetRemoteViewModel.load(excludeWidgets)
-        val completedWidgets = responses.map { state ->
-            if (state.isSuccessful) {
-                widgetRemoteViewModel.updateResponseData(state.widget.id,
-                    WidgetStatus.RESPONSE_SUCCESS,
-                    state.toWidgetResponseDBModel(jsonParser).toByteArray(jsonParser))
-            } else {
-                widgetRemoteViewModel.updateResponseData(state.widget.id, WidgetStatus.RESPONSE_FAILURE)
+            if (featureStateManager.retrieveFeaturesState(requiredFeatures, context) is FeatureStateManager.FeatureState.Unavailable) {
+                for (widget in widgetEntityList.widgetSettings) {
+                    widgetRemoteViewModel.updateResponseData(widget.id, WidgetStatus.RESPONSE_FAILURE)
+                }
+                widgetViewUpdater(context, widgetEntityList.widgetSettings.map { it.id })
+                return
             }
-            state.widget.id
+
+            val excludeWidgets = mutableListOf<Int>()
+
+            if (LocationType.CurrentLocation in widgetEntityList.locationTypeGroups &&
+                featureStateManager.retrieveFeaturesState(
+                    arrayOf(
+                        FeatureType.Permission.Location,
+                        FeatureType.LocationService,
+                        FeatureType.Permission.BackgroundLocation,
+                    ),
+                    context,
+                ) is FeatureStateManager.FeatureState.Unavailable
+            ) {
+                widgetEntityList.locationTypeGroups.getValue(LocationType.CurrentLocation).forEach {
+                    widgetRemoteViewModel.updateResponseData(it.id, WidgetStatus.RESPONSE_FAILURE)
+                    excludeWidgets.add(it.id)
+                }
+                widgetViewUpdater(context, excludeWidgets)
+
+                if (widgetEntityList.widgetSettings.size == excludeWidgets.size) {
+                    return
+                }
+            }
+
+            val responses = widgetRemoteViewModel.load(excludeWidgets)
+            val completedWidgets =
+                responses.map { state ->
+                    if (state.isSuccessful) {
+                        widgetRemoteViewModel.updateResponseData(
+                            state.widget.id,
+                            WidgetStatus.RESPONSE_SUCCESS,
+                            state.toWidgetResponseDBModel(jsonParser).toByteArray(jsonParser),
+                        )
+                    } else {
+                        widgetRemoteViewModel.updateResponseData(state.widget.id, WidgetStatus.RESPONSE_FAILURE)
+                    }
+                    state.widget.id
+                }
+
+            widgetViewUpdater(context, completedWidgets)
         }
 
-        widgetViewUpdater(context, completedWidgets)
-    }
-
-    private fun setLoadingViewToAllWidgets(context: Context) {
-        val installedWidgets = widgetManager.installedAllWidgetIds
-        if (installedWidgets.isNotEmpty()) {
-            widgetManager.appWidgetManager.updateAppWidget(installedWidgets.toIntArray(),
-                RemoteViews(context.packageName, R.layout.view_loading_widget))
+        private fun setLoadingViewToAllWidgets(context: Context) {
+            val installedWidgets = widgetManager.installedAllWidgetIds
+            if (installedWidgets.isNotEmpty()) {
+                widgetManager.appWidgetManager.updateAppWidget(
+                    installedWidgets.toIntArray(),
+                    RemoteViews(context.packageName, R.layout.view_loading_widget),
+                )
+            }
         }
     }
-}

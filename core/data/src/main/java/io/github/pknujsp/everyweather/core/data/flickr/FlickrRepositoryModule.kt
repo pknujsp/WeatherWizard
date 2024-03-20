@@ -10,11 +10,7 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 @Module
 object FlickrRepositoryModule {
-
     @Provides
     @Singleton
-    fun providesFlickrRepository(
-        flickrDataSource: FlickrDataSource
-    ): FlickrRepository = FlickrRepositoryImpl(flickrDataSource)
-
+    fun providesFlickrRepository(flickrDataSource: FlickrDataSource): FlickrRepository = FlickrRepositoryImpl(flickrDataSource)
 }

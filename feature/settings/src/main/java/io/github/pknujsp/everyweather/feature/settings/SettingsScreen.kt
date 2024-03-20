@@ -37,15 +37,19 @@ import io.github.pknujsp.everyweather.feature.permoptimize.permission.rememberPe
 import kotlinx.coroutines.launch
 
 @Composable
-fun SettingsScreen(navController: NavController, viewModel: SettingsViewModel = hiltViewModel()) {
+fun SettingsScreen(
+    navController: NavController,
+    viewModel: SettingsViewModel = hiltViewModel(),
+) {
     val context = LocalContext.current
     val settingsUiState = viewModel.mainSettingsUiState
     val coroutineScope = rememberCoroutineScope()
 
     val onBackPressedDispatcherOwner = LocalOnBackPressedDispatcherOwner.current
-    val backDispatcher = remember {
-        onBackPressedDispatcherOwner?.onBackPressedDispatcher
-    }
+    val backDispatcher =
+        remember {
+            onBackPressedDispatcherOwner?.onBackPressedDispatcher
+        }
 
     val batteryOptimizationFeatureState = rememberAppFeatureState(featureType = FeatureType.BatteryOptimization)
     val backgroundLocationPermissionManager = rememberPermissionManager(permissionType = FeatureType.Permission.BackgroundLocation)
@@ -54,28 +58,34 @@ fun SettingsScreen(navController: NavController, viewModel: SettingsViewModel = 
         TitleTextWithNavigation(title = stringResource(id = R.string.nav_settings), onClickNavigation = {
             backDispatcher?.onBackPressed()
         })
-        ButtonSettingItem(title = stringResource(id = R.string.title_value_unit),
+        ButtonSettingItem(
+            title = stringResource(id = R.string.title_value_unit),
             description = stringResource(id = R.string.description_value_unit),
             onClick = {
                 navController.navigate(SettingsRoutes.ValueUnit.route)
-            }) {
+            },
+        ) {
             Icon(painterResource(id = R.drawable.ic_forward), contentDescription = null)
         }
 
-        BottomSheetSettingItem(title = stringResource(id = R.string.title_weather_data_provider),
+        BottomSheetSettingItem(
+            title = stringResource(id = R.string.title_weather_data_provider),
             selectedItem = settingsUiState.weatherProvider,
             onSelectedItem = {
                 it?.run {
                     settingsUiState.updatePreference(WeatherProvider, this)
                 }
             },
-            enums = WeatherProvider.enums)
-        CheckBoxSettingItem(title = stringResource(id = R.string.title_weather_condition_animation),
+            enums = WeatherProvider.enums,
+        )
+        CheckBoxSettingItem(
+            title = stringResource(id = R.string.title_weather_condition_animation),
             description = stringResource(id = R.string.description_weather_condition_animation),
-            checked = true) {
-
+            checked = true,
+        ) {
         }
-        BottomSheetSettingItem(title = stringResource(id = R.string.title_widget_auto_refresh_interval),
+        BottomSheetSettingItem(
+            title = stringResource(id = R.string.title_widget_auto_refresh_interval),
             selectedItem = settingsUiState.widgetAutoRefreshInterval,
             onSelectedItem = {
                 it?.let { refreshInterval ->
@@ -85,9 +95,12 @@ fun SettingsScreen(navController: NavController, viewModel: SettingsViewModel = 
                     }
                 }
             },
-            enums = RefreshInterval.enums)
-        ClickableSettingItem(title = stringResource(id = R.string.title_refresh_widget),
-            description = stringResource(id = R.string.description_refresh_widget)) {
+            enums = RefreshInterval.enums,
+        )
+        ClickableSettingItem(
+            title = stringResource(id = R.string.title_refresh_widget),
+            description = stringResource(id = R.string.description_refresh_widget),
+        ) {
             coroutineScope.launch {
                 redrawAppWidgets(context)
             }
@@ -115,26 +128,27 @@ fun SettingsScreen(navController: NavController, viewModel: SettingsViewModel = 
                 }
             }
         }
-
     }
 }
-
 
 @Composable
 fun HostSettingsScreen() {
     val navController = rememberNavController()
 
-    NavHost(navController = navController,
+    NavHost(
+        navController = navController,
         route = SettingsRoutes.route,
         startDestination = SettingsRoutes.Main.route,
-        modifier = Modifier.systemBarsPadding()) {
+        modifier = Modifier.systemBarsPadding(),
+    ) {
         composable(SettingsRoutes.Main.route) { SettingsScreen(navController) }
         composable(SettingsRoutes.ValueUnit.route) { ValueUnitScreen(navController) }
     }
 }
 
 private fun rescheduleWidgetAutoRefresh(
-    context: Context, refreshInterval: RefreshInterval
+    context: Context,
+    refreshInterval: RefreshInterval,
 ) {
     AppComponentServiceManagerFactory.getManager(context, AppComponentServiceManagerFactory.WIDGET_ALARM_MANAGER).run {
         if (refreshInterval == RefreshInterval.MANUAL) {

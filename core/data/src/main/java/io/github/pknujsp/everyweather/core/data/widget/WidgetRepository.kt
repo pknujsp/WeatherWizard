@@ -3,7 +3,6 @@ package io.github.pknujsp.everyweather.core.data.widget
 import io.github.pknujsp.everyweather.core.model.widget.WidgetStatus
 
 interface WidgetRepository {
-
     suspend fun getAll(): WidgetSettingsEntityList
 
     suspend fun get(widgetIds: List<Int>): List<SavedWidgetContentState>
@@ -16,5 +15,9 @@ interface WidgetRepository {
 
     suspend fun deleteAll()
 
-    suspend fun updateResponseData(id: Int, status: WidgetStatus, responseData: ByteArray?)
+    suspend fun updateResponseData(
+        id: Int,
+        status: WidgetStatus,
+        responseData: ByteArray?,
+    )
 }

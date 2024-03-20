@@ -23,44 +23,46 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class TargetLocationViewModel @Inject constructor(
-    getCurrentLocationUseCase: GetCurrentLocationAddress,
-    private val favoriteAreaListRepository: FavoriteAreaListRepository,
-) : ViewModel() {
-    private val mutableTopAppBarUiState = MutableTopAppBarUiState()
-    val topAppBarUiState: TopAppBarUiState = mutableTopAppBarUiState
+class TargetLocationViewModel
+    @Inject
+    constructor(
+        getCurrentLocationUseCase: GetCurrentLocationAddress,
+        private val favoriteAreaListRepository: FavoriteAreaListRepository,
+    ) : ViewModel() {
+        private val mutableTopAppBarUiState = MutableTopAppBarUiState()
+        val topAppBarUiState: TopAppBarUiState = mutableTopAppBarUiState
 
-    private val mutableLocationFlow = MutableStateFlow<TargetLocationModel?>(null)
+        private val mutableLocationFlow = MutableStateFlow<TargetLocationModel?>(null)
 
-    init {
-        mutableLocationFlow.filterNotNull().combine(getCurrentLocationUseCase.geoCodeFlow) { argument, geoCode ->
-            argument to geoCode
-        }.distinctUntilChanged().onEach { (argument, geoCode) ->
-            var address: String? = null
-            var country: String? = null
+        init {
+            mutableLocationFlow.filterNotNull().combine(getCurrentLocationUseCase.geoCodeFlow) { argument, geoCode ->
+                argument to geoCode
+            }.distinctUntilChanged().onEach { (argument, geoCode) ->
+                var address: String? = null
+                var country: String? = null
 
-            if (argument.locationType is LocationType.CustomLocation) {
-                val location = favoriteAreaListRepository.getById(argument.customLocationId!!)
-                location.onSuccess {
-                    address = it.areaName
-                    country = it.countryName
+                if (argument.locationType is LocationType.CustomLocation) {
+                    val location = favoriteAreaListRepository.getById(argument.customLocationId!!)
+                    location.onSuccess {
+                        address = it.areaName
+                        country = it.countryName
+                    }
+                } else if (geoCode is LocationGeoCodeState.Success) {
+                    address = geoCode.address
+                    country = geoCode.country
                 }
-            } else if (geoCode is LocationGeoCodeState.Success) {
-                address = geoCode.address
-                country = geoCode.country
+
+                mutableTopAppBarUiState.address = address
+                mutableTopAppBarUiState.country = country
+            }.launchIn(viewModelScope)
+        }
+
+        fun setLocation(location: TargetLocationModel) {
+            viewModelScope.launch {
+                mutableLocationFlow.value = location
             }
-
-            mutableTopAppBarUiState.address = address
-            mutableTopAppBarUiState.country = country
-        }.launchIn(viewModelScope)
-    }
-
-    fun setLocation(location: TargetLocationModel) {
-        viewModelScope.launch {
-            mutableLocationFlow.value = location
         }
     }
-}
 
 @Stable
 private class MutableTopAppBarUiState : TopAppBarUiState {

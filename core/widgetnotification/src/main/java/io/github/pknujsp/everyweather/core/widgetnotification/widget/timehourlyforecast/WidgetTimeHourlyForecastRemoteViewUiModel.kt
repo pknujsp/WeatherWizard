@@ -9,7 +9,6 @@ data class WidgetTimeHourlyForecastRemoteViewUiModel(
     val currentWeather: CurrentWeather,
     val hourlyForecast: List<HourlyForecast>,
 ) : RemoteViewUiModel {
-
     class CurrentWeather(
         val temperature: String,
         @DrawableRes val weatherIcon: Int,
@@ -18,6 +17,8 @@ data class WidgetTimeHourlyForecastRemoteViewUiModel(
     }
 
     class HourlyForecast(
-        val temperature: String, @DrawableRes val weatherIcon: Int, val dateTime: String
+        val temperature: String,
+        @DrawableRes val weatherIcon: Int,
+        val dateTime: String,
     )
 }

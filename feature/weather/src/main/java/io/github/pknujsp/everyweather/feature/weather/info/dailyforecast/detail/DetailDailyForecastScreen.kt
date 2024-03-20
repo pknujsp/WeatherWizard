@@ -32,21 +32,27 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
-import io.github.pknujsp.everyweather.core.resource.R
 import io.github.pknujsp.everyweather.core.common.util.AStyle
 import io.github.pknujsp.everyweather.core.common.util.toAnnotated
-import io.github.pknujsp.everyweather.feature.weather.info.dailyforecast.model.DetailDailyForecast
+import io.github.pknujsp.everyweather.core.resource.R
 import io.github.pknujsp.everyweather.core.ui.TitleTextWithNavigation
+import io.github.pknujsp.everyweather.feature.weather.info.dailyforecast.model.DetailDailyForecast
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun DetailDailyForecastScreen(dailyForecast: DetailDailyForecast, popBackStack: () -> Unit) {
+fun DetailDailyForecastScreen(
+    dailyForecast: DetailDailyForecast,
+    popBackStack: () -> Unit,
+) {
     BackHandler {
         popBackStack()
     }
-    Column(modifier = Modifier
-        .fillMaxSize()
-        .systemBarsPadding()) {
+    Column(
+        modifier =
+            Modifier
+                .fillMaxSize()
+                .systemBarsPadding(),
+    ) {
         TitleTextWithNavigation(title = stringResource(R.string.daily_forecast)) {
             popBackStack()
         }
@@ -56,7 +62,6 @@ fun DetailDailyForecastScreen(dailyForecast: DetailDailyForecast, popBackStack: 
                     item = item,
                     displayPrecipitationProbability = dailyForecast.displayPrecipitationProbability,
                 ) {
-
                 }
             }
         }
@@ -65,51 +70,74 @@ fun DetailDailyForecastScreen(dailyForecast: DetailDailyForecast, popBackStack: 
 
 @Composable
 private fun Item(
-    item: DetailDailyForecast.Item, displayPrecipitationProbability: Boolean, onClick: () -> Unit
+    item: DetailDailyForecast.Item,
+    displayPrecipitationProbability: Boolean,
+    onClick: () -> Unit,
 ) {
     item.run {
-        Row(verticalAlignment = Alignment.CenterVertically,
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(8.dp),
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(80.dp)
-                .clickable {
-                    onClick()
-                }) {
-            Text(text = listOf(AStyle(text = "${date}\n", span = SpanStyle(fontSize = 14.sp, color = Color.Gray)),
-                AStyle(text = dayOfWeek, span = SpanStyle(fontSize = 16.sp, color = Color.Black))).toAnnotated(),
-                modifier = Modifier
-                    .weight(0.2f, true)
-                    .padding(start = 20.dp),
-                lineHeight = 20.sp)
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .height(80.dp)
+                    .clickable {
+                        onClick()
+                    },
+        ) {
+            Text(
+                text =
+                    listOf(
+                        AStyle(text = "${date}\n", span = SpanStyle(fontSize = 14.sp, color = Color.Gray)),
+                        AStyle(text = dayOfWeek, span = SpanStyle(fontSize = 16.sp, color = Color.Black)),
+                    ).toAnnotated(),
+                modifier =
+                    Modifier
+                        .weight(0.2f, true)
+                        .padding(start = 20.dp),
+                lineHeight = 20.sp,
+            )
 
-            Row(modifier = Modifier.weight(0.4f, true),
+            Row(
+                modifier = Modifier.weight(0.4f, true),
                 horizontalArrangement = Arrangement.spacedBy(4.dp, Alignment.CenterHorizontally),
-                verticalAlignment = Alignment.CenterVertically) {
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
                 weatherConditionIcons.forEachIndexed { i, it ->
-                    AsyncImage(model = ImageRequest.Builder(context = LocalContext.current).data(it).build(),
+                    AsyncImage(
+                        model = ImageRequest.Builder(context = LocalContext.current).data(it).build(),
                         filterQuality = FilterQuality.High,
                         modifier = Modifier.size(52.dp),
-                        contentDescription = null)
+                        contentDescription = null,
+                    )
                     if (i < weatherConditionIcons.lastIndex) {
-                        Box(modifier = Modifier
-                            .width(1.dp)
-                            .height(16.dp)
-                            .background(Color.LightGray))
+                        Box(
+                            modifier =
+                                Modifier
+                                    .width(1.dp)
+                                    .height(16.dp)
+                                    .background(Color.LightGray),
+                        )
                     }
                 }
             }
 
-            Column(modifier = Modifier
-                .weight(0.4f, true)
-                .padding(end = 12.dp),
+            Column(
+                modifier =
+                    Modifier
+                        .weight(0.4f, true)
+                        .padding(end = 12.dp),
                 verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally) {
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
                 Row(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalAlignment = Alignment.CenterVertically) {
                     if (displayPrecipitationProbability) {
-                        AsyncImage(model = ImageRequest.Builder(context = LocalContext.current).data(R.drawable.ic_umbrella).build(),
+                        AsyncImage(
+                            model = ImageRequest.Builder(context = LocalContext.current).data(R.drawable.ic_umbrella).build(),
                             modifier = Modifier.size(14.dp),
-                            contentDescription = null)
+                            contentDescription = null,
+                        )
                         Text(text = precipitationProbabilities.joinToString("/"), style = TextStyle(fontSize = 14.sp, color = Color.Black))
                     }
                 }
@@ -117,5 +145,4 @@ private fun Item(
             }
         }
     }
-
 }

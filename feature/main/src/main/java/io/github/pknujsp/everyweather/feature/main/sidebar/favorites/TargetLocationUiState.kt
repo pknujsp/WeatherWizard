@@ -4,7 +4,6 @@ import androidx.compose.runtime.Stable
 import io.github.pknujsp.everyweather.core.common.StatefulFeature
 import io.github.pknujsp.everyweather.core.model.coordinate.LocationType
 
-
 @Stable
 interface TargetLocationUiState {
     val locationType: LocationType

@@ -11,7 +11,6 @@ import retrofit2.Retrofit
 import retrofit2.converter.scalars.ScalarsConverterFactory
 import javax.inject.Singleton
 
-
 @InstallIn(SingletonComponent::class)
 @Module
 object KmaNetworkModule {
@@ -26,8 +25,5 @@ object KmaNetworkModule {
 
     @Provides
     @Singleton
-    fun providesKmaDataSource(
-        kmaNetworkApi: KmaNetworkApi,
-    ): KmaDataSource = KmaDataSourceImpl(kmaNetworkApi, KmaHtmlParser())
-
+    fun providesKmaDataSource(kmaNetworkApi: KmaNetworkApi): KmaDataSource = KmaDataSourceImpl(kmaNetworkApi, KmaHtmlParser())
 }

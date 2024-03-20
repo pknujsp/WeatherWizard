@@ -1,10 +1,11 @@
 package io.github.pknujsp.everyweather.core.model.weather.common
 
-
 import androidx.annotation.StringRes
 import io.github.pknujsp.everyweather.core.resource.R
 
-enum class WeatherDataCategory(@StringRes val stringId: Int) {
+enum class WeatherDataCategory(
+    @StringRes val stringId: Int,
+) {
     // 기온
     TEMPERATURE(R.string.temperature),
 
@@ -78,6 +79,5 @@ enum class WeatherDataCategory(@StringRes val stringId: Int) {
     MOONSET(R.string.moonset),
 
     // 현재 날씨 상태(맑음, 흐림 등)
-    WEATHER_CONDITION(R.string.weather_condition);
-
+    WEATHER_CONDITION(R.string.weather_condition),
 }

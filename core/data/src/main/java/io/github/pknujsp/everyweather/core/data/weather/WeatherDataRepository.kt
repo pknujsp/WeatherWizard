@@ -5,7 +5,6 @@ import io.github.pknujsp.everyweather.core.model.weather.common.MajorWeatherEnti
 import io.github.pknujsp.everyweather.core.model.weather.common.WeatherProvider
 
 interface WeatherDataRepository {
-
     /**
      * 날씨 데이터를 가져온다.
      * @param requestWeatherData 날씨 데이터를 가져올 때 필요한 정보
@@ -14,9 +13,10 @@ interface WeatherDataRepository {
      * @return 날씨 데이터
      */
     suspend fun getWeatherData(
-        requestWeatherData: RequestWeatherData, requestId: Long, bypassCache: Boolean = false
+        requestWeatherData: RequestWeatherData,
+        requestId: Long,
+        bypassCache: Boolean = false,
     ): Result<WeatherModel>
-
 }
 
 class RequestWeatherData(

@@ -17,76 +17,83 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class OngoingNotificationViewModel @Inject constructor(
-    private val ongoingNotificationRepository: OngoingNotificationRepository,
-    private val appSettingsRepository: SettingsRepository,
-) : ViewModel() {
+class OngoingNotificationViewModel
+    @Inject
+    constructor(
+        private val ongoingNotificationRepository: OngoingNotificationRepository,
+        private val appSettingsRepository: SettingsRepository,
+    ) : ViewModel() {
+        val units get() = appSettingsRepository.settings.replayCache.last().units
 
-    val units get() = appSettingsRepository.settings.replayCache.last().units
-
-    private val _ongoingNotificationUiState = MutableOngoingNotificationUiState(
-        ongoingNotificationSettings = OngoingNotificationSettingsEntity().let {
-            OngoingNotificationSettings(
-                notificationIconType = it.notificationIconType,
-                refreshInterval = it.refreshInterval,
-                weatherProvider = it.weatherProvider,
-                location = it.location,
+        private val _ongoingNotificationUiState =
+            MutableOngoingNotificationUiState(
+                ongoingNotificationSettings =
+                    OngoingNotificationSettingsEntity().let {
+                        OngoingNotificationSettings(
+                            notificationIconType = it.notificationIconType,
+                            refreshInterval = it.refreshInterval,
+                            weatherProvider = it.weatherProvider,
+                            location = it.location,
+                        )
+                    },
+                update = ::update,
+                switch = ::switch,
             )
-        },
-        update = ::update,
-        switch = ::switch,
-    )
 
-    val ongoingNotificationUiState: OngoingNotificationUiState = _ongoingNotificationUiState
+        val ongoingNotificationUiState: OngoingNotificationUiState = _ongoingNotificationUiState
 
-    init {
-        viewModelScope.launch {
-            val settingsEntity = ongoingNotificationRepository.getOngoingNotification()
-            _ongoingNotificationUiState.apply {
-                isInitialized = settingsEntity.isInitialized
-                settings = OngoingNotificationSettings(
-                    id = settingsEntity.id,
-                    notificationIconType = settingsEntity.data.notificationIconType,
-                    refreshInterval = settingsEntity.data.refreshInterval,
-                    weatherProvider = settingsEntity.data.weatherProvider,
-                    location = settingsEntity.data.location,
-                )
-                isEnabled = settingsEntity.enabled
+        init {
+            viewModelScope.launch {
+                val settingsEntity = ongoingNotificationRepository.getOngoingNotification()
+                _ongoingNotificationUiState.apply {
+                    isInitialized = settingsEntity.isInitialized
+                    settings =
+                        OngoingNotificationSettings(
+                            id = settingsEntity.id,
+                            notificationIconType = settingsEntity.data.notificationIconType,
+                            refreshInterval = settingsEntity.data.refreshInterval,
+                            weatherProvider = settingsEntity.data.weatherProvider,
+                            location = settingsEntity.data.location,
+                        )
+                    isEnabled = settingsEntity.enabled
+                }
             }
         }
-    }
 
-    private fun switch() {
-        viewModelScope.launch {
-            ongoingNotificationRepository.switch(ongoingNotificationUiState.isEnabled)
-            _ongoingNotificationUiState.action =
-                if (ongoingNotificationUiState.isEnabled) OngoingNotificationUiState.Action.ENABLED else OngoingNotificationUiState.Action.DISABLED
-            _ongoingNotificationUiState.changedCount++
+        private fun switch() {
+            viewModelScope.launch {
+                ongoingNotificationRepository.switch(ongoingNotificationUiState.isEnabled)
+                _ongoingNotificationUiState.action =
+                    if (ongoingNotificationUiState.isEnabled) OngoingNotificationUiState.Action.ENABLED else OngoingNotificationUiState.Action.DISABLED
+                _ongoingNotificationUiState.changedCount++
+            }
         }
-    }
 
-    private fun update() {
-        viewModelScope.launch {
-            val settingsEntity = createSettingsEntity()
-            ongoingNotificationRepository.updateOngoingNotification(settingsEntity)
-            _ongoingNotificationUiState.action = OngoingNotificationUiState.Action.UPDATED
-            _ongoingNotificationUiState.changedCount++
+        private fun update() {
+            viewModelScope.launch {
+                val settingsEntity = createSettingsEntity()
+                ongoingNotificationRepository.updateOngoingNotification(settingsEntity)
+                _ongoingNotificationUiState.action = OngoingNotificationUiState.Action.UPDATED
+                _ongoingNotificationUiState.changedCount++
+            }
         }
-    }
 
-    private fun createSettingsEntity() = ongoingNotificationUiState.let {
-        NotificationSettingsEntity(id = it.settings.id,
-            enabled = it.isEnabled,
-            data = OngoingNotificationSettingsEntity(
-                notificationIconType = it.settings.notificationIconType,
-                refreshInterval = it.settings.refreshInterval,
-                weatherProvider = it.settings.weatherProvider,
-                location = it.settings.location,
-            ),
-            isInitialized = true)
+        private fun createSettingsEntity() =
+            ongoingNotificationUiState.let {
+                NotificationSettingsEntity(
+                    id = it.settings.id,
+                    enabled = it.isEnabled,
+                    data =
+                        OngoingNotificationSettingsEntity(
+                            notificationIconType = it.settings.notificationIconType,
+                            refreshInterval = it.settings.refreshInterval,
+                            weatherProvider = it.settings.weatherProvider,
+                            location = it.settings.location,
+                        ),
+                    isInitialized = true,
+                )
+            }
     }
-}
-
 
 private class MutableOngoingNotificationUiState(
     ongoingNotificationSettings: OngoingNotificationSettings,
@@ -94,7 +101,6 @@ private class MutableOngoingNotificationUiState(
     private val update: () -> Unit,
     private val switch: () -> Unit,
 ) : OngoingNotificationUiState {
-
     override var isEnabled by mutableStateOf(false)
     override var action by mutableStateOf(OngoingNotificationUiState.Action.NONE)
     override var settings by mutableStateOf(ongoingNotificationSettings)
@@ -110,5 +116,4 @@ private class MutableOngoingNotificationUiState(
     override fun update() {
         update.invoke()
     }
-
 }

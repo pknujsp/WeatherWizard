@@ -20,11 +20,12 @@ class AppNetworkManagerImpl(context: Context) : AppNetworkManager {
     }
 
     override fun isNetworkAvailable(): Boolean = connectivityManager.activeNetwork != null
-
 }
 
 interface AppNetworkManager {
     fun registerNetworkCallback(networkCallback: ConnectivityManager.NetworkCallback)
+
     fun unregisterNetworkCallback()
+
     fun isNetworkAvailable(): Boolean
 }

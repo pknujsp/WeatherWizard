@@ -9,32 +9,36 @@ import io.github.pknujsp.everyweather.core.model.widget.WidgetType
 import java.time.ZonedDateTime
 
 class WidgetRepositoryImpl(
-    private val dataSource: WidgetLocalDataSource, private val jsonParser: JsonParser
+    private val dataSource: WidgetLocalDataSource,
+    private val jsonParser: JsonParser,
 ) : WidgetRepository {
+    override suspend fun getAll(): WidgetSettingsEntityList =
+        dataSource.getAll(true).let {
+            val list =
+                it.map { dto ->
+                    val jsonEntity = jsonParser.parse<WidgetSettingsJsonEntity>(dto.content)
+                    WidgetSettingsEntity(
+                        id = dto.id,
+                        location = jsonEntity.getLocation(),
+                        weatherProviders = jsonEntity.getWeatherProviders(),
+                        status = dto.status,
+                        widgetType = WidgetType.fromKey(dto.widgetType),
+                    )
+                }
 
-
-    override suspend fun getAll(): WidgetSettingsEntityList = dataSource.getAll(true).let {
-        val list = it.map { dto ->
-            val jsonEntity = jsonParser.parse<WidgetSettingsJsonEntity>(dto.content)
-            WidgetSettingsEntity(id = dto.id,
-                location = jsonEntity.getLocation(),
-                weatherProviders = jsonEntity.getWeatherProviders(),
-                status = dto.status,
-                widgetType = WidgetType.fromKey(dto.widgetType))
+            WidgetSettingsEntityList(list)
         }
 
-        WidgetSettingsEntityList(list)
-    }
-
     override suspend fun add(entity: WidgetSettingsEntity): Int {
-        val jsonEntity = WidgetSettingsJsonEntity(
-            weatherProviders = entity.weatherProviders.map { it.key },
-            locationType = entity.location.locationType.key,
-            latitude = entity.location.latitude,
-            longitude = entity.location.longitude,
-            address = entity.location.address,
-            country = entity.location.country,
-        )
+        val jsonEntity =
+            WidgetSettingsJsonEntity(
+                weatherProviders = entity.weatherProviders.map { it.key },
+                locationType = entity.location.locationType.key,
+                latitude = entity.location.latitude,
+                longitude = entity.location.longitude,
+                address = entity.location.address,
+                country = entity.location.country,
+            )
 
         val encoded = jsonParser.parse(jsonEntity)
         return dataSource.add(WidgetDto(id = entity.id, widgetType = entity.widgetType.key, content = encoded))
@@ -44,11 +48,13 @@ class WidgetRepositoryImpl(
         val dto = dataSource.getById(id) ?: return null
         val jsonEntity = jsonParser.parse<WidgetSettingsJsonEntity>(dto.content)
 
-        return WidgetSettingsEntity(id = dto.id,
+        return WidgetSettingsEntity(
+            id = dto.id,
             location = jsonEntity.getLocation(),
             status = dto.status,
             weatherProviders = jsonEntity.getWeatherProviders(),
-            widgetType = WidgetType.fromKey(dto.widgetType))
+            widgetType = WidgetType.fromKey(dto.widgetType),
+        )
     }
 
     override suspend fun delete(id: Int) {
@@ -59,7 +65,11 @@ class WidgetRepositoryImpl(
         dataSource.deleteAll()
     }
 
-    override suspend fun updateResponseData(id: Int, status: WidgetStatus, responseData: ByteArray?) {
+    override suspend fun updateResponseData(
+        id: Int,
+        status: WidgetStatus,
+        responseData: ByteArray?,
+    ) {
         dataSource.updateResponseData(id, status, responseData)
     }
 
@@ -69,39 +79,50 @@ class WidgetRepositoryImpl(
             val location = jsonEntity.getLocation()
 
             if (dto.status == WidgetStatus.RESPONSE_SUCCESS) {
-                val responseData = dto.responseData?.let {
-                    try {
-                        jsonParser.parse<WidgetResponseDBModel>(it)
-                    } catch (e: Exception) {
-                        null
+                val responseData =
+                    dto.responseData?.let {
+                        try {
+                            jsonParser.parse<WidgetResponseDBModel>(it)
+                        } catch (e: Exception) {
+                            null
+                        }
                     }
-                }
                 if (responseData == null) {
                     dataSource.deleteById(dto.id)
-                    SavedWidgetContentState.Failure(id = dto.id,
+                    SavedWidgetContentState.Failure(
+                        id = dto.id,
                         widgetType = WidgetType.fromKey(dto.widgetType),
                         updatedAt = ZonedDateTime.parse(dto.updatedAt),
-                        locationType = location.locationType)
+                        locationType = location.locationType,
+                    )
                 } else {
-                    SavedWidgetContentState.Success(id = dto.id,
+                    SavedWidgetContentState.Success(
+                        id = dto.id,
                         widgetType = WidgetType.fromKey(dto.widgetType),
                         updatedAt = ZonedDateTime.parse(dto.updatedAt),
                         locationType = location.locationType,
                         address = responseData.address,
                         latitude = responseData.latitude,
                         longitude = responseData.longitude,
-                        entities = responseData.entities.map {
-                            SavedWidgetContentState.Success.EntityWithWeatherProvider(weatherProvider = WeatherProvider.fromKey(it.weatherProvider),
-                                entities = it.entities.map { entity ->
-                                    entity.toWeatherEntity(jsonParser)
-                                })
-                        })
+                        entities =
+                            responseData.entities.map {
+                                SavedWidgetContentState.Success.EntityWithWeatherProvider(
+                                    weatherProvider = WeatherProvider.fromKey(it.weatherProvider),
+                                    entities =
+                                        it.entities.map { entity ->
+                                            entity.toWeatherEntity(jsonParser)
+                                        },
+                                )
+                            },
+                    )
                 }
             } else {
-                SavedWidgetContentState.Failure(id = dto.id,
+                SavedWidgetContentState.Failure(
+                    id = dto.id,
                     widgetType = WidgetType.fromKey(dto.widgetType),
                     updatedAt = ZonedDateTime.parse(dto.updatedAt),
-                    locationType = location.locationType)
+                    locationType = location.locationType,
+                )
             }
         }
     }

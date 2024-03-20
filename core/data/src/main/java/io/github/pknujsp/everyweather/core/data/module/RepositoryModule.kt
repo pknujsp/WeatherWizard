@@ -62,7 +62,6 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 abstract class RepositoryModule {
-
     companion object {
         @Provides
         @Singleton
@@ -91,7 +90,8 @@ abstract class RepositoryModule {
         @Singleton
         @JvmStatic
         internal fun providesRadartilesRepositoryImpl(
-            rainViewerDataSource: RainViewerDataSource, @CoDispatcher(CoDispatcherType.IO) dispatcher: CoroutineDispatcher
+            rainViewerDataSource: RainViewerDataSource,
+            @CoDispatcher(CoDispatcherType.IO) dispatcher: CoroutineDispatcher,
         ): RadarTilesRepositoryImpl {
             val cacheManagerImpl = CacheManagerImpl<Long, RadarTiles>(cacheMaxSize = 1, dispatcher = dispatcher)
             return RadarTilesRepositoryImpl(rainViewerDataSource, cacheManagerImpl, cacheManagerImpl)
@@ -101,7 +101,8 @@ abstract class RepositoryModule {
         @Singleton
         @JvmStatic
         internal fun providesAirQualityRepositoryImpl(
-            aqiCnDataSource: AqiCnDataSource, @CoDispatcher(CoDispatcherType.IO) dispatcher: CoroutineDispatcher
+            aqiCnDataSource: AqiCnDataSource,
+            @CoDispatcher(CoDispatcherType.IO) dispatcher: CoroutineDispatcher,
         ): AirQualityRepositoryImpl {
             val cacheManagerImpl = CacheManagerImpl<Int, AirQualityEntity>(cacheMaxSize = 4, dispatcher = dispatcher)
             return AirQualityRepositoryImpl(aqiCnDataSource, cacheManagerImpl, cacheManagerImpl)
@@ -128,46 +129,56 @@ abstract class RepositoryModule {
         @JvmStatic
         @Provides
         fun providesDailyNotificationRepository(
-            dataSource: DailyNotificationLocalDataSource, jsonParser: JsonParser
+            dataSource: DailyNotificationLocalDataSource,
+            jsonParser: JsonParser,
         ): DailyNotificationRepository = DailyNotificationRepositoryImpl(dataSource, jsonParser)
 
         @Singleton
         @JvmStatic
         @Provides
         fun providesOngoingNotificationRepository(
-            dataSource: OngoingNotificationLocalDataSource, jsonParser: JsonParser
+            dataSource: OngoingNotificationLocalDataSource,
+            jsonParser: JsonParser,
         ): OngoingNotificationRepository = OngoingNotificationRepositoryImpl(dataSource, jsonParser)
 
         @Singleton
         @JvmStatic
         @Provides
         fun providesWidgetRepository(
-            widgetLocalDataSource: WidgetLocalDataSource, jsonParser: JsonParser
+            widgetLocalDataSource: WidgetLocalDataSource,
+            jsonParser: JsonParser,
         ): WidgetRepository = WidgetRepositoryImpl(widgetLocalDataSource, jsonParser)
 
         @Singleton
         @JvmStatic
         @Provides
         internal fun providesSummaryTextRepositoryImpl(
-            @CoDispatcher(CoDispatcherType.IO) dispatcher: CoroutineDispatcher
+            @CoDispatcher(CoDispatcherType.IO) dispatcher: CoroutineDispatcher,
         ): SummaryTextRepositoryImpl {
-            val cacheManagerImpl = CacheManagerImpl<Int, List<GenerateContentResponse>>(
-                cacheMaxSize = 5,
-                dispatcher = dispatcher,
+            val cacheManagerImpl =
+                CacheManagerImpl<Int, List<GenerateContentResponse>>(
+                    cacheMaxSize = 5,
+                    dispatcher = dispatcher,
+                )
+            return SummaryTextRepositoryImpl(
+                GenerativeModel(
+                    "gemini-1.0-pro",
+                    BuildConfig.GOOGLE_AI_STUDIO_KEY,
+                    generationConfig {
+                        temperature = 0.47f
+                    },
+                    safetySettings =
+                        listOf(
+                            SafetySetting(HarmCategory.HARASSMENT, BlockThreshold.NONE),
+                            SafetySetting(HarmCategory.DANGEROUS_CONTENT, BlockThreshold.NONE),
+                            SafetySetting(HarmCategory.HATE_SPEECH, BlockThreshold.NONE),
+                            SafetySetting(HarmCategory.SEXUALLY_EXPLICIT, BlockThreshold.NONE),
+                        ),
+                ),
+                cacheManagerImpl,
+                cacheManagerImpl,
             )
-            return SummaryTextRepositoryImpl(GenerativeModel("gemini-1.0-pro",
-                BuildConfig.GOOGLE_AI_STUDIO_KEY,
-                generationConfig {
-                    temperature = 0.47f
-                },
-                safetySettings = listOf(
-                    SafetySetting(HarmCategory.HARASSMENT, BlockThreshold.NONE),
-                    SafetySetting(HarmCategory.DANGEROUS_CONTENT, BlockThreshold.NONE),
-                    SafetySetting(HarmCategory.HATE_SPEECH, BlockThreshold.NONE),
-                    SafetySetting(HarmCategory.SEXUALLY_EXPLICIT, BlockThreshold.NONE),
-                )), cacheManagerImpl, cacheManagerImpl)
         }
-
 
         @Singleton
         @JvmStatic
@@ -176,34 +187,23 @@ abstract class RepositoryModule {
             SearchHistoryRepositoryImpl(searchHistoryLocalDataSource)
     }
 
-
     @Binds
-    internal abstract fun providesWeatherRepository(
-        weatherDataRepositoryImpl: WeatherDataRepositoryImpl
-    ): WeatherDataRepository
-
+    internal abstract fun providesWeatherRepository(weatherDataRepositoryImpl: WeatherDataRepositoryImpl): WeatherDataRepository
 
     @Binds
     internal abstract fun providesRadartilesRepository(radarTilesRepositoryImpl: RadarTilesRepositoryImpl): RadarTilesRepository
 
-
     @Binds
-    internal abstract fun providesAirQualityRepository(
-        airQualityRepositoryImpl: AirQualityRepositoryImpl
-    ): AirQualityRepository
-
+    internal abstract fun providesAirQualityRepository(airQualityRepositoryImpl: AirQualityRepositoryImpl): AirQualityRepository
 
     @Binds
     internal abstract fun providesSettingsRepository(settingsRepositoryImpl: SettingsRepositoryImpl): SettingsRepository
 
-
     @Binds
-    internal abstract fun providesSummaryTextRepository(
-        summaryTextRepositoryImpl: SummaryTextRepositoryImpl
-    ): SummaryTextRepository
+    internal abstract fun providesSummaryTextRepository(summaryTextRepositoryImpl: SummaryTextRepositoryImpl): SummaryTextRepository
 
     @Binds
     internal abstract fun providesFavoriteAreaRepository(
-        targetLocationRepositoryImpl: TargetLocationRepositoryImpl
+        targetLocationRepositoryImpl: TargetLocationRepositoryImpl,
     ): TargetLocationRepository
 }

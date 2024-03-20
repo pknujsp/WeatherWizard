@@ -41,20 +41,23 @@ import io.github.pknujsp.everyweather.feature.componentservice.notification.ongo
 import io.github.pknujsp.everyweather.feature.permoptimize.feature.SmallFeatureStateScreen
 import io.github.pknujsp.everyweather.feature.searchlocation.SearchLocationScreen
 
-
 @Composable
-fun OngoingNotificationScreen(navController: NavController, viewModel: OngoingNotificationViewModel = hiltViewModel()) {
+fun OngoingNotificationScreen(
+    navController: NavController,
+    viewModel: OngoingNotificationViewModel = hiltViewModel(),
+) {
     val notificationState = rememberOngoingNotificationState(navController, viewModel.ongoingNotificationUiState)
     notificationState.run {
         if (showSearch) {
             SearchLocationScreen(onSelectedLocation = { newLocation ->
                 newLocation?.let {
-                    notificationUiState.settings.location = notificationUiState.settings.location.copy(
-                        latitude = it.latitude,
-                        longitude = it.longitude,
-                        address = it.addressName,
-                        country = it.countryName,
-                    )
+                    notificationUiState.settings.location =
+                        notificationUiState.settings.location.copy(
+                            latitude = it.latitude,
+                            longitude = it.longitude,
+                            address = it.addressName,
+                            country = it.countryName,
+                        )
                 }
                 showSearch = false
             }, popBackStack = {
@@ -63,17 +66,24 @@ fun OngoingNotificationScreen(navController: NavController, viewModel: OngoingNo
         } else {
             CustomBox(snackbarHost = { SnackbarHost(hostState = snackbarHostState) }) {
                 Column {
-                    TitleTextWithNavigation(title = stringResource(id = io.github.pknujsp.everyweather.core.resource.R.string.title_ongoing_notification)) {
+                    TitleTextWithNavigation(
+                        title = stringResource(id = io.github.pknujsp.everyweather.core.resource.R.string.title_ongoing_notification),
+                    ) {
                         navController.popBackStack()
                     }
-                    RemoteViewsScreen(RemoteViewsCreatorManager.getByOngoingNotificationType(OngoingNotificationType.CURRENT_HOURLY_FORECAST),
+                    RemoteViewsScreen(
+                        RemoteViewsCreatorManager.getByOngoingNotificationType(OngoingNotificationType.CURRENT_HOURLY_FORECAST),
                         viewModel.units,
-                        modifier = Modifier.padding(12.dp))
-                    Column(modifier = Modifier
-                        .verticalScroll(rememberScrollState())
-                        .weight(1f)
-                        .padding(horizontal = 16.dp),
-                        verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                        modifier = Modifier.padding(12.dp),
+                    )
+                    Column(
+                        modifier =
+                            Modifier
+                                .verticalScroll(rememberScrollState())
+                                .weight(1f)
+                                .padding(horizontal = 16.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp),
+                    ) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Text(text = stringResource(id = R.string.switch_ongoing_notification), modifier = Modifier.weight(1f))
                             Switch(
@@ -96,18 +106,22 @@ fun OngoingNotificationScreen(navController: NavController, viewModel: OngoingNo
                             }
                             RefreshIntervalScreen(settings)
                             if (!batteryOptimizationState.isAvailable(LocalContext.current) && notificationUiState.settings.refreshInterval != RefreshInterval.MANUAL) {
-                                SmallFeatureStateScreen(Modifier.padding(8.dp),
+                                SmallFeatureStateScreen(
+                                    Modifier.padding(8.dp),
                                     state = batteryOptimizationState.featureType,
                                     onClickAction = {
                                         batteryOptimizationState.showSettingsActivity()
-                                    })
+                                    },
+                                )
                             }
                             if (backgroundLocationPermissionManager.isEnabled(LocalContext.current)) {
-                                SmallFeatureStateScreen(Modifier.padding(8.dp),
+                                SmallFeatureStateScreen(
+                                    Modifier.padding(8.dp),
                                     state = FeatureType.Permission.BackgroundLocation,
                                     onClickAction = {
                                         backgroundLocationPermissionManager.showSettingsActivity()
-                                    })
+                                    },
+                                )
                             }
                             NotificationIconScreen(settings)
                         }
@@ -121,7 +135,6 @@ fun OngoingNotificationScreen(navController: NavController, viewModel: OngoingNo
                     }
                 }
             }
-
         }
     }
 }
@@ -130,7 +143,8 @@ fun OngoingNotificationScreen(navController: NavController, viewModel: OngoingNo
 fun RefreshIntervalScreen(settings: OngoingNotificationSettings) {
     var selectedOption by remember { mutableStateOf(settings.refreshInterval) }
 
-    BottomSheetSettingItem(title = stringResource(id = io.github.pknujsp.everyweather.core.resource.R.string.refresh_interval),
+    BottomSheetSettingItem(
+        title = stringResource(id = io.github.pknujsp.everyweather.core.resource.R.string.refresh_interval),
         selectedItem = selectedOption,
         onSelectedItem = {
             it?.run {
@@ -138,14 +152,16 @@ fun RefreshIntervalScreen(settings: OngoingNotificationSettings) {
                 selectedOption = this
             }
         },
-        enums = RefreshInterval.enums)
+        enums = RefreshInterval.enums,
+    )
 }
 
 @Composable
 fun NotificationIconScreen(settings: OngoingNotificationSettings) {
     var selectedOption by remember { mutableStateOf(settings.notificationIconType) }
 
-    BottomSheetSettingItem(title = stringResource(id = io.github.pknujsp.everyweather.core.resource.R.string.notification_icon_type),
+    BottomSheetSettingItem(
+        title = stringResource(id = io.github.pknujsp.everyweather.core.resource.R.string.notification_icon_type),
         selectedItem = selectedOption,
         onSelectedItem = {
             it?.run {
@@ -153,5 +169,6 @@ fun NotificationIconScreen(settings: OngoingNotificationSettings) {
                 selectedOption = this
             }
         },
-        enums = NotificationIconType.enums)
+        enums = NotificationIconType.enums,
+    )
 }

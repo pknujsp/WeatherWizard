@@ -21,7 +21,10 @@ object AqiCnNetworkModule {
 
     @Provides
     @Singleton
-    fun providesNetworkApi(okHttpClient: OkHttpClient, @KtJson json: Json): AqiCnNetworkApi =
+    fun providesNetworkApi(
+        okHttpClient: OkHttpClient,
+        @KtJson json: Json,
+    ): AqiCnNetworkApi =
         Retrofit.Builder().client(okHttpClient).baseUrl(URL).addCallAdapterFactory(NetworkApiCallAdapterFactory()).addConverterFactory(
             ScalarsConverterFactory.create(),
         ).addConverterFactory(json.asConverterFactory("application/json".toMediaType())).build().create(AqiCnNetworkApi::class.java)

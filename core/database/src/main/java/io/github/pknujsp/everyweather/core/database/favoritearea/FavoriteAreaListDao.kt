@@ -40,5 +40,4 @@ abstract class FavoriteAreaListDao {
 
     @Query("DELETE FROM favorite_area_list WHERE id = :id")
     abstract suspend fun deleteById(id: Long)
-
 }

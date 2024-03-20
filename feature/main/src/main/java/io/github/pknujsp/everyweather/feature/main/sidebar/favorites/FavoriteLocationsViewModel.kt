@@ -31,69 +31,71 @@ import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
-class FavoriteLocationsViewModel @Inject constructor(
-    private val targetLocationRepository: TargetLocationRepository,
-    private val getCurrentLocationUseCase: GetCurrentLocationAddress,
-    @CoDispatcher(CoDispatcherType.IO) private val ioDispatcher: CoroutineDispatcher,
-    favoriteAreaRepository: FavoriteAreaListRepository,
-) : ViewModel() {
+class FavoriteLocationsViewModel
+    @Inject
+    constructor(
+        private val targetLocationRepository: TargetLocationRepository,
+        private val getCurrentLocationUseCase: GetCurrentLocationAddress,
+        @CoDispatcher(CoDispatcherType.IO) private val ioDispatcher: CoroutineDispatcher,
+        favoriteAreaRepository: FavoriteAreaListRepository,
+    ) : ViewModel() {
+        private val mutableTargetLocationUiState: MutableTargetLocationUiState = MutableTargetLocationUiState()
+        val targetLocationUiState: TargetLocationUiState = mutableTargetLocationUiState
 
-    private val mutableTargetLocationUiState: MutableTargetLocationUiState = MutableTargetLocationUiState()
-    val targetLocationUiState: TargetLocationUiState = mutableTargetLocationUiState
+        private val favoriteLocations =
+            favoriteAreaRepository.getAllByFlow().distinctUntilChanged().map { list ->
+                list.take(ITEMS_LIMIT).map {
+                    FavoriteArea(it.id, it.placeId, it.areaName, it.countryName)
+                }
+            }.flowOn(ioDispatcher).stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
 
-    private val favoriteLocations = favoriteAreaRepository.getAllByFlow().distinctUntilChanged().map { list ->
-        list.take(ITEMS_LIMIT).map {
-            FavoriteArea(it.id, it.placeId, it.areaName, it.countryName)
+        private val targetLocationFlow =
+            targetLocationRepository.targetLocation.onEach { targetLocation ->
+                mutableTargetLocationUiState.run {
+                    locationType = targetLocation.locationType
+                    locationId = if (targetLocation.locationType is LocationType.CustomLocation) targetLocation.locationId else null
+                }
+            }.stateIn(viewModelScope, SharingStarted.Eagerly, null)
+
+        private val mutableFavoriteLocationsUiState: MutableFavoriteLocationsUiState = MutableFavoriteLocationsUiState(favoriteLocations)
+        val favoriteLocationsUiState: FavoriteLocationsUiState = mutableFavoriteLocationsUiState
+
+        private companion object {
+            const val ITEMS_LIMIT = 4
         }
-    }.flowOn(ioDispatcher).stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
 
-    private val targetLocationFlow = targetLocationRepository.targetLocation.onEach { targetLocation ->
-        mutableTargetLocationUiState.run {
-            locationType = targetLocation.locationType
-            locationId = if (targetLocation.locationType is LocationType.CustomLocation) targetLocation.locationId else null
+        init {
+            if (getCurrentLocationUseCase.geoCodeFlow.value == null) {
+                viewModelScope.launch {
+                    withContext(ioDispatcher) {
+                        getCurrentLocationUseCase()
+                    }
+                }
+            }
+            getCurrentLocationUseCase.geoCodeFlow.filterNotNull().onEach { geoCode ->
+                onResultCurrentLocation(geoCode)
+                mutableTargetLocationUiState.isCurrentLocationLoading = false
+            }.launchIn(viewModelScope)
         }
-    }.stateIn(viewModelScope, SharingStarted.Eagerly, null)
 
-    private val mutableFavoriteLocationsUiState: MutableFavoriteLocationsUiState = MutableFavoriteLocationsUiState(favoriteLocations)
-    val favoriteLocationsUiState: FavoriteLocationsUiState = mutableFavoriteLocationsUiState
+        private fun onResultCurrentLocation(geoCodeState: LocationGeoCodeState) {
+            when (geoCodeState) {
+                is LocationGeoCodeState.Success -> {
+                    mutableTargetLocationUiState.currentLocationAddress = geoCodeState.address
+                }
 
-    private companion object {
-        const val ITEMS_LIMIT = 4
-    }
-
-    init {
-        if (getCurrentLocationUseCase.geoCodeFlow.value == null) {
-            viewModelScope.launch {
-                withContext(ioDispatcher) {
-                    getCurrentLocationUseCase()
+                is LocationGeoCodeState.Failure -> {
+                    mutableTargetLocationUiState.loadCurrentLocationFailedReason = geoCodeState.reason
                 }
             }
         }
-        getCurrentLocationUseCase.geoCodeFlow.filterNotNull().onEach { geoCode ->
-            onResultCurrentLocation(geoCode)
-            mutableTargetLocationUiState.isCurrentLocationLoading = false
-        }.launchIn(viewModelScope)
-    }
 
-    private fun onResultCurrentLocation(geoCodeState: LocationGeoCodeState) {
-        when (geoCodeState) {
-            is LocationGeoCodeState.Success -> {
-                mutableTargetLocationUiState.currentLocationAddress = geoCodeState.address
-            }
-
-            is LocationGeoCodeState.Failure -> {
-                mutableTargetLocationUiState.loadCurrentLocationFailedReason = geoCodeState.reason
+        fun updateTargetLocation(newModel: SelectedLocationModel) {
+            viewModelScope.launch {
+                targetLocationRepository.updateTargetLocation(newModel)
             }
         }
     }
-
-
-    fun updateTargetLocation(newModel: SelectedLocationModel) {
-        viewModelScope.launch {
-            targetLocationRepository.updateTargetLocation(newModel)
-        }
-    }
-}
 
 private class MutableTargetLocationUiState : TargetLocationUiState {
     override var locationType: LocationType by mutableStateOf(LocationType.default)
@@ -104,5 +106,5 @@ private class MutableTargetLocationUiState : TargetLocationUiState {
 }
 
 private class MutableFavoriteLocationsUiState(
-    override val favoriteAreas: StateFlow<List<FavoriteArea>>
+    override val favoriteAreas: StateFlow<List<FavoriteArea>>,
 ) : FavoriteLocationsUiState

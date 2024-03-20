@@ -1,9 +1,8 @@
 import com.google.firebase.crashlytics.buildtools.gradle.CrashlyticsExtension
-import org.jetbrains.kotlin.konan.properties.Properties
 
 plugins {
     id("plugin.android.application")
-    //alias(libs.plugins.benchmark)
+    // alias(libs.plugins.benchmark)
 }
 
 android {
@@ -47,14 +46,14 @@ android {
 
     packaging {
         resources {
-            //excludes += "/META-INF/{AL2.0,LGPL2.1}"
+            // excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
     }
 
     lint {
-        //checkDependencies = true
-        //ignoreTestSources = true
-        //resourcePrefix = "gnt_"
+        // checkDependencies = true
+        // ignoreTestSources = true
+        // resourcePrefix = "gnt_"
     }
 
     hilt {
@@ -77,10 +76,8 @@ android {
                 }
             }
         }
-    */
-
+     */
 }
-
 
 dependencies {
     implementation(project(":core:ui"))
@@ -108,8 +105,8 @@ dependencies {
     implementation(libs.firebase.crashlytics)
     implementation(libs.firebase.analytics)
     implementation(libs.google.errorprone.annotations)
-    //implementation(libs.androidx.profileinstaller)
+    // implementation(libs.androidx.profileinstaller)
 
-    //androidTestImplementation(libs.benchmark.macro.junit4)
-    //baselineProfile(project(":benchmark"))
+    // androidTestImplementation(libs.benchmark.macro.junit4)
+    // baselineProfile(project(":benchmark"))
 }

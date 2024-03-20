@@ -46,18 +46,19 @@ import io.github.pknujsp.everyweather.core.model.onSuccess
 import io.github.pknujsp.everyweather.core.model.weather.RequestWeatherArguments
 import io.github.pknujsp.everyweather.core.model.weather.common.WeatherProvider
 import io.github.pknujsp.everyweather.core.resource.R
-import io.github.pknujsp.everyweather.core.ui.time.DynamicDateTime
 import io.github.pknujsp.everyweather.core.ui.TitleTextWithNavigation
 import io.github.pknujsp.everyweather.core.ui.lottie.CancellableLoadingScreen
+import io.github.pknujsp.everyweather.core.ui.time.DynamicDateTime
 import io.github.pknujsp.everyweather.feature.weather.comparison.common.CommonForecastItemsScreen
 import io.github.pknujsp.everyweather.feature.weather.comparison.common.CompareForecastCard
 import io.github.pknujsp.everyweather.feature.weather.info.hourlyforecast.model.CompareHourlyForecast
 import io.github.pknujsp.everyweather.feature.weather.info.hourlyforecast.model.HourlyForecastComparisonReport
 
-
 @Composable
 fun CompareHourlyForecastScreen(
-    args: RequestWeatherArguments, viewModel: CompareHourlyForecastViewModel = hiltViewModel(), popBackStack: () -> Unit
+    args: RequestWeatherArguments,
+    viewModel: CompareHourlyForecastViewModel = hiltViewModel(),
+    popBackStack: () -> Unit,
 ) {
     BackHandler {
         popBackStack()
@@ -71,18 +72,20 @@ fun CompareHourlyForecastScreen(
     val hourlyForecastComparisonReport by viewModel.report.collectAsStateWithLifecycle()
 
     Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .systemBarsPadding(),
+        modifier =
+            Modifier
+                .fillMaxSize()
+                .systemBarsPadding(),
     ) {
         TitleTextWithNavigation(title = stringResource(id = R.string.title_comparison_hourly_forecast)) {
             popBackStack()
         }
         Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .weight(1f)
-                .verticalScroll(rememberScrollState()),
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .weight(1f)
+                    .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
             hourlyForecast.onLoading {
@@ -100,29 +103,36 @@ fun CompareHourlyForecastScreen(
             }
 
             if (hourlyForecastComparisonReport is UiState.Success) {
-                CommonForecastItemsScreen((hourlyForecastComparisonReport as UiState.Success<HourlyForecastComparisonReport>).data.commonForecasts)
+                CommonForecastItemsScreen(
+                    (hourlyForecastComparisonReport as UiState.Success<HourlyForecastComparisonReport>).data.commonForecasts,
+                )
             }
         }
     }
 }
 
 @Composable
-fun Content(compareHourlyForecastInfo: CompareHourlyForecastInfo, lazyListState: LazyListState) {
+fun Content(
+    compareHourlyForecastInfo: CompareHourlyForecastInfo,
+    lazyListState: LazyListState,
+) {
     val itemsCount = compareHourlyForecastInfo.items.size
     val itemModifier = remember { Modifier.width(CompareHourlyForecastInfo.itemWidth) }
     val context = LocalContext.current
     val weatherDataProviderInfoHeight = 36.dp
-    val weatherDataProviderInfoHeightPx = with(LocalDensity.current) {
-        weatherDataProviderInfoHeight.toPx().toInt()
-    }
+    val weatherDataProviderInfoHeightPx =
+        with(LocalDensity.current) {
+            weatherDataProviderInfoHeight.toPx().toInt()
+        }
 
     Layout(
         content = {
             LazyRow(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(Color.Transparent)
-                    .wrapContentHeight(),
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .background(Color.Transparent)
+                        .wrapContentHeight(),
                 state = lazyListState,
             ) {
                 items(count = itemsCount, key = { it }) { i ->
@@ -159,23 +169,28 @@ fun Content(compareHourlyForecastInfo: CompareHourlyForecastInfo, lazyListState:
             }
         }
     }
-
 }
 
-
 @Composable
-internal fun WeatherDataProviderInfo(weatherProvider: WeatherProvider, height: Dp) {
-    Row(horizontalArrangement = Arrangement.spacedBy(4.dp, Alignment.Start),
+internal fun WeatherDataProviderInfo(
+    weatherProvider: WeatherProvider,
+    height: Dp,
+) {
+    Row(
+        horizontalArrangement = Arrangement.spacedBy(4.dp, Alignment.Start),
         verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier
-            .height(height)
-            .padding(start = 12.dp)) {
+        modifier =
+            Modifier
+                .height(height)
+                .padding(start = 12.dp),
+    ) {
         AsyncImage(
             model = ImageRequest.Builder(LocalContext.current).data(weatherProvider.icon).crossfade(false).build(),
             contentDescription = stringResource(id = R.string.weather_provider),
-            modifier = Modifier
-                .size(height)
-                .padding(4.dp),
+            modifier =
+                Modifier
+                    .size(height)
+                    .padding(4.dp),
         )
         Text(
             text = stringResource(id = weatherProvider.title),
@@ -187,25 +202,31 @@ internal fun WeatherDataProviderInfo(weatherProvider: WeatherProvider, height: D
 
 @Composable
 private fun Item(
-    forecast: CompareHourlyForecast.Item, modifier: Modifier, onClick: (String) -> Unit
+    forecast: CompareHourlyForecast.Item,
+    modifier: Modifier,
+    onClick: (String) -> Unit,
 ) {
     // 시각, 아이콘, 강수확률, 강수량
     forecast.run {
         val weatherConditionText = stringResource(id = weatherCondition)
         Column(
-            modifier = Modifier
-                .then(modifier)
-                .clickable { onClick(weatherConditionText) },
+            modifier =
+                Modifier
+                    .then(modifier)
+                    .clickable { onClick(weatherConditionText) },
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             // 시각
             Text(text = hour, style = TextStyle(fontSize = 13.sp, color = Color.White))
             // 아이콘
-            AsyncImage(model = ImageRequest.Builder(LocalContext.current).data(weatherIcon).crossfade(false).build(),
+            AsyncImage(
+                model = ImageRequest.Builder(LocalContext.current).data(weatherIcon).crossfade(false).build(),
                 contentDescription = weatherConditionText,
-                modifier = Modifier
-                    .padding(4.dp)
-                    .fillMaxWidth())
+                modifier =
+                    Modifier
+                        .padding(4.dp)
+                        .fillMaxWidth(),
+            )
 
             Text(text = temperature, style = TextStyle(fontSize = 13.sp, color = Color.White))
         }

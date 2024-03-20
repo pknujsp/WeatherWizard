@@ -18,6 +18,8 @@ class WidgetModel(
     val widgetType = WidgetType.fromKey(widgetType)
     var weatherProvider: WeatherProvider by mutableStateOf(WeatherProvider.default)
     var location: LocationTypeModel by mutableStateOf(LocationTypeModel())
-    val displayAllWeatherProviders by mutableStateOf(this.widgetType == WidgetType.DAILY_FORECAST_COMPARISON || this.widgetType ==
-            WidgetType.HOURLY_FORECAST_COMPARISON)
+    val displayAllWeatherProviders by mutableStateOf(
+        this.widgetType == WidgetType.DAILY_FORECAST_COMPARISON || this.widgetType ==
+            WidgetType.HOURLY_FORECAST_COMPARISON,
+    )
 }

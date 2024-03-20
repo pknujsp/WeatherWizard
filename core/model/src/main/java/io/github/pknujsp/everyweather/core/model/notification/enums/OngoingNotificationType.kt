@@ -9,7 +9,7 @@ enum class OngoingNotificationType(val categories: Array<MajorWeatherEntityType>
         override val title: Int = io.github.pknujsp.everyweather.core.resource.R.string.current_weather_and_hourly_forecast
         override val icon: Int? = null
         override val key: Int = ordinal
-    };
+    }, ;
 
     companion object : BaseEnum<OngoingNotificationType> {
         override val default: OngoingNotificationType = CURRENT_HOURLY_FORECAST

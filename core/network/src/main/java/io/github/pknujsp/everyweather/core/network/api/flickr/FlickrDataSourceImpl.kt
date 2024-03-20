@@ -4,7 +4,7 @@ import io.github.pknujsp.everyweather.core.model.flickr.FlickrRequestParameters
 import io.github.pknujsp.everyweather.core.network.retrofit.onResult
 
 internal class FlickrDataSourceImpl(
-    private val flickrNetworkApi: FlickrNetworkApi
+    private val flickrNetworkApi: FlickrNetworkApi,
 ) : FlickrDataSource {
     override suspend fun getPhotosFromGallery(getPhotosFromGalleryParameter: FlickrRequestParameters.FlickrGetPhotosFromGalleryParameter) =
         flickrNetworkApi.getPhotosFromGallery(getPhotosFromGalleryParameter.map).onResult()

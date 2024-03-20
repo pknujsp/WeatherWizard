@@ -1,6 +1,5 @@
 package io.github.pknujsp.everyweather.core.network.api.nominatim.response
 
-
 import io.github.pknujsp.everyweather.core.model.ApiResponseModel
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -9,19 +8,19 @@ import kotlinx.serialization.Serializable
 data class ReverseGeoCodeResponse(
     @SerialName("features") val features: List<Feature>,
     @SerialName("licence") val licence: String = "", // Data © OpenStreetMap contributors, ODbL 1.0. http://osm.org/copyright
-    @SerialName("type") val type: String = "" // FeatureCollection
+    @SerialName("type") val type: String = "", // FeatureCollection
 ) : ApiResponseModel {
     @Serializable
     data class Feature(
         @SerialName("bbox") val bbox: List<Double>,
         @SerialName("geometry") val geometry: Geometry,
         @SerialName("properties") val properties: Properties,
-        @SerialName("type") val type: String = "" // Feature
+        @SerialName("type") val type: String = "", // Feature
     ) {
         @Serializable
         data class Geometry(
             @SerialName("coordinates") val coordinates: List<Double> = listOf(),
-            @SerialName("type") val type: String = "" // Point
+            @SerialName("type") val type: String = "", // Point
         )
 
         @Serializable
@@ -37,7 +36,7 @@ data class ReverseGeoCodeResponse(
             @SerialName("osm_type") val osmType: String = "", // node
             @SerialName("place_id") val placeId: Int = 0, // 97614718
             @SerialName("place_rank") val placeRank: Int = 0, // 30
-            @SerialName("type") val type: String = "" // house
+            @SerialName("type") val type: String = "", // house
         ) {
             @Serializable
             data class Address(
@@ -54,7 +53,7 @@ data class ReverseGeoCodeResponse(
                 @SerialName("suburb") val suburb: String = "", // Marconi
                 @SerialName("province") val province: String = "", // Bologna
                 @SerialName("quarter") val quarter: String = "", // Porto-Saragozza
-                @SerialName("natural") val natural: String = ""
+                @SerialName("natural") val natural: String = "",
             )
         }
     }

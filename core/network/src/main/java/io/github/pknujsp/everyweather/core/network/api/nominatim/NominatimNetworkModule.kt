@@ -23,7 +23,10 @@ object NominatimNetworkModule {
 
     @Provides
     @Singleton
-    fun providesNominatimNetworkApi(okHttpClient: OkHttpClient, @KtJson json: Json): NominatimNetworkApi =
+    fun providesNominatimNetworkApi(
+        okHttpClient: OkHttpClient,
+        @KtJson json: Json,
+    ): NominatimNetworkApi =
         Retrofit.Builder().client(okHttpClient).baseUrl(nominatimUrl).addCallAdapterFactory(NetworkApiCallAdapterFactory())
             .addConverterFactory(
                 ScalarsConverterFactory.create(),
@@ -31,6 +34,8 @@ object NominatimNetworkModule {
 
     @Provides
     @Singleton
-    fun providesNominatimDataSource(nominatimNetworkApi: NominatimNetworkApi, @AppLocale appLocale: Locale): NominatimDataSource =
-        NominatimDataSourceImpl(nominatimNetworkApi, appLocale)
+    fun providesNominatimDataSource(
+        nominatimNetworkApi: NominatimNetworkApi,
+        @AppLocale appLocale: Locale,
+    ): NominatimDataSource = NominatimDataSourceImpl(nominatimNetworkApi, appLocale)
 }

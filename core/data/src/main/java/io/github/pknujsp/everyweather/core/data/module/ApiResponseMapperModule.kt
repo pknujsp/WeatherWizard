@@ -14,12 +14,14 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 @Module
 object ApiResponseMapperModule {
-
     private const val KMA_WEATHER_RESPONSE_MAPPER = "KmaWeatherResponseMapper"
     private const val METNORWAY_WEATHER_RESPONSE_MAPPER = "MetNorwayWeatherResponseMapper"
 
     @Singleton
     @Provides
-    fun providesWeatherResponseMapperManager(
-    ): WeatherResponseMapperManager<WeatherEntityModel> = WeatherResponseMapperManagerImpl(KmaResponseMapper(), MetNorwayResponseMapper())
+    fun providesWeatherResponseMapperManager(): WeatherResponseMapperManager<WeatherEntityModel> =
+        WeatherResponseMapperManagerImpl(
+            KmaResponseMapper(),
+            MetNorwayResponseMapper(),
+        )
 }

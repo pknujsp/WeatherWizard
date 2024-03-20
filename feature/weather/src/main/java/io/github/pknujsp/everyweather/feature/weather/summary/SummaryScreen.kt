@@ -32,9 +32,12 @@ import io.github.pknujsp.everyweather.core.resource.R
 import io.github.pknujsp.everyweather.core.ui.ModalBottomSheetDialog
 import io.github.pknujsp.everyweather.core.ui.theme.AppShapes
 
-
 @Composable
-fun SummaryScreen(model: WeatherSummaryPrompt.Model, onDismiss: () -> Unit, summaryTextViewModel: SummaryTextViewModel = hiltViewModel()) {
+fun SummaryScreen(
+    model: WeatherSummaryPrompt.Model,
+    onDismiss: () -> Unit,
+    summaryTextViewModel: SummaryTextViewModel = hiltViewModel(),
+) {
     val uiState = summaryTextViewModel.uiState
     LaunchedEffect(model) {
         summaryTextViewModel.summarize(model)
@@ -48,9 +51,12 @@ fun SummaryScreen(model: WeatherSummaryPrompt.Model, onDismiss: () -> Unit, summ
         }
 
         Box(modifier = Modifier.fillMaxSize()) {
-            Column(modifier = Modifier
-                .fillMaxSize()
-                .verticalScroll(scrollState, true)) {
+            Column(
+                modifier =
+                    Modifier
+                        .fillMaxSize()
+                        .verticalScroll(scrollState, true),
+            ) {
                 MarkdownText(
                     style = TextStyle(color = Color.Black, fontSize = 15.sp, lineHeight = 4.sp),
                     markdown = if (uiState.error != null) stringResource(id = uiState.error!!) else uiState.summaryText,
@@ -70,14 +76,23 @@ fun SummaryScreen(model: WeatherSummaryPrompt.Model, onDismiss: () -> Unit, summ
 }
 
 @Composable
-private fun BoxScope.SummarizingCard(modifier: Modifier = Modifier, uiState: SummaryUiState, stop: () -> Unit) {
+private fun BoxScope.SummarizingCard(
+    modifier: Modifier = Modifier,
+    uiState: SummaryUiState,
+    stop: () -> Unit,
+) {
     val currentStopOrResume by rememberUpdatedState(newValue = stop)
-    Box(modifier = modifier
-        .padding(bottom = 8.dp)
-        .align(Alignment.BottomCenter)) {
-        OutlinedButton(onClick = currentStopOrResume,
+    Box(
+        modifier =
+            modifier
+                .padding(bottom = 8.dp)
+                .align(Alignment.BottomCenter),
+    ) {
+        OutlinedButton(
+            onClick = currentStopOrResume,
             shape = AppShapes.extraLarge,
-            colors = ButtonDefaults.outlinedButtonColors(containerColor = Color.White)) {
+            colors = ButtonDefaults.outlinedButtonColors(containerColor = Color.White),
+        ) {
             Row(
                 horizontalArrangement = Arrangement.spacedBy(6.dp, Alignment.CenterHorizontally),
                 verticalAlignment = Alignment.CenterVertically,

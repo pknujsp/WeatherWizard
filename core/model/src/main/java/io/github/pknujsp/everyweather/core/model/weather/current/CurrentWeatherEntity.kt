@@ -20,8 +20,8 @@ data class CurrentWeatherEntity(
     val windDirection: WindDirectionValueType,
     val precipitationVolume: PrecipitationValueType,
 ) : WeatherEntityModel() {
-
-    override fun toString(): String = """
+    override fun toString(): String =
+        """
         Current Weather
         - 현재 날씨 상태입니다.
         
@@ -33,5 +33,5 @@ data class CurrentWeatherEntity(
         - Wind direction : ${windDirection.convertUnit(WindDirectionUnit.Degree)}
         - Precipitation volume : $precipitationVolume
         
-    """.trimIndent()
+        """.trimIndent()
 }

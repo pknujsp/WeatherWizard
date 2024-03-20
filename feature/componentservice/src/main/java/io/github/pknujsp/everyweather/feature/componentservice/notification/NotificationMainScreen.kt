@@ -31,19 +31,27 @@ import io.github.pknujsp.everyweather.feature.permoptimize.feature.rememberAppFe
 import io.github.pknujsp.everyweather.feature.permoptimize.permission.PermissionStateScreen
 import io.github.pknujsp.everyweather.feature.permoptimize.permission.rememberPermissionManager
 
-
 @Composable
 private fun NotificationItem(
-    title: String, description: String? = null, onClick: (() -> Unit)? = null, content: (@Composable () -> Unit)? = null
+    title: String,
+    description: String? = null,
+    onClick: (() -> Unit)? = null,
+    content: (@Composable () -> Unit)? = null,
 ) {
-    Row(verticalAlignment = Alignment.CenterVertically,
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(16.dp),
-        modifier = Modifier.clickable(enabled = onClick != null) {
-            onClick?.invoke()
-        }) {
-        Column(modifier = Modifier
-            .weight(1f)
-            .padding(top = 16.dp, bottom = 16.dp, start = 16.dp)) {
+        modifier =
+            Modifier.clickable(enabled = onClick != null) {
+                onClick?.invoke()
+            },
+    ) {
+        Column(
+            modifier =
+                Modifier
+                    .weight(1f)
+                    .padding(top = 16.dp, bottom = 16.dp, start = 16.dp),
+        ) {
             Text(text = title, style = TextStyle(fontSize = 16.sp, color = Color.Black))
             description?.let {
                 Text(text = description, style = TextStyle(fontSize = 12.sp, color = Color.Gray))
@@ -63,16 +71,20 @@ fun NotificationMainScreen(navController: NavController) {
     val batteryOptimizationState = rememberAppFeatureState(featureType = FeatureType.BatteryOptimization)
 
     val onBackPressedDispatcherOwner = LocalOnBackPressedDispatcherOwner.current
-    val backDispatcher = remember {
-        onBackPressedDispatcherOwner?.onBackPressedDispatcher
-    }
+    val backDispatcher =
+        remember {
+            onBackPressedDispatcherOwner?.onBackPressedDispatcher
+        }
 
     Column {
         TitleTextWithNavigation(title = stringResource(id = R.string.nav_notification), onClickNavigation = {
             backDispatcher?.onBackPressed()
         })
-        if (postNotificationPermissionManager.isEnabled(LocalContext.current) && batteryOptimizationState.isAvailable(
-                LocalContext.current)) {
+        if (postNotificationPermissionManager.isEnabled(LocalContext.current) &&
+            batteryOptimizationState.isAvailable(
+                LocalContext.current,
+            )
+        ) {
             Column {
                 NotificationItem(title = stringResource(id = R.string.title_ongoing_notification), description = null, onClick = {
                     navController.navigate(NotificationRoutes.Ongoing.route)

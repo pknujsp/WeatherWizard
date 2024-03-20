@@ -8,10 +8,8 @@ import org.junit.runners.JUnit4
 import java.time.ZonedDateTime
 import java.util.TimeZone
 
-
 @RunWith(JUnit4::class)
 class DayNightCalcTest {
-
     // DayNightCalculatorTest
 
     @Test
@@ -28,7 +26,6 @@ class DayNightCalcTest {
         // 저녁
         val thirdCase = ZonedDateTime.of(2023, 9, 16, 23, 0, 0, 0, TimeZone.getDefault().toZoneId())
 
-
         val firstCaseResult = calculator.getSunSetRiseTimes(firstCase.toCalendar())
         val secondCaseResult = calculator.getSunSetRiseTimes(secondCase.toCalendar())
         val thirdCaseResult = calculator.getSunSetRiseTimes(thirdCase.toCalendar())
@@ -37,5 +34,4 @@ class DayNightCalcTest {
         println("secondCaseResult: $secondCaseResult")
         println("thirdCaseResult: $thirdCaseResult")
     }
-
 }

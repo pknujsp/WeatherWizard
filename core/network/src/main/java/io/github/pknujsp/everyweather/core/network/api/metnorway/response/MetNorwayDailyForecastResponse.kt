@@ -1,11 +1,11 @@
 package io.github.pknujsp.everyweather.core.network.api.metnorway.response
 
-import io.github.pknujsp.everyweather.core.model.weather.common.TimeOfDayType
 import io.github.pknujsp.everyweather.core.model.weather.common.DateTimeValueType
 import io.github.pknujsp.everyweather.core.model.weather.common.PrecipitationUnit
 import io.github.pknujsp.everyweather.core.model.weather.common.PrecipitationValueType
 import io.github.pknujsp.everyweather.core.model.weather.common.TemperatureUnit
 import io.github.pknujsp.everyweather.core.model.weather.common.TemperatureValueType
+import io.github.pknujsp.everyweather.core.model.weather.common.TimeOfDayType
 import io.github.pknujsp.everyweather.core.model.weather.common.WeatherConditionCategory
 import io.github.pknujsp.everyweather.core.model.weather.common.WeatherConditionValueType
 import io.github.pknujsp.everyweather.core.model.weather.common.WindSpeedUnit
@@ -15,9 +15,9 @@ import io.github.pknujsp.everyweather.core.network.api.metnorway.MetNorwayRespon
 import java.time.ZonedDateTime
 
 class MetNorwayDailyForecastResponse(
-    metNorwayResponse: MetNorwayResponse, symbols: Map<String, WeatherConditionCategory>
+    metNorwayResponse: MetNorwayResponse,
+    symbols: Map<String, WeatherConditionCategory>,
 ) : DailyForecastResponseModel {
-
     val items: List<Item>
 
     private companion object {
@@ -55,15 +55,16 @@ class MetNorwayDailyForecastResponse(
                 val maxWindSpeed = items.maxOf { it.data.instant.details.windSpeed }
                 items.createAmPmDataList(symbols).forEach { amPmData ->
                     result.add(
-                        Item(timeOfDayType = amPmData.timeOfDayType,
+                        Item(
+                            timeOfDayType = amPmData.timeOfDayType,
                             dateTime = DateTimeValueType(firstTime.toString()),
                             minTemperature = TemperatureValueType(minTemp, TemperatureUnit.Celsius),
                             maxTemperature = TemperatureValueType(maxTemp, TemperatureUnit.Celsius),
                             windMinSpeed = WindSpeedValueType(value = minWindSpeed, unit = WindSpeedUnit.MeterPerSecond),
                             windMaxSpeed = WindSpeedValueType(value = maxWindSpeed, unit = WindSpeedUnit.MeterPerSecond),
                             precipitationVolume = amPmData.precipitationVolume,
-                            weatherCondition = amPmData.weatherCondition
-                        )
+                            weatherCondition = amPmData.weatherCondition,
+                        ),
                     )
                 }
             }
@@ -72,8 +73,9 @@ class MetNorwayDailyForecastResponse(
         items = result
     }
 
-
-    private fun List<MetNorwayResponse.Properties.Timesery>.createAmPmDataList(symbols: Map<String, WeatherConditionCategory>): List<AmPmData> {
+    private fun List<MetNorwayResponse.Properties.Timesery>.createAmPmDataList(
+        symbols: Map<String, WeatherConditionCategory>,
+    ): List<AmPmData> {
         val items = mutableListOf<AmPmData>()
         map { ZonedDateTime.parse(it.time).hour to it }.let { pairs ->
             pairs.filter { it.first < 12 }.createAmPmData(TimeOfDayType.AM, symbols)?.run { items.add(this) }
@@ -84,13 +86,18 @@ class MetNorwayDailyForecastResponse(
     }
 
     private fun List<Pair<Int, MetNorwayResponse.Properties.Timesery>>.createAmPmData(
-        timeOfDayType: TimeOfDayType, symbols: Map<String,
-                WeatherConditionCategory>
-    ):
-            AmPmData? {
+        timeOfDayType: TimeOfDayType,
+        symbols: Map<
+            String,
+            WeatherConditionCategory,
+            >,
+    ): AmPmData? {
         return if (isNotEmpty()) {
-            AmPmData(timeOfDayType, PrecipitationValueType(getPrecipitationVolume(), PrecipitationUnit.Millimeter),
-                WeatherConditionValueType(getWeatherCondition(symbols)))
+            AmPmData(
+                timeOfDayType,
+                PrecipitationValueType(getPrecipitationVolume(), PrecipitationUnit.Millimeter),
+                WeatherConditionValueType(getWeatherCondition(symbols)),
+            )
         } else {
             null
         }

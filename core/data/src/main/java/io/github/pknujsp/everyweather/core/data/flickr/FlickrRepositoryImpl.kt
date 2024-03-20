@@ -6,9 +6,8 @@ import io.github.pknujsp.everyweather.core.model.flickr.FlickrRequestParameters
 import io.github.pknujsp.everyweather.core.network.api.flickr.FlickrDataSource
 
 class FlickrRepositoryImpl(
-    private val flickrDataSource: FlickrDataSource
+    private val flickrDataSource: FlickrDataSource,
 ) : FlickrRepository {
-
     private val imageUrlMap = LruCache<String, String>(10)
 
     override suspend fun getPhoto(parameter: FlickrRequestParameters): Result<FlickrImageEntity> {
