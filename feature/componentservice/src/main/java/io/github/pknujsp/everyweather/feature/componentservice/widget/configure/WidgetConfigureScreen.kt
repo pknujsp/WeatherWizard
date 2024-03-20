@@ -72,14 +72,13 @@ fun WidgetConfigureScreen(viewModel: WidgetConfigureViewModel = hiltViewModel())
     if (showSearch) {
         SearchLocationScreen(onSelectedLocation = { newLocation ->
             newLocation?.let {
-                widget.location =
-                    LocationTypeModel(
-                        locationType = LocationType.CustomLocation,
-                        address = it.addressName,
-                        latitude = it.latitude,
-                        country = it.countryName,
-                        longitude = it.longitude,
-                    )
+                widget.location = LocationTypeModel(
+                    locationType = LocationType.CustomLocation,
+                    address = it.addressName,
+                    latitude = it.latitude,
+                    country = it.countryName,
+                    longitude = it.longitude,
+                )
             }
             showSearch = false
         }, popBackStack = {
@@ -93,11 +92,10 @@ fun WidgetConfigureScreen(viewModel: WidgetConfigureViewModel = hiltViewModel())
                 }
                 RemoteViewsScreen(RemoteViewsCreatorManager.getByWidgetType(widget.widgetType), viewModel.units)
                 Column(
-                    modifier =
-                        Modifier
-                            .verticalScroll(rememberScrollState())
-                            .weight(1f)
-                            .padding(horizontal = 16.dp),
+                    modifier = Modifier
+                        .verticalScroll(rememberScrollState())
+                        .weight(1f)
+                        .padding(horizontal = 16.dp),
                     verticalArrangement = Arrangement.spacedBy(12.dp),
                 ) {
                     LocationScreen(widget.location, onSelectedItem = {
@@ -118,7 +116,7 @@ fun WidgetConfigureScreen(viewModel: WidgetConfigureViewModel = hiltViewModel())
                                 },
                             )
                         }
-                        if (configureState.backgroundLocationPermissionManager.isEnabled(context)) {
+                        if (!configureState.backgroundLocationPermissionManager.isEnabled(context)) {
                             SmallFeatureStateScreen(
                                 Modifier.padding(8.dp),
                                 state = FeatureType.Permission.BackgroundLocation,
@@ -142,12 +140,12 @@ fun WidgetConfigureScreen(viewModel: WidgetConfigureViewModel = hiltViewModel())
                                     configureState.batteryOptimizationFeatureState.showSettingsActivity()
                                 }
                             }
-                        } else if (configureState.backgroundLocationPermissionManager.isEnabled(context)) {
+                        } else if (!configureState.backgroundLocationPermissionManager.isEnabled(context)) {
                             coroutineScope.launch {
                                 configureState.showSnackbar(
                                     context,
-                                    FeatureType.Permission.BackgroundLocation.message,
-                                    FeatureType.Permission.BackgroundLocation.action,
+                                    configureState.backgroundLocationPermissionManager.featureType.message,
+                                    configureState.backgroundLocationPermissionManager.featureType.action,
                                 ) {
                                     configureState.backgroundLocationPermissionManager.showSettingsActivity()
                                 }
@@ -166,12 +164,11 @@ fun createWidgetAndFinish(
     activity: Activity,
     widgetId: Int,
 ) {
-    val newWidgetIntent =
-        ComponentPendingIntentManager.getIntent(
-            activity.applicationContext,
-            LoadWidgetDataArgument(LoadWidgetDataArgument.NEW_WIDGET, widgetId),
-            AppComponentServiceReceiver.ACTION_REFRESH,
-        )
+    val newWidgetIntent = ComponentPendingIntentManager.getIntent(
+        activity.applicationContext,
+        LoadWidgetDataArgument(LoadWidgetDataArgument.NEW_WIDGET, widgetId),
+        AppComponentServiceReceiver.ACTION_REFRESH,
+    )
     activity.sendBroadcast(newWidgetIntent)
 
     val result = Intent().putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, widgetId)

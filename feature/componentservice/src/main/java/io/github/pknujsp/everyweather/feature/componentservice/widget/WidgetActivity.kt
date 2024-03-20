@@ -23,19 +23,17 @@ class WidgetActivity : ComponentActivity() {
     @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setWindowStyle()
+        //setWindowStyle()
         setContent {
-            MainTheme {
-                Surface(modifier = Modifier.fillMaxSize(), color = AppColorScheme.background) {
-                    BasicAlertDialog(onDismissRequest = {
-                        finish()
-                    }, properties = DialogProperties(decorFitsSystemWindows = false)) {
-                        Box(
-                            modifier = Modifier.background(Color.White, AppShapes.extraLarge),
-                            contentAlignment = androidx.compose.ui.Alignment.Center,
-                        ) {
-                            WidgetDialogScreen()
-                        }
+            Surface(modifier = Modifier.fillMaxSize(), color = Color.Transparent) {
+                BasicAlertDialog(onDismissRequest = {
+                    finish()
+                }, properties = DialogProperties(decorFitsSystemWindows = false)) {
+                    Box(
+                        modifier = Modifier.background(Color.White, AppShapes.extraLarge),
+                        contentAlignment = androidx.compose.ui.Alignment.Center,
+                    ) {
+                        WidgetDialogScreen()
                     }
                 }
             }

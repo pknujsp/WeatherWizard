@@ -60,12 +60,12 @@ fun Content(
         AsyncImage(
             model = ImageRequest.Builder(LocalContext.current).data(R.drawable.textlogo_small).build(),
             contentDescription = null,
-            modifier = Modifier.height(24.dp),
+            modifier = Modifier.height(28.dp),
         )
-        PrimaryButton(text = stringResource(id = R.string.launch_app), buttonSize = ButtonSize.MEDIUM, modifier = Modifier.fillMaxWidth()) {
+        PrimaryButton(text = stringResource(id = R.string.launch_app), buttonSize = ButtonSize.SMALL, modifier = Modifier.fillMaxWidth()) {
             onClickLaunchApp()
         }
-        SecondaryButton(text = stringResource(id = R.string.refresh), buttonSize = ButtonSize.MEDIUM, modifier = Modifier.fillMaxWidth()) {
+        SecondaryButton(text = stringResource(id = R.string.refresh), buttonSize = ButtonSize.SMALL, modifier = Modifier.fillMaxWidth()) {
             onClickRefresh()
         }
         ThirdButton(text = stringResource(id = R.string.close), buttonSize = ButtonSize.SMALL, modifier = Modifier.fillMaxWidth()) {

@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -47,8 +48,8 @@ fun SmallFeatureStateScreen(
     onClickAction: (() -> Unit)? = null,
 ) {
     Column(
-        modifier = modifier,
-        verticalArrangement = Arrangement.spacedBy(12.dp, Alignment.CenterVertically),
+        modifier = modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(10.dp, Alignment.CenterVertically),
     ) {
         Text(
             modifier = Modifier.align(Alignment.Start),
@@ -62,7 +63,7 @@ fun SmallFeatureStateScreen(
                 style = TextStyle(fontSize = 14.sp, color = Color.Black, textAlign = TextAlign.Left),
             )
         }
-        Row(modifier = Modifier.align(Alignment.End), horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End)) {
+        Row(modifier = Modifier.align(Alignment.End), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             if (state.hasRepairAction) {
                 SecondaryButton(text = stringResource(id = state.action), buttonSize = ButtonSize.SMALL) {
                     onClickAction?.invoke()

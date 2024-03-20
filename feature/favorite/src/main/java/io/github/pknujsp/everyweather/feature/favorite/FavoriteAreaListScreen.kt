@@ -76,10 +76,9 @@ fun FavoriteAreaListScreen(
         hiltViewModel(viewModelStoreOwner = (LocalContext.current as ComponentActivity))
 
     val onBackPressedDispatcherOwner = LocalOnBackPressedDispatcherOwner.current
-    val backDispatcher =
-        remember {
-            onBackPressedDispatcherOwner?.onBackPressedDispatcher
-        }
+    val backDispatcher = remember {
+        onBackPressedDispatcherOwner?.onBackPressedDispatcher
+    }
 
     LaunchedEffect(favoriteLocations) {
         if (favoriteLocations.isEmpty() && selectedLocationToDelete != null) {
@@ -95,9 +94,7 @@ fun FavoriteAreaListScreen(
 
     if (showSettingsActivity && targetLocation.loadCurrentLocationState is LoadCurrentLocationState.Failed && (targetLocation.loadCurrentLocationState as LoadCurrentLocationState.Failed).statefulFeature.hasRepairAction) {
         ShowSettingsActivity(
-            featureType =
-                (targetLocation.loadCurrentLocationState as LoadCurrentLocationState.Failed)
-                    .statefulFeature as FeatureType,
+            featureType = (targetLocation.loadCurrentLocationState as LoadCurrentLocationState.Failed).statefulFeature as FeatureType,
         ) {
             showSettingsActivity = false
             viewModel.loadCurrentLocation()
@@ -176,10 +173,9 @@ private fun FavoriteLocationItem(
 ) {
     Box(
         contentAlignment = Alignment.Center,
-        modifier =
-            Modifier
-                .shadow(elevation = 6.dp, shape = AppShapes.medium)
-                .background(color = Color.White, shape = AppShapes.medium),
+        modifier = Modifier
+            .shadow(elevation = 6.dp, shape = AppShapes.medium)
+            .background(color = Color.White, shape = AppShapes.medium),
     ) {
         Row(horizontalArrangement = Arrangement.Start, verticalAlignment = Alignment.CenterVertically) {
             IconButton(
@@ -191,15 +187,14 @@ private fun FavoriteLocationItem(
                 Icon(imageVector = Icons.Rounded.Clear, contentDescription = null)
             }
             Row(
-                modifier =
-                    Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 8.dp)
-                        .clickable {
-                            if (targetLocationId == null || targetLocationId != favoriteLocation.id) {
-                                onClick()
-                            }
-                        },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 8.dp)
+                    .clickable {
+                        if (targetLocationId == null || targetLocationId != favoriteLocation.id) {
+                            onClick()
+                        }
+                    },
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Start,
             ) {
@@ -225,16 +220,15 @@ private fun CurrentLocationItem(
     onClick: () -> Unit,
 ) {
     Box(
-        modifier =
-            Modifier
-                .clickable {
-                    if (locationUiState.locationType !is LocationType.CurrentLocation) {
-                        onClick()
-                    }
+        modifier = Modifier
+            .clickable {
+                if (locationUiState.locationType !is LocationType.CurrentLocation) {
+                    onClick()
                 }
-                .shadow(elevation = 4.dp, shape = AppShapes.extraLarge)
-                .background(color = Color.White, shape = AppShapes.extraLarge)
-                .padding(horizontal = 16.dp, vertical = 8.dp),
+            }
+            .shadow(elevation = 4.dp, shape = AppShapes.extraLarge)
+            .background(color = Color.White, shape = AppShapes.extraLarge)
+            .padding(horizontal = 16.dp, vertical = 8.dp),
     ) {
         Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Start) {
             Icon(
@@ -242,14 +236,11 @@ private fun CurrentLocationItem(
                 contentDescription = stringResource(id = R.string.current_location),
                 modifier = Modifier.size(22.dp),
             )
-            Column(
-                modifier =
-                    Modifier
-                        .weight(1f)
-                        .padding(horizontal = 12.dp),
+            Column(modifier = Modifier
+                .weight(1f)
+                .padding(horizontal = 12.dp),
                 horizontalAlignment = Alignment.Start,
-                verticalArrangement = Arrangement.Center,
-            ) {
+                verticalArrangement = Arrangement.spacedBy(4.dp, Alignment.CenterVertically)) {
                 Text(
                     text = stringResource(id = R.string.current_location),
                     style = TextStyle(fontSize = 15.sp, color = Color.Gray),
@@ -300,10 +291,9 @@ private fun DeleteDialog(
     CustomModalBottomSheet(
         onDismissRequest = onDismissRequest,
     ) {
-        val message =
-            stringResource(id = R.string.delete_favorite_location_message).let {
-                "$it\n\n$address"
-            }
+        val message = stringResource(id = R.string.delete_favorite_location_message).let {
+            "$it\n\n$address"
+        }
         DialogScreen(
             title = stringResource(id = R.string.delete_favorite_location_title),
             message = message,
