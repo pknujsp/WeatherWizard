@@ -10,7 +10,7 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun PermissionStateScreen(permissionManager: PermissionStateManager) {
-    if (!permissionManager.featureType.isEnabled(LocalContext.current)) {
+    if (!permissionManager.isEnabled(LocalContext.current)) {
         val coroutineScope = rememberCoroutineScope()
         Box {
             UnavailableFeatureScreen(featureType = permissionManager.featureType) {

@@ -24,7 +24,7 @@ import io.github.pknujsp.everyweather.feature.permoptimize.BaseFeatureStateManag
 
 @Composable
 fun FeatureStateScreen(featureStateManager: BaseFeatureStateManager) {
-    if (!featureStateManager.featureType.isEnabled(LocalContext.current)) {
+    if (!featureStateManager.isEnabled(LocalContext.current)) {
         Box {
             UnavailableFeatureScreen(featureType = featureStateManager.featureType) {
                 featureStateManager.showSettingsActivity()

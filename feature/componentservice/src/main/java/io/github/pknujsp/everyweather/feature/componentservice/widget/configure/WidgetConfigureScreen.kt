@@ -109,7 +109,7 @@ fun WidgetConfigureScreen(viewModel: WidgetConfigureViewModel = hiltViewModel())
                         widget.weatherProvider = it
                     }
                     if (viewModel.refreshInterval != RefreshInterval.MANUAL) {
-                        if (!configureState.batteryOptimizationFeatureState.featureType.isEnabled(LocalContext.current)) {
+                        if (!configureState.batteryOptimizationFeatureState.isEnabled(LocalContext.current)) {
                             SmallFeatureStateScreen(
                                 Modifier.padding(8.dp),
                                 state = configureState.batteryOptimizationFeatureState.featureType,
@@ -118,7 +118,7 @@ fun WidgetConfigureScreen(viewModel: WidgetConfigureViewModel = hiltViewModel())
                                 },
                             )
                         }
-                        if (configureState.backgroundLocationPermissionManager.featureType.isEnabled(context)) {
+                        if (configureState.backgroundLocationPermissionManager.isEnabled(context)) {
                             SmallFeatureStateScreen(
                                 Modifier.padding(8.dp),
                                 state = FeatureType.Permission.BackgroundLocation,
@@ -132,7 +132,7 @@ fun WidgetConfigureScreen(viewModel: WidgetConfigureViewModel = hiltViewModel())
 
                 Box(modifier = Modifier.padding(12.dp)) {
                     SecondaryButton(text = stringResource(id = R.string.save), modifier = Modifier.fillMaxWidth()) {
-                        if (!configureState.batteryOptimizationFeatureState.featureType.isEnabled(context)) {
+                        if (!configureState.batteryOptimizationFeatureState.isEnabled(context)) {
                             coroutineScope.launch {
                                 configureState.showSnackbar(
                                     context,
@@ -142,7 +142,7 @@ fun WidgetConfigureScreen(viewModel: WidgetConfigureViewModel = hiltViewModel())
                                     configureState.batteryOptimizationFeatureState.showSettingsActivity()
                                 }
                             }
-                        } else if (configureState.backgroundLocationPermissionManager.featureType.isEnabled(context)) {
+                        } else if (configureState.backgroundLocationPermissionManager.isEnabled(context)) {
                             coroutineScope.launch {
                                 configureState.showSnackbar(
                                     context,

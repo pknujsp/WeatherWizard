@@ -81,7 +81,7 @@ fun rememberOngoingNotificationState(
 
     LaunchedEffect(ongoingNotificationUiState.settings.refreshInterval) {
         val refreshInterval = ongoingNotificationUiState.settings.refreshInterval
-        if (refreshInterval != RefreshInterval.MANUAL && !batteryOptimizationState.featureType.isEnabled(context)) {
+        if (refreshInterval != RefreshInterval.MANUAL && !batteryOptimizationState.isEnabled(context)) {
             showSnackbar(context, batteryOptimizationState.featureType, batteryOptimizationState::showSettingsActivity, snackbarHostState)
         }
     }
@@ -89,14 +89,14 @@ fun rememberOngoingNotificationState(
         if (ongoingNotificationUiState.action == OngoingNotificationUiState.Action.DISABLED) {
             state.switchNotification(context, ongoingNotificationUiState.settings.refreshInterval)
         } else if (ongoingNotificationUiState.action != OngoingNotificationUiState.Action.NONE) {
-            if (!batteryOptimizationState.featureType.isEnabled(context) && ongoingNotificationUiState.settings.refreshInterval != RefreshInterval.MANUAL) {
+            if (!batteryOptimizationState.isEnabled(context) && ongoingNotificationUiState.settings.refreshInterval != RefreshInterval.MANUAL) {
                 showSnackbar(
                         context,
                         batteryOptimizationState.featureType,
                         batteryOptimizationState::showSettingsActivity,
                         snackbarHostState,
                 )
-            } else if (!backgroundLocationPermissionManager.featureType.isEnabled(context)) {
+            } else if (!backgroundLocationPermissionManager.isEnabled(context)) {
                 showSnackbar(
                         context,
                         backgroundLocationPermissionManager.featureType,
@@ -113,8 +113,8 @@ fun rememberOngoingNotificationState(
     }
 
     LaunchedEffect(Unit) {
-        snapshotFlow { batteryOptimizationState.featureType.isEnabled(context) }.collect { ignoredBatteryOptimization ->
-            if (backgroundLocationPermissionManager.featureType.isEnabled(context) && (ongoingNotificationUiState.settings.refreshInterval == RefreshInterval.MANUAL || ignoredBatteryOptimization)) {
+        snapshotFlow { batteryOptimizationState.isEnabled(context) }.collect { ignoredBatteryOptimization ->
+            if (backgroundLocationPermissionManager.isEnabled(context) && (ongoingNotificationUiState.settings.refreshInterval == RefreshInterval.MANUAL || ignoredBatteryOptimization)) {
                 if (ongoingNotificationUiState.action == OngoingNotificationUiState.Action.UPDATED || ongoingNotificationUiState.action == OngoingNotificationUiState.Action.ENABLED) {
                     state.switchNotification(context, ongoingNotificationUiState.settings.refreshInterval)
                 }

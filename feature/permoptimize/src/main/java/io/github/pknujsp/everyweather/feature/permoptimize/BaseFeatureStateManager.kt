@@ -1,5 +1,6 @@
 package io.github.pknujsp.everyweather.feature.permoptimize
 
+import android.content.Context
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -22,4 +23,7 @@ abstract class BaseFeatureStateManager {
         isShowSettingsActivity = true
         isChanged++
     }
+
+    fun isEnabled(context: Context) = featureType.isEnabled(context)
+
 }

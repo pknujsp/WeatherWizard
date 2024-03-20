@@ -107,11 +107,11 @@ fun SettingsScreen(
         }
 
         if (settingsUiState.widgetAutoRefreshInterval != RefreshInterval.MANUAL) {
-            if (!batteryOptimizationFeatureState.featureType.isEnabled(LocalContext.current)) {
+            if (!batteryOptimizationFeatureState.isEnabled(LocalContext.current)) {
                 SmallFeatureStateScreen(Modifier.padding(8.dp), state = batteryOptimizationFeatureState.featureType, onClickAction = {
                     batteryOptimizationFeatureState.showSettingsActivity()
                 })
-            } else if (!backgroundLocationPermissionManager.featureType.isEnabled(context)) {
+            } else if (!backgroundLocationPermissionManager.isEnabled(context)) {
                 SmallFeatureStateScreen(Modifier.padding(8.dp), state = FeatureType.Permission.BackgroundLocation, onClickAction = {
                     backgroundLocationPermissionManager.showSettingsActivity()
                 })

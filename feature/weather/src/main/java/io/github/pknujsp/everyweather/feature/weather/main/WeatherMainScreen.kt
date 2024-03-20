@@ -47,11 +47,11 @@ fun WeatherMainScreen(
             locationServiceState.isChanged,
         ) {
             derivedStateOf {
-                networkState.featureType.isEnabled(context) && (
+                networkState.isEnabled(context) && (
                     selectedLocation!!.locationType is LocationType.CustomLocation || (
-                        locationServiceState.featureType.isEnabled(
+                        locationServiceState.isEnabled(
                             context,
-                        ) && locationPermissionManager.featureType.isEnabled(context)
+                        ) && locationPermissionManager.isEnabled(context)
                     )
                 )
             }
@@ -59,9 +59,9 @@ fun WeatherMainScreen(
 
         if (isPassed) {
             WeatherContentScreen(openDrawer = currentOpenDrawer, selectedLocationModel = selectedLocation!!)
-        } else if (networkState.featureType.isEnabled(context).not()) {
+        } else if (networkState.isEnabled(context).not()) {
             FeatureStateScreen(featureStateManager = networkState)
-        } else if (locationServiceState.featureType.isEnabled(context).not()) {
+        } else if (locationServiceState.isEnabled(context).not()) {
             FeatureStateScreen(featureStateManager = locationServiceState)
         } else {
             PermissionStateScreen(locationPermissionManager)

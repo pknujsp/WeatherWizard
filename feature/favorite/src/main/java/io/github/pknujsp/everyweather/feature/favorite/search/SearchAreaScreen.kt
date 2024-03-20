@@ -65,14 +65,14 @@ fun SearchAreaScreen(
 
     Column(modifier = Modifier.fillMaxSize()) {
         TitleTextWithNavigation(title = stringResource(id = R.string.add_new_area)) {
-            if (showSearchHistory || !networkManager.featureType.isEnabled(context)) {
+            if (showSearchHistory || !networkManager.isEnabled(context)) {
                 navController.popBackStack()
             } else {
                 showSearchHistory = true
             }
         }
 
-        if (networkManager.featureType.isEnabled(LocalContext.current)) {
+        if (networkManager.isEnabled(LocalContext.current)) {
             val searchResult by searchAreaViewModel.searchResult.collectAsStateWithLifecycle()
             var query by remember { mutableStateOf("" to 0L) }
 

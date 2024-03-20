@@ -105,7 +105,7 @@ fun OngoingNotificationScreen(
                                 settings.weatherProvider = it
                             }
                             RefreshIntervalScreen(settings)
-                            if (!batteryOptimizationState.featureType.isEnabled(LocalContext.current) && notificationUiState.settings.refreshInterval != RefreshInterval.MANUAL) {
+                            if (!batteryOptimizationState.isEnabled(LocalContext.current) && notificationUiState.settings.refreshInterval != RefreshInterval.MANUAL) {
                                 SmallFeatureStateScreen(
                                     Modifier.padding(8.dp),
                                     state = batteryOptimizationState.featureType,
@@ -114,7 +114,7 @@ fun OngoingNotificationScreen(
                                     },
                                 )
                             }
-                            if (backgroundLocationPermissionManager.featureType.isEnabled(LocalContext.current)) {
+                            if (backgroundLocationPermissionManager.isEnabled(LocalContext.current)) {
                                 SmallFeatureStateScreen(
                                     Modifier.padding(8.dp),
                                     state = FeatureType.Permission.BackgroundLocation,

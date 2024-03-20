@@ -60,7 +60,7 @@ fun ConfigDailyNotificationScreen(
     val scheduleExactAlarmPermission = rememberPermissionStateManager(permissionType = FeatureType.Permission.ScheduleExactAlarm)
     PermissionStateScreen(scheduleExactAlarmPermission)
 
-    if (scheduleExactAlarmPermission.featureType.isEnabled(LocalContext.current)) {
+    if (scheduleExactAlarmPermission.isEnabled(LocalContext.current)) {
         notification.run {
             if (showSearch) {
                 SearchLocationScreen(onSelectedLocation = { newLocation ->

@@ -80,8 +80,8 @@ fun NotificationMainScreen(navController: NavController) {
         TitleTextWithNavigation(title = stringResource(id = R.string.nav_notification), onClickNavigation = {
             backDispatcher?.onBackPressed()
         })
-        if (postNotificationPermissionManager.featureType.isEnabled(LocalContext.current) &&
-            batteryOptimizationState.featureType.isEnabled(
+        if (postNotificationPermissionManager.isEnabled(LocalContext.current) &&
+            batteryOptimizationState.isEnabled(
                 LocalContext.current,
             )
         ) {
@@ -97,7 +97,7 @@ fun NotificationMainScreen(navController: NavController) {
                     Icon(painterResource(id = R.drawable.ic_forward), contentDescription = "navigate")
                 }
             }
-        } else if (!postNotificationPermissionManager.featureType.isEnabled(LocalContext.current)) {
+        } else if (!postNotificationPermissionManager.isEnabled(LocalContext.current)) {
             PermissionStateScreen(postNotificationPermissionManager)
         } else {
             FeatureStateScreen(batteryOptimizationState)
