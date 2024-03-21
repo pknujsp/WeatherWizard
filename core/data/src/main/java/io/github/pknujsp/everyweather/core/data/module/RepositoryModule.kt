@@ -165,7 +165,7 @@ abstract class RepositoryModule {
                     "gemini-1.0-pro",
                     BuildConfig.GOOGLE_AI_STUDIO_KEY,
                     generationConfig {
-                        temperature = 0.47f
+                        temperature = 0.3f
                     },
                     safetySettings =
                         listOf(

@@ -24,12 +24,12 @@ data class HourlyForecastEntity(
         return StringBuilder().apply {
             appendLine(
                 """
-                Hourly Forecast
+                ## 시간별 예보
                 - 시간별 예보입니다. 약 48시간의 날씨 예보입니다.
                 
                 """.trimIndent(),
             )
-            appendLine("Time, Weather, Temperature, Precipitation Probability, Precipitation volume, Humidity, Wind Speed")
+            appendLine("필드 : 시각, 날씨, 기온, 강수확률, 강수량, 습도, 풍속")
             for (item in items) {
                 append("${LocalDateTime.parse(item.dateTime.value, DateTimeFormatter.ISO_ZONED_DATE_TIME)},")
                 append(" ${item.weatherCondition.value.description},")

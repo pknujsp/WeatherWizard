@@ -21,12 +21,12 @@ data class DailyForecastEntity(
         return StringBuilder().apply {
             appendLine(
                 """
-                Daily Forecast
-                - 일일 예보입니다. 약 7일간의 날씨 예보입니다.
+                ## 일별 예보
+                - 일별 예보입니다. 약 7일간의 날씨 예보입니다.
                 
                 """.trimIndent(),
             )
-            appendLine("Date, Min / Max Temperature, Day Weather, AM / PM Weather")
+            appendLine("필드 : 날짜, 최저/최고 기온, 날씨, 오전/오후 날씨")
             for (item in dayItems) {
                 append("${LocalDate.parse(item.dateTime.value, DateTimeFormatter.ISO_ZONED_DATE_TIME)}, ")
                 appendLine(

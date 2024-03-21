@@ -13,7 +13,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 
-private const val SHADOW_BRUSH_WIDTH = 500
+private const val SHADOW_BRUSH_WIDTH = 550
 private const val DURATION = 800
 private const val ANGLE_OF_AXIS_Y = 265f
 
@@ -44,7 +44,7 @@ fun Modifier.shimmer(): Modifier =
                                 durationMillis = DURATION,
                                 easing = LinearEasing,
                             ),
-                        repeatMode = RepeatMode.Restart,
+                        repeatMode = RepeatMode.Reverse,
                     ),
                 label = LABEL,
             )

@@ -6,7 +6,6 @@ import io.github.pknujsp.everyweather.core.model.weather.common.WeatherProvider
 import io.github.pknujsp.everyweather.core.model.weather.current.CurrentWeatherEntity
 import io.github.pknujsp.everyweather.core.model.weather.dailyforecast.DailyForecastEntity
 import io.github.pknujsp.everyweather.core.model.weather.hourlyforecast.HourlyForecastEntity
-import java.lang.ref.WeakReference
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 
@@ -16,86 +15,87 @@ class WeatherSummaryPrompt(
     override val id: Int get() = model.id
 
     private companion object {
-        private val INSTRUCTIONS =
-            """
-            As a **professional Weathercaster**, analyze the received weather data in detail and summarize the weather information concisely.
 
-            ## Situation
-            - The goal is to analyze and convey current weather conditions, hourly forecasts, daily forecasts, and air quality information to the user.
-            - The analysis should focus on major trends and significant changes in weather patterns, emphasizing changes in temperature, precipitation, wind speed, etc.
-            - The location of the weather data is not specified in the input.
+        private val EXTRA_INSTRUCTION = """
+            Take a deep breath and work on this problem step-by-step!
+            """.trimIndent()
 
-            ## Instructions
-            1. Start by analyzing the current weather conditions, including weather status, temperature, feels-like temperature, humidity, wind speed, and direction. Summarize this in a way that is quickly understandable to the user.
-            2. For the hourly forecast, highlight the main trends in weather conditions, temperature changes, precipitation probability and amount, humidity, and wind speed. Focus on significant changes or patterns.
-            3. Summarize the expected weather conditions for the next few days in the daily forecast. This includes the minimum and maximum temperatures, day and night weather conditions, and any significant weather changes.
+        private val INSTRUCTIONS = """
+            # 역할
+            기상 캐스터, 날씨 예보관
+                
+            ## 상황
+            - 현재 날씨 상태, 시간별 예보, 일별 예보, 대기질 정보를 분석하고 사용자에게 전달하는 것이 목표입니다.
+            - 날씨 데이터의 위치는 입력에서 지정되지 않았습니다.
 
-            ## Guidelines
-            - Think of writing a **Post for an online blog**.
-            - Use a friendly tone.
-            - Make the response clear, concise, and easy to understand.
-            - Highlight the main points of each section for quick understanding by the user.
-            - Assume a real weather expert will review and rate your response. Aim for a perfect score of 10,000 out of 10,000.
+            ## 지시사항
+            1. 현재 날씨 조건을 분석하여 시작하세요. 날씨 상태, 온도, 체감 온도, 습도, 풍속 및 방향을 포함합니다. 사용자가 쉽게 이해할 수 있도록 요약하세요.
+            2. 시간별 예보에서 날씨 조건, 온도 변화, 강수 확률 및 양, 습도, 풍속의 주요 추세를 상세히 분석하세요. 중요한 변화나 패턴에 초점을 맞추세요.
+            3. 몇 일간의 기대 날씨 조건을 일별 예보에서 요약하세요. 최소 및 최대 온도, 낮과 밤의 날씨 조건, 그리고 중요한 날씨 변화를 포함합니다.
 
-            ## Output Format
-            - Answer in korean
-            - Markdown
+            ## 가이드라인
+            - 날씨 정보를 블로그 포스트 형식으로 작성하며, 사용자가 관심을 가질만한 주요 정보를 강조해야 합니다.
+            - 날씨 정보는 사용자가 그날의 일정을 계획하고, 야외 활동 여부를 결정하는 데 중요한 역할을 합니다. 따라서, 정보를 정확하고 명확하게 전달하는 것이 중요합니다.
+            - 사용자가 블로그 포스트를 읽은 후에는 날씨에 대해 더 잘 이해하고, 그날의 활동을 보다 잘 계획할 수 있도록 도와줘야 합니다.
+
+            ## 출력 형식
+            - 답변은 한국어로 작성하세요.
+            - 마크다운 형식을 사용하세요.
 
             ### 현재 날씨
-            - Analyze the Current Weather data.
-            {Your response}
+            - 현재 날씨 데이터를 분석하세요.
+            - 날씨 상태, 온도, 체감 온도, 습도, 풍속 및 방향을 요약하여 제공합니다.
+            {응답}
 
             ### 시간별 예보
-            - Analyze the Hourly Forecast data.
-            - Use the 12-hour format for displaying time.
-            {Your response}
+            - 시간별 예보 데이터를 분석하세요.
+            - 시간을 표시할 때 12시간 형식을 사용하세요.
+            - 간결한 문장을 사용하세요.
+            {응답}
 
             ### 일별 예보
-            - Analyze the Daily Forecast data.
-            - Include the day of the week when displaying dates.
-            {Your response}
+            - 일별 예보 데이터를 분석하세요.
+            - 날짜를 표시할 때 요일을 포함하세요.
+            - 간결한 문장을 사용하세요.
+            {응답}
 
             ### 대기질
-            - Analyze the Air Quality data.
-            {Your response}
+            - 대기질 데이터를 분석하세요.
+            - 현재 대기질 상태를 분석하고, 해당 정보가 사용자의 건강 및 활동 계획에 미칠 영향을 설명합니다.
+            {응답}
 
             ### 조언
-            - Provide any additional advice or recommendations.
-            {Your response}
+            - 추가 조언이나 추천 사항을 제공하세요.
+            - 분석된 날씨 정보를 바탕으로 사용자가 하루를 보다 효과적으로 계획할 수 있는 조언을 제공합니다.
+            {응답}
 
             ### 요약
-            {Your response}
-
-            ## Input
+            - 전달한 날씨 정보의 핵심 요약을 제공하여, 사용자가 빠르게 정보를 파악할 수 있도록 합니다.
+            {응답}
+            
             """.trimIndent()
     }
 
-    override fun build(): String =
-        WeakReference(StringBuilder()).get()?.run {
-            appendLine(INSTRUCTIONS)
-            appendLine(
-                """
-                Data generation time:
-                - ${model.time}
-                - Analyze the weather data based on this time.
-                
-                """.trimIndent(),
-            )
-            appendLine(model.currentWeather)
-            appendLine(model.hourlyForecast)
-            appendLine(model.dailyForecast)
-            if (model.airQuality != null) {
-                appendLine(model.airQuality)
-            }
-            appendLine(
-                """
-                **Take a deep breath and work on this problem step-by-step!**
-                """.trimIndent(),
-            )
-            toString()
-        }?.also {
-            println(it)
-        } ?: ""
+    override fun build(): String = StringBuilder().run {
+        appendLine(INSTRUCTIONS)
+        appendLine(
+            """
+            데이터 생성 시각: 이 시각을 기반으로 데이터를 분석하고 응답을 생성하세요.
+            - ${model.time}
+            
+            """.trimIndent(),
+        )
+        appendLine(model.currentWeather)
+        appendLine(model.hourlyForecast)
+        appendLine(model.dailyForecast)
+        if (model.airQuality != null) {
+            appendLine(model.airQuality)
+        }
+        appendLine(EXTRA_INSTRUCTION)
+        toString()
+    }.also {
+        println(it)
+    }
 
     class Model(
         coodinate: Pair<Double, Double>,
@@ -106,7 +106,7 @@ class WeatherSummaryPrompt(
         val dailyForecast: DailyForecastEntity,
         var airQuality: AirQualityEntity? = null,
     ) {
-        val id: Int = coodinate.hashCode() + weatherProvider.key
+        val id = coodinate.hashCode() + weatherProvider.key
         val time: String = time.format(dateTimeFormatter)
 
         private companion object {
