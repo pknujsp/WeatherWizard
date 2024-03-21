@@ -92,13 +92,19 @@ fun WeatherInfoScreen(
     var showAiSummary by remember { mutableStateOf(false) }
     val weather = weatherContentUiState.weather
 
+    val localConfiguration = LocalConfiguration.current
     val systemBars = WindowInsets.systemBars
     val density = LocalDensity.current
+
     val systemBarPadding: PaddingValues =
         remember {
             with(density) {
                 PaddingValues(top = systemBars.getTop(this).toDp(), bottom = systemBars.getBottom(this).toDp(), start = 0.dp, end = 0.dp)
             }
+        }
+    val screenHeight =
+        remember {
+            (localConfiguration.screenHeightDp + (systemBarPadding.calculateTopPadding() + systemBarPadding.calculateBottomPadding()).value).dp
         }
 
     LaunchedEffect(weatherContentUiState) {
@@ -115,23 +121,18 @@ fun WeatherInfoScreen(
         )
         Box(
             modifier =
-                Modifier
-                    .fillMaxSize()
-                    .background(Color.Black.copy(alpha = 0.11f), RectangleShape),
+            Modifier
+                .fillMaxSize()
+                .background(Color.Black.copy(alpha = 0.11f), RectangleShape),
         ) {
             Column(
                 modifier =
-                    Modifier
-                        .fillMaxSize()
-                        .padding(horizontal = DEFAULT_PADDING)
-                        .verticalScroll(scrollState),
+                Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = DEFAULT_PADDING)
+                    .verticalScroll(scrollState),
                 verticalArrangement = Arrangement.spacedBy(COLUMN_ITEM_SPACING),
             ) {
-                val localConfiguration = LocalConfiguration.current
-                val screenHeight =
-                    remember {
-                        (localConfiguration.screenHeightDp + (systemBarPadding.calculateTopPadding() + systemBarPadding.calculateBottomPadding()).value).dp
-                    }
                 var currentAirQuality by remember { mutableStateOf<AirQualityValueType?>(null) }
 
                 Box(modifier = Modifier.height(screenHeight - DEFAULT_PADDING), contentAlignment = Alignment.BottomStart) {
@@ -182,11 +183,11 @@ fun WeatherInfoScreen(
 
             Box(
                 modifier =
-                    Modifier
-                        .align(Alignment.BottomCenter)
-                        .fillMaxWidth()
-                        .height(systemBarPadding.calculateBottomPadding())
-                        .background(brush = shadowBox(ShadowDirection.UP)),
+                Modifier
+                    .align(Alignment.BottomCenter)
+                    .fillMaxWidth()
+                    .height(systemBarPadding.calculateBottomPadding())
+                    .background(brush = shadowBox(ShadowDirection.UP)),
             )
         }
 
@@ -231,16 +232,15 @@ private fun ColumnScope.Footer(
 
 @Composable
 private fun UnitItem(
-    modifier: Modifier = Modifier,
     @StringRes title: Int,
     unit: WeatherDataUnit,
 ) {
     Text(
         text =
-            listOf(
-                AStyle(text = "${stringResource(id = title)} : ", span = SpanStyle(fontSize = 13.sp, color = Color.White)),
-                AStyle(text = unit.symbol, span = SpanStyle(fontSize = 13.sp, color = Color.White)),
-            ).toAnnotated(),
+        listOf(
+            AStyle(text = "${stringResource(id = title)} : ", span = SpanStyle(fontSize = 13.sp, color = Color.White)),
+            AStyle(text = unit.symbol, span = SpanStyle(fontSize = 13.sp, color = Color.White)),
+        ).toAnnotated(),
         style = LocalTextStyle.current.merge(outlineTextStyle),
     )
 }
