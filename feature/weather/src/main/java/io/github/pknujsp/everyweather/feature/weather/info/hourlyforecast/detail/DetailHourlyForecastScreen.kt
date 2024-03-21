@@ -81,7 +81,6 @@ private fun Item(
     displayPrecipitationVolume: Boolean,
     displaySnowfallVolume: Boolean,
     displayRainfallVolume: Boolean,
-    onClick: (() -> Unit)? = null,
 ) {
     item.run {
         Row(
@@ -90,7 +89,6 @@ private fun Item(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(52.dp)
-                .clickable {},
         ) {
             Text(
                 text = time,
@@ -102,7 +100,7 @@ private fun Item(
 
             Row(
                 modifier = Modifier
-                    .weight(0.3f, true)
+                    .weight(0.35f, true)
                     .padding(end = 16.dp),
                 horizontalArrangement = Arrangement.spacedBy(6.dp),
                 verticalAlignment = Alignment.CenterVertically,
@@ -116,7 +114,7 @@ private fun Item(
             }
 
             Row(
-                modifier = Modifier.weight(0.3f, true),
+                modifier = Modifier.weight(0.25f, true),
                 horizontalArrangement = Arrangement.spacedBy(4.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {

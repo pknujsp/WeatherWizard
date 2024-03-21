@@ -14,8 +14,10 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 
 private const val SHADOW_BRUSH_WIDTH = 500
-private const val DURATION = 900
+private const val DURATION = 800
 private const val ANGLE_OF_AXIS_Y = 265f
+
+private const val LABEL = "Shimmer animation"
 
 private val shimmerColors =
     listOf(
@@ -25,6 +27,8 @@ private val shimmerColors =
         Color.White.copy(alpha = 0.5f),
         Color.White.copy(alpha = 0.3f),
     )
+
+
 
 fun Modifier.shimmer(): Modifier =
     composed {
@@ -40,9 +44,9 @@ fun Modifier.shimmer(): Modifier =
                                 durationMillis = DURATION,
                                 easing = LinearEasing,
                             ),
-                        repeatMode = RepeatMode.Reverse,
+                        repeatMode = RepeatMode.Restart,
                     ),
-                label = "Shimmer animation",
+                label = LABEL,
             )
 
         this.background(

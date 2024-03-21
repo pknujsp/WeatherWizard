@@ -34,7 +34,7 @@ import io.github.pknujsp.everyweather.core.ui.dialog.BottomSheetType
 import io.github.pknujsp.everyweather.core.ui.dialog.ContentWithTitle
 import io.github.pknujsp.everyweather.core.ui.theme.AppShapes
 
-private const val HEIGHT_RATIO = 0.55f
+private const val HEIGHT_RATIO = 0.6f
 
 @Composable
 fun SummaryScreen(
