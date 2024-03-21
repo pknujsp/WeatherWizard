@@ -21,13 +21,13 @@ fun HostNotificationScreen() {
         modifier = Modifier.systemBarsPadding(),
     ) {
         composable(NotificationRoutes.Main.route) {
-            NotificationMainScreen(navController = navController)
+            NotificationMainScreen(navController)
         }
         composable(NotificationRoutes.Ongoing.route) {
-            OngoingNotificationScreen(navController = navController)
+            OngoingNotificationScreen(navController)
         }
         composable(NotificationRoutes.Daily.route) {
-            DailyNotificationListScreen(navController = navController)
+            DailyNotificationListScreen(navController)
         }
         composable(NotificationRoutes.AddOrEditDaily.route, arguments = NotificationRoutes.AddOrEditDaily.arguments) {
             ConfigDailyNotificationScreen(navController)

@@ -100,7 +100,7 @@ fun OngoingNotificationScreen(
                         LocationScreen(settings.location, onSelectedItem = {
                             settings.location = settings.location.copy(locationType = it)
                         }) {
-                            notificationState.toggleShowSearch(false)
+                            notificationState.toggleShowSearch(true)
                         }
                         WeatherProvidersScreen(settings.weatherProvider) {
                             settings.weatherProvider = it

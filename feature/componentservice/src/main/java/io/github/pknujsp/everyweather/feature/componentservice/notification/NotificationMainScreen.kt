@@ -70,7 +70,7 @@ fun NotificationMainScreen(navController: NavController) {
     val context = LocalContext.current
 
     val onBackPressedDispatcherOwner = LocalOnBackPressedDispatcherOwner.current
-    val backDispatcher = remember {
+    val backDispatcher = remember(onBackPressedDispatcherOwner) {
         onBackPressedDispatcherOwner?.onBackPressedDispatcher
     }
     val isPassed by remember(notificationPermissionManager.isChanged, batteryOptimizationStateManager.isChanged) {

@@ -46,10 +46,9 @@ fun SettingsScreen(
     val coroutineScope = rememberCoroutineScope()
 
     val onBackPressedDispatcherOwner = LocalOnBackPressedDispatcherOwner.current
-    val backDispatcher =
-        remember {
-            onBackPressedDispatcherOwner?.onBackPressedDispatcher
-        }
+    val backDispatcher = remember(onBackPressedDispatcherOwner) {
+        onBackPressedDispatcherOwner?.onBackPressedDispatcher
+    }
 
     val batteryOptimizationFeatureState = rememberFeatureStateManager(featureType = FeatureType.BatteryOptimization)
     val backgroundLocationPermissionManager = rememberPermissionStateManager(permissionType = FeatureType.Permission.BackgroundLocation)
@@ -82,8 +81,7 @@ fun SettingsScreen(
             title = stringResource(id = R.string.title_weather_condition_animation),
             description = stringResource(id = R.string.description_weather_condition_animation),
             checked = true,
-        ) {
-        }
+        ) {}
         BottomSheetSettingItem(
             title = stringResource(id = R.string.title_widget_auto_refresh_interval),
             selectedItem = settingsUiState.widgetAutoRefreshInterval,

@@ -1,5 +1,6 @@
 package io.github.pknujsp.everyweather.feature.main
 
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.addCallback
 import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
 import androidx.compose.foundation.layout.Box
@@ -17,6 +18,7 @@ import androidx.compose.material3.NavigationDrawerItem
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -56,7 +58,7 @@ fun MainScreen(
     mainViewModel: MainViewModel = hiltViewModel(),
 ) {
     val mainUiState = rememberMainState(rootNavControllerViewModel.requestedRoute)
-    val onBackPressedDispatcherOwner = LocalOnBackPressedDispatcherOwner.current
+    val currentOnBackPressedDispatcherOwner by rememberUpdatedState(newValue = LocalOnBackPressedDispatcherOwner.current)
     val lifeCycleOwner = LocalLifecycleOwner.current
     var isCloseAppDialogVisible by remember { mutableStateOf(false) }
     val currentCloseAppDialogVisible by rememberUpdatedState(newValue = isCloseAppDialogVisible)
@@ -67,8 +69,8 @@ fun MainScreen(
             derivedStateOf { if (isInitialized) MainRoutes.Weather.route else MainRoutes.Onboarding.route }
         }
 
-        LaunchedEffect(Unit) {
-            onBackPressedDispatcherOwner!!.onBackPressedDispatcher.addCallback(lifeCycleOwner) {
+        DisposableEffect(Unit) {
+            val callback = currentOnBackPressedDispatcherOwner?.onBackPressedDispatcher?.addCallback(lifeCycleOwner) {
                 mainUiState.navController.run {
                     if (currentBackStackEntry != null && currentBackStackEntry!!.destination.route == destination) {
                         isCloseAppDialogVisible = true
@@ -76,6 +78,10 @@ fun MainScreen(
                         popBackStack()
                     }
                 }
+            }
+
+            onDispose {
+                callback?.remove()
             }
         }
 
@@ -134,10 +140,9 @@ private fun WeatherMainScreen(mainUiState: MainUiState) {
                 }
             }
             AdMob.BannerAd(
-                modifier =
-                    Modifier
-                        .padding(top = 16.dp)
-                        .align(Alignment.CenterHorizontally),
+                modifier = Modifier
+                    .padding(top = 16.dp)
+                    .align(Alignment.CenterHorizontally),
             )
             DrawerFooter()
         }
@@ -177,16 +182,14 @@ private fun DrawerRouteItem(
 private fun DrawerFooter() {
     Box(
         contentAlignment = Alignment.BottomCenter,
-        modifier =
-            Modifier
-                .fillMaxSize()
-                .padding(bottom = 12.dp),
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(bottom = 12.dp),
     ) {
         AsyncImage(
             modifier = Modifier.height(20.dp),
-            model =
-                ImageRequest.Builder(LocalContext.current).data(io.github.pknujsp.everyweather.core.resource.R.drawable.textlogo_small)
-                    .build(),
+            model = ImageRequest.Builder(LocalContext.current).data(io.github.pknujsp.everyweather.core.resource.R.drawable.textlogo_small)
+                .build(),
             contentDescription = null,
         )
     }

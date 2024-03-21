@@ -76,7 +76,7 @@ fun FavoriteAreaListScreen(
         hiltViewModel(viewModelStoreOwner = (LocalContext.current as ComponentActivity))
 
     val onBackPressedDispatcherOwner = LocalOnBackPressedDispatcherOwner.current
-    val backDispatcher = remember {
+    val backDispatcher = remember(onBackPressedDispatcherOwner) {
         onBackPressedDispatcherOwner?.onBackPressedDispatcher
     }
 
