@@ -34,6 +34,8 @@ import io.github.pknujsp.everyweather.core.ui.dialog.BottomSheetType
 import io.github.pknujsp.everyweather.core.ui.dialog.ContentWithTitle
 import io.github.pknujsp.everyweather.core.ui.theme.AppShapes
 
+private const val HEIGHT_RATIO = 0.55f
+
 @Composable
 fun SummaryScreen(
     model: WeatherSummaryPrompt.Model,
@@ -45,7 +47,7 @@ fun SummaryScreen(
         summaryTextViewModel.summarize(model)
     }
 
-    BottomSheet(bottomSheetType = BottomSheetType.PERSISTENT, onDismissRequest = onDismiss) {
+    BottomSheet(bottomSheetType = BottomSheetType.PERSISTENT, onDismissRequest = onDismiss, maxHeightRatio = HEIGHT_RATIO) {
         ContentWithTitle(title = stringResource(id = R.string.title_ai_summary)) {
             val scrollState = rememberScrollState()
 

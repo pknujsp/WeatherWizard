@@ -30,9 +30,7 @@ import coil.request.ImageRequest
 import io.github.pknujsp.everyweather.core.ui.dialog.BottomSheet
 import io.github.pknujsp.everyweather.core.ui.dialog.BottomSheetType
 import io.github.pknujsp.everyweather.core.ui.dialog.ContentWithTitle
-import io.github.pknujsp.everyweather.core.ui.dialog.PersistentBottomSheet
 import io.github.pknujsp.everyweather.core.ui.theme.AppShapes
-import io.github.pknujsp.everyweather.feature.weather.R
 import io.github.pknujsp.everyweather.feature.weather.info.hourlyforecast.model.DetailHourlyForecast
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -41,7 +39,7 @@ fun DetailHourlyForecastScreen(
     hourlyForecast: DetailHourlyForecast,
     popBackStack: () -> Unit,
 ) {
-    BottomSheet(onDismissRequest = popBackStack, modifier = Modifier.fillMaxWidth(), bottomSheetType = BottomSheetType.PERSISTENT) {
+    BottomSheet(onDismissRequest = popBackStack, bottomSheetType = BottomSheetType.PERSISTENT) {
         ContentWithTitle(title = stringResource(id = io.github.pknujsp.everyweather.core.resource.R.string.hourly_forecast)) {
             LazyColumn(
                 state = rememberLazyListState(),

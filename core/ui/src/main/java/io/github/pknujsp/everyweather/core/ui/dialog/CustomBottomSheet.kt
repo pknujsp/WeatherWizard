@@ -35,6 +35,7 @@ import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ModalBottomSheetProperties
 import androidx.compose.material3.Surface
@@ -83,7 +84,7 @@ import kotlin.math.roundToInt
 private const val ANIMATION_DURATION = 150L
 
 object BottomSheetLayoutParams {
-    private const val SCRIM_ALPHA = 0.32f * 255
+    private const val SCRIM_ALPHA = 0.32f
     const val MAX_DIALOG_FREE_HEIGHT_RATIO = 0.8f
 
     val tonalElevation: Dp = 1.dp
@@ -94,7 +95,9 @@ object BottomSheetLayoutParams {
     val dialogContentHorizontalPadding = 12.dp
     val dialogContentVerticalPadding = 12.dp
     val windowInsets = WindowInsets(0, 0, 0, 0)
-    val shape = AppShapes.extraLarge
+    val shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp, bottomEnd = 16.dp, bottomStart = 16.dp)
+
+    fun height(viewHeight: Int, density: Float, ratio: Float) = (viewHeight * (ratio / density)).roundToInt().dp
 }
 
 
@@ -102,11 +105,14 @@ object BottomSheetLayoutParams {
 @Composable
 fun PersistentBottomSheet(
     modifier: Modifier = Modifier.padding(horizontal = dialogContentHorizontalPadding,
-        BottomSheetLayoutParams.dialogContentVerticalPadding), onDismissRequest: () -> Unit, content: @Composable () -> Unit
+        BottomSheetLayoutParams.dialogContentVerticalPadding),
+    maxHeightRatio: Float = MAX_DIALOG_FREE_HEIGHT_RATIO,
+    onDismissRequest: () -> Unit,
+    content: @Composable () -> Unit
 ) {
     val density = LocalDensity.current
     val height = LocalView.current.height
-    val maxHeightDp = (height * (MAX_DIALOG_FREE_HEIGHT_RATIO / density.density)).roundToInt().dp
+    val maxHeightDp = BottomSheetLayoutParams.height(height, density.density, maxHeightRatio)
     val bottomPadding = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
 
     var animateIn by remember { mutableStateOf(false) }

@@ -44,15 +44,16 @@ fun CustomModalBottomSheet(
     onDismissRequest: () -> Unit,
     modifier: Modifier = Modifier.padding(horizontal = BottomSheetLayoutParams.dialogContentHorizontalPadding,
         BottomSheetLayoutParams.dialogContentVerticalPadding),
+    maxHeightRatio: Float = BottomSheetLayoutParams.MAX_DIALOG_FREE_HEIGHT_RATIO,
     sheetState: SheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
     sheetMaxWidth: Dp = BottomSheetDefaults.SheetMaxWidth,
     dragHandle: @Composable() (() -> Unit)? = { DragHandle() },
     properties: ModalBottomSheetProperties = ModalBottomSheetDefaults.properties(),
     content: @Composable () -> Unit,
 ) {
-    val density = LocalDensity.current.density
+    val density = LocalDensity.current
     val height = LocalView.current.height
-    val maxHeightDp = (height * (BottomSheetLayoutParams.MAX_DIALOG_FREE_HEIGHT_RATIO / density)).roundToInt().dp
+    val maxHeightDp = BottomSheetLayoutParams.height(height, density.density, maxHeightRatio)
     val bottomPadding = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
 
     ModalBottomSheet(
@@ -100,16 +101,23 @@ fun BottomSheet(
     modifier: Modifier = Modifier.padding(horizontal = BottomSheetLayoutParams.dialogContentHorizontalPadding,
         BottomSheetLayoutParams.dialogContentVerticalPadding),
     bottomSheetType: BottomSheetType = BottomSheetType.MODAL,
+    maxHeightRatio: Float = BottomSheetLayoutParams.MAX_DIALOG_FREE_HEIGHT_RATIO,
     onDismissRequest: () -> Unit,
     content: @Composable () -> Unit,
 ) {
     when (bottomSheetType) {
         BottomSheetType.MODAL -> {
-            CustomModalBottomSheet(onDismissRequest = onDismissRequest, modifier = modifier, content = content)
+            CustomModalBottomSheet(onDismissRequest = onDismissRequest,
+                modifier = modifier,
+                content = content,
+                maxHeightRatio = maxHeightRatio)
         }
 
         BottomSheetType.PERSISTENT -> {
-            PersistentBottomSheet(onDismissRequest = onDismissRequest, modifier = modifier, content = content)
+            PersistentBottomSheet(onDismissRequest = onDismissRequest,
+                modifier = modifier,
+                content = content,
+                maxHeightRatio = maxHeightRatio)
         }
     }
 }
