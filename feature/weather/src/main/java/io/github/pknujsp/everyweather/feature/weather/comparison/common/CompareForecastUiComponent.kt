@@ -44,45 +44,41 @@ internal fun CommonForecastItemsScreen(model: Map<WeatherConditionCategory, Stri
         ) {
             model.forEach { entry ->
                 Column(
-                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
+                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp),
                     verticalArrangement = Arrangement.spacedBy(4.dp),
                 ) {
-                    val aStyle =
-                        listOf(
-                            AStyle(
-                                contentId =
-                                    listOf(
-                                        "icon" to
-                                            InlineTextContent(
-                                                Placeholder(
-                                                    width = 32.sp,
-                                                    height = 28.sp,
-                                                    placeholderVerticalAlign = PlaceholderVerticalAlign.Center,
-                                                ),
-                                            ) {
-                                                AsyncImage(
-                                                    model =
-                                                        ImageRequest.Builder(LocalContext.current).data(entry.key.dayWeatherIcon).crossfade(false)
-                                                            .build(),
-                                                    contentDescription = null,
-                                                )
-                                            },
+                    val aStyle = listOf(
+                        AStyle(
+                            contentId = listOf(
+                                "icon" to InlineTextContent(
+                                    Placeholder(
+                                        width = 32.sp,
+                                        height = 28.sp,
+                                        placeholderVerticalAlign = PlaceholderVerticalAlign.Center,
                                     ),
+                                ) {
+                                    AsyncImage(
+                                        model = ImageRequest.Builder(LocalContext.current).data(entry.key.dayWeatherIcon).crossfade(false)
+                                            .build(),
+                                        contentDescription = null,
+                                    )
+                                },
                             ),
-                            AStyle(
-                                text = stringResource(id = entry.key.stringRes),
-                            ),
-                        )
+                        ),
+                        AStyle(
+                            text = stringResource(id = entry.key.stringRes),
+                        ),
+                    )
 
                     Text(
                         text = aStyle.toAnnotated(),
-                        style = TextStyle(fontSize = 20.sp, color = Color.Black, fontWeight = FontWeight.Bold),
+                        style = TextStyle(fontSize = 18.sp, color = Color.Black, fontWeight = FontWeight.Bold),
                         inlineContent = aStyle.first().inlineContents,
                     )
 
                     MarkdownText(
                         markdown = entry.value,
-                        style = TextStyle(fontSize = 15.sp, lineHeight = 3.sp),
+                        style = TextStyle(fontSize = 14.sp, lineHeight = 3.sp),
                         disableLinkMovementMethod = true,
                         linkifyMask = 0,
                     )
@@ -93,11 +89,9 @@ internal fun CommonForecastItemsScreen(model: Map<WeatherConditionCategory, Stri
 }
 
 internal object CompareForecastCard {
-    private val surfaceModifier =
-        Modifier
-            .fillMaxWidth()
-            .wrapContentHeight()
-            .padding(horizontal = 12.dp)
+    private val surfaceModifier = Modifier
+        .fillMaxWidth()
+        .wrapContentHeight()
     private val backgroundColor = Color(107, 107, 107, 217)
 
     @Composable

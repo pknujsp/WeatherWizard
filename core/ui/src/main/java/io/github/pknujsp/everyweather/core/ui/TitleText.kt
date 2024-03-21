@@ -52,7 +52,7 @@ fun TitleTextWithNavigation(
                 contentDescription = stringResource(io.github.pknujsp.everyweather.core.resource.R.string.back),
             )
         }
-        TitleText(title = title, textStyle = TextStyle(fontSize = 21.sp))
+        TitleText(title = title, textStyle = TextStyle(fontSize = 20.sp))
     }
 }
 
@@ -67,7 +67,7 @@ fun TitleTextWithoutNavigation(
             modifier
                 .padding(bottom = 12.dp, start = 16.dp)
                 .then(modifier),
-        textStyle = TextStyle(fontSize = 21.sp),
+        textStyle = TextStyle(fontSize = 20.sp),
     )
 }
 
@@ -82,6 +82,6 @@ fun MediumTitleTextWithoutNavigation(
             modifier
                 .padding(bottom = 10.dp, start = 16.dp)
                 .then(modifier),
-        textStyle = TextStyle(fontSize = 19.sp),
+        textStyle = TextStyle(fontSize = 18.sp),
     )
 }

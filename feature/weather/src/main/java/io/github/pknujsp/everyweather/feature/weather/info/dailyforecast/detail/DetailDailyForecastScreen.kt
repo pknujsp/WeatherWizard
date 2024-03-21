@@ -76,7 +76,7 @@ private fun Item(
             Text(
                 text = listOf(
                     AStyle(text = "${date}\n", span = SpanStyle(fontSize = 14.sp, color = Color.Gray)),
-                    AStyle(text = dayOfWeek, span = SpanStyle(fontSize = 16.sp, color = Color.Black)),
+                    AStyle(text = dayOfWeek, span = SpanStyle(fontSize = 15.sp, color = Color.Black)),
                 ).toAnnotated(),
                 modifier = Modifier
                     .weight(0.2f, true)
@@ -111,7 +111,7 @@ private fun Item(
                 modifier = Modifier
                     .weight(0.4f, true)
                     .padding(end = 12.dp),
-                verticalArrangement = Arrangement.Center,
+                verticalArrangement = Arrangement.spacedBy(4.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 Row(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalAlignment = Alignment.CenterVertically) {
@@ -124,7 +124,7 @@ private fun Item(
                         Text(text = precipitationProbabilities.joinToString("/"), style = TextStyle(fontSize = 14.sp, color = Color.Black))
                     }
                 }
-                Text(text = "$minTemperature / $maxTemperature", style = TextStyle(fontSize = 16.sp, color = Color.Black))
+                Text(text = "$minTemperature / $maxTemperature", style = TextStyle(fontSize = 15.sp, color = Color.Black))
             }
         }
     }

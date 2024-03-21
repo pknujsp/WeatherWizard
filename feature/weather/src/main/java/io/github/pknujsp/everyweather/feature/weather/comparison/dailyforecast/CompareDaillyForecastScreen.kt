@@ -190,7 +190,7 @@ private fun Item(
                 }
             }
 
-            Text(text = "$minTemperature/$maxTemperature", style = TextStyle(fontSize = 15.sp, color = Color.White))
+            Text(text = "$minTemperature/$maxTemperature", style = TextStyle(fontSize = 14.sp, color = Color.White))
         }
     }
 }

@@ -94,7 +94,7 @@ private fun Item(
         ) {
             Text(
                 text = time,
-                style = TextStyle(fontSize = 16.sp, color = Color.Gray),
+                style = TextStyle(fontSize = 14.sp, color = Color.Gray),
                 modifier = Modifier
                     .weight(0.1f, true)
                     .padding(start = 16.dp),
@@ -112,7 +112,7 @@ private fun Item(
                     modifier = Modifier.fillMaxHeight(),
                     contentDescription = null,
                 )
-                Text(text = temperature, style = TextStyle(fontSize = 17.sp, color = Color.Black))
+                Text(text = temperature, style = TextStyle(fontSize = 16.sp, color = Color.Black))
             }
 
             Row(
@@ -144,7 +144,7 @@ private fun Item(
                             modifier = Modifier.size(16.dp),
                             contentDescription = null,
                         )
-                        Text(text = item.precipitationVolume, style = TextStyle(fontSize = 14.sp, color = Color.Black))
+                        Text(text = item.precipitationVolume, style = TextStyle(fontSize = 13.sp, color = Color.Black))
                     }
                 }
                 if (displayRainfallVolume) {
