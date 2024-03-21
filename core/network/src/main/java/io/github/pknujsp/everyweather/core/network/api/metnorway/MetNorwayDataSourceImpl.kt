@@ -13,9 +13,8 @@ import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
 
 internal class MetNorwayDataSourceImpl(
-    private val metNorwayNetworkApi: MetNorwayNetworkApi
+    private val metNorwayNetworkApi: MetNorwayNetworkApi,
 ) : MetNorwayDataSource {
-
     private val requestHelper = MultipleRequestHelper<Response>()
 
     private suspend fun request(parameter: MetNorwayRequestParameter) {
@@ -24,20 +23,21 @@ internal class MetNorwayDataSourceImpl(
         }
 
         val response = metNorwayNetworkApi.getLocationForecast(parameter.latitude, parameter.longitude).onResult()
-        val result = response.fold(onSuccess = {
-            MetNorwayParser.run {
-                val current = it.toCurrentWeather()
-                val hourlyForecast = it.toHourlyForecast()
-                val dailyForecast = it.toDailyForecast()
-                RequestState.Responsed(
-                    Response(
-                        currentWeather = current,
-                        hourlyForecasts = hourlyForecast,
-                        dailyForecasts = dailyForecast,
-                    ),
-                )
-            }
-        }, onFailure = { RequestState.Failure(it) })
+        val result =
+            response.fold(onSuccess = {
+                MetNorwayParser.run {
+                    val current = it.toCurrentWeather()
+                    val hourlyForecast = it.toHourlyForecast()
+                    val dailyForecast = it.toDailyForecast()
+                    RequestState.Responsed(
+                        Response(
+                            currentWeather = current,
+                            hourlyForecasts = hourlyForecast,
+                            dailyForecasts = dailyForecast,
+                        ),
+                    )
+                }
+            }, onFailure = { RequestState.Failure(it) })
 
         requestHelper.update(parameter.requestId, result)
     }
@@ -65,5 +65,4 @@ internal class MetNorwayDataSourceImpl(
         return requestHelper.get(parameter.requestId)?.filter { it !is RequestState.Waiting }?.first()?.onResponse()
             ?.map { it.dailyForecasts } ?: Result.failure(Throwable("Unknown error"))
     }
-
 }

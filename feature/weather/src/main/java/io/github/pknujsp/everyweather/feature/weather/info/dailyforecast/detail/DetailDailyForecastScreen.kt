@@ -1,6 +1,5 @@
 package io.github.pknujsp.everyweather.feature.weather.info.dailyforecast.detail
 
-import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -8,12 +7,10 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -32,31 +29,27 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
-import io.github.pknujsp.everyweather.core.resource.R
 import io.github.pknujsp.everyweather.core.common.util.AStyle
 import io.github.pknujsp.everyweather.core.common.util.toAnnotated
+import io.github.pknujsp.everyweather.core.resource.R
+import io.github.pknujsp.everyweather.core.ui.dialog.BottomSheet
+import io.github.pknujsp.everyweather.core.ui.dialog.BottomSheetType
+import io.github.pknujsp.everyweather.core.ui.dialog.ContentWithTitle
 import io.github.pknujsp.everyweather.feature.weather.info.dailyforecast.model.DetailDailyForecast
-import io.github.pknujsp.everyweather.core.ui.TitleTextWithNavigation
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun DetailDailyForecastScreen(dailyForecast: DetailDailyForecast, popBackStack: () -> Unit) {
-    BackHandler {
-        popBackStack()
-    }
-    Column(modifier = Modifier
-        .fillMaxSize()
-        .systemBarsPadding()) {
-        TitleTextWithNavigation(title = stringResource(R.string.daily_forecast)) {
-            popBackStack()
-        }
-        LazyColumn(state = rememberLazyListState(), modifier = Modifier.fillMaxWidth()) {
-            itemsIndexed(dailyForecast.items) { i, item ->
-                Item(
-                    item = item,
-                    displayPrecipitationProbability = dailyForecast.displayPrecipitationProbability,
-                ) {
-
+fun DetailDailyForecastScreen(
+    dailyForecast: DetailDailyForecast,
+    popBackStack: () -> Unit,
+) {
+    BottomSheet(bottomSheetType = BottomSheetType.PERSISTENT, onDismissRequest = popBackStack) {
+        ContentWithTitle(title = stringResource(id = R.string.daily_forecast)) {
+            LazyColumn(state = rememberLazyListState(), modifier = Modifier.fillMaxWidth()) {
+                itemsIndexed(dailyForecast.items) { i, item ->
+                    Item(
+                        item = item,
+                        displayPrecipitationProbability = dailyForecast.displayPrecipitationProbability,
+                    ) {}
                 }
             }
         }
@@ -65,57 +58,74 @@ fun DetailDailyForecastScreen(dailyForecast: DetailDailyForecast, popBackStack: 
 
 @Composable
 private fun Item(
-    item: DetailDailyForecast.Item, displayPrecipitationProbability: Boolean, onClick: () -> Unit
+    item: DetailDailyForecast.Item,
+    displayPrecipitationProbability: Boolean,
+    onClick: () -> Unit,
 ) {
     item.run {
-        Row(verticalAlignment = Alignment.CenterVertically,
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             modifier = Modifier
                 .fillMaxWidth()
                 .height(80.dp)
                 .clickable {
                     onClick()
-                }) {
-            Text(text = listOf(AStyle(text = "${date}\n", span = SpanStyle(fontSize = 14.sp, color = Color.Gray)),
-                AStyle(text = dayOfWeek, span = SpanStyle(fontSize = 16.sp, color = Color.Black))).toAnnotated(),
+                },
+        ) {
+            Text(
+                text = listOf(
+                    AStyle(text = "${date}\n", span = SpanStyle(fontSize = 14.sp, color = Color.Gray)),
+                    AStyle(text = dayOfWeek, span = SpanStyle(fontSize = 15.sp, color = Color.Black)),
+                ).toAnnotated(),
                 modifier = Modifier
                     .weight(0.2f, true)
                     .padding(start = 20.dp),
-                lineHeight = 20.sp)
+                lineHeight = 20.sp,
+            )
 
-            Row(modifier = Modifier.weight(0.4f, true),
+            Row(
+                modifier = Modifier.weight(0.4f, true),
                 horizontalArrangement = Arrangement.spacedBy(4.dp, Alignment.CenterHorizontally),
-                verticalAlignment = Alignment.CenterVertically) {
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
                 weatherConditionIcons.forEachIndexed { i, it ->
-                    AsyncImage(model = ImageRequest.Builder(context = LocalContext.current).data(it).build(),
+                    AsyncImage(
+                        model = ImageRequest.Builder(context = LocalContext.current).data(it).build(),
                         filterQuality = FilterQuality.High,
                         modifier = Modifier.size(52.dp),
-                        contentDescription = null)
+                        contentDescription = null,
+                    )
                     if (i < weatherConditionIcons.lastIndex) {
-                        Box(modifier = Modifier
-                            .width(1.dp)
-                            .height(16.dp)
-                            .background(Color.LightGray))
+                        Box(
+                            modifier = Modifier
+                                .width(1.dp)
+                                .height(16.dp)
+                                .background(Color.LightGray),
+                        )
                     }
                 }
             }
 
-            Column(modifier = Modifier
-                .weight(0.4f, true)
-                .padding(end = 12.dp),
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally) {
+            Column(
+                modifier = Modifier
+                    .weight(0.4f, true)
+                    .padding(end = 12.dp),
+                verticalArrangement = Arrangement.spacedBy(4.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
                 Row(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalAlignment = Alignment.CenterVertically) {
                     if (displayPrecipitationProbability) {
-                        AsyncImage(model = ImageRequest.Builder(context = LocalContext.current).data(R.drawable.ic_umbrella).build(),
+                        AsyncImage(
+                            model = ImageRequest.Builder(context = LocalContext.current).data(R.drawable.ic_umbrella).build(),
                             modifier = Modifier.size(14.dp),
-                            contentDescription = null)
+                            contentDescription = null,
+                        )
                         Text(text = precipitationProbabilities.joinToString("/"), style = TextStyle(fontSize = 14.sp, color = Color.Black))
                     }
                 }
-                Text(text = "$minTemperature / $maxTemperature", style = TextStyle(fontSize = 16.sp, color = Color.Black))
+                Text(text = "$minTemperature / $maxTemperature", style = TextStyle(fontSize = 15.sp, color = Color.Black))
             }
         }
     }
-
 }

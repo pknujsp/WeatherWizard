@@ -16,7 +16,6 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 @Module
 object ApiRequestManagerModule {
-
     @Provides
     @Singleton
     fun providesWeatherApiRequestManager(
@@ -25,5 +24,4 @@ object ApiRequestManagerModule {
         weatherApiRequestPreProcessorManager: WeatherApiRequestPreProcessorManager<@JvmSuppressWildcards ApiRequestParameter>,
     ): WeatherApiRequestManager<ApiResponseModel> =
         WeatherApiRequestManagerImpl(kmaDataSource, metNorwayDataSource, weatherApiRequestPreProcessorManager)
-
 }

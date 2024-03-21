@@ -28,26 +28,31 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
-import io.github.pknujsp.everyweather.feature.weather.info.dailyforecast.model.SimpleDailyForecast
+import io.github.pknujsp.everyweather.core.ui.NewGraph
 import io.github.pknujsp.everyweather.core.ui.route.DrawInfo
 import io.github.pknujsp.everyweather.core.ui.route.MultiGraph
-import io.github.pknujsp.everyweather.core.ui.NewGraph
-
+import io.github.pknujsp.everyweather.feature.weather.info.dailyforecast.model.SimpleDailyForecast
 
 @Composable
 fun SimpleDailyForecastItem(simpleDailyForecast: SimpleDailyForecast) {
     val context = LocalContext.current
     val density = LocalDensity.current
 
-    val graphHeight = remember {
-        with(density) {
-            SimpleDailyForecast.temperatureGraphHeight.toPx()
+    val graphHeight =
+        remember {
+            with(density) {
+                SimpleDailyForecast.temperatureGraphHeight.toPx()
+            }
         }
-    }
-    val linePoints = remember(simpleDailyForecast) {
-        NewGraph(listOf(simpleDailyForecast.items.map { it.minTemperatureInt },
-            simpleDailyForecast.items.map { it.maxTemperatureInt })).createNewGraph(graphHeight)
-    }
+    val linePoints =
+        remember(simpleDailyForecast) {
+            NewGraph(
+                listOf(
+                    simpleDailyForecast.items.map { it.minTemperatureInt },
+                    simpleDailyForecast.items.map { it.maxTemperatureInt },
+                ),
+            ).createNewGraph(graphHeight)
+        }
     val graphDrawInfos = remember { listOf(DrawInfo(pointColor = Color.Blue), DrawInfo(pointColor = Color.Red)) }
 
     val lazyListState = rememberLazyListState()
@@ -56,9 +61,10 @@ fun SimpleDailyForecastItem(simpleDailyForecast: SimpleDailyForecast) {
     }
 
     LazyRow(
-        modifier = Modifier
-            .fillMaxWidth()
-            .wrapContentHeight(),
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .wrapContentHeight(),
         state = lazyListState,
     ) {
         items(count = simpleDailyForecast.items.size, key = { simpleDailyForecast.items[it].id }) { i ->
@@ -69,52 +75,65 @@ fun SimpleDailyForecastItem(simpleDailyForecast: SimpleDailyForecast) {
     }
 }
 
-
 @Composable
 private fun Item(
     index: Int,
     simpleDailyForecast: SimpleDailyForecast,
     linePoints: List<List<NewGraph.LinePoint>>,
     drawInfos: List<DrawInfo>,
-    onClick: (List<Int>) -> Unit
+    onClick: (List<Int>) -> Unit,
 ) {
     // 날짜, 아이콘, 강수확률, 강수량
     simpleDailyForecast.items[index].run {
         Column(
-            modifier = Modifier
-                .width(SimpleDailyForecast.itemWidth)
-                .clickable {
-                    onClick(weatherConditions)
-                },
+            modifier =
+                Modifier
+                    .width(SimpleDailyForecast.itemWidth)
+                    .clickable {
+                        onClick(weatherConditions)
+                    },
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Text(text = date, style = TextStyle(fontSize = 13.sp, color = Color.White, textAlign = TextAlign.Center))
-            Row(modifier = Modifier.height(38.dp),
+            Row(
+                modifier = Modifier.height(38.dp),
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween) {
+                horizontalArrangement = Arrangement.SpaceBetween,
+            ) {
                 weatherConditionIcons.forEach { icon ->
-                    AsyncImage(model = ImageRequest.Builder(LocalContext.current).data(icon).crossfade(false).build(),
+                    AsyncImage(
+                        model = ImageRequest.Builder(LocalContext.current).data(icon).crossfade(false).build(),
                         contentDescription = null,
-                        modifier = Modifier.weight(1f, true))
+                        modifier = Modifier.weight(1f, true),
+                    )
                 }
             }
 
             if (simpleDailyForecast.displayPrecipitationProbability) {
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Center) {
-                    AsyncImage(model = ImageRequest.Builder(LocalContext.current).data(SimpleDailyForecast.probabilityIcon).crossfade(false)
-                        .build(), contentDescription = null, modifier = Modifier
-                        .size(12.dp)
-                        .padding(end = 4.dp))
+                    AsyncImage(
+                        model =
+                            ImageRequest.Builder(LocalContext.current).data(SimpleDailyForecast.probabilityIcon).crossfade(false)
+                                .build(),
+                        contentDescription = null,
+                        modifier =
+                            Modifier
+                                .size(12.dp)
+                                .padding(end = 4.dp),
+                    )
                     Text(text = precipitationProbabilities.joinToString("/"), style = TextStyle(fontSize = 12.sp, color = Color.White))
                 }
             }
 
-            MultiGraph(drawInfos,
+            MultiGraph(
+                drawInfos,
                 listOf(linePoints[0][index], linePoints[1][index]),
                 listOf(minTemperature, maxTemperature),
-                modifier = Modifier
-                    .padding(top = 8.dp)
-                    .size(SimpleDailyForecast.itemWidth, 95.dp))
+                modifier =
+                    Modifier
+                        .padding(top = 8.dp)
+                        .size(SimpleDailyForecast.itemWidth, 95.dp),
+            )
         }
     }
 }

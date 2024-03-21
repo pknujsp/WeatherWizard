@@ -13,7 +13,7 @@ enum class NotificationIconType : IEnum {
         override val title: Int = io.github.pknujsp.everyweather.core.resource.R.string.weather_condition_icon
         override val icon: Int? = null
         override val key: Int = ordinal
-    };
+    }, ;
 
     companion object : BaseEnum<NotificationIconType> {
         override val default: NotificationIconType = TEMPERATURE

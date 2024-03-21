@@ -16,12 +16,17 @@ import androidx.compose.ui.unit.sp
 import io.github.pknujsp.everyweather.core.ui.theme.AppColorScheme
 
 @Composable
-fun EmptyListScreen(@StringRes message: Int) {
-    Column(modifier = Modifier
-        .fillMaxWidth()
-        .padding(24.dp),
+fun EmptyListScreen(
+    @StringRes message: Int,
+) {
+    Column(
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .padding(24.dp),
         verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally) {
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
         Text(text = stringResource(message), fontSize = 16.sp, color = AppColorScheme.primary, textAlign = TextAlign.Center)
     }
 }

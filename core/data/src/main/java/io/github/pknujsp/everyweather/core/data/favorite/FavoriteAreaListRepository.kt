@@ -4,7 +4,6 @@ import io.github.pknujsp.everyweather.core.model.favorite.FavoriteAreaListEntity
 import kotlinx.coroutines.flow.Flow
 
 interface FavoriteAreaListRepository {
-
     suspend fun getAll(): List<FavoriteAreaListEntity>
 
     fun getAllByFlow(): Flow<List<FavoriteAreaListEntity>>

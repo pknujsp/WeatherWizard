@@ -11,10 +11,13 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
 class DailyNotificationRepositoryImpl(
-    private val dataSource: DailyNotificationLocalDataSource, private val jsonParser: JsonParser
+    private val dataSource: DailyNotificationLocalDataSource,
+    private val jsonParser: JsonParser,
 ) : DailyNotificationRepository {
-
-    override suspend fun switch(id: Long, enabled: Boolean) {
+    override suspend fun switch(
+        id: Long,
+        enabled: Boolean,
+    ) {
         dataSource.switch(id, enabled)
     }
 
@@ -51,46 +54,49 @@ class DailyNotificationRepositoryImpl(
             )
         }
 
-
     override suspend fun updateDailyNotification(entity: NotificationSettingsEntity<DailyNotificationSettingsEntity>) {
         entity.run {
             val encoded = toJsonEntity()
-            dataSource.updateDailyNotification(NotificationDto(
-                id = id,
-                enabled = enabled,
-                notificationType = NotificationType.DAILY.notificationId,
-                content = encoded,
-            ))
+            dataSource.updateDailyNotification(
+                NotificationDto(
+                    id = id,
+                    enabled = enabled,
+                    notificationType = NotificationType.DAILY.notificationId,
+                    content = encoded,
+                ),
+            )
         }
     }
 
-    override suspend fun createDailyNotification(entity: NotificationSettingsEntity<DailyNotificationSettingsEntity>): Long = entity.run {
-        val encoded = toJsonEntity()
-        dataSource.updateDailyNotification(NotificationDto(
-            id = id,
-            enabled = enabled,
-            notificationType = NotificationType.DAILY.notificationId,
-            content = encoded,
-        ))
-    }
-
+    override suspend fun createDailyNotification(entity: NotificationSettingsEntity<DailyNotificationSettingsEntity>): Long =
+        entity.run {
+            val encoded = toJsonEntity()
+            dataSource.updateDailyNotification(
+                NotificationDto(
+                    id = id,
+                    enabled = enabled,
+                    notificationType = NotificationType.DAILY.notificationId,
+                    content = encoded,
+                ),
+            )
+        }
 
     override suspend fun deleteDailyNotification(id: Long) {
         dataSource.removeDailyNotification(id)
     }
 
-
     private fun NotificationSettingsEntity<DailyNotificationSettingsEntity>.toJsonEntity() =
-        jsonParser.parse(DailyNotificationSettingsJsonEntity(
-            latitude = data.location.latitude,
-            longitude = data.location.longitude,
-            address = data.location.address,
-            country = data.location.country,
-            hour = data.hour,
-            minute = data.minute,
-            locationType = data.location.locationType.key,
-            weatherProvider = data.weatherProvider.key,
-            type = data.type.key,
-        ))
-
+        jsonParser.parse(
+            DailyNotificationSettingsJsonEntity(
+                latitude = data.location.latitude,
+                longitude = data.location.longitude,
+                address = data.location.address,
+                country = data.location.country,
+                hour = data.hour,
+                minute = data.minute,
+                locationType = data.location.locationType.key,
+                weatherProvider = data.weatherProvider.key,
+                type = data.type.key,
+            ),
+        )
 }

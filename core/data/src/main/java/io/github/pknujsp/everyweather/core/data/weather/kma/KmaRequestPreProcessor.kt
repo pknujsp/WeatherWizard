@@ -18,12 +18,14 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 
 class KmaRequestPreProcessor(
-    private val kmaAreaCodesDao: KmaAreaCodesDao
+    private val kmaAreaCodesDao: KmaAreaCodesDao,
 ) : WeatherRequestPreProcessor {
-
     private val areaCodesMap = mutableMapOf<Pair<Double, Double>, StateFlow<QueryState>>()
 
-    private suspend fun findClosestArea(latitude: Double, longitude: Double): KmaAreaCodesDto {
+    private suspend fun findClosestArea(
+        latitude: Double,
+        longitude: Double,
+    ): KmaAreaCodesDto {
         val list = kmaAreaCodesDao.findCoordinates(latitude, longitude)
         var minDistance = Double.MAX_VALUE
         var distance: Double
@@ -40,7 +42,10 @@ class KmaRequestPreProcessor(
         return closestArea
     }
 
-    private fun getAreaCode(latitude: Double, longitude: Double) = channelFlow {
+    private fun getAreaCode(
+        latitude: Double,
+        longitude: Double,
+    ) = channelFlow {
         val key = latitude to longitude
 
         if (key !in areaCodesMap) {
@@ -63,32 +68,40 @@ class KmaRequestPreProcessor(
     }
 
     override suspend fun getCurrentWeatherRequestParameter(
-        latitude: Double, longitude: Double, requestId: Long
+        latitude: Double,
+        longitude: Double,
+        requestId: Long,
     ): ApiRequestParameter {
         return KmaCurrentWeatherRequestParameter(code = getAreaCode(latitude, longitude).first(), requestId = requestId)
     }
 
     override suspend fun getHourlyForecastRequestParameter(
-        latitude: Double, longitude: Double, requestId: Long
+        latitude: Double,
+        longitude: Double,
+        requestId: Long,
     ): ApiRequestParameter {
         return KmaHourlyForecastRequestParameter(code = getAreaCode(latitude, longitude).first(), requestId = requestId)
     }
 
     override suspend fun getDailyForecastRequestParameter(
-        latitude: Double, longitude: Double, requestId: Long
+        latitude: Double,
+        longitude: Double,
+        requestId: Long,
     ): ApiRequestParameter {
         return KmaDailyForecastRequestParameter(code = getAreaCode(latitude, longitude).first(), requestId = requestId)
     }
 
     override suspend fun getYesterdayWeatherRequestParameter(
-        latitude: Double, longitude: Double, requestId: Long
+        latitude: Double,
+        longitude: Double,
+        requestId: Long,
     ): ApiRequestParameter {
         return KmaYesterdayWeatherRequestParameter(code = getAreaCode(latitude, longitude).first(), requestId = requestId)
     }
 
     private sealed interface QueryState {
         data object Loading : QueryState
+
         data class Loaded(val code: String) : QueryState
     }
-
 }

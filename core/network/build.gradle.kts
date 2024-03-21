@@ -1,6 +1,3 @@
-import com.google.firebase.crashlytics.buildtools.gradle.CrashlyticsExtension
-import org.jetbrains.kotlin.konan.properties.Properties
-
 plugins {
     id("plugin.android.library")
     id("plugin.android.hilt")
@@ -12,9 +9,11 @@ android {
 
     buildTypes {
         release {
-            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"),
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro",
-                "proguard-retrofit2-rules.pro")
+                "proguard-retrofit2-rules.pro",
+            )
         }
     }
 }

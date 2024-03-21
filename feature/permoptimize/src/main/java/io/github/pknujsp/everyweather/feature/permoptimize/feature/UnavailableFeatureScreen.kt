@@ -19,22 +19,34 @@ import io.github.pknujsp.everyweather.core.common.StatefulFeature
 import io.github.pknujsp.everyweather.core.ui.button.PrimaryButton
 
 @Composable
-fun UnavailableFeatureScreen(featureType: StatefulFeature, onClick: () -> Unit) {
-    FailedScreen(title = featureType.title,
+fun UnavailableFeatureScreen(
+    featureType: StatefulFeature,
+    onClick: () -> Unit,
+) {
+    FailedScreen(
+        title = featureType.title,
         alertMessage = featureType.message,
         actionMessage = featureType.action,
         reason = if (featureType is FeatureType) featureType.reason else null,
-        onClick = onClick)
+        onClick = onClick,
+    )
 }
 
 @Composable
 fun FailedScreen(
-    @StringRes title: Int, @StringRes alertMessage: Int, @StringRes actionMessage: Int, @StringRes reason: Int? = null, onClick: () -> Unit
+    @StringRes title: Int,
+    @StringRes alertMessage: Int,
+    @StringRes actionMessage: Int,
+    @StringRes reason: Int? = null,
+    onClick: () -> Unit,
 ) {
-    Column(modifier = Modifier
-        .padding(horizontal = 16.dp)
-        .fillMaxSize(),
-        verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterVertically)) {
+    Column(
+        modifier =
+            Modifier
+                .padding(horizontal = 16.dp)
+                .fillMaxSize(),
+        verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterVertically),
+    ) {
         Text(text = stringResource(title), style = TextStyle(fontSize = 24.sp, color = Color.Black))
         Text(text = stringResource(alertMessage), style = TextStyle(fontSize = 16.sp, color = Color.DarkGray))
         if (reason != null) {

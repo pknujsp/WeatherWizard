@@ -12,5 +12,8 @@ interface SettingsRepository {
 
     suspend fun isInitialized(): Boolean
 
-    suspend fun <V : PreferenceModel> update(type: BasePreferenceModel<V>, value: V)
+    suspend fun <V : PreferenceModel> update(
+        type: BasePreferenceModel<V>,
+        value: V,
+    )
 }

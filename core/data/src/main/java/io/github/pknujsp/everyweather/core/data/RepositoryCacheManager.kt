@@ -5,7 +5,7 @@ import io.github.pknujsp.everyweather.core.data.cache.CacheManager
 
 abstract class RepositoryCacheManager<K, V>(
     protected val cacheCleaner: CacheCleaner,
-    protected val cacheManager: CacheManager<K, V>
+    protected val cacheManager: CacheManager<K, V>,
 ) {
     fun startCacheCleaner() {
         cacheCleaner.start()

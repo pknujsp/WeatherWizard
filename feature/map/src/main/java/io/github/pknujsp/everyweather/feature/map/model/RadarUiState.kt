@@ -14,9 +14,12 @@ import java.time.format.DateTimeFormatter
 @Stable
 class RadarUiState(
     val isRadarTileCached: Boolean,
-    val radarTileEntities: List<RadarTileEntity>, val host: String, val defaultIndex: Int, baseTime: ZonedDateTime, context: Context
+    val radarTileEntities: List<RadarTileEntity>,
+    val host: String,
+    val defaultIndex: Int,
+    baseTime: ZonedDateTime,
+    context: Context,
 ) : UiModel {
-
     companion object {
         private val dateTimeFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("MM.dd E HH:mm")
     }
@@ -28,18 +31,20 @@ class RadarUiState(
     init {
         val timeZone = baseTime.zone
         var pointInTime: String
-        times = radarTileEntities.mapIndexed { index, it ->
-            ZonedDateTime.ofInstant(Instant.ofEpochSecond(it.time), timeZone).let { time ->
-                pointInTime = if (index == defaultIndex) {
-                    ""
-                } else if (time.isAfter(baseTime)) {
-                    "+${Duration.between(baseTime, time).toMinutes()} min "
-                } else {
-                    "${Duration.between(baseTime, time).toMinutes()} min "
+        times =
+            radarTileEntities.mapIndexed { index, it ->
+                ZonedDateTime.ofInstant(Instant.ofEpochSecond(it.time), timeZone).let { time ->
+                    pointInTime =
+                        if (index == defaultIndex) {
+                            ""
+                        } else if (time.isAfter(baseTime)) {
+                            "+${Duration.between(baseTime, time).toMinutes()} min "
+                        } else {
+                            "${Duration.between(baseTime, time).toMinutes()} min "
+                        }
+                    "$pointInTime${time.format(dateTimeFormatter)}"
                 }
-                "$pointInTime${time.format(dateTimeFormatter)}"
             }
-        }
     }
 }
 
@@ -54,9 +59,10 @@ internal object RadarTileSettingsDefault {
     const val SMOOTH_DATA = 1 // 0 - not smooth, 1 - smooth
     const val SNOW_COLORS = 1 // 0 - do not show snow colors, 1 - show snow colors
 
-    private val matrix = ColorMatrix().apply {
-        setScale(1f, 1f, 1f, 0.75f) // Red, Green, Blue, Alpha
-    }
+    private val matrix =
+        ColorMatrix().apply {
+            setScale(1f, 1f, 1f, 0.75f) // Red, Green, Blue, Alpha
+        }
 
     val ALPHA: ColorFilter = ColorMatrixColorFilter(matrix)
 }

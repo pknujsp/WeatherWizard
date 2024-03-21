@@ -8,5 +8,5 @@ data class FavoriteAreaListEntity(
     val areaName: String,
     val countryName: String,
     val latitude: Double,
-    val longitude: Double
+    val longitude: Double,
 ) : EntityModel

@@ -18,24 +18,26 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class SearchHistoryViewModel @Inject constructor(
-    private val searchHistoryRepository: SearchHistoryRepository,
-    @CoDispatcher(CoDispatcherType.IO) private val ioDispatcher: CoroutineDispatcher
-) : ViewModel() {
+class SearchHistoryViewModel
+    @Inject
+    constructor(
+        private val searchHistoryRepository: SearchHistoryRepository,
+        @CoDispatcher(CoDispatcherType.IO) private val ioDispatcher: CoroutineDispatcher,
+    ) : ViewModel() {
+        val history: StateFlow<List<SearchHistory>> =
+            flow {
+                searchHistoryRepository.getAll().map {
+                    it.onEach { item ->
+                        item.onDeleteClicked = { delete(item.id) }
+                    }
+                }.collect {
+                    emit(it)
+                }
+            }.flowOn(ioDispatcher).stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
 
-    val history: StateFlow<List<SearchHistory>> = flow {
-        searchHistoryRepository.getAll().map {
-            it.onEach { item ->
-                item.onDeleteClicked = { delete(item.id) }
+        private fun delete(id: Long) {
+            viewModelScope.launch {
+                searchHistoryRepository.deleteById(id)
             }
-        }.collect {
-            emit(it)
-        }
-    }.flowOn(ioDispatcher).stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
-
-    private fun delete(id: Long) {
-        viewModelScope.launch {
-            searchHistoryRepository.deleteById(id)
         }
     }
-}

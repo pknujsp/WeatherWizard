@@ -4,7 +4,7 @@ import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.onEmpty
 
 class SearchHistoryLocalDataSourceImpl(
-    private val searchHistoryDao: SearchHistoryDao
+    private val searchHistoryDao: SearchHistoryDao,
 ) : SearchHistoryLocalDataSource {
     override suspend fun insert(query: String) {
         searchHistoryDao.insert(query)

@@ -1,6 +1,5 @@
 package io.github.pknujsp.everyweather.core.network.api.kma.parser
 
-
 data class ParsedKmaCurrentWeather(
     val dateTime: String,
     val temperature: Short,
@@ -10,5 +9,5 @@ data class ParsedKmaCurrentWeather(
     val windDirection: Int,
     val windSpeed: Double,
     val precipitationVolume: Double,
-    val precipitationType: String
+    val precipitationType: String,
 )

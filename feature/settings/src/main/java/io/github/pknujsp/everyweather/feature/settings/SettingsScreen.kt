@@ -30,53 +30,60 @@ import io.github.pknujsp.everyweather.core.ui.CheckBoxSettingItem
 import io.github.pknujsp.everyweather.core.ui.ClickableSettingItem
 import io.github.pknujsp.everyweather.core.ui.TitleTextWithNavigation
 import io.github.pknujsp.everyweather.feature.componentservice.manager.AppComponentServiceManagerFactory
-import io.github.pknujsp.everyweather.feature.permoptimize.feature.ShowAppSettingsActivity
+import io.github.pknujsp.everyweather.feature.permoptimize.feature.ShowSettingsActivity
 import io.github.pknujsp.everyweather.feature.permoptimize.feature.SmallFeatureStateScreen
-import io.github.pknujsp.everyweather.feature.permoptimize.feature.rememberAppFeatureState
-import io.github.pknujsp.everyweather.feature.permoptimize.permission.PermissionState
-import io.github.pknujsp.everyweather.feature.permoptimize.permission.rememberPermissionManager
+import io.github.pknujsp.everyweather.feature.permoptimize.feature.rememberFeatureStateManager
+import io.github.pknujsp.everyweather.feature.permoptimize.permission.rememberPermissionStateManager
 import kotlinx.coroutines.launch
 
 @Composable
-fun SettingsScreen(navController: NavController, viewModel: SettingsViewModel = hiltViewModel()) {
+fun SettingsScreen(
+    navController: NavController,
+    viewModel: SettingsViewModel = hiltViewModel(),
+) {
     val context = LocalContext.current
     val settingsUiState = viewModel.mainSettingsUiState
     val coroutineScope = rememberCoroutineScope()
 
     val onBackPressedDispatcherOwner = LocalOnBackPressedDispatcherOwner.current
-    val backDispatcher = remember {
+    val backDispatcher = remember(onBackPressedDispatcherOwner) {
         onBackPressedDispatcherOwner?.onBackPressedDispatcher
     }
 
-    val batteryOptimizationFeatureState = rememberAppFeatureState(featureType = FeatureType.BatteryOptimization)
-    val backgroundLocationPermissionManager = rememberPermissionManager(defaultPermissionType = FeatureType.Permission.BackgroundLocation)
+    val batteryOptimizationFeatureState = rememberFeatureStateManager(featureType = FeatureType.BatteryOptimization)
+    val backgroundLocationPermissionManager = rememberPermissionStateManager(permissionType = FeatureType.Permission.BackgroundLocation)
 
     Column {
         TitleTextWithNavigation(title = stringResource(id = R.string.nav_settings), onClickNavigation = {
             backDispatcher?.onBackPressed()
         })
-        ButtonSettingItem(title = stringResource(id = R.string.title_value_unit),
+        ButtonSettingItem(
+            title = stringResource(id = R.string.title_value_unit),
             description = stringResource(id = R.string.description_value_unit),
             onClick = {
                 navController.navigate(SettingsRoutes.ValueUnit.route)
-            }) {
+            },
+        ) {
             Icon(painterResource(id = R.drawable.ic_forward), contentDescription = null)
         }
 
-        BottomSheetSettingItem(title = stringResource(id = R.string.title_weather_data_provider),
+        BottomSheetSettingItem(
+            title = stringResource(id = R.string.title_weather_data_provider),
             selectedItem = settingsUiState.weatherProvider,
             onSelectedItem = {
                 it?.run {
                     settingsUiState.updatePreference(WeatherProvider, this)
                 }
             },
-            enums = WeatherProvider.enums)
-        CheckBoxSettingItem(title = stringResource(id = R.string.title_weather_condition_animation),
+            enums = WeatherProvider.enums,
+        )
+        CheckBoxSettingItem(
+            title = stringResource(id = R.string.title_weather_condition_animation),
             description = stringResource(id = R.string.description_weather_condition_animation),
-            checked = true) {
-
-        }
-        BottomSheetSettingItem(title = stringResource(id = R.string.title_widget_auto_refresh_interval),
+            checked = true,
+        ) {}
+        BottomSheetSettingItem(
+            title = stringResource(id = R.string.title_widget_auto_refresh_interval),
             selectedItem = settingsUiState.widgetAutoRefreshInterval,
             onSelectedItem = {
                 it?.let { refreshInterval ->
@@ -86,57 +93,60 @@ fun SettingsScreen(navController: NavController, viewModel: SettingsViewModel = 
                     }
                 }
             },
-            enums = RefreshInterval.enums)
-        ClickableSettingItem(title = stringResource(id = R.string.title_refresh_widget),
-            description = stringResource(id = R.string.description_refresh_widget)) {
+            enums = RefreshInterval.enums,
+        )
+        ClickableSettingItem(
+            title = stringResource(id = R.string.title_refresh_widget),
+            description = stringResource(id = R.string.description_refresh_widget),
+        ) {
             coroutineScope.launch {
                 redrawAppWidgets(context)
             }
         }
 
         if (settingsUiState.widgetAutoRefreshInterval != RefreshInterval.MANUAL) {
-            if (!batteryOptimizationFeatureState.isAvailable(LocalContext.current)) {
+            if (!batteryOptimizationFeatureState.isEnabled(LocalContext.current)) {
                 SmallFeatureStateScreen(Modifier.padding(8.dp), state = batteryOptimizationFeatureState.featureType, onClickAction = {
                     batteryOptimizationFeatureState.showSettingsActivity()
                 })
-            }
-            if (backgroundLocationPermissionManager.permissionState !is PermissionState.Granted) {
+            } else if (!backgroundLocationPermissionManager.isEnabled(context)) {
                 SmallFeatureStateScreen(Modifier.padding(8.dp), state = FeatureType.Permission.BackgroundLocation, onClickAction = {
                     backgroundLocationPermissionManager.showSettingsActivity()
                 })
             }
 
             if (batteryOptimizationFeatureState.isShowSettingsActivity) {
-                ShowAppSettingsActivity(featureType = batteryOptimizationFeatureState.featureType) {
+                ShowSettingsActivity(featureType = batteryOptimizationFeatureState.featureType) {
                     batteryOptimizationFeatureState.hideSettingsActivity()
                 }
             } else if (backgroundLocationPermissionManager.isShowSettingsActivity) {
-                ShowAppSettingsActivity(featureType = FeatureType.Permission.BackgroundLocation) {
+                ShowSettingsActivity(featureType = FeatureType.Permission.BackgroundLocation) {
                     backgroundLocationPermissionManager.hideSettingsActivity()
-                    backgroundLocationPermissionManager.fetchPermissionState()
+                    backgroundLocationPermissionManager.requestPermission()
                 }
             }
         }
-
     }
 }
-
 
 @Composable
 fun HostSettingsScreen() {
     val navController = rememberNavController()
 
-    NavHost(navController = navController,
+    NavHost(
+        navController = navController,
         route = SettingsRoutes.route,
         startDestination = SettingsRoutes.Main.route,
-        modifier = Modifier.systemBarsPadding()) {
+        modifier = Modifier.systemBarsPadding(),
+    ) {
         composable(SettingsRoutes.Main.route) { SettingsScreen(navController) }
         composable(SettingsRoutes.ValueUnit.route) { ValueUnitScreen(navController) }
     }
 }
 
 private fun rescheduleWidgetAutoRefresh(
-    context: Context, refreshInterval: RefreshInterval
+    context: Context,
+    refreshInterval: RefreshInterval,
 ) {
     AppComponentServiceManagerFactory.getManager(context, AppComponentServiceManagerFactory.WIDGET_ALARM_MANAGER).run {
         if (refreshInterval == RefreshInterval.MANUAL) {

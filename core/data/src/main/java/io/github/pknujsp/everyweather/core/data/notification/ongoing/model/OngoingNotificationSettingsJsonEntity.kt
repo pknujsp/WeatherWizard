@@ -20,13 +20,18 @@ internal data class OngoingNotificationSettingsJsonEntity(
     @SerialName("weatherProvider") private val weatherProvider: Int,
     @SerialName("notificationIconType") private val notificationIconType: Int,
 ) : EntityModel {
-    fun getLocation() = LocationTypeModel(locationType = LocationType.fromKey(locationType),
-        latitude = latitude,
-        longitude = longitude,
-        address = address,
-        country = country)
+    fun getLocation() =
+        LocationTypeModel(
+            locationType = LocationType.fromKey(locationType),
+            latitude = latitude,
+            longitude = longitude,
+            address = address,
+            country = country,
+        )
 
     fun getRefreshInterval() = RefreshInterval.fromKey(refreshInterval)
+
     fun getWeatherProvider() = WeatherProvider.fromKey(weatherProvider)
+
     fun getNotificationIconType() = NotificationIconType.fromKey(notificationIconType)
 }

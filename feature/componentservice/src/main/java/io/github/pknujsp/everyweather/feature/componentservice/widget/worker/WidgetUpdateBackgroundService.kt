@@ -12,40 +12,40 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class WidgetUpdateBackgroundService @Inject constructor(
-    @ApplicationContext context: Context,
-    private val widgetRepository: WidgetRepository,
-    appSettingsRepository: SettingsRepository,
-) : AppComponentBackgroundService<WidgetUpdatedArgument>(context) {
+class WidgetUpdateBackgroundService
+    @Inject
+    constructor(
+        @ApplicationContext context: Context,
+        private val widgetRepository: WidgetRepository,
+        appSettingsRepository: SettingsRepository,
+    ) : AppComponentBackgroundService<WidgetUpdatedArgument>(context) {
+        private val updateAppWidgetViews by lazy {
+            AppWidgetViewUpdater(
+                AppComponentManagerFactory.getManager(context, AppComponentManagerFactory.WIDGET_MANAGER),
+                widgetRepository,
+                featureStateManager,
+                appSettingsRepository.settings.replayCache.last().units,
+            )
+        }
 
-    private val updateAppWidgetViews by lazy {
-        AppWidgetViewUpdater(
-            AppComponentManagerFactory.getManager(context, AppComponentManagerFactory.WIDGET_MANAGER),
-            widgetRepository,
-            featureStateManager,
-            appSettingsRepository.settings.replayCache.last().units,
-        )
-    }
+        override suspend fun doWork(argument: WidgetUpdatedArgument): Result<Unit> {
+            when (argument.action) {
+                WidgetUpdatedArgument.DRAW, WidgetUpdatedArgument.DRAW_ALL -> {
+                    updateAppWidgetViews(context, argument.widgetIds.toList())
+                }
 
-    override suspend fun doWork(argument: WidgetUpdatedArgument): Result<Unit> {
-        when (argument.action) {
-            WidgetUpdatedArgument.DRAW, WidgetUpdatedArgument.DRAW_ALL -> {
-                updateAppWidgetViews(context, argument.widgetIds.toList())
-            }
+                WidgetUpdatedArgument.DELETE -> {
+                    for (widgetId in argument.widgetIds) {
+                        widgetRepository.delete(widgetId)
+                    }
+                }
 
-            WidgetUpdatedArgument.DELETE -> {
-                for (widgetId in argument.widgetIds) {
-                    widgetRepository.delete(widgetId)
+                WidgetUpdatedArgument.DELETE_ALL -> {
+                    widgetRepository.deleteAll()
                 }
             }
 
-            WidgetUpdatedArgument.DELETE_ALL -> {
-                widgetRepository.deleteAll()
-            }
+            Log.d("WidgetUpdateBackgroundService", "widget doWork: ${argument.action}")
+            return Result.success(Unit)
         }
-
-        Log.d("WidgetUpdateBackgroundService", "widget doWork: ${argument.action}")
-        return Result.success(Unit)
     }
-
-}

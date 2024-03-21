@@ -14,40 +14,48 @@ import io.github.pknujsp.everyweather.core.ui.BottomSheetSettingItem
 import io.github.pknujsp.everyweather.core.ui.TitleTextWithNavigation
 
 @Composable
-fun ValueUnitScreen(navController: NavController, viewModel: UnitSettingsViewModel = hiltViewModel()) {
+fun ValueUnitScreen(
+    navController: NavController,
+    viewModel: UnitSettingsViewModel = hiltViewModel(),
+) {
     val settingsUiState = viewModel.unitSettingsUiState
 
     Column {
         TitleTextWithNavigation(title = stringResource(id = R.string.title_value_unit)) {
             navController.popBackStack()
         }
-        BottomSheetSettingItem(title = stringResource(id = R.string.title_temperature_unit),
+        BottomSheetSettingItem(
+            title = stringResource(id = R.string.title_temperature_unit),
             selectedItem = settingsUiState.temperatureUnit,
             onSelectedItem = {
                 it?.run {
                     settingsUiState.updatePreference(TemperatureUnit, this)
                 }
             },
-            enums = TemperatureUnit.enums)
-        BottomSheetSettingItem(title = stringResource(id = R.string.title_precipitation_unit),
+            enums = TemperatureUnit.enums,
+        )
+        BottomSheetSettingItem(
+            title = stringResource(id = R.string.title_precipitation_unit),
             selectedItem = settingsUiState.precipitationUnit,
             onSelectedItem = {
                 it?.run {
                     settingsUiState.updatePreference(PrecipitationUnit, this)
                 }
             },
-            enums = PrecipitationUnit.enums)
-        BottomSheetSettingItem(title = stringResource(id = R.string.title_wind_speed_unit),
+            enums = PrecipitationUnit.enums,
+        )
+        BottomSheetSettingItem(
+            title = stringResource(id = R.string.title_wind_speed_unit),
             selectedItem = settingsUiState.windSpeedUnit,
             onSelectedItem = {
                 it?.run {
                     settingsUiState.updatePreference(WindSpeedUnit, this)
                 }
             },
-            enums = WindSpeedUnit.enums)
+            enums = WindSpeedUnit.enums,
+        )
     }
 }
-
 
 private class BottomSheetInfo(
     val title: Int,

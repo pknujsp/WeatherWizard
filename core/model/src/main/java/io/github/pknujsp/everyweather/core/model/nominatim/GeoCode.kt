@@ -9,7 +9,7 @@ data class GeoCode(
     val country: String,
     val latitude: Double,
     val longitude: Double,
-    val isAdded: Boolean
+    val isAdded: Boolean,
 ) : UiModel {
     var onSelected: (() -> Unit)? = null
 }

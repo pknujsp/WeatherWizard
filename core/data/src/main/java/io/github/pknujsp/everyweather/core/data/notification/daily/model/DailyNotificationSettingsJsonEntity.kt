@@ -1,13 +1,12 @@
 package io.github.pknujsp.everyweather.core.data.notification.daily.model
 
-import io.github.pknujsp.everyweather.core.model.coordinate.LocationTypeModel
 import io.github.pknujsp.everyweather.core.model.EntityModel
 import io.github.pknujsp.everyweather.core.model.coordinate.LocationType
+import io.github.pknujsp.everyweather.core.model.coordinate.LocationTypeModel
 import io.github.pknujsp.everyweather.core.model.notification.enums.DailyNotificationType
 import io.github.pknujsp.everyweather.core.model.weather.common.WeatherProvider
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-
 
 @Serializable
 internal data class DailyNotificationSettingsJsonEntity(
@@ -21,13 +20,14 @@ internal data class DailyNotificationSettingsJsonEntity(
     @SerialName("weatherProvider") private val weatherProvider: Int,
     @SerialName("type") private val type: Int,
 ) : EntityModel {
-    fun getLocation() = LocationTypeModel(
-        locationType = LocationType.fromKey(locationType),
-        latitude = latitude,
-        longitude = longitude,
-        address = address,
-        country = country
-    )
+    fun getLocation() =
+        LocationTypeModel(
+            locationType = LocationType.fromKey(locationType),
+            latitude = latitude,
+            longitude = longitude,
+            address = address,
+            country = country,
+        )
 
     fun getWeatherProvider(): WeatherProvider = WeatherProvider.fromKey(weatherProvider)
 

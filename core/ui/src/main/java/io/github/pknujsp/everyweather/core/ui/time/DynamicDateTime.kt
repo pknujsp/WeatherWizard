@@ -27,27 +27,33 @@ private val space = 2.dp
 
 @Composable
 fun DynamicDateTime(
-    dateTimeInfo: DateTimeInfo, lazyListState: LazyListState
+    dateTimeInfo: DateTimeInfo,
+    lazyListState: LazyListState,
 ) {
     DateTime(dateTimeInfo, lazyListState)
 }
 
 @Composable
 private fun DateTime(
-    dateTimeInfo: DateTimeInfo, lazyListState: LazyListState, density: Density = LocalDensity.current
+    dateTimeInfo: DateTimeInfo,
+    lazyListState: LazyListState,
+    density: Density = LocalDensity.current,
 ) {
     val textMeasurer = rememberTextMeasurer()
-    val textStyle = remember {
-        TextStyle(fontSize = textSize, textAlign = TextAlign.Center)
-    }
-    val textLayoutResult = remember(dateTimeInfo) {
-        textMeasurer.measure(dateTimeInfo.items.first().date, textStyle)
-    }
-    val columnWidthPx = remember {
-        with(density) {
-            dateTimeInfo.itemWidth.toPx().toInt()
+    val textStyle =
+        remember {
+            TextStyle(fontSize = textSize, textAlign = TextAlign.Center)
         }
-    }
+    val textLayoutResult =
+        remember(dateTimeInfo) {
+            textMeasurer.measure(dateTimeInfo.items.first().date, textStyle)
+        }
+    val columnWidthPx =
+        remember {
+            with(density) {
+                dateTimeInfo.itemWidth.toPx().toInt()
+            }
+        }
     val height by remember(textLayoutResult) {
         derivedStateOf { (textLayoutResult.size.height / density.density).dp + (space * 2) }
     }
@@ -57,9 +63,12 @@ private fun DateTime(
         }
     }
 
-    Canvas(modifier = Modifier
-        .fillMaxWidth()
-        .height(height)) {
+    Canvas(
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .height(height),
+    ) {
         val y = (size.height / 2) - (textLayoutResult.size.height / 2)
         val rightOnBoxInRow = leftOnBoxInRow + size.width
         var amountX: Int
@@ -69,18 +78,21 @@ private fun DateTime(
             if (dateValue.beginX > rightOnBoxInRow || dateValue.endX < leftOnBoxInRow - columnWidthPx) continue
 
             dateValue.apply {
-                displayX = if (leftOnBoxInRow + firstItemX in beginX..<endX) {
-                    firstItemX
-                } else if (endX <= leftOnBoxInRow + firstItemX) {
-                    endX - leftOnBoxInRow
-                } else {
-                    beginX - leftOnBoxInRow
-                }
+                displayX =
+                    if (leftOnBoxInRow + firstItemX in beginX..<endX) {
+                        firstItemX
+                    } else if (endX <= leftOnBoxInRow + firstItemX) {
+                        endX - leftOnBoxInRow
+                    } else {
+                        beginX - leftOnBoxInRow
+                    }
             }
 
-            drawText(textMeasurer.measure(dateValue.date, textStyle).apply { amountX = size.width / 2 },
+            drawText(
+                textMeasurer.measure(dateValue.date, textStyle).apply { amountX = size.width / 2 },
                 textColor,
-                Offset((dateValue.displayX - amountX).toFloat(), y))
+                Offset((dateValue.displayX - amountX).toFloat(), y),
+            )
         }
     }
 }

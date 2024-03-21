@@ -8,13 +8,10 @@ interface WeatherDataUnit : PreferenceModel {
     val symbol: String
 }
 
-interface UnitPreference<T : WeatherDataUnit> : BasePreferenceModel<T> {
-
-}
+interface UnitPreference<T : WeatherDataUnit> : BasePreferenceModel<T>
 
 @Serializable
 sealed class TemperatureUnit(override val symbol: String) : WeatherDataUnit {
-
     companion object : UnitPreference<TemperatureUnit> {
         override val key: String = "temperature_unit"
         override val default get() = Celsius
@@ -34,12 +31,10 @@ sealed class TemperatureUnit(override val symbol: String) : WeatherDataUnit {
         override val icon: Int? = null
         override val key: Int = 1
     }
-
 }
 
 @Serializable
 sealed class WindSpeedUnit(override val symbol: String) : WeatherDataUnit {
-
     companion object : UnitPreference<WindSpeedUnit> {
         override val key: String = "wind_speed_unit"
         override val default get() = MeterPerSecond
@@ -59,13 +54,10 @@ sealed class WindSpeedUnit(override val symbol: String) : WeatherDataUnit {
         override val title: Int = io.github.pknujsp.everyweather.core.resource.R.string.meter_per_second
         override val key: Int = 1
     }
-
-
 }
 
 @Serializable
 sealed class PrecipitationUnit(override val symbol: String) : WeatherDataUnit {
-
     companion object : UnitPreference<PrecipitationUnit> {
         override val key: String = "precipitation_unit"
         override val default get() = Millimeter

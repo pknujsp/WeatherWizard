@@ -9,11 +9,11 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 abstract class SearchHistoryDao {
-
     @Transaction
     open suspend fun insert(query: String) {
-        if (!contains(query))
+        if (!contains(query)) {
             insert(SearchHistoryDto(query = query))
+        }
     }
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)

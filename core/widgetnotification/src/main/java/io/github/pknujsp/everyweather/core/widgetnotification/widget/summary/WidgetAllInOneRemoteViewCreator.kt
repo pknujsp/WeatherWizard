@@ -15,7 +15,9 @@ import java.util.Locale
 
 class WidgetAllInOneRemoteViewCreator : WidgetRemoteViewsCreator<WidgetAllInOneRemoteViewUiModel>() {
     override fun createContentView(
-        model: WidgetAllInOneRemoteViewUiModel, header: Header, context: Context
+        model: WidgetAllInOneRemoteViewUiModel,
+        header: Header,
+        context: Context,
     ): RemoteViews {
         return RemoteViews(context.packageName, R.layout.summary_weather_widget).let { content ->
             model.currentWeather.let { currentWeather ->
@@ -39,15 +41,21 @@ class WidgetAllInOneRemoteViewCreator : WidgetRemoteViewsCreator<WidgetAllInOneR
             }
 
             model.dailyForecast.forEach {
-                content.addView(R.id.daily_forecast, RemoteViews(context.packageName, R.layout.view_daily_forecast_item).apply {
-                    setTextViewText(R.id.date, it.date)
-                    it.weatherIcons.forEach { icon ->
-                        addView(R.id.weather_icons, RemoteViews(context.packageName, R.layout.view_weather_icon_item).apply {
-                            setImageViewResource(R.id.weather_icon, icon)
-                        })
-                    }
-                    setTextViewText(R.id.temperature, it.temperature)
-                })
+                content.addView(
+                    R.id.daily_forecast,
+                    RemoteViews(context.packageName, R.layout.view_daily_forecast_item).apply {
+                        setTextViewText(R.id.date, it.date)
+                        it.weatherIcons.forEach { icon ->
+                            addView(
+                                R.id.weather_icons,
+                                RemoteViews(context.packageName, R.layout.view_weather_icon_item).apply {
+                                    setImageViewResource(R.id.weather_icon, icon)
+                                },
+                            )
+                        }
+                        setTextViewText(R.id.temperature, it.temperature)
+                    },
+                )
             }
 
             createBaseView(context, RemoteViewCreator.ContainerType.WIDGET).apply {
@@ -57,24 +65,40 @@ class WidgetAllInOneRemoteViewCreator : WidgetRemoteViewsCreator<WidgetAllInOneR
         }
     }
 
-
-    override fun createSampleView(context: Context, units: CurrentUnits): RemoteViews {
+    override fun createSampleView(
+        context: Context,
+        units: CurrentUnits,
+    ): RemoteViews {
         val dateFormatter = DateTimeFormatter.ofPattern("d E", Locale.getDefault())
-        val mockModel = WidgetAllInOneRemoteViewUiModel(currentWeather = MockDataGenerator.currentWeatherEntity.run {
-            WidgetAllInOneRemoteViewUiModel.CurrentWeather(temperature.convertUnit(units.temperatureUnit).toString(),
-                feelsLikeTemperature.convertUnit(units.temperatureUnit).toString(),
-                weatherCondition.value.dayWeatherIcon)
-        }, hourlyForecast = MockDataGenerator.hourlyForecastEntity.items.subList(0, 12).map {
-            WidgetAllInOneRemoteViewUiModel.HourlyForecast(it.temperature.convertUnit(units.temperatureUnit).toString(),
-                it.weatherCondition.value.dayWeatherIcon,
-                ZonedDateTime.parse(it.dateTime.value).hour.toString())
-        }, dailyForecast = MockDataGenerator.dailyForecastEntity.dayItems.subList(0, 5).map { dayItem ->
-            WidgetAllInOneRemoteViewUiModel.DailyForecast("${dayItem.minTemperature.convertUnit(units.temperatureUnit)}/${
-                dayItem.maxTemperature.convertUnit(units.temperatureUnit)
-            }",
-                dayItem.items.map { it.weatherCondition.value.dayWeatherIcon },
-                dateFormatter.format(ZonedDateTime.parse(dayItem.dateTime.value)))
-        })
+        val mockModel =
+            WidgetAllInOneRemoteViewUiModel(
+                currentWeather =
+                    MockDataGenerator.currentWeatherEntity.run {
+                        WidgetAllInOneRemoteViewUiModel.CurrentWeather(
+                            temperature.convertUnit(units.temperatureUnit).toString(),
+                            feelsLikeTemperature.convertUnit(units.temperatureUnit).toString(),
+                            weatherCondition.value.dayWeatherIcon,
+                        )
+                    },
+                hourlyForecast =
+                    MockDataGenerator.hourlyForecastEntity.items.subList(0, 12).map {
+                        WidgetAllInOneRemoteViewUiModel.HourlyForecast(
+                            it.temperature.convertUnit(units.temperatureUnit).toString(),
+                            it.weatherCondition.value.dayWeatherIcon,
+                            ZonedDateTime.parse(it.dateTime.value).hour.toString(),
+                        )
+                    },
+                dailyForecast =
+                    MockDataGenerator.dailyForecastEntity.dayItems.subList(0, 5).map { dayItem ->
+                        WidgetAllInOneRemoteViewUiModel.DailyForecast(
+                            "${dayItem.minTemperature.convertUnit(units.temperatureUnit)}/${
+                                dayItem.maxTemperature.convertUnit(units.temperatureUnit)
+                            }",
+                            dayItem.items.map { it.weatherCondition.value.dayWeatherIcon },
+                            dateFormatter.format(ZonedDateTime.parse(dayItem.dateTime.value)),
+                        )
+                    },
+            )
         return createContentView(mockModel, RemoteViewsMockGenerator.header, context)
     }
 }

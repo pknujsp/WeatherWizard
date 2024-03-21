@@ -6,12 +6,14 @@ import io.github.pknujsp.everyweather.core.common.manager.AppComponentManagerFac
 import kotlin.reflect.KClass
 
 object AppComponentServiceManagerFactory : AppComponentManagerFactory {
-
     val DAILY_NOTIFICATION_ALARM_MANAGER = DailyNotificationAlarmManager::class
     val ONGOING_NOTIFICATION_ALARM_MANAGER = OngoingNotificationAlarmManager::class
     val WIDGET_ALARM_MANAGER = WidgetAlarmManager::class
 
-    override fun <T : AppComponentManager> getManager(context: Context, cls: KClass<T>): T {
+    override fun <T : AppComponentManager> getManager(
+        context: Context,
+        cls: KClass<T>,
+    ): T {
         return when (cls) {
             DAILY_NOTIFICATION_ALARM_MANAGER -> DailyNotificationAlarmManager.getInstance(context) as T
             ONGOING_NOTIFICATION_ALARM_MANAGER -> OngoingNotificationAlarmManager.getInstance(context) as T
@@ -19,5 +21,4 @@ object AppComponentServiceManagerFactory : AppComponentManagerFactory {
             else -> throw IllegalArgumentException("Unknown manager type: $cls")
         }
     }
-
 }

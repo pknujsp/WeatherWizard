@@ -1,75 +1,71 @@
 package io.github.pknujsp.everyweather.feature.permoptimize.network
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.net.ConnectivityManager
 import android.net.Network
+import android.net.NetworkCapabilities
+import android.net.NetworkRequest
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.Stable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import io.github.pknujsp.everyweather.core.common.FeatureType
-import io.github.pknujsp.everyweather.core.common.manager.AppNetworkManager
-import io.github.pknujsp.everyweather.core.common.manager.AppNetworkManagerImpl
-import io.github.pknujsp.everyweather.feature.permoptimize.feature.AppFeatureState
+import io.github.pknujsp.everyweather.feature.permoptimize.BaseFeatureStateManager
 
+@SuppressLint("MissingPermission")
 @Stable
-interface NetworkState : AppFeatureState {
-    val appNetworkManager: AppNetworkManager
+private class NetworkStateManagerImpl(context: Context, override val featureType: FeatureType = FeatureType.Network) :
+    NetworkStateManager() {
+
+    private val connectivityManager: ConnectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+    private var networkCallback: ConnectivityManager.NetworkCallback? = null
+
+    fun registerNetworkCallback(networkCallback: ConnectivityManager.NetworkCallback) {
+        unregisterNetworkCallback()
+        this.networkCallback = networkCallback
+        connectivityManager.registerNetworkCallback(NetworkRequest.Builder().addTransportType(NetworkCapabilities.TRANSPORT_WIFI)
+            .addTransportType(NetworkCapabilities.TRANSPORT_CELLULAR).build(), networkCallback)
+    }
+
+    fun unregisterNetworkCallback() {
+        networkCallback?.let {
+            connectivityManager.unregisterNetworkCallback(it)
+            networkCallback = null
+        }
+    }
+
 }
 
 @Stable
-private class MutableNetworkState(
-    override val appNetworkManager: AppNetworkManager,
-    override val featureType: FeatureType = FeatureType.Network,
-) : NetworkState {
-    override var isChanged: Int by mutableIntStateOf(0)
-    override var isShowSettingsActivity by mutableStateOf(false)
-
-    override fun hideSettingsActivity() {
-        isShowSettingsActivity = false
-        isChanged++
-    }
-
-    override fun showSettingsActivity() {
-        isShowSettingsActivity = true
-    }
-
-    override fun isAvailable(context: Context): Boolean {
-        return appNetworkManager.isNetworkAvailable()
-    }
-}
+abstract class NetworkStateManager : BaseFeatureStateManager()
 
 @Composable
-fun rememberAppNetworkState(context: Context = LocalContext.current): NetworkState {
+fun rememberNetworkStateManager(context: Context = LocalContext.current): NetworkStateManager {
     val appNetworkManager = remember {
-        AppNetworkManagerImpl(context)
-    }
-    val networkUiState = remember {
-        MutableNetworkState(appNetworkManager)
+        NetworkStateManagerImpl(context)
     }
 
     DisposableEffect(appNetworkManager) {
-        appNetworkManager.registerNetworkCallback(object : ConnectivityManager.NetworkCallback() {
-            override fun onAvailable(network: Network) {
-                super.onAvailable(network)
-                networkUiState.isChanged++
-            }
+        appNetworkManager.registerNetworkCallback(
+            object : ConnectivityManager.NetworkCallback() {
+                override fun onAvailable(network: Network) {
+                    super.onAvailable(network)
+                    appNetworkManager.onChanged()
+                }
 
-            override fun onLost(network: Network) {
-                super.onLost(network)
-                networkUiState.isChanged++
-            }
-        })
+                override fun onLost(network: Network) {
+                    super.onLost(network)
+                    appNetworkManager.onChanged()
+                }
+            },
+        )
 
         onDispose {
             appNetworkManager.unregisterNetworkCallback()
         }
     }
 
-    return networkUiState
+    return appNetworkManager
 }

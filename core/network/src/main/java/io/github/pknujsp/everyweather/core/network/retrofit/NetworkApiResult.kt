@@ -10,7 +10,9 @@ sealed interface NetworkApiResult<out T> {
 
     sealed class Failure(open val exception: Throwable) : NetworkApiResult<Nothing> {
         class ApiError(exception: Throwable) : Failure(exception)
+
         class NetworkError(exception: Throwable) : Failure(exception)
+
         class UnknownError(exception: Throwable) : Failure(exception)
     }
 }

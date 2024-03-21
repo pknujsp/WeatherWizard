@@ -35,7 +35,6 @@ import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
-
 private val topAppBarHorizontalPadding = 4.dp
 private val topAppBarTitleInset = 16.dp
 
@@ -55,14 +54,18 @@ fun CustomTopAppBar(
     val collapsedFraction by remember {
         derivedStateOf { if (scrollState.value < bigTitleHeight) scrollState.value / bigTitleHeight.toFloat() else 1f }
     }
-    val nestedScrollConnection = remember {
-        object : NestedScrollConnection {
-            override suspend fun onPostFling(consumed: Velocity, available: Velocity): Velocity {
-                coroutineScope.onScroll(scrollState, bigTitleHeight, collapsedFraction)
-                return super.onPostFling(consumed, available)
+    val nestedScrollConnection =
+        remember {
+            object : NestedScrollConnection {
+                override suspend fun onPostFling(
+                    consumed: Velocity,
+                    available: Velocity,
+                ): Velocity {
+                    coroutineScope.onScroll(scrollState, bigTitleHeight, collapsedFraction)
+                    return super.onPostFling(consumed, available)
+                }
             }
         }
-    }
 
     if (scrollState.isScrollInProgress && scrollState.value != 0) {
         DisposableEffect(scrollState.isScrollInProgress) {
@@ -72,24 +75,29 @@ fun CustomTopAppBar(
         }
     }
 
-    val actionsRow: @Composable (() -> Unit)? = actions?.run {
-        @Composable { Row(verticalAlignment = Alignment.CenterVertically, content = this) }
-    }
+    val actionsRow: @Composable (() -> Unit)? =
+        actions?.run {
+            @Composable { Row(verticalAlignment = Alignment.CenterVertically, content = this) }
+        }
 
     val bigTitleBox: @Composable () -> Unit = {
-        Box(modifier = Modifier.onGloballyPositioned {
-            if (bigTitleHeight == 0) {
-                bigTitleHeight = it.size.height
-            }
-        }) {
+        Box(
+            modifier =
+                Modifier.onGloballyPositioned {
+                    if (bigTitleHeight == 0) {
+                        bigTitleHeight = it.size.height
+                    }
+                },
+        ) {
             bigTitle()
         }
     }
 
     Box(modifier = modifier.nestedScroll(nestedScrollConnection)) {
         TopAppBarLayout(
-            modifier = Modifier
-                .windowInsetsPadding(windowInsets),
+            modifier =
+                Modifier
+                    .windowInsetsPadding(windowInsets),
             navigationIconContentColor = colors.navigationIconContentColor,
             actionIconContentColor = colors.actionIconContentColor,
             smallTitleAlpha = collapsedFraction,
@@ -118,28 +126,36 @@ private fun TopAppBarLayout(
     actions: @Composable (() -> Unit)? = null,
 ) {
     Layout({
-        Box(Modifier
-            .layoutId(NAVIGATION_ICON)
-            .padding(start = topAppBarHorizontalPadding)) {
+        Box(
+            Modifier
+                .layoutId(NAVIGATION_ICON)
+                .padding(start = topAppBarHorizontalPadding),
+        ) {
             navigationIcon?.run {
                 CompositionLocalProvider(LocalContentColor provides navigationIconContentColor, content = this)
             }
         }
-        Box(Modifier
-            .layoutId(BIG_TITLE)
-            .padding(horizontal = topAppBarHorizontalPadding)
-            .graphicsLayer(alpha = 1f - smallTitleAlpha)) {
+        Box(
+            Modifier
+                .layoutId(BIG_TITLE)
+                .padding(horizontal = topAppBarHorizontalPadding)
+                .graphicsLayer(alpha = 1f - smallTitleAlpha),
+        ) {
             bigTitle()
         }
-        Box(Modifier
-            .layoutId(SMALL_TITLE)
-            .padding(horizontal = topAppBarHorizontalPadding)
-            .graphicsLayer(alpha = smallTitleAlpha)) {
+        Box(
+            Modifier
+                .layoutId(SMALL_TITLE)
+                .padding(horizontal = topAppBarHorizontalPadding)
+                .graphicsLayer(alpha = smallTitleAlpha),
+        ) {
             smallTitle()
         }
-        Box(Modifier
-            .layoutId(ACTION_ROW)
-            .padding(end = topAppBarHorizontalPadding)) {
+        Box(
+            Modifier
+                .layoutId(ACTION_ROW)
+                .padding(end = topAppBarHorizontalPadding),
+        ) {
             actions?.run {
                 CompositionLocalProvider(LocalContentColor provides actionIconContentColor, content = this)
             }
@@ -158,27 +174,30 @@ private fun TopAppBarLayout(
             navigationIconPlaceable.place(x = 0, y = 0)
             actionIconsPlaceable.place(x = constraints.maxWidth - actionIconsPlaceable.width, y = 0)
 
-            bigTitlePlaceable.place(x = (titleInset + navigationIconPlaceable.width * expandedRatio).toInt(),
-                y = navigationIconPlaceable.height - (bigTitlePlaceable.height * expandedRatio).toInt())
+            bigTitlePlaceable.place(
+                x = (titleInset + navigationIconPlaceable.width * expandedRatio).toInt(),
+                y = navigationIconPlaceable.height - (bigTitlePlaceable.height * expandedRatio).toInt(),
+            )
             smallTitlePlaceable.place(x = navigationIconPlaceable.width + titleInset, y = (layoutHeight - smallTitlePlaceable.height) / 2)
         }
     }
 }
 
-
 private val animationSpec: AnimationSpec<Float> =
     SpringSpec(dampingRatio = Spring.DampingRatioLowBouncy, stiffness = Spring.StiffnessMediumLow)
 private const val COLLAPSE_THRESHOLD = 0.5f
 
-
-private fun CoroutineScope.onScroll(scrollState: ScrollState, shiftY: Int, collapsedFraction: Float) {
+private fun CoroutineScope.onScroll(
+    scrollState: ScrollState,
+    shiftY: Int,
+    collapsedFraction: Float,
+) {
     if (scrollState.value < shiftY) {
         launch {
             scrollState.animateScrollTo(if (collapsedFraction < COLLAPSE_THRESHOLD) 0 else shiftY, animationSpec)
         }
     }
 }
-
 
 @Stable
 class CustomTopAppBarColors(

@@ -33,18 +33,23 @@ fun SingleGraph(
 
         linePoint.run {
             if (leftY != -1f) {
-                drawLine(start = Offset(0f, leftY + amountY),
+                drawLine(
+                    start = Offset(0f, leftY + amountY),
                     end = Offset(center.x, centerY + amountY),
                     color = drawInfo.lineColor,
-                    strokeWidth = drawInfo
-                        .lineThickness)
+                    strokeWidth =
+                        drawInfo
+                            .lineThickness,
+                )
             }
             if (rightY != -1f) {
-                drawLine(start = Offset(center.x, centerY + amountY),
+                drawLine(
+                    start = Offset(center.x, centerY + amountY),
                     end = Offset(size.width, rightY + amountY),
                     color = drawInfo.lineColor,
                     strokeWidth =
-                    drawInfo.lineThickness)
+                        drawInfo.lineThickness,
+                )
             }
 
             drawCircle(
@@ -60,7 +65,6 @@ fun SingleGraph(
         }
     }
 }
-
 
 @Composable
 fun MultiGraph(
@@ -78,18 +82,23 @@ fun MultiGraph(
             textLayoutResult = textMeasurer.measure(text[i], draw.textStyle)
             line.run {
                 if (leftY != -1f) {
-                    drawLine(start = Offset(0f, leftY + amountY),
+                    drawLine(
+                        start = Offset(0f, leftY + amountY),
                         end = Offset(center.x, centerY + amountY),
                         color = draw.lineColor,
-                        strokeWidth = draw
-                            .lineThickness)
+                        strokeWidth =
+                            draw
+                                .lineThickness,
+                    )
                 }
                 if (rightY != -1f) {
-                    drawLine(start = Offset(center.x, centerY + amountY),
+                    drawLine(
+                        start = Offset(center.x, centerY + amountY),
                         end = Offset(size.width, rightY + amountY),
                         color = draw.lineColor,
                         strokeWidth =
-                        draw.lineThickness)
+                            draw.lineThickness,
+                    )
                 }
 
                 drawCircle(
@@ -100,14 +109,16 @@ fun MultiGraph(
                 )
                 drawText(
                     textLayoutResult = textLayoutResult,
-                    topLeft = Offset(center.x - textLayoutResult.size.width / 2,
-                        amountY + centerY + (if (i != 0) -draw.textSpace - textLayoutResult.size.height else draw.textSpace)),
+                    topLeft =
+                        Offset(
+                            center.x - textLayoutResult.size.width / 2,
+                            amountY + centerY + (if (i != 0) -draw.textSpace - textLayoutResult.size.height else draw.textSpace),
+                        ),
                 )
             }
         }
     }
 }
-
 
 class DrawInfo(
     val lineColor: Color = Color.White,
@@ -121,9 +132,10 @@ class DrawInfo(
     val pointRadius: Float = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 4f, displayMetrics)
     val textSpace = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, space.value, displayMetrics)
 
-    val textStyle = TextStyle(
-        color = textColor,
-        fontSize = textSize,
-        textAlign = androidx.compose.ui.text.style.TextAlign.Center,
-    )
+    val textStyle =
+        TextStyle(
+            color = textColor,
+            fontSize = textSize,
+            textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+        )
 }

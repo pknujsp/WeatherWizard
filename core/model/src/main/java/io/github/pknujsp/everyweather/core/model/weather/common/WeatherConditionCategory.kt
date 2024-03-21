@@ -40,9 +40,8 @@ sealed class WeatherConditionCategory(
     @DrawableRes open val dayWeatherIcon: Int,
     @DrawableRes open val nightWeatherIcon: Int,
     val description: String,
-    open val flickrGalleryName: FlickrGalleryId
+    open val flickrGalleryName: FlickrGalleryId,
 ) {
-
     fun getWeatherIconByTimeOfDay(isDay: Boolean): Int = if (isDay) dayWeatherIcon else nightWeatherIcon
 
     @Serializable
@@ -144,7 +143,6 @@ sealed class WeatherConditionCategory(
         flickrGalleryName = FlickrGalleryId.Snow,
     )
 }
-
 
 /*
 KMA

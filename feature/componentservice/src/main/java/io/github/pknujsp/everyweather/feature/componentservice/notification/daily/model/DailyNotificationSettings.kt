@@ -10,7 +10,11 @@ import io.github.pknujsp.everyweather.core.model.notification.enums.DailyNotific
 import io.github.pknujsp.everyweather.core.model.weather.common.WeatherProvider
 
 class DailyNotificationSettings(
-    type: DailyNotificationType, location: LocationTypeModel, hour: Int, minute: Int, weatherProvider: WeatherProvider
+    type: DailyNotificationType,
+    location: LocationTypeModel,
+    hour: Int,
+    minute: Int,
+    weatherProvider: WeatherProvider,
 ) : UiModel {
     var type by mutableStateOf(type)
     var location by mutableStateOf(location)

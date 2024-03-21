@@ -9,13 +9,14 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class WeatherInfoViewModel @Inject constructor(
-    private val settingsRepository: SettingsRepository,
-) : ViewModel() {
-
-    fun replaceWeatherProvider(weatherProvider: WeatherProvider) {
-        viewModelScope.launch {
-            settingsRepository.update(WeatherProvider, weatherProvider)
+class WeatherInfoViewModel
+    @Inject
+    constructor(
+        private val settingsRepository: SettingsRepository,
+    ) : ViewModel() {
+        fun replaceWeatherProvider(weatherProvider: WeatherProvider) {
+            viewModelScope.launch {
+                settingsRepository.update(WeatherProvider, weatherProvider)
+            }
         }
     }
-}

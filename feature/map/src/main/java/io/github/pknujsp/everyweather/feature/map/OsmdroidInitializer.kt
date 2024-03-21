@@ -13,7 +13,6 @@ import org.osmdroid.tileprovider.util.SimpleRegisterReceiver
 import org.osmdroid.views.MapView
 import java.util.concurrent.atomic.AtomicBoolean
 
-
 object OsmdroidInitializer {
     private const val MAPSFORGE_MAP_FILES_DIR = "mapsforge"
     private const val MAPSFORGE_MAP_FILE_FORMAT = ".map"
@@ -42,25 +41,27 @@ object OsmdroidInitializer {
         }
     }
 
-    private fun getMapsForgeTileSource(context: Context): MapsForgeTileSource = synchronized(this) {
-        mapsForgeTileSource ?: run {
-            val assetManager = context.assets
-            val mapsForgeFiles = assetManager.list(MAPSFORGE_MAP_FILES_DIR)?.filter {
-                it.endsWith(MAPSFORGE_MAP_FILE_FORMAT)
-            }?.map {
-                assetManager.open("$MAPSFORGE_MAP_FILES_DIR/$it").use { inputStream ->
-                    val file = context.getFileStreamPath(it)
-                    inputStream.copyTo(file.outputStream())
-                    file
-                }
-            }?.toTypedArray()
+    private fun getMapsForgeTileSource(context: Context): MapsForgeTileSource =
+        synchronized(this) {
+            mapsForgeTileSource ?: run {
+                val assetManager = context.assets
+                val mapsForgeFiles =
+                    assetManager.list(MAPSFORGE_MAP_FILES_DIR)?.filter {
+                        it.endsWith(MAPSFORGE_MAP_FILE_FORMAT)
+                    }?.map {
+                        assetManager.open("$MAPSFORGE_MAP_FILES_DIR/$it").use { inputStream ->
+                            val file = context.getFileStreamPath(it)
+                            inputStream.copyTo(file.outputStream())
+                            file
+                        }
+                    }?.toTypedArray()
 
-            MapsForgeTileSource.createFromFiles(mapsForgeFiles).apply {
-                setUserScaleFactor(0.7f)
-                mapsForgeTileSource = this
+                MapsForgeTileSource.createFromFiles(mapsForgeFiles).apply {
+                    setUserScaleFactor(0.7f)
+                    mapsForgeTileSource = this
+                }
             }
         }
-    }
 
     fun getMapsForgeTileProvider(context: Context): MapsForgeTileProvider =
         MapsForgeTileProvider(SimpleRegisterReceiver(context), getMapsForgeTileSource(context), null)
@@ -80,6 +81,4 @@ object OsmdroidInitializer {
             isVerticalMapRepetitionEnabled = true
         }
     }
-
-
 }

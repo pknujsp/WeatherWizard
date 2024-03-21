@@ -39,7 +39,10 @@ private val barGraphTheme = BarGraphTheme.Small
 private val dateTimeHeight = (barGraphTheme.dateTextStyle.fontSize.value + barGraphTheme.dayTextStyle.fontSize.value).dp
 
 @Composable
-fun BarGraph(forecast: List<SimpleAirQuality.DailyItem>, dateTime: LocalDate) {
+fun BarGraph(
+    forecast: List<SimpleAirQuality.DailyItem>,
+    dateTime: LocalDate,
+) {
     val textMeasurer = rememberTextMeasurer()
     Row(
         verticalAlignment = Alignment.Bottom,
@@ -51,36 +54,46 @@ fun BarGraph(forecast: List<SimpleAirQuality.DailyItem>, dateTime: LocalDate) {
     }
 }
 
-
 @Composable
 private fun Bar(
-    barGraphTheme: BarGraphTheme, item: SimpleAirQuality.DailyItem, today: LocalDate, textMeasurer: TextMeasurer
+    barGraphTheme: BarGraphTheme,
+    item: SimpleAirQuality.DailyItem,
+    today: LocalDate,
+    textMeasurer: TextMeasurer,
 ) {
-    Column(modifier = Modifier
-        .width(barGraphTheme.barSize.width)
-        .fillMaxHeight(),
+    Column(
+        modifier =
+            Modifier
+                .width(barGraphTheme.barSize.width)
+                .fillMaxHeight(),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(4.dp)) {
-
-        val aqiStatusTextResult = textMeasurer.measure(stringResource(id = item.aqi.airQualityDescription.descriptionStringId),
-            barGraphTheme.indexTextStyle,
-            overflow = TextOverflow.Visible,
-            maxLines = 1)
+        verticalArrangement = Arrangement.spacedBy(4.dp),
+    ) {
+        val aqiStatusTextResult =
+            textMeasurer.measure(
+                stringResource(id = item.aqi.airQualityDescription.descriptionStringId),
+                barGraphTheme.indexTextStyle,
+                overflow = TextOverflow.Visible,
+                maxLines = 1,
+            )
 
         Canvas(
-            modifier = Modifier
-                .fillMaxWidth()
-                .graphicsLayer(clip = false)
-                .padding(horizontal = barGraphTheme.barSize.horizontalPadding)
-                .height(barGraphTheme.barSize.height),
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .graphicsLayer(clip = false)
+                    .padding(horizontal = barGraphTheme.barSize.horizontalPadding)
+                    .height(barGraphTheme.barSize.height),
         ) {
             val barHeight = (size.height - aqiStatusTextResult.size.height) * item.barHeightRatio
             val barTop = size.height - barHeight
 
-            drawRoundRect(color = item.aqi.airQualityDescription.color,
+            drawRoundRect(
+                color = item.aqi.airQualityDescription.color,
                 topLeft = Offset(0f, barTop),
                 size = Size(size.width, barHeight),
-                cornerRadius = CornerRadius(4.dp.toPx()))
+                cornerRadius = CornerRadius(4.dp.toPx()),
+            )
 
             drawText(
                 aqiStatusTextResult,
@@ -90,28 +103,34 @@ private fun Bar(
 
         val isToday = item.dateTime.isEqual(today)
         Text(
-            text = if (isToday) {
-                listOf(
-                    AStyle(stringResource(id = R.string.today),
-                        paragraph = barGraphTheme.dateTextStyle.toParagraphStyle(),
-                        span = barGraphTheme.dateTextStyle.toSpanStyle()),
-                )
-            } else {
-                listOf(
-                    AStyle(item.dateTime.format(dateFormatter),
-                        paragraph = barGraphTheme.dateTextStyle.toParagraphStyle(),
-                        span = barGraphTheme.dateTextStyle.toSpanStyle()),
-                    AStyle(item.dateTime.format(dayFormatter),
-                        paragraph = barGraphTheme.dayTextStyle.toParagraphStyle(),
-                        span = barGraphTheme.dayTextStyle.toSpanStyle()),
-                )
-            }.toAnnotated(),
+            text =
+                if (isToday) {
+                    listOf(
+                        AStyle(
+                            stringResource(id = R.string.today),
+                            paragraph = barGraphTheme.dateTextStyle.toParagraphStyle(),
+                            span = barGraphTheme.dateTextStyle.toSpanStyle(),
+                        ),
+                    )
+                } else {
+                    listOf(
+                        AStyle(
+                            item.dateTime.format(dateFormatter),
+                            paragraph = barGraphTheme.dateTextStyle.toParagraphStyle(),
+                            span = barGraphTheme.dateTextStyle.toSpanStyle(),
+                        ),
+                        AStyle(
+                            item.dateTime.format(dayFormatter),
+                            paragraph = barGraphTheme.dayTextStyle.toParagraphStyle(),
+                            span = barGraphTheme.dayTextStyle.toSpanStyle(),
+                        ),
+                    )
+                }.toAnnotated(),
             overflow = TextOverflow.Visible,
             maxLines = 2,
             textAlign = TextAlign.Center,
             lineHeight = barGraphTheme.dateTextStyle.fontSize,
             modifier = Modifier.height(dateTimeHeight),
         )
-
     }
 }

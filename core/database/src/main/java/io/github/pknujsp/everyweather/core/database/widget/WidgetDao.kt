@@ -8,7 +8,6 @@ import io.github.pknujsp.everyweather.core.model.widget.WidgetStatus
 
 @Dao
 interface WidgetDao {
-
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(widgetDto: WidgetDto): Long
 
@@ -31,6 +30,10 @@ interface WidgetDao {
     suspend fun containsId(id: Int): Boolean
 
     @Query("UPDATE widgets SET response_data = :responseData, updated_at = :updatedAt, status = :status WHERE id = :id")
-    suspend fun updateResponseData(id: Int, status: WidgetStatus, responseData: ByteArray?, updatedAt: String)
-
+    suspend fun updateResponseData(
+        id: Int,
+        status: WidgetStatus,
+        responseData: ByteArray?,
+        updatedAt: String,
+    )
 }

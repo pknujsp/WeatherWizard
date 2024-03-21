@@ -12,7 +12,7 @@ import java.time.format.DateTimeFormatter
 
 class SimpleDailyForecast(
     dailyForecastEntity: DailyForecastEntity,
-    units: CurrentUnits
+    units: CurrentUnits,
 ) : UiModel {
     val items: List<Item>
     val displayPrecipitationProbability: Boolean
@@ -28,32 +28,36 @@ class SimpleDailyForecast(
     init {
         var minTemperature: TemperatureValueType
         var maxTemperature: TemperatureValueType
-        items = dailyForecastEntity.dayItems.mapIndexed { id, dayItem ->
-            minTemperature = dayItem.minTemperature.convertUnit(units.temperatureUnit)
-            maxTemperature = dayItem.maxTemperature.convertUnit(units.temperatureUnit)
-            Item(
-                id = id,
-                date = dateFormatter.format(ZonedDateTime.parse(dayItem.dateTime.value)),
-                minTemperature = minTemperature.toString(),
-                maxTemperature = maxTemperature.toString(),
-                minTemperatureInt = minTemperature.value.toInt(),
-                maxTemperatureInt = maxTemperature.value.toInt(),
-                weatherConditionIcons = dayItem.items.map { item -> item.weatherCondition.value.dayWeatherIcon },
-                weatherConditions = dayItem.items.map { item -> item.weatherCondition.value.stringRes },
-                precipitationProbabilities = dayItem.items.map { item ->
-                    item.precipitationProbability.toString()
-                }
-            )
-        }
+        items =
+            dailyForecastEntity.dayItems.mapIndexed { id, dayItem ->
+                minTemperature = dayItem.minTemperature.convertUnit(units.temperatureUnit)
+                maxTemperature = dayItem.maxTemperature.convertUnit(units.temperatureUnit)
+                Item(
+                    id = id,
+                    date = dateFormatter.format(ZonedDateTime.parse(dayItem.dateTime.value)),
+                    minTemperature = minTemperature.toString(),
+                    maxTemperature = maxTemperature.toString(),
+                    minTemperatureInt = minTemperature.value.toInt(),
+                    maxTemperatureInt = maxTemperature.value.toInt(),
+                    weatherConditionIcons = dayItem.items.map { item -> item.weatherCondition.value.dayWeatherIcon },
+                    weatherConditions = dayItem.items.map { item -> item.weatherCondition.value.stringRes },
+                    precipitationProbabilities =
+                        dayItem.items.map { item ->
+                            item.precipitationProbability.toString()
+                        },
+                )
+            }
         val nonPop = "-"
         displayPrecipitationProbability = items.any { it -> it.precipitationProbabilities.any { it != nonPop } }
     }
 
-
     data class Item(
         val id: Int,
-        val date: String, val minTemperature: String, val maxTemperature: String,
-        val minTemperatureInt: Int, val maxTemperatureInt: Int,
+        val date: String,
+        val minTemperature: String,
+        val maxTemperature: String,
+        val minTemperatureInt: Int,
+        val maxTemperatureInt: Int,
         val weatherConditionIcons: List<Int>,
         val weatherConditions: List<Int>,
         val precipitationProbabilities: List<String>,

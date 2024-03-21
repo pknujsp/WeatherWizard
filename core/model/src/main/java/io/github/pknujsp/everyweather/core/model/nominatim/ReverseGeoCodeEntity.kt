@@ -17,15 +17,15 @@ data class ReverseGeoCodeEntity(
     val suburb: String,
     val natural: String,
 ) : EntityModel {
+    val simpleDisplayName: String =
+        StringBuilder().apply {
+            if (province.isNotEmpty()) append(" ").append(province)
+            if (city.isNotEmpty()) append(" ").append(city)
+            if (county.isNotEmpty()) append(" ").append(county)
+            if (suburb.isNotEmpty()) append(" ").append(suburb)
+            if (natural.isNotEmpty()) append(" ").append(natural)
+            if (quarter.isNotEmpty()) append(" ").append(quarter)
 
-    val simpleDisplayName: String = StringBuilder().apply {
-        if (province.isNotEmpty()) append(" ").append(province)
-        if (city.isNotEmpty()) append(" ").append(city)
-        if (county.isNotEmpty()) append(" ").append(county)
-        if (suburb.isNotEmpty()) append(" ").append(suburb)
-        if (natural.isNotEmpty()) append(" ").append(natural)
-        if (quarter.isNotEmpty()) append(" ").append(quarter)
-
-        if (isEmpty()) append(displayName.replace(", $country", ""))
-    }.toString().trim()
+            if (isEmpty()) append(displayName.replace(", $country", ""))
+        }.toString().trim()
 }

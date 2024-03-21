@@ -37,5 +37,5 @@ enum class FailedReason : StatefulFeature {
         override val action: Int = R.string.reload
         override val hasRetryAction: Boolean = true
         override val hasRepairAction: Boolean = false
-    };
+    },
 }

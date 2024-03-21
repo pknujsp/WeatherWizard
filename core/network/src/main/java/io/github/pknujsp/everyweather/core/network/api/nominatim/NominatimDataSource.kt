@@ -6,5 +6,8 @@ import io.github.pknujsp.everyweather.core.network.api.nominatim.response.Revers
 interface NominatimDataSource {
     suspend fun getCode(query: String): Result<GeoCodeResponse>
 
-    suspend fun reverseGeoCode(latitude: Double, longitude: Double): Result<ReverseGeoCodeResponse>
+    suspend fun reverseGeoCode(
+        latitude: Double,
+        longitude: Double,
+    ): Result<ReverseGeoCodeResponse>
 }

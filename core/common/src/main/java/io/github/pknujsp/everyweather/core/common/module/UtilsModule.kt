@@ -11,19 +11,18 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 object UtilsModule {
-
     @Provides
     @Singleton
     @KtJson
-    fun providesKtJson(): Json = Json {
-        ignoreUnknownKeys = true
-        isLenient = true
-        coerceInputValues = true
-        encodeDefaults = true
-        prettyPrint = true
-        allowSpecialFloatingPointValues = true
-    }
-
+    fun providesKtJson(): Json =
+        Json {
+            ignoreUnknownKeys = true
+            isLenient = true
+            coerceInputValues = true
+            encodeDefaults = true
+            prettyPrint = true
+            allowSpecialFloatingPointValues = true
+        }
 }
 
 @Qualifier

@@ -29,55 +29,74 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import dev.jeziellago.compose.markdowntext.MarkdownText
 import io.github.pknujsp.everyweather.core.resource.R
-import io.github.pknujsp.everyweather.core.ui.ModalBottomSheetDialog
+import io.github.pknujsp.everyweather.core.ui.dialog.BottomSheet
+import io.github.pknujsp.everyweather.core.ui.dialog.BottomSheetType
+import io.github.pknujsp.everyweather.core.ui.dialog.ContentWithTitle
 import io.github.pknujsp.everyweather.core.ui.theme.AppShapes
 
+private const val HEIGHT_RATIO = 0.55f
 
 @Composable
-fun SummaryScreen(model: WeatherSummaryPrompt.Model, onDismiss: () -> Unit, summaryTextViewModel: SummaryTextViewModel = hiltViewModel()) {
+fun SummaryScreen(
+    model: WeatherSummaryPrompt.Model,
+    summaryTextViewModel: SummaryTextViewModel = hiltViewModel(),
+    onDismiss: () -> Unit,
+) {
     val uiState = summaryTextViewModel.uiState
     LaunchedEffect(model) {
         summaryTextViewModel.summarize(model)
     }
 
-    ModalBottomSheetDialog(title = stringResource(id = R.string.title_ai_summary), onDismiss = onDismiss) {
-        val scrollState = rememberScrollState()
+    BottomSheet(bottomSheetType = BottomSheetType.PERSISTENT, onDismissRequest = onDismiss, maxHeightRatio = HEIGHT_RATIO) {
+        ContentWithTitle(title = stringResource(id = R.string.title_ai_summary)) {
+            val scrollState = rememberScrollState()
 
-        LaunchedEffect(uiState.summaryText) {
-            scrollState.scrollTo(scrollState.maxValue)
-        }
+            LaunchedEffect(uiState.summaryText) {
+                scrollState.scrollTo(scrollState.maxValue)
+            }
 
-        Box(modifier = Modifier.fillMaxSize()) {
-            Column(modifier = Modifier
-                .fillMaxSize()
-                .verticalScroll(scrollState, true)) {
-                MarkdownText(
-                    style = TextStyle(color = Color.Black, fontSize = 15.sp, lineHeight = 4.sp),
-                    markdown = if (uiState.error != null) stringResource(id = uiState.error!!) else uiState.summaryText,
-                    linkifyMask = Linkify.WEB_URLS,
-                )
-            }
-            TextPlaceHolder {
-                uiState.isWaitingFirstResponse
-            }
-            if (uiState.isSummarizing || uiState.isStopped) {
-                SummarizingCard(uiState = uiState, stop = {
-                    summaryTextViewModel.stopOrResume()
-                })
+            Box(modifier = Modifier.fillMaxSize()) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .verticalScroll(scrollState, true),
+                ) {
+                    MarkdownText(
+                        style = TextStyle(color = Color.Black, fontSize = 15.sp, lineHeight = 4.sp),
+                        markdown = if (uiState.error != null) stringResource(id = uiState.error!!) else uiState.summaryText,
+                        linkifyMask = Linkify.WEB_URLS,
+                    )
+                }
+                TextPlaceHolder {
+                    uiState.isWaitingFirstResponse
+                }
+                if (uiState.isSummarizing || uiState.isStopped) {
+                    SummarizingCard(uiState = uiState, stop = {
+                        summaryTextViewModel.stopOrResume()
+                    })
+                }
             }
         }
     }
 }
 
 @Composable
-private fun BoxScope.SummarizingCard(modifier: Modifier = Modifier, uiState: SummaryUiState, stop: () -> Unit) {
+private fun BoxScope.SummarizingCard(
+    modifier: Modifier = Modifier,
+    uiState: SummaryUiState,
+    stop: () -> Unit,
+) {
     val currentStopOrResume by rememberUpdatedState(newValue = stop)
-    Box(modifier = modifier
-        .padding(bottom = 8.dp)
-        .align(Alignment.BottomCenter)) {
-        OutlinedButton(onClick = currentStopOrResume,
+    Box(
+        modifier = modifier
+            .padding(bottom = 8.dp)
+            .align(Alignment.BottomCenter),
+    ) {
+        OutlinedButton(
+            onClick = currentStopOrResume,
             shape = AppShapes.extraLarge,
-            colors = ButtonDefaults.outlinedButtonColors(containerColor = Color.White)) {
+            colors = ButtonDefaults.outlinedButtonColors(containerColor = Color.White),
+        ) {
             Row(
                 horizontalArrangement = Arrangement.spacedBy(6.dp, Alignment.CenterHorizontally),
                 verticalAlignment = Alignment.CenterVertically,

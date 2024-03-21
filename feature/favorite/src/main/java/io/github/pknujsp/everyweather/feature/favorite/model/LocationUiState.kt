@@ -15,6 +15,8 @@ interface LocationUiState {
 
 sealed interface LoadCurrentLocationState {
     data class Success(val addressName: String) : LoadCurrentLocationState
+
     data class Failed(val statefulFeature: StatefulFeature) : LoadCurrentLocationState
+
     data object Loading : LoadCurrentLocationState
 }

@@ -1,6 +1,5 @@
 package io.github.pknujsp.everyweather.core.network.api.kma.parser
 
-
 data class ParsedKmaDailyForecast(
     val date: String = "",
     val isSingle: Boolean = false,
@@ -14,5 +13,4 @@ data class ParsedKmaDailyForecast(
         var weatherDescription: String = "",
         var pop: Int,
     )
-
 }

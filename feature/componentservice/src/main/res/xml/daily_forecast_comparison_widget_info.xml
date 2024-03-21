@@ -9,7 +9,7 @@
     android:minHeight="180dp"
     android:minResizeWidth="340dp"
     android:minResizeHeight="180dp"
-    android:previewImage="@drawable/example_appwidget_preview"
+    android:previewImage="@drawable/widget_cmp_daily_forecast"
     android:resizeMode="horizontal|vertical"
     android:targetCellWidth="5"
     android:targetCellHeight="2"

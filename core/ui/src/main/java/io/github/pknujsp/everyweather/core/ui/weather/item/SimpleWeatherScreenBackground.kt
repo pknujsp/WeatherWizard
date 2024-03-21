@@ -1,6 +1,5 @@
 package io.github.pknujsp.everyweather.core.ui.weather.item
 
-
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -33,14 +32,18 @@ import io.github.pknujsp.everyweather.core.resource.R
 import io.github.pknujsp.everyweather.core.ui.button.SecondaryButton
 import io.github.pknujsp.everyweather.core.ui.theme.AppShapes
 
-private val backgroundColor = Color(150, 140, 155, 215)
+private val backgroundColor = Color(179, 179, 179, 225)
 
 @Composable
-private fun DefaultSurface(modifier: Modifier, content: @Composable () -> Unit) {
+private fun DefaultSurface(
+    modifier: Modifier,
+    content: @Composable () -> Unit,
+) {
     Surface(
-        modifier = modifier
-            .fillMaxWidth()
-            .wrapContentHeight(),
+        modifier =
+            modifier
+                .fillMaxWidth()
+                .wrapContentHeight(),
         shape = AppShapes.large,
         color = backgroundColor,
     ) {
@@ -49,12 +52,18 @@ private fun DefaultSurface(modifier: Modifier, content: @Composable () -> Unit) 
 }
 
 @Composable
-fun SimpleWeatherScreenBackground(modifier: Modifier = Modifier, cardInfo: CardInfo) {
+fun SimpleWeatherScreenBackground(
+    modifier: Modifier = Modifier,
+    cardInfo: CardInfo,
+) {
     DefaultSurface(modifier = modifier) {
-        Column(modifier = modifier
-            .padding(vertical = 12.dp)
-            .fillMaxWidth()
-            .wrapContentHeight()) {
+        Column(
+            modifier =
+                modifier
+                    .padding(vertical = 12.dp)
+                    .fillMaxWidth()
+                    .wrapContentHeight(),
+        ) {
             Row(
                 modifier = Modifier.padding(horizontal = 16.dp, vertical = 0.dp),
                 verticalAlignment = Alignment.CenterVertically,
@@ -70,19 +79,27 @@ fun SimpleWeatherScreenBackground(modifier: Modifier = Modifier, cardInfo: CardI
     }
 }
 
-
 @Composable
-fun SimpleWeatherFailedBox(title: String, description: String, onClick: () -> Unit) {
+fun SimpleWeatherFailedBox(
+    title: String,
+    description: String,
+    onClick: () -> Unit,
+) {
     DefaultSurface(Modifier) {
-        Column(horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier
-                .padding(vertical = 12.dp, horizontal = 12.dp)
-                .fillMaxWidth()
-                .wrapContentHeight(),
-            verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            Text(text = title,
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier =
+                Modifier
+                    .padding(vertical = 12.dp, horizontal = 12.dp)
+                    .fillMaxWidth()
+                    .wrapContentHeight(),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
+            Text(
+                text = title,
                 style = TextStyle(fontSize = 18.sp, color = Color.White),
-                modifier = Modifier.padding(start = 32.dp, end = 32.dp))
+                modifier = Modifier.padding(start = 32.dp, end = 32.dp),
+            )
             Text(text = description, style = TextStyle(fontSize = 12.sp, color = Color.White))
             SecondaryButton(onClick = onClick, text = stringResource(id = R.string.reload))
         }
@@ -91,9 +108,10 @@ fun SimpleWeatherFailedBox(title: String, description: String, onClick: () -> Un
 
 @Stable
 data class CardInfo(
-    val title: String, val buttons: List<Pair<String, () -> Unit>> = emptyList(), val content: @Composable () -> Unit
+    val title: String,
+    val buttons: List<Pair<String, () -> Unit>> = emptyList(),
+    val content: @Composable () -> Unit,
 )
-
 
 @Composable
 fun CustomTextButton(
@@ -102,12 +120,20 @@ fun CustomTextButton(
     modifier: Modifier = Modifier,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
 ) {
-    Box(modifier = modifier
-        .background(Color.Transparent, ButtonDefaults.textShape)
-        .defaultMinSize(minWidth = ButtonDefaults.MinWidth, minHeight = 0.dp)
-        .clickable(interactionSource = interactionSource, indication = rememberRipple(bounded = false), enabled = true, onClick = onClick),
+    Box(
+        modifier =
+            modifier
+                .background(Color.Transparent, ButtonDefaults.textShape)
+                .defaultMinSize(minWidth = ButtonDefaults.MinWidth, minHeight = 0.dp)
+                .clickable(
+                    interactionSource = interactionSource,
+                    indication = rememberRipple(bounded = false),
+                    enabled = true,
+                    onClick = onClick,
+                ),
         propagateMinConstraints = true,
-        contentAlignment = Alignment.Center) {
+        contentAlignment = Alignment.Center,
+    ) {
         Text(text = text, style = TextStyle(color = Color.White, fontSize = 14.sp, textAlign = TextAlign.Center))
     }
 }

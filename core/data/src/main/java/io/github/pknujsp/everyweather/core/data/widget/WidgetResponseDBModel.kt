@@ -1,7 +1,7 @@
 package io.github.pknujsp.everyweather.core.data.widget
 
-import io.github.pknujsp.everyweather.core.model.EntityModel
 import io.github.pknujsp.everyweather.core.data.mapper.JsonParser
+import io.github.pknujsp.everyweather.core.model.EntityModel
 import io.github.pknujsp.everyweather.core.model.airquality.AirQualityEntity
 import io.github.pknujsp.everyweather.core.model.weather.base.WeatherEntityModel
 import io.github.pknujsp.everyweather.core.model.weather.common.MajorWeatherEntityType
@@ -19,7 +19,6 @@ class WidgetResponseDBModel(
     @SerialName("longitude") val longitude: Double,
     @SerialName("entities") val entities: List<EntityWithWeatherProvider>,
 ) : EntityModel {
-
     @Serializable
     class EntityWithWeatherProvider(
         @SerialName("weatherProvider") val weatherProvider: Int,
@@ -31,9 +30,11 @@ class WidgetResponseDBModel(
         @SerialName("type") val type: String,
         @SerialName("data") val data: ByteArray,
     ) {
-
         companion object {
-            private fun realTypeParse(jsonParser: JsonParser, model: Entity) = when (MajorWeatherEntityType.valueOf(model.type)) {
+            private fun realTypeParse(
+                jsonParser: JsonParser,
+                model: Entity,
+            ) = when (MajorWeatherEntityType.valueOf(model.type)) {
                 MajorWeatherEntityType.CURRENT_CONDITION -> jsonParser.parse<CurrentWeatherEntity>(model.data)
                 MajorWeatherEntityType.YESTERDAY_WEATHER -> jsonParser.parse<YesterdayWeatherEntity>(model.data)
                 MajorWeatherEntityType.HOURLY_FORECAST -> jsonParser.parse<HourlyForecastEntity>(model.data)
@@ -50,5 +51,4 @@ class WidgetResponseDBModel(
     fun toByteArray(jsonParser: JsonParser): ByteArray {
         return jsonParser.parseToByteArray(this)
     }
-
 }

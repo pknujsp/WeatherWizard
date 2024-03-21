@@ -20,9 +20,8 @@ import java.time.ZonedDateTime
 
 @Stable
 class DetailHourlyForecast(
-    val items: List<Pair<Header, List<Item>>>
+    val items: List<Pair<Header, List<Item>>>,
 ) : UiModel {
-
     val displayRainfallVolume = items.any { it.second.any { item -> item.rainfallVolume.isNotEmpty() } }
     val displaySnowfallVolume = items.any { it.second.any { item -> item.snowfallVolume.isNotEmpty() } }
     val displayPrecipitationVolume = items.any { it.second.any { item -> item.precipitationVolume.isNotEmpty() } }
@@ -50,7 +49,6 @@ class DetailHourlyForecast(
         precipitationProbability: ProbabilityValueType,
         dayNightCalculator: DayNightCalculator,
     ) : UiModel {
-
         val temperature: String = temperature.toString()
         val temperatureInt: Int = temperature.value.toInt()
         val precipitationProbability: String = precipitationProbability.toString()
@@ -60,6 +58,7 @@ class DetailHourlyForecast(
 
         @DrawableRes val weatherIcon: Int
         val time: String
+
         @StringRes val weatherCondition: Int = weatherCondition.value.stringRes
 
         init {
@@ -69,7 +68,5 @@ class DetailHourlyForecast(
                 time = hour.toString()
             }
         }
-
     }
-
 }

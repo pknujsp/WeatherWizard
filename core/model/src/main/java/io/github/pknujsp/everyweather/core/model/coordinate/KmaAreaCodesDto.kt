@@ -18,6 +18,7 @@ class KmaAreaCodesDto(
     @ColumnInfo(name = "longitude") val lon: Double,
 ) {
     @Ignore val latitude: Double = lat.toCoordinate()
+
     @Ignore val longitude: Double = lon.toCoordinate()
 }
 

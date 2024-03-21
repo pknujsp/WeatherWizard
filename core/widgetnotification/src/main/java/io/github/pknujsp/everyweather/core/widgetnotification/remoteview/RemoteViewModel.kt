@@ -10,31 +10,30 @@ import kotlinx.coroutines.flow.filterNotNull
 abstract class RemoteViewModel(
     protected val getCurrentLocationUseCase: GetCurrentLocationAddress,
 ) {
-
-    protected suspend fun getCurrentLocation() = callbackFlow {
-        if (getCurrentLocationUseCase.geoCodeFlow.value == null) {
-            getCurrentLocationUseCase()
+    protected suspend fun getCurrentLocation() =
+        callbackFlow {
+            if (getCurrentLocationUseCase.geoCodeFlow.value == null) {
+                getCurrentLocationUseCase()
+            }
+            getCurrentLocationUseCase.geoCodeFlow.filterNotNull().collect {
+                send(parseCurrentLocationResult(it))
+                this.cancel()
+            }
         }
-        getCurrentLocationUseCase.geoCodeFlow.filterNotNull().collect {
-            send(parseCurrentLocationResult(it))
-            this.cancel()
+
+    private fun parseCurrentLocationResult(locationGeoCodeState: LocationGeoCodeState): CurrentLocationResult =
+        when (locationGeoCodeState) {
+            is LocationGeoCodeState.Success ->
+                CurrentLocationResult.Success(
+                    locationGeoCodeState.latitude,
+                    locationGeoCodeState.longitude,
+                    locationGeoCodeState.address,
+                )
+
+            is LocationGeoCodeState.Failure -> CurrentLocationResult.Failure(locationGeoCodeState.reason)
         }
-    }
-
-    private fun parseCurrentLocationResult(
-        locationGeoCodeState: LocationGeoCodeState
-    ): CurrentLocationResult = when (locationGeoCodeState) {
-        is LocationGeoCodeState.Success -> CurrentLocationResult.Success(
-            locationGeoCodeState.latitude,
-            locationGeoCodeState.longitude,
-            locationGeoCodeState.address,
-        )
-
-        is LocationGeoCodeState.Failure -> CurrentLocationResult.Failure(locationGeoCodeState.reason)
-    }
 
     protected sealed interface CurrentLocationResult {
-
         class Success(
             val latitude: Double,
             val longitude: Double,
@@ -42,8 +41,7 @@ abstract class RemoteViewModel(
         ) : CurrentLocationResult
 
         class Failure(
-            val reason: StatefulFeature
+            val reason: StatefulFeature,
         ) : CurrentLocationResult
-
     }
 }

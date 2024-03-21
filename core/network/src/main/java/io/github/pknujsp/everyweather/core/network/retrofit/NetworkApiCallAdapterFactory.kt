@@ -13,18 +13,23 @@ import java.lang.reflect.Type
 
 @Keep
 internal class NetworkApiCallAdapterFactory : CallAdapter.Factory() {
-
-    override fun get(returnType: Type, annotations: Array<out Annotation>, retrofit: Retrofit): CallAdapter<*, *>? {
-        if (Call::class.java != getRawType(returnType))
+    override fun get(
+        returnType: Type,
+        annotations: Array<out Annotation>,
+        retrofit: Retrofit,
+    ): CallAdapter<*, *>? {
+        if (Call::class.java != getRawType(returnType)) {
             return null
+        }
 
         check(returnType is ParameterizedType) {
             "반환 유형은 Call<NetworkApiResult<<Foo>> or Call<NetworkApiResult<out Foo>>로 매개변수화 되어야 합니다."
         }
 
         val responseType = getParameterUpperBound(0, returnType)
-        if (getRawType(responseType) != NetworkApiResult::class.java)
+        if (getRawType(responseType) != NetworkApiResult::class.java) {
             return null
+        }
 
         check(responseType is ParameterizedType) { "응답은 NetworkApiResult<Foo> or NetworkApiResult<out Foo>로 매개변수화 되어야 합니다." }
 
@@ -48,47 +53,52 @@ internal class NetworkApiCall<R>(
     private val delegate: Call<R>,
     private val successType: Type,
 ) : Call<NetworkApiResult<R>> {
+    override fun enqueue(callback: Callback<NetworkApiResult<R>>) =
+        delegate.enqueue(
+            object : Callback<R> {
+                override fun onResponse(
+                    call: Call<R>,
+                    response: Response<R>,
+                ) {
+                    val isSuccessful = response.isSuccessful
+                    val errorBody = response.errorBody()
 
-    override fun enqueue(callback: Callback<NetworkApiResult<R>>) = delegate.enqueue(
-        object : Callback<R> {
+                    if (!isSuccessful) {
+                        // errorBody가 null인 경우 -> UnknownError
+                        // 아닌 경우 -> NetworkError
+                        val throwable = Throwable(errorBody?.string() ?: "네트워크 응답 중 알수 없는 오류가 발생하였습니다!")
+                        return callback.onResponse(
+                            this@NetworkApiCall,
+                            Response.success(
+                                errorBody?.let { NetworkApiResult.Failure.ApiError(throwable) }
+                                    ?: NetworkApiResult.Failure.UnknownError(throwable),
+                            ),
+                        )
+                    }
 
-            override fun onResponse(call: Call<R>, response: Response<R>) {
-                val isSuccessful = response.isSuccessful
-                val errorBody = response.errorBody()
-
-                if (!isSuccessful) {
-                    // errorBody가 null인 경우 -> UnknownError
-                    // 아닌 경우 -> NetworkError
-                    val throwable = Throwable(errorBody?.string() ?: "네트워크 응답 중 알수 없는 오류가 발생하였습니다!")
+                    // body가 null인 경우 -> ApiError
+                    // 아닌 경우 -> Success
                     return callback.onResponse(
                         this@NetworkApiCall,
                         Response.success(
-                            errorBody?.let { NetworkApiResult.Failure.ApiError(throwable) }
-                                ?: NetworkApiResult.Failure.UnknownError(throwable),
+                            response.body()?.let { NetworkApiResult.Success(it) }
+                                ?: NetworkApiResult.Failure.UnknownError(
+                                    IllegalStateException(
+                                        "네트워크 응답 결과 body가 null입니다!",
+                                    ),
+                                ),
                         ),
                     )
                 }
 
-                // body가 null인 경우 -> ApiError
-                // 아닌 경우 -> Success
-                return callback.onResponse(
-                    this@NetworkApiCall,
-                    Response.success(
-                        response.body()?.let { NetworkApiResult.Success(it) }
-                            ?: NetworkApiResult.Failure.UnknownError(
-                                IllegalStateException(
-                                    "네트워크 응답 결과 body가 null입니다!",
-                                ),
-                            ),
-                    ),
-                )
-            }
-
-            override fun onFailure(call: Call<R?>, throwable: Throwable) {
-                callback.onResponse(this@NetworkApiCall, Response.success(NetworkApiResult.Failure.NetworkError(throwable)))
-            }
-        },
-    )
+                override fun onFailure(
+                    call: Call<R?>,
+                    throwable: Throwable,
+                ) {
+                    callback.onResponse(this@NetworkApiCall, Response.success(NetworkApiResult.Failure.NetworkError(throwable)))
+                }
+            },
+        )
 
     override fun isExecuted() = delegate.isExecuted
 
@@ -103,6 +113,6 @@ internal class NetworkApiCall<R>(
     }
 
     override fun request(): Request = delegate.request()
-    override fun timeout(): Timeout = delegate.timeout()
 
+    override fun timeout(): Timeout = delegate.timeout()
 }

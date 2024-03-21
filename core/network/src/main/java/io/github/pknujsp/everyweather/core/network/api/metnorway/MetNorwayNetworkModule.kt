@@ -21,18 +21,20 @@ object MetNorwayNetworkModule {
 
     @Provides
     @Singleton
-    fun providesNetworkApi(okHttpClient: OkHttpClient, @KtJson json: Json): MetNorwayNetworkApi =
+    fun providesNetworkApi(
+        okHttpClient: OkHttpClient,
+        @KtJson json: Json,
+    ): MetNorwayNetworkApi =
         Retrofit.Builder().client(okHttpClient).baseUrl(URL)
             .addCallAdapterFactory(NetworkApiCallAdapterFactory())
             .addConverterFactory(
-                ScalarsConverterFactory.create()
+                ScalarsConverterFactory.create(),
             )
             .addConverterFactory(
-                json.asConverterFactory("application/json".toMediaType())
+                json.asConverterFactory("application/json".toMediaType()),
             ).build().create(MetNorwayNetworkApi::class.java)
 
     @Provides
     @Singleton
-    fun providesMetNorwayDataSource(api: MetNorwayNetworkApi): MetNorwayDataSource =
-        MetNorwayDataSourceImpl(api)
+    fun providesMetNorwayDataSource(api: MetNorwayNetworkApi): MetNorwayDataSource = MetNorwayDataSourceImpl(api)
 }

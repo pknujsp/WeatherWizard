@@ -7,7 +7,4 @@ import org.robolectric.annotation.Config
 
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest = Config.NONE)
-class ComponentServiceActionTest {
-
-
-}
+class ComponentServiceActionTest

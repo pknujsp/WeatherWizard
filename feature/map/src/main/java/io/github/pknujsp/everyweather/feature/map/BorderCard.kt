@@ -32,9 +32,12 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun AnimatedBorderCardPreview() {
     AnimatedBorderCard(onCardClick = {}, content = {
-        Box(modifier = Modifier
-            .fillMaxWidth()
-            .height(50.dp)) {
+        Box(
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .height(50.dp),
+        ) {
             Text("Hello World")
         }
     })
@@ -48,31 +51,44 @@ fun AnimatedBorderCard(
     gradient: Brush = Brush.sweepGradient(listOf(Color.Blue, Color.White)),
     animationDuration: Int = 5_000,
     onCardClick: () -> Unit = {},
-    content: @Composable () -> Unit
+    content: @Composable () -> Unit,
 ) {
     val infiniteTransition = rememberInfiniteTransition(label = "Infinite Color Animation")
-    val degrees by infiniteTransition.animateFloat(initialValue = 0f,
+    val degrees by infiniteTransition.animateFloat(
+        initialValue = 0f,
         targetValue = 360f,
-        animationSpec = infiniteRepeatable(animation = tween(durationMillis = animationDuration, easing = LinearEasing),
-            repeatMode = RepeatMode.Restart),
-        label = "Infinite Colors")
+        animationSpec =
+            infiniteRepeatable(
+                animation = tween(durationMillis = animationDuration, easing = LinearEasing),
+                repeatMode = RepeatMode.Restart,
+            ),
+        label = "Infinite Colors",
+    )
 
-    Surface(modifier = modifier
-        .clip(shape)
-        .clickable { onCardClick() }, shape = shape) {
-        Surface(modifier = Modifier
-            .fillMaxWidth()
-            .padding(0.dp, 0.dp, 0.dp, borderWidth)
-            .drawWithContent {
-                rotate(degrees) {
-                    drawCircle(
-                        brush = gradient,
-                        radius = size.width,
-                        blendMode = BlendMode.SrcIn,
-                    )
-                }
-                drawContent()
-            }, shape = shape) {
+    Surface(
+        modifier =
+            modifier
+                .clip(shape)
+                .clickable { onCardClick() },
+        shape = shape,
+    ) {
+        Surface(
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(0.dp, 0.dp, 0.dp, borderWidth)
+                    .drawWithContent {
+                        rotate(degrees) {
+                            drawCircle(
+                                brush = gradient,
+                                radius = size.width,
+                                blendMode = BlendMode.SrcIn,
+                            )
+                        }
+                        drawContent()
+                    },
+            shape = shape,
+        ) {
             content()
         }
     }

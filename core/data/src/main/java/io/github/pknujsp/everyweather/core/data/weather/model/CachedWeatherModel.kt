@@ -7,7 +7,10 @@ import io.github.pknujsp.everyweather.core.model.weather.common.MajorWeatherEnti
 class CachedWeatherModel : EntityModel {
     private val dataMap = mutableMapOf<MajorWeatherEntityType, WeatherEntityModel>()
 
-    fun <T : WeatherEntityModel> put(majorWeatherEntityType: MajorWeatherEntityType, value: T) {
+    fun <T : WeatherEntityModel> put(
+        majorWeatherEntityType: MajorWeatherEntityType,
+        value: T,
+    ) {
         dataMap[majorWeatherEntityType] = value
     }
 
@@ -19,5 +22,4 @@ class CachedWeatherModel : EntityModel {
 
         return valueList
     }
-
 }

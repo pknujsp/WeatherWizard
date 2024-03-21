@@ -13,7 +13,7 @@ data class OngoingNotificationRemoteViewUiState(
     override val address: String? = null,
     override val lastUpdated: ZonedDateTime? = null,
     val notificationIconType: NotificationIconType? = null,
-    val notificationType: OngoingNotificationType
+    val notificationType: OngoingNotificationType,
 ) : RemoteViewUiState<WeatherResponseEntity> {
     val header get() = if (isSuccessful) DefaultRemoteViewCreator.Header(address!!, lastUpdated!!) else null
 }

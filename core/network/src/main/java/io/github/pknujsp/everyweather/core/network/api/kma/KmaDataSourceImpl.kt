@@ -20,7 +20,6 @@ internal class KmaDataSourceImpl(
     private val kmaNetworkApi: KmaNetworkApi,
     private val kmaHtmlParser: KmaHtmlParser,
 ) : KmaDataSource {
-
     private val zoneId = ZoneId.of("Asia/Seoul")
     private val requestHelper = MultipleRequestHelper<Response>()
 
@@ -48,61 +47,70 @@ internal class KmaDataSourceImpl(
             ?.map { it.yesterdayWeather } ?: Result.failure(Throwable("Unknown error"))
     }
 
-
     private suspend fun request(code: String) {
         if (!requestHelper.add(code.toLong())) {
             return
         }
-        val currentResponse = kmaNetworkApi.getCurrentWeather(code = code).onResult().fold(
-            onSuccess = {
-                val parsed = kmaHtmlParser.parseCurrentConditions(
-                    document = WeakReference(Jsoup.parse(it)).get()!!,
-                    baseDateTime = ZonedDateTime.now(zoneId).toString(),
-                )
-                Result.success(parsed)
-            },
-            onFailure = { Result.failure(it) },
-        )
-
-        val forecastResponse = kmaNetworkApi.getHourlyAndDailyForecast(code = code).onResult().fold(
-            onSuccess = {
-                val parsedHourlyForecast = kmaHtmlParser.parseHourlyForecasts(
-                    document = WeakReference(
-                        Jsoup.parse(it),
-                    ).get()!!,
-                )
-
-                val parsedDailyForecast = kmaHtmlParser.parseDailyForecasts(
-                    document = WeakReference(
-                        Jsoup.parse(it),
-                    ).get()!!,
-                )
-                Result.success(parsedHourlyForecast to kmaHtmlParser.makeExtendedDailyForecasts(parsedHourlyForecast, parsedDailyForecast))
-            },
-            onFailure = {
-                Result.failure(it)
-            },
-        )
-
-        val result = if (currentResponse.isSuccess && forecastResponse.isSuccess) {
-            val current = currentResponse.getOrThrow()
-            val hourly = forecastResponse.getOrThrow().first
-            val daily = forecastResponse.getOrThrow().second
-
-            RequestState.Responsed(
-                Response(
-                    currentWeather = KmaCurrentWeatherResponse(currentWeather = current, hourlyForecast = hourly.first()),
-                    hourlyForecasts = KmaHourlyForecastResponse(hourly),
-                    dailyForecasts = KmaDailyForecastResponse(daily),
-                    yesterdayWeather = KmaYesterdayWeatherResponse(current),
-                ),
+        val currentResponse =
+            kmaNetworkApi.getCurrentWeather(code = code).onResult().fold(
+                onSuccess = {
+                    val parsed =
+                        kmaHtmlParser.parseCurrentConditions(
+                            document = WeakReference(Jsoup.parse(it)).get()!!,
+                            baseDateTime = ZonedDateTime.now(zoneId).toString(),
+                        )
+                    Result.success(parsed)
+                },
+                onFailure = { Result.failure(it) },
             )
-        } else {
-            val cause = "${currentResponse.exceptionOrNull()?.message} ${forecastResponse.exceptionOrNull()?.message}"
-            RequestState.Failure(
-                throwable = Throwable(cause),
+
+        val forecastResponse =
+            kmaNetworkApi.getHourlyAndDailyForecast(code = code).onResult().fold(
+                onSuccess = {
+                    val parsedHourlyForecast =
+                        kmaHtmlParser.parseHourlyForecasts(
+                            document =
+                                WeakReference(
+                                    Jsoup.parse(it),
+                                ).get()!!,
+                        )
+
+                    val parsedDailyForecast =
+                        kmaHtmlParser.parseDailyForecasts(
+                            document =
+                                WeakReference(
+                                    Jsoup.parse(it),
+                                ).get()!!,
+                        )
+                    Result.success(
+                        parsedHourlyForecast to kmaHtmlParser.makeExtendedDailyForecasts(parsedHourlyForecast, parsedDailyForecast),
+                    )
+                },
+                onFailure = {
+                    Result.failure(it)
+                },
             )
-        }
+
+        val result =
+            if (currentResponse.isSuccess && forecastResponse.isSuccess) {
+                val current = currentResponse.getOrThrow()
+                val hourly = forecastResponse.getOrThrow().first
+                val daily = forecastResponse.getOrThrow().second
+
+                RequestState.Responsed(
+                    Response(
+                        currentWeather = KmaCurrentWeatherResponse(currentWeather = current, hourlyForecast = hourly.first()),
+                        hourlyForecasts = KmaHourlyForecastResponse(hourly),
+                        dailyForecasts = KmaDailyForecastResponse(daily),
+                        yesterdayWeather = KmaYesterdayWeatherResponse(current),
+                    ),
+                )
+            } else {
+                val cause = "${currentResponse.exceptionOrNull()?.message} ${forecastResponse.exceptionOrNull()?.message}"
+                RequestState.Failure(
+                    throwable = Throwable(cause),
+                )
+            }
 
         requestHelper.update(code.toLong(), result)
     }
@@ -111,6 +119,6 @@ internal class KmaDataSourceImpl(
         val currentWeather: KmaCurrentWeatherResponse,
         val hourlyForecasts: KmaHourlyForecastResponse,
         val dailyForecasts: KmaDailyForecastResponse,
-        val yesterdayWeather: KmaYesterdayWeatherResponse
+        val yesterdayWeather: KmaYesterdayWeatherResponse,
     )
 }

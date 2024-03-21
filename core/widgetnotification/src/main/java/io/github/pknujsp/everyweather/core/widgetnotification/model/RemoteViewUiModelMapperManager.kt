@@ -16,26 +16,25 @@ import io.github.pknujsp.everyweather.core.widgetnotification.widget.summary.Wid
 import io.github.pknujsp.everyweather.core.widgetnotification.widget.timehourlyforecast.WidgetTimeHourlyForecastRemoteViewUiModelMapper
 
 object RemoteViewUiModelMapperManager {
-    fun getByDailyNotificationType(
-        notificationType: DailyNotificationType
-    ): UiModelMapper<WeatherResponseEntity, out RemoteViewUiModel> = when (notificationType) {
-        DailyNotificationType.FORECAST -> DailyNotificationForecastUiModelMapper()
-        else -> throw IllegalArgumentException("Unknown notification type: $notificationType")
-    }
+    fun getByDailyNotificationType(notificationType: DailyNotificationType): UiModelMapper<WeatherResponseEntity, out RemoteViewUiModel> =
+        when (notificationType) {
+            DailyNotificationType.FORECAST -> DailyNotificationForecastUiModelMapper()
+            else -> throw IllegalArgumentException("Unknown notification type: $notificationType")
+        }
 
     fun getByOngoingNotificationType(
-        notificationType: OngoingNotificationType
-    ): UiModelMapper<WeatherResponseEntity, out RemoteViewUiModel> = when (notificationType) {
-        OngoingNotificationType.CURRENT_HOURLY_FORECAST -> OngoingNotificationRemoteViewUiModelMapper()
-        else -> throw IllegalArgumentException("Unknown notification type: $notificationType")
-    }
+        notificationType: OngoingNotificationType,
+    ): UiModelMapper<WeatherResponseEntity, out RemoteViewUiModel> =
+        when (notificationType) {
+            OngoingNotificationType.CURRENT_HOURLY_FORECAST -> OngoingNotificationRemoteViewUiModelMapper()
+            else -> throw IllegalArgumentException("Unknown notification type: $notificationType")
+        }
 
-    fun getByWidgetType(
-        widgetType: WidgetType
-    ): WidgetUiModelMapper<SavedWidgetContentState.Success, out RemoteViewUiModel> = when (widgetType) {
-        WidgetType.ALL_IN_ONE -> WidgetAllInOneRemoteViewUiModelMapper()
-        WidgetType.HOURLY_FORECAST_COMPARISON -> WidgetHourlyForecastComparisonRemoteViewUiModelMapper()
-        WidgetType.DAILY_FORECAST_COMPARISON -> WidgetDailyForecastComparisonRemoteViewUiModelMapper()
-        WidgetType.TIME_HOURLY_FORECAST -> WidgetTimeHourlyForecastRemoteViewUiModelMapper()
-    }
+    fun getByWidgetType(widgetType: WidgetType): WidgetUiModelMapper<SavedWidgetContentState.Success, out RemoteViewUiModel> =
+        when (widgetType) {
+            WidgetType.ALL_IN_ONE -> WidgetAllInOneRemoteViewUiModelMapper()
+            WidgetType.HOURLY_FORECAST_COMPARISON -> WidgetHourlyForecastComparisonRemoteViewUiModelMapper()
+            WidgetType.DAILY_FORECAST_COMPARISON -> WidgetDailyForecastComparisonRemoteViewUiModelMapper()
+            WidgetType.TIME_HOURLY_FORECAST -> WidgetTimeHourlyForecastRemoteViewUiModelMapper()
+        }
 }

@@ -27,88 +27,87 @@ import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
-class FavoriteAreaViewModel @Inject constructor(
-    private val favoriteAreaRepository: FavoriteAreaListRepository,
-    private val targetLocationRepository: TargetLocationRepository,
-    private val getCurrentLocationUseCase: GetCurrentLocationAddress,
-    @CoDispatcher(CoDispatcherType.IO) private val ioDispatcher: CoroutineDispatcher
-) : ViewModel() {
+class FavoriteAreaViewModel
+    @Inject
+    constructor(
+        private val favoriteAreaRepository: FavoriteAreaListRepository,
+        private val targetLocationRepository: TargetLocationRepository,
+        private val getCurrentLocationUseCase: GetCurrentLocationAddress,
+        @CoDispatcher(CoDispatcherType.IO) private val ioDispatcher: CoroutineDispatcher,
+    ) : ViewModel() {
+        private val mutableTargetLocationUiState: MutableLocationUiState = MutableLocationUiState()
+        val locationUiState: LocationUiState = mutableTargetLocationUiState
 
-    private val mutableTargetLocationUiState: MutableLocationUiState = MutableLocationUiState()
-    val locationUiState: LocationUiState = mutableTargetLocationUiState
-
-    val favoriteLocations = favoriteAreaRepository.getAllByFlow().map { list ->
-        list.map {
-            FavoriteArea(it.id, it.placeId, it.areaName, it.countryName)
-        }
-    }.flowOn(ioDispatcher).stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
-
-    init {
-        loadTargetLocation()
-        setCurrentLocationFlow()
-    }
-
-    private fun loadTargetLocation() {
-        viewModelScope.launch {
-            withContext(ioDispatcher) { targetLocationRepository.getCurrentTargetLocation() }.let { targetLocation ->
-                mutableTargetLocationUiState.run {
-                    locationType = targetLocation.locationType
-                    locationId = if (targetLocation.locationType is LocationType.CustomLocation) targetLocation.locationId else null
+        val favoriteLocations =
+            favoriteAreaRepository.getAllByFlow().map { list ->
+                list.map {
+                    FavoriteArea(it.id, it.placeId, it.areaName, it.countryName)
                 }
-            }
+            }.flowOn(ioDispatcher).stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
+
+        init {
+            loadTargetLocation()
+            setCurrentLocationFlow()
         }
-    }
 
-    private fun setCurrentLocationFlow() {
-        viewModelScope.launch {
-            getCurrentLocationUseCase.geoCodeFlow.collect { geocode ->
-                when (geocode) {
-                    is LocationGeoCodeState.Success -> {
-                        mutableTargetLocationUiState.loadCurrentLocationState = LoadCurrentLocationState.Success(geocode.address)
-                    }
-
-                    is LocationGeoCodeState.Failure -> {
-
-                        mutableTargetLocationUiState.loadCurrentLocationState =
-                            LoadCurrentLocationState.Failed(geocode.reason)
-                    }
-
-                    else -> {}
-                }
-                mutableTargetLocationUiState.isLoading = false
-            }
-        }
-    }
-
-    fun loadCurrentLocation() {
-        viewModelScope.launch {
-            mutableTargetLocationUiState.isLoading = true
-            getCurrentLocationUseCase()
-        }
-    }
-
-
-    fun updateTargetLocation(newModel: SelectedLocationModel) {
-        viewModelScope.launch {
-            withContext(ioDispatcher) { targetLocationRepository.updateTargetLocation(newModel) }
-            mutableTargetLocationUiState.isChanged = true
-        }
-    }
-
-    fun deleteFavoriteLocation(id: Long) {
-        viewModelScope.launch {
-            withContext(ioDispatcher) {
-                favoriteLocations.value.run {
-                    if (size == 1 || (locationUiState.locationType is LocationType.CustomLocation && locationUiState.locationId == id)) {
-                        targetLocationRepository.updateTargetLocation(SelectedLocationModel(LocationType.CurrentLocation))
+        private fun loadTargetLocation() {
+            viewModelScope.launch {
+                withContext(ioDispatcher) { targetLocationRepository.getCurrentTargetLocation() }.let { targetLocation ->
+                    mutableTargetLocationUiState.run {
+                        locationType = targetLocation.locationType
+                        locationId = if (targetLocation.locationType is LocationType.CustomLocation) targetLocation.locationId else null
                     }
                 }
             }
-            favoriteAreaRepository.deleteById(id)
+        }
+
+        private fun setCurrentLocationFlow() {
+            viewModelScope.launch {
+                getCurrentLocationUseCase.geoCodeFlow.collect { geocode ->
+                    when (geocode) {
+                        is LocationGeoCodeState.Success -> {
+                            mutableTargetLocationUiState.loadCurrentLocationState = LoadCurrentLocationState.Success(geocode.address)
+                        }
+
+                        is LocationGeoCodeState.Failure -> {
+                            mutableTargetLocationUiState.loadCurrentLocationState =
+                                LoadCurrentLocationState.Failed(geocode.reason)
+                        }
+
+                        else -> {}
+                    }
+                    mutableTargetLocationUiState.isLoading = false
+                }
+            }
+        }
+
+        fun loadCurrentLocation() {
+            viewModelScope.launch {
+                mutableTargetLocationUiState.isLoading = true
+                getCurrentLocationUseCase()
+            }
+        }
+
+        fun updateTargetLocation(newModel: SelectedLocationModel) {
+            viewModelScope.launch {
+                withContext(ioDispatcher) { targetLocationRepository.updateTargetLocation(newModel) }
+                mutableTargetLocationUiState.isChanged = true
+            }
+        }
+
+        fun deleteFavoriteLocation(id: Long) {
+            viewModelScope.launch {
+                withContext(ioDispatcher) {
+                    favoriteLocations.value.run {
+                        if (size == 1 || (locationUiState.locationType is LocationType.CustomLocation && locationUiState.locationId == id)) {
+                            targetLocationRepository.updateTargetLocation(SelectedLocationModel(LocationType.CurrentLocation))
+                        }
+                    }
+                }
+                favoriteAreaRepository.deleteById(id)
+            }
         }
     }
-}
-
 
 private class MutableLocationUiState : LocationUiState {
     override var locationType: LocationType by mutableStateOf(LocationType.default)

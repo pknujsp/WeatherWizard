@@ -8,29 +8,34 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 
-val AppColorScheme = lightColorScheme(
-    primary = Color(0xFF673AB7),
-    onSurface = Color.Black,
-    background = Color.White,
-    surface = Color.White,
-    primaryContainer = Color.White,
-    surfaceTint = Color.White,
-)
+val AppColorScheme =
+    lightColorScheme(
+        primary = Color(0xFF673AB7),
+        onSurface = Color.Black,
+        background = Color.White,
+        surface = Color.White,
+        primaryContainer = Color.White,
+        surfaceTint = Color.White,
+    )
 
-val AppShapes = Shapes(extraSmall = RoundedCornerShape(4.dp),
-    small = RoundedCornerShape(6.dp),
-    medium = RoundedCornerShape(8.dp),
-    large = RoundedCornerShape(10.dp),
-    extraLarge = RoundedCornerShape(12.dp)
-)
+val AppShapes =
+    Shapes(
+        extraSmall = RoundedCornerShape(4.dp),
+        small = RoundedCornerShape(6.dp),
+        medium = RoundedCornerShape(8.dp),
+        large = RoundedCornerShape(10.dp),
+        extraLarge = RoundedCornerShape(12.dp),
+    )
 
 val CircularIndicatorTrackColor = Color(0xFFD9D9D9)
 val CircularIndicatorColor = Color.Black
 
 @Composable
 fun MainTheme(content: @Composable () -> Unit) {
-    MaterialTheme(colorScheme = AppColorScheme,
-        shapes = AppShapes) {
+    MaterialTheme(
+        colorScheme = AppColorScheme,
+        shapes = AppShapes,
+    ) {
         content()
     }
 }

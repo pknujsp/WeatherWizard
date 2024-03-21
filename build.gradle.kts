@@ -14,9 +14,8 @@ plugins {
     alias(libs.plugins.ktlint) apply false
     alias(libs.plugins.detekt) apply false
     alias(libs.plugins.com.android.test) apply false
-    //alias(libs.plugins.benchmark) apply false
+    // alias(libs.plugins.benchmark) apply false
 }
-
 
 /*
 gradle.allprojects {
@@ -25,7 +24,6 @@ gradle.allprojects {
     }
 }
 */
-
 
 /*
 allprojects {
@@ -37,11 +35,12 @@ allprojects {
             parallel = true
             buildUponDefaultConfig = true
             config.setFrom(files("$rootDir/detekt-config.yml"))
+            debug = true
         }
 
         ktlint {
-            debug.set(true)
-            verbose.set(true)
+            debug = true
+            verbose = true
         }
     }
 }*/

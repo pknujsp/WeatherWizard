@@ -34,13 +34,12 @@ import io.github.pknujsp.everyweather.core.ui.weather.item.SimpleWeatherFailedBo
 import io.github.pknujsp.everyweather.core.ui.weather.item.SimpleWeatherScreenBackground
 import java.time.ZonedDateTime
 
-
 @Composable
 fun AirQualityScreen(
     requestWeatherArguments: RequestWeatherArguments,
     dateTime: ZonedDateTime,
     onLoadAirQuality: (AirQualityEntity) -> Unit,
-    viewModel: AirQualityViewModel = hiltViewModel()
+    viewModel: AirQualityViewModel = hiltViewModel(),
 ) {
     val airQuality = viewModel.airQuality
     val currentLoadAirQuality by rememberUpdatedState(onLoadAirQuality)
@@ -57,20 +56,30 @@ fun AirQualityScreen(
 
     if (!airQuality.isLoading) {
         if (airQuality.airQuality == null) {
-            SimpleWeatherFailedBox(title = stringResource(id = R.string.air_quality_index),
-                description = stringResource(id = airQuality.failedReason!!.message)) {
+            SimpleWeatherFailedBox(
+                title = stringResource(id = R.string.air_quality_index),
+                description = stringResource(id = airQuality.failedReason!!.message),
+            ) {
                 viewModel.reload()
             }
         } else {
-            SimpleWeatherScreenBackground(cardInfo = CardInfo(title = stringResource(io.github.pknujsp.everyweather.core.resource.R.string.air_quality_index),
-                content = {
-                    Column(modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(start = 12.dp, end = 12.dp, bottom = 8.dp)) {
-                        SimpleCurrentContent(simpleAirQuality = airQuality.airQuality!!)
-                        BarGraph(forecast = airQuality.airQuality!!.dailyForecast, dateTime.toLocalDate())
-                    }
-                }))
+            SimpleWeatherScreenBackground(
+                cardInfo =
+                    CardInfo(
+                        title = stringResource(io.github.pknujsp.everyweather.core.resource.R.string.air_quality_index),
+                        content = {
+                            Column(
+                                modifier =
+                                    Modifier
+                                        .fillMaxWidth()
+                                        .padding(start = 12.dp, end = 12.dp, bottom = 8.dp),
+                            ) {
+                                SimpleCurrentContent(simpleAirQuality = airQuality.airQuality!!)
+                                BarGraph(forecast = airQuality.airQuality!!.dailyForecast, dateTime.toLocalDate())
+                            }
+                        },
+                    ),
+            )
         }
     }
 }
@@ -79,10 +88,12 @@ fun AirQualityScreen(
 @Composable
 private fun SimpleCurrentContent(simpleAirQuality: SimpleAirQuality) {
     FlowItem(pollutantStringResId = R.string.current_air_quality, value = simpleAirQuality.current.aqi)
-    FlowRow(maxItemsInEachRow = 4,
+    FlowRow(
+        maxItemsInEachRow = 4,
         verticalArrangement = Arrangement.Center,
         horizontalArrangement = Arrangement.Start,
-        modifier = Modifier.fillMaxWidth()) {
+        modifier = Modifier.fillMaxWidth(),
+    ) {
         simpleAirQuality.grids.forEach { (pollutantStringResId, value) ->
             FlowItem(pollutantStringResId = pollutantStringResId, value = value)
         }
@@ -90,7 +101,11 @@ private fun SimpleCurrentContent(simpleAirQuality: SimpleAirQuality) {
 }
 
 @Composable
-private fun FlowItem(modifier: Modifier = Modifier, pollutantStringResId: Int, value: AirQualityValueType) {
+private fun FlowItem(
+    modifier: Modifier = Modifier,
+    pollutantStringResId: Int,
+    value: AirQualityValueType,
+) {
     Column(
         modifier = modifier.padding(vertical = 6.dp, horizontal = 8.dp),
         verticalArrangement = Arrangement.spacedBy(4.dp),
@@ -106,9 +121,12 @@ private fun FlowItem(modifier: Modifier = Modifier, pollutantStringResId: Int, v
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(6.dp, Alignment.Start),
         ) {
-            Box(modifier = Modifier
-                .size(15.dp)
-                .background(value.airQualityDescription.color, CircleShape))
+            Box(
+                modifier =
+                    Modifier
+                        .size(15.dp)
+                        .background(value.airQualityDescription.color, CircleShape),
+            )
             Text(
                 text = stringResource(value.airQualityDescription.descriptionStringId),
                 fontSize = 15.sp,

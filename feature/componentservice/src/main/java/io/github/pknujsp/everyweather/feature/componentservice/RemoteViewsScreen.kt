@@ -14,22 +14,30 @@ import io.github.pknujsp.everyweather.core.model.settings.CurrentUnits
 import io.github.pknujsp.everyweather.core.ui.theme.AppShapes
 import io.github.pknujsp.everyweather.core.widgetnotification.remoteview.DefaultRemoteViewCreator
 
-
 @Composable
-fun RemoteViewsScreen(sampleRemoteViews: DefaultRemoteViewCreator, units: CurrentUnits, modifier: Modifier = Modifier) {
+fun RemoteViewsScreen(
+    sampleRemoteViews: DefaultRemoteViewCreator,
+    units: CurrentUnits,
+    modifier: Modifier = Modifier,
+) {
     Box(contentAlignment = androidx.compose.ui.Alignment.Center) {
         Surface(
             shape = AppShapes.large,
             modifier = modifier.padding(16.dp),
             shadowElevation = 6.dp,
         ) {
-            AndroidView(modifier = modifier
-                .fillMaxWidth()
-                .heightIn(max = 330.dp), factory = { context ->
-                FrameLayout(context).apply {
-                    addView(sampleRemoteViews.createSampleView(context, units).apply(context, this))
-                }
-            }, update = {})
+            AndroidView(
+                modifier =
+                    modifier
+                        .fillMaxWidth()
+                        .heightIn(max = 330.dp),
+                factory = { context ->
+                    FrameLayout(context).apply {
+                        addView(sampleRemoteViews.createSampleView(context, units).apply(context, this))
+                    }
+                },
+                update = {},
+            )
         }
     }
 }

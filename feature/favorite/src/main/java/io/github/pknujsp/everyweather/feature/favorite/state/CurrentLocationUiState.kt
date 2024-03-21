@@ -9,14 +9,13 @@ import io.github.pknujsp.everyweather.feature.favorite.LocationState
 import io.github.pknujsp.everyweather.feature.favorite.model.LocationUiState
 import io.github.pknujsp.everyweather.feature.favorite.rememberLocationState
 
-
 private class MutableLocationUiState(
-    private val locationState: LocationState, private val locationUiState: LocationUiState
+    private val locationState: LocationState,
+    private val locationUiState: LocationUiState,
 ) : TargetLocationUiState {
     override fun refreshLocation() {
         val isGpsProviderEnabled = locationState.isGpsProviderEnabled
     }
-
 }
 
 @Stable
@@ -26,11 +25,14 @@ interface TargetLocationUiState {
 
 @Composable
 fun rememberTargetLocationUiState(
-    context: Context = LocalContext.current, locationState: LocationState = rememberLocationState(context), locationUiState: LocationUiState
+    context: Context = LocalContext.current,
+    locationState: LocationState = rememberLocationState(context),
+    locationUiState: LocationUiState,
 ): TargetLocationUiState {
-    val state = remember {
-        MutableLocationUiState(locationState, locationUiState)
-    }
+    val state =
+        remember {
+            MutableLocationUiState(locationState, locationUiState)
+        }
 
     return state
 }

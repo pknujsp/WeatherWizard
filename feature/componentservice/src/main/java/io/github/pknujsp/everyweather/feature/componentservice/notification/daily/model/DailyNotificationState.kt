@@ -13,7 +13,8 @@ import io.github.pknujsp.everyweather.feature.componentservice.manager.DailyNoti
 
 @SuppressLint("NewApi")
 class DailyNotificationState(
-    val dailyNotificationUiState: DailyNotificationUiState, context: Context
+    val dailyNotificationUiState: DailyNotificationUiState,
+    context: Context,
 ) {
     private val dailyNotificationAlarmManager: DailyNotificationAlarmManager =
         AppComponentServiceManagerFactory.getManager(context, AppComponentServiceManagerFactory.DAILY_NOTIFICATION_ALARM_MANAGER)
@@ -39,24 +40,26 @@ class DailyNotificationState(
 
     private fun schedule(id: Long) {
         if (dailyNotificationUiState.isEnabled) {
-            dailyNotificationAlarmManager.schedule(id,
+            dailyNotificationAlarmManager.schedule(
+                id,
                 dailyNotificationUiState.dailyNotificationSettings.hour,
-                dailyNotificationUiState.dailyNotificationSettings.minute)
+                dailyNotificationUiState.dailyNotificationSettings.minute,
+            )
         } else {
             dailyNotificationAlarmManager.unSchedule(id)
         }
     }
 }
 
-
 @Composable
 fun rememberDailyNotificationState(
     dailyNotificationUiState: DailyNotificationUiState,
     context: Context = LocalContext.current,
 ): DailyNotificationState {
-    val state = remember(dailyNotificationUiState) {
-        DailyNotificationState(dailyNotificationUiState, context)
-    }
+    val state =
+        remember(dailyNotificationUiState) {
+            DailyNotificationState(dailyNotificationUiState, context)
+        }
 
     return state
 }

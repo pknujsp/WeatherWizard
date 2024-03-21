@@ -29,7 +29,9 @@ data class WidgetDto(
         if (responseData != null) {
             if (other.responseData == null) return false
             if (!responseData.contentEquals(other.responseData)) return false
-        } else if (other.responseData != null) return false
+        } else if (other.responseData != null) {
+            return false
+        }
         return updatedAt == other.updatedAt
     }
 
@@ -42,6 +44,4 @@ data class WidgetDto(
         result = 31 * result + updatedAt.hashCode()
         return result
     }
-
-
 }

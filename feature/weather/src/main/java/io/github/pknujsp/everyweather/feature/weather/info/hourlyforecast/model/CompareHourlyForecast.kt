@@ -11,9 +11,8 @@ import io.github.pknujsp.everyweather.core.model.weather.common.TemperatureValue
 import io.github.pknujsp.everyweather.core.model.weather.common.WeatherConditionValueType
 
 class CompareHourlyForecast(
-    val items: List<Item>
+    val items: List<Item>,
 ) : UiModel {
-
     val displayRainfallVolume = items.any { it.rainfallVolume.isNotEmpty() }
     val displaySnowfallVolume = items.any { it.snowfallVolume.isNotEmpty() }
     val displayPrecipitationVolume = items.any { it.precipitationVolume.isNotEmpty() }
@@ -30,9 +29,8 @@ class CompareHourlyForecast(
         snowfallProbability: ProbabilityValueType = ProbabilityValueType.none,
         precipitationVolume: PrecipitationValueType,
         precipitationProbability: ProbabilityValueType,
-        isDay: Boolean
+        isDay: Boolean,
     ) : UiModel {
-
         val temperature: String = temperature.toString()
         val precipitationProbability: String = precipitationProbability.toString()
         val precipitationVolume: String = precipitationVolume.toStringWithoutUnit()
@@ -40,8 +38,7 @@ class CompareHourlyForecast(
         val snowfallVolume: String = snowfallVolume.toStringWithoutUnit()
 
         @DrawableRes val weatherIcon: Int = weatherCondition.value.getWeatherIconByTimeOfDay(isDay)
+
         @StringRes val weatherCondition: Int = weatherCondition.value.stringRes
-
     }
-
 }

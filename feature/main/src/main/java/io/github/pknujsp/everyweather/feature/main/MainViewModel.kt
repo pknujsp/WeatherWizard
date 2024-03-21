@@ -6,23 +6,22 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import io.github.pknujsp.everyweather.core.common.coroutines.CoDispatcher
-import io.github.pknujsp.everyweather.core.common.coroutines.CoDispatcherType
 import io.github.pknujsp.everyweather.core.data.settings.SettingsRepository
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class MainViewModel @Inject constructor(
-    private val settingsRepository: SettingsRepository,
-) : ViewModel() {
+class MainViewModel
+    @Inject
+    constructor(
+        private val settingsRepository: SettingsRepository,
+    ) : ViewModel() {
+        var isInitialized: Boolean? by mutableStateOf(null)
+            private set
 
-    var isInitialized : Boolean? by mutableStateOf(null)
-        private set
-
-    init {
-        viewModelScope.launch {
-            isInitialized = settingsRepository.isInitialized()
+        init {
+            viewModelScope.launch {
+                isInitialized = settingsRepository.isInitialized()
+            }
         }
     }
-}

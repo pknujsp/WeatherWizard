@@ -27,42 +27,52 @@ import java.time.ZonedDateTime
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest = Config.NONE)
 class SerializationTest {
-
     val jsonParser = io.github.pknujsp.everyweather.core.data.json.JsonParser(UtilsModule.providesKtJson())
 
     @Test
     fun weather_entity_to_bytearray() {
-        val currentWeatherEntity = CurrentWeatherEntity(weatherCondition = WeatherConditionValueType(WeatherConditionCategory.Clear),
-            temperature = TemperatureValueType(20.0, TemperatureUnit.default),
-            feelsLikeTemperature = TemperatureValueType(20.0, TemperatureUnit.default),
-            humidity = HumidityValueType(20, PercentageUnit),
-            windSpeed = WindSpeedValueType.none,
-            windDirection = WindDirectionValueType.none,
-            precipitationVolume = PrecipitationValueType.snowDrop)
-
-        val hourlyForecastEntity =
-            HourlyForecastEntity(listOf(HourlyForecastEntity.Item(weatherCondition = WeatherConditionValueType(WeatherConditionCategory.Clear),
+        val currentWeatherEntity =
+            CurrentWeatherEntity(
+                weatherCondition = WeatherConditionValueType(WeatherConditionCategory.Clear),
                 temperature = TemperatureValueType(20.0, TemperatureUnit.default),
                 feelsLikeTemperature = TemperatureValueType(20.0, TemperatureUnit.default),
                 humidity = HumidityValueType(20, PercentageUnit),
                 windSpeed = WindSpeedValueType.none,
                 windDirection = WindDirectionValueType.none,
-                rainfallVolume = RainfallValueType.none,
-                snowfallVolume = SnowfallValueType.none,
-                precipitationVolume = PrecipitationValueType.none,
-                precipitationProbability = ProbabilityValueType.none,
-                dateTime = DateTimeValueType(ZonedDateTime.now().toString())),
-                HourlyForecastEntity.Item(weatherCondition = WeatherConditionValueType(WeatherConditionCategory.Clear),
-                    temperature = TemperatureValueType(20.0, TemperatureUnit.default),
-                    feelsLikeTemperature = TemperatureValueType(20.0, TemperatureUnit.default),
-                    humidity = HumidityValueType(20, PercentageUnit),
-                    windSpeed = WindSpeedValueType.none,
-                    windDirection = WindDirectionValueType.none,
-                    rainfallVolume = RainfallValueType.none,
-                    snowfallVolume = SnowfallValueType.none,
-                    precipitationVolume = PrecipitationValueType.none,
-                    precipitationProbability = ProbabilityValueType.none,
-                    dateTime = DateTimeValueType(ZonedDateTime.now().toString()))))
+                precipitationVolume = PrecipitationValueType.snowDrop,
+            )
+
+        val hourlyForecastEntity =
+            HourlyForecastEntity(
+                listOf(
+                    HourlyForecastEntity.Item(
+                        weatherCondition = WeatherConditionValueType(WeatherConditionCategory.Clear),
+                        temperature = TemperatureValueType(20.0, TemperatureUnit.default),
+                        feelsLikeTemperature = TemperatureValueType(20.0, TemperatureUnit.default),
+                        humidity = HumidityValueType(20, PercentageUnit),
+                        windSpeed = WindSpeedValueType.none,
+                        windDirection = WindDirectionValueType.none,
+                        rainfallVolume = RainfallValueType.none,
+                        snowfallVolume = SnowfallValueType.none,
+                        precipitationVolume = PrecipitationValueType.none,
+                        precipitationProbability = ProbabilityValueType.none,
+                        dateTime = DateTimeValueType(ZonedDateTime.now().toString()),
+                    ),
+                    HourlyForecastEntity.Item(
+                        weatherCondition = WeatherConditionValueType(WeatherConditionCategory.Clear),
+                        temperature = TemperatureValueType(20.0, TemperatureUnit.default),
+                        feelsLikeTemperature = TemperatureValueType(20.0, TemperatureUnit.default),
+                        humidity = HumidityValueType(20, PercentageUnit),
+                        windSpeed = WindSpeedValueType.none,
+                        windDirection = WindDirectionValueType.none,
+                        rainfallVolume = RainfallValueType.none,
+                        snowfallVolume = SnowfallValueType.none,
+                        precipitationVolume = PrecipitationValueType.none,
+                        precipitationProbability = ProbabilityValueType.none,
+                        dateTime = DateTimeValueType(ZonedDateTime.now().toString()),
+                    ),
+                ),
+            )
 
         val byteArray = jsonParser.parseToByteArray(currentWeatherEntity)
         val byteArray2 = jsonParser.parseToByteArray(hourlyForecastEntity)
@@ -71,5 +81,4 @@ class SerializationTest {
         assertTrue(currentWeatherEntity == parsedWeatherEntity)
         assertTrue(hourlyForecastEntity == parsedHourlyForecast)
     }
-
 }
