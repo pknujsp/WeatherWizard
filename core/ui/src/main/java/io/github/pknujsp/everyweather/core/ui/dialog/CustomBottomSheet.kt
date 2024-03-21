@@ -12,20 +12,27 @@ import android.window.OnBackInvokedCallback
 import android.window.OnBackInvokedDispatcher
 import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.TweenSpec
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.absoluteOffset
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBars
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material3.BottomSheetDefaults
@@ -35,6 +42,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionContext
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -65,13 +73,15 @@ import androidx.lifecycle.setViewTreeViewModelStoreOwner
 import androidx.savedstate.findViewTreeSavedStateRegistryOwner
 import androidx.savedstate.setViewTreeSavedStateRegistryOwner
 import io.github.pknujsp.everyweather.core.ui.theme.AppShapes
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import java.util.UUID
 import kotlin.math.roundToInt
 
-private const val DIALOG_PANEL_DESCRIPTION = "Dialog"
+private const val ANIMATION_DURATION = 150L
 private const val MAX_DIALOG_FREE_HEIGHT_RATIO = 0.8f
-private const val MIN_DIALOG_HEIGHT_RATIO = 0.6f
-private val DialogHorizontalPadding = 12.dp
+private val dialogHorizontalPadding = 12.dp
+private val dialogContentHorizontalPadding = 12.dp
 private val windowInsets = WindowInsets(0, 0, 0, 0)
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -79,71 +89,61 @@ private val windowInsets = WindowInsets(0, 0, 0, 0)
 fun CustomPersistentBottomSheet(
     tonalElevation: Dp = BottomSheetDefaults.Elevation,
     scrimColor: Color = BottomSheetDefaults.ScrimColor,
-    freeHeight: Boolean = false,
     onDismissRequest: () -> Unit,
     content: @Composable () -> Unit
 ) {
-    val density = LocalDensity.current.density
+    val density = LocalDensity.current
     val height = LocalView.current.height
-    val maxHeightDp = (height * (MAX_DIALOG_FREE_HEIGHT_RATIO / density)).roundToInt().dp
+    val maxHeightDp = (height * (MAX_DIALOG_FREE_HEIGHT_RATIO / density.density)).roundToInt().dp
     val bottomPadding = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
+
+    var animateIn by remember { mutableStateOf(false) }
+    var visible by remember { mutableStateOf(true) }
 
     CustomModalBottomSheetPopup(
         onDismissRequest = {
-            onDismissRequest()
+            visible = false
         },
         windowInsets = windowInsets,
     ) {
         BoxWithConstraints(Modifier.fillMaxSize()) {
             val fullHeight = constraints.maxHeight
-            Scrim(color = scrimColor, visible = true, onDismissRequest = onDismissRequest)
-            Surface(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .heightIn(min = 0.dp, max = maxHeightDp)
-                    .align(Alignment.BottomCenter)
-                    .padding(horizontal = DialogHorizontalPadding)
-                    .absoluteOffset(y = (-10 - bottomPadding.value).dp),
-                tonalElevation = tonalElevation,
-                shape = AppShapes.extraLarge,
-                color = Color.White,
-            ) {
-                Box(propagateMinConstraints = true, modifier = Modifier.padding(DialogHorizontalPadding, DialogHorizontalPadding)) {
-                    content()
+            LaunchedEffect(visible) {
+                animateIn = visible
+                if (!animateIn) {
+                    launch {
+                        delay(ANIMATION_DURATION)
+                        onDismissRequest()
+                    }
+                }
+            }
+
+            Scrim(color = scrimColor, visible = animateIn, onDismissRequest = { visible = false })
+            AnimatedVisibility(visible = animateIn,
+                modifier = Modifier.align(Alignment.BottomCenter),
+                enter = fadeIn(spring(stiffness = Spring.StiffnessMedium)) + slideInVertically(initialOffsetY = { it / 2 },
+                    animationSpec = spring(stiffness = Spring.StiffnessMedium, dampingRatio = Spring.DampingRatioLowBouncy)),
+                exit = slideOutVertically { it / 2 } + fadeOut()) {
+
+                Surface(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .heightIn(min = 0.dp, max = maxHeightDp)
+                        .align(Alignment.BottomCenter)
+                        .padding(horizontal = dialogHorizontalPadding)
+                        .offset(y = (-bottomPadding.value).dp),
+                    tonalElevation = tonalElevation,
+                    shape = AppShapes.extraLarge,
+                    color = Color.White,
+                ) {
+                    Box(propagateMinConstraints = true,
+                        modifier = Modifier.padding(dialogContentHorizontalPadding, dialogContentHorizontalPadding)) {
+                        content()
+                    }
                 }
             }
         }
     }
-
-    /*
-    val density = LocalDensity.current.density
-    val height = LocalView.current.height
-    val maxHeightDp = (height * ((if (freeHeight) 0.8 else 0.6) / density)).roundToInt().dp
-    val bottomPadding = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
-
-    ModalBottomSheet(
-        onDismissRequest = onDismissRequest,
-        modifier = modifier
-            .heightIn(min = 0.dp, max = maxHeightDp)
-            .absolutePadding(left = 12.dp, right = 12.dp)
-            .absoluteOffset(y = (-10 - bottomPadding.value).dp),
-        sheetState = sheetState,
-        sheetMaxWidth = sheetMaxWidth,
-        shape = shape,
-        containerColor = containerColor,
-        contentColor = contentColor,
-        tonalElevation = tonalElevation,
-        scrimColor = scrimColor,
-        dragHandle = dragHandle,
-        windowInsets = WindowInsets(0, 0, 0, 0),
-        properties = properties,
-        content = {
-            Column(modifier = Modifier.padding(start = contentHorizontalPadding,
-                end = contentHorizontalPadding,
-                bottom = contentVerticalPadding), content = content)
-        },
-    )
-    * */
 }
 
 @Composable
@@ -184,16 +184,15 @@ private fun CustomModalBottomSheetPopup(
     val parentComposition = rememberCompositionContext()
     val currentContent by rememberUpdatedState(content)
     val layoutDirection = LocalLayoutDirection.current
+
     val modalBottomSheetWindow = remember {
         CustomModalBottomSheetWindow(properties = properties, onDismissRequest = onDismissRequest, composeView = view, saveId = id).apply {
             setCustomContent(parent = parentComposition, content = {
                 Box(Modifier
                     .semantics { this.popup() }
                     .windowInsetsPadding(windowInsets)
-                    .then(
-                        // TODO(b/290893168): Figure out a solution for APIs < 30.
-                        if (Build.VERSION.SDK_INT >= 33) Modifier.imePadding()
-                        else Modifier)) {
+                    .then(if (Build.VERSION.SDK_INT >= 33) Modifier.imePadding()
+                    else Modifier)) {
                     currentContent()
                 }
             })
@@ -222,12 +221,11 @@ private class CustomModalBottomSheetWindow(
 
     init {
         id = android.R.id.content
-        // Set up view owners
+
         setViewTreeLifecycleOwner(composeView.findViewTreeLifecycleOwner())
         setViewTreeViewModelStoreOwner(composeView.findViewTreeViewModelStoreOwner())
         setViewTreeSavedStateRegistryOwner(composeView.findViewTreeSavedStateRegistryOwner())
         setTag(androidx.compose.ui.R.id.compose_view_saveable_id_tag, "Popup:$saveId")
-        // Enable children to draw their shadow by not clipping them
         clipChildren = false
     }
 
@@ -237,40 +235,28 @@ private class CustomModalBottomSheetWindow(
         get() = context.resources.displayMetrics.widthPixels
 
     private val params: WindowManager.LayoutParams = WindowManager.LayoutParams().apply {
-        // Position bottom sheet from the bottom of the screen
         gravity = Gravity.BOTTOM or Gravity.START
-        // Application panel window
         type = WindowManager.LayoutParams.TYPE_APPLICATION_PANEL
-        // Fill up the entire app view
         width = displayWidth
         height = WindowManager.LayoutParams.MATCH_PARENT
 
-        // Format of screen pixels
         format = PixelFormat.TRANSLUCENT
-        // Title used as fallback for a11y services
-        // TODO: Provide bottom sheet window resource
         title = composeView.context.resources.getString(androidx.compose.ui.R.string.default_popup_window_title)
-        // Get the Window token from the parent view
         token = composeView.applicationWindowToken
 
-        // Flags specific to modal bottom sheet.
         flags = flags and (WindowManager.LayoutParams.FLAG_IGNORE_CHEEK_PRESSES or WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM).inv()
-
         flags = flags or WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS
 
-        // Security flag
-        val secureFlagEnabled = properties.securePolicy.shouldApplySecureFlag(composeView.isFlagSecureEnabled())
-        if (secureFlagEnabled) {
-            flags = flags or WindowManager.LayoutParams.FLAG_SECURE
+        flags = if (properties.securePolicy.shouldApplySecureFlag(composeView.isFlagSecureEnabled())) {
+            flags or WindowManager.LayoutParams.FLAG_SECURE
         } else {
-            flags = flags and (WindowManager.LayoutParams.FLAG_SECURE.inv())
+            flags and (WindowManager.LayoutParams.FLAG_SECURE.inv())
         }
 
-        // Focusable
-        if (!properties.isFocusable) {
-            flags = flags or WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
+        flags = if (!properties.isFocusable) {
+            flags or WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
         } else {
-            flags = flags and (WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE.inv())
+            flags and (WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE.inv())
         }
     }
 
@@ -300,12 +286,10 @@ private class CustomModalBottomSheetWindow(
         setViewTreeLifecycleOwner(null)
         setViewTreeSavedStateRegistryOwner(null)
         composeView.viewTreeObserver.removeOnGlobalLayoutListener(this)
+
         windowManager.removeViewImmediate(this)
     }
 
-    /**
-     * Taken from PopupWindow. Calls [onDismissRequest] when back button is pressed.
-     */
     override fun dispatchKeyEvent(event: KeyEvent): Boolean {
         if (event.keyCode == KeyEvent.KEYCODE_BACK && properties.shouldDismissOnBackPress) {
             if (keyDispatcherState == null) {
@@ -328,13 +312,11 @@ private class CustomModalBottomSheetWindow(
 
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
-
         maybeRegisterBackCallback()
     }
 
     override fun onDetachedFromWindow() {
         super.onDetachedFromWindow()
-
         maybeUnregisterBackCallback()
     }
 
@@ -356,15 +338,11 @@ private class CustomModalBottomSheetWindow(
     }
 
     override fun onGlobalLayout() {
-        // No-op
     }
 
     override fun setLayoutDirection(layoutDirection: Int) {
-        // Do nothing. ViewRootImpl will call this method attempting to set the layout direction
-        // from the context's locale, but we have one already from the parent composition.
     }
 
-    // Sets the "real" layout direction for our content that we obtain from the parent composition.
     fun superSetLayoutDirection(layoutDirection: LayoutDirection) {
         val direction = when (layoutDirection) {
             LayoutDirection.Ltr -> android.util.LayoutDirection.LTR
@@ -397,7 +375,6 @@ private class CustomModalBottomSheetWindow(
     }
 }
 
-// Taken from AndroidPopup.android.kt
 private fun View.isFlagSecureEnabled(): Boolean {
     val windowParams = rootView.layoutParams as? WindowManager.LayoutParams
     if (windowParams != null) {
@@ -406,7 +383,6 @@ private fun View.isFlagSecureEnabled(): Boolean {
     return false
 }
 
-// Taken from AndroidPopup.android.kt
 private fun SecureFlagPolicy.shouldApplySecureFlag(isSecureFlagSetOnParent: Boolean): Boolean {
     return when (this) {
         SecureFlagPolicy.SecureOff -> false
