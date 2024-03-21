@@ -21,6 +21,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.contentColorFor
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
@@ -32,8 +33,11 @@ import io.github.pknujsp.everyweather.core.ui.theme.AppColorScheme
 import io.github.pknujsp.everyweather.core.ui.theme.AppShapes
 import kotlin.math.roundToInt
 
-private val ContentPadding = 16.dp
+private val contentVerticalPadding = 16.dp
+private val contentHorizontalPadding = 12.dp
 
+
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 @ExperimentalMaterial3Api
 fun CustomModalBottomSheet(
@@ -58,11 +62,10 @@ fun CustomModalBottomSheet(
 
     ModalBottomSheet(
         onDismissRequest = onDismissRequest,
-        modifier =
-            modifier
-                .heightIn(min = 0.dp, max = maxHeightDp)
-                .absolutePadding(left = 12.dp, right = 12.dp)
-                .absoluteOffset(y = (-10 - bottomPadding.value).dp),
+        modifier = modifier
+            .heightIn(min = 0.dp, max = maxHeightDp)
+            .absolutePadding(left = 12.dp, right = 12.dp)
+            .absoluteOffset(y = (-10 - bottomPadding.value).dp),
         sheetState = sheetState,
         sheetMaxWidth = sheetMaxWidth,
         shape = shape,
@@ -74,7 +77,9 @@ fun CustomModalBottomSheet(
         windowInsets = WindowInsets(0, 0, 0, 0),
         properties = properties,
         content = {
-            Column(modifier = Modifier.padding(start = ContentPadding, end = ContentPadding, bottom = ContentPadding), content = content)
+            Column(modifier = Modifier.padding(start = contentHorizontalPadding,
+                end = contentHorizontalPadding,
+                bottom = contentVerticalPadding), content = content)
         },
     )
 }

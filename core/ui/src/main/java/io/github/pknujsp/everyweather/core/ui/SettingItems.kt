@@ -16,6 +16,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
@@ -57,16 +58,14 @@ private fun SettingItem(
     Row(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(16.dp),
-        modifier =
-            Modifier.clickable(enabled = onClick != null) {
-                onClick?.invoke()
-            },
+        modifier = Modifier.clickable(enabled = onClick != null) {
+            onClick?.invoke()
+        },
     ) {
         Column(
-            modifier =
-                Modifier
-                    .weight(1f)
-                    .padding(top = 12.dp, bottom = 12.dp, start = 16.dp),
+            modifier = Modifier
+                .weight(1f)
+                .padding(top = 12.dp, bottom = 12.dp, start = 16.dp),
         ) {
             Text(text = title, style = TextStyle(fontSize = 16.sp, color = Color.Black))
             description?.let {
@@ -182,21 +181,19 @@ fun <E : IEnum> BottomSheetSettingItem(
                     enums.forEach { enum ->
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
-                            modifier =
-                                modifier
-                                    .clickable {
-                                        onSelectedItem(enum)
-                                        expanded = false
-                                    }
-                                    .fillMaxWidth(),
+                            modifier = modifier
+                                .clickable {
+                                    onSelectedItem(enum)
+                                    expanded = false
+                                }
+                                .fillMaxWidth(),
                         ) {
                             enum.icon?.let { icon ->
                                 AsyncImage(
                                     model = ImageRequest.Builder(LocalContext.current).data(icon).crossfade(false).build(),
-                                    modifier =
-                                        modifier
-                                            .size(32.dp)
-                                            .padding(start = 12.dp),
+                                    modifier = modifier
+                                        .size(32.dp)
+                                        .padding(start = 12.dp),
                                     contentDescription = null,
                                 )
                             }
@@ -204,10 +201,9 @@ fun <E : IEnum> BottomSheetSettingItem(
                                 text = stringResource(id = enum.title),
                                 fontSize = 14.sp,
                                 color = Color.Black,
-                                modifier =
-                                    modifier
-                                        .weight(1f)
-                                        .padding(start = 12.dp),
+                                modifier = modifier
+                                    .weight(1f)
+                                    .padding(start = 12.dp),
                             )
                             RadioButton(selected = selectedItem == enum, onClick = {
                                 onSelectedItem(enum)
@@ -242,21 +238,19 @@ fun <E : IEnum> BottomSheetDialog(
                 enums.forEach { enum ->
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
-                        modifier =
-                            modifier
-                                .clickable {
-                                    onSelectedItem(enum)
-                                    onDismissRequest()
-                                }
-                                .fillMaxWidth(),
+                        modifier = modifier
+                            .clickable {
+                                onSelectedItem(enum)
+                                onDismissRequest()
+                            }
+                            .fillMaxWidth(),
                     ) {
                         enum.icon?.let { icon ->
                             AsyncImage(
                                 model = ImageRequest.Builder(LocalContext.current).data(icon).crossfade(false).build(),
-                                modifier =
-                                    modifier
-                                        .size(32.dp)
-                                        .padding(start = 12.dp),
+                                modifier = modifier
+                                    .size(32.dp)
+                                    .padding(start = 12.dp),
                                 contentDescription = null,
                             )
                         }
@@ -264,10 +258,9 @@ fun <E : IEnum> BottomSheetDialog(
                             text = stringResource(id = enum.title),
                             fontSize = 14.sp,
                             color = Color.Black,
-                            modifier =
-                                modifier
-                                    .weight(1f)
-                                    .padding(start = 12.dp),
+                            modifier = modifier
+                                .weight(1f)
+                                .padding(start = 12.dp),
                         )
                         RadioButton(selected = selectedItem == enum, onClick = {
                             onSelectedItem(enum)
@@ -313,14 +306,14 @@ fun <E : IEnum> RadioButtons(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BottomSheetSettingItem(
-        title: String,
-        description: String? = null,
-        currentData: String,
-        isBottomSheetExpanded: Boolean,
-        freeHeight: Boolean = true,
-        onDismissRequest: () -> Unit,
-        onClick: () -> Unit,
-        content: @Composable () -> Unit,
+    title: String,
+    description: String? = null,
+    currentData: String,
+    isBottomSheetExpanded: Boolean,
+    freeHeight: Boolean = true,
+    onDismissRequest: () -> Unit,
+    onClick: () -> Unit,
+    content: @Composable () -> Unit,
 ) {
     SettingItem(title = title, description = description, onClick = onClick) {
         Text(
@@ -386,12 +379,9 @@ fun ModalBottomSheetDialog(
     onDismiss: () -> Unit,
     content: @Composable ColumnScope.() -> Unit,
 ) {
-    CustomModalBottomSheet(
-        freeHeight = freeHeight,
-        onDismissRequest = {
-            onDismiss()
-        },
-    ) {
+    CustomModalBottomSheet(freeHeight = freeHeight, onDismissRequest = {
+        onDismiss()
+    }) {
         TitleTextWithoutNavigation(title = title)
         content()
     }

@@ -36,6 +36,7 @@ import io.github.pknujsp.everyweather.core.resource.R
 import io.github.pknujsp.everyweather.core.ui.ModalBottomSheetDialog
 import io.github.pknujsp.everyweather.core.ui.TitleTextWithNavigation
 import io.github.pknujsp.everyweather.core.ui.dialog.CustomModalBottomSheet
+import io.github.pknujsp.everyweather.core.ui.dialog.CustomPersistentBottomSheet
 import io.github.pknujsp.everyweather.core.ui.theme.AppShapes
 import io.github.pknujsp.everyweather.feature.weather.info.hourlyforecast.model.DetailHourlyForecast
 
@@ -45,7 +46,7 @@ fun DetailHourlyForecastScreen(
     hourlyForecast: DetailHourlyForecast,
     popBackStack: () -> Unit,
 ) {
-    ModalBottomSheetDialog(freeHeight = true, title = stringResource(id = R.string.hourly_forecast), onDismiss = popBackStack) {
+    CustomPersistentBottomSheet(freeHeight = true, onDismissRequest = popBackStack) {
         LazyColumn(
             state = rememberLazyListState(),
             modifier = Modifier.fillMaxWidth(),
