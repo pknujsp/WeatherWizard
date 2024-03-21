@@ -32,7 +32,7 @@ import io.github.pknujsp.everyweather.core.resource.R
 import io.github.pknujsp.everyweather.core.ui.button.SecondaryButton
 import io.github.pknujsp.everyweather.core.ui.theme.AppShapes
 
-private val backgroundColor = Color(150, 140, 155, 215)
+private val backgroundColor = Color(179, 179, 179, 225)
 
 @Composable
 private fun DefaultSurface(
