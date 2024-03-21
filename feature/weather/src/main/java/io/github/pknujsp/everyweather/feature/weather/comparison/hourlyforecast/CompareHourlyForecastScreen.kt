@@ -1,18 +1,15 @@
 package io.github.pknujsp.everyweather.feature.weather.comparison.hourlyforecast
 
 import android.widget.Toast
-import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyListState
@@ -46,8 +43,9 @@ import io.github.pknujsp.everyweather.core.model.onSuccess
 import io.github.pknujsp.everyweather.core.model.weather.RequestWeatherArguments
 import io.github.pknujsp.everyweather.core.model.weather.common.WeatherProvider
 import io.github.pknujsp.everyweather.core.resource.R
-import io.github.pknujsp.everyweather.core.ui.ModalBottomSheetDialog
-import io.github.pknujsp.everyweather.core.ui.TitleTextWithNavigation
+import io.github.pknujsp.everyweather.core.ui.dialog.BottomSheet
+import io.github.pknujsp.everyweather.core.ui.dialog.BottomSheetType
+import io.github.pknujsp.everyweather.core.ui.dialog.ContentWithTitle
 import io.github.pknujsp.everyweather.core.ui.lottie.CancellableLoadingScreen
 import io.github.pknujsp.everyweather.core.ui.time.DynamicDateTime
 import io.github.pknujsp.everyweather.feature.weather.comparison.common.CommonForecastItemsScreen
@@ -68,35 +66,33 @@ fun CompareHourlyForecastScreen(
     val hourlyForecast by viewModel.hourlyForecast.collectAsStateWithLifecycle()
     val hourlyForecastComparisonReport by viewModel.report.collectAsStateWithLifecycle()
 
-    ModalBottomSheetDialog(freeHeight = true,
-        title = stringResource(id = R.string.title_comparison_hourly_forecast),
-        onDismiss = popBackStack) {
-        Column(
-            modifier =
-            Modifier
-                .fillMaxWidth()
-                .weight(1f)
-                .verticalScroll(rememberScrollState()),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
-        ) {
-            hourlyForecast.onLoading {
-                CancellableLoadingScreen(stringResource(id = R.string.loading_hourly_forecast_data)) {
-                    popBackStack()
-                }
-            }.onSuccess {
-                CompareForecastCard.CompareCardSurface {
-                    Column(verticalArrangement = Arrangement.spacedBy(4.dp), modifier = Modifier.padding(vertical = 16.dp)) {
-                        val mainLazyListState = rememberLazyListState()
-                        DynamicDateTime(it.dateTimeInfo, mainLazyListState)
-                        Content(it, mainLazyListState)
+    BottomSheet(bottomSheetType = BottomSheetType.PERSISTENT, onDismissRequest = popBackStack) {
+        ContentWithTitle(title = stringResource(id = R.string.title_comparison_hourly_forecast)) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .verticalScroll(rememberScrollState()),
+                verticalArrangement = Arrangement.spacedBy(16.dp),
+            ) {
+                hourlyForecast.onLoading {
+                    CancellableLoadingScreen(stringResource(id = R.string.loading_hourly_forecast_data)) {
+                        popBackStack()
+                    }
+                }.onSuccess {
+                    CompareForecastCard.CompareCardSurface {
+                        Column(verticalArrangement = Arrangement.spacedBy(4.dp), modifier = Modifier.padding(vertical = 16.dp)) {
+                            val mainLazyListState = rememberLazyListState()
+                            DynamicDateTime(it.dateTimeInfo, mainLazyListState)
+                            Content(it, mainLazyListState)
+                        }
                     }
                 }
-            }
 
-            if (hourlyForecastComparisonReport is UiState.Success) {
-                CommonForecastItemsScreen(
-                    (hourlyForecastComparisonReport as UiState.Success<HourlyForecastComparisonReport>).data.commonForecasts,
-                )
+                if (hourlyForecastComparisonReport is UiState.Success) {
+                    CommonForecastItemsScreen(
+                        (hourlyForecastComparisonReport as UiState.Success<HourlyForecastComparisonReport>).data.commonForecasts,
+                    )
+                }
             }
         }
     }
@@ -111,16 +107,14 @@ fun Content(
     val itemModifier = remember { Modifier.width(CompareHourlyForecastInfo.itemWidth) }
     val context = LocalContext.current
     val weatherDataProviderInfoHeight = 36.dp
-    val weatherDataProviderInfoHeightPx =
-        with(LocalDensity.current) {
-            weatherDataProviderInfoHeight.toPx().toInt()
-        }
+    val weatherDataProviderInfoHeightPx = with(LocalDensity.current) {
+        weatherDataProviderInfoHeight.toPx().toInt()
+    }
 
     Layout(
         content = {
             LazyRow(
-                modifier =
-                Modifier
+                modifier = Modifier
                     .fillMaxWidth()
                     .background(Color.Transparent)
                     .wrapContentHeight(),
@@ -170,16 +164,14 @@ internal fun WeatherDataProviderInfo(
     Row(
         horizontalArrangement = Arrangement.spacedBy(4.dp, Alignment.Start),
         verticalAlignment = Alignment.CenterVertically,
-        modifier =
-        Modifier
+        modifier = Modifier
             .height(height)
             .padding(start = 12.dp),
     ) {
         AsyncImage(
             model = ImageRequest.Builder(LocalContext.current).data(weatherProvider.icon).crossfade(false).build(),
             contentDescription = stringResource(id = R.string.weather_provider),
-            modifier =
-            Modifier
+            modifier = Modifier
                 .size(height)
                 .padding(4.dp),
         )
@@ -201,8 +193,7 @@ private fun Item(
     forecast.run {
         val weatherConditionText = stringResource(id = weatherCondition)
         Column(
-            modifier =
-            Modifier
+            modifier = Modifier
                 .then(modifier)
                 .clickable { onClick(weatherConditionText) },
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -213,8 +204,7 @@ private fun Item(
             AsyncImage(
                 model = ImageRequest.Builder(LocalContext.current).data(weatherIcon).crossfade(false).build(),
                 contentDescription = weatherConditionText,
-                modifier =
-                Modifier
+                modifier = Modifier
                     .padding(4.dp)
                     .fillMaxWidth(),
             )

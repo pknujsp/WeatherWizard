@@ -135,7 +135,6 @@ fun TimeItem(entity: DailyNotificationSettings) {
     BottomSheetSettingItem(
         title = stringResource(id = R.string.notification_time),
         isBottomSheetExpanded = expanded,
-        freeHeight = true,
         onClick = {
             expanded = true
         },

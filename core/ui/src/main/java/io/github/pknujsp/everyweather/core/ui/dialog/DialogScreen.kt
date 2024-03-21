@@ -20,19 +20,19 @@ import io.github.pknujsp.everyweather.core.ui.button.SecondaryButton
 
 @Composable
 fun DialogScreen(
-        title: String,
-        message: String? = null,
-        negative: String,
-        positive: String,
-        onClickNegative: () -> Unit,
-        onClickPositive: () -> Unit,
-        content: (@Composable () -> Unit)? = null,
+    title: String,
+    message: String? = null,
+    negative: String,
+    positive: String,
+    onClickNegative: () -> Unit,
+    onClickPositive: () -> Unit,
+    content: (@Composable () -> Unit)? = null,
 ) {
     Column(
-            modifier = Modifier
-                    .padding(16.dp)
-                    .fillMaxWidth(),
-            verticalArrangement = Arrangement.Center,
+        modifier = Modifier
+            .padding(16.dp)
+            .fillMaxWidth(),
+        verticalArrangement = Arrangement.Center,
     ) {
         Text(text = title, style = TextStyle(fontSize = 24.sp, color = Color.Black))
         Spacer(modifier = Modifier.height(16.dp))
@@ -42,9 +42,9 @@ fun DialogScreen(
         }
         content?.invoke()
         Row(
-                modifier = Modifier.align(Alignment.End),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
+            modifier = Modifier.align(Alignment.End),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             SecondaryButton(text = negative, onClick = onClickNegative)
             PrimaryButton(text = positive, onClick = onClickPositive)

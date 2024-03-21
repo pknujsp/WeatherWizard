@@ -21,13 +21,18 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
-import io.github.pknujsp.everyweather.core.ui.dialog.CustomPersistentBottomSheet
+import io.github.pknujsp.everyweather.core.ui.dialog.BottomSheet
+import io.github.pknujsp.everyweather.core.ui.dialog.BottomSheetType
+import io.github.pknujsp.everyweather.core.ui.dialog.ContentWithTitle
+import io.github.pknujsp.everyweather.core.ui.dialog.PersistentBottomSheet
 import io.github.pknujsp.everyweather.core.ui.theme.AppShapes
+import io.github.pknujsp.everyweather.feature.weather.R
 import io.github.pknujsp.everyweather.feature.weather.info.hourlyforecast.model.DetailHourlyForecast
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -36,33 +41,35 @@ fun DetailHourlyForecastScreen(
     hourlyForecast: DetailHourlyForecast,
     popBackStack: () -> Unit,
 ) {
-    CustomPersistentBottomSheet(onDismissRequest = popBackStack) {
-        LazyColumn(
-            state = rememberLazyListState(),
-            modifier = Modifier.fillMaxWidth(),
-        ) {
-            hourlyForecast.items.forEach { (header, items) ->
-                stickyHeader(key = header.id) {
-                    Box(
-                        contentAlignment = Alignment.CenterStart,
-                        modifier = Modifier
-                            .background(Color.LightGray.copy(alpha = 0.8f), AppShapes.small)
-                            .padding(horizontal = 16.dp, vertical = 2.dp),
-                    ) {
-                        Text(
-                            text = header.title,
-                            style = TextStyle(fontSize = 14.sp, color = Color.White),
+    BottomSheet(onDismissRequest = popBackStack, modifier = Modifier.fillMaxWidth(), bottomSheetType = BottomSheetType.PERSISTENT) {
+        ContentWithTitle(title = stringResource(id = io.github.pknujsp.everyweather.core.resource.R.string.hourly_forecast)) {
+            LazyColumn(
+                state = rememberLazyListState(),
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                hourlyForecast.items.forEach { (header, items) ->
+                    stickyHeader(key = header.id) {
+                        Box(
+                            contentAlignment = Alignment.CenterStart,
+                            modifier = Modifier
+                                .background(Color.LightGray.copy(alpha = 0.8f), AppShapes.small)
+                                .padding(horizontal = 16.dp, vertical = 2.dp),
+                        ) {
+                            Text(
+                                text = header.title,
+                                style = TextStyle(fontSize = 14.sp, color = Color.White),
+                            )
+                        }
+                    }
+                    itemsIndexed(items, key = { _, item -> item.id }) { _, item ->
+                        Item(
+                            item = item,
+                            displayPrecipitationProbability = hourlyForecast.displayPrecipitationProbability,
+                            displayPrecipitationVolume = hourlyForecast.displayPrecipitationVolume,
+                            displaySnowfallVolume = hourlyForecast.displaySnowfallVolume,
+                            displayRainfallVolume = hourlyForecast.displayRainfallVolume,
                         )
                     }
-                }
-                itemsIndexed(items, key = { _, item -> item.id }) { _, item ->
-                    Item(
-                        item = item,
-                        displayPrecipitationProbability = hourlyForecast.displayPrecipitationProbability,
-                        displayPrecipitationVolume = hourlyForecast.displayPrecipitationVolume,
-                        displaySnowfallVolume = hourlyForecast.displaySnowfallVolume,
-                        displayRainfallVolume = hourlyForecast.displayRainfallVolume,
-                    )
                 }
             }
         }

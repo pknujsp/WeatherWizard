@@ -44,7 +44,8 @@ import io.github.pknujsp.everyweather.core.resource.R
 import io.github.pknujsp.everyweather.core.ui.TitleTextWithNavigation
 import io.github.pknujsp.everyweather.core.ui.box.CustomBox
 import io.github.pknujsp.everyweather.core.ui.button.SecondaryButton
-import io.github.pknujsp.everyweather.core.ui.dialog.CustomModalBottomSheet
+import io.github.pknujsp.everyweather.core.ui.dialog.BottomSheet
+import io.github.pknujsp.everyweather.core.ui.dialog.BottomSheetType
 import io.github.pknujsp.everyweather.core.ui.dialog.DialogScreen
 import io.github.pknujsp.everyweather.core.ui.list.EmptyListScreen
 import io.github.pknujsp.everyweather.core.ui.theme.AppShapes
@@ -167,7 +168,8 @@ private fun Item(
                 }
 
                 if (isClickedDelete) {
-                    CustomModalBottomSheet(
+                    BottomSheet(
+                        bottomSheetType = BottomSheetType.MODAL,
                         onDismissRequest = {
                             isClickedDelete = false
                         },

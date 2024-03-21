@@ -16,9 +16,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.material3.Checkbox
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
@@ -28,6 +26,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -37,7 +36,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.Modifier
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import io.github.pknujsp.everyweather.core.model.coordinate.LocationType
@@ -46,7 +44,9 @@ import io.github.pknujsp.everyweather.core.model.settings.IEnum
 import io.github.pknujsp.everyweather.core.model.weather.common.WeatherProvider
 import io.github.pknujsp.everyweather.core.resource.R
 import io.github.pknujsp.everyweather.core.ui.button.SecondaryButton
-import io.github.pknujsp.everyweather.core.ui.dialog.CustomModalBottomSheet
+import io.github.pknujsp.everyweather.core.ui.dialog.BottomSheet
+import io.github.pknujsp.everyweather.core.ui.dialog.BottomSheetType
+import io.github.pknujsp.everyweather.core.ui.dialog.ContentWithTitle
 
 @Composable
 private fun SettingItem(
@@ -119,39 +119,6 @@ fun ButtonSettingItem(
 }
 
 @Composable
-fun TextValueSettingItem(
-    title: String,
-    description: String? = null,
-    value: () -> String,
-    onClick: () -> Unit,
-) {
-    SettingItem(title = title, description = description, onClick = onClick) {
-        Text(
-            text = value(),
-            style = TextStyle(fontSize = 15.sp, color = Color.Black, fontWeight = FontWeight.Light, textAlign = TextAlign.Right),
-        )
-    }
-}
-
-@Composable
-fun <E : IEnum> DropDownMenuSettingItem(
-    title: String,
-    description: String? = null,
-    value: String,
-    onClick: () -> Unit,
-    onSelectedItem: (E) -> Unit,
-    enums: Array<E>,
-) {
-    SettingItem(title = title, description = description, onClick = onClick) {
-        Text(
-            text = value,
-            style = TextStyle(fontSize = 15.sp, color = Color.Black, fontWeight = FontWeight.Light, textAlign = TextAlign.Right),
-        )
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
 fun <E : IEnum> BottomSheetSettingItem(
     modifier: Modifier = Modifier,
     title: String,
@@ -169,7 +136,7 @@ fun <E : IEnum> BottomSheetSettingItem(
     }
 
     if (expanded) {
-        CustomModalBottomSheet(
+        BottomSheet(
             onDismissRequest = {
                 onSelectedItem(null)
                 expanded = false
@@ -228,44 +195,46 @@ fun <E : IEnum> BottomSheetDialog(
     onDismissRequest: () -> Unit,
 ) {
     if (expanded()) {
-        ModalBottomSheetDialog(
-            title = title,
-            onDismiss = {
+        BottomSheet(
+            bottomSheetType = BottomSheetType.MODAL,
+            onDismissRequest = {
                 onDismissRequest()
             },
         ) {
-            Column(modifier = modifier.verticalScroll(rememberScrollState(), true)) {
-                enums.forEach { enum ->
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = modifier
-                            .clickable {
+            ContentWithTitle(title = title) {
+                Column(modifier = modifier.verticalScroll(rememberScrollState(), true)) {
+                    enums.forEach { enum ->
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = modifier
+                                .clickable {
+                                    onSelectedItem(enum)
+                                    onDismissRequest()
+                                }
+                                .fillMaxWidth(),
+                        ) {
+                            enum.icon?.let { icon ->
+                                AsyncImage(
+                                    model = ImageRequest.Builder(LocalContext.current).data(icon).crossfade(false).build(),
+                                    modifier = modifier
+                                        .size(32.dp)
+                                        .padding(start = 12.dp),
+                                    contentDescription = null,
+                                )
+                            }
+                            Text(
+                                text = stringResource(id = enum.title),
+                                fontSize = 14.sp,
+                                color = Color.Black,
+                                modifier = modifier
+                                    .weight(1f)
+                                    .padding(start = 12.dp),
+                            )
+                            RadioButton(selected = selectedItem == enum, onClick = {
                                 onSelectedItem(enum)
                                 onDismissRequest()
-                            }
-                            .fillMaxWidth(),
-                    ) {
-                        enum.icon?.let { icon ->
-                            AsyncImage(
-                                model = ImageRequest.Builder(LocalContext.current).data(icon).crossfade(false).build(),
-                                modifier = modifier
-                                    .size(32.dp)
-                                    .padding(start = 12.dp),
-                                contentDescription = null,
-                            )
+                            }, modifier = modifier.padding(end = 12.dp))
                         }
-                        Text(
-                            text = stringResource(id = enum.title),
-                            fontSize = 14.sp,
-                            color = Color.Black,
-                            modifier = modifier
-                                .weight(1f)
-                                .padding(start = 12.dp),
-                        )
-                        RadioButton(selected = selectedItem == enum, onClick = {
-                            onSelectedItem(enum)
-                            onDismissRequest()
-                        }, modifier = modifier.padding(end = 12.dp))
                     }
                 }
             }
@@ -303,14 +272,12 @@ fun <E : IEnum> RadioButtons(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BottomSheetSettingItem(
     title: String,
     description: String? = null,
     currentData: String,
     isBottomSheetExpanded: Boolean,
-    freeHeight: Boolean = true,
     onDismissRequest: () -> Unit,
     onClick: () -> Unit,
     content: @Composable () -> Unit,
@@ -321,11 +288,10 @@ fun BottomSheetSettingItem(
             style = TextStyle(fontSize = 15.sp, color = Color.Black, fontWeight = FontWeight.Light, textAlign = TextAlign.Right),
         )
     }
-
     if (isBottomSheetExpanded) {
-        CustomModalBottomSheet(
+        BottomSheet(
+            bottomSheetType = BottomSheetType.MODAL,
             onDismissRequest = onDismissRequest,
-            freeHeight = freeHeight,
         ) {
             content()
         }
@@ -364,25 +330,7 @@ fun WeatherProvidersScreen(
     onSelectedItem: (WeatherProvider) -> Unit,
 ) {
     MediumTitleTextWithoutNavigation(title = stringResource(id = io.github.pknujsp.everyweather.core.resource.R.string.weather_provider))
-
     RadioButtons(radioOptions = WeatherProvider.enums, selectedOption = weatherProvider, onOptionSelected = {
         onSelectedItem(it)
     })
-}
-
-@Composable
-@OptIn(ExperimentalMaterial3Api::class)
-fun ModalBottomSheetDialog(
-    modifier: Modifier = Modifier,
-    title: String,
-    freeHeight: Boolean = false,
-    onDismiss: () -> Unit,
-    content: @Composable ColumnScope.() -> Unit,
-) {
-    CustomModalBottomSheet(freeHeight = freeHeight, onDismissRequest = {
-        onDismiss()
-    }) {
-        TitleTextWithoutNavigation(title = title)
-        content()
-    }
 }

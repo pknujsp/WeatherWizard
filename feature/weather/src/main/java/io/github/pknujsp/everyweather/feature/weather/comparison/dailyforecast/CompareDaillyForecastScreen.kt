@@ -1,18 +1,15 @@
 package io.github.pknujsp.everyweather.feature.weather.comparison.dailyforecast
 
 import android.widget.Toast
-import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyRow
@@ -43,8 +40,9 @@ import io.github.pknujsp.everyweather.core.model.onSuccess
 import io.github.pknujsp.everyweather.core.model.weather.RequestWeatherArguments
 import io.github.pknujsp.everyweather.core.model.weather.common.WeatherConditionCategory
 import io.github.pknujsp.everyweather.core.resource.R
-import io.github.pknujsp.everyweather.core.ui.ModalBottomSheetDialog
-import io.github.pknujsp.everyweather.core.ui.TitleTextWithNavigation
+import io.github.pknujsp.everyweather.core.ui.dialog.BottomSheet
+import io.github.pknujsp.everyweather.core.ui.dialog.BottomSheetType
+import io.github.pknujsp.everyweather.core.ui.dialog.ContentWithTitle
 import io.github.pknujsp.everyweather.core.ui.lottie.CancellableLoadingScreen
 import io.github.pknujsp.everyweather.feature.weather.comparison.common.CommonForecastItemsScreen
 import io.github.pknujsp.everyweather.feature.weather.comparison.common.CompareForecastCard
@@ -62,33 +60,32 @@ fun CompareDailyForecastScreen(
     }
     val forecast by viewModel.dailyForecast.collectAsStateWithLifecycle()
 
-    ModalBottomSheetDialog(freeHeight = true, title = stringResource(id = R.string.title_comparison_daily_forecast), onDismiss = popBackStack) {
-        Column(
-            modifier =
-                Modifier
+    BottomSheet(bottomSheetType = BottomSheetType.PERSISTENT, onDismissRequest = popBackStack) {
+        ContentWithTitle(title = stringResource(id = R.string.title_comparison_daily_forecast)) {
+            Column(
+                modifier = Modifier
                     .fillMaxWidth()
-                    .weight(1f)
                     .verticalScroll(rememberScrollState()),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
-        ) {
-            forecast.onLoading {
-                CancellableLoadingScreen(stringResource(id = R.string.loading_daily_forecast_data)) {
-                    popBackStack()
-                }
-            }.onSuccess {
-                CompareForecastCard.CompareCardSurface {
-                    Box(
-                        contentAlignment = Alignment.Center,
-                        modifier =
-                            Modifier
+                verticalArrangement = Arrangement.spacedBy(16.dp),
+            ) {
+                forecast.onLoading {
+                    CancellableLoadingScreen(stringResource(id = R.string.loading_daily_forecast_data)) {
+                        popBackStack()
+                    }
+                }.onSuccess {
+                    CompareForecastCard.CompareCardSurface {
+                        Box(
+                            contentAlignment = Alignment.Center,
+                            modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(vertical = 16.dp),
-                    ) {
-                        Content(it)
+                        ) {
+                            Content(it)
+                        }
                     }
-                }
 
-                CommonForecastItemsScreen(it.commons)
+                    CommonForecastItemsScreen(it.commons)
+                }
             }
         }
     }
@@ -99,25 +96,22 @@ fun Content(compareDailyForecastInfo: CompareDailyForecastInfo) {
     val itemModifier = Modifier.width(CompareDailyForecastInfo.itemWidth)
     val context = LocalContext.current
     val weatherDataProviderInfoHeight = 36.dp
-    val weatherDataProviderInfoHeightPx =
-        with(LocalDensity.current) {
-            weatherDataProviderInfoHeight.toPx().toInt()
-        }
+    val weatherDataProviderInfoHeightPx = with(LocalDensity.current) {
+        weatherDataProviderInfoHeight.toPx().toInt()
+    }
     val dateTextHeight = 36.dp
-    val dateTextHeightPx =
-        with(LocalDensity.current) {
-            dateTextHeight.toPx().toInt()
-        }
+    val dateTextHeightPx = with(LocalDensity.current) {
+        dateTextHeight.toPx().toInt()
+    }
 
     Layout(
         content = {
             LazyRow(
                 verticalAlignment = Alignment.CenterVertically,
-                modifier =
-                    Modifier
-                        .fillMaxWidth()
-                        .background(Color.Transparent)
-                        .wrapContentHeight(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(Color.Transparent)
+                    .wrapContentHeight(),
                 state = rememberLazyListState(),
             ) {
                 items(count = compareDailyForecastInfo.items.size, key = { it }) { i ->
@@ -174,18 +168,16 @@ private fun Item(
     // 날짜, 아이콘, 강수확률, 강수량
     item.run {
         Column(
-            modifier =
-                modifier.clickable {
-                    onClick(weatherConditions)
-                },
+            modifier = modifier.clickable {
+                onClick(weatherConditions)
+            },
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Row(
-                modifier =
-                    Modifier
-                        .padding(vertical = 8.dp, horizontal = 6.dp)
-                        .fillMaxWidth()
-                        .height(42.dp),
+                modifier = Modifier
+                    .padding(vertical = 8.dp, horizontal = 6.dp)
+                    .fillMaxWidth()
+                    .height(42.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween,
             ) {

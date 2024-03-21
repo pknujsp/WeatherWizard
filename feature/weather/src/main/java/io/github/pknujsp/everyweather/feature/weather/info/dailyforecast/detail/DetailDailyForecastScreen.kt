@@ -32,22 +32,25 @@ import coil.request.ImageRequest
 import io.github.pknujsp.everyweather.core.common.util.AStyle
 import io.github.pknujsp.everyweather.core.common.util.toAnnotated
 import io.github.pknujsp.everyweather.core.resource.R
-import io.github.pknujsp.everyweather.core.ui.ModalBottomSheetDialog
+import io.github.pknujsp.everyweather.core.ui.dialog.BottomSheet
+import io.github.pknujsp.everyweather.core.ui.dialog.BottomSheetType
+import io.github.pknujsp.everyweather.core.ui.dialog.ContentWithTitle
 import io.github.pknujsp.everyweather.feature.weather.info.dailyforecast.model.DetailDailyForecast
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun DetailDailyForecastScreen(
     dailyForecast: DetailDailyForecast,
     popBackStack: () -> Unit,
 ) {
-    ModalBottomSheetDialog(freeHeight = true, title = stringResource(id = R.string.daily_forecast), onDismiss = popBackStack) {
-        LazyColumn(state = rememberLazyListState(), modifier = Modifier.fillMaxWidth()) {
-            itemsIndexed(dailyForecast.items) { i, item ->
-                Item(
-                    item = item,
-                    displayPrecipitationProbability = dailyForecast.displayPrecipitationProbability,
-                ) {}
+    BottomSheet(bottomSheetType = BottomSheetType.PERSISTENT, onDismissRequest = popBackStack) {
+        ContentWithTitle(title = stringResource(id = R.string.daily_forecast)) {
+            LazyColumn(state = rememberLazyListState(), modifier = Modifier.fillMaxWidth()) {
+                itemsIndexed(dailyForecast.items) { i, item ->
+                    Item(
+                        item = item,
+                        displayPrecipitationProbability = dailyForecast.displayPrecipitationProbability,
+                    ) {}
+                }
             }
         }
     }

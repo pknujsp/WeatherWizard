@@ -29,7 +29,9 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import dev.jeziellago.compose.markdowntext.MarkdownText
 import io.github.pknujsp.everyweather.core.resource.R
-import io.github.pknujsp.everyweather.core.ui.ModalBottomSheetDialog
+import io.github.pknujsp.everyweather.core.ui.dialog.BottomSheet
+import io.github.pknujsp.everyweather.core.ui.dialog.BottomSheetType
+import io.github.pknujsp.everyweather.core.ui.dialog.ContentWithTitle
 import io.github.pknujsp.everyweather.core.ui.theme.AppShapes
 
 @Composable
@@ -43,33 +45,34 @@ fun SummaryScreen(
         summaryTextViewModel.summarize(model)
     }
 
-    ModalBottomSheetDialog(title = stringResource(id = R.string.title_ai_summary), onDismiss = onDismiss) {
-        val scrollState = rememberScrollState()
+    BottomSheet(bottomSheetType = BottomSheetType.PERSISTENT, onDismissRequest = onDismiss) {
+        ContentWithTitle(title = stringResource(id = R.string.title_ai_summary)) {
+            val scrollState = rememberScrollState()
 
-        LaunchedEffect(uiState.summaryText) {
-            scrollState.scrollTo(scrollState.maxValue)
-        }
+            LaunchedEffect(uiState.summaryText) {
+                scrollState.scrollTo(scrollState.maxValue)
+            }
 
-        Box(modifier = Modifier.fillMaxSize()) {
-            Column(
-                modifier =
-                    Modifier
+            Box(modifier = Modifier.fillMaxSize()) {
+                Column(
+                    modifier = Modifier
                         .fillMaxSize()
                         .verticalScroll(scrollState, true),
-            ) {
-                MarkdownText(
-                    style = TextStyle(color = Color.Black, fontSize = 15.sp, lineHeight = 4.sp),
-                    markdown = if (uiState.error != null) stringResource(id = uiState.error!!) else uiState.summaryText,
-                    linkifyMask = Linkify.WEB_URLS,
-                )
-            }
-            TextPlaceHolder {
-                uiState.isWaitingFirstResponse
-            }
-            if (uiState.isSummarizing || uiState.isStopped) {
-                SummarizingCard(uiState = uiState, stop = {
-                    summaryTextViewModel.stopOrResume()
-                })
+                ) {
+                    MarkdownText(
+                        style = TextStyle(color = Color.Black, fontSize = 15.sp, lineHeight = 4.sp),
+                        markdown = if (uiState.error != null) stringResource(id = uiState.error!!) else uiState.summaryText,
+                        linkifyMask = Linkify.WEB_URLS,
+                    )
+                }
+                TextPlaceHolder {
+                    uiState.isWaitingFirstResponse
+                }
+                if (uiState.isSummarizing || uiState.isStopped) {
+                    SummarizingCard(uiState = uiState, stop = {
+                        summaryTextViewModel.stopOrResume()
+                    })
+                }
             }
         }
     }
@@ -83,10 +86,9 @@ private fun BoxScope.SummarizingCard(
 ) {
     val currentStopOrResume by rememberUpdatedState(newValue = stop)
     Box(
-        modifier =
-            modifier
-                .padding(bottom = 8.dp)
-                .align(Alignment.BottomCenter),
+        modifier = modifier
+            .padding(bottom = 8.dp)
+            .align(Alignment.BottomCenter),
     ) {
         OutlinedButton(
             onClick = currentStopOrResume,

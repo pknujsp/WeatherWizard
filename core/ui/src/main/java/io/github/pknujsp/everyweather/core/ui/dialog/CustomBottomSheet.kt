@@ -35,7 +35,6 @@ import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.windowInsetsPadding
-import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ModalBottomSheetProperties
 import androidx.compose.material3.Surface
@@ -72,6 +71,9 @@ import androidx.lifecycle.setViewTreeLifecycleOwner
 import androidx.lifecycle.setViewTreeViewModelStoreOwner
 import androidx.savedstate.findViewTreeSavedStateRegistryOwner
 import androidx.savedstate.setViewTreeSavedStateRegistryOwner
+import io.github.pknujsp.everyweather.core.ui.dialog.BottomSheetLayoutParams.MAX_DIALOG_FREE_HEIGHT_RATIO
+import io.github.pknujsp.everyweather.core.ui.dialog.BottomSheetLayoutParams.dialogContentHorizontalPadding
+import io.github.pknujsp.everyweather.core.ui.dialog.BottomSheetLayoutParams.dialogHorizontalPadding
 import io.github.pknujsp.everyweather.core.ui.theme.AppShapes
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -79,18 +81,28 @@ import java.util.UUID
 import kotlin.math.roundToInt
 
 private const val ANIMATION_DURATION = 150L
-private const val MAX_DIALOG_FREE_HEIGHT_RATIO = 0.8f
-private val dialogHorizontalPadding = 12.dp
-private val dialogContentHorizontalPadding = 12.dp
-private val windowInsets = WindowInsets(0, 0, 0, 0)
+
+object BottomSheetLayoutParams {
+    private const val SCRIM_ALPHA = 0.32f * 255
+    const val MAX_DIALOG_FREE_HEIGHT_RATIO = 0.8f
+
+    val tonalElevation: Dp = 1.dp
+    val scrimColor: Color = Color(0f, 0f, 0f, SCRIM_ALPHA)
+    val containerColor: Color = Color.White
+    val contentColor: Color = Color.White
+    val dialogHorizontalPadding = 12.dp
+    val dialogContentHorizontalPadding = 12.dp
+    val dialogContentVerticalPadding = 12.dp
+    val windowInsets = WindowInsets(0, 0, 0, 0)
+    val shape = AppShapes.extraLarge
+}
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CustomPersistentBottomSheet(
-    tonalElevation: Dp = BottomSheetDefaults.Elevation,
-    scrimColor: Color = BottomSheetDefaults.ScrimColor,
-    onDismissRequest: () -> Unit,
-    content: @Composable () -> Unit
+fun PersistentBottomSheet(
+    modifier: Modifier = Modifier.padding(horizontal = dialogContentHorizontalPadding,
+        BottomSheetLayoutParams.dialogContentVerticalPadding), onDismissRequest: () -> Unit, content: @Composable () -> Unit
 ) {
     val density = LocalDensity.current
     val height = LocalView.current.height
@@ -104,7 +116,7 @@ fun CustomPersistentBottomSheet(
         onDismissRequest = {
             visible = false
         },
-        windowInsets = windowInsets,
+        windowInsets = BottomSheetLayoutParams.windowInsets,
     ) {
         BoxWithConstraints(Modifier.fillMaxSize()) {
             val fullHeight = constraints.maxHeight
@@ -118,11 +130,11 @@ fun CustomPersistentBottomSheet(
                 }
             }
 
-            Scrim(color = scrimColor, visible = animateIn, onDismissRequest = { visible = false })
+            Scrim(color = BottomSheetLayoutParams.scrimColor, visible = animateIn, onDismissRequest = { visible = false })
             AnimatedVisibility(visible = animateIn,
                 modifier = Modifier.align(Alignment.BottomCenter),
                 enter = fadeIn(spring(stiffness = Spring.StiffnessMedium)) + slideInVertically(initialOffsetY = { it / 2 },
-                    animationSpec = spring(stiffness = Spring.StiffnessMedium, dampingRatio = Spring.DampingRatioLowBouncy)),
+                    animationSpec = spring(stiffness = Spring.StiffnessMedium, dampingRatio = Spring.DampingRatioNoBouncy)),
                 exit = slideOutVertically { it / 2 } + fadeOut()) {
 
                 Surface(
@@ -132,12 +144,11 @@ fun CustomPersistentBottomSheet(
                         .align(Alignment.BottomCenter)
                         .padding(horizontal = dialogHorizontalPadding)
                         .offset(y = (-bottomPadding.value).dp),
-                    tonalElevation = tonalElevation,
+                    tonalElevation = BottomSheetLayoutParams.tonalElevation,
                     shape = AppShapes.extraLarge,
                     color = Color.White,
                 ) {
-                    Box(propagateMinConstraints = true,
-                        modifier = Modifier.padding(dialogContentHorizontalPadding, dialogContentHorizontalPadding)) {
+                    Box(propagateMinConstraints = true, modifier = modifier) {
                         content()
                     }
                 }
