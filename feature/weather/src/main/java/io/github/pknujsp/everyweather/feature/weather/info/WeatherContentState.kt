@@ -44,7 +44,7 @@ sealed interface WeatherContentUiState {
         val dateTime: String = lastUpdatedDateTime.format(dateTimeFormatter)
 
         private companion object {
-            private val dateTimeFormatter = java.time.format.DateTimeFormatter.ofPattern("MM.dd HH:mm")
+            private val dateTimeFormatter = java.time.format.DateTimeFormatter.ofPattern("MM.dd EEE, a hh:mm")
         }
     }
 }

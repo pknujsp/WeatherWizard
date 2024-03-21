@@ -65,82 +65,75 @@ fun CurrentWeatherScreen(
 ) {
     Column {
         ConstraintLayout(
-            modifier =
-                Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = 14.dp, start = 12.dp, end = 12.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 14.dp, start = 12.dp, end = 12.dp),
         ) {
             val (yesterdayTemp, feelsLikeTemp, icon, condition, temp) = createRefs()
 
             // temperature
             Text(
-                text =
-                    listOf(
-                        AStyle(
-                            current.temperature.value.toInt().toString(),
-                            span = SpanStyle(fontSize = 80.sp, color = textColor, letterSpacing = (-5).sp, fontWeight = FontWeight.Light),
-                        ),
-                        AStyle(
-                            current.temperature.unit.symbol,
-                            span = SpanStyle(fontSize = 38.sp, color = textColor, fontWeight = FontWeight.Light),
-                        ),
-                    ).toAnnotated(),
-                modifier =
-                    Modifier.constrainAs(temp) {
-                        absoluteRight.linkTo(parent.absoluteRight)
-                        bottom.linkTo(feelsLikeTemp.top)
-                    },
+                text = listOf(
+                    AStyle(
+                        current.temperature.value.toInt().toString(),
+                        span = SpanStyle(fontSize = 80.sp, color = textColor, letterSpacing = (-5).sp, fontWeight = FontWeight.Light),
+                    ),
+                    AStyle(
+                        current.temperature.unit.symbol,
+                        span = SpanStyle(fontSize = 38.sp, color = textColor, fontWeight = FontWeight.Light),
+                    ),
+                ).toAnnotated(),
+                modifier = Modifier.constrainAs(temp) {
+                    absoluteRight.linkTo(parent.absoluteRight)
+                    bottom.linkTo(feelsLikeTemp.top)
+                },
                 style = LocalTextStyle.current.merge(notIncludeTextPaddingStyle).merge(outlineTextStyle),
             )
 
             // feels like temperature
             Text(
-                text =
-                    listOf(
-                        AStyle(
-                            "${stringResource(id = WeatherDataCategory.FEELS_LIKE_TEMPERATURE.stringId)} ",
-                            span = SpanStyle(fontSize = 16.sp, color = textColor, fontWeight = FontWeight.Light),
-                        ),
-                        AStyle(
-                            current.feelsLikeTemperature.value.toInt().toString(),
-                            span = SpanStyle(fontSize = 28.sp, color = textColor, letterSpacing = (-3).sp, fontWeight = FontWeight.Light),
-                        ),
-                        AStyle(
-                            current.feelsLikeTemperature.unit.symbol,
-                            span = SpanStyle(fontSize = 18.sp, color = textColor, fontWeight = FontWeight.Light),
-                        ),
-                    ).toAnnotated(),
-                modifier =
-                    Modifier.constrainAs(feelsLikeTemp) {
-                        absoluteRight.linkTo(parent.absoluteRight)
-                        bottom.linkTo(parent.bottom)
-                    },
+                text = listOf(
+                    AStyle(
+                        "${stringResource(id = WeatherDataCategory.FEELS_LIKE_TEMPERATURE.stringId)} ",
+                        span = SpanStyle(fontSize = 16.sp, color = textColor, fontWeight = FontWeight.Light),
+                    ),
+                    AStyle(
+                        current.feelsLikeTemperature.value.toInt().toString(),
+                        span = SpanStyle(fontSize = 28.sp, color = textColor, letterSpacing = (-3).sp, fontWeight = FontWeight.Light),
+                    ),
+                    AStyle(
+                        current.feelsLikeTemperature.unit.symbol,
+                        span = SpanStyle(fontSize = 18.sp, color = textColor, fontWeight = FontWeight.Light),
+                    ),
+                ).toAnnotated(),
+                modifier = Modifier.constrainAs(feelsLikeTemp) {
+                    absoluteRight.linkTo(parent.absoluteRight)
+                    bottom.linkTo(parent.bottom)
+                },
                 style = LocalTextStyle.current.merge(notIncludeTextPaddingStyle).merge(outlineTextStyle),
             )
 
             // yesterday temperature
             Box(
-                modifier =
-                    Modifier
-                        .padding(top = 4.dp)
-                        .constrainAs(yesterdayTemp) {
-                            absoluteLeft.linkTo(parent.absoluteLeft)
-                            bottom.linkTo(parent.bottom)
-                        },
+                modifier = Modifier
+                    .padding(top = 4.dp)
+                    .constrainAs(yesterdayTemp) {
+                        absoluteLeft.linkTo(parent.absoluteLeft)
+                        bottom.linkTo(parent.bottom)
+                    },
             ) {
                 if (current.yesterdayTemperature != null) {
                     Text(
-                        text =
-                            current.text(current.temperature, LocalContext.current).let { texts ->
-                                listOf(
-                                    AStyle(texts[0], span = SpanStyle(fontSize = 14.sp, color = textColor, fontWeight = FontWeight.Light)),
-                                    AStyle(
-                                        " ${texts[1]} ",
-                                        span = SpanStyle(fontSize = 15.sp, color = textColor, fontWeight = FontWeight.Normal),
-                                    ),
-                                    AStyle(texts[2], span = SpanStyle(fontSize = 14.sp, color = textColor, fontWeight = FontWeight.Light)),
-                                ).toAnnotated()
-                            },
+                        text = current.text(current.temperature, LocalContext.current).let { texts ->
+                            listOf(
+                                AStyle(texts[0], span = SpanStyle(fontSize = 14.sp, color = textColor, fontWeight = FontWeight.Light)),
+                                AStyle(
+                                    " ${texts[1]} ",
+                                    span = SpanStyle(fontSize = 15.sp, color = textColor, fontWeight = FontWeight.Normal),
+                                ),
+                                AStyle(texts[2], span = SpanStyle(fontSize = 14.sp, color = textColor, fontWeight = FontWeight.Light)),
+                            ).toAnnotated()
+                        },
                         style = LocalTextStyle.current.merge(notIncludeTextPaddingStyle).merge(outlineTextStyle),
                     )
                 }
@@ -157,44 +150,39 @@ fun CurrentWeatherScreen(
             // weather icon
             AsyncImage(
                 model = ImageRequest.Builder(LocalContext.current).data(current.weatherIcon).crossfade(false).build(),
-                contentDescription =
-                    stringResource(
-                        id = io.github.pknujsp.everyweather.core.resource.R.string.weather_icon_description,
-                    ),
-                modifier =
-                    Modifier
-                        .rotate(rotationAngle)
-                        .size(90.dp)
-                        .constrainAs(icon) {
-                            absoluteLeft.linkTo(parent.absoluteLeft)
-                            bottom.linkTo(condition.top)
-                        },
+                contentDescription = stringResource(
+                    id = io.github.pknujsp.everyweather.core.resource.R.string.weather_icon_description,
+                ),
+                modifier = Modifier
+                    .rotate(rotationAngle)
+                    .size(90.dp)
+                    .constrainAs(icon) {
+                        absoluteLeft.linkTo(parent.absoluteLeft)
+                        bottom.linkTo(condition.top, 4.dp)
+                    },
             )
 
             // weather condition
             Text(
                 text = stringResource(current.weatherCondition.value.stringRes),
-                modifier =
-                    Modifier.constrainAs(condition) {
-                        absoluteLeft.linkTo(parent.absoluteLeft)
-                        bottom.linkTo(yesterdayTemp.top)
-                    },
-                style =
-                    TextStyle(fontSize = 25.sp, color = textColor, fontWeight = FontWeight.Medium, letterSpacing = (-1).sp).merge(
-                        outlineTextStyle,
-                    ).merge(notIncludeTextPaddingStyle),
+                modifier = Modifier.constrainAs(condition) {
+                    absoluteLeft.linkTo(parent.absoluteLeft)
+                    bottom.linkTo(yesterdayTemp.top)
+                },
+                style = TextStyle(fontSize = 25.sp, color = textColor, fontWeight = FontWeight.Medium, letterSpacing = (-1).sp).merge(
+                    outlineTextStyle,
+                ).merge(notIncludeTextPaddingStyle),
             )
         }
 
-        val items: List<@Composable () -> Unit> =
-            listOf({
-                FeatureItem(WeatherDataCategory.WIND_SPEED.stringId, current.windSpeed.strength(LocalContext.current))
-            }, { FeatureItem(WeatherDataCategory.WIND_DIRECTION.stringId, stringResource(id = current.windDirection.value)) }, {
-                FeatureItem(
-                    WeatherDataCategory.AIR_QUALITY_INDEX.stringId,
-                    stringResource(id = airQualityValueType()?.airQualityDescription?.descriptionStringId ?: R.string.no_data),
-                )
-            })
+        val items: List<@Composable () -> Unit> = listOf({
+            FeatureItem(WeatherDataCategory.WIND_SPEED.stringId, current.windSpeed.strength(LocalContext.current))
+        }, { FeatureItem(WeatherDataCategory.WIND_DIRECTION.stringId, stringResource(id = current.windDirection.value)) }, {
+            FeatureItem(
+                WeatherDataCategory.AIR_QUALITY_INDEX.stringId,
+                stringResource(id = airQualityValueType()?.airQualityDescription?.descriptionStringId ?: R.string.no_data),
+            )
+        })
 
         NonlazyGrid(horizontalItemCount = 3, totalItemCount = items.size) { index ->
             items[index]()
@@ -208,14 +196,12 @@ fun FeatureItem(
     value: String,
 ) {
     Card(
-        modifier =
-            Modifier
-                .fillMaxWidth()
-                .height(70.dp),
-        colors =
-            CardDefaults.cardColors(
-                containerColor = Color.White,
-            ),
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(70.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = Color.White,
+        ),
     ) {
         Column(modifier = Modifier.padding(12.dp)) {
             Text(text = stringResource(id = label), style = MaterialTheme.typography.labelLarge.copy(color = Color.Black))
@@ -240,10 +226,9 @@ fun NonlazyGrid(
     content: @Composable (Int) -> Unit,
 ) {
     Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(itemVerticalPadding)) {
-        val verticalLineCount =
-            remember {
-                (totalItemCount / horizontalItemCount) + if ((totalItemCount % horizontalItemCount) > 0) 1 else 0
-            }
+        val verticalLineCount = remember {
+            (totalItemCount / horizontalItemCount) + if ((totalItemCount % horizontalItemCount) > 0) 1 else 0
+        }
         for (verticalLineId in 0..<verticalLineCount) {
             val firstIndex = verticalLineId * horizontalItemCount
 
@@ -253,10 +238,9 @@ fun NonlazyGrid(
                 for (id in 0..<horizontalItemCount) {
                     val index = firstIndex + id
                     Box(
-                        modifier =
-                            Modifier
-                                .fillMaxWidth()
-                                .weight(1f),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .weight(1f),
                         contentAlignment = Alignment.Center,
                     ) {
                         if (index < totalItemCount) {
