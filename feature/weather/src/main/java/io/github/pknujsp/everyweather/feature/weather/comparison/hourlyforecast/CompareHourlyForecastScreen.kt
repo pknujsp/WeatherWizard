@@ -46,6 +46,7 @@ import io.github.pknujsp.everyweather.core.model.onSuccess
 import io.github.pknujsp.everyweather.core.model.weather.RequestWeatherArguments
 import io.github.pknujsp.everyweather.core.model.weather.common.WeatherProvider
 import io.github.pknujsp.everyweather.core.resource.R
+import io.github.pknujsp.everyweather.core.ui.ModalBottomSheetDialog
 import io.github.pknujsp.everyweather.core.ui.TitleTextWithNavigation
 import io.github.pknujsp.everyweather.core.ui.lottie.CancellableLoadingScreen
 import io.github.pknujsp.everyweather.core.ui.time.DynamicDateTime
@@ -60,10 +61,6 @@ fun CompareHourlyForecastScreen(
     viewModel: CompareHourlyForecastViewModel = hiltViewModel(),
     popBackStack: () -> Unit,
 ) {
-    BackHandler {
-        popBackStack()
-    }
-
     LaunchedEffect(args) {
         viewModel.load(args)
     }
@@ -71,21 +68,15 @@ fun CompareHourlyForecastScreen(
     val hourlyForecast by viewModel.hourlyForecast.collectAsStateWithLifecycle()
     val hourlyForecastComparisonReport by viewModel.report.collectAsStateWithLifecycle()
 
-    Column(
-        modifier =
-            Modifier
-                .fillMaxSize()
-                .systemBarsPadding(),
-    ) {
-        TitleTextWithNavigation(title = stringResource(id = R.string.title_comparison_hourly_forecast)) {
-            popBackStack()
-        }
+    ModalBottomSheetDialog(freeHeight = true,
+        title = stringResource(id = R.string.title_comparison_hourly_forecast),
+        onDismiss = popBackStack) {
         Column(
             modifier =
-                Modifier
-                    .fillMaxWidth()
-                    .weight(1f)
-                    .verticalScroll(rememberScrollState()),
+            Modifier
+                .fillMaxWidth()
+                .weight(1f)
+                .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
             hourlyForecast.onLoading {
@@ -129,10 +120,10 @@ fun Content(
         content = {
             LazyRow(
                 modifier =
-                    Modifier
-                        .fillMaxWidth()
-                        .background(Color.Transparent)
-                        .wrapContentHeight(),
+                Modifier
+                    .fillMaxWidth()
+                    .background(Color.Transparent)
+                    .wrapContentHeight(),
                 state = lazyListState,
             ) {
                 items(count = itemsCount, key = { it }) { i ->
@@ -180,17 +171,17 @@ internal fun WeatherDataProviderInfo(
         horizontalArrangement = Arrangement.spacedBy(4.dp, Alignment.Start),
         verticalAlignment = Alignment.CenterVertically,
         modifier =
-            Modifier
-                .height(height)
-                .padding(start = 12.dp),
+        Modifier
+            .height(height)
+            .padding(start = 12.dp),
     ) {
         AsyncImage(
             model = ImageRequest.Builder(LocalContext.current).data(weatherProvider.icon).crossfade(false).build(),
             contentDescription = stringResource(id = R.string.weather_provider),
             modifier =
-                Modifier
-                    .size(height)
-                    .padding(4.dp),
+            Modifier
+                .size(height)
+                .padding(4.dp),
         )
         Text(
             text = stringResource(id = weatherProvider.title),
@@ -211,9 +202,9 @@ private fun Item(
         val weatherConditionText = stringResource(id = weatherCondition)
         Column(
             modifier =
-                Modifier
-                    .then(modifier)
-                    .clickable { onClick(weatherConditionText) },
+            Modifier
+                .then(modifier)
+                .clickable { onClick(weatherConditionText) },
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             // 시각
@@ -223,9 +214,9 @@ private fun Item(
                 model = ImageRequest.Builder(LocalContext.current).data(weatherIcon).crossfade(false).build(),
                 contentDescription = weatherConditionText,
                 modifier =
-                    Modifier
-                        .padding(4.dp)
-                        .fillMaxWidth(),
+                Modifier
+                    .padding(4.dp)
+                    .fillMaxWidth(),
             )
 
             Text(text = temperature, style = TextStyle(fontSize = 13.sp, color = Color.White))

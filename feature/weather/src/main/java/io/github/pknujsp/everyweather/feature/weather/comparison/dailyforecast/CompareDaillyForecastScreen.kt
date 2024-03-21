@@ -43,6 +43,7 @@ import io.github.pknujsp.everyweather.core.model.onSuccess
 import io.github.pknujsp.everyweather.core.model.weather.RequestWeatherArguments
 import io.github.pknujsp.everyweather.core.model.weather.common.WeatherConditionCategory
 import io.github.pknujsp.everyweather.core.resource.R
+import io.github.pknujsp.everyweather.core.ui.ModalBottomSheetDialog
 import io.github.pknujsp.everyweather.core.ui.TitleTextWithNavigation
 import io.github.pknujsp.everyweather.core.ui.lottie.CancellableLoadingScreen
 import io.github.pknujsp.everyweather.feature.weather.comparison.common.CommonForecastItemsScreen
@@ -56,25 +57,12 @@ fun CompareDailyForecastScreen(
     viewModel: CompareDailyForecastViewModel = hiltViewModel(),
     popBackStack: () -> Unit,
 ) {
-    BackHandler {
-        popBackStack()
-    }
     LaunchedEffect(args) {
         viewModel.load(args)
     }
     val forecast by viewModel.dailyForecast.collectAsStateWithLifecycle()
 
-    Column(
-        modifier =
-            Modifier
-                .fillMaxSize()
-                .systemBarsPadding(),
-    ) {
-        TitleTextWithNavigation(
-            title = stringResource(id = io.github.pknujsp.everyweather.core.resource.R.string.title_comparison_daily_forecast),
-        ) {
-            popBackStack()
-        }
+    ModalBottomSheetDialog(freeHeight = true, title = stringResource(id = R.string.title_comparison_daily_forecast), onDismiss = popBackStack) {
         Column(
             modifier =
                 Modifier

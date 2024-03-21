@@ -13,13 +13,13 @@ import io.github.pknujsp.everyweather.core.ui.weather.item.CardInfo
 import io.github.pknujsp.everyweather.core.ui.weather.item.SimpleWeatherScreenBackground
 import io.github.pknujsp.everyweather.feature.weather.info.hourlyforecast.model.SimpleHourlyForecast
 import io.github.pknujsp.everyweather.feature.weather.info.ui.HourlyForecastItem
-import io.github.pknujsp.everyweather.feature.weather.route.NestedWeatherRoutes
+import io.github.pknujsp.everyweather.feature.weather.route.NestedRoutes
 
 @Composable
 fun HourlyForecastScreen(
     modifier: Modifier = Modifier,
     hourlyForecast: SimpleHourlyForecast,
-    navigate: (NestedWeatherRoutes) -> Unit,
+    navigate: (NestedRoutes) -> Unit,
 ) {
     val currentNavigate by rememberUpdatedState(newValue = navigate)
     val lazyListState = rememberLazyListState()
@@ -30,21 +30,21 @@ fun HourlyForecastScreen(
     SimpleWeatherScreenBackground(
         modifier = modifier,
         cardInfo =
-            CardInfo(
-                title = stringResource(id = R.string.hourly_forecast),
-                buttons =
-                    listOf(
-                        stringResource(id = io.github.pknujsp.everyweather.core.resource.R.string.comparison) to {
-                            currentNavigate(NestedWeatherRoutes.ComparisonHourlyForecast)
-                        },
-                        stringResource(id = R.string.detail) to {
-                            currentNavigate(NestedWeatherRoutes.DetailHourlyForecast)
-                        },
-                    ),
-                content = {
-                    DynamicDateTime(hourlyForecast.dateTimeInfo, lazyListState)
-                    HourlyForecastItem(simpleHourlyForecast = hourlyForecast, lazyListState)
+        CardInfo(
+            title = stringResource(id = R.string.hourly_forecast),
+            buttons =
+            listOf(
+                stringResource(id = io.github.pknujsp.everyweather.core.resource.R.string.comparison) to {
+                    currentNavigate(NestedRoutes.COMP_HOURLY_FORECAST)
+                },
+                stringResource(id = R.string.detail) to {
+                    currentNavigate(NestedRoutes.DETAIL_HOURLY_FORECAST)
                 },
             ),
+            content = {
+                DynamicDateTime(hourlyForecast.dateTimeInfo, lazyListState)
+                HourlyForecastItem(simpleHourlyForecast = hourlyForecast, lazyListState)
+            },
+        ),
     )
 }

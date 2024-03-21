@@ -35,8 +35,8 @@ import io.github.pknujsp.everyweather.core.ui.theme.AppShapes
 @Composable
 fun SummaryScreen(
     model: WeatherSummaryPrompt.Model,
-    onDismiss: () -> Unit,
     summaryTextViewModel: SummaryTextViewModel = hiltViewModel(),
+    onDismiss: () -> Unit,
 ) {
     val uiState = summaryTextViewModel.uiState
     LaunchedEffect(model) {

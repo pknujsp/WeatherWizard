@@ -59,11 +59,15 @@ import io.github.pknujsp.everyweather.feature.flickr.FlickrImageItemScreen
 import io.github.pknujsp.everyweather.feature.map.screen.SimpleMapScreen
 import io.github.pknujsp.everyweather.feature.sunsetrise.SimpleSunSetRiseScreen
 import io.github.pknujsp.everyweather.feature.sunsetrise.SunSetRiseInfo
+import io.github.pknujsp.everyweather.feature.weather.comparison.dailyforecast.CompareDailyForecastScreen
+import io.github.pknujsp.everyweather.feature.weather.comparison.hourlyforecast.CompareHourlyForecastScreen
 import io.github.pknujsp.everyweather.feature.weather.info.currentweather.simple.CurrentWeatherScreen
+import io.github.pknujsp.everyweather.feature.weather.info.dailyforecast.detail.DetailDailyForecastScreen
 import io.github.pknujsp.everyweather.feature.weather.info.dailyforecast.simple.SimpleDailyForecastScreen
 import io.github.pknujsp.everyweather.feature.weather.info.geocode.TargetLocationViewModel
+import io.github.pknujsp.everyweather.feature.weather.info.hourlyforecast.detail.DetailHourlyForecastScreen
 import io.github.pknujsp.everyweather.feature.weather.info.hourlyforecast.simple.HourlyForecastScreen
-import io.github.pknujsp.everyweather.feature.weather.route.NestedWeatherRoutes
+import io.github.pknujsp.everyweather.feature.weather.route.NestedRoutes
 import io.github.pknujsp.everyweather.feature.weather.summary.SummaryScreen
 import kotlinx.coroutines.launch
 
@@ -73,17 +77,15 @@ private val COLUMN_ITEM_SPACING = 20.dp
 @Composable
 fun WeatherInfoScreen(
     refresh: () -> Unit,
-    navigate: (NestedWeatherRoutes) -> Unit,
     openDrawer: () -> Unit,
     weatherContentUiState: WeatherContentUiState.Success,
     viewModel: WeatherInfoViewModel = hiltViewModel(),
     targetLocationViewModel: TargetLocationViewModel = hiltViewModel(),
 ) {
     val currentOpenDrawer by rememberUpdatedState(openDrawer)
-    val currentNavigate by rememberUpdatedState(navigate)
     val currentRefresh by rememberUpdatedState(refresh)
     val scrollState = rememberScrollState()
-
+    var nestedRoutes by remember(weatherContentUiState) { mutableStateOf(NestedRoutes.MAIN) }
     val topAppBarUiState = targetLocationViewModel.topAppBarUiState
     var onClickedWeatherProviderButton by remember { mutableStateOf(false) }
 
@@ -96,16 +98,14 @@ fun WeatherInfoScreen(
     val systemBars = WindowInsets.systemBars
     val density = LocalDensity.current
 
-    val systemBarPadding: PaddingValues =
-        remember {
-            with(density) {
-                PaddingValues(top = systemBars.getTop(this).toDp(), bottom = systemBars.getBottom(this).toDp(), start = 0.dp, end = 0.dp)
-            }
+    val systemBarPadding: PaddingValues = remember {
+        with(density) {
+            PaddingValues(top = systemBars.getTop(this).toDp(), bottom = systemBars.getBottom(this).toDp(), start = 0.dp, end = 0.dp)
         }
-    val screenHeight =
-        remember {
-            (localConfiguration.screenHeightDp + (systemBarPadding.calculateTopPadding() + systemBarPadding.calculateBottomPadding()).value).dp
-        }
+    }
+    val screenHeight = remember {
+        (localConfiguration.screenHeightDp + (systemBarPadding.calculateTopPadding() + systemBarPadding.calculateBottomPadding()).value).dp
+    }
 
     LaunchedEffect(weatherContentUiState) {
         targetLocationViewModel.setLocation(weatherContentUiState.args.targetLocation)
@@ -120,14 +120,12 @@ fun WeatherInfoScreen(
             contentDescription = stringResource(R.string.background_image),
         )
         Box(
-            modifier =
-            Modifier
+            modifier = Modifier
                 .fillMaxSize()
                 .background(Color.Black.copy(alpha = 0.11f), RectangleShape),
         ) {
             Column(
-                modifier =
-                Modifier
+                modifier = Modifier
                     .fillMaxSize()
                     .padding(horizontal = DEFAULT_PADDING)
                     .verticalScroll(scrollState),
@@ -138,10 +136,18 @@ fun WeatherInfoScreen(
                 Box(modifier = Modifier.height(screenHeight - DEFAULT_PADDING), contentAlignment = Alignment.BottomStart) {
                     Column(verticalArrangement = Arrangement.spacedBy(COLUMN_ITEM_SPACING)) {
                         CurrentWeatherScreen(weather.currentWeather) { currentAirQuality }
-                        HourlyForecastScreen(hourlyForecast = weather.simpleHourlyForecast, navigate = currentNavigate)
+                        HourlyForecastScreen(hourlyForecast = weather.simpleHourlyForecast, navigate = {
+                            coroutineScope.launch {
+                                nestedRoutes = it
+                            }
+                        })
                     }
                 }
-                SimpleDailyForecastScreen(weather.simpleDailyForecast, currentNavigate)
+                SimpleDailyForecastScreen(weather.simpleDailyForecast, navigate = {
+                    coroutineScope.launch {
+                        nestedRoutes = it
+                    }
+                })
                 SimpleMapScreen(weatherContentUiState.args)
                 AirQualityScreen(weatherContentUiState.args, weatherContentUiState.lastUpdatedDateTime, onLoadAirQuality = { aqi ->
                     coroutineScope.launch {
@@ -182,8 +188,7 @@ fun WeatherInfoScreen(
             )
 
             Box(
-                modifier =
-                Modifier
+                modifier = Modifier
                     .align(Alignment.BottomCenter)
                     .fillMaxWidth()
                     .height(systemBarPadding.calculateBottomPadding())
@@ -208,6 +213,40 @@ fun WeatherInfoScreen(
             SummaryScreen(model = weatherContentUiState.weatherEntities, onDismiss = {
                 showAiSummary = false
             })
+        }
+
+        when (nestedRoutes) {
+            NestedRoutes.COMP_DAILY_FORECAST -> CompareDailyForecastScreen(args = weatherContentUiState.args) {
+                coroutineScope.launch {
+                    nestedRoutes = NestedRoutes.MAIN
+                }
+            }
+
+            NestedRoutes.COMP_HOURLY_FORECAST -> CompareHourlyForecastScreen(args = weatherContentUiState.args) {
+                coroutineScope.launch {
+                    nestedRoutes = NestedRoutes.MAIN
+                }
+            }
+
+            NestedRoutes.DETAIL_DAILY_FORECAST -> DetailDailyForecastScreen(dailyForecast = weatherContentUiState.weather.detailDailyForecast) {
+                coroutineScope.launch {
+                    nestedRoutes = NestedRoutes.MAIN
+                }
+            }
+
+            NestedRoutes.DETAIL_HOURLY_FORECAST -> DetailHourlyForecastScreen(hourlyForecast = weatherContentUiState.weather.detailHourlyForecast) {
+                coroutineScope.launch {
+                    nestedRoutes = NestedRoutes.MAIN
+                }
+            }
+
+            NestedRoutes.SUMMARY -> SummaryScreen(model = weatherContentUiState.weatherEntities) {
+                coroutineScope.launch {
+                    nestedRoutes = NestedRoutes.MAIN
+                }
+            }
+
+            else -> {}
         }
     }
 }
@@ -236,8 +275,7 @@ private fun UnitItem(
     unit: WeatherDataUnit,
 ) {
     Text(
-        text =
-        listOf(
+        text = listOf(
             AStyle(text = "${stringResource(id = title)} : ", span = SpanStyle(fontSize = 13.sp, color = Color.White)),
             AStyle(text = unit.symbol, span = SpanStyle(fontSize = 13.sp, color = Color.White)),
         ).toAnnotated(),

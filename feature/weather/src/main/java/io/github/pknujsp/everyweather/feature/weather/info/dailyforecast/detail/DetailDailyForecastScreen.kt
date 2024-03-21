@@ -1,6 +1,5 @@
 package io.github.pknujsp.everyweather.feature.weather.info.dailyforecast.detail
 
-import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -8,12 +7,10 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -35,7 +32,7 @@ import coil.request.ImageRequest
 import io.github.pknujsp.everyweather.core.common.util.AStyle
 import io.github.pknujsp.everyweather.core.common.util.toAnnotated
 import io.github.pknujsp.everyweather.core.resource.R
-import io.github.pknujsp.everyweather.core.ui.TitleTextWithNavigation
+import io.github.pknujsp.everyweather.core.ui.ModalBottomSheetDialog
 import io.github.pknujsp.everyweather.feature.weather.info.dailyforecast.model.DetailDailyForecast
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -44,25 +41,13 @@ fun DetailDailyForecastScreen(
     dailyForecast: DetailDailyForecast,
     popBackStack: () -> Unit,
 ) {
-    BackHandler {
-        popBackStack()
-    }
-    Column(
-        modifier =
-            Modifier
-                .fillMaxSize()
-                .systemBarsPadding(),
-    ) {
-        TitleTextWithNavigation(title = stringResource(R.string.daily_forecast)) {
-            popBackStack()
-        }
+    ModalBottomSheetDialog(freeHeight = true, title = stringResource(id = R.string.daily_forecast), onDismiss = popBackStack) {
         LazyColumn(state = rememberLazyListState(), modifier = Modifier.fillMaxWidth()) {
             itemsIndexed(dailyForecast.items) { i, item ->
                 Item(
                     item = item,
                     displayPrecipitationProbability = dailyForecast.displayPrecipitationProbability,
-                ) {
-                }
+                ) {}
             }
         }
     }
@@ -78,24 +63,21 @@ private fun Item(
         Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(8.dp),
-            modifier =
-                Modifier
-                    .fillMaxWidth()
-                    .height(80.dp)
-                    .clickable {
-                        onClick()
-                    },
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(80.dp)
+                .clickable {
+                    onClick()
+                },
         ) {
             Text(
-                text =
-                    listOf(
-                        AStyle(text = "${date}\n", span = SpanStyle(fontSize = 14.sp, color = Color.Gray)),
-                        AStyle(text = dayOfWeek, span = SpanStyle(fontSize = 16.sp, color = Color.Black)),
-                    ).toAnnotated(),
-                modifier =
-                    Modifier
-                        .weight(0.2f, true)
-                        .padding(start = 20.dp),
+                text = listOf(
+                    AStyle(text = "${date}\n", span = SpanStyle(fontSize = 14.sp, color = Color.Gray)),
+                    AStyle(text = dayOfWeek, span = SpanStyle(fontSize = 16.sp, color = Color.Black)),
+                ).toAnnotated(),
+                modifier = Modifier
+                    .weight(0.2f, true)
+                    .padding(start = 20.dp),
                 lineHeight = 20.sp,
             )
 
@@ -113,21 +95,19 @@ private fun Item(
                     )
                     if (i < weatherConditionIcons.lastIndex) {
                         Box(
-                            modifier =
-                                Modifier
-                                    .width(1.dp)
-                                    .height(16.dp)
-                                    .background(Color.LightGray),
+                            modifier = Modifier
+                                .width(1.dp)
+                                .height(16.dp)
+                                .background(Color.LightGray),
                         )
                     }
                 }
             }
 
             Column(
-                modifier =
-                    Modifier
-                        .weight(0.4f, true)
-                        .padding(end = 12.dp),
+                modifier = Modifier
+                    .weight(0.4f, true)
+                    .padding(end = 12.dp),
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {

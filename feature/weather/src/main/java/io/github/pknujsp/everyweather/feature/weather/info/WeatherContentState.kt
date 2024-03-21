@@ -25,7 +25,6 @@ import io.github.pknujsp.everyweather.feature.weather.info.dailyforecast.model.D
 import io.github.pknujsp.everyweather.feature.weather.info.dailyforecast.model.SimpleDailyForecast
 import io.github.pknujsp.everyweather.feature.weather.info.hourlyforecast.model.DetailHourlyForecast
 import io.github.pknujsp.everyweather.feature.weather.info.hourlyforecast.model.SimpleHourlyForecast
-import io.github.pknujsp.everyweather.feature.weather.route.NestedWeatherRoutes
 import io.github.pknujsp.everyweather.feature.weather.summary.WeatherSummaryPrompt
 import java.time.ZonedDateTime
 
@@ -74,12 +73,6 @@ private class MutableWeatherContentState(
     private val refreshFunc: () -> Unit,
     private val windowInsetsControllerCompat: WindowInsetsControllerCompat,
 ) : WeatherContentState {
-    override val nestedRoutes = mutableStateOf(NestedWeatherRoutes.startDestination)
-
-    override fun navigate(nestedRoutes: NestedWeatherRoutes) {
-        this.nestedRoutes.value = nestedRoutes
-    }
-
     override fun refresh() {
         refreshFunc()
     }
@@ -105,16 +98,6 @@ fun rememberWeatherContentState(refresh: () -> Unit): WeatherContentState {
             MutableWeatherContentState(refresh, windowInsetsControllerCompat)
         }
 
-    var nestedRoutes by rememberSaveable(
-        saver =
-            Saver(
-                save = { it.value.route },
-                restore = { mutableStateOf(NestedWeatherRoutes.getRoute(it)) },
-            ),
-    ) {
-        mutableStateOf(state.nestedRoutes.value)
-    }
-
     DisposableEffect(Unit) {
         onDispose {
             state.setSystemBarColor(SystemBarContentColor.BLACK)
@@ -126,11 +109,6 @@ fun rememberWeatherContentState(refresh: () -> Unit): WeatherContentState {
 
 @Stable
 interface WeatherContentState {
-    val nestedRoutes: State<NestedWeatherRoutes>
-
     fun setSystemBarColor(color: SystemBarContentColor)
-
-    fun navigate(nestedRoutes: NestedWeatherRoutes)
-
     fun refresh()
 }
