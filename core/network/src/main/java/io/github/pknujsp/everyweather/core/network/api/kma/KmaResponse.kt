@@ -8,12 +8,10 @@ import io.github.pknujsp.everyweather.core.network.api.kma.parser.ParsedKmaCurre
 import io.github.pknujsp.everyweather.core.network.api.kma.parser.ParsedKmaDailyForecast
 import io.github.pknujsp.everyweather.core.network.api.kma.parser.ParsedKmaHourlyForecast
 
-
 class KmaCurrentWeatherResponse(
     currentWeather: ParsedKmaCurrentWeather,
     hourlyForecast: ParsedKmaHourlyForecast,
 ) : CurrentWeatherResponseModel {
-
     val weatherCondition: String = hourlyForecast.weatherCondition
     val temperature: Short = currentWeather.temperature
     val feelsLikeTemperature: Short = currentWeather.feelsLikeTemperature
@@ -27,25 +25,25 @@ class KmaCurrentWeatherResponse(
 class KmaHourlyForecastResponse(
     hourlyForecasts: List<ParsedKmaHourlyForecast>,
 ) : HourlyForecastResponseModel {
-
-    val items: List<Item> = hourlyForecasts.map {
-        Item(
-            dateTime = it.dateTime,
-            isHasShower = it.isHasShower,
-            weatherDescription = it.weatherCondition,
-            temp = it.temp,
-            feelsLikeTemp = it.feelsLikeTemp,
-            rainVolume = it.rainVolume,
-            snowVolume = it.snowVolume,
-            pop = it.pop,
-            windDirection = it.windDirection,
-            windSpeed = it.windSpeed,
-            humidity = it.humidity,
-            isHasRain = it.isHasRain,
-            isHasSnow = it.isHasSnow,
-            isHasThunder = it.isHasThunder,
-        )
-    }
+    val items: List<Item> =
+        hourlyForecasts.map {
+            Item(
+                dateTime = it.dateTime,
+                isHasShower = it.isHasShower,
+                weatherDescription = it.weatherCondition,
+                temp = it.temp,
+                feelsLikeTemp = it.feelsLikeTemp,
+                rainVolume = it.rainVolume,
+                snowVolume = it.snowVolume,
+                pop = it.pop,
+                windDirection = it.windDirection,
+                windSpeed = it.windSpeed,
+                humidity = it.humidity,
+                isHasRain = it.isHasRain,
+                isHasSnow = it.isHasSnow,
+                isHasThunder = it.isHasThunder,
+            )
+        }
 
     data class Item(
         val dateTime: String,
@@ -68,33 +66,36 @@ class KmaHourlyForecastResponse(
 class KmaDailyForecastResponse(
     dailyForecasts: List<ParsedKmaDailyForecast>,
 ) : DailyForecastResponseModel {
-
-    val items: List<Item> = dailyForecasts.map {
-        Item(
-            date = it.date,
-            isSingle = it.isSingle,
-            amValues = it.amValues?.let { amValues ->
-                Item.Values(
-                    weatherDescription = amValues.weatherDescription,
-                    pop = amValues.pop,
-                )
-            },
-            pmValues = it.pmValues?.let { pmValues ->
-                Item.Values(
-                    weatherDescription = pmValues.weatherDescription,
-                    pop = pmValues.pop,
-                )
-            },
-            singleValues = it.singleValues?.let { singleValues ->
-                Item.Values(
-                    weatherDescription = singleValues.weatherDescription,
-                    pop = singleValues.pop,
-                )
-            },
-            minTemp = it.minTemp,
-            maxTemp = it.maxTemp,
-        )
-    }
+    val items: List<Item> =
+        dailyForecasts.map {
+            Item(
+                date = it.date,
+                isSingle = it.isSingle,
+                amValues =
+                    it.amValues?.let { amValues ->
+                        Item.Values(
+                            weatherDescription = amValues.weatherDescription,
+                            pop = amValues.pop,
+                        )
+                    },
+                pmValues =
+                    it.pmValues?.let { pmValues ->
+                        Item.Values(
+                            weatherDescription = pmValues.weatherDescription,
+                            pop = pmValues.pop,
+                        )
+                    },
+                singleValues =
+                    it.singleValues?.let { singleValues ->
+                        Item.Values(
+                            weatherDescription = singleValues.weatherDescription,
+                            pop = singleValues.pop,
+                        )
+                    },
+                minTemp = it.minTemp,
+                maxTemp = it.maxTemp,
+            )
+        }
 
     data class Item(
         val date: String,
@@ -109,7 +110,6 @@ class KmaDailyForecastResponse(
             var weatherDescription: String,
             var pop: Int,
         )
-
     }
 }
 

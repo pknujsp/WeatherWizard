@@ -14,7 +14,7 @@ import io.github.pknujsp.everyweather.core.model.weather.common.WindDirectionVal
 import io.github.pknujsp.everyweather.core.model.weather.common.WindSpeedValueType
 
 data class ToCompareHourlyForecastEntity(
-    val items: List<Pair<WeatherProvider, List<Item>>>
+    val items: List<Pair<WeatherProvider, List<Item>>>,
 ) : EntityModel {
     data class Item(
         val dateTime: DateTimeValueType,

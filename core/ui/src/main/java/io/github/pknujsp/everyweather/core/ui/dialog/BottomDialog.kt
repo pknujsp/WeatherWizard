@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.absolutePadding
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.navigationBars
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.BottomSheetDefaults
@@ -18,7 +19,6 @@ import androidx.compose.material3.ModalBottomSheetDefaults
 import androidx.compose.material3.ModalBottomSheetProperties
 import androidx.compose.material3.SheetState
 import androidx.compose.material3.Surface
-import androidx.compose.material3.contentColorFor
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -28,57 +28,59 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import io.github.pknujsp.everyweather.core.ui.TitleTextWithoutNavigation
+import io.github.pknujsp.everyweather.core.ui.dialog.BottomSheetLayoutParams.tonalElevation
 import io.github.pknujsp.everyweather.core.ui.theme.AppColorScheme
 import io.github.pknujsp.everyweather.core.ui.theme.AppShapes
 import kotlin.math.roundToInt
 
-
-private val ContentPadding = 16.dp
+enum class BottomSheetType {
+    MODAL, PERSISTENT
+}
 
 @Composable
 @ExperimentalMaterial3Api
 fun CustomModalBottomSheet(
     onDismissRequest: () -> Unit,
-    modifier: Modifier = Modifier,
-    freeHeight: Boolean = false,
+    modifier: Modifier = Modifier.padding(horizontal = BottomSheetLayoutParams.dialogContentHorizontalPadding,
+        BottomSheetLayoutParams.dialogContentVerticalPadding),
+    maxHeightRatio: Float = BottomSheetLayoutParams.MAX_DIALOG_FREE_HEIGHT_RATIO,
     sheetState: SheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
     sheetMaxWidth: Dp = BottomSheetDefaults.SheetMaxWidth,
-    shape: Shape = AppShapes.extraLarge,
-    containerColor: Color = BottomSheetDefaults.ContainerColor,
-    contentColor: Color = contentColorFor(containerColor),
-    tonalElevation: Dp = BottomSheetDefaults.Elevation,
-    scrimColor: Color = BottomSheetDefaults.ScrimColor,
-    dragHandle: @Composable (() -> Unit)? = { DragHandle() },
+    dragHandle: @Composable() (() -> Unit)? = { DragHandle() },
     properties: ModalBottomSheetProperties = ModalBottomSheetDefaults.properties(),
-    content: @Composable ColumnScope.() -> Unit,
+    content: @Composable () -> Unit,
 ) {
-    val density = LocalDensity.current.density
+    val density = LocalDensity.current
     val height = LocalView.current.height
-    val maxHeightDp = (height * if (freeHeight) 0.8 else 0.6 / density).roundToInt().dp
+    val maxHeightDp = BottomSheetLayoutParams.height(height, density.density, maxHeightRatio)
     val bottomPadding = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
 
-    ModalBottomSheet(onDismissRequest = onDismissRequest,
-        modifier = modifier
+    ModalBottomSheet(
+        onDismissRequest = onDismissRequest,
+        modifier = Modifier
             .heightIn(min = 0.dp, max = maxHeightDp)
-            .absolutePadding(left = 12.dp, right = 12.dp)
-            .absoluteOffset(y = (-10 - bottomPadding.value).dp),
+            .padding(horizontal = BottomSheetLayoutParams.dialogHorizontalPadding)
+            .offset(y = (-bottomPadding.value).dp),
         sheetState = sheetState,
         sheetMaxWidth = sheetMaxWidth,
-        shape = shape,
-        containerColor = containerColor,
-        contentColor = contentColor,
+        shape = BottomSheetLayoutParams.shape,
+        containerColor = BottomSheetLayoutParams.containerColor,
+        contentColor = BottomSheetLayoutParams.contentColor,
         tonalElevation = tonalElevation,
-        scrimColor = scrimColor,
+        scrimColor = BottomSheetLayoutParams.scrimColor,
         dragHandle = dragHandle,
-        windowInsets = WindowInsets(0, 0, 0, 0),
+        windowInsets = BottomSheetLayoutParams.windowInsets,
         properties = properties,
         content = {
-            Column(modifier = Modifier.padding(start = ContentPadding, end = ContentPadding, bottom = ContentPadding), content = content)
-        })
+            Column(modifier = modifier) {
+                content()
+            }
+        },
+    )
 }
 
 private val DragHandleVerticalPadding = 12.dp
-
 
 @Composable
 private fun DragHandle(
@@ -90,5 +92,43 @@ private fun DragHandle(
 ) {
     Surface(modifier = modifier.padding(vertical = DragHandleVerticalPadding), color = color, shape = shape) {
         Box(Modifier.size(width = width, height = height))
+    }
+}
+
+@Composable
+@OptIn(ExperimentalMaterial3Api::class)
+fun BottomSheet(
+    modifier: Modifier = Modifier.padding(horizontal = BottomSheetLayoutParams.dialogContentHorizontalPadding,
+        BottomSheetLayoutParams.dialogContentVerticalPadding),
+    bottomSheetType: BottomSheetType = BottomSheetType.MODAL,
+    maxHeightRatio: Float = BottomSheetLayoutParams.MAX_DIALOG_FREE_HEIGHT_RATIO,
+    onDismissRequest: () -> Unit,
+    content: @Composable () -> Unit,
+) {
+    when (bottomSheetType) {
+        BottomSheetType.MODAL -> {
+            CustomModalBottomSheet(onDismissRequest = onDismissRequest,
+                modifier = modifier,
+                content = content,
+                maxHeightRatio = maxHeightRatio)
+        }
+
+        BottomSheetType.PERSISTENT -> {
+            PersistentBottomSheet(onDismissRequest = onDismissRequest,
+                modifier = modifier,
+                content = content,
+                maxHeightRatio = maxHeightRatio)
+        }
+    }
+}
+
+@Composable
+fun ContentWithTitle(
+    title: String,
+    content: @Composable () -> Unit,
+) {
+    Column {
+        TitleTextWithoutNavigation(title = title)
+        content()
     }
 }

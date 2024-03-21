@@ -3,13 +3,11 @@ package io.github.pknujsp.everyweather.core.data.weather
 import io.github.pknujsp.everyweather.core.model.ApiRequestParameter
 
 interface WeatherRequestPreProcessor {
-
     suspend fun getCurrentWeatherRequestParameter(
         latitude: Double,
         longitude: Double,
         requestId: Long,
     ): ApiRequestParameter
-
 
     suspend fun getHourlyForecastRequestParameter(
         latitude: Double,

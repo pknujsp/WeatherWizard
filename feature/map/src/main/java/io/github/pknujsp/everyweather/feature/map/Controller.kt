@@ -28,8 +28,6 @@ class SimpleMapController {
     fun zoomOut() {
         iMapController?.zoomOut()
     }
-
-
 }
 
 @Stable
@@ -38,8 +36,10 @@ interface RadarController {
     val time: StateFlow<String>
 
     fun beforeRadar()
+
     fun nextRadar()
 
     fun play()
+
     fun currentRadar()
 }

@@ -20,11 +20,22 @@ import javax.inject.Named
 @HiltAndroidApp
 class Application : Application(), Configuration.Provider {
     @Inject lateinit var workerFactory: HiltWorkerFactory
-    @Inject @CoDispatcher(CoDispatcherType.IO) lateinit var ioDispatcher: CoroutineDispatcher
 
-    @Inject @Named(RepositoryInitializerModule.SETTINGS_REPOSITORY) lateinit var settingsRepository: RepositoryInitializer
-    @Inject @Named(InitializerModule.WIDGET_INITIALIZER) lateinit var widgetInitializer: AppComponentServiceIntializer
-    @Inject @Named(InitializerModule.NOTIFICATION_INITIALIZER) lateinit var notificationInitializer: AppComponentServiceIntializer
+    @Inject
+    @CoDispatcher(CoDispatcherType.IO)
+    lateinit var ioDispatcher: CoroutineDispatcher
+
+    @Inject
+    @Named(RepositoryInitializerModule.SETTINGS_REPOSITORY)
+    lateinit var settingsRepository: RepositoryInitializer
+
+    @Inject
+    @Named(InitializerModule.WIDGET_INITIALIZER)
+    lateinit var widgetInitializer: AppComponentServiceIntializer
+
+    @Inject
+    @Named(InitializerModule.NOTIFICATION_INITIALIZER)
+    lateinit var notificationInitializer: AppComponentServiceIntializer
 
     override val workManagerConfiguration: Configuration
         get() = Configuration.Builder().setWorkerFactory(workerFactory).build()

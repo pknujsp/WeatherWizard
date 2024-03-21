@@ -29,9 +29,7 @@ android {
             consumerProguardFiles("proguard-rules.pgcfg", "admob-proguard-rules.pro")
         }
     }
-
 }
-
 
 dependencies {
     implementation(project(":core:common"))
@@ -41,5 +39,4 @@ dependencies {
     implementation(libs.android.gms.play.services.ads)
     implementation(libs.google.errorprone.annotations)
     implementation(libs.androidx.constraintlayout)
-
 }

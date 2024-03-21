@@ -8,7 +8,6 @@ import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 
 class DynamicDateTimeUiCreator(times: List<String>, private val itemWidth: Dp) {
-
     private val dates = times.map { ZonedDateTime.parse(it).toLocalDate() }
 
     private companion object {

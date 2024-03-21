@@ -1,7 +1,7 @@
 package io.github.pknujsp.everyweather.core.data.notification.ongoing.model
 
-import io.github.pknujsp.everyweather.core.model.coordinate.LocationTypeModel
 import io.github.pknujsp.everyweather.core.model.EntityModel
+import io.github.pknujsp.everyweather.core.model.coordinate.LocationTypeModel
 import io.github.pknujsp.everyweather.core.model.notification.enums.NotificationIconType
 import io.github.pknujsp.everyweather.core.model.notification.enums.OngoingNotificationType
 import io.github.pknujsp.everyweather.core.model.notification.enums.RefreshInterval
@@ -12,5 +12,5 @@ data class OngoingNotificationSettingsEntity(
     val refreshInterval: RefreshInterval = RefreshInterval.default,
     val weatherProvider: WeatherProvider = WeatherProvider.default,
     val location: LocationTypeModel = LocationTypeModel(),
-    val type: OngoingNotificationType = OngoingNotificationType.default
+    val type: OngoingNotificationType = OngoingNotificationType.default,
 ) : EntityModel

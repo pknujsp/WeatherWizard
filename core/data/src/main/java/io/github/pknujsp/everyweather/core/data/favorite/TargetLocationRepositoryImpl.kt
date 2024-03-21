@@ -7,24 +7,24 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 
 class TargetLocationRepositoryImpl(
-    private val appDataStore: AppDataStore
+    private val appDataStore: AppDataStore,
 ) : TargetLocationRepository, RepositoryInitializer {
-
     private companion object {
         private const val TARGET_LOCATION_KEY = "TARGET_LOCATION_KEY"
     }
 
     override val targetLocation
-        get() = appDataStore.observeString(TARGET_LOCATION_KEY).map { key ->
-            key?.run {
-                val (locationType, locationId) = split(",")
-                SelectedLocationModel(LocationType.fromKey(locationType.toInt()), locationId.toLong())
-            } ?: run {
-                val defaultLocation = createDefaultLocation()
-                updateTargetLocation(defaultLocation)
-                defaultLocation
+        get() =
+            appDataStore.observeString(TARGET_LOCATION_KEY).map { key ->
+                key?.run {
+                    val (locationType, locationId) = split(",")
+                    SelectedLocationModel(LocationType.fromKey(locationType.toInt()), locationId.toLong())
+                } ?: run {
+                    val defaultLocation = createDefaultLocation()
+                    updateTargetLocation(defaultLocation)
+                    defaultLocation
+                }
             }
-        }
 
     override suspend fun getCurrentTargetLocation() = targetLocation.first()
 

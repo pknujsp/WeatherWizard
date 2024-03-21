@@ -6,7 +6,6 @@ internal class GlobalRepositoryCacheManagerImpl(
     private val rainViewerRepository: RepositoryCacheManager<*, *>,
     private val summaryTextRepository: RepositoryCacheManager<*, *>,
 ) : GlobalRepositoryCacheManager {
-
     override fun startCacheCleaner() {
         weatherDataRepository.startCacheCleaner()
         airQualityRepository.startCacheCleaner()
@@ -20,10 +19,10 @@ internal class GlobalRepositoryCacheManagerImpl(
         rainViewerRepository.stopCacheCleaner()
         summaryTextRepository.stopCacheCleaner()
     }
-
 }
 
 interface GlobalRepositoryCacheManager {
     fun startCacheCleaner()
+
     fun stopCacheCleaner()
 }

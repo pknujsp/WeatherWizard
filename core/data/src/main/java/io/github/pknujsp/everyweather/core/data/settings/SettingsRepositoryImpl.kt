@@ -1,6 +1,5 @@
 package io.github.pknujsp.everyweather.core.data.settings
 
-import android.util.Log
 import io.github.pknujsp.everyweather.core.data.RepositoryInitializer
 import io.github.pknujsp.everyweather.core.database.AppDataStore
 import io.github.pknujsp.everyweather.core.model.DBEntityState
@@ -19,45 +18,58 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 
 class SettingsRepositoryImpl(
-    private val appDataStore: AppDataStore
+    private val appDataStore: AppDataStore,
 ) : SettingsRepository, RepositoryInitializer {
-
     private val mutableSettings =
         MutableSharedFlow<SettingsEntity>(replay = 1, extraBufferCapacity = 1, onBufferOverflow = BufferOverflow.DROP_OLDEST)
 
     override val settings: SharedFlow<SettingsEntity> = mutableSettings.asSharedFlow()
 
     private companion object {
-        val preferences = arrayOf(TemperatureUnit.Companion,
-            WindSpeedUnit.Companion,
-            PrecipitationUnit.Companion,
-            WeatherProvider.Companion,
-            RefreshInterval.Companion)
+        val preferences =
+            arrayOf(
+                TemperatureUnit.Companion,
+                WindSpeedUnit.Companion,
+                PrecipitationUnit.Companion,
+                WeatherProvider.Companion,
+                RefreshInterval.Companion,
+            )
 
         private const val INITIALIZED_KEY = "initialized"
     }
 
-    override suspend fun <V : PreferenceModel> update(type: BasePreferenceModel<V>, value: V) {
+    override suspend fun <V : PreferenceModel> update(
+        type: BasePreferenceModel<V>,
+        value: V,
+    ) {
         appDataStore.save(type.key, value.key)
         initialize()
     }
 
     override suspend fun initialize() {
         load().run {
-            mutableSettings.emit(SettingsEntity(units = CurrentUnits(temperatureUnit = this[TemperatureUnit]!! as TemperatureUnit,
-                windSpeedUnit = this[WindSpeedUnit]!! as WindSpeedUnit,
-                precipitationUnit = this[PrecipitationUnit]!! as PrecipitationUnit),
-                weatherProvider = this[WeatherProvider]!! as WeatherProvider,
-                widgetAutoRefreshInterval = this[RefreshInterval]!! as RefreshInterval))
+            mutableSettings.emit(
+                SettingsEntity(
+                    units =
+                        CurrentUnits(
+                            temperatureUnit = this[TemperatureUnit]!! as TemperatureUnit,
+                            windSpeedUnit = this[WindSpeedUnit]!! as WindSpeedUnit,
+                            precipitationUnit = this[PrecipitationUnit]!! as PrecipitationUnit,
+                        ),
+                    weatherProvider = this[WeatherProvider]!! as WeatherProvider,
+                    widgetAutoRefreshInterval = this[RefreshInterval]!! as RefreshInterval,
+                ),
+            )
         }
     }
 
-    private suspend fun load(): Map<BasePreferenceModel<out PreferenceModel>, PreferenceModel> = preferences.associateWith { preference ->
-        when (val value = appDataStore.readAsInt(preference.key)) {
-            is DBEntityState.Exists -> preference.fromKey(value.data)
-            is DBEntityState.NotExists -> preference.default
+    private suspend fun load(): Map<BasePreferenceModel<out PreferenceModel>, PreferenceModel> =
+        preferences.associateWith { preference ->
+            when (val value = appDataStore.readAsInt(preference.key)) {
+                is DBEntityState.Exists -> preference.fromKey(value.data)
+                is DBEntityState.NotExists -> preference.default
+            }
         }
-    }
 
     override suspend fun isInitialized(): Boolean {
         return appDataStore.readAsInt(INITIALIZED_KEY) is DBEntityState.Exists

@@ -8,5 +8,5 @@ data class FlickrImageUiState(
     val url: String = "",
     val isLoaded: Boolean = false,
     val isLoading: Boolean = true,
-    @StringRes val textRes: Int = io.github.pknujsp.everyweather.core.resource.R.string.loading_image
+    @StringRes val textRes: Int = io.github.pknujsp.everyweather.core.resource.R.string.loading_image,
 )

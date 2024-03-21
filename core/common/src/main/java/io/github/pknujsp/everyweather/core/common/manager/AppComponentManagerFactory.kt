@@ -10,7 +10,10 @@ interface AppComponentManagerFactory {
         val WIDGET_MANAGER = WidgetManager::class
         val NOTIFICATION_MANAGER = AppNotificationManager::class
 
-        override fun <T : AppComponentManager> getManager(context: Context, cls: KClass<T>): T {
+        override fun <T : AppComponentManager> getManager(
+            context: Context,
+            cls: KClass<T>,
+        ): T {
             return when (cls) {
                 LOCATION_MANAGER -> AppLocationManager.getInstance(context) as T
                 ALARM_MANAGER -> AppAlarmManager.getInstance(context) as T
@@ -21,9 +24,11 @@ interface AppComponentManagerFactory {
         }
     }
 
-    fun <T : AppComponentManager> getManager(context: Context, cls: KClass<T>): T
+    fun <T : AppComponentManager> getManager(
+        context: Context,
+        cls: KClass<T>,
+    ): T
 }
-
 
 interface AppComponentManager
 

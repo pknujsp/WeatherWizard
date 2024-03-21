@@ -20,7 +20,6 @@ interface IWorker {
     val requiredFeatures: Array<FeatureType>
 }
 
-
 interface AppComponentService {
     val featureStateManager: FeatureStateManager
 
@@ -29,8 +28,10 @@ interface AppComponentService {
         private const val wakeLockDuration = 30_000L
 
         fun acquireWakeLock(context: Context): PowerManager.WakeLock {
-            return (context.getSystemService(Context.POWER_SERVICE) as PowerManager).newWakeLock(PowerManager.PARTIAL_WAKE_LOCK,
-                "$TAG:${System.currentTimeMillis()}").apply {
+            return (context.getSystemService(Context.POWER_SERVICE) as PowerManager).newWakeLock(
+                PowerManager.PARTIAL_WAKE_LOCK,
+                "$TAG:${System.currentTimeMillis()}",
+            ).apply {
                 acquire(wakeLockDuration)
             }
         }
@@ -38,7 +39,9 @@ interface AppComponentService {
 }
 
 abstract class AppComponentCoroutineService<T : ComponentServiceArgument>(
-    private val context: Context, params: WorkerParameters, private val iWorker: IWorker,
+    private val context: Context,
+    params: WorkerParameters,
+    private val iWorker: IWorker,
 ) : CoroutineWorker(context, params), AppComponentService {
     override val featureStateManager: FeatureStateManager by lazy { FeatureStateManagerImpl() }
     open val isRequiredForegroundService: Boolean = true
@@ -54,20 +57,24 @@ abstract class AppComponentCoroutineService<T : ComponentServiceArgument>(
         }
         Log.d(this::class.simpleName, "$wakeLock : ${wakeLock.isHeld}")
 
-        val result = try {
-            doWork(context, ComponentServiceAction.toInstance(inputData.keyValueMap).argument as T)
-        } catch (e: Exception) {
-            e.printStackTrace()
-            Result.success()
-        } finally {
-            wakeLock.release()
-            Log.d(this::class.simpleName, "$wakeLock : ${wakeLock.isHeld}")
-        }
+        val result =
+            try {
+                doWork(context, ComponentServiceAction.toInstance(inputData.keyValueMap).argument as T)
+            } catch (e: Exception) {
+                e.printStackTrace()
+                Result.success()
+            } finally {
+                wakeLock.release()
+                Log.d(this::class.simpleName, "$wakeLock : ${wakeLock.isHeld}")
+            }
 
         return result
     }
 
-    protected abstract suspend fun doWork(context: Context, argument: T): Result
+    protected abstract suspend fun doWork(
+        context: Context,
+        argument: T,
+    ): Result
 
     private fun createForegroundInfo(): ForegroundInfo {
         val notification = appNotificationManager.createForegroundNotification(NotificationType.WORKING)
@@ -77,11 +84,10 @@ abstract class AppComponentCoroutineService<T : ComponentServiceArgument>(
             ForegroundInfo(10, notification)
         }
     }
-
 }
 
 abstract class AppComponentBackgroundService<T : ComponentServiceArgument>(
-    protected val context: Context
+    protected val context: Context,
 ) : AppComponentService {
     override val featureStateManager: FeatureStateManager by lazy { FeatureStateManagerImpl() }
 
@@ -89,15 +95,16 @@ abstract class AppComponentBackgroundService<T : ComponentServiceArgument>(
         val wakeLock = AppComponentService.acquireWakeLock(context)
         Log.d(this::class.simpleName, "$wakeLock : ${wakeLock.isHeld}")
 
-        val result = try {
-            doWork(argument)
-        } catch (e: Exception) {
-            e.printStackTrace()
-            Result.success(Unit)
-        } finally {
-            wakeLock.release()
-            Log.d(this::class.simpleName, "$wakeLock : ${wakeLock.isHeld}")
-        }
+        val result =
+            try {
+                doWork(argument)
+            } catch (e: Exception) {
+                e.printStackTrace()
+                Result.success(Unit)
+            } finally {
+                wakeLock.release()
+                Log.d(this::class.simpleName, "$wakeLock : ${wakeLock.isHeld}")
+            }
 
         return result
     }

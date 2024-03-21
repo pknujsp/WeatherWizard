@@ -27,17 +27,22 @@ import io.github.pknujsp.everyweather.core.ui.list.EmptyListScreen
 import io.github.pknujsp.everyweather.core.ui.theme.CircularIndicatorColor
 import io.github.pknujsp.everyweather.core.ui.theme.CircularIndicatorTrackColor
 
-
 @Composable
-fun SearchResultScreen(searchResult: UiState<List<GeoCode>>, popBackStack: () -> Unit) {
+fun SearchResultScreen(
+    searchResult: UiState<List<GeoCode>>,
+    popBackStack: () -> Unit,
+) {
     BackHandler {
         popBackStack()
     }
     Box(modifier = Modifier.fillMaxSize()) {
         searchResult.onSuccess {
-            Column(modifier = Modifier
-                .fillMaxWidth()
-                .verticalScroll(rememberScrollState())) {
+            Column(
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .verticalScroll(rememberScrollState()),
+            ) {
                 if (it.isEmpty()) {
                     EmptyListScreen(R.string.empty_search_result)
                 } else {
@@ -48,9 +53,10 @@ fun SearchResultScreen(searchResult: UiState<List<GeoCode>>, popBackStack: () ->
             }
         }.onLoading {
             CircularProgressIndicator(
-                modifier = Modifier
-                    .align(Alignment.Center)
-                    .padding(24.dp),
+                modifier =
+                    Modifier
+                        .align(Alignment.Center)
+                        .padding(24.dp),
                 color = CircularIndicatorColor,
                 trackColor = CircularIndicatorTrackColor,
             )
@@ -61,18 +67,22 @@ fun SearchResultScreen(searchResult: UiState<List<GeoCode>>, popBackStack: () ->
 @Composable
 fun SearchResultItem(geoCode: GeoCode) {
     Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable {
-                if (!geoCode.isAdded) {
-                    geoCode.onSelected?.invoke()
-                }
-            },
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .clickable {
+                    if (!geoCode.isAdded) {
+                        geoCode.onSelected?.invoke()
+                    }
+                },
     ) {
-        Column(modifier = Modifier
-            .fillMaxWidth()
-            .align(Alignment.CenterStart)
-            .padding(horizontal = 16.dp, vertical = 8.dp)) {
+        Column(
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .align(Alignment.CenterStart)
+                    .padding(horizontal = 16.dp, vertical = 8.dp),
+        ) {
             Text(text = geoCode.country, fontSize = 13.sp, color = Color.Gray, modifier = Modifier.padding(bottom = 2.dp))
             Text(text = geoCode.displayName, fontSize = 16.sp, color = Color.Black)
             if (geoCode.isAdded) {

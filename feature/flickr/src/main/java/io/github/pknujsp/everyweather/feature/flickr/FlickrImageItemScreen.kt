@@ -59,14 +59,22 @@ fun FlickrImageItemScreen(
 }
 
 @Composable
-private fun UrlItem(isSuccess: Boolean, text: String, onClickUrl: () -> Unit, onClickRefresh: () -> Unit) {
-    Row(modifier = Modifier
-        .padding(start = 84.dp, end = 14.dp, top = 6.dp)
-        .fillMaxWidth(),
+private fun UrlItem(
+    isSuccess: Boolean,
+    text: String,
+    onClickUrl: () -> Unit,
+    onClickRefresh: () -> Unit,
+) {
+    Row(
+        modifier =
+            Modifier
+                .padding(start = 84.dp, end = 14.dp, top = 6.dp)
+                .fillMaxWidth(),
         horizontalArrangement = Arrangement.End,
-        verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
-
-        Text(text = text,
+        verticalAlignment = androidx.compose.ui.Alignment.CenterVertically,
+    ) {
+        Text(
+            text = text,
             textDecoration = TextDecoration.Underline,
             color = Color.White,
             fontSize = 11.sp,
@@ -74,13 +82,17 @@ private fun UrlItem(isSuccess: Boolean, text: String, onClickUrl: () -> Unit, on
             overflow = TextOverflow.Ellipsis,
             style = LocalTextStyle.current.merge(outlineTextStyle),
             textAlign = androidx.compose.ui.text.style.TextAlign.End,
-            modifier = Modifier
-                .weight(1f)
-                .clickable { if (isSuccess) onClickUrl() else onClickRefresh() })
+            modifier =
+                Modifier
+                    .weight(1f)
+                    .clickable { if (isSuccess) onClickUrl() else onClickRefresh() },
+        )
         Spacer(modifier = Modifier.padding(horizontal = 4.dp))
-        AsyncImage(model = ImageRequest.Builder(LocalContext.current).data(R.drawable.flickrlogo).crossfade(false).build(),
+        AsyncImage(
+            model = ImageRequest.Builder(LocalContext.current).data(R.drawable.flickrlogo).crossfade(false).build(),
             contentDescription = stringResource(io.github.pknujsp.everyweather.core.resource.R.string.flickr),
             contentScale = ContentScale.Inside,
-            modifier = Modifier.width(32.dp))
+            modifier = Modifier.width(32.dp),
+        )
     }
 }

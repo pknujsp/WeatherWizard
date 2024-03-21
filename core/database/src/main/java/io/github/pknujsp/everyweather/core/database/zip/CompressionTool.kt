@@ -5,9 +5,7 @@ import java.io.ByteArrayOutputStream
 import java.util.zip.GZIPInputStream
 import java.util.zip.GZIPOutputStream
 
-
 internal class CompressionToolImpl : CompressionTool {
-
     override fun compress(src: ByteArray): ByteArray {
         return ByteArrayOutputStream().use { byteArrayOutputStream ->
             GZIPOutputStream(byteArrayOutputStream).buffered().use { it.write(src) }
@@ -24,5 +22,6 @@ internal class CompressionToolImpl : CompressionTool {
 
 interface CompressionTool {
     fun compress(src: ByteArray): ByteArray
+
     fun deCompress(compressed: ByteArray): ByteArray
 }

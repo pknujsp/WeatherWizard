@@ -14,7 +14,6 @@ import io.github.pknujsp.everyweather.feature.weather.R
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.onCompletion
-import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.onEmpty
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
@@ -22,71 +21,73 @@ import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
-class SummaryTextViewModel @Inject constructor(
-    private val summaryTextRepository: SummaryTextRepository,
-    @CoDispatcher(CoDispatcherType.SINGLE) private val dispatcher: CoroutineDispatcher,
-) : ViewModel() {
+class SummaryTextViewModel
+    @Inject
+    constructor(
+        private val summaryTextRepository: SummaryTextRepository,
+        @CoDispatcher(CoDispatcherType.SINGLE) private val dispatcher: CoroutineDispatcher,
+    ) : ViewModel() {
+        private var job: Job? = null
+        private val mutableUiState = MutableSummaryUiState()
+        val uiState: SummaryUiState = mutableUiState
 
-    private var job: Job? = null
-    private val mutableUiState = MutableSummaryUiState()
-    val uiState: SummaryUiState = mutableUiState
+        private var model: WeatherSummaryPrompt.Model? = null
 
-    private var model: WeatherSummaryPrompt.Model? = null
-
-    fun summarize(model: WeatherSummaryPrompt.Model) {
-        this.model = model
-        generate(model)
-    }
-
-    private fun regenerate() {
-        if (model != null) {
-            generate(model!!)
+        fun summarize(model: WeatherSummaryPrompt.Model) {
+            this.model = model
+            generate(model)
         }
-    }
 
-    private fun generate(model: WeatherSummaryPrompt.Model) {
-        job?.cancel()
-        job = viewModelScope.launch {
-            withContext(dispatcher) {
-                summaryTextRepository.generateContentStream(WeatherSummaryPrompt(model))
-            }.onStart {
-                mutableUiState.isStopped = false
-                mutableUiState.isSummarizing = true
-                mutableUiState.isWaitingFirstResponse = true
-                mutableUiState.error = null
-                mutableUiState.summaryText = ""
-                mutableUiState.buttonText = io.github.pknujsp.everyweather.core.resource.R.string.stop_summary
-            }.onCompletion {
-                if (uiState.summaryText.isEmpty()) {
-                    mutableUiState.isStopped = true
-                    mutableUiState.buttonText = io.github.pknujsp.everyweather.core.resource.R.string.stopped_summary
-                }
-                mutableUiState.isSummarizing = false
-                mutableUiState.isWaitingFirstResponse = false
-            }.onEmpty {
-                mutableUiState.error = io.github.pknujsp.everyweather.core.resource.R.string.error_summary
-            }.collect {
-                if (uiState.isWaitingFirstResponse) {
-                    mutableUiState.isWaitingFirstResponse = false
-                }
-                mutableUiState.summaryText += it.text
+        private fun regenerate() {
+            if (model != null) {
+                generate(model!!)
             }
         }
-    }
 
-    fun stopOrResume() {
-        viewModelScope.launch {
-            if (job?.isActive == false && uiState.isStopped) {
-                regenerate()
-                return@launch
-            }
-
+        private fun generate(model: WeatherSummaryPrompt.Model) {
             job?.cancel()
-            mutableUiState.isStopped = true
-            mutableUiState.buttonText = io.github.pknujsp.everyweather.core.resource.R.string.stopped_summary
+            job =
+                viewModelScope.launch {
+                    withContext(dispatcher) {
+                        summaryTextRepository.generateContentStream(WeatherSummaryPrompt(model))
+                    }.onStart {
+                        mutableUiState.isStopped = false
+                        mutableUiState.isSummarizing = true
+                        mutableUiState.isWaitingFirstResponse = true
+                        mutableUiState.error = null
+                        mutableUiState.summaryText = ""
+                        mutableUiState.buttonText = io.github.pknujsp.everyweather.core.resource.R.string.stop_summary
+                    }.onCompletion {
+                        if (uiState.summaryText.isEmpty()) {
+                            mutableUiState.isStopped = true
+                            mutableUiState.buttonText = io.github.pknujsp.everyweather.core.resource.R.string.stopped_summary
+                        }
+                        mutableUiState.isSummarizing = false
+                        mutableUiState.isWaitingFirstResponse = false
+                    }.onEmpty {
+                        mutableUiState.error = io.github.pknujsp.everyweather.core.resource.R.string.error_summary
+                    }.collect {
+                        if (uiState.isWaitingFirstResponse) {
+                            mutableUiState.isWaitingFirstResponse = false
+                        }
+                        mutableUiState.summaryText += it.text
+                    }
+                }
+        }
+
+        fun stopOrResume() {
+            viewModelScope.launch {
+                if (job?.isActive == false && uiState.isStopped) {
+                    regenerate()
+                    return@launch
+                }
+
+                job?.cancel()
+                mutableUiState.isStopped = true
+                mutableUiState.buttonText = io.github.pknujsp.everyweather.core.resource.R.string.stopped_summary
+            }
         }
     }
-}
 
 private class MutableSummaryUiState : SummaryUiState {
     override var isSummarizing: Boolean by mutableStateOf(true)

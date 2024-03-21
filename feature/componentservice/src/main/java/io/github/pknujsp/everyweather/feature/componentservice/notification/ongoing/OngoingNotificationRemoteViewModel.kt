@@ -13,68 +13,70 @@ import io.github.pknujsp.everyweather.core.widgetnotification.remoteview.RemoteV
 import kotlinx.coroutines.flow.first
 import javax.inject.Inject
 
-class OngoingNotificationRemoteViewModel @Inject constructor(
-    private val getWeatherDataUseCase: GetWeatherDataUseCase,
-    private val ongoingNotificationRepository: OngoingNotificationRepository,
-    private val appSettingsRepository: SettingsRepository,
-    getCurrentLocationUseCase: GetCurrentLocationAddress,
-) : RemoteViewModel(getCurrentLocationUseCase) {
+class OngoingNotificationRemoteViewModel
+    @Inject
+    constructor(
+        private val getWeatherDataUseCase: GetWeatherDataUseCase,
+        private val ongoingNotificationRepository: OngoingNotificationRepository,
+        private val appSettingsRepository: SettingsRepository,
+        getCurrentLocationUseCase: GetCurrentLocationAddress,
+    ) : RemoteViewModel(getCurrentLocationUseCase) {
+        val units get() = appSettingsRepository.settings.replayCache.last().units
 
-    val units get() = appSettingsRepository.settings.replayCache.last().units
+        suspend fun loadNotification(): OngoingNotificationSettingsEntity {
+            val notificationEntity = ongoingNotificationRepository.getOngoingNotification()
+            return notificationEntity.data
+        }
 
-    suspend fun loadNotification(): OngoingNotificationSettingsEntity {
-        val notificationEntity = ongoingNotificationRepository.getOngoingNotification()
-        return notificationEntity.data
-    }
+        suspend fun load(settings: OngoingNotificationSettingsEntity): OngoingNotificationRemoteViewUiState = loadWeatherData(settings)
 
-    suspend fun load(
-        settings: OngoingNotificationSettingsEntity,
-    ): OngoingNotificationRemoteViewUiState = loadWeatherData(settings)
+        private suspend fun loadWeatherData(settings: OngoingNotificationSettingsEntity): OngoingNotificationRemoteViewUiState {
+            val weatherDataRequestBuilder = WeatherDataRequest.Builder()
 
-    private suspend fun loadWeatherData(settings: OngoingNotificationSettingsEntity): OngoingNotificationRemoteViewUiState {
-        val weatherDataRequestBuilder = WeatherDataRequest.Builder()
+            if (settings.location.locationType is LocationType.CurrentLocation) {
+                when (val currentLocation = getCurrentLocation().first()) {
+                    is CurrentLocationResult.Success -> {
+                        weatherDataRequestBuilder.add(
+                            WeatherDataRequest.Coordinate(
+                                latitude = currentLocation.latitude,
+                                longitude = currentLocation.longitude,
+                                address = currentLocation.address,
+                            ),
+                            settings.type.categories,
+                            settings.weatherProvider,
+                        )
+                    }
 
-        if (settings.location.locationType is LocationType.CurrentLocation) {
-            when (val currentLocation = getCurrentLocation().first()) {
-                is CurrentLocationResult.Success -> {
-                    weatherDataRequestBuilder.add(
+                    else -> {
+                        return OngoingNotificationRemoteViewUiState(isSuccessful = false, notificationType = settings.type)
+                    }
+                }
+            } else {
+                weatherDataRequestBuilder.add(
+                    settings.location.run {
                         WeatherDataRequest.Coordinate(
-                            latitude = currentLocation.latitude,
-                            longitude = currentLocation.longitude,
-                            address = currentLocation.address,
-                        ),
-                        settings.type.categories,
-                        settings.weatherProvider,
-                    )
-                }
-
-                else -> {
-                    return OngoingNotificationRemoteViewUiState(isSuccessful = false, notificationType = settings.type)
-                }
+                            latitude = latitude,
+                            longitude = longitude,
+                            address = address,
+                        )
+                    },
+                    settings.type.categories,
+                    settings.weatherProvider,
+                )
             }
-        } else {
-            weatherDataRequestBuilder.add(
-                settings.location.run {
-                    WeatherDataRequest.Coordinate(
-                        latitude = latitude,
-                        longitude = longitude,
-                        address = address,
+
+            return when (val response = getWeatherDataUseCase(weatherDataRequestBuilder.build()[0], false)) {
+                is WeatherResponseState.Success ->
+                    OngoingNotificationRemoteViewUiState(
+                        notificationIconType = settings.notificationIconType,
+                        model = response.entity,
+                        address = response.location.address,
+                        lastUpdated = response.entity.responseTime,
+                        notificationType = settings.type,
+                        isSuccessful = true,
                     )
-                },
-                settings.type.categories,
-                settings.weatherProvider,
-            )
-        }
 
-        return when (val response = getWeatherDataUseCase(weatherDataRequestBuilder.build()[0], false)) {
-            is WeatherResponseState.Success -> OngoingNotificationRemoteViewUiState(notificationIconType = settings.notificationIconType,
-                model = response.entity,
-                address = response.location.address,
-                lastUpdated = response.entity.responseTime,
-                notificationType = settings.type,
-                isSuccessful = true)
-
-            else -> OngoingNotificationRemoteViewUiState(isSuccessful = false, notificationType = settings.type)
+                else -> OngoingNotificationRemoteViewUiState(isSuccessful = false, notificationType = settings.type)
+            }
         }
     }
-}

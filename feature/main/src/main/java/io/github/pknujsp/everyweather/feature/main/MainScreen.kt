@@ -1,5 +1,6 @@
 package io.github.pknujsp.everyweather.feature.main
 
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.addCallback
 import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
 import androidx.compose.foundation.layout.Box
@@ -17,6 +18,7 @@ import androidx.compose.material3.NavigationDrawerItem
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -52,10 +54,11 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun MainScreen(
-    rootNavControllerViewModel: RootNavControllerViewModel = hiltViewModel(), mainViewModel: MainViewModel = hiltViewModel()
+    rootNavControllerViewModel: RootNavControllerViewModel = hiltViewModel(),
+    mainViewModel: MainViewModel = hiltViewModel(),
 ) {
     val mainUiState = rememberMainState(rootNavControllerViewModel.requestedRoute)
-    val onBackPressedDispatcherOwner = LocalOnBackPressedDispatcherOwner.current
+    val currentOnBackPressedDispatcherOwner by rememberUpdatedState(newValue = LocalOnBackPressedDispatcherOwner.current)
     val lifeCycleOwner = LocalLifecycleOwner.current
     var isCloseAppDialogVisible by remember { mutableStateOf(false) }
     val currentCloseAppDialogVisible by rememberUpdatedState(newValue = isCloseAppDialogVisible)
@@ -66,8 +69,8 @@ fun MainScreen(
             derivedStateOf { if (isInitialized) MainRoutes.Weather.route else MainRoutes.Onboarding.route }
         }
 
-        LaunchedEffect(Unit) {
-            onBackPressedDispatcherOwner!!.onBackPressedDispatcher.addCallback(lifeCycleOwner) {
+        DisposableEffect(Unit) {
+            val callback = currentOnBackPressedDispatcherOwner?.onBackPressedDispatcher?.addCallback(lifeCycleOwner) {
                 mainUiState.navController.run {
                     if (currentBackStackEntry != null && currentBackStackEntry!!.destination.route == destination) {
                         isCloseAppDialogVisible = true
@@ -75,6 +78,10 @@ fun MainScreen(
                         popBackStack()
                     }
                 }
+            }
+
+            onDispose {
+                callback?.remove()
             }
         }
 
@@ -84,10 +91,12 @@ fun MainScreen(
             }
         }
 
-        NavHost(navController = mainUiState.navController,
+        NavHost(
+            navController = mainUiState.navController,
             startDestination = destination,
             route = MainRoutes.route,
-            modifier = Modifier.fillMaxSize()) {
+            modifier = Modifier.fillMaxSize(),
+        ) {
             composable(MainRoutes.Weather.route) {
                 WeatherMainScreen(mainUiState)
             }
@@ -130,9 +139,11 @@ private fun WeatherMainScreen(mainUiState: MainUiState) {
                     }
                 }
             }
-            AdMob.BannerAd(modifier = Modifier
-                .padding(top = 16.dp)
-                .align(Alignment.CenterHorizontally))
+            AdMob.BannerAd(
+                modifier = Modifier
+                    .padding(top = 16.dp)
+                    .align(Alignment.CenterHorizontally),
+            )
             DrawerFooter()
         }
     }) {
@@ -146,7 +157,8 @@ private fun WeatherMainScreen(mainUiState: MainUiState) {
 
 @Composable
 private fun DrawerRouteItem(
-    route: MainRoutes, onClick: () -> Unit
+    route: MainRoutes,
+    onClick: () -> Unit,
 ) {
     NavigationDrawerItem(
         label = {
@@ -155,9 +167,11 @@ private fun DrawerRouteItem(
             )
         },
         icon = {
-            Icon(modifier = Modifier.size(24.dp),
+            Icon(
+                modifier = Modifier.size(24.dp),
                 painter = painterResource(id = route.navIcon),
-                contentDescription = stringResource(id = route.navTitle))
+                contentDescription = stringResource(id = route.navTitle),
+            )
         },
         selected = false,
         onClick = { onClick() },
@@ -166,12 +180,17 @@ private fun DrawerRouteItem(
 
 @Composable
 private fun DrawerFooter() {
-    Box(contentAlignment = Alignment.BottomCenter, modifier = Modifier
-        .fillMaxSize()
-        .padding(bottom = 12.dp)) {
-        AsyncImage(modifier = Modifier.height(20.dp),
+    Box(
+        contentAlignment = Alignment.BottomCenter,
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(bottom = 12.dp),
+    ) {
+        AsyncImage(
+            modifier = Modifier.height(20.dp),
             model = ImageRequest.Builder(LocalContext.current).data(io.github.pknujsp.everyweather.core.resource.R.drawable.textlogo_small)
                 .build(),
-            contentDescription = null)
+            contentDescription = null,
+        )
     }
 }

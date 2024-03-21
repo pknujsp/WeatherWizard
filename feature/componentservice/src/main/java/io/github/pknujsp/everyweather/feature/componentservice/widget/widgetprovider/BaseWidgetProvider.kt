@@ -27,22 +27,31 @@ import javax.inject.Inject
 @OptIn(DelicateCoroutinesApi::class)
 @AndroidEntryPoint
 abstract class BaseWidgetProvider : AppWidgetProvider() {
-
     @Inject lateinit var widgetUpdateBackgroundService: WidgetUpdateBackgroundService
-    @Inject @CoDispatcher(CoDispatcherType.IO) lateinit var dispatcher: CoroutineDispatcher
+
+    @Inject
+    @CoDispatcher(CoDispatcherType.IO)
+    lateinit var dispatcher: CoroutineDispatcher
 
     companion object {
         private val globalScope get() = GlobalScope
     }
 
-    override fun onUpdate(context: Context, appWidgetManager: AppWidgetManager, appWidgetIds: IntArray) {
+    override fun onUpdate(
+        context: Context,
+        appWidgetManager: AppWidgetManager,
+        appWidgetIds: IntArray,
+    ) {
         if (appWidgetIds.isNotEmpty()) {
             Log.d("WidgetProvider", "onUpdate: ${appWidgetIds.contentToString()}")
             launchWork(WidgetUpdatedArgument(WidgetUpdatedArgument.DRAW, appWidgetIds.toTypedArray()))
         }
     }
 
-    override fun onDeleted(context: Context, appWidgetIds: IntArray) {
+    override fun onDeleted(
+        context: Context,
+        appWidgetIds: IntArray,
+    ) {
         if (appWidgetIds.isNotEmpty()) {
             Log.d("WidgetProvider", "onDeleted: ${appWidgetIds.contentToString()}")
             launchWork(WidgetUpdatedArgument(WidgetUpdatedArgument.DELETE, appWidgetIds.toTypedArray()))
@@ -66,12 +75,20 @@ abstract class BaseWidgetProvider : AppWidgetProvider() {
         }
     }
 
-    override fun onAppWidgetOptionsChanged(context: Context?, appWidgetManager: AppWidgetManager?, appWidgetId: Int, newOptions: Bundle?) {
+    override fun onAppWidgetOptionsChanged(
+        context: Context?,
+        appWidgetManager: AppWidgetManager?,
+        appWidgetId: Int,
+        newOptions: Bundle?,
+    ) {
         Log.d("WidgetProvider", "onAppWidgetOptionsChanged: $appWidgetId")
         launchWork(WidgetUpdatedArgument(WidgetUpdatedArgument.DRAW, arrayOf(appWidgetId)))
     }
 
-    override fun onReceive(context: Context?, intent: Intent?) {
+    override fun onReceive(
+        context: Context?,
+        intent: Intent?,
+    ) {
         super.onReceive(context, intent)
         intent?.action.let {
             if (it == Intent.ACTION_BOOT_COMPLETED || it == Intent.ACTION_MY_PACKAGE_REPLACED && context != null) {
@@ -81,10 +98,10 @@ abstract class BaseWidgetProvider : AppWidgetProvider() {
         }
     }
 
-    private fun launchWork(argument: WidgetUpdatedArgument) = globalScope.launch(dispatcher) {
-        widgetUpdateBackgroundService.run(argument)
-    }
-
+    private fun launchWork(argument: WidgetUpdatedArgument) =
+        globalScope.launch(dispatcher) {
+            widgetUpdateBackgroundService.run(argument)
+        }
 }
 
 private const val FAKE_WORK_NAME = "always_pending_work"

@@ -41,16 +41,22 @@ class SunSetRiseInfo(
 
 @Composable
 fun SimpleSunSetRiseScreen(args: SunSetRiseInfo) {
-    SimpleWeatherScreenBackground(cardInfo = CardInfo(title = stringResource(io.github.pknujsp.everyweather.core.resource.R.string.sun_set_rise)) {
-        SunSetRiseContent(args)
-    })
+    SimpleWeatherScreenBackground(
+        cardInfo =
+            CardInfo(title = stringResource(io.github.pknujsp.everyweather.core.resource.R.string.sun_set_rise)) {
+                SunSetRiseContent(args)
+            },
+    )
 }
 
 @Composable
 private fun SunSetRiseContent(args: SunSetRiseInfo) {
-    Box(modifier = Modifier
-        .fillMaxWidth()
-        .height(BOX_HEIGHT)) {
+    Box(
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .height(BOX_HEIGHT),
+    ) {
         val context = LocalContext.current
         val times = remember(args) { TimeInfo(args.dayNightCalculator, context, args.dateTime) }
 
@@ -67,7 +73,7 @@ private fun SunSetRiseContent(args: SunSetRiseInfo) {
                   context.unregisterReceiver(broadcastReceiver)
               }
           }
-  */
+         */
         val boxHeightPx = with(LocalDensity.current) { BOX_HEIGHT.toPx() }
 
         // 수평 분할선 x, y
@@ -77,24 +83,27 @@ private fun SunSetRiseContent(args: SunSetRiseInfo) {
         val verticalDividerHeight = with(LocalDensity.current) { 60.dp.toPx() }
         val verticalDividerTop = (centerHorizontalLinePoint.y - verticalDividerHeight / 2)
 
-        val curveStartEndHeightFromCenterHorizontalLine = with(LocalDensity.current) {
-            16.dp.toPx()
-        }
+        val curveStartEndHeightFromCenterHorizontalLine =
+            with(LocalDensity.current) {
+                16.dp.toPx()
+            }
         val curveMaxHeight = (boxHeightPx - centerHorizontalLinePoint.y)
         val iconSize = with(LocalDensity.current) { 30.dp.toPx() }
 
-        val currentIcon = ContextCompat.getDrawable(LocalContext.current, times.times[0].first.iconRes)!!
-            .toBitmap(width = iconSize.toInt(), height = iconSize.toInt()).asImageBitmap()
+        val currentIcon =
+            ContextCompat.getDrawable(LocalContext.current, times.times[0].first.iconRes)!!
+                .toBitmap(width = iconSize.toInt(), height = iconSize.toInt()).asImageBitmap()
 
         val textMeasurer = rememberTextMeasurer()
 
         Canvas(Modifier.fillMaxSize()) {
             // 곡선 시작/종료 지점 y
-            val curveStartY = if (times.times.first().first == SunSetRise.SUN_SET) {
-                centerHorizontalLinePoint.y - curveStartEndHeightFromCenterHorizontalLine
-            } else {
-                centerHorizontalLinePoint.y + curveStartEndHeightFromCenterHorizontalLine
-            }
+            val curveStartY =
+                if (times.times.first().first == SunSetRise.SUN_SET) {
+                    centerHorizontalLinePoint.y - curveStartEndHeightFromCenterHorizontalLine
+                } else {
+                    centerHorizontalLinePoint.y + curveStartEndHeightFromCenterHorizontalLine
+                }
 
             // 수직 분할선 x
             val firstVerticalDividerX = size.width * 0.1f
@@ -102,25 +111,28 @@ private fun SunSetRiseContent(args: SunSetRiseInfo) {
             val thirdVerticalDividerX = size.width * 0.9f
 
             // 현재 시각 아이콘 x
-            val nowIconOffsetX = centerHorizontalLinePoint.x + times.now.run {
-                val xRangeLength = secondVerticalDividerX - firstVerticalDividerX
-                val previousTimeMinutes = times.times.first().second.toEpochSecond() / 60
-                val nextTimeMinutes = times.times[1].second.toEpochSecond() / 60
-                val currMinutes = toEpochSecond() / 60
+            val nowIconOffsetX =
+                centerHorizontalLinePoint.x +
+                    times.now.run {
+                        val xRangeLength = secondVerticalDividerX - firstVerticalDividerX
+                        val previousTimeMinutes = times.times.first().second.toEpochSecond() / 60
+                        val nextTimeMinutes = times.times[1].second.toEpochSecond() / 60
+                        val currMinutes = toEpochSecond() / 60
 
-                firstVerticalDividerX + ((currMinutes - previousTimeMinutes).toFloat() / (nextTimeMinutes - previousTimeMinutes)) * xRangeLength
-            }
+                        firstVerticalDividerX + ((currMinutes - previousTimeMinutes).toFloat() / (nextTimeMinutes - previousTimeMinutes)) * xRangeLength
+                    }
 
-            val pointInfo = PointInfo(
-                curveStartY = curveStartY,
-                firstVerticalDividerX = firstVerticalDividerX,
-                secondVerticalDividerX = secondVerticalDividerX,
-                thirdVerticalDividerX = thirdVerticalDividerX,
-                nowIconOffsetX = nowIconOffsetX,
-                centerHorizontalLinePoint = centerHorizontalLinePoint,
-                verticalDividerHeight = verticalDividerHeight,
-                verticalDividerTop = verticalDividerTop,
-            )
+            val pointInfo =
+                PointInfo(
+                    curveStartY = curveStartY,
+                    firstVerticalDividerX = firstVerticalDividerX,
+                    secondVerticalDividerX = secondVerticalDividerX,
+                    thirdVerticalDividerX = thirdVerticalDividerX,
+                    nowIconOffsetX = nowIconOffsetX,
+                    centerHorizontalLinePoint = centerHorizontalLinePoint,
+                    verticalDividerHeight = verticalDividerHeight,
+                    verticalDividerTop = verticalDividerTop,
+                )
 
             val layoutInfo = LayoutInfo(curveMaxHeight = curveMaxHeight, iconSize = iconSize)
 
@@ -132,12 +144,15 @@ private fun SunSetRiseContent(args: SunSetRiseInfo) {
 
 @Stable
 internal class TimeInfo(
-    dayNightCalculator: DayNightCalculator, context: Context, val now: ZonedDateTime
+    dayNightCalculator: DayNightCalculator,
+    context: Context,
+    val now: ZonedDateTime,
 ) {
     val times: List<Pair<SunSetRise, ZonedDateTime>> = dayNightCalculator.getSunSetRiseTimes(now.toCalendar())
-    val timeHeaders: List<TimeHeaderInfo> = times.map {
-        TimeHeaderInfo(it.second, it.first, context)
-    }
+    val timeHeaders: List<TimeHeaderInfo> =
+        times.map {
+            TimeHeaderInfo(it.second, it.first, context)
+        }
     val nowText: String = now.format(nowTimeFormatter)
 
     private companion object {

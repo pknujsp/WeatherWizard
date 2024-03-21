@@ -6,9 +6,7 @@ import android.os.Message
 import android.view.View
 import org.osmdroid.tileprovider.MapTileProviderBase
 
-
 class OverlayHandler : Handler(Looper.getMainLooper()) {
-
     var mView: View? = null
 
     override fun handleMessage(msg: Message) {

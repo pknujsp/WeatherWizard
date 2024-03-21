@@ -24,9 +24,9 @@ import io.github.pknujsp.everyweather.core.ui.time.DateTimeInfo
 import java.time.ZonedDateTime
 
 class SimpleHourlyForecast(
-    val items: List<Item>, val dateTimeInfo: DateTimeInfo
+    val items: List<Item>,
+    val dateTimeInfo: DateTimeInfo,
 ) : UiModel {
-
     val displayRainfallVolume = items.any { it.rainfallVolume.isNotEmpty() }
     val displaySnowfallVolume = items.any { it.snowfallVolume.isNotEmpty() }
     val displayPrecipitationVolume = items.any { it.precipitationVolume.isNotEmpty() }
@@ -54,7 +54,6 @@ class SimpleHourlyForecast(
         precipitationProbability: ProbabilityValueType,
         dayNightCalculator: DayNightCalculator,
     ) : UiModel {
-
         val temperature: String = temperature.toString()
         val temperatureInt: Int = temperature.value.toInt()
         val precipitationProbability: String = precipitationProbability.toString()
@@ -64,6 +63,7 @@ class SimpleHourlyForecast(
 
         @DrawableRes val weatherIcon: Int
         val time: String
+
         @StringRes val weatherCondition: Int = weatherCondition.value.stringRes
 
         init {
@@ -76,13 +76,14 @@ class SimpleHourlyForecast(
 
         companion object {
             @DrawableRes val probabilityIcon = io.github.pknujsp.everyweather.core.resource.R.drawable.ic_umbrella
+
             @DrawableRes val rainfallIcon = io.github.pknujsp.everyweather.core.resource.R.drawable.ic_raindrop
+
             @DrawableRes val snowfallIcon = io.github.pknujsp.everyweather.core.resource.R.drawable.ic_snow_particle
-            val imageModifier = Modifier
-                .size(16.dp)
-                .padding(end = 3.dp)
+            val imageModifier =
+                Modifier
+                    .size(16.dp)
+                    .padding(end = 3.dp)
         }
-
     }
-
 }

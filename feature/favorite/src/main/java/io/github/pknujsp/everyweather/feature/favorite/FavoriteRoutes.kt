@@ -3,7 +3,6 @@ package io.github.pknujsp.everyweather.feature.favorite
 import io.github.pknujsp.everyweather.core.ui.route.Routes
 
 sealed interface FavoriteRoutes : Routes {
-
     companion object : Routes {
         override val route: String = "Favorite"
     }

@@ -116,17 +116,18 @@ private fun MapScreen(
                         if (!overlays.contains(tiles.overlays[time].tilesOverlay)) {
                             val marker = overlays.first { it is Marker }
                             overlays.clear()
-                            overlays.add(tiles.overlays[time].run {
-                                if (handler.mView == null) {
-                                    handler.mView = mapView
-                                }
-                                tilesOverlay
-                            })
+                            overlays.add(
+                                tiles.overlays[time].run {
+                                    if (handler.mView == null) {
+                                        handler.mView = mapView
+                                    }
+                                    tilesOverlay
+                                },
+                            )
                             overlays.add(marker)
                             invalidate()
                         }
                     }
-
                 }
             }
         }
@@ -138,10 +139,13 @@ private fun MapScreen(
         mapView.onPause()
         mapView.onDetach()
     })
-
 }
 
-private fun MapView.addCurrentLocationPoiMarker(latitude: Double, longitude: Double, density: Density) {
+private fun MapView.addCurrentLocationPoiMarker(
+    latitude: Double,
+    longitude: Double,
+    density: Density,
+) {
     overlayManager.overlays().removeIf { (it is Marker) && (it.id == POI_MARKER_ID) }
     Marker(this).run {
         id = POI_MARKER_ID
@@ -149,15 +153,19 @@ private fun MapView.addCurrentLocationPoiMarker(latitude: Double, longitude: Dou
         setUseDataConnection(false)
         setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_CENTER)
         val iconSize = with(density) { 6.dp.toPx().toInt() }
-        icon = BitmapDrawable(resources,
-            ResourcesCompat.getDrawable(resources, R.drawable.ic_my_location, null)!!.toBitmap(iconSize, iconSize))
+        icon =
+            BitmapDrawable(
+                resources,
+                ResourcesCompat.getDrawable(resources, R.drawable.ic_my_location, null)!!.toBitmap(iconSize, iconSize),
+            )
         overlays.add(this)
     }
 }
 
 @Composable
 fun SimpleMapScreen(
-    requestWeatherArguments: RequestWeatherArguments, viewModel: RainViewerViewModel = hiltViewModel()
+    requestWeatherArguments: RequestWeatherArguments,
+    viewModel: RainViewerViewModel = hiltViewModel(),
 ) {
     val context = LocalContext.current
     val uiState by viewModel.radarUiState.collectAsStateWithLifecycle()
@@ -167,51 +175,70 @@ fun SimpleMapScreen(
     }
 
     uiState.onSuccess {
-        SimpleWeatherScreenBackground(cardInfo = CardInfo(title = stringResource(id = R.string.radar)) {
-            Column(modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                val simpleMapController = remember { SimpleMapController() }
+        SimpleWeatherScreenBackground(
+            cardInfo =
+                CardInfo(title = stringResource(id = R.string.radar)) {
+                    Column(
+                        modifier =
+                            Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 12.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp),
+                    ) {
+                        val simpleMapController = remember { SimpleMapController() }
 
-                Box(modifier = Modifier
-                    .fillMaxWidth()
-                    .height(240.dp)) {
-                    MapScreen(requestWeatherArguments.targetLocation.latitude,
-                        requestWeatherArguments.targetLocation.longitude,
-                        it.overlays,
-                        viewModel.timePosition,
-                        simpleMapController)
-                    MapControllerScreen(simpleMapController, iconSize = 32.dp, bottomSpace = 20.dp)
-                }
+                        Box(
+                            modifier =
+                                Modifier
+                                    .fillMaxWidth()
+                                    .height(240.dp),
+                        ) {
+                            MapScreen(
+                                requestWeatherArguments.targetLocation.latitude,
+                                requestWeatherArguments.targetLocation.longitude,
+                                it.overlays,
+                                viewModel.timePosition,
+                                simpleMapController,
+                            )
+                            MapControllerScreen(simpleMapController, iconSize = 32.dp, bottomSpace = 20.dp)
+                        }
 
-                RadarControllerScreen(viewModel as RadarController)
-            }
-        })
+                        RadarControllerScreen(viewModel as RadarController)
+                    }
+                },
+        )
     }.onError {
-        SimpleWeatherFailedBox(title = stringResource(id = R.string.radar),
-            description = stringResource(id = R.string.failed_to_load_radar)) {
+        SimpleWeatherFailedBox(
+            title = stringResource(id = R.string.radar),
+            description = stringResource(id = R.string.failed_to_load_radar),
+        ) {
             viewModel.load(context)
         }
     }
-
 }
 
 @Composable
 private fun RadarControllerScreen(controller: RadarController) {
-    Row(horizontalArrangement = Arrangement.spacedBy(8.dp),
+    Row(
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
         verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier
-            .fillMaxWidth()
-            .wrapContentHeight()) {
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .wrapContentHeight(),
+    ) {
         val playing by controller.playing.collectAsStateWithLifecycle()
 
         IconToggleButton(
             modifier = Modifier.size(36.dp),
             checked = false,
-            colors = IconButtonDefaults.iconToggleButtonColors(checkedContainerColor = Color.Transparent,
-                containerColor = Color.Transparent,
-                contentColor = Color.White,
-                checkedContentColor = Color.Transparent),
+            colors =
+                IconButtonDefaults.iconToggleButtonColors(
+                    checkedContainerColor = Color.Transparent,
+                    containerColor = Color.Transparent,
+                    contentColor = Color.White,
+                    checkedContentColor = Color.Transparent,
+                ),
             onCheckedChange = {
                 controller.play()
             },
@@ -230,9 +257,10 @@ private fun RadarControllerScreen(controller: RadarController) {
         }
 
         Column(
-            modifier = Modifier
-                .wrapContentHeight()
-                .weight(1f),
+            modifier =
+                Modifier
+                    .wrapContentHeight()
+                    .weight(1f),
             verticalArrangement = Arrangement.spacedBy(2.dp),
         ) {
             val time by controller.time.collectAsStateWithLifecycle()
@@ -249,50 +277,73 @@ private fun RadarControllerScreen(controller: RadarController) {
             modifier = Modifier.size(30.dp),
             colors = IconButtonDefaults.iconButtonColors(containerColor = Color.Transparent, contentColor = Color.White),
         ) {
-            Icon(painter = painterResource(R.drawable.ic_previous),
-                contentDescription = stringResource(id = io.github.pknujsp.everyweather.core.resource.R.string.before))
+            Icon(
+                painter = painterResource(R.drawable.ic_previous),
+                contentDescription = stringResource(id = io.github.pknujsp.everyweather.core.resource.R.string.before),
+            )
         }
         IconButton(
             onClick = {
                 controller.nextRadar()
             },
             modifier = Modifier.size(30.dp),
-            colors = IconButtonDefaults.iconButtonColors(
-                containerColor = Color.Transparent,
-                contentColor = Color.White,
-            ),
+            colors =
+                IconButtonDefaults.iconButtonColors(
+                    containerColor = Color.Transparent,
+                    contentColor = Color.White,
+                ),
         ) {
-            Icon(painter = painterResource(R.drawable.ic_next),
-                contentDescription = stringResource(id = io.github.pknujsp.everyweather.core.resource.R.string.next))
+            Icon(
+                painter = painterResource(R.drawable.ic_next),
+                contentDescription = stringResource(id = io.github.pknujsp.everyweather.core.resource.R.string.next),
+            )
         }
     }
 }
 
 @Composable
-private fun BoxScope.MapControllerScreen(simpleMapController: SimpleMapController, iconSize: Dp, bottomSpace: Dp) {
-    Column(horizontalAlignment = Alignment.CenterHorizontally,
+private fun BoxScope.MapControllerScreen(
+    simpleMapController: SimpleMapController,
+    iconSize: Dp,
+    bottomSpace: Dp,
+) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(4.dp),
-        modifier = Modifier
-            .padding(bottom = bottomSpace, end = 24.dp)
-            .align(Alignment.BottomEnd)
-            .wrapContentSize()) {
-        IconButton(onClick = {
-            simpleMapController.zoomIn()
-        },
+        modifier =
+            Modifier
+                .padding(bottom = bottomSpace, end = 24.dp)
+                .align(Alignment.BottomEnd)
+                .wrapContentSize(),
+    ) {
+        IconButton(
+            onClick = {
+                simpleMapController.zoomIn()
+            },
             modifier = Modifier.size(iconSize),
-            colors = IconButtonDefaults.iconButtonColors(containerColor = Color.White, contentColor = Color.Black)) {
-            Icon(painter = painterResource(R.drawable.add),
-                contentDescription = stringResource(id = io.github.pknujsp.everyweather.core.resource.R.string.zoom_in))
+            colors = IconButtonDefaults.iconButtonColors(containerColor = Color.White, contentColor = Color.Black),
+        ) {
+            Icon(
+                painter = painterResource(R.drawable.add),
+                contentDescription = stringResource(id = io.github.pknujsp.everyweather.core.resource.R.string.zoom_in),
+            )
         }
-        IconButton(onClick = {
-            simpleMapController.zoomOut()
-        },
+        IconButton(
+            onClick = {
+                simpleMapController.zoomOut()
+            },
             modifier = Modifier.size(iconSize),
-            colors = IconButtonDefaults.iconButtonColors(containerColor = Color.White,
-                contentColor = Color.Black,
-                disabledContentColor = Color.Black)) {
-            Icon(painter = painterResource(R.drawable.subtract),
-                contentDescription = stringResource(id = io.github.pknujsp.everyweather.core.resource.R.string.zoom_out))
+            colors =
+                IconButtonDefaults.iconButtonColors(
+                    containerColor = Color.White,
+                    contentColor = Color.Black,
+                    disabledContentColor = Color.Black,
+                ),
+        ) {
+            Icon(
+                painter = painterResource(R.drawable.subtract),
+                contentDescription = stringResource(id = io.github.pknujsp.everyweather.core.resource.R.string.zoom_out),
+            )
         }
     }
 }
@@ -308,29 +359,67 @@ fun CustomLinearProgressIndicator(
     // Fractional position of the 'head' and 'tail' of the two lines drawn, i.e. if the head is 0.8
     // and the tail is 0.2, there is a line drawn from between 20% along to 80% along the total
     // width.
-    val firstLineHead = infiniteTransition.animateFloat(0f, 1f, infiniteRepeatable(animation = keyframes {
-        durationMillis = LinearAnimationDuration
-        0f at FirstLineHeadDelay with FirstLineHeadEasing
-        1f at FirstLineHeadDuration + FirstLineHeadDelay
-    }), label = "")
-    val firstLineTail = infiniteTransition.animateFloat(0f, 1f, infiniteRepeatable(animation = keyframes {
-        durationMillis = LinearAnimationDuration
-        0f at FirstLineTailDelay with FirstLineTailEasing
-        1f at FirstLineTailDuration + FirstLineTailDelay
-    }), label = "")
-    val secondLineHead = infiniteTransition.animateFloat(0f, 1f, infiniteRepeatable(animation = keyframes {
-        durationMillis = LinearAnimationDuration
-        0f at SecondLineHeadDelay with SecondLineHeadEasing
-        1f at SecondLineHeadDuration + SecondLineHeadDelay
-    }), label = "")
-    val secondLineTail = infiniteTransition.animateFloat(0f, 1f, infiniteRepeatable(animation = keyframes {
-        durationMillis = LinearAnimationDuration
-        0f at SecondLineTailDelay with SecondLineTailEasing
-        1f at SecondLineTailDuration + SecondLineTailDelay
-    }), label = "")
-    Canvas(modifier
-        .progressSemantics()
-        .size(LinearIndicatorWidth, LinearIndicatorHeight)) {
+    val firstLineHead =
+        infiniteTransition.animateFloat(
+            0f,
+            1f,
+            infiniteRepeatable(
+                animation =
+                    keyframes {
+                        durationMillis = LinearAnimationDuration
+                        0f at FirstLineHeadDelay with FirstLineHeadEasing
+                        1f at FirstLineHeadDuration + FirstLineHeadDelay
+                    },
+            ),
+            label = "",
+        )
+    val firstLineTail =
+        infiniteTransition.animateFloat(
+            0f,
+            1f,
+            infiniteRepeatable(
+                animation =
+                    keyframes {
+                        durationMillis = LinearAnimationDuration
+                        0f at FirstLineTailDelay with FirstLineTailEasing
+                        1f at FirstLineTailDuration + FirstLineTailDelay
+                    },
+            ),
+            label = "",
+        )
+    val secondLineHead =
+        infiniteTransition.animateFloat(
+            0f,
+            1f,
+            infiniteRepeatable(
+                animation =
+                    keyframes {
+                        durationMillis = LinearAnimationDuration
+                        0f at SecondLineHeadDelay with SecondLineHeadEasing
+                        1f at SecondLineHeadDuration + SecondLineHeadDelay
+                    },
+            ),
+            label = "",
+        )
+    val secondLineTail =
+        infiniteTransition.animateFloat(
+            0f,
+            1f,
+            infiniteRepeatable(
+                animation =
+                    keyframes {
+                        durationMillis = LinearAnimationDuration
+                        0f at SecondLineTailDelay with SecondLineTailEasing
+                        1f at SecondLineTailDuration + SecondLineTailDelay
+                    },
+            ),
+            label = "",
+        )
+    Canvas(
+        modifier
+            .progressSemantics()
+            .size(LinearIndicatorWidth, LinearIndicatorHeight),
+    ) {
         val strokeWidth = size.height
         drawLinearIndicatorTrack(trackColor, strokeWidth, strokeCap)
         if (firstLineHead.value - firstLineTail.value > 0) {

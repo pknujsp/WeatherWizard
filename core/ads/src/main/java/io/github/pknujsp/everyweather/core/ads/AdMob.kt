@@ -19,9 +19,7 @@ import com.google.android.gms.ads.nativead.NativeAdOptions
 import io.github.pknujsp.everyweather.core.ads.databinding.NativeAdLayoutBinding
 import io.github.pknujsp.everyweather.core.ads.nativetemplates.NativeTemplateStyle
 
-
 object AdMob {
-
     const val NATIVE_AD_ID = BuildConfig.ADMOB_NATIVE_AD_ID
     const val BANNER_AD_ID = BuildConfig.ADMOB_BANNER_AD_ID
 
@@ -49,26 +47,28 @@ object AdMob {
     fun NativeAd(modifier: Modifier = Modifier) {
         AndroidView(modifier = modifier, factory = { context ->
             NativeAdLayoutBinding.inflate(LayoutInflater.from(context)).apply {
-                val adLoader = AdLoader.Builder(context, Ad.NATIVE.id).forNativeAd { nativeAd ->
-                    adView.apply {
-                        val styles: NativeTemplateStyle = NativeTemplateStyle.Builder().build()
-                        setStyles(styles)
-                        setNativeAd(nativeAd)
-                    }
-                }.withAdListener(object : AdListener() {
-                    override fun onAdFailedToLoad(p0: LoadAdError) {
-                        root.isVisible = false
-                    }
+                val adLoader =
+                    AdLoader.Builder(context, Ad.NATIVE.id).forNativeAd { nativeAd ->
+                        adView.apply {
+                            val styles: NativeTemplateStyle = NativeTemplateStyle.Builder().build()
+                            setStyles(styles)
+                            setNativeAd(nativeAd)
+                        }
+                    }.withAdListener(
+                        object : AdListener() {
+                            override fun onAdFailedToLoad(p0: LoadAdError) {
+                                root.isVisible = false
+                            }
 
-                    override fun onAdLoaded() {
-                        root.isVisible = true
-                    }
-                }).withNativeAdOptions(NativeAdOptions.Builder().setRequestCustomMuteThisAd(true).build()).build()
+                            override fun onAdLoaded() {
+                                root.isVisible = true
+                            }
+                        },
+                    ).withNativeAdOptions(NativeAdOptions.Builder().setRequestCustomMuteThisAd(true).build()).build()
                 adLoader.loadAd(AdRequest.Builder().build())
             }.root
         }) {}
     }
-
 
     @SuppressLint("MissingPermission")
     @MainThread
@@ -76,9 +76,8 @@ object AdMob {
         adView.loadAd(AdRequest.Builder().build())
     }
 
-
     enum class Ad(val id: String) {
         BANNER(if (BuildConfig.DEBUG) BANNER_AD_TEST_ID else BANNER_AD_ID),
-        NATIVE(if (BuildConfig.DEBUG) NATIVE_AD_TEST_ID else NATIVE_AD_ID)
+        NATIVE(if (BuildConfig.DEBUG) NATIVE_AD_TEST_ID else NATIVE_AD_ID),
     }
 }

@@ -5,6 +5,7 @@ import io.github.pknujsp.everyweather.core.model.settings.PreferenceModel
 
 sealed interface WeatherProvider : PreferenceModel {
     val majorWeatherEntityTypes: Set<MajorWeatherEntityType>
+    override val icon: Int
 
     companion object : BasePreferenceModel<WeatherProvider> {
         override val enums: Array<WeatherProvider> get() = arrayOf(Kma, MetNorway)
@@ -34,6 +35,4 @@ sealed interface WeatherProvider : PreferenceModel {
             MajorWeatherEntityType.DAILY_FORECAST,
         )
     }
-
-
 }

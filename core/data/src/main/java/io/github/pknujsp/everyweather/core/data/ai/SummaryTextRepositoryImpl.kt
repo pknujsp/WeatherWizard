@@ -13,9 +13,10 @@ import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.flow.onEach
 
 internal class SummaryTextRepositoryImpl(
-    private val genModel: GenerativeModel, cacheManager: CacheManager<Int, List<GenerateContentResponse>>, cacheCleaner: CacheCleaner
+    private val genModel: GenerativeModel,
+    cacheManager: CacheManager<Int, List<GenerateContentResponse>>,
+    cacheCleaner: CacheCleaner,
 ) : SummaryTextRepository, RepositoryCacheManager<Int, List<GenerateContentResponse>>(cacheCleaner, cacheManager) {
-
     private val interval = 100L
 
     override suspend fun generateContentStream(prompt: Prompt): Flow<GenerateContentResponse> {
@@ -30,15 +31,16 @@ internal class SummaryTextRepositoryImpl(
         }
 
         val response: MutableList<GenerateContentResponse> = mutableListOf()
-        val flow = genModel.generateContentStream(prompt.build()).onEach { generateContentResponse ->
-            response.add(generateContentResponse)
-        }.catch {
-            response.clear()
-        }.onCompletion {
-            if (it == null && response.isNotEmpty()) {
-                cacheManager.put(prompt.id, response)
+        val flow =
+            genModel.generateContentStream(prompt.build()).onEach { generateContentResponse ->
+                response.add(generateContentResponse)
+            }.catch {
+                response.clear()
+            }.onCompletion {
+                if (it == null && response.isNotEmpty()) {
+                    cacheManager.put(prompt.id, response)
+                }
             }
-        }
 
         return flow
     }

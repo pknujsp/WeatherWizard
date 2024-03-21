@@ -6,5 +6,9 @@ import io.github.pknujsp.everyweather.core.model.RemoteViewUiModel
 import io.github.pknujsp.everyweather.core.widgetnotification.remoteview.DefaultRemoteViewCreator
 
 abstract class WidgetRemoteViewsCreator<T : RemoteViewUiModel> : DefaultRemoteViewCreator() {
-    abstract fun createContentView(model: T, header: Header, context: Context): RemoteViews
+    abstract fun createContentView(
+        model: T,
+        header: Header,
+        context: Context,
+    ): RemoteViews
 }

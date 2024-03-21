@@ -14,7 +14,6 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 @Module
 object ApiRequestPreProcessorModule {
-
     private const val KMA_PRE_PROCESSOR = "KmaPreProcessor"
 
     @Provides
@@ -23,6 +22,6 @@ object ApiRequestPreProcessorModule {
     @Singleton
     @Provides
     fun providesRequestPreProcessorManager(
-        kmaPreProcessor: KmaRequestPreProcessor
+        kmaPreProcessor: KmaRequestPreProcessor,
     ): WeatherApiRequestPreProcessorManager<ApiRequestParameter> = WeatherApiRequestPreProcessorManagerImpl(kmaPreProcessor)
 }

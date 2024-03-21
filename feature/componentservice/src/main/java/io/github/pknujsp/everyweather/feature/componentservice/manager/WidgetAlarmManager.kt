@@ -24,11 +24,14 @@ private class WidgetAlarmManagerImpl(private val context: Context) : WidgetAlarm
     }
 
     override fun getScheduleState(): AppAlarmManager.ScheduledState {
-        val intent = ComponentPendingIntentManager.getPendingIntent(context,
-            PendingIntent.FLAG_NO_CREATE or PendingIntent.FLAG_IMMUTABLE,
-            ComponentServiceAction.LoadWidgetData(LoadWidgetDataArgument(LoadWidgetDataArgument.UPDATE_ALL)),
-            REQUEST_CODE,
-            actionString = AppComponentServiceReceiver.ACTION_AUTO_REFRESH)
+        val intent =
+            ComponentPendingIntentManager.getPendingIntent(
+                context,
+                PendingIntent.FLAG_NO_CREATE or PendingIntent.FLAG_IMMUTABLE,
+                ComponentServiceAction.LoadWidgetData(LoadWidgetDataArgument(LoadWidgetDataArgument.UPDATE_ALL)),
+                REQUEST_CODE,
+                actionString = AppComponentServiceReceiver.ACTION_AUTO_REFRESH,
+            )
 
         return if (intent.pendingIntent == null) {
             AppAlarmManager.ScheduledState.NotScheduled
@@ -43,11 +46,14 @@ private class WidgetAlarmManagerImpl(private val context: Context) : WidgetAlarm
             return
         }
 
-        val pendingIntent = ComponentPendingIntentManager.getPendingIntent(context,
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
-            ComponentServiceAction.LoadWidgetData(LoadWidgetDataArgument(LoadWidgetDataArgument.UPDATE_ALL)),
-            REQUEST_CODE,
-            actionString = AppComponentServiceReceiver.ACTION_AUTO_REFRESH)
+        val pendingIntent =
+            ComponentPendingIntentManager.getPendingIntent(
+                context,
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
+                ComponentServiceAction.LoadWidgetData(LoadWidgetDataArgument(LoadWidgetDataArgument.UPDATE_ALL)),
+                REQUEST_CODE,
+                actionString = AppComponentServiceReceiver.ACTION_AUTO_REFRESH,
+            )
         appAlarmManager.scheduleRepeat(refreshInterval.interval, pendingIntent.pendingIntent!!)
 
         Log.d("AppWidgetAutoRefreshScheduler", "scheduleWidgetAutoRefresh")
@@ -63,13 +69,13 @@ private class WidgetAlarmManagerImpl(private val context: Context) : WidgetAlarm
     }
 }
 
-
 interface WidgetAlarmManager : AppComponentManager, ComponentServiceAutoRefreshScheduler {
     companion object : AppComponentManagerInitializer {
         private var instance: WidgetAlarmManager? = null
 
-        override fun getInstance(context: Context): WidgetAlarmManager = synchronized(this) {
-            instance ?: WidgetAlarmManagerImpl(context).also { instance = it }
-        }
+        override fun getInstance(context: Context): WidgetAlarmManager =
+            synchronized(this) {
+                instance ?: WidgetAlarmManagerImpl(context).also { instance = it }
+            }
     }
 }

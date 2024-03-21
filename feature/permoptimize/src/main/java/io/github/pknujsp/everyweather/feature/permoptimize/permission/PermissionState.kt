@@ -1,81 +1,56 @@
 package io.github.pknujsp.everyweather.feature.permoptimize.permission
 
-import android.content.Context
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import io.github.pknujsp.everyweather.core.common.FeatureType
+import io.github.pknujsp.everyweather.feature.permoptimize.BaseFeatureStateManager
 
-
-sealed interface PermissionState {
-    val permissionType: FeatureType.Permission
-
-    data class Granted(override val permissionType: FeatureType.Permission) : PermissionState
-    data class Denied(override val permissionType: FeatureType.Permission) : PermissionState
-}
-
-private class MutablePermissionManager(
-    permissionType: FeatureType.Permission, context: Context, val fetchPermissionStateFunc: () -> Unit
-) : PermissionManager {
-    override var permissionState: PermissionState by mutableStateOf(if (permissionType.isAvailable(context)) {
-        PermissionState.Granted(permissionType)
-    } else {
-        PermissionState.Denied(permissionType)
-    })
-    override var isShowSettingsActivity: Boolean by mutableStateOf(false)
-
-    override fun fetchPermissionState() {
+@Stable
+private class MutablePermissionStateManager(
+    override val featureType: FeatureType.Permission,
+    val fetchPermissionStateFunc: () -> Unit,
+) : PermissionStateManager() {
+    override fun requestPermission() {
         fetchPermissionStateFunc()
-    }
-
-    override fun showSettingsActivity() {
-        isShowSettingsActivity = true
-    }
-
-    override fun hideSettingsActivity() {
-        isShowSettingsActivity = false
     }
 }
 
 @Stable
-interface PermissionManager {
-    val permissionState: PermissionState
-    val isShowSettingsActivity: Boolean
-    fun fetchPermissionState()
-    fun showSettingsActivity()
-    fun hideSettingsActivity()
+abstract class PermissionStateManager() : BaseFeatureStateManager() {
+    abstract fun requestPermission()
 }
 
-
 @Composable
-fun rememberPermissionManager(
-    context: Context = LocalContext.current,
-    defaultPermissionType: FeatureType.Permission,
-): PermissionManager {
-    var fetchPermissionType by remember(defaultPermissionType) { mutableStateOf<Pair<FeatureType.Permission, Long>>(defaultPermissionType to 0) }
-
-    val permissionManager = remember {
-        MutablePermissionManager(defaultPermissionType, context, fetchPermissionStateFunc = {
-            fetchPermissionType = fetchPermissionType.first to fetchPermissionType.second + 1
-        })
+fun rememberPermissionStateManager(
+    permissionType: FeatureType.Permission,
+): PermissionStateManager {
+    var permissionState by remember {
+        mutableIntStateOf(0)
     }
     val permissionLauncher = rememberLauncherForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { result ->
-        permissionManager.permissionState = if (result.all { it.value }) {
-            PermissionState.Granted(defaultPermissionType)
-        } else {
-            PermissionState.Denied(defaultPermissionType)
+        permissionState++
+    }
+
+    val permissionManager = remember {
+        MutablePermissionStateManager(permissionType, fetchPermissionStateFunc = {
+            permissionLauncher.launch(permissionType.permissions)
+        })
+    }
+
+    LaunchedEffect(permissionState) {
+        if (permissionState > 0) {
+            permissionManager.onChanged()
         }
     }
 
-    LaunchedEffect(fetchPermissionType) {
-        permissionLauncher.launch(fetchPermissionType.first.permissions)
-    }
     return permissionManager
 }

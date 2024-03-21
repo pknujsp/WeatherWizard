@@ -8,10 +8,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 
 @Composable
-fun HorizontalScrollableForecast(scrollState: ScrollState, content: @Composable () -> Unit) {
-    Column(Modifier
-        .wrapContentHeight()
-        .horizontalScroll(scrollState)) {
+fun HorizontalScrollableForecast(
+    scrollState: ScrollState,
+    content: @Composable () -> Unit,
+) {
+    Column(
+        Modifier
+            .wrapContentHeight()
+            .horizontalScroll(scrollState),
+    ) {
         content()
     }
 }

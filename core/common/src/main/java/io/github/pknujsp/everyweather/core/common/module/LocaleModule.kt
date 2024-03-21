@@ -9,18 +9,17 @@ import dagger.hilt.components.SingletonComponent
 import javax.inject.Qualifier
 import javax.inject.Singleton
 
-
 @InstallIn(SingletonComponent::class)
 @Module
 object LocaleModule {
-
     @Provides
     @Singleton
     @AppLocale
-    fun provideLocale(@ApplicationContext context: Context): java.util.Locale {
+    fun provideLocale(
+        @ApplicationContext context: Context,
+    ): java.util.Locale {
         return context.resources.configuration.locales[0]
     }
-
 }
 
 @Qualifier

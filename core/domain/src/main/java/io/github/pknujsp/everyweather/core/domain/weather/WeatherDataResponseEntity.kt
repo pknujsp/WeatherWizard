@@ -11,22 +11,24 @@ data class WeatherResponseEntity(
     val weatherDataMajorCategories: Set<MajorWeatherEntityType>,
     val responses: List<WeatherEntityModel>,
     val dayNightCalculator: DayNightCalculator,
-    val responseTime: ZonedDateTime = ZonedDateTime.now()
+    val responseTime: ZonedDateTime = ZonedDateTime.now(),
 ) : DomainModel {
     inline fun <reified T : WeatherEntityModel> toEntity(): T = responses.first { it is T } as T
 
-    fun export(majorWeatherEntityTypes: Set<MajorWeatherEntityType>) = majorWeatherEntityTypes.associateWith { type ->
-        responses.first {
-            type.entityClass.isInstance(it)
-        }
-    }
-
-    val all
-        get() = weatherDataMajorCategories.associateWith { type ->
+    fun export(majorWeatherEntityTypes: Set<MajorWeatherEntityType>) =
+        majorWeatherEntityTypes.associateWith { type ->
             responses.first {
                 type.entityClass.isInstance(it)
             }
         }
+
+    val all
+        get() =
+            weatherDataMajorCategories.associateWith { type ->
+                responses.first {
+                    type.entityClass.isInstance(it)
+                }
+            }
 }
 
 sealed interface WeatherResponseState {
@@ -35,14 +37,15 @@ sealed interface WeatherResponseState {
     val weatherProvider: WeatherProvider
 
     data class Failure(
-        override val requestId: Long, override val location: WeatherDataRequest.Coordinate, override val weatherProvider: WeatherProvider,
+        override val requestId: Long,
+        override val location: WeatherDataRequest.Coordinate,
+        override val weatherProvider: WeatherProvider,
     ) : WeatherResponseState
 
     data class Success(
         override val requestId: Long,
         override val location: WeatherDataRequest.Coordinate,
         override val weatherProvider: WeatherProvider,
-        val entity: WeatherResponseEntity
+        val entity: WeatherResponseEntity,
     ) : WeatherResponseState
-
 }

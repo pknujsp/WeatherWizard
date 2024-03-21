@@ -20,7 +20,6 @@ data class GeoCodeEntity(
     val category: String,
     val osmType: String,
 ) : EntityModel {
-
     /*
     Country (국가): 가장 큰 지리적 단위로, 독립된 주권을 가진 영토를 의미합니다.
     Province/State (주/도): 국가 내에서 더 작은 행정 구역으로, 종종 자체적인 정부를 가지고 있습니다.
@@ -30,15 +29,16 @@ data class GeoCodeEntity(
     Saddle, Natural (고개): 이는 일반적인 행정 구역보다는 지리적 특성을 나타내는 용어로, 두 높은 지점 사이의 낮은 지점을 말합니다.
     Quarter (구/동): 도시 내의 더 작은 단위로, 주거 지역이나 상업 지역 등을 구분하는 데 사용됩니다.
     Road (도로): 가장 작은 지리적 단위로, 특정 거리나 도로를 나타냅니다.
-    */
-    val simpleDisplayName: String = StringBuilder().apply {
-        if (province.isNotEmpty()) append(" ").append(province)
-        if (city.isNotEmpty()) append(" ").append(city)
-        if (county.isNotEmpty()) append(" ").append(county)
-        if (suburb.isNotEmpty()) append(" ").append(suburb)
-        if (natural.isNotEmpty()) append(" ").append(natural)
-        if (quarter.isNotEmpty()) append(" ").append(quarter)
+     */
+    val simpleDisplayName: String =
+        StringBuilder().apply {
+            if (province.isNotEmpty()) append(" ").append(province)
+            if (city.isNotEmpty()) append(" ").append(city)
+            if (county.isNotEmpty()) append(" ").append(county)
+            if (suburb.isNotEmpty()) append(" ").append(suburb)
+            if (natural.isNotEmpty()) append(" ").append(natural)
+            if (quarter.isNotEmpty()) append(" ").append(quarter)
 
-        if (isEmpty()) append(displayName.replace(", $country", ""))
-    }.toString().trim()
+            if (isEmpty()) append(displayName.replace(", $country", ""))
+        }.toString().trim()
 }

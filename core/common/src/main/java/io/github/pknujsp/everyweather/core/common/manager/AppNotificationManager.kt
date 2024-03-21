@@ -14,37 +14,42 @@ import androidx.core.graphics.drawable.IconCompat
 import io.github.pknujsp.everyweather.core.common.NotificationType
 import io.github.pknujsp.everyweather.core.resource.R
 
-
 private class AppNotificationManagerImpl(private val context: Context) : AppNotificationManager {
     private val notificationManager: android.app.NotificationManager =
         context.getSystemService(Context.NOTIFICATION_SERVICE) as android.app.NotificationManager
 
     private companion object {
-        val mainActivityIntent = Intent().apply {
-            val packageName = "io.github.pknujsp.everyweather"
-            val className = "io.github.pknujsp.everyweather.feature.main.MainActivity"
-            setClassName(packageName, className)
-            flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
-        }
+        val mainActivityIntent =
+            Intent().apply {
+                val packageName = "io.github.pknujsp.everyweather"
+                val className = "io.github.pknujsp.everyweather.feature.main.MainActivity"
+                setClassName(packageName, className)
+                flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
+            }
         const val MAIN_ACTIVITY_REQUEST_CODE = 235634623
     }
 
-    private fun createNotificationChannel(context: Context, notificationType: NotificationType) {
+    private fun createNotificationChannel(
+        context: Context,
+        notificationType: NotificationType,
+    ) {
         notificationType.run {
             if (notificationManager.getNotificationChannel(channelId) == null) {
-                val channel = NotificationChannel(channelId, context.getString(channelName), importance).also {
-                    it.description = context.getString(channelDescription)
-                    it.lockscreenVisibility = VISIBILITY_PUBLIC
-                }
+                val channel =
+                    NotificationChannel(channelId, context.getString(channelName), importance).also {
+                        it.description = context.getString(channelDescription)
+                        it.lockscreenVisibility = VISIBILITY_PUBLIC
+                    }
 
                 notificationManager.createNotificationChannel(channel)
             }
         }
-
     }
 
     private fun createNotification(
-        notificationType: NotificationType, context: Context, isOngoing: Boolean = notificationType.ongoing
+        notificationType: NotificationType,
+        context: Context,
+        isOngoing: Boolean = notificationType.ongoing,
     ): NotificationCompat.Builder {
         createNotificationChannel(context, notificationType)
 
@@ -67,7 +72,6 @@ private class AppNotificationManagerImpl(private val context: Context) : AppNoti
     override fun isActiveNotification(notificationType: NotificationType): Boolean =
         notificationManager.activeNotifications.any { it.id == notificationType.notificationId }
 
-
     override fun createForegroundNotification(notificationType: NotificationType): Notification {
         return createNotification(notificationType, context).apply {
             setContentText(context.getString(notificationType.contentText))
@@ -76,21 +80,29 @@ private class AppNotificationManagerImpl(private val context: Context) : AppNoti
     }
 
     @SuppressLint("MissingPermission")
-    override fun notifyNotification(notificationType: NotificationType, entity: ExtendedNotification) {
-        val notificationBulder = createNotification(notificationType, context).apply {
-            if (entity.icon != null) {
-                setSmallIcon(entity.icon)
-            } else {
-                setSmallIcon(io.github.pknujsp.everyweather.core.resource.R.drawable.weatherwizard_icon_logo)
+    override fun notifyNotification(
+        notificationType: NotificationType,
+        entity: ExtendedNotification,
+    ) {
+        val notificationBulder =
+            createNotification(notificationType, context).apply {
+                if (entity.icon != null) {
+                    setSmallIcon(entity.icon)
+                } else {
+                    setSmallIcon(io.github.pknujsp.everyweather.core.resource.R.drawable.weatherwizard_icon_logo)
+                }
+                setContentIntent(
+                    PendingIntent.getActivity(
+                        context,
+                        MAIN_ACTIVITY_REQUEST_CODE,
+                        mainActivityIntent,
+                        PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
+                    ),
+                )
+                setStyle(NotificationCompat.DecoratedCustomViewStyle())
+                setCustomBigContentView(if (entity.success) entity.bigContentRemoteViews else entity.bigFailedContentRemoteViews)
+                setCustomContentView(if (entity.success) entity.smallContentRemoteViews else entity.smallFailedContentRemoteViews)
             }
-            setContentIntent(PendingIntent.getActivity(context,
-                MAIN_ACTIVITY_REQUEST_CODE,
-                mainActivityIntent,
-                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE))
-            setStyle(NotificationCompat.DecoratedCustomViewStyle())
-            setCustomBigContentView(if (entity.success) entity.bigContentRemoteViews else entity.bigFailedContentRemoteViews)
-            setCustomContentView(if (entity.success) entity.smallContentRemoteViews else entity.smallFailedContentRemoteViews)
-        }
 
         NotificationManagerCompat.from(context).notify(notificationType.notificationId, notificationBulder.build())
     }
@@ -99,7 +111,9 @@ private class AppNotificationManagerImpl(private val context: Context) : AppNoti
     override fun notifyLoadingNotification(notificationType: NotificationType) {
         val notificationBulder = createNotification(notificationType, context, false)
         notificationBulder.setSmallIcon(R.drawable.ic_refresh).setStyle(NotificationCompat.DecoratedCustomViewStyle())
-            .setCustomContentView(RemoteViews(context.packageName, io.github.pknujsp.everyweather.core.resource.R.layout.view_loading_notification))
+            .setCustomContentView(
+                RemoteViews(context.packageName, io.github.pknujsp.everyweather.core.resource.R.layout.view_loading_notification),
+            )
         NotificationManagerCompat.from(context).notify(notificationType.notificationId, notificationBulder.build())
     }
 }
@@ -108,15 +122,23 @@ interface AppNotificationManager : AppComponentManager {
     companion object : AppComponentManagerInitializer {
         private var instance: AppNotificationManager? = null
 
-        override fun getInstance(context: Context): AppNotificationManager = synchronized(this) {
-            instance ?: AppNotificationManagerImpl(context).also { instance = it }
-        }
+        override fun getInstance(context: Context): AppNotificationManager =
+            synchronized(this) {
+                instance ?: AppNotificationManagerImpl(context).also { instance = it }
+            }
     }
 
     fun cancelNotification(notificationType: NotificationType)
+
     fun isActiveNotification(notificationType: NotificationType): Boolean
+
     fun createForegroundNotification(notificationType: NotificationType): Notification
-    fun notifyNotification(notificationType: NotificationType, entity: ExtendedNotification)
+
+    fun notifyNotification(
+        notificationType: NotificationType,
+        entity: ExtendedNotification,
+    )
+
     fun notifyLoadingNotification(notificationType: NotificationType)
 }
 
@@ -126,5 +148,5 @@ class ExtendedNotification(
     val smallContentRemoteViews: RemoteViews? = null,
     val bigContentRemoteViews: RemoteViews? = null,
     val smallFailedContentRemoteViews: RemoteViews? = null,
-    val bigFailedContentRemoteViews: RemoteViews? = null
+    val bigFailedContentRemoteViews: RemoteViews? = null,
 )

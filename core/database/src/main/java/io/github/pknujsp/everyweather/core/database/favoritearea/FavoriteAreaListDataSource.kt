@@ -4,7 +4,6 @@ import io.github.pknujsp.everyweather.core.model.DBEntityState
 import kotlinx.coroutines.flow.Flow
 
 interface FavoriteAreaListDataSource {
-
     suspend fun getAll(): List<FavoriteAreaListDto>
 
     fun getAllOnFlow(): Flow<List<FavoriteAreaListDto>>

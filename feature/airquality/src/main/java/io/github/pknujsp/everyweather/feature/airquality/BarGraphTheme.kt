@@ -13,9 +13,9 @@ private sealed interface Size<T> {
 }
 
 internal enum class BarSize(val width: Dp, val height: Dp, val horizontalPadding: Dp) {
-    SMALL(40.dp, 85.dp, 8.dp), MEDIUM(50.dp, 160.dp, 12.dp),
+    SMALL(40.dp, 85.dp, 8.dp),
+    MEDIUM(50.dp, 160.dp, 12.dp),
 }
-
 
 private data object IndexTextStyle : Size<TextStyle> {
     override val small: TextStyle = TextStyle(fontSize = 12.sp, color = Color.White, textAlign = TextAlign.Center)
@@ -30,7 +30,6 @@ private data object DateTextStyle : Size<TextStyle> {
 private data object DayTextStyle : Size<TextStyle> {
     override val small: TextStyle = TextStyle(fontSize = 12.sp, color = Color.White, textAlign = TextAlign.Center)
     override val medium: TextStyle = TextStyle(fontSize = 13.sp, color = Color.White, textAlign = TextAlign.Center)
-
 }
 
 internal sealed interface BarGraphTheme {
@@ -52,5 +51,4 @@ internal sealed interface BarGraphTheme {
         override val dateTextStyle: TextStyle = DateTextStyle.medium
         override val dayTextStyle: TextStyle = DayTextStyle.medium
     }
-
 }

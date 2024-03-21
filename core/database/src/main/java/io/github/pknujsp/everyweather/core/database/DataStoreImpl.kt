@@ -12,24 +12,32 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 
 class DataStoreImpl(
-    @ApplicationContext private val context: Context
+    @ApplicationContext private val context: Context,
 ) : AppDataStore {
     private val Context.dataStore by preferencesDataStore(name = "preferences")
 
-    override suspend fun save(key: String, value: String) {
+    override suspend fun save(
+        key: String,
+        value: String,
+    ) {
         context.dataStore.edit {
             it[stringPreferencesKey(key)] = value
-
         }
     }
 
-    override suspend fun save(key: String, value: Long) {
+    override suspend fun save(
+        key: String,
+        value: Long,
+    ) {
         context.dataStore.edit {
             it[longPreferencesKey(key)] = value
         }
     }
 
-    override suspend fun save(key: String, value: Int) {
+    override suspend fun save(
+        key: String,
+        value: Int,
+    ) {
         context.dataStore.edit {
             it[intPreferencesKey(key)] = value
         }
@@ -77,16 +85,18 @@ class DataStoreImpl(
         }
     }
 
-    override fun observeInt(key: String) = context.dataStore.data.map { preferences ->
-        preferences[intPreferencesKey(key)]
-    }
+    override fun observeInt(key: String) =
+        context.dataStore.data.map { preferences ->
+            preferences[intPreferencesKey(key)]
+        }
 
-    override fun observeLong(key: String) = context.dataStore.data.map { preferences ->
-        preferences[longPreferencesKey(key)]
-    }
+    override fun observeLong(key: String) =
+        context.dataStore.data.map { preferences ->
+            preferences[longPreferencesKey(key)]
+        }
 
-    override fun observeString(key: String) = context.dataStore.data.map { preferences ->
-        preferences[stringPreferencesKey(key)]
-    }
-
+    override fun observeString(key: String) =
+        context.dataStore.data.map { preferences ->
+            preferences[stringPreferencesKey(key)]
+        }
 }

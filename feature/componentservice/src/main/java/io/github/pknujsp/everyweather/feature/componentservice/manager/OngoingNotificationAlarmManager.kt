@@ -15,9 +15,8 @@ import io.github.pknujsp.everyweather.feature.componentservice.AppComponentServi
 import io.github.pknujsp.everyweather.feature.componentservice.ComponentPendingIntentManager
 
 private class OngoingNotificationAlarmManagerImpl(
-    private val context: Context
+    private val context: Context,
 ) : OngoingNotificationAlarmManager {
-
     private val appAlarmManager: AppAlarmManager = AppComponentManagerFactory.getManager(context, AppAlarmManager::class)
 
     companion object {
@@ -25,11 +24,14 @@ private class OngoingNotificationAlarmManagerImpl(
     }
 
     override fun getScheduleState(): AppAlarmManager.ScheduledState {
-        val pendingIntent = ComponentPendingIntentManager.getPendingIntent(context,
-            PendingIntent.FLAG_NO_CREATE or PendingIntent.FLAG_IMMUTABLE,
-            ComponentServiceAction.OngoingNotification(OngoingNotificationServiceArgument()),
-            REQUEST_CODE,
-            AppComponentServiceReceiver.ACTION_AUTO_REFRESH)
+        val pendingIntent =
+            ComponentPendingIntentManager.getPendingIntent(
+                context,
+                PendingIntent.FLAG_NO_CREATE or PendingIntent.FLAG_IMMUTABLE,
+                ComponentServiceAction.OngoingNotification(OngoingNotificationServiceArgument()),
+                REQUEST_CODE,
+                AppComponentServiceReceiver.ACTION_AUTO_REFRESH,
+            )
 
         return if (pendingIntent.pendingIntent == null) {
             AppAlarmManager.ScheduledState.NotScheduled
@@ -44,11 +46,14 @@ private class OngoingNotificationAlarmManagerImpl(
             return
         }
 
-        val pendingIntent = ComponentPendingIntentManager.getPendingIntent(context,
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
-            ComponentServiceAction.OngoingNotification(OngoingNotificationServiceArgument()),
-            REQUEST_CODE,
-            AppComponentServiceReceiver.ACTION_AUTO_REFRESH)
+        val pendingIntent =
+            ComponentPendingIntentManager.getPendingIntent(
+                context,
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
+                ComponentServiceAction.OngoingNotification(OngoingNotificationServiceArgument()),
+                REQUEST_CODE,
+                AppComponentServiceReceiver.ACTION_AUTO_REFRESH,
+            )
         appAlarmManager.scheduleRepeat(refreshInterval.interval, pendingIntent.pendingIntent!!)
     }
 
@@ -66,8 +71,9 @@ interface OngoingNotificationAlarmManager : AppComponentManager, ComponentServic
     companion object : AppComponentManagerInitializer {
         private var instance: OngoingNotificationAlarmManager? = null
 
-        override fun getInstance(context: Context): OngoingNotificationAlarmManager = synchronized(this) {
-            instance ?: OngoingNotificationAlarmManagerImpl(context).also { instance = it }
-        }
+        override fun getInstance(context: Context): OngoingNotificationAlarmManager =
+            synchronized(this) {
+                instance ?: OngoingNotificationAlarmManagerImpl(context).also { instance = it }
+            }
     }
 }

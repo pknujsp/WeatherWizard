@@ -24,6 +24,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import io.github.pknujsp.everyweather.core.common.FeatureType
+import io.github.pknujsp.everyweather.core.common.asActivity
 import io.github.pknujsp.everyweather.core.model.ActionState
 import io.github.pknujsp.everyweather.core.model.coordinate.LocationType
 import io.github.pknujsp.everyweather.core.model.coordinate.LocationTypeModel
@@ -40,15 +41,11 @@ import io.github.pknujsp.everyweather.feature.componentservice.AppComponentServi
 import io.github.pknujsp.everyweather.feature.componentservice.ComponentPendingIntentManager
 import io.github.pknujsp.everyweather.feature.componentservice.RemoteViewsScreen
 import io.github.pknujsp.everyweather.feature.permoptimize.feature.SmallFeatureStateScreen
-import io.github.pknujsp.everyweather.feature.permoptimize.permission.PermissionState
 import io.github.pknujsp.everyweather.feature.searchlocation.SearchLocationScreen
 import kotlinx.coroutines.launch
 
-
 @Composable
-fun WidgetConfigureScreen(
-    viewModel: WidgetConfigureViewModel = hiltViewModel()
-) {
+fun WidgetConfigureScreen(viewModel: WidgetConfigureViewModel = hiltViewModel()) {
     val context = LocalContext.current
     val widget = viewModel.widget
     var showSearch by remember { mutableStateOf(false) }
@@ -75,11 +72,13 @@ fun WidgetConfigureScreen(
     if (showSearch) {
         SearchLocationScreen(onSelectedLocation = { newLocation ->
             newLocation?.let {
-                widget.location = LocationTypeModel(locationType = LocationType.CustomLocation,
+                widget.location = LocationTypeModel(
+                    locationType = LocationType.CustomLocation,
                     address = it.addressName,
                     latitude = it.latitude,
                     country = it.countryName,
-                    longitude = it.longitude)
+                    longitude = it.longitude,
+                )
             }
             showSearch = false
         }, popBackStack = {
@@ -89,14 +88,16 @@ fun WidgetConfigureScreen(
         CustomBox(snackbarHost = { SnackbarHost(hostState = configureState.snackHostState) }) {
             Column {
                 TitleTextWithNavigation(title = stringResource(id = R.string.configure_widget)) {
-                    (context as Activity).finish()
+                    context.asActivity()?.finish()
                 }
                 RemoteViewsScreen(RemoteViewsCreatorManager.getByWidgetType(widget.widgetType), viewModel.units)
-                Column(modifier = Modifier
-                    .verticalScroll(rememberScrollState())
-                    .weight(1f)
-                    .padding(horizontal = 16.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                Column(
+                    modifier = Modifier
+                        .verticalScroll(rememberScrollState())
+                        .weight(1f)
+                        .padding(horizontal = 16.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                ) {
                     LocationScreen(widget.location, onSelectedItem = {
                         widget.location = widget.location.copy(locationType = it)
                     }) {
@@ -106,39 +107,46 @@ fun WidgetConfigureScreen(
                         widget.weatherProvider = it
                     }
                     if (viewModel.refreshInterval != RefreshInterval.MANUAL) {
-                        if (!configureState.batteryOptimizationFeatureState.isAvailable(LocalContext.current)) {
-                            SmallFeatureStateScreen(Modifier.padding(8.dp),
+                        if (!configureState.batteryOptimizationFeatureState.isEnabled(LocalContext.current)) {
+                            SmallFeatureStateScreen(
+                                Modifier.padding(8.dp),
                                 state = configureState.batteryOptimizationFeatureState.featureType,
                                 onClickAction = {
                                     configureState.batteryOptimizationFeatureState.showSettingsActivity()
-                                })
+                                },
+                            )
                         }
-                        if (configureState.backgroundLocationPermissionManager.permissionState !is PermissionState.Granted) {
-                            SmallFeatureStateScreen(Modifier.padding(8.dp),
+                        if (!configureState.backgroundLocationPermissionManager.isEnabled(context)) {
+                            SmallFeatureStateScreen(
+                                Modifier.padding(8.dp),
                                 state = FeatureType.Permission.BackgroundLocation,
                                 onClickAction = {
                                     configureState.backgroundLocationPermissionManager.showSettingsActivity()
-                                })
+                                },
+                            )
                         }
                     }
                 }
 
                 Box(modifier = Modifier.padding(12.dp)) {
                     SecondaryButton(text = stringResource(id = R.string.save), modifier = Modifier.fillMaxWidth()) {
-                        if (!configureState.batteryOptimizationFeatureState.isAvailable(context)) {
+                        if (!configureState.batteryOptimizationFeatureState.isEnabled(context)) {
                             coroutineScope.launch {
                                 configureState.showSnackbar(
-                                    context, configureState.batteryOptimizationFeatureState.featureType.message,
+                                    context,
+                                    configureState.batteryOptimizationFeatureState.featureType.message,
                                     configureState.batteryOptimizationFeatureState.featureType.action,
                                 ) {
                                     configureState.batteryOptimizationFeatureState.showSettingsActivity()
                                 }
                             }
-                        } else if (configureState.backgroundLocationPermissionManager.permissionState is PermissionState.Denied) {
+                        } else if (!configureState.backgroundLocationPermissionManager.isEnabled(context)) {
                             coroutineScope.launch {
-                                configureState.showSnackbar(context,
-                                    FeatureType.Permission.BackgroundLocation.message,
-                                    FeatureType.Permission.BackgroundLocation.action) {
+                                configureState.showSnackbar(
+                                    context,
+                                    configureState.backgroundLocationPermissionManager.featureType.message,
+                                    configureState.backgroundLocationPermissionManager.featureType.action,
+                                ) {
                                     configureState.backgroundLocationPermissionManager.showSettingsActivity()
                                 }
                             }
@@ -150,21 +158,23 @@ fun WidgetConfigureScreen(
             }
         }
     }
-
 }
 
-
-fun createWidgetAndFinish(activity: Activity, widgetId: Int) {
-    val newWidgetIntent = ComponentPendingIntentManager.getIntent(activity.applicationContext,
+fun createWidgetAndFinish(
+    activity: Activity,
+    widgetId: Int,
+) {
+    val newWidgetIntent = ComponentPendingIntentManager.getIntent(
+        activity.applicationContext,
         LoadWidgetDataArgument(LoadWidgetDataArgument.NEW_WIDGET, widgetId),
-        AppComponentServiceReceiver.ACTION_REFRESH)
+        AppComponentServiceReceiver.ACTION_REFRESH,
+    )
     activity.sendBroadcast(newWidgetIntent)
 
     val result = Intent().putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, widgetId)
     activity.setResult(Activity.RESULT_OK, result)
     activity.finish()
 }
-
 
 enum class ConfigureActionState : ActionState {
     NO_LOCATION_IS_SELECTED {

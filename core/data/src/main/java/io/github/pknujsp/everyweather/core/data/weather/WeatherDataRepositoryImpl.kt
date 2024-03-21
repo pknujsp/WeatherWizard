@@ -19,16 +19,19 @@ internal class WeatherDataRepositoryImpl(
     cacheManager: CacheManager<Int, CachedWeatherModel>,
     cacheCleaner: CacheCleaner,
 ) : WeatherDataRepository, RepositoryCacheManager<Int, CachedWeatherModel>(cacheCleaner, cacheManager) {
-
     private suspend fun getCache(
-        key: Int, requestWeatherData: RequestWeatherData
-    ): List<Pair<MajorWeatherEntityType, WeatherEntityModel>>? = when (val cacheState = cacheManager.get(key)) {
-        is CacheManager.CacheState.Hit -> cacheState.value.export(requestWeatherData.majorWeatherEntityTypes)
-        else -> null
-    }
+        key: Int,
+        requestWeatherData: RequestWeatherData,
+    ): List<Pair<MajorWeatherEntityType, WeatherEntityModel>>? =
+        when (val cacheState = cacheManager.get(key)) {
+            is CacheManager.CacheState.Hit -> cacheState.value.export(requestWeatherData.majorWeatherEntityTypes)
+            else -> null
+        }
 
     private suspend fun load(
-        requestWeatherData: RequestWeatherData, requestId: Long, bypassCache: Boolean
+        requestWeatherData: RequestWeatherData,
+        requestId: Long,
+        bypassCache: Boolean,
     ): Result<List<Pair<MajorWeatherEntityType, WeatherEntityModel>>> {
         val key = requestWeatherData.key()
 
@@ -38,30 +41,38 @@ internal class WeatherDataRepositoryImpl(
             }
         }
 
-        val responses = coroutineScope {
-            requestWeatherData.weatherProvider.majorWeatherEntityTypes.map { majorWeatherEntityType ->
-                async {
-                    majorWeatherEntityType to weatherApiRequestManager.get(requestWeatherData.latitude,
-                        requestWeatherData.longitude,
-                        requestWeatherData.weatherProvider,
-                        majorWeatherEntityType,
-                        requestId)
+        val responses =
+            coroutineScope {
+                requestWeatherData.weatherProvider.majorWeatherEntityTypes.map { majorWeatherEntityType ->
+                    async {
+                        majorWeatherEntityType to
+                            weatherApiRequestManager.get(
+                                requestWeatherData.latitude,
+                                requestWeatherData.longitude,
+                                requestWeatherData.weatherProvider,
+                                majorWeatherEntityType,
+                                requestId,
+                            )
+                    }
+                }.map {
+                    it.await()
                 }
-            }.map {
-                it.await()
             }
-        }
 
         return if (responses.all { it.second.isSuccess }) {
-            val entities = responses.map { (type, model) ->
-                type to weatherResponseMapperManager.map(model.getOrThrow(), requestWeatherData.weatherProvider, type)
-            }
-
-            cacheManager.put(key, CachedWeatherModel().apply {
-                for (pair in entities) {
-                    put(pair.first, pair.second)
+            val entities =
+                responses.map { (type, model) ->
+                    type to weatherResponseMapperManager.map(model.getOrThrow(), requestWeatherData.weatherProvider, type)
                 }
-            })
+
+            cacheManager.put(
+                key,
+                CachedWeatherModel().apply {
+                    for (pair in entities) {
+                        put(pair.first, pair.second)
+                    }
+                },
+            )
 
             Result.success(entities)
         } else {
@@ -69,13 +80,14 @@ internal class WeatherDataRepositoryImpl(
         }
     }
 
-
     override suspend fun getWeatherData(
-        requestWeatherData: RequestWeatherData, requestId: Long, bypassCache: Boolean
-    ): Result<WeatherModel> = load(requestWeatherData, requestId, bypassCache).map { list ->
-        WeatherModel(list.filter { it.first in requestWeatherData.majorWeatherEntityTypes }.map { it.second })
-    }
-
+        requestWeatherData: RequestWeatherData,
+        requestId: Long,
+        bypassCache: Boolean,
+    ): Result<WeatherModel> =
+        load(requestWeatherData, requestId, bypassCache).map { list ->
+            WeatherModel(list.filter { it.first in requestWeatherData.majorWeatherEntityTypes }.map { it.second })
+        }
 
     private fun RequestWeatherData.key() = hashCode()
 }

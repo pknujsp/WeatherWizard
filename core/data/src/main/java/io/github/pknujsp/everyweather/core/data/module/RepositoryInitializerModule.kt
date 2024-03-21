@@ -10,7 +10,6 @@ import io.github.pknujsp.everyweather.core.data.RepositoryCacheManager
 import io.github.pknujsp.everyweather.core.data.RepositoryInitializer
 import io.github.pknujsp.everyweather.core.data.ai.SummaryTextRepositoryImpl
 import io.github.pknujsp.everyweather.core.data.aqicn.AirQualityRepositoryImpl
-import io.github.pknujsp.everyweather.core.data.favorite.TargetLocationRepository
 import io.github.pknujsp.everyweather.core.data.favorite.TargetLocationRepositoryImpl
 import io.github.pknujsp.everyweather.core.data.rainviewer.RadarTilesRepositoryImpl
 import io.github.pknujsp.everyweather.core.data.settings.SettingsRepositoryImpl
@@ -21,7 +20,6 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 object RepositoryInitializerModule {
-
     const val WEATHER_REPOSITORY = "WEATHER_REPOSITORY"
     const val AIR_QUALITY_REPOSITORY = "AIR_QUALITY_REPOSITORY"
     const val RAIN_VIEWER_REPOSITORY = "RAIN_VIEWER_REPOSITORY"
@@ -51,13 +49,15 @@ object RepositoryInitializerModule {
 
     @Provides
     @Named(TARGET_LOCATION_REPOSITORY)
-    internal fun providesTargetLocationRepositoryInitializer(targetLocationRepositoryImpl: TargetLocationRepositoryImpl): RepositoryInitializer =
-        targetLocationRepositoryImpl
+    internal fun providesTargetLocationRepositoryInitializer(
+        targetLocationRepositoryImpl: TargetLocationRepositoryImpl,
+    ): RepositoryInitializer = targetLocationRepositoryImpl
 
     @Provides
     @Named(SUMMARY_TEXT_REPOSITORY)
-    internal fun providesSummaryTextRepositoryInitializer(summaryTextRepositoryImpl: SummaryTextRepositoryImpl): RepositoryCacheManager<*, *> =
-        summaryTextRepositoryImpl
+    internal fun providesSummaryTextRepositoryInitializer(
+        summaryTextRepositoryImpl: SummaryTextRepositoryImpl,
+    ): RepositoryCacheManager<*, *> = summaryTextRepositoryImpl
 
     @Provides
     @Singleton
@@ -68,5 +68,4 @@ object RepositoryInitializerModule {
         @Named(SUMMARY_TEXT_REPOSITORY) summaryTextRepository: RepositoryCacheManager<*, *>,
     ): GlobalRepositoryCacheManager =
         GlobalRepositoryCacheManagerImpl(weatherRepository, airQualityRepository, rainViewerRepository, summaryTextRepository)
-
 }

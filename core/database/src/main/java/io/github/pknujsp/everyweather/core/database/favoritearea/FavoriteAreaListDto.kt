@@ -12,5 +12,5 @@ data class FavoriteAreaListDto(
     val areaName: String,
     val countryName: String,
     val latitude: Double,
-    val longitude: Double
+    val longitude: Double,
 ) : DBEntityModel

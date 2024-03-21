@@ -2,7 +2,6 @@ package io.github.pknujsp.everyweather.feature.componentservice.notification.dai
 
 import androidx.compose.runtime.Stable
 
-
 @Stable
 interface DailyNotificationUiState {
     val isNew: Boolean
@@ -14,8 +13,11 @@ interface DailyNotificationUiState {
 
     sealed interface Action {
         data class UPDATED(val id: Long) : Action
+
         data class ENABLED(val id: Long) : Action
+
         data class DISABLED(val id: Long) : Action
+
         data object NONE : Action
     }
 }

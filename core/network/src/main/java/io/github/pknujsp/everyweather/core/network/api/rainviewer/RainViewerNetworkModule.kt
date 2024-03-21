@@ -13,7 +13,6 @@ import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import javax.inject.Singleton
 
-
 @InstallIn(SingletonComponent::class)
 @Module
 object RainViewerNetworkModule {
@@ -21,18 +20,19 @@ object RainViewerNetworkModule {
 
     @Provides
     @Singleton
-    fun providesNetworkApi(okHttpClient: OkHttpClient, @KtJson json: Json): RainViewerNetworkApi =
+    fun providesNetworkApi(
+        okHttpClient: OkHttpClient,
+        @KtJson json: Json,
+    ): RainViewerNetworkApi =
         Retrofit.Builder().client(okHttpClient).baseUrl(RAIN_VIEWER_URL)
             .addCallAdapterFactory(NetworkApiCallAdapterFactory())
             .addConverterFactory(
-                json.asConverterFactory("application/json".toMediaType())
+                json.asConverterFactory("application/json".toMediaType()),
             ).build().create(RainViewerNetworkApi::class.java)
 
     @Provides
     @Singleton
-    fun providesRainViewerDataSource(
-        rainViewerNetworkApi: RainViewerNetworkApi
-    ): RainViewerDataSource {
+    fun providesRainViewerDataSource(rainViewerNetworkApi: RainViewerNetworkApi): RainViewerDataSource {
         return RainViewerDataSourceImpl(rainViewerNetworkApi)
     }
 }

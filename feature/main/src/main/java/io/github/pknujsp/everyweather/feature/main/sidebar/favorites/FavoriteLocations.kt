@@ -28,12 +28,12 @@ import io.github.pknujsp.everyweather.core.model.coordinate.LocationType
 import io.github.pknujsp.everyweather.core.model.favorite.FavoriteArea
 import io.github.pknujsp.everyweather.core.resource.R
 
-
 private val itemPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp)
 
 @Composable
 fun FavoriteLocationsScreen(
-    viewModel: FavoriteLocationsViewModel = hiltViewModel(), closeDrawer: () -> Unit
+    viewModel: FavoriteLocationsViewModel = hiltViewModel(),
+    closeDrawer: () -> Unit,
 ) {
     val favoriteLocationsUiState = viewModel.favoriteLocationsUiState
     val favoriteLocations by favoriteLocationsUiState.favoriteAreas.collectAsStateWithLifecycle()
@@ -61,10 +61,11 @@ fun FavoriteLocationsScreen(
     }
 }
 
-
 @Composable
 private fun FavoriteLocationItem(
-    favoriteLocation: FavoriteArea, targetLocationId: Long?, onClick: () -> Unit
+    favoriteLocation: FavoriteArea,
+    targetLocationId: Long?,
+    onClick: () -> Unit,
 ) {
     val isSelected = targetLocationId == favoriteLocation.id
     ItemBox(isSelected = isSelected, onClick = { onClick() }) {
@@ -75,16 +76,18 @@ private fun FavoriteLocationItem(
     }
 }
 
-
 @Composable
 private fun CurrentLocationItem(
-    targetLocationUiState: TargetLocationUiState, onClick: () -> Unit
+    targetLocationUiState: TargetLocationUiState,
+    onClick: () -> Unit,
 ) {
     val isSelected = targetLocationUiState.locationType is LocationType.CurrentLocation
     ItemBox(isSelected = isSelected, onClick = { onClick() }) {
-        Row(modifier = Modifier.fillMaxWidth(),
+        Row(
+            modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.Start)) {
+            horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.Start),
+        ) {
             Icon(
                 painter = painterResource(id = R.drawable.ic_location),
                 contentDescription = stringResource(id = R.string.current_location),
@@ -97,8 +100,9 @@ private fun CurrentLocationItem(
                 )
                 if (!targetLocationUiState.isCurrentLocationLoading) {
                     Text(
-                        text = targetLocationUiState.currentLocationAddress
-                            ?: stringResource(id = targetLocationUiState.loadCurrentLocationFailedReason!!.title),
+                        text =
+                            targetLocationUiState.currentLocationAddress
+                                ?: stringResource(id = targetLocationUiState.loadCurrentLocationFailedReason!!.title),
                         style = TextStyle(fontSize = 14.sp, color = Color.Black),
                     )
                 }
@@ -108,7 +112,11 @@ private fun CurrentLocationItem(
 }
 
 @Composable
-private fun ItemBox(isSelected: Boolean, onClick: () -> Unit, content: @Composable () -> Unit) {
+private fun ItemBox(
+    isSelected: Boolean,
+    onClick: () -> Unit,
+    content: @Composable () -> Unit,
+) {
     NavigationDrawerItem(label = { content() }, selected = isSelected, onClick = {
         if (!isSelected) {
             onClick()

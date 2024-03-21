@@ -7,13 +7,15 @@ class OngoingNotificationRemoteViewUiModel(
     val currentWeather: CurrentWeather,
     val hourlyForecast: List<HourlyForecast>,
 ) : RemoteViewUiModel {
-
     data class CurrentWeather(
-        val temperature: String, val feelsLikeTemperature: String, @DrawableRes val weatherIcon: Int
+        val temperature: String,
+        val feelsLikeTemperature: String,
+        @DrawableRes val weatherIcon: Int,
     )
 
     data class HourlyForecast(
-        val temperature: String, @DrawableRes val weatherIcon: Int, val dateTime: String
+        val temperature: String,
+        @DrawableRes val weatherIcon: Int,
+        val dateTime: String,
     )
-
 }

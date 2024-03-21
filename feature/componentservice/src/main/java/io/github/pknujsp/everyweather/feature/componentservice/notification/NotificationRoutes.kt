@@ -11,10 +11,11 @@ import io.github.pknujsp.everyweather.core.ui.route.Routes
 import io.github.pknujsp.everyweather.core.ui.route.RoutesWithArgument
 
 sealed interface NotificationRoutes : Routes {
-
     companion object : ParentRoutes {
         override val route: String = "Notification"
+
         @DrawableRes override val navIcon: Int = R.drawable.round_notifications_24
+
         @StringRes override val navTitle: Int = R.string.nav_notification
     }
 
@@ -32,8 +33,9 @@ sealed interface NotificationRoutes : Routes {
 
     data object AddOrEditDaily : RoutesWithArgument("Notification/AddOrEditDaily") {
         override val arguments: List<NamedNavArgument>
-            get() = listOf(
-                navArgument("notificationId") { type = NavType.LongType },
-            )
+            get() =
+                listOf(
+                    navArgument("notificationId") { type = NavType.LongType },
+                )
     }
 }

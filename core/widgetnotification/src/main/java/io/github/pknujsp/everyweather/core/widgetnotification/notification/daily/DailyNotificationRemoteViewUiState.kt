@@ -12,7 +12,15 @@ data class DailyNotificationRemoteViewUiState(
     override val address: String? = null,
     override val lastUpdated: ZonedDateTime? = null,
     val notificationIconType: NotificationIconType? = null,
-    val notificationType: DailyNotificationType
+    val notificationType: DailyNotificationType,
 ) : RemoteViewUiState<WeatherResponseEntity> {
-    val header get() = if (isSuccessful) io.github.pknujsp.everyweather.core.widgetnotification.remoteview.DefaultRemoteViewCreator.Header(address!!, lastUpdated!!) else null
+    val header get() =
+        if (isSuccessful) {
+            io.github.pknujsp.everyweather.core.widgetnotification.remoteview.DefaultRemoteViewCreator.Header(
+                address!!,
+                lastUpdated!!,
+            )
+        } else {
+            null
+        }
 }

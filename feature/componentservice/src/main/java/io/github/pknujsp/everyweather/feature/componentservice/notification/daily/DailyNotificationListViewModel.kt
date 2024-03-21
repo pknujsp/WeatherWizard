@@ -14,38 +14,46 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class DailyNotificationListViewModel @Inject constructor(
-    private val dailyNotificationRepository: DailyNotificationRepository
-) : ViewModel() {
-    var notifications by mutableStateOf(DailyNotificationListUiState())
-        private set
+class DailyNotificationListViewModel
+    @Inject
+    constructor(
+        private val dailyNotificationRepository: DailyNotificationRepository,
+    ) : ViewModel() {
+        var notifications by mutableStateOf(DailyNotificationListUiState())
+            private set
 
-    init {
-        viewModelScope.launch {
-            dailyNotificationRepository.getDailyNotifications().collectLatest {
-                val list = it.map { entity ->
-                    DailyNotificationSettingsListItem(id = entity.id,
-                        type = entity.data.type,
-                        location = entity.data.location,
-                        hour = entity.data.hour,
-                        minute = entity.data.minute,
-                        weatherProvider = entity.data.weatherProvider,
-                        isEnabled = entity.enabled)
+        init {
+            viewModelScope.launch {
+                dailyNotificationRepository.getDailyNotifications().collectLatest {
+                    val list =
+                        it.map { entity ->
+                            DailyNotificationSettingsListItem(
+                                id = entity.id,
+                                type = entity.data.type,
+                                location = entity.data.location,
+                                hour = entity.data.hour,
+                                minute = entity.data.minute,
+                                weatherProvider = entity.data.weatherProvider,
+                                isEnabled = entity.enabled,
+                            )
+                        }
+                    notifications = notifications.copy(notifications = list)
                 }
-                notifications = notifications.copy(notifications = list)
+            }
+        }
+
+        fun switch(
+            id: Long,
+            isEnabled: Boolean,
+        ) {
+            viewModelScope.launch {
+                dailyNotificationRepository.switch(id, isEnabled)
+            }
+        }
+
+        fun delete(id: Long) {
+            viewModelScope.launch {
+                dailyNotificationRepository.deleteDailyNotification(id)
             }
         }
     }
-
-    fun switch(id: Long, isEnabled: Boolean) {
-        viewModelScope.launch {
-            dailyNotificationRepository.switch(id, isEnabled)
-        }
-    }
-
-    fun delete(id: Long) {
-        viewModelScope.launch {
-            dailyNotificationRepository.deleteDailyNotification(id)
-        }
-    }
-}

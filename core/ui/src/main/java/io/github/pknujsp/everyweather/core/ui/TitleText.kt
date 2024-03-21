@@ -21,46 +21,67 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 @Composable
-private fun TitleText(title: String, modifier: Modifier = Modifier, textStyle: TextStyle) {
-    Text(text = title,
+private fun TitleText(
+    title: String,
+    modifier: Modifier = Modifier,
+    textStyle: TextStyle,
+) {
+    Text(
+        text = title,
         style = LocalTextStyle.current.merge(textStyle),
         fontWeight = FontWeight.Bold,
         color = Color.Black,
-        modifier = modifier.wrapContentSize())
+        modifier = modifier.wrapContentSize(),
+    )
 }
 
 @Composable
 fun TitleTextWithNavigation(
-    title: String, modifier: Modifier = Modifier, onClickNavigation: () -> Unit
+    title: String,
+    modifier: Modifier = Modifier,
+    onClickNavigation: () -> Unit,
 ) {
-    Row(modifier = modifier.padding(bottom = 12.dp, start = 16.dp),
+    Row(
+        modifier = modifier.padding(bottom = 12.dp, start = 16.dp),
         verticalAlignment = androidx.compose.ui.Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
+    ) {
         IconButton(onClick = onClickNavigation) {
-            Icon(Icons.AutoMirrored.Rounded.ArrowBack, contentDescription = stringResource(io.github.pknujsp.everyweather.core.resource.R.string.back))
+            Icon(
+                Icons.AutoMirrored.Rounded.ArrowBack,
+                contentDescription = stringResource(io.github.pknujsp.everyweather.core.resource.R.string.back),
+            )
         }
-        TitleText(title = title, textStyle = TextStyle(fontSize = 21.sp))
+        TitleText(title = title, textStyle = TextStyle(fontSize = 20.sp))
     }
 }
 
 @Composable
 fun TitleTextWithoutNavigation(
-    title: String, modifier: Modifier = Modifier,
+    title: String,
+    modifier: Modifier = Modifier,
 ) {
-    TitleText(title = title,
-        modifier = modifier
-            .padding(bottom = 12.dp, start = 16.dp)
-            .then(modifier),
-        textStyle = TextStyle(fontSize = 21.sp))
+    TitleText(
+        title = title,
+        modifier =
+            modifier
+                .padding(bottom = 12.dp, start = 16.dp)
+                .then(modifier),
+        textStyle = TextStyle(fontSize = 20.sp),
+    )
 }
 
 @Composable
 fun MediumTitleTextWithoutNavigation(
-    title: String, modifier: Modifier = Modifier,
+    title: String,
+    modifier: Modifier = Modifier,
 ) {
-    TitleText(title = title,
-        modifier = modifier
-            .padding(bottom = 10.dp, start = 16.dp)
-            .then(modifier),
-        textStyle = TextStyle(fontSize = 19.sp))
+    TitleText(
+        title = title,
+        modifier =
+            modifier
+                .padding(bottom = 10.dp, start = 16.dp)
+                .then(modifier),
+        textStyle = TextStyle(fontSize = 18.sp),
+    )
 }

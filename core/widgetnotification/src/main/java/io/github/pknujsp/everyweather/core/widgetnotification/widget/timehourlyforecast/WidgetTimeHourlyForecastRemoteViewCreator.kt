@@ -15,22 +15,26 @@ import java.time.ZonedDateTime
 
 class WidgetTimeHourlyForecastRemoteViewCreator : WidgetRemoteViewsCreator<WidgetTimeHourlyForecastRemoteViewUiModel>() {
     override fun createContentView(
-        model: WidgetTimeHourlyForecastRemoteViewUiModel, header: Header, context: Context
+        model: WidgetTimeHourlyForecastRemoteViewUiModel,
+        header: Header,
+        context: Context,
     ): RemoteViews {
         return RemoteViews(context.packageName, R.layout.view_time_hourly_forecast_widget).let { content ->
             model.currentWeather.let {
-                val item = RemoteViews(context.packageName, R.layout.view_hourly_forecast_item).apply {
-                    setTextViewText(R.id.time, it.dateTime)
-                    applyForecastItem(it.weatherIcon, it.temperature)
-                }
+                val item =
+                    RemoteViews(context.packageName, R.layout.view_hourly_forecast_item).apply {
+                        setTextViewText(R.id.time, it.dateTime)
+                        applyForecastItem(it.weatherIcon, it.temperature)
+                    }
                 content.addView(R.id.hourly_forecast_row, item)
             }
 
             model.hourlyForecast.forEach {
-                val item = RemoteViews(context.packageName, R.layout.view_hourly_forecast_item).apply {
-                    setTextViewText(R.id.time, it.dateTime)
-                    applyForecastItem(it.weatherIcon, it.temperature)
-                }
+                val item =
+                    RemoteViews(context.packageName, R.layout.view_hourly_forecast_item).apply {
+                        setTextViewText(R.id.time, it.dateTime)
+                        applyForecastItem(it.weatherIcon, it.temperature)
+                    }
                 content.addView(R.id.hourly_forecast_row, item)
             }
 
@@ -41,7 +45,10 @@ class WidgetTimeHourlyForecastRemoteViewCreator : WidgetRemoteViewsCreator<Widge
         }
     }
 
-    private fun RemoteViews.applyForecastItem(icon: Int, temperature: String) {
+    private fun RemoteViews.applyForecastItem(
+        icon: Int,
+        temperature: String,
+    ) {
         setImageViewResource(R.id.weather_icon, icon)
         setTextViewText(R.id.temperature, temperature)
 
@@ -49,16 +56,28 @@ class WidgetTimeHourlyForecastRemoteViewCreator : WidgetRemoteViewsCreator<Widge
         setTextViewTextSize(R.id.temperature, TypedValue.COMPLEX_UNIT_SP, 15f)
     }
 
-
-    override fun createSampleView(context: Context, units: CurrentUnits): RemoteViews {
-        val mockModel = WidgetTimeHourlyForecastRemoteViewUiModel(currentWeather = MockDataGenerator.currentWeatherEntity.run {
-            WidgetTimeHourlyForecastRemoteViewUiModel.CurrentWeather(temperature.convertUnit(units.temperatureUnit).toString(),
-                weatherCondition.value.dayWeatherIcon)
-        }, hourlyForecast = MockDataGenerator.hourlyForecastEntity.items.subList(0, 4).map {
-            WidgetTimeHourlyForecastRemoteViewUiModel.HourlyForecast(it.temperature.convertUnit(units.temperatureUnit).toString(),
-                it.weatherCondition.value.dayWeatherIcon,
-                ZonedDateTime.parse(it.dateTime.value).hour.toString())
-        })
+    override fun createSampleView(
+        context: Context,
+        units: CurrentUnits,
+    ): RemoteViews {
+        val mockModel =
+            WidgetTimeHourlyForecastRemoteViewUiModel(
+                currentWeather =
+                    MockDataGenerator.currentWeatherEntity.run {
+                        WidgetTimeHourlyForecastRemoteViewUiModel.CurrentWeather(
+                            temperature.convertUnit(units.temperatureUnit).toString(),
+                            weatherCondition.value.dayWeatherIcon,
+                        )
+                    },
+                hourlyForecast =
+                    MockDataGenerator.hourlyForecastEntity.items.subList(0, 4).map {
+                        WidgetTimeHourlyForecastRemoteViewUiModel.HourlyForecast(
+                            it.temperature.convertUnit(units.temperatureUnit).toString(),
+                            it.weatherCondition.value.dayWeatherIcon,
+                            ZonedDateTime.parse(it.dateTime.value).hour.toString(),
+                        )
+                    },
+            )
         return createContentView(mockModel, RemoteViewsMockGenerator.header, context)
     }
 }

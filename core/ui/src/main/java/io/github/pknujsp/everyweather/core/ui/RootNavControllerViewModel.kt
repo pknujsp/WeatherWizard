@@ -10,16 +10,15 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class RootNavControllerViewModel @Inject constructor(
-) : ViewModel() {
+class RootNavControllerViewModel
+    @Inject
+    constructor() : ViewModel() {
+        private val _requestedRoute = MutableSharedFlow<MainRoutes>(replay = 0, extraBufferCapacity = 1)
+        val requestedRoute: SharedFlow<MainRoutes> = _requestedRoute.asSharedFlow()
 
-    private val _requestedRoute = MutableSharedFlow<MainRoutes>(replay = 0, extraBufferCapacity = 1)
-    val requestedRoute: SharedFlow<MainRoutes> = _requestedRoute.asSharedFlow()
-
-    fun navigate(route: MainRoutes) {
-        viewModelScope.launch {
-            _requestedRoute.emit(route)
+        fun navigate(route: MainRoutes) {
+            viewModelScope.launch {
+                _requestedRoute.emit(route)
+            }
         }
     }
-
-}

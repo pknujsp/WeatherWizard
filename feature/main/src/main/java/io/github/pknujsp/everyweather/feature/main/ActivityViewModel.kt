@@ -10,20 +10,21 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class ActivityViewModel @Inject constructor(
-    private val globalRepositoryCacheManager: GlobalRepositoryCacheManager,
-    @CoDispatcher(CoDispatcherType.IO) private val ioDispatcher: kotlinx.coroutines.CoroutineDispatcher,
-) : ViewModel(), GlobalRepositoryCacheManager by globalRepositoryCacheManager {
+class ActivityViewModel
+    @Inject
+    constructor(
+        private val globalRepositoryCacheManager: GlobalRepositoryCacheManager,
+        @CoDispatcher(CoDispatcherType.IO) private val ioDispatcher: kotlinx.coroutines.CoroutineDispatcher,
+    ) : ViewModel(), GlobalRepositoryCacheManager by globalRepositoryCacheManager {
+        override fun startCacheCleaner() {
+            viewModelScope.launch(ioDispatcher) {
+                globalRepositoryCacheManager.startCacheCleaner()
+            }
+        }
 
-    override fun startCacheCleaner() {
-        viewModelScope.launch(ioDispatcher) {
-            globalRepositoryCacheManager.startCacheCleaner()
+        override fun stopCacheCleaner() {
+            viewModelScope.launch(ioDispatcher) {
+                globalRepositoryCacheManager.stopCacheCleaner()
+            }
         }
     }
-
-    override fun stopCacheCleaner() {
-        viewModelScope.launch(ioDispatcher) {
-            globalRepositoryCacheManager.stopCacheCleaner()
-        }
-    }
-}

@@ -32,19 +32,29 @@ import javax.inject.Singleton
 object RoomModule {
     @Provides
     @Singleton
-    fun providesPretainedRoomDb(@ApplicationContext context: Context): PretainedRoomDb = synchronized(this) {
-        Room.databaseBuilder(
-            context, PretainedRoomDb::class.java, "PretainedDB",
-        ).createFromAsset("database/koreaareas.db").build()
-    }
+    fun providesPretainedRoomDb(
+        @ApplicationContext context: Context,
+    ): PretainedRoomDb =
+        synchronized(this) {
+            Room.databaseBuilder(
+                context,
+                PretainedRoomDb::class.java,
+                "PretainedDB",
+            ).createFromAsset("database/koreaareas.db").build()
+        }
 
     @Provides
     @Singleton
-    fun providesNotPretainedRoomDb(@ApplicationContext context: Context): NotPretainedRoomDb = synchronized(this) {
-        Room.databaseBuilder(
-            context, NotPretainedRoomDb::class.java, "NotPretainedDB",
-        ).build()
-    }
+    fun providesNotPretainedRoomDb(
+        @ApplicationContext context: Context,
+    ): NotPretainedRoomDb =
+        synchronized(this) {
+            Room.databaseBuilder(
+                context,
+                NotPretainedRoomDb::class.java,
+                "NotPretainedDB",
+            ).build()
+        }
 
     @Provides
     fun providesCompressionTool(): CompressionTool = CompressionToolImpl()
@@ -90,6 +100,7 @@ object DBDataSourceModule {
 
     @Provides
     fun providesWidgetDataSource(
-        widgetDao: WidgetDao, compressionTool: CompressionTool
+        widgetDao: WidgetDao,
+        compressionTool: CompressionTool,
     ): WidgetLocalDataSource = WidgetLocalDataSourceImpl(widgetDao, compressionTool)
 }

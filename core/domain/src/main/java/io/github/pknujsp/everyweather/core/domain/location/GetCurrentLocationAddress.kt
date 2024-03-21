@@ -6,6 +6,7 @@ import java.time.LocalDateTime
 
 interface GetCurrentLocationAddress : CurrentLocationUseCase {
     val geoCodeFlow: StateFlow<LocationGeoCodeState?>
+
     suspend operator fun invoke(): LocationGeoCodeState
 }
 
@@ -17,7 +18,7 @@ sealed interface LocationGeoCodeState {
         val longitude: Double,
         val address: String,
         val country: String,
-        override val time: LocalDateTime = LocalDateTime.now()
+        override val time: LocalDateTime = LocalDateTime.now(),
     ) : LocationGeoCodeState
 
     data class Failure(val reason: StatefulFeature, override val time: LocalDateTime = LocalDateTime.now()) : LocationGeoCodeState

@@ -11,11 +11,11 @@ data class WidgetSettingsEntity(
     val location: LocationTypeModel = LocationTypeModel(),
     val weatherProviders: List<WeatherProvider> = listOf(WeatherProvider.default),
     val widgetType: WidgetType,
-    val status: WidgetStatus = WidgetStatus.PENDING
+    val status: WidgetStatus = WidgetStatus.PENDING,
 ) : EntityModel
 
 data class WidgetSettingsEntityList(
-    val widgetSettings: List<WidgetSettingsEntity>
+    val widgetSettings: List<WidgetSettingsEntity>,
 ) : EntityModel {
     val locationTypeGroups = widgetSettings.groupBy { it.location.locationType }
 }

@@ -8,18 +8,16 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.remember
 import io.github.pknujsp.everyweather.core.common.FeatureType
-import io.github.pknujsp.everyweather.feature.permoptimize.feature.AppFeatureState
-import io.github.pknujsp.everyweather.feature.permoptimize.feature.ShowAppSettingsActivity
-import io.github.pknujsp.everyweather.feature.permoptimize.feature.rememberAppFeatureState
-import io.github.pknujsp.everyweather.feature.permoptimize.permission.PermissionManager
-import io.github.pknujsp.everyweather.feature.permoptimize.permission.rememberPermissionManager
-
+import io.github.pknujsp.everyweather.feature.permoptimize.feature.FeatureStateManager
+import io.github.pknujsp.everyweather.feature.permoptimize.feature.ShowSettingsActivity
+import io.github.pknujsp.everyweather.feature.permoptimize.feature.rememberFeatureStateManager
+import io.github.pknujsp.everyweather.feature.permoptimize.permission.PermissionStateManager
+import io.github.pknujsp.everyweather.feature.permoptimize.permission.rememberPermissionStateManager
 
 @Composable
-fun rememberWidgetConfigureState(
-): WidgetConfigureState {
-    val batteryOptimizationFeatureState = rememberAppFeatureState(featureType = FeatureType.BatteryOptimization)
-    val backgroundLocationPermissionManager = rememberPermissionManager(defaultPermissionType = FeatureType.Permission.BackgroundLocation)
+fun rememberWidgetConfigureState(): WidgetConfigureState {
+    val batteryOptimizationFeatureState = rememberFeatureStateManager(featureType = FeatureType.BatteryOptimization)
+    val backgroundLocationPermissionManager = rememberPermissionStateManager(permissionType = FeatureType.Permission.BackgroundLocation)
     val snackHostState = remember { SnackbarHostState() }
 
     val state = remember {
@@ -27,35 +25,39 @@ fun rememberWidgetConfigureState(
     }
 
     if (batteryOptimizationFeatureState.isShowSettingsActivity) {
-        ShowAppSettingsActivity(FeatureType.BatteryOptimization) {
+        ShowSettingsActivity(FeatureType.BatteryOptimization) {
             state.batteryOptimizationFeatureState.hideSettingsActivity()
         }
-    }
-    if (backgroundLocationPermissionManager.isShowSettingsActivity) {
-        ShowAppSettingsActivity(FeatureType.Permission.BackgroundLocation) {
+    } else if (backgroundLocationPermissionManager.isShowSettingsActivity) {
+        ShowSettingsActivity(FeatureType.Permission.BackgroundLocation) {
             backgroundLocationPermissionManager.hideSettingsActivity()
-            backgroundLocationPermissionManager.fetchPermissionState()
+            backgroundLocationPermissionManager.requestPermission()
         }
     }
 
     return state
 }
 
+@Stable
 private class MutableWidgetConfigureState(
-    override val snackHostState: SnackbarHostState,
-    override val batteryOptimizationFeatureState: AppFeatureState,
-    override val backgroundLocationPermissionManager: PermissionManager,
+        override val snackHostState: SnackbarHostState,
+        override val batteryOptimizationFeatureState: FeatureStateManager,
+        override val backgroundLocationPermissionManager: PermissionStateManager,
 ) : WidgetConfigureState {
-
     override suspend fun showSnackbar(
-        context: Context, message: Int, action: Int?, showSettingsActivity: (() -> Unit)?
+            context: Context,
+            message: Int,
+            action: Int?,
+            showSettingsActivity: (() -> Unit)?,
     ) {
         if (action == null) {
             snackHostState.showSnackbar(message = context.getString(message), duration = SnackbarDuration.Short)
         } else {
-            when (snackHostState.showSnackbar(message = context.getString(message),
-                actionLabel = context.getString(action),
-                duration = SnackbarDuration.Short)) {
+            when (snackHostState.showSnackbar(
+                    message = context.getString(message),
+                    actionLabel = context.getString(action),
+                    duration = SnackbarDuration.Short,
+            )) {
                 SnackbarResult.ActionPerformed -> {
                     showSettingsActivity?.invoke()
                 }
@@ -64,18 +66,19 @@ private class MutableWidgetConfigureState(
                 }
             }
         }
-
-
     }
 }
 
-
 @Stable
 interface WidgetConfigureState {
-    val batteryOptimizationFeatureState: AppFeatureState
-    val backgroundLocationPermissionManager: PermissionManager
+    val batteryOptimizationFeatureState: FeatureStateManager
+    val backgroundLocationPermissionManager: PermissionStateManager
     val snackHostState: SnackbarHostState
+
     suspend fun showSnackbar(
-        context: Context, message: Int, action: Int? = null, showSettingsActivity: (() -> Unit)? = null
+            context: Context,
+            message: Int,
+            action: Int? = null,
+            showSettingsActivity: (() -> Unit)? = null,
     )
 }

@@ -21,44 +21,51 @@ import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
-class WidgetConfigureViewModel @Inject constructor(
-    private val widgetRepository: WidgetRepository,
-    private val appSettingsRepository: SettingsRepository,
-    @CoDispatcher(CoDispatcherType.IO) private val ioDispatcher: kotlinx.coroutines.CoroutineDispatcher,
-    savedStateHandle: SavedStateHandle
-) : ViewModel() {
+class WidgetConfigureViewModel
+    @Inject
+    constructor(
+        private val widgetRepository: WidgetRepository,
+        private val appSettingsRepository: SettingsRepository,
+        @CoDispatcher(CoDispatcherType.IO) private val ioDispatcher: kotlinx.coroutines.CoroutineDispatcher,
+        savedStateHandle: SavedStateHandle,
+    ) : ViewModel() {
+        val units get() = appSettingsRepository.settings.replayCache.last().units
+        val refreshInterval get() = appSettingsRepository.settings.replayCache.last().widgetAutoRefreshInterval
 
-    val units get() = appSettingsRepository.settings.replayCache.last().units
-    val refreshInterval get() = appSettingsRepository.settings.replayCache.last().widgetAutoRefreshInterval
-
-    val widget = savedStateHandle.run {
-        WidgetModel(get<Int>("widgetId")!!, get<Int>("widgetType")!!, ::save)
-    }
-
-    var action by mutableStateOf<ConfigureActionState?>(null)
-        private set
-
-    private fun save() {
-        viewModelScope.launch {
-            action = null
-
-            if (widget.location.locationType is LocationType.CustomLocation && widget.location.address.isEmpty()) {
-                action = ConfigureActionState.NO_LOCATION_IS_SELECTED
-                return@launch
+        val widget =
+            savedStateHandle.run {
+                WidgetModel(get<Int>("widgetId")!!, get<Int>("widgetType")!!, ::save)
             }
 
-            withContext(ioDispatcher) {
-                widgetRepository.add(WidgetSettingsEntity(id = widget.widgetId,
-                    location = widget.location,
-                    weatherProviders = if (widget.displayAllWeatherProviders) {
-                        WeatherProvider.enums.toList()
-                    } else {
-                        listOf(widget.weatherProvider)
-                    },
-                    widgetType = widget.widgetType))
-                delay(50L)
+        var action by mutableStateOf<ConfigureActionState?>(null)
+            private set
+
+        private fun save() {
+            viewModelScope.launch {
+                action = null
+
+                if (widget.location.locationType is LocationType.CustomLocation && widget.location.address.isEmpty()) {
+                    action = ConfigureActionState.NO_LOCATION_IS_SELECTED
+                    return@launch
+                }
+
+                withContext(ioDispatcher) {
+                    widgetRepository.add(
+                        WidgetSettingsEntity(
+                            id = widget.widgetId,
+                            location = widget.location,
+                            weatherProviders =
+                                if (widget.displayAllWeatherProviders) {
+                                    WeatherProvider.enums.toList()
+                                } else {
+                                    listOf(widget.weatherProvider)
+                                },
+                            widgetType = widget.widgetType,
+                        ),
+                    )
+                    delay(50L)
+                }
+                action = ConfigureActionState.SAVE_SUCCESS
             }
-            action = ConfigureActionState.SAVE_SUCCESS
         }
     }
-}

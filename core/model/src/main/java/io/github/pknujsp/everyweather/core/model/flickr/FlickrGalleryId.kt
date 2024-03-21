@@ -47,5 +47,4 @@ sealed interface FlickrGalleryId {
         override val dayId = "72157719938097657"
         override val nightId = "72157719931038496"
     }
-
 }

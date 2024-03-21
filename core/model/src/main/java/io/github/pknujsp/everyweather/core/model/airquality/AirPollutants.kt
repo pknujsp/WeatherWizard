@@ -3,7 +3,11 @@ package io.github.pknujsp.everyweather.core.model.airquality
 import androidx.annotation.StringRes
 import io.github.pknujsp.everyweather.core.resource.R
 
-enum class AirPollutants(@StringRes val nameResId: Int, @StringRes val descriptionResId: Int, val alias: String) {
+enum class AirPollutants(
+    @StringRes val nameResId: Int,
+    @StringRes val descriptionResId: Int,
+    val alias: String,
+) {
     PM10(R.string.air_pollutant_pm10, R.string.air_pollutant_pm10_description, "pm10"),
     PM25(R.string.air_pollutant_pm25, R.string.air_pollutant_pm25_description, "pm25"),
     O3(R.string.air_pollutant_o3, R.string.air_pollutant_o3_description, "o3"),

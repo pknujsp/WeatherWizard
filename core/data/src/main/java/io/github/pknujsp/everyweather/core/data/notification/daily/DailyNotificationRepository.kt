@@ -5,8 +5,13 @@ import io.github.pknujsp.everyweather.core.model.notification.NotificationSettin
 import kotlinx.coroutines.flow.Flow
 
 interface DailyNotificationRepository {
-    suspend fun switch(id: Long, enabled: Boolean)
+    suspend fun switch(
+        id: Long,
+        enabled: Boolean,
+    )
+
     fun getDailyNotifications(): Flow<List<NotificationSettingsEntity<DailyNotificationSettingsEntity>>>
+
     suspend fun getDailyNotification(id: Long): NotificationSettingsEntity<DailyNotificationSettingsEntity>
 
     suspend fun updateDailyNotification(entity: NotificationSettingsEntity<DailyNotificationSettingsEntity>)

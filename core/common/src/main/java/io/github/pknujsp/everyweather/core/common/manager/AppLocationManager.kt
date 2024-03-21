@@ -1,9 +1,7 @@
 package io.github.pknujsp.everyweather.core.common.manager
 
-import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Context
-import android.content.pm.PackageManager
 import android.location.Location
 import android.location.LocationManager
 import com.google.android.gms.location.CurrentLocationRequest
@@ -40,49 +38,55 @@ private class AppLocationManagerImpl(private val context: Context) : AppLocation
     }
 
     @SuppressLint("MissingPermission")
-    private suspend fun findCurrentLocation(): Location? = suspendCancellableCoroutine { continuation ->
-        val request = CurrentLocationRequest.Builder().setPriority(Priority.PRIORITY_BALANCED_POWER_ACCURACY)
-            .setMaxUpdateAgeMillis(maxUpdateAgeMillis).setDurationMillis(durationMillis).build()
-        val cancellationToken = CancellationTokenSource()
+    private suspend fun findCurrentLocation(): Location? =
+        suspendCancellableCoroutine { continuation ->
+            val request =
+                CurrentLocationRequest.Builder().setPriority(Priority.PRIORITY_BALANCED_POWER_ACCURACY)
+                    .setMaxUpdateAgeMillis(maxUpdateAgeMillis).setDurationMillis(durationMillis).build()
+            val cancellationToken = CancellationTokenSource()
 
-        val task = fusedLocationProvider.getCurrentLocation(request, cancellationToken.token)
-        task.addOnCompleteListener { result ->
-            if (result.isSuccessful) {
-                continuation.resume(result.result ?: null)
-            } else {
-                continuation.resume(null)
+            val task = fusedLocationProvider.getCurrentLocation(request, cancellationToken.token)
+            task.addOnCompleteListener { result ->
+                if (result.isSuccessful) {
+                    continuation.resume(result.result ?: null)
+                } else {
+                    continuation.resume(null)
+                }
             }
-        }
 
-        continuation.invokeOnCancellation { cancellationToken.cancel() }
-    }
+            continuation.invokeOnCancellation { cancellationToken.cancel() }
+        }
 
     @SuppressLint("MissingPermission")
-    private suspend fun getLastLocation(): Location? = suspendCancellableCoroutine { continuation ->
-        fusedLocationProvider.getLastLocation(LastLocationRequest.Builder().build()).addOnCompleteListener { result ->
-            if (result.isSuccessful) {
-                continuation.resume(result.result ?: null)
-            } else {
-                continuation.resume(null)
+    private suspend fun getLastLocation(): Location? =
+        suspendCancellableCoroutine { continuation ->
+            fusedLocationProvider.getLastLocation(LastLocationRequest.Builder().build()).addOnCompleteListener { result ->
+                if (result.isSuccessful) {
+                    continuation.resume(result.result ?: null)
+                } else {
+                    continuation.resume(null)
+                }
             }
         }
-    }
 }
 
 interface AppLocationManager : AppComponentManager {
     companion object : AppComponentManagerInitializer {
         private var instance: AppLocationManager? = null
 
-        override fun getInstance(context: Context): AppLocationManager = synchronized(this) {
-            instance ?: AppLocationManagerImpl(context).also { instance = it }
-        }
+        override fun getInstance(context: Context): AppLocationManager =
+            synchronized(this) {
+                instance ?: AppLocationManagerImpl(context).also { instance = it }
+            }
     }
 
     val isGpsProviderEnabled: Boolean
+
     suspend fun getCurrentLocation(): LocationResult
 
     sealed interface LocationResult {
         data class Success(val latitude: Double, val longitude: Double) : LocationResult
+
         data object Failure : LocationResult
     }
 }

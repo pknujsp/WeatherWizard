@@ -20,63 +20,72 @@ import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
-class SearchLocationViewModel @Inject constructor(
-    private val nominatimRepository: NominatimRepository, @CoDispatcher(CoDispatcherType.IO) private val ioDispatcher: CoroutineDispatcher
-) : ViewModel() {
+class SearchLocationViewModel
+    @Inject
+    constructor(
+        private val nominatimRepository: NominatimRepository,
+        @CoDispatcher(CoDispatcherType.IO) private val ioDispatcher: CoroutineDispatcher,
+    ) : ViewModel() {
+        private val _searchResult = MutableStateFlow<UiState<List<GeoCode>>>(UiState.Loading)
+        val searchResult: StateFlow<UiState<List<GeoCode>>> = _searchResult.asStateFlow()
 
-    private val _searchResult = MutableStateFlow<UiState<List<GeoCode>>>(UiState.Loading)
-    val searchResult: StateFlow<UiState<List<GeoCode>>> = _searchResult.asStateFlow()
+        private val _uiAction = MutableStateFlow<Action>(Action.Default)
+        val uiAction: StateFlow<Action> = _uiAction.asStateFlow()
 
-    private val _uiAction = MutableStateFlow<Action>(Action.Default)
-    val uiAction: StateFlow<Action> = _uiAction.asStateFlow()
+        private companion object {
+            val osmTypeFilters = arrayOf("node", "way", "relation")
+            val countryCodeFilters = arrayOf("kr")
+        }
 
-    private companion object {
-        val osmTypeFilters = arrayOf("node", "way", "relation")
-        val countryCodeFilters = arrayOf("kr")
-    }
+        fun search(query: String) {
+            viewModelScope.launch {
+                _searchResult.value = UiState.Loading
 
-    fun search(query: String) {
-        viewModelScope.launch {
-            _searchResult.value = UiState.Loading
-
-            withContext(ioDispatcher) {
-                nominatimRepository.geoCode(query).map { geoCodeEntities ->
-                    geoCodeEntities.filterTypes().map { item ->
-                        GeoCode(placeId = item.placeId,
-                            displayName = item.simpleDisplayName,
-                            countryCode = item.countryCode,
-                            country = item.country,
-                            latitude = item.latitude,
-                            longitude = item.longitude,
-                            isAdded = false)
-                    }.distinctBy { item -> item.displayName }.map {
-                        it.onSelected = {
-                            onSelected(it)
+                withContext(ioDispatcher) {
+                    nominatimRepository.geoCode(query).map { geoCodeEntities ->
+                        geoCodeEntities.filterTypes().map { item ->
+                            GeoCode(
+                                placeId = item.placeId,
+                                displayName = item.simpleDisplayName,
+                                countryCode = item.countryCode,
+                                country = item.country,
+                                latitude = item.latitude,
+                                longitude = item.longitude,
+                                isAdded = false,
+                            )
+                        }.distinctBy { item -> item.displayName }.map {
+                            it.onSelected = {
+                                onSelected(it)
+                            }
+                            it
                         }
-                        it
                     }
+                }.onSuccess {
+                    _searchResult.value = UiState.Success(it)
+                }.onFailure {
+                    _searchResult.value = UiState.Error(it)
                 }
-            }.onSuccess {
-                _searchResult.value = UiState.Success(it)
-            }.onFailure {
-                _searchResult.value = UiState.Error(it)
             }
         }
-    }
 
-    private fun onSelected(geoCode: GeoCode) {
-        viewModelScope.launch {
-            _uiAction.value = Action.OnSelectedArea(PickedLocation(addressName = geoCode.displayName,
-                countryName = geoCode.country,
-                latitude = geoCode.latitude,
-                longitude = geoCode.longitude,
-                placeId = geoCode.placeId))
+        private fun onSelected(geoCode: GeoCode) {
+            viewModelScope.launch {
+                _uiAction.value =
+                    Action.OnSelectedArea(
+                        PickedLocation(
+                            addressName = geoCode.displayName,
+                            countryName = geoCode.country,
+                            latitude = geoCode.latitude,
+                            longitude = geoCode.longitude,
+                            placeId = geoCode.placeId,
+                        ),
+                    )
+            }
         }
-    }
 
-    private fun List<GeoCodeEntity>.filterTypes(): List<GeoCodeEntity> =
-        filter { it.osmType in osmTypeFilters }.filter { it.countryCode in countryCodeFilters }
-}
+        private fun List<GeoCodeEntity>.filterTypes(): List<GeoCodeEntity> =
+            filter { it.osmType in osmTypeFilters }.filter { it.countryCode in countryCodeFilters }
+    }
 
 @KBindFunc
 sealed interface Action : UiAction {

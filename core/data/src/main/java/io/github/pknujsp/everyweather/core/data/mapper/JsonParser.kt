@@ -10,11 +10,9 @@ import kotlinx.serialization.serializer
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 
-
 class JsonParser(
-    val json: Json
+    val json: Json,
 ) {
-
     @OptIn(InternalSerializationApi::class)
     inline fun <reified E : Model> parse(entity: String): E {
         return json.decodeFromString(E::class.serializer(), entity)

@@ -16,25 +16,26 @@ import io.github.pknujsp.everyweather.core.widgetnotification.widget.timehourlyf
 
 object RemoteViewsCreatorManager {
     inline fun <reified T : DailyNotificationRemoteViewsCreator<RemoteViewUiModel>> getByDailyNotificationType(
-        notificationType: DailyNotificationType
-    ): T = when (notificationType) {
-        DailyNotificationType.FORECAST -> DailyNotificationHourlyForecastRemoteViewsCreator() as T
-        else -> throw IllegalArgumentException("Unknown notification type: $notificationType")
-    }
+        notificationType: DailyNotificationType,
+    ): T =
+        when (notificationType) {
+            DailyNotificationType.FORECAST -> DailyNotificationHourlyForecastRemoteViewsCreator() as T
+            else -> throw IllegalArgumentException("Unknown notification type: $notificationType")
+        }
 
     inline fun <reified T : NotificationRemoteViewsCreator<RemoteViewUiModel>> getByOngoingNotificationType(
-        notificationType: OngoingNotificationType
-    ): T = when (notificationType) {
-        OngoingNotificationType.CURRENT_HOURLY_FORECAST -> OngoingNotificationRemoteViewsCreator() as T
-        else -> throw IllegalArgumentException("Unknown notification type: $notificationType")
-    }
+        notificationType: OngoingNotificationType,
+    ): T =
+        when (notificationType) {
+            OngoingNotificationType.CURRENT_HOURLY_FORECAST -> OngoingNotificationRemoteViewsCreator() as T
+            else -> throw IllegalArgumentException("Unknown notification type: $notificationType")
+        }
 
-    inline fun <reified T : WidgetRemoteViewsCreator<RemoteViewUiModel>> getByWidgetType(
-        widgetType: WidgetType
-    ): T = when (widgetType) {
-        WidgetType.ALL_IN_ONE -> WidgetAllInOneRemoteViewCreator() as T
-        WidgetType.TIME_HOURLY_FORECAST -> WidgetTimeHourlyForecastRemoteViewCreator() as T
-        WidgetType.DAILY_FORECAST_COMPARISON -> WidgetDailyForecastComparisonRemoteViewCreator() as T
-        WidgetType.HOURLY_FORECAST_COMPARISON -> WidgetHourlyForecastComparisonRemoteViewCreator() as T
-    }
+    inline fun <reified T : WidgetRemoteViewsCreator<RemoteViewUiModel>> getByWidgetType(widgetType: WidgetType): T =
+        when (widgetType) {
+            WidgetType.ALL_IN_ONE -> WidgetAllInOneRemoteViewCreator() as T
+            WidgetType.TIME_HOURLY_FORECAST -> WidgetTimeHourlyForecastRemoteViewCreator() as T
+            WidgetType.DAILY_FORECAST_COMPARISON -> WidgetDailyForecastComparisonRemoteViewCreator() as T
+            WidgetType.HOURLY_FORECAST_COMPARISON -> WidgetHourlyForecastComparisonRemoteViewCreator() as T
+        }
 }

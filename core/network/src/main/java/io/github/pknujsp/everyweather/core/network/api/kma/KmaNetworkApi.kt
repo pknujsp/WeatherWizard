@@ -1,6 +1,5 @@
 package io.github.pknujsp.everyweather.core.network.api.kma
 
-
 import io.github.pknujsp.everyweather.core.network.retrofit.NetworkApiResult
 import retrofit2.http.GET
 import retrofit2.http.Query
