@@ -81,7 +81,7 @@ fun SettingsScreen(
             title = stringResource(id = R.string.title_weather_condition_animation),
             description = stringResource(id = R.string.description_weather_condition_animation),
             checked = true,
-        ) {}
+        )
         BottomSheetSettingItem(
             title = stringResource(id = R.string.title_widget_auto_refresh_interval),
             selectedItem = settingsUiState.widgetAutoRefreshInterval,

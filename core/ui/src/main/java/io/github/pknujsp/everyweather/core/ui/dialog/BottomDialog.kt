@@ -49,7 +49,7 @@ fun CustomModalBottomSheet(
     sheetMaxWidth: Dp = BottomSheetDefaults.SheetMaxWidth,
     dragHandle: @Composable() (() -> Unit)? = { DragHandle() },
     properties: ModalBottomSheetProperties = ModalBottomSheetDefaults.properties(),
-    content: @Composable () -> Unit,
+    content: @Composable ColumnScope.() -> Unit,
 ) {
     val density = LocalDensity.current
     val height = LocalView.current.height
@@ -66,7 +66,6 @@ fun CustomModalBottomSheet(
         sheetMaxWidth = sheetMaxWidth,
         shape = BottomSheetLayoutParams.shape,
         containerColor = BottomSheetLayoutParams.containerColor,
-        contentColor = BottomSheetLayoutParams.contentColor,
         tonalElevation = tonalElevation,
         scrimColor = BottomSheetLayoutParams.scrimColor,
         dragHandle = dragHandle,
@@ -103,7 +102,7 @@ fun BottomSheet(
     bottomSheetType: BottomSheetType = BottomSheetType.MODAL,
     maxHeightRatio: Float = BottomSheetLayoutParams.MAX_DIALOG_FREE_HEIGHT_RATIO,
     onDismissRequest: () -> Unit,
-    content: @Composable () -> Unit,
+    content: @Composable ColumnScope.() -> Unit,
 ) {
     when (bottomSheetType) {
         BottomSheetType.MODAL -> {

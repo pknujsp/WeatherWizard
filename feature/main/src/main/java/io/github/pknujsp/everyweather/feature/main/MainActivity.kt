@@ -25,10 +25,7 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     private val viewModel: ActivityViewModel by viewModels()
-
-    @CoDispatcher(CoDispatcherType.IO)
-    @Inject
-    lateinit var ioDispatcher: CoroutineDispatcher
+    @CoDispatcher(CoDispatcherType.IO) @Inject lateinit var ioDispatcher: CoroutineDispatcher
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

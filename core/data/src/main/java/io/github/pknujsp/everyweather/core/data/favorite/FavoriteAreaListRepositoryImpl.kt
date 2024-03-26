@@ -6,73 +6,68 @@ import io.github.pknujsp.everyweather.core.model.DBEntityState
 import io.github.pknujsp.everyweather.core.model.favorite.FavoriteAreaListEntity
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-import javax.inject.Inject
 
-class FavoriteAreaListRepositoryImpl
-    @Inject
-    constructor(
-        private val favoriteAreaListDataSource: FavoriteAreaListDataSource,
-    ) : FavoriteAreaListRepository {
-        override suspend fun getAll(): List<FavoriteAreaListEntity> {
-            return favoriteAreaListDataSource.getAll().map {
-                FavoriteAreaListEntity(
-                    id = it.id,
-                    areaName = it.areaName,
-                    countryName = it.countryName,
-                    latitude = it.latitude,
-                    longitude = it.longitude,
-                    placeId = it.placeId,
-                )
-            }
-        }
-
-        override fun getAllByFlow(): Flow<List<FavoriteAreaListEntity>> =
-            favoriteAreaListDataSource.getAllOnFlow().map { list ->
-                list.map {
-                    FavoriteAreaListEntity(
-                        id = it.id,
-                        areaName = it.areaName,
-                        countryName = it.countryName,
-                        latitude = it.latitude,
-                        longitude = it.longitude,
-                        placeId = it.placeId,
-                    )
-                }
-            }
-
-        override suspend fun getById(id: Long): Result<FavoriteAreaListEntity> {
-            return favoriteAreaListDataSource.getById(id).let {
-                when (it) {
-                    is DBEntityState.Exists ->
-                        Result.success(
-                            FavoriteAreaListEntity(
-                                id = it.data.id,
-                                areaName = it.data.areaName,
-                                countryName = it.data.countryName,
-                                latitude = it.data.latitude,
-                                longitude = it.data.longitude,
-                                placeId = it.data.placeId,
-                            ),
-                        )
-
-                    else -> Result.failure(Exception("No data"))
-                }
-            }
-        }
-
-        override suspend fun insert(favoriteAreaListEntity: FavoriteAreaListEntity): Long {
-            return favoriteAreaListDataSource.insert(
-                FavoriteAreaListDto(
-                    areaName = favoriteAreaListEntity.areaName,
-                    countryName = favoriteAreaListEntity.countryName,
-                    latitude = favoriteAreaListEntity.latitude,
-                    longitude = favoriteAreaListEntity.longitude,
-                    placeId = favoriteAreaListEntity.placeId,
-                ),
+class FavoriteAreaListRepositoryImpl(
+    private val favoriteAreaListDataSource: FavoriteAreaListDataSource,
+) : FavoriteAreaListRepository {
+    override suspend fun getAll(): List<FavoriteAreaListEntity> {
+        return favoriteAreaListDataSource.getAll().map {
+            FavoriteAreaListEntity(
+                id = it.id,
+                areaName = it.areaName,
+                countryName = it.countryName,
+                latitude = it.latitude,
+                longitude = it.longitude,
+                placeId = it.placeId,
             )
         }
+    }
 
-        override suspend fun deleteById(id: Long) {
-            favoriteAreaListDataSource.deleteById(id)
+    override fun getAllByFlow(): Flow<List<FavoriteAreaListEntity>> = favoriteAreaListDataSource.getAllOnFlow().map { list ->
+        list.map {
+            FavoriteAreaListEntity(
+                id = it.id,
+                areaName = it.areaName,
+                countryName = it.countryName,
+                latitude = it.latitude,
+                longitude = it.longitude,
+                placeId = it.placeId,
+            )
         }
     }
+
+    override suspend fun getById(id: Long): Result<FavoriteAreaListEntity> {
+        return favoriteAreaListDataSource.getById(id).let { entity ->
+            when (entity) {
+                is DBEntityState.Exists -> Result.success(
+                    FavoriteAreaListEntity(
+                        id = entity.data.id,
+                        areaName = entity.data.areaName,
+                        countryName = entity.data.countryName,
+                        latitude = entity.data.latitude,
+                        longitude = entity.data.longitude,
+                        placeId = entity.data.placeId,
+                    ),
+                )
+
+                else -> Result.failure(Exception("No data"))
+            }
+        }
+    }
+
+    override suspend fun add(favoriteAreaListEntity: FavoriteAreaListEntity): Long {
+        return favoriteAreaListDataSource.insert(
+            FavoriteAreaListDto(
+                areaName = favoriteAreaListEntity.areaName,
+                countryName = favoriteAreaListEntity.countryName,
+                latitude = favoriteAreaListEntity.latitude,
+                longitude = favoriteAreaListEntity.longitude,
+                placeId = favoriteAreaListEntity.placeId,
+            ),
+        )
+    }
+
+    override suspend fun deleteById(id: Long) {
+        favoriteAreaListDataSource.deleteById(id)
+    }
+}

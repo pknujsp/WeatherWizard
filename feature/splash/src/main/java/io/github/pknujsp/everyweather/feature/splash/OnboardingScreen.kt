@@ -50,9 +50,8 @@ import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun OnboardingScreen(viewModel: OnboardingViewModel = hiltViewModel(), navigateToStart: () -> Unit) {
+fun OnboardingScreen(viewModel: OnboardingViewModel = hiltViewModel()) {
     val coroutineScope = rememberCoroutineScope()
-    val currentNavigateToStart by rememberUpdatedState(newValue = navigateToStart)
     val pagerState = rememberPagerState(pageCount = {
         onboardingItems.size
     })
@@ -129,10 +128,7 @@ fun OnboardingScreen(viewModel: OnboardingViewModel = hiltViewModel(), navigateT
                         text = stringResource(id = io.github.pknujsp.everyweather.core.resource.R.string.onboarding_button_start_app),
                         buttonSize = ButtonSize.MEDIUM,
                     ) {
-                        viewModel.completeOnboarding()
-                        coroutineScope.launch {
-                            currentNavigateToStart()
-                        }
+                        viewModel.initialize()
                     }
                 }
             }

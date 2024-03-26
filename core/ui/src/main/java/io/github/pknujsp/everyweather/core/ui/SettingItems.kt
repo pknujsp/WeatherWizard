@@ -1,7 +1,10 @@
 package io.github.pknujsp.everyweather.core.ui
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
@@ -16,6 +19,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
@@ -27,7 +31,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.composed
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
@@ -47,6 +53,7 @@ import io.github.pknujsp.everyweather.core.ui.button.SecondaryButton
 import io.github.pknujsp.everyweather.core.ui.dialog.BottomSheet
 import io.github.pknujsp.everyweather.core.ui.dialog.BottomSheetType
 import io.github.pknujsp.everyweather.core.ui.dialog.ContentWithTitle
+import okhttp3.Interceptor.Companion.invoke
 
 @Composable
 private fun SettingItem(
@@ -72,8 +79,8 @@ private fun SettingItem(
                 Text(text = description, style = TextStyle(fontSize = 12.sp, color = Color.Gray))
             }
         }
-        content?.run {
-            invoke()
+        content?.let {
+            it()
             Spacer(modifier = Modifier.width(10.dp))
         }
     }
@@ -93,17 +100,14 @@ fun CheckBoxSettingItem(
     title: String,
     description: String? = null,
     checked: Boolean,
-    onClick: (Boolean) -> Unit,
 ) {
     var checkedState by remember { mutableStateOf(checked) }
 
     SettingItem(title = title, description = description, onClick = {
         checkedState = !checkedState
-        // onClick(checkedState)
     }) {
         Checkbox(checked = checkedState, onCheckedChange = {
             checkedState = it
-            // onClick(it)
         })
     }
 }
@@ -120,7 +124,6 @@ fun ButtonSettingItem(
 
 @Composable
 fun <E : IEnum> BottomSheetSettingItem(
-    modifier: Modifier = Modifier,
     title: String,
     description: String? = null,
     selectedItem: E,
@@ -144,21 +147,18 @@ fun <E : IEnum> BottomSheetSettingItem(
         ) {
             Column {
                 TitleTextWithoutNavigation(title = title)
-                Column(modifier = modifier.verticalScroll(rememberScrollState(), true)) {
+                Column(modifier = Modifier.verticalScroll(rememberScrollState(), true)) {
                     enums.forEach { enum ->
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            modifier = modifier
-                                .clickable {
-                                    onSelectedItem(enum)
-                                    expanded = false
-                                }
-                                .fillMaxWidth(),
-                        ) {
+                        Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable {
+                                onSelectedItem(enum)
+                                expanded = false
+                            }) {
                             enum.icon?.let { icon ->
                                 AsyncImage(
                                     model = ImageRequest.Builder(LocalContext.current).data(icon).crossfade(false).build(),
-                                    modifier = modifier
+                                    modifier = Modifier
                                         .size(32.dp)
                                         .padding(start = 12.dp),
                                     contentDescription = null,
@@ -168,14 +168,14 @@ fun <E : IEnum> BottomSheetSettingItem(
                                 text = stringResource(id = enum.title),
                                 fontSize = 14.sp,
                                 color = Color.Black,
-                                modifier = modifier
+                                modifier = Modifier
                                     .weight(1f)
                                     .padding(start = 12.dp),
                             )
                             RadioButton(selected = selectedItem == enum, onClick = {
                                 onSelectedItem(enum)
                                 expanded = false
-                            }, modifier = modifier.padding(end = 12.dp))
+                            }, modifier = Modifier.padding(end = 12.dp))
                         }
                     }
                 }
@@ -186,7 +186,6 @@ fun <E : IEnum> BottomSheetSettingItem(
 
 @Composable
 fun <E : IEnum> BottomSheetDialog(
-    modifier: Modifier = Modifier,
     title: String,
     selectedItem: E,
     onSelectedItem: (E?) -> Unit,
@@ -202,38 +201,39 @@ fun <E : IEnum> BottomSheetDialog(
             },
         ) {
             ContentWithTitle(title = title) {
-                Column(modifier = modifier.verticalScroll(rememberScrollState(), true)) {
+                Column(modifier = Modifier.verticalScroll(rememberScrollState(), true)) {
                     enums.forEach { enum ->
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            modifier = modifier
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
                                 .clickable {
                                     onSelectedItem(enum)
                                     onDismissRequest()
-                                }
-                                .fillMaxWidth(),
+                                },
                         ) {
-                            enum.icon?.let { icon ->
-                                AsyncImage(
-                                    model = ImageRequest.Builder(LocalContext.current).data(icon).crossfade(false).build(),
-                                    modifier = modifier
-                                        .size(32.dp)
+                            Row(
+                                modifier = Modifier.padding(vertical = 8.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                            ) {
+                                enum.icon?.let { icon ->
+                                    AsyncImage(
+                                        model = ImageRequest.Builder(LocalContext.current).data(icon).crossfade(false).build(),
+                                        modifier = Modifier
+                                            .size(34.dp)
+                                            .padding(start = 12.dp),
+                                        contentDescription = null,
+                                    )
+                                }
+                                Text(
+                                    text = stringResource(id = enum.title),
+                                    fontSize = 14.sp,
+                                    color = Color.Black,
+                                    modifier = Modifier
+                                        .weight(1f)
                                         .padding(start = 12.dp),
-                                    contentDescription = null,
                                 )
+                                RadioButton(selected = selectedItem == enum, onClick = null, modifier = Modifier.padding(end = 12.dp))
                             }
-                            Text(
-                                text = stringResource(id = enum.title),
-                                fontSize = 14.sp,
-                                color = Color.Black,
-                                modifier = modifier
-                                    .weight(1f)
-                                    .padding(start = 12.dp),
-                            )
-                            RadioButton(selected = selectedItem == enum, onClick = {
-                                onSelectedItem(enum)
-                                onDismissRequest()
-                            }, modifier = modifier.padding(end = 12.dp))
                         }
                     }
                 }

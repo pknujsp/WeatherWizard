@@ -86,7 +86,7 @@ class SearchAreaViewModel
             viewModelScope.launch {
                 withContext(ioDispatcher) {
                     val newId =
-                        favoriteAreaRepository.insert(
+                        favoriteAreaRepository.add(
                             FavoriteAreaListEntity(
                                 areaName = geoCode.displayName,
                                 countryName = geoCode.country,

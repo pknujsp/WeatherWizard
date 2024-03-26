@@ -25,6 +25,8 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
@@ -39,6 +41,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ModalBottomSheetProperties
 import androidx.compose.material3.Surface
+import androidx.compose.material3.contentColorFor
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionContext
 import androidx.compose.runtime.DisposableEffect
@@ -83,14 +86,13 @@ import kotlin.math.roundToInt
 
 private const val ANIMATION_DURATION = 150L
 
-object BottomSheetLayoutParams {
+internal object BottomSheetLayoutParams {
     private const val SCRIM_ALPHA = 0.32f
     const val MAX_DIALOG_FREE_HEIGHT_RATIO = 0.8f
 
     val tonalElevation: Dp = 1.dp
     val scrimColor: Color = Color(0f, 0f, 0f, SCRIM_ALPHA)
     val containerColor: Color = Color.White
-    val contentColor: Color = Color.White
     val dialogHorizontalPadding = 12.dp
     val dialogContentHorizontalPadding = 12.dp
     val dialogContentVerticalPadding = 12.dp
@@ -108,7 +110,7 @@ fun PersistentBottomSheet(
         BottomSheetLayoutParams.dialogContentVerticalPadding),
     maxHeightRatio: Float = MAX_DIALOG_FREE_HEIGHT_RATIO,
     onDismissRequest: () -> Unit,
-    content: @Composable () -> Unit
+    content: @Composable ColumnScope.() -> Unit,
 ) {
     val density = LocalDensity.current
     val height = LocalView.current.height
@@ -154,7 +156,7 @@ fun PersistentBottomSheet(
                     shape = AppShapes.extraLarge,
                     color = Color.White,
                 ) {
-                    Box(propagateMinConstraints = true, modifier = modifier) {
+                    Column(modifier = modifier) {
                         content()
                     }
                 }

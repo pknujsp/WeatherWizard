@@ -51,12 +51,12 @@ class DailyNotificationListState(
     }
 
     fun switch(
+        enabled: Boolean,
         settings: DailyNotificationSettingsListItem,
         context: Context,
     ) {
-        val isEnabled = !settings.isEnabled
-        switch(settings.id, isEnabled)
-        changeAlarmSchedule(context, isEnabled, settings)
+        switch(settings.id, enabled)
+        changeAlarmSchedule(context, enabled, settings)
     }
 
     fun delete(

@@ -34,8 +34,6 @@ class SettingsRepositoryImpl(
                 WeatherProvider.Companion,
                 RefreshInterval.Companion,
             )
-
-        private const val INITIALIZED_KEY = "initialized"
     }
 
     override suspend fun <V : PreferenceModel> update(
@@ -51,11 +49,11 @@ class SettingsRepositoryImpl(
             mutableSettings.emit(
                 SettingsEntity(
                     units =
-                        CurrentUnits(
-                            temperatureUnit = this[TemperatureUnit]!! as TemperatureUnit,
-                            windSpeedUnit = this[WindSpeedUnit]!! as WindSpeedUnit,
-                            precipitationUnit = this[PrecipitationUnit]!! as PrecipitationUnit,
-                        ),
+                    CurrentUnits(
+                        temperatureUnit = this[TemperatureUnit]!! as TemperatureUnit,
+                        windSpeedUnit = this[WindSpeedUnit]!! as WindSpeedUnit,
+                        precipitationUnit = this[PrecipitationUnit]!! as PrecipitationUnit,
+                    ),
                     weatherProvider = this[WeatherProvider]!! as WeatherProvider,
                     widgetAutoRefreshInterval = this[RefreshInterval]!! as RefreshInterval,
                 ),
@@ -70,12 +68,4 @@ class SettingsRepositoryImpl(
                 is DBEntityState.NotExists -> preference.default
             }
         }
-
-    override suspend fun isInitialized(): Boolean {
-        return appDataStore.readAsInt(INITIALIZED_KEY) is DBEntityState.Exists
-    }
-
-    override suspend fun completeInitialization() {
-        appDataStore.save(INITIALIZED_KEY, 1)
-    }
 }

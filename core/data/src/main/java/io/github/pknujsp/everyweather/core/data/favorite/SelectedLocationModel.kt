@@ -4,5 +4,5 @@ import io.github.pknujsp.everyweather.core.model.coordinate.LocationType
 
 data class SelectedLocationModel(
     val locationType: LocationType,
-    val locationId: Long = 0,
+    val locationId: Long = -1L,
 )

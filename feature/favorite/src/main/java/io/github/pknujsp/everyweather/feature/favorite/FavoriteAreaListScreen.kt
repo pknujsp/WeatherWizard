@@ -54,6 +54,8 @@ import io.github.pknujsp.everyweather.core.ui.MainRoutes
 import io.github.pknujsp.everyweather.core.ui.RootNavControllerViewModel
 import io.github.pknujsp.everyweather.core.ui.TitleTextWithNavigation
 import io.github.pknujsp.everyweather.core.ui.button.SecondaryButton
+import io.github.pknujsp.everyweather.core.ui.dialog.BottomSheet
+import io.github.pknujsp.everyweather.core.ui.dialog.BottomSheetType
 import io.github.pknujsp.everyweather.core.ui.dialog.DialogScreen
 import io.github.pknujsp.everyweather.core.ui.list.EmptyListScreen
 import io.github.pknujsp.everyweather.core.ui.theme.AppShapes
@@ -149,10 +151,10 @@ fun FavoriteAreaListScreen(
 
     val openDeleteDialog by remember {
         derivedStateOf {
-            selectedLocationToDelete != null && favoriteLocations.any { it.id == selectedLocationToDelete?.id }
+            selectedLocationToDelete != null && favoriteLocations.any { it.id == selectedLocationToDelete!!.id }
         }
     }
-    if (openDeleteDialog) {
+    if (openDeleteDialog && selectedLocationToDelete != null) {
         DeleteDialog(
             address = selectedLocationToDelete!!.areaName,
             onDismissRequest = { selectedLocationToDelete = null },
@@ -281,14 +283,14 @@ private fun CurrentLocationItem(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun DeleteDialog(
     address: String,
     onDismissRequest: () -> Unit,
     onConfirmation: () -> Unit,
 ) {
-    ModalBottomSheet(
+    BottomSheet(
+        bottomSheetType = BottomSheetType.MODAL,
         onDismissRequest = onDismissRequest,
     ) {
         val message = stringResource(id = R.string.delete_favorite_location_message).let {

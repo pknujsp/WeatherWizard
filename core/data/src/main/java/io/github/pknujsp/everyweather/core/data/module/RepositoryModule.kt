@@ -29,6 +29,8 @@ import io.github.pknujsp.everyweather.core.data.notification.daily.DailyNotifica
 import io.github.pknujsp.everyweather.core.data.notification.daily.DailyNotificationRepositoryImpl
 import io.github.pknujsp.everyweather.core.data.notification.ongoing.OngoingNotificationRepository
 import io.github.pknujsp.everyweather.core.data.notification.ongoing.OngoingNotificationRepositoryImpl
+import io.github.pknujsp.everyweather.core.data.onboarding.AppInitializerRepository
+import io.github.pknujsp.everyweather.core.data.onboarding.AppInitializerRepositoryImpl
 import io.github.pknujsp.everyweather.core.data.rainviewer.RadarTilesRepository
 import io.github.pknujsp.everyweather.core.data.rainviewer.RadarTilesRepositoryImpl
 import io.github.pknujsp.everyweather.core.data.searchhistory.SearchHistoryRepository
@@ -155,25 +157,23 @@ abstract class RepositoryModule {
         internal fun providesSummaryTextRepositoryImpl(
             @CoDispatcher(CoDispatcherType.IO) dispatcher: CoroutineDispatcher,
         ): SummaryTextRepositoryImpl {
-            val cacheManagerImpl =
-                CacheManagerImpl<Int, List<GenerateContentResponse>>(
-                    cacheMaxSize = 5,
-                    dispatcher = dispatcher,
-                )
+            val cacheManagerImpl = CacheManagerImpl<Int, List<GenerateContentResponse>>(
+                cacheMaxSize = 5,
+                dispatcher = dispatcher,
+            )
             return SummaryTextRepositoryImpl(
                 GenerativeModel(
-                    "gemini-1.0-pro",
+                    "gemini-1.0-pro-latest",
                     BuildConfig.GOOGLE_AI_STUDIO_KEY,
                     generationConfig {
                         temperature = 0.3f
                     },
-                    safetySettings =
-                        listOf(
-                            SafetySetting(HarmCategory.HARASSMENT, BlockThreshold.NONE),
-                            SafetySetting(HarmCategory.DANGEROUS_CONTENT, BlockThreshold.NONE),
-                            SafetySetting(HarmCategory.HATE_SPEECH, BlockThreshold.NONE),
-                            SafetySetting(HarmCategory.SEXUALLY_EXPLICIT, BlockThreshold.NONE),
-                        ),
+                    safetySettings = listOf(
+                        SafetySetting(HarmCategory.HARASSMENT, BlockThreshold.NONE),
+                        SafetySetting(HarmCategory.DANGEROUS_CONTENT, BlockThreshold.NONE),
+                        SafetySetting(HarmCategory.HATE_SPEECH, BlockThreshold.NONE),
+                        SafetySetting(HarmCategory.SEXUALLY_EXPLICIT, BlockThreshold.NONE),
+                    ),
                 ),
                 cacheManagerImpl,
                 cacheManagerImpl,
@@ -185,6 +185,11 @@ abstract class RepositoryModule {
         @Provides
         fun providesSearchHistoryRepository(searchHistoryLocalDataSource: SearchHistoryLocalDataSource): SearchHistoryRepository =
             SearchHistoryRepositoryImpl(searchHistoryLocalDataSource)
+
+        @JvmStatic
+        @Provides
+        fun providesAppInitializerRepository(appDataStore: AppDataStore): AppInitializerRepository =
+            AppInitializerRepositoryImpl(appDataStore)
     }
 
     @Binds
