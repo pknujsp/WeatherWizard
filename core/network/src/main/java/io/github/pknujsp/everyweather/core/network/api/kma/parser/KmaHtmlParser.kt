@@ -8,48 +8,50 @@ import java.time.ZoneId
 import java.time.ZonedDateTime
 
 internal class KmaHtmlParser {
-    private val zoneId = ZoneId.of("Asia/Seoul")
-    private val degree = "℃"
-    private val mm = "mm"
-    private val cm = "cm"
-    private val mPerS = "m/s"
-    private val percent = "%"
-    private val hour24 = "24:00"
-    private val lessThan1mm = "~1mm"
-    private val lessThan1cm = "~1cm"
-    private val rainDrop = "빗방울"
-    private val snowBlizzard = "눈날림"
+    private companion object {
+        private val zoneId = ZoneId.of("Asia/Seoul")
+        private const val DEGREE = "℃"
+        private const val MM = "mm"
+        private const val CM = "cm"
+        private const val M_PER_S = "m/s"
+        private const val PERCENT = "%"
+        private const val HOUR_24 = "24:00"
+        private const val LESS_THAN_1MM = "~1mm"
+        private const val LESS_THAN_1CM = "~1cm"
+        private const val RAIN_DROP = "빗방울"
+        private const val SNOW_BLIZZARD = "눈날림"
 
-    private val conditionDescriptionsMap =
-        mapOf(
-            "비" to "흐리고 비",
-            "비/눈" to "흐리고 비/눈",
-            "눈" to "흐리고 눈",
-            "빗방울" to "흐리고 비",
-            "빗방울/눈날림" to "흐리고 비/눈",
-            "눈날림" to "흐리고 눈",
-            "구름 많음" to "구름많음",
-        )
+        private val conditionDescriptionsMap =
+            mapOf(
+                "비" to "흐리고 비",
+                "비/눈" to "흐리고 비/눈",
+                "눈" to "흐리고 눈",
+                "빗방울" to "흐리고 비",
+                "빗방울/눈날림" to "흐리고 비/눈",
+                "눈날림" to "흐리고 눈",
+                "구름 많음" to "구름많음",
+            )
 
-    private val windDirectionMap =
-        mapOf(
-            "북북동" to 25,
-            "북동" to 45,
-            "동북동" to 67,
-            "동" to 90,
-            "동남동" to 112,
-            "남동" to 135,
-            "남남동" to 157,
-            "남" to 180,
-            "남남서" to 202,
-            "남서" to 225,
-            "서남서" to 247,
-            "서" to 270,
-            "서북서" to 292,
-            "북서" to 315,
-            "북북서" to 337,
-            "북" to 0,
-        )
+        private val windDirectionMap =
+            mapOf(
+                "북북동" to 25,
+                "북동" to 45,
+                "동북동" to 67,
+                "동" to 90,
+                "동남동" to 112,
+                "남동" to 135,
+                "남남동" to 157,
+                "남" to 180,
+                "남남서" to 202,
+                "남서" to 225,
+                "서남서" to 247,
+                "서" to 270,
+                "서북서" to 292,
+                "북서" to 315,
+                "북북서" to 337,
+                "북" to 0,
+            )
+    }
 
     fun parseCurrentConditions(
         document: Document,
@@ -111,8 +113,8 @@ internal class KmaHtmlParser {
         return ParsedKmaCurrentWeather(
             temperature = temp.toTemperature().toInt().toShort(), feelsLikeTemperature = chill.toTemperature().toInt().toShort(),
             humidity =
-                humidity
-                    .toHumidity(),
+            humidity
+                .toHumidity(),
             precipitationType = pty,
             windDirection = windDirection.toWindDirection(), windSpeed = windSpeed.toWindSpeed(),
             precipitationVolume = precipitationVolume.toPrecipitationVolume(),
@@ -151,7 +153,7 @@ internal class KmaHtmlParser {
                 date = ul.attr("data-date")
                 localDate = LocalDate.parse(date)
                 time = ul.attr("data-time")
-                if (time == hour24) {
+                if (time == HOUR_24) {
                     time = "00:00"
                     localDate = localDate.plusDays(1)
                 }
@@ -168,8 +170,8 @@ internal class KmaHtmlParser {
                     } else {
                         false
                     }
-                temp = lis[2].getElementsByTag("span")[1].childNode(0).toString().replace(degree, "")
-                feelsLikeTemp = lis[3].getElementsByTag("span")[1].text().replace(degree, "")/*
+                temp = lis[2].getElementsByTag("span")[1].childNode(0).toString().replace(DEGREE, "")
+                feelsLikeTemp = lis[3].getElementsByTag("span")[1].text().replace(DEGREE, "")/*
                 강우+강설
                 <li class="pcp snow-exists">
                 <span class="hid">강수량: </span>
@@ -237,39 +239,39 @@ internal class KmaHtmlParser {
                 var hasSnow = false
                 var snowVolume = ""
 
-                if (pcpText.contains(mm) || pcpText.contains(cm)) {
-                    if (pcpText.contains(rainDrop)) {
+                if (pcpText.contains(MM) || pcpText.contains(CM)) {
+                    if (pcpText.contains(RAIN_DROP)) {
                         hasRain = true
-                        rainVolume = rainDrop
+                        rainVolume = RAIN_DROP
                     }
-                    if (pcpText.contains(snowBlizzard)) {
+                    if (pcpText.contains(SNOW_BLIZZARD)) {
                         hasSnow = true
-                        snowVolume = snowBlizzard
+                        snowVolume = SNOW_BLIZZARD
                     }
-                    if (pcpText.contains(lessThan1mm)) {
+                    if (pcpText.contains(LESS_THAN_1MM)) {
                         hasRain = true
-                        rainVolume = lessThan1mm
-                    } else if (pcpText.contains(mm) && !hasRain) {
-                        index = pcpText.indexOf(mm)
+                        rainVolume = LESS_THAN_1MM
+                    } else if (pcpText.contains(MM) && !hasRain) {
+                        index = pcpText.indexOf(MM)
                         val subStr = pcpText.substring(0, index)
-                        if (!subStr.contains(rainDrop) && !subStr.contains(snowBlizzard)) {
+                        if (!subStr.contains(RAIN_DROP) && !subStr.contains(SNOW_BLIZZARD)) {
                             hasRain = true
-                            rainVolume = subStr + mm
+                            rainVolume = subStr + MM
                         }
                     }
-                    if (pcpText.contains(lessThan1cm)) {
+                    if (pcpText.contains(LESS_THAN_1CM)) {
                         hasSnow = true
-                        snowVolume = lessThan1cm
-                    } else if (pcpText.contains(cm) && !hasSnow) {
-                        index = pcpText.indexOf(cm)
+                        snowVolume = LESS_THAN_1CM
+                    } else if (pcpText.contains(CM) && !hasSnow) {
+                        index = pcpText.indexOf(CM)
                         var firstIndex = 0
-                        if (pcpText.contains(mm)) {
-                            firstIndex = pcpText.indexOf(mm) + 2
+                        if (pcpText.contains(MM)) {
+                            firstIndex = pcpText.indexOf(MM) + 2
                         }
                         val subStr = pcpText.substring(firstIndex, index)
-                        if (!subStr.contains(rainDrop) && !subStr.contains(snowBlizzard)) {
+                        if (!subStr.contains(RAIN_DROP) && !subStr.contains(SNOW_BLIZZARD)) {
                             hasSnow = true
-                            snowVolume = subStr + cm
+                            snowVolume = subStr + CM
                         }
                     }
                 }
@@ -382,8 +384,8 @@ internal class KmaHtmlParser {
                     minTemp = minTemp.toTemperature().toInt().toShort(),
                     maxTemp = maxTemp.toTemperature().toInt().toShort(),
                     date =
-                        zonedDateTime
-                            .toString(),
+                    zonedDateTime
+                        .toString(),
                     isSingle = single == null,
                     amValues = am,
                     pmValues = pm,
@@ -436,15 +438,15 @@ internal class KmaHtmlParser {
                     ParsedKmaDailyForecast(
                         date = dateTime.toString(),
                         amValues =
-                            ParsedKmaDailyForecast.Values(
-                                pop = amPop,
-                                weatherDescription = amSky,
-                            ),
+                        ParsedKmaDailyForecast.Values(
+                            pop = amPop,
+                            weatherDescription = amSky,
+                        ),
                         pmValues =
-                            ParsedKmaDailyForecast.Values(
-                                pop = pmPop,
-                                weatherDescription = pmSky,
-                            ),
+                        ParsedKmaDailyForecast.Values(
+                            pop = pmPop,
+                            weatherDescription = pmSky,
+                        ),
                         minTemp = minTemp,
                         maxTemp = maxTemp,
                     ),
@@ -506,12 +508,12 @@ internal class KmaHtmlParser {
 
     private fun String.toTemperature(): Double = toDoubleOrNull() ?: Double.MIN_VALUE
 
-    private fun String.toHumidity(): Int = replace(percent, "").toIntOrNull() ?: Int.MIN_VALUE
+    private fun String.toHumidity(): Int = replace(PERCENT, "").toIntOrNull() ?: Int.MIN_VALUE
 
-    private fun String.toWindSpeed(): Double = replace(mPerS, "").toDoubleOrNull() ?: Double.MIN_VALUE
+    private fun String.toWindSpeed(): Double = replace(M_PER_S, "").toDoubleOrNull() ?: Double.MIN_VALUE
 
     private fun String.toPrecipitationVolume(): Double =
-        replace("0.0", "").replace(mm, "").replace(cm, "").toDoubleOrNull() ?: Double.MIN_VALUE
+        replace("0.0", "").replace(MM, "").replace(CM, "").toDoubleOrNull() ?: Double.MIN_VALUE
 
-    private fun String.toPop(): Int = replace(percent, "").toIntOrNull() ?: Int.MIN_VALUE
+    private fun String.toPop(): Int = replace(PERCENT, "").toIntOrNull() ?: Int.MIN_VALUE
 }
