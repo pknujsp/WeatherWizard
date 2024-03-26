@@ -26,8 +26,8 @@ interface MainUiState {
     private companion object {
         val tabs = mapOf(
             MainRoutes.Favorite.route to MainRoutes.Favorite,
-            MainRoutes.Settings.route to MainRoutes.Settings,
             MainRoutes.Notification.route to MainRoutes.Notification,
+            MainRoutes.Settings.route to MainRoutes.Settings,
         )
     }
 
