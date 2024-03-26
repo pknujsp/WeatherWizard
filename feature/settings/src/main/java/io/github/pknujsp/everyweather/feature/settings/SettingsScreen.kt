@@ -109,7 +109,7 @@ fun SettingsScreen(
                 redrawAppWidgets(context)
             }
         }
-        HorizontalDivider(modifier = Modifier.padding(horizontal = 24.dp))
+        HorizontalDivider(modifier = Modifier.padding(horizontal = 24.dp, vertical = 12.dp))
         ClickableSettingItem(title = stringResource(id = R.string.title_privacy_policy), description = null, onClick = {
             val customTabsIntent = CustomTabsIntent.Builder().build()
             customTabsIntent.launchUrl(context, PRIVACY_POLICY_URL.toUri())
