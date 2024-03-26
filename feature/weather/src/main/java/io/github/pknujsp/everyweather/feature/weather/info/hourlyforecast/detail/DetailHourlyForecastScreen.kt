@@ -111,7 +111,7 @@ private fun Item(
                 horizontalArrangement = Arrangement.spacedBy(4.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                if (forecast.displayPrecipitationProbability) {
+                if (forecast.displayPrecipitationProbability && precipitationProbability.isNotEmpty()) {
                     AsyncImage(
                         model = ImageRequest.Builder(context = LocalContext.current)
                             .data(io.github.pknujsp.everyweather.core.resource.R.drawable.ic_umbrella).build(),
@@ -127,7 +127,7 @@ private fun Item(
                 verticalArrangement = Arrangement.spacedBy(4.dp),
                 horizontalAlignment = Alignment.Start,
             ) {
-                if (forecast.displayPrecipitationVolume) {
+                if (forecast.displayPrecipitationVolume && precipitationVolume.isNotEmpty()) {
                     Row(horizontalArrangement = Arrangement.spacedBy(4.dp), verticalAlignment = Alignment.CenterVertically) {
                         AsyncImage(
                             model = ImageRequest.Builder(context = LocalContext.current)
@@ -138,7 +138,7 @@ private fun Item(
                         Text(text = precipitationVolume, style = TextStyle(fontSize = 13.sp, color = Color.Black))
                     }
                 }
-                if (forecast.displayRainfallVolume) {
+                if (forecast.displayRainfallVolume && rainfallVolume.isNotEmpty()) {
                     Row(horizontalArrangement = Arrangement.spacedBy(4.dp), verticalAlignment = Alignment.CenterVertically) {
                         AsyncImage(
                             model = ImageRequest.Builder(context = LocalContext.current)
@@ -149,7 +149,7 @@ private fun Item(
                         Text(text = rainfallVolume, style = TextStyle(fontSize = 13.sp, color = Color.Black))
                     }
                 }
-                if (forecast.displaySnowfallVolume) {
+                if (forecast.displaySnowfallVolume && snowfallVolume.isNotEmpty()) {
                     Row(horizontalArrangement = Arrangement.spacedBy(4.dp), verticalAlignment = Alignment.CenterVertically) {
                         AsyncImage(
                             model = ImageRequest.Builder(context = LocalContext.current)

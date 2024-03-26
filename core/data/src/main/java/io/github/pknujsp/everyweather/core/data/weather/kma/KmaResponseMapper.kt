@@ -94,7 +94,7 @@ internal class KmaResponseMapper : WeatherResponseMapper<WeatherEntityModel> {
                 feelsLikeTemperature = TemperatureValueType(item.feelsLikeTemp, DEFAULT_TEMPERATURE_UNIT),
                 rainfallVolume = RainfallValueType(item.rainVolume, DEFAULT_PRECIPITATION_UNIT),
                 snowfallVolume = SnowfallValueType(item.snowVolume, DEFAULT_PRECIPITATION_UNIT),
-                precipitationProbability = ProbabilityValueType(item.pop.toShort(), PercentageUnit),
+                precipitationProbability = if (item.pop < 0) ProbabilityValueType.None else ProbabilityValueType(item.pop.toShort()),
             )
         }
 

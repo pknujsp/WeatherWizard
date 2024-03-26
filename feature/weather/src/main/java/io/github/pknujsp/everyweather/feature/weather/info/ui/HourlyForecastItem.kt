@@ -1,6 +1,7 @@
 package io.github.pknujsp.everyweather.feature.weather.info.ui
 
 import android.widget.Toast
+import androidx.annotation.DrawableRes
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -86,89 +87,37 @@ private fun Item(
             modifier = modifier.clickable { onClick(weatherConditionText) },
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            // 시각
             Text(text = time, style = TextStyle(fontSize = 13.sp, color = Color.White))
-            // 아이콘
             AsyncImage(
                 model = ImageRequest.Builder(LocalContext.current).data(weatherIcon).crossfade(false).build(),
                 contentDescription = weatherConditionText,
                 modifier = Modifier.size(38.dp),
             )
 
-            // 강수확률
             if (hourlyForecast.displayPrecipitationProbability) {
-                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Center) {
-                    AsyncImage(
-                        model = ImageRequest.Builder(LocalContext.current)
-                            .data(io.github.pknujsp.everyweather.core.resource.R.drawable.ic_umbrella).crossfade(false).build(),
-                        contentDescription = null,
-                        modifier = Modifier.size(iconSize),
-                    )
-                    Text(text = precipitationProbability, style = TextStyle(fontSize = 12.sp, color = Color.White))
-                }
+                SmallIconItem(
+                    icon = io.github.pknujsp.everyweather.core.resource.R.drawable.ic_umbrella,
+                    text = precipitationProbability,
+                )
             }
-
-            // 강수량
             if (hourlyForecast.displayPrecipitationVolume) {
-                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Center) {
-                    AsyncImage(
-                        model = ImageRequest.Builder(LocalContext.current)
-                            .data(io.github.pknujsp.everyweather.core.resource.R.drawable.ic_raindrop).crossfade(false).build(),
-                        contentDescription = null,
-                        modifier = Modifier
-                            .alpha(if (precipitationVolume.isNotEmpty()) 1f else 0f)
-                            .size(iconSize),
-                    )
-                    Text(
-                        text = precipitationVolume,
-                        style = TextStyle(
-                            fontSize = 12.sp,
-                            color = if (hourlyForecast.displayPrecipitationVolume && precipitationVolume.isNotEmpty()) {
-                                Color.White
-                            } else {
-                                Color.Transparent
-                            },
-                        ),
-                    )
-                }
+                SmallIconItem(
+                    icon = io.github.pknujsp.everyweather.core.resource.R.drawable.ic_raindrop,
+                    text = precipitationVolume,
+                )
             }
-            // 강우량
             if (hourlyForecast.displayRainfallVolume) {
-                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Center) {
-                    AsyncImage(
-                        model = ImageRequest.Builder(LocalContext.current)
-                            .data(io.github.pknujsp.everyweather.core.resource.R.drawable.ic_raindrop).crossfade(false).build(),
-                        contentDescription = null,
-                        modifier = Modifier
-                            .alpha(if (rainfallVolume.isNotEmpty()) 1f else 0f)
-                            .size(iconSize),
-                    )
-                    Text(
-                        text = rainfallVolume,
-                        style = TextStyle(fontSize = 12.sp, color = if (rainfallVolume.isNotEmpty()) Color.White else Color.Transparent),
-                    )
-                }
+                SmallIconItem(
+                    icon = io.github.pknujsp.everyweather.core.resource.R.drawable.ic_raindrop,
+                    text = rainfallVolume,
+                )
             }
-
-            // 강설량
             if (hourlyForecast.displaySnowfallVolume) {
-                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Center) {
-                    AsyncImage(
-                        model = ImageRequest.Builder(LocalContext.current)
-                            .data(io.github.pknujsp.everyweather.core.resource.R.drawable.ic_snow_particle).crossfade(false).build(),
-                        contentDescription = null,
-                        modifier = Modifier
-                            .alpha(if (snowfallVolume.isNotEmpty()) 1f else 0f)
-                            .size(iconSize),
-                    )
-                    Text(
-                        text = snowfallVolume,
-                        style = TextStyle(fontSize = 12.sp, color = if (snowfallVolume.isNotEmpty()) Color.White else Color.Transparent),
-                    )
-                }
+                SmallIconItem(
+                    icon = io.github.pknujsp.everyweather.core.resource.R.drawable.ic_snow_particle,
+                    text = snowfallVolume,
+                )
             }
-
-            // 기온
             SingleGraph(
                 drawInfo = drawInfo,
                 linePoint = linePoint,
@@ -176,5 +125,25 @@ private fun Item(
                 modifier = modifier.height(90.dp),
             )
         }
+    }
+}
+
+@Composable
+private fun SmallIconItem(
+    @DrawableRes icon: Int,
+    text: String,
+) {
+    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(2.dp, Alignment.CenterHorizontally)) {
+        AsyncImage(
+            model = ImageRequest.Builder(LocalContext.current).data(icon).crossfade(false).build(),
+            contentDescription = null,
+            modifier = Modifier
+                .alpha(if (text.isNotEmpty()) 1f else 0f)
+                .size(iconSize),
+        )
+        Text(
+            text = text,
+            style = TextStyle(fontSize = 12.sp, color = if (text.isNotEmpty()) Color.White else Color.Transparent),
+        )
     }
 }

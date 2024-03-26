@@ -431,7 +431,7 @@ data class RainfallValueType(
 @Serializable
 data class ProbabilityValueType(
     override val value: Short,
-    override val unit: PercentageUnit,
+    override val unit: PercentageUnit = PercentageUnit,
 ) : WeatherValueUnitType<Short, PercentageUnit> {
     companion object : NoneValue<ProbabilityValueType> {
         override val None: ProbabilityValueType = ProbabilityValueType(Short.MIN_VALUE, PercentageUnit)
