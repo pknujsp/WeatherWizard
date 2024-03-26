@@ -7,8 +7,8 @@
     android:orientation="horizontal">
 
     <ImageView
-        android:layout_width="16dp"
-        android:layout_height="16dp"
+        android:layout_width="14dp"
+        android:layout_height="14dp"
         android:layout_marginEnd="2dp"
         android:src="@drawable/ic_baseline_near_me_24"
         android:tint="@color/remoteview_icon_color"
@@ -23,7 +23,7 @@
         android:includeFontPadding="false"
         android:maxLines="1"
         android:text="@string/address"
-        android:textSize="14sp" />
+        android:textSize="13sp" />
 
     <TextView
         android:id="@+id/last_updated"
@@ -33,11 +33,11 @@
         android:includeFontPadding="false"
         android:maxLines="1"
         android:text="@string/last_updated_time"
-        android:textSize="14sp" />
+        android:textSize="13sp" />
 
     <ImageView
-        android:layout_width="16dp"
-        android:layout_height="16dp"
+        android:layout_width="14dp"
+        android:layout_height="14dp"
         android:layout_marginStart="2dp"
         android:src="@drawable/ic_refresh"
         android:tint="@color/remoteview_icon_color"
