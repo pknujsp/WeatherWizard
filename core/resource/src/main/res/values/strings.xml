@@ -345,4 +345,5 @@
     <string name="onboarding_button_start_app">시작하기</string>
     <string name="nav_onboarding">온보딩</string>
     <string name="title_privacy_policy">개인정보처리방침</string>
+    <string name="title_app_update_preview">앱 업데이트 미리보기</string>
 </resources>

@@ -31,7 +31,6 @@ import io.github.pknujsp.everyweather.core.ui.BottomSheetSettingItem
 import io.github.pknujsp.everyweather.core.ui.ButtonSettingItem
 import io.github.pknujsp.everyweather.core.ui.CheckBoxSettingItem
 import io.github.pknujsp.everyweather.core.ui.ClickableSettingItem
-import io.github.pknujsp.everyweather.core.ui.SettingItem
 import io.github.pknujsp.everyweather.core.ui.TitleTextWithNavigation
 import io.github.pknujsp.everyweather.feature.componentservice.manager.AppComponentServiceManagerFactory
 import io.github.pknujsp.everyweather.feature.permoptimize.feature.ShowSettingsActivity
@@ -41,6 +40,7 @@ import io.github.pknujsp.everyweather.feature.permoptimize.permission.rememberPe
 import kotlinx.coroutines.launch
 
 private const val PRIVACY_POLICY_URL = "https://www.notion.so/everyweatherapp/0d146d8e00934c39b5effd671dada8db"
+private const val APP_UPDATE_PREVIEW_URL = "https://www.notion.so/everyweatherapp/72eb45a530f540d6a91c2fe286c51c0d"
 
 @Composable
 fun SettingsScreen(
@@ -110,9 +110,13 @@ fun SettingsScreen(
             }
         }
         HorizontalDivider(modifier = Modifier.padding(horizontal = 24.dp))
-        SettingItem(title = stringResource(id = R.string.title_privacy_policy), description = null, content = null, onClick = {
+        ClickableSettingItem(title = stringResource(id = R.string.title_privacy_policy), description = null, onClick = {
             val customTabsIntent = CustomTabsIntent.Builder().build()
             customTabsIntent.launchUrl(context, PRIVACY_POLICY_URL.toUri())
+        })
+        ClickableSettingItem(title = stringResource(id = R.string.title_app_update_preview), description = null, onClick = {
+            val customTabsIntent = CustomTabsIntent.Builder().build()
+            customTabsIntent.launchUrl(context, APP_UPDATE_PREVIEW_URL.toUri())
         })
 
         if (settingsUiState.widgetAutoRefreshInterval != RefreshInterval.MANUAL) {
