@@ -39,8 +39,8 @@ enum class AirQualityDescription(
     ;
 
     companion object {
-        fun fromValue(value: Int): AirQualityDescription {
-            return when (value) {
+        fun fromValue(value: Short): AirQualityDescription {
+            return when (value.toInt()) {
                 in GOOD.range -> GOOD
                 in MODERATE.range -> MODERATE
                 in UNHEALTHY_FOR_SENSITIVE_GROUPS.range -> UNHEALTHY_FOR_SENSITIVE_GROUPS

@@ -30,7 +30,7 @@ open class MockDataGenerator {
                 humidity = HumidityValueType(50, PercentageUnit),
                 windSpeed = WindSpeedValueType(4.5, WindSpeedUnit.default),
                 windDirection = WindDirectionValueType(80, WindDirectionUnit.Degree),
-                precipitationVolume = PrecipitationValueType.none,
+                precipitationVolume = PrecipitationValueType.None,
             )
         }
 
@@ -52,10 +52,10 @@ open class MockDataGenerator {
                         humidity = humidity,
                         windSpeed = windSpeed,
                         windDirection = windDirection,
-                        rainfallVolume = RainfallValueType.none,
-                        snowfallVolume = SnowfallValueType.none,
-                        precipitationVolume = PrecipitationValueType.none,
-                        precipitationProbability = ProbabilityValueType.none,
+                        rainfallVolume = RainfallValueType.None,
+                        snowfallVolume = SnowfallValueType.None,
+                        precipitationVolume = PrecipitationValueType.None,
+                        precipitationProbability = ProbabilityValueType.None,
                         dateTime = DateTimeValueType(now.plusHours(index.toLong()).toString()),
                     )
                 }

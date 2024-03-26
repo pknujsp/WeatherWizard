@@ -62,6 +62,7 @@ data class AirQualityEntity(
             fun getAqi(): VarState<AirQualityValueType> {
                 val avg =
                     listOf(o3, pm10, pm25).filterIsInstance<VarState.Initialized<Pollutant>>().map { it.data.avg.value }.average().toInt()
+                        .toShort()
                 return VarState.Initialized(AirQualityValueType(value = avg, airQualityDescription = AirQualityDescription.fromValue(avg)))
             }
 

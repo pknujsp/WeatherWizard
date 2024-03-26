@@ -50,72 +50,71 @@ class MetNorwayHourlyForecastResponse(
                             )
 
                         (
-                            hourly.data.next1Hours?.details?.precipitationAmount
-                                ?: hourly.data.next6Hours?.details?.precipitationAmount
-                        )?.let { precipitation ->
-                            precipitationVolume = precipitation
-                            hasPrecipitation = precipitation != zero
-                        }
+                                hourly.data.next1Hours?.details?.precipitationAmount
+                                    ?: hourly.data.next6Hours?.details?.precipitationAmount
+                                )?.let { precipitation ->
+                                precipitationVolume = precipitation
+                                hasPrecipitation = precipitation != zero
+                            }
 
                         (
-                            hourly.data.next1Hours?.summary?.symbolCode
-                                ?: hourly.data.next6Hours?.summary?.symbolCode
-                        )?.let { symbolCode ->
-                            weatherCondition =
-                                WeatherConditionValueType(
-                                    symbols[symbolCode.replace(day, "").replace(night, "")]!!,
-                                )
-                        }
+                                hourly.data.next1Hours?.summary?.symbolCode
+                                    ?: hourly.data.next6Hours?.summary?.symbolCode
+                                )?.let { symbolCode ->
+                                weatherCondition =
+                                    WeatherConditionValueType(
+                                        symbols[symbolCode.replace(day, "").replace(night, "")]!!,
+                                    )
+                            }
 
                         Item(
                             dateTime =
-                                DateTimeValueType(
-                                    ZonedDateTime.parse(hourly.time).withZoneSameInstant(zoneId)
-                                        .withMinute(0).withSecond
+                            DateTimeValueType(
+                                ZonedDateTime.parse(hourly.time).withZoneSameInstant(zoneId)
+                                    .withMinute(0).withSecond
                                         (0).withNano(0).toString(),
-                                ),
+                            ),
                             temperature =
-                                TemperatureValueType(
-                                    instantDetails.airTemperature.toInt().toShort(),
-                                    TemperatureUnit.Celsius,
-                                ),
+                            TemperatureValueType(
+                                instantDetails.airTemperature.toInt().toShort(),
+                                TemperatureUnit.Celsius,
+                            ),
                             feelsLikeTemperature =
-                                TemperatureValueType(
-                                    weatherUtil.calculateFeelsLikeTemperature(
-                                        instantDetails.airTemperature.toInt().toShort(),
-                                        windSpeed.convertUnit(WindSpeedUnit.KilometerPerHour).value,
-                                        instantDetails.relativeHumidity,
-                                    ),
-                                    TemperatureUnit.Celsius,
+                            TemperatureValueType(
+                                weatherUtil.calculateFeelsLikeTemperature(
+                                    instantDetails.airTemperature.toInt().toShort(),
+                                    windSpeed.convertUnit(WindSpeedUnit.KilometerPerHour).value,
+                                    instantDetails.relativeHumidity,
                                 ),
+                                TemperatureUnit.Celsius,
+                            ),
                             humidity =
-                                HumidityValueType(
-                                    instantDetails.relativeHumidity.toInt(),
-                                    PercentageUnit,
-                                ),
+                            HumidityValueType(
+                                instantDetails.relativeHumidity.toInt().toShort(),
+                                PercentageUnit,
+                            ),
                             windDirection =
-                                WindDirectionValueType(
-                                    instantDetails.windFromDirection.toInt(),
-                                    WindDirectionUnit.Degree,
-                                ).convertUnit
-                                    (WindDirectionUnit.Compass),
+                            WindDirectionValueType(
+                                instantDetails.windFromDirection.toInt().toShort(),
+                                WindDirectionUnit.Degree,
+                            ),
                             windSpeed = windSpeed,
                             precipitationVolume =
-                                PrecipitationValueType(
-                                    precipitationVolume,
-                                    PrecipitationUnit.Millimeter,
-                                ),
+                            PrecipitationValueType(
+                                precipitationVolume,
+                                PrecipitationUnit.Millimeter,
+                            ),
                             weatherCondition = weatherCondition!!,
                             dewPointTemperature =
-                                TemperatureValueType(
-                                    instantDetails.dewPointTemperature.toInt().toShort(),
-                                    TemperatureUnit.Celsius,
-                                ),
+                            TemperatureValueType(
+                                instantDetails.dewPointTemperature.toInt().toShort(),
+                                TemperatureUnit.Celsius,
+                            ),
                             airPressure =
-                                PressureValueType(
-                                    instantDetails.airPressureAtSeaLevel.toInt(),
-                                    PressureUnit.Hectopascal,
-                                ),
+                            PressureValueType(
+                                instantDetails.airPressureAtSeaLevel.toInt().toShort(),
+                                PressureUnit.Hectopascal,
+                            ),
                         )
                     }
                 }

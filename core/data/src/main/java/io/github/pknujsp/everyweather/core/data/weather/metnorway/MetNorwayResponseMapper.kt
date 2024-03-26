@@ -56,10 +56,10 @@ internal class MetNorwayResponseMapper : WeatherResponseMapper<WeatherEntityMode
                     windSpeed = item.windSpeed,
                     windDirection = item.windDirection,
                     feelsLikeTemperature = item.feelsLikeTemperature,
-                    rainfallVolume = RainfallValueType.none,
-                    snowfallVolume = SnowfallValueType.none,
+                    rainfallVolume = RainfallValueType.None,
+                    snowfallVolume = SnowfallValueType.None,
                     precipitationVolume = item.precipitationVolume,
-                    precipitationProbability = ProbabilityValueType.none,
+                    precipitationProbability = ProbabilityValueType.None,
                 )
             },
         )

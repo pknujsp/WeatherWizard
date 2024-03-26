@@ -51,19 +51,19 @@ data class DailyForecastEntity(
         val dateTime: DateTimeValueType,
         val minTemperature: TemperatureValueType,
         val maxTemperature: TemperatureValueType,
-        val windMinSpeed: WindSpeedValueType = WindSpeedValueType.none,
-        val windMaxSpeed: WindSpeedValueType = WindSpeedValueType.none,
+        val windMinSpeed: WindSpeedValueType = WindSpeedValueType.None,
+        val windMaxSpeed: WindSpeedValueType = WindSpeedValueType.None,
         val items: List<Item>,
     ) {
         @Serializable
         data class Item(
             val weatherCondition: WeatherConditionValueType,
-            val rainfallVolume: RainfallValueType = RainfallValueType.none,
-            val snowfallVolume: SnowfallValueType = SnowfallValueType.none,
-            val rainfallProbability: ProbabilityValueType = ProbabilityValueType.none,
-            val snowfallProbability: ProbabilityValueType = ProbabilityValueType.none,
-            val precipitationVolume: PrecipitationValueType = PrecipitationValueType.none,
-            val precipitationProbability: ProbabilityValueType = ProbabilityValueType.none,
+            val rainfallVolume: RainfallValueType = RainfallValueType.None,
+            val snowfallVolume: SnowfallValueType = SnowfallValueType.None,
+            val rainfallProbability: ProbabilityValueType = ProbabilityValueType.None,
+            val snowfallProbability: ProbabilityValueType = ProbabilityValueType.None,
+            val precipitationVolume: PrecipitationValueType = PrecipitationValueType.None,
+            val precipitationProbability: ProbabilityValueType = ProbabilityValueType.None,
         )
     }
 }

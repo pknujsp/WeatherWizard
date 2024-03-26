@@ -12,7 +12,6 @@ import io.github.pknujsp.everyweather.core.model.weather.common.WeatherCondition
 import io.github.pknujsp.everyweather.core.model.weather.common.WindDirectionValueType
 import io.github.pknujsp.everyweather.core.model.weather.common.WindSpeedValueType
 import kotlinx.serialization.Serializable
-import java.lang.StringBuilder
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
@@ -53,8 +52,8 @@ data class HourlyForecastEntity(
         val windDirection: WindDirectionValueType,
         val rainfallVolume: RainfallValueType,
         val snowfallVolume: SnowfallValueType,
-        val rainfallProbability: ProbabilityValueType = ProbabilityValueType.none,
-        val snowfallProbability: ProbabilityValueType = ProbabilityValueType.none,
+        val rainfallProbability: ProbabilityValueType = ProbabilityValueType.None,
+        val snowfallProbability: ProbabilityValueType = ProbabilityValueType.None,
         val precipitationVolume: PrecipitationValueType,
         val precipitationProbability: ProbabilityValueType,
     )

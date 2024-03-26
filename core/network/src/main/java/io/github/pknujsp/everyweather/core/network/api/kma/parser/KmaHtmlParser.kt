@@ -1,7 +1,6 @@
 package io.github.pknujsp.everyweather.core.network.api.kma.parser
 
 import io.github.pknujsp.everyweather.core.model.weather.common.PrecipitationValueType
-import io.github.pknujsp.everyweather.core.model.weather.common.ProbabilityValueType
 import org.jsoup.nodes.Document
 import java.time.LocalDate
 import java.time.LocalTime
@@ -503,16 +502,16 @@ internal class KmaHtmlParser {
         return conditionDescriptionsMap[description] ?: description
     }
 
-    private fun String.toWindDirection(): Int = windDirectionMap[this] ?: 0
+    private fun String.toWindDirection(): Int = windDirectionMap[this] ?: Int.MIN_VALUE
 
-    private fun String.toTemperature(): Double = toDoubleOrNull() ?: 0.0
+    private fun String.toTemperature(): Double = toDoubleOrNull() ?: Double.MIN_VALUE
 
-    private fun String.toHumidity(): Int = replace(percent, "").toIntOrNull() ?: 0
+    private fun String.toHumidity(): Int = replace(percent, "").toIntOrNull() ?: Int.MIN_VALUE
 
-    private fun String.toWindSpeed(): Double = replace(mPerS, "").toDoubleOrNull() ?: 0.0
+    private fun String.toWindSpeed(): Double = replace(mPerS, "").toDoubleOrNull() ?: Double.MIN_VALUE
 
     private fun String.toPrecipitationVolume(): Double =
-        replace("0.0", "").replace(mm, "").replace(cm, "").toDoubleOrNull() ?: PrecipitationValueType.none.value
+        replace("0.0", "").replace(mm, "").replace(cm, "").toDoubleOrNull() ?: Double.MIN_VALUE
 
-    private fun String.toPop(): Int = replace(percent, "").toIntOrNull() ?: ProbabilityValueType.none.value
+    private fun String.toPop(): Int = replace(percent, "").toIntOrNull() ?: Int.MIN_VALUE
 }

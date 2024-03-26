@@ -30,7 +30,7 @@ data class CurrentWeatherEntity(
         - 체감온도 : $feelsLikeTemperature
         - 습도 : $humidity
         - 풍속 : $windSpeed
-        - 풍향 : ${windDirection.convertUnit(WindDirectionUnit.Degree)}
+        - 풍향 : ${windDirection.compassString}
         - 강수량 : $precipitationVolume
         
         """.trimIndent()
