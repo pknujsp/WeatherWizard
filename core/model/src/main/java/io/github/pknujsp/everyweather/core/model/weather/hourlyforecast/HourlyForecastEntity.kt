@@ -54,7 +54,7 @@ data class HourlyForecastEntity(
         val snowfallVolume: SnowfallValueType,
         val rainfallProbability: ProbabilityValueType = ProbabilityValueType.None,
         val snowfallProbability: ProbabilityValueType = ProbabilityValueType.None,
-        val precipitationVolume: PrecipitationValueType,
+        val precipitationVolume: PrecipitationValueType = PrecipitationValueType.None,
         val precipitationProbability: ProbabilityValueType,
     )
 }
