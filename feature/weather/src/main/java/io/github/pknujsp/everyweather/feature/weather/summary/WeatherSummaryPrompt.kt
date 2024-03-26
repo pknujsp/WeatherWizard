@@ -18,7 +18,7 @@ class WeatherSummaryPrompt(
 
         private val EXTRA_INSTRUCTION = """
             Take a deep breath and work on this problem step-by-step
-            어린 자녀에게 향후 날씨에 대해서 얘기를 해준다고 생각합니다
+            자녀에게 향후 날씨에 대해서 얘기를 해준다고 생각합니다
             """.trimIndent()
 
         private val INSTRUCTIONS = """
@@ -60,6 +60,7 @@ class WeatherSummaryPrompt(
 
             ### 요약
             - 전달한 날씨 정보의 핵심 요약을 제공하여, 사용자가 빠르게 정보를 파악할 수 있도록 합니다
+            - 이미 작성한 내용과 중복되는 내용이 없도록 하고, 요약된 정보를 제공합니다
             {응답}
 
             """.trimIndent()
