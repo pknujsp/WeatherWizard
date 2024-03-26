@@ -26,8 +26,8 @@ data class ToCompareHourlyForecastEntity(
         val windDirection: WindDirectionValueType,
         val rainfallVolume: RainfallValueType,
         val snowfallVolume: SnowfallValueType,
-        val rainfallProbability: ProbabilityValueType = ProbabilityValueType.none,
-        val snowfallProbability: ProbabilityValueType = ProbabilityValueType.none,
+        val rainfallProbability: ProbabilityValueType = ProbabilityValueType.None,
+        val snowfallProbability: ProbabilityValueType = ProbabilityValueType.None,
         val precipitationVolume: PrecipitationValueType,
         val precipitationProbability: ProbabilityValueType,
     )

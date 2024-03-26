@@ -1,5 +1,6 @@
 package io.github.pknujsp.everyweather.core.network.api.metnorway.response
 
+import io.github.pknujsp.everyweather.core.common.util.normalize
 import io.github.pknujsp.everyweather.core.model.weather.common.DateTimeValueType
 import io.github.pknujsp.everyweather.core.model.weather.common.PrecipitationUnit
 import io.github.pknujsp.everyweather.core.model.weather.common.PrecipitationValueType
@@ -21,9 +22,10 @@ class MetNorwayDailyForecastResponse(
     val items: List<Item>
 
     private companion object {
-        val sixTimes = listOf(0, 6, 12, 18)
-        val night = "_night"
-        val day = "_day"
+        val sixTimes = arrayOf(0, 6, 12, 18)
+        const val NIGHT = "_night"
+        const val DAY = "_day"
+        const val ZERO = 0.0
     }
 
     init {
@@ -33,7 +35,6 @@ class MetNorwayDailyForecastResponse(
             for ((i, entry) in groups.entries.withIndex()) {
                 if (i == groups.size - 1) continue
 
-                val date = entry.key
                 val items = entry.value
                 var minTemp = Short.MAX_VALUE
                 var maxTemp = Short.MIN_VALUE
@@ -87,28 +88,24 @@ class MetNorwayDailyForecastResponse(
 
     private fun List<Pair<Int, MetNorwayResponse.Properties.Timesery>>.createAmPmData(
         timeOfDayType: TimeOfDayType,
-        symbols: Map<
-            String,
-            WeatherConditionCategory,
-            >,
-    ): AmPmData? {
-        return if (isNotEmpty()) {
-            AmPmData(
-                timeOfDayType,
-                PrecipitationValueType(getPrecipitationVolume(), PrecipitationUnit.Millimeter),
-                WeatherConditionValueType(getWeatherCondition(symbols)),
-            )
-        } else {
-            null
-        }
+        symbols: Map<String, WeatherConditionCategory>,
+    ): AmPmData? = takeIf { it.isNotEmpty() }?.run {
+        val precipitationVolume = getPrecipitationVolume()
+        AmPmData(
+            timeOfDayType,
+            if (precipitationVolume > ZERO) PrecipitationValueType(getPrecipitationVolume(),
+                PrecipitationUnit.Millimeter) else PrecipitationValueType.None,
+            WeatherConditionValueType(getWeatherCondition(symbols)),
+        )
     }
 
-    private fun List<Pair<Int, MetNorwayResponse.Properties.Timesery>>.getPrecipitationVolume() =
-        filter { it.first in sixTimes }.sumOf { it.second.data.next6Hours?.details?.precipitationAmount ?: 0.0 }
+    private fun List<Pair<Int, MetNorwayResponse.Properties.Timesery>>.getPrecipitationVolume() = filter {
+        it.first in sixTimes
+    }.sumOf { it.second.data.next6Hours?.details?.precipitationAmount ?: 0.0 }.normalize()
 
     private fun List<Pair<Int, MetNorwayResponse.Properties.Timesery>>.getWeatherCondition(symbols: Map<String, WeatherConditionCategory>) =
         groupBy { it.second.data.next1Hours?.summary?.symbolCode ?: it.second.data.next6Hours!!.summary.symbolCode }.let { groups ->
-            groups.entries.maxBy { it.value.size }.let { symbols[it.key.replace(night, "").replace(day, "")]!! }
+            groups.entries.maxBy { it.value.size }.let { symbols[it.key.replace(NIGHT, "").replace(DAY, "")]!! }
         }
 
     data class Item(

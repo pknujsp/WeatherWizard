@@ -15,14 +15,14 @@ data class AirQualityEntity(
         return StringBuilder().apply {
             appendLine(
                 """
-                Air Quality
+                ## 대기질
                 - 현재 대기질 상태와 향후 약 7일간의 대기질 예보입니다.
                 
                 """.trimIndent(),
             )
-            appendLine("- Current : ${current.aqi.airQualityDescription.description}")
-            appendLine("- Daily")
-            appendLine("Date, Status")
+            appendLine("- 현재 : ${current.aqi.airQualityDescription.description}")
+            appendLine("- 일별")
+            appendLine("필드 : 날짜, 상태")
             for (item in dailyForecast.items) {
                 appendLine("${item.date}, ${item.getAqi().valueNotNull().airQualityDescription.description}")
             }
@@ -62,6 +62,7 @@ data class AirQualityEntity(
             fun getAqi(): VarState<AirQualityValueType> {
                 val avg =
                     listOf(o3, pm10, pm25).filterIsInstance<VarState.Initialized<Pollutant>>().map { it.data.avg.value }.average().toInt()
+                        .toShort()
                 return VarState.Initialized(AirQualityValueType(value = avg, airQualityDescription = AirQualityDescription.fromValue(avg)))
             }
 

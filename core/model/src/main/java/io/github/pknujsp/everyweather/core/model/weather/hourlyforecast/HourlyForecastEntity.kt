@@ -12,7 +12,6 @@ import io.github.pknujsp.everyweather.core.model.weather.common.WeatherCondition
 import io.github.pknujsp.everyweather.core.model.weather.common.WindDirectionValueType
 import io.github.pknujsp.everyweather.core.model.weather.common.WindSpeedValueType
 import kotlinx.serialization.Serializable
-import java.lang.StringBuilder
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
@@ -20,16 +19,22 @@ import java.time.format.DateTimeFormatter
 data class HourlyForecastEntity(
     val items: List<Item>,
 ) : WeatherEntityModel() {
+
+    val precipitationForecasted = items.any { item ->
+        !item.precipitationProbability.isNone || !item.precipitationVolume.isNone || !item.rainfallVolume.isNone || !item.snowfallVolume
+            .isNone
+    }
+
     override fun toString(): String {
         return StringBuilder().apply {
             appendLine(
                 """
-                Hourly Forecast
+                ## 시간별 예보
                 - 시간별 예보입니다. 약 48시간의 날씨 예보입니다.
                 
                 """.trimIndent(),
             )
-            appendLine("Time, Weather, Temperature, Precipitation Probability, Precipitation volume, Humidity, Wind Speed")
+            appendLine("필드 : 시각, 날씨, 기온, 강수확률, 강수량, 습도, 풍속")
             for (item in items) {
                 append("${LocalDateTime.parse(item.dateTime.value, DateTimeFormatter.ISO_ZONED_DATE_TIME)},")
                 append(" ${item.weatherCondition.value.description},")
@@ -53,9 +58,9 @@ data class HourlyForecastEntity(
         val windDirection: WindDirectionValueType,
         val rainfallVolume: RainfallValueType,
         val snowfallVolume: SnowfallValueType,
-        val rainfallProbability: ProbabilityValueType = ProbabilityValueType.none,
-        val snowfallProbability: ProbabilityValueType = ProbabilityValueType.none,
-        val precipitationVolume: PrecipitationValueType,
-        val precipitationProbability: ProbabilityValueType,
+        val rainfallProbability: ProbabilityValueType = ProbabilityValueType.None,
+        val snowfallProbability: ProbabilityValueType = ProbabilityValueType.None,
+        val precipitationVolume: PrecipitationValueType = PrecipitationValueType.None,
+        val precipitationProbability: ProbabilityValueType = ProbabilityValueType.None,
     )
 }

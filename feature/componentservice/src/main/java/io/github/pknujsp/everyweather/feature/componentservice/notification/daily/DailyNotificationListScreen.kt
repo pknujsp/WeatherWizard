@@ -80,19 +80,17 @@ fun DailyNotificationListScreen(
                     items(notificationListUiState.notifications) { notification ->
                         Item(item = notification, onClick = {
                             navController.navigate(NotificationRoutes.AddOrEditDaily.routeWithArguments(notification.id))
-                        }, onSwitch = { item ->
-                            notificationsState.switch(item, context)
+                        }, onSwitch = { item, isEnabled ->
+                            notificationsState.switch(isEnabled, item, context)
                             coroutineScope.launch {
                                 snackbarHostState.showSnackbar(
-                                    message =
-                                        context.getString(
-                                            if (item.isEnabled) {
-                                                R.string
-                                                    .daily_notification_enabled
-                                            } else {
-                                                R.string.daily_notification_disabled
-                                            },
-                                        ),
+                                    message = context.getString(
+                                        if (isEnabled) {
+                                            R.string.daily_notification_enabled
+                                        } else {
+                                            R.string.daily_notification_disabled
+                                        },
+                                    ),
                                 )
                             }
                         }, onDelete = {
@@ -114,21 +112,19 @@ fun DailyNotificationListScreen(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun Item(
     item: DailyNotificationSettingsListItem,
     onClick: () -> Unit,
-    onSwitch: (DailyNotificationSettingsListItem) -> Unit,
+    onSwitch: (DailyNotificationSettingsListItem, Boolean) -> Unit,
     onDelete: (DailyNotificationSettingsListItem) -> Unit,
 ) {
     Surface(shape = AppShapes.large, shadowElevation = 4.dp, modifier = Modifier.padding(16.dp, 8.dp)) {
         Row(
-            modifier =
-                Modifier
-                    .fillMaxWidth()
-                    .clickable { onClick() }
-                    .padding(16.dp, 12.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable { onClick() }
+                .padding(16.dp, 12.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(16.dp),
         ) {
@@ -141,22 +137,21 @@ private fun Item(
                         modifier = Modifier.size(16.dp),
                     )
                     Text(
-                        text =
-                            if (item.location.locationType is LocationType.CustomLocation) {
-                                item.location.address
-                            } else {
-                                stringResource(
-                                    id = item.location.locationType.title,
-                                )
-                            },
+                        text = if (item.location.locationType is LocationType.CustomLocation) {
+                            item.location.address
+                        } else {
+                            stringResource(
+                                id = item.location.locationType.title,
+                            )
+                        },
                         style = TextStyle(fontSize = 16.sp, color = Color.Gray),
                     )
                 }
                 Text(text = stringResource(id = item.type.title), style = TextStyle(fontSize = 14.sp, color = Color.Blue))
             }
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Switch(checked = item.isEnabled, onCheckedChange = {
-                    onSwitch(item)
+                Switch(checked = item.isEnabled, onCheckedChange = { isEnabled ->
+                    onSwitch(item, isEnabled)
                 })
 
                 var isClickedDelete by remember { mutableStateOf(false) }
@@ -174,10 +169,9 @@ private fun Item(
                             isClickedDelete = false
                         },
                     ) {
-                        val message =
-                            stringResource(id = R.string.delete_daily_notification_message).let {
-                                "${item.timeText} $it"
-                            }
+                        val message = stringResource(id = R.string.delete_daily_notification_message).let {
+                            "${item.timeText} $it"
+                        }
                         DialogScreen(
                             title = stringResource(id = R.string.delete),
                             message = message,

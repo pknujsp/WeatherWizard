@@ -20,6 +20,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -43,6 +44,7 @@ import io.github.pknujsp.everyweather.core.resource.R
 import io.github.pknujsp.everyweather.core.ui.dialog.BottomSheet
 import io.github.pknujsp.everyweather.core.ui.dialog.BottomSheetType
 import io.github.pknujsp.everyweather.core.ui.dialog.ContentWithTitle
+import io.github.pknujsp.everyweather.core.ui.lottie.CancellableLoadingDialog
 import io.github.pknujsp.everyweather.core.ui.lottie.CancellableLoadingScreen
 import io.github.pknujsp.everyweather.feature.weather.comparison.common.CommonForecastItemsScreen
 import io.github.pknujsp.everyweather.feature.weather.comparison.common.CompareForecastCard
@@ -55,12 +57,13 @@ fun CompareDailyForecastScreen(
     viewModel: CompareDailyForecastViewModel = hiltViewModel(),
     popBackStack: () -> Unit,
 ) {
+    val currentPopBackStack by rememberUpdatedState(newValue = popBackStack)
     LaunchedEffect(args) {
         viewModel.load(args)
     }
     val forecast by viewModel.dailyForecast.collectAsStateWithLifecycle()
 
-    BottomSheet(bottomSheetType = BottomSheetType.PERSISTENT, onDismissRequest = popBackStack) {
+    BottomSheet(bottomSheetType = BottomSheetType.PERSISTENT, onDismissRequest = currentPopBackStack) {
         ContentWithTitle(title = stringResource(id = R.string.title_comparison_daily_forecast)) {
             Column(
                 modifier = Modifier
@@ -70,7 +73,7 @@ fun CompareDailyForecastScreen(
             ) {
                 forecast.onLoading {
                     CancellableLoadingScreen(stringResource(id = R.string.loading_daily_forecast_data)) {
-                        popBackStack()
+                        currentPopBackStack()
                     }
                 }.onSuccess {
                     CompareForecastCard.CompareCardSurface {

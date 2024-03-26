@@ -40,20 +40,17 @@ private fun DateTime(
     density: Density = LocalDensity.current,
 ) {
     val textMeasurer = rememberTextMeasurer()
-    val textStyle =
-        remember {
-            TextStyle(fontSize = textSize, textAlign = TextAlign.Center)
+    val textStyle = remember {
+        TextStyle(fontSize = textSize, textAlign = TextAlign.Center)
+    }
+    val textLayoutResult = remember(dateTimeInfo) {
+        textMeasurer.measure(dateTimeInfo.items.first().date, textStyle)
+    }
+    val columnWidthPx = remember {
+        with(density) {
+            dateTimeInfo.itemWidth.toPx().toInt()
         }
-    val textLayoutResult =
-        remember(dateTimeInfo) {
-            textMeasurer.measure(dateTimeInfo.items.first().date, textStyle)
-        }
-    val columnWidthPx =
-        remember {
-            with(density) {
-                dateTimeInfo.itemWidth.toPx().toInt()
-            }
-        }
+    }
     val height by remember(textLayoutResult) {
         derivedStateOf { (textLayoutResult.size.height / density.density).dp + (space * 2) }
     }
@@ -64,10 +61,9 @@ private fun DateTime(
     }
 
     Canvas(
-        modifier =
-            Modifier
-                .fillMaxWidth()
-                .height(height),
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(height),
     ) {
         val y = (size.height / 2) - (textLayoutResult.size.height / 2)
         val rightOnBoxInRow = leftOnBoxInRow + size.width
@@ -78,14 +74,13 @@ private fun DateTime(
             if (dateValue.beginX > rightOnBoxInRow || dateValue.endX < leftOnBoxInRow - columnWidthPx) continue
 
             dateValue.apply {
-                displayX =
-                    if (leftOnBoxInRow + firstItemX in beginX..<endX) {
-                        firstItemX
-                    } else if (endX <= leftOnBoxInRow + firstItemX) {
-                        endX - leftOnBoxInRow
-                    } else {
-                        beginX - leftOnBoxInRow
-                    }
+                displayX = if (leftOnBoxInRow + firstItemX in beginX..<endX) {
+                    firstItemX
+                } else if (endX <= leftOnBoxInRow + firstItemX) {
+                    endX - leftOnBoxInRow
+                } else {
+                    beginX - leftOnBoxInRow
+                }
             }
 
             drawText(

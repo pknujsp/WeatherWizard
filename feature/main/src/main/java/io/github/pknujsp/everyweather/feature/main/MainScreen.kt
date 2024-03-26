@@ -1,6 +1,5 @@
 package io.github.pknujsp.everyweather.feature.main
 
-import androidx.activity.OnBackPressedCallback
 import androidx.activity.addCallback
 import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
 import androidx.compose.foundation.layout.Box
@@ -19,7 +18,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -36,6 +34,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import coil.compose.AsyncImage
@@ -58,33 +57,32 @@ fun MainScreen(
     mainViewModel: MainViewModel = hiltViewModel(),
 ) {
     val mainUiState = rememberMainState(rootNavControllerViewModel.requestedRoute)
-    val currentOnBackPressedDispatcherOwner by rememberUpdatedState(newValue = LocalOnBackPressedDispatcherOwner.current)
+    val onBackPressedDispatcherOwner = LocalOnBackPressedDispatcherOwner.current
+    val currentOnBackPressedDispatcherOwner by rememberUpdatedState(newValue = onBackPressedDispatcherOwner!!)
     val lifeCycleOwner = LocalLifecycleOwner.current
     var isCloseAppDialogVisible by remember { mutableStateOf(false) }
     val currentCloseAppDialogVisible by rememberUpdatedState(newValue = isCloseAppDialogVisible)
-    val isInitialized = mainViewModel.isInitialized
+    val isInitialized by mainViewModel.initialized.collectAsStateWithLifecycle()
 
-    if (isInitialized != null) {
-        val destination by remember {
-            derivedStateOf { if (isInitialized) MainRoutes.Weather.route else MainRoutes.Onboarding.route }
-        }
-
-        DisposableEffect(Unit) {
-            val callback = currentOnBackPressedDispatcherOwner?.onBackPressedDispatcher?.addCallback(lifeCycleOwner) {
-                mainUiState.navController.run {
-                    if (currentBackStackEntry != null && currentBackStackEntry!!.destination.route == destination) {
-                        isCloseAppDialogVisible = true
-                    } else {
-                        popBackStack()
-                    }
+    val destination by remember(isInitialized) {
+        derivedStateOf { if (isInitialized == true) MainRoutes.Weather.route else MainRoutes.Onboarding.route }
+    }
+    DisposableEffect(currentOnBackPressedDispatcherOwner, destination) {
+        val callback = currentOnBackPressedDispatcherOwner.onBackPressedDispatcher.addCallback(lifeCycleOwner) {
+            mainUiState.navController.run {
+                if (currentBackStackEntry == null || currentBackStackEntry?.destination?.route == destination) {
+                    isCloseAppDialogVisible = true
+                } else {
+                    popBackStack()
                 }
             }
-
-            onDispose {
-                callback?.remove()
-            }
         }
 
+        onDispose {
+            callback.remove()
+        }
+    }
+    if (isInitialized != null) {
         if (currentCloseAppDialogVisible) {
             AppCloseDialog {
                 isCloseAppDialogVisible = false
@@ -110,13 +108,12 @@ fun MainScreen(
                 HostSettingsScreen()
             }
             composable(MainRoutes.Onboarding.route) {
-                OnboardingScreen {
-                    mainUiState.navigate(MainRoutes.Weather, true)
-                }
+                OnboardingScreen()
             }
         }
     }
 }
+
 
 @Composable
 private fun WeatherMainScreen(mainUiState: MainUiState) {

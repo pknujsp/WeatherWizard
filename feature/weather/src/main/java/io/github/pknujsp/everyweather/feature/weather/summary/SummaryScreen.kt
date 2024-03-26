@@ -34,7 +34,7 @@ import io.github.pknujsp.everyweather.core.ui.dialog.BottomSheetType
 import io.github.pknujsp.everyweather.core.ui.dialog.ContentWithTitle
 import io.github.pknujsp.everyweather.core.ui.theme.AppShapes
 
-private const val HEIGHT_RATIO = 0.55f
+private const val HEIGHT_RATIO = 0.6f
 
 @Composable
 fun SummaryScreen(
@@ -62,6 +62,7 @@ fun SummaryScreen(
                         .verticalScroll(scrollState, true),
                 ) {
                     MarkdownText(
+                        modifier = Modifier.padding(horizontal = 4.dp),
                         style = TextStyle(color = Color.Black, fontSize = 15.sp, lineHeight = 4.sp),
                         markdown = if (uiState.error != null) stringResource(id = uiState.error!!) else uiState.summaryText,
                         linkifyMask = Linkify.WEB_URLS,

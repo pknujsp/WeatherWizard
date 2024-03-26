@@ -115,8 +115,8 @@ sealed class PressureUnit(override val symbol: String) : WeatherDataUnit {
 sealed class WindDirectionUnit(override val symbol: String) : WeatherDataUnit {
     companion object : UnitPreference<WindDirectionUnit> {
         override val key: String = "wind_direction_unit"
-        override val default get() = Compass
-        override val enums: Array<WindDirectionUnit> get() = arrayOf(Degree, Compass)
+        override val default get() = Degree
+        override val enums: Array<WindDirectionUnit> get() = arrayOf(Degree)
     }
 
     @Serializable
@@ -126,12 +126,6 @@ sealed class WindDirectionUnit(override val symbol: String) : WeatherDataUnit {
         override val key: Int = 0
     }
 
-    @Serializable
-    data object Compass : WindDirectionUnit("") {
-        override val title: Int = io.github.pknujsp.everyweather.core.resource.R.string.wind_direction_compass
-        override val icon: Int? = null
-        override val key: Int = 1
-    }
 }
 
 @Serializable

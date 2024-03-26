@@ -3,13 +3,7 @@ package io.github.pknujsp.everyweather.feature.weather.info
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.Stable
-import androidx.compose.runtime.State
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.Saver
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.view.WindowInsetsControllerCompat
 import io.github.pknujsp.everyweather.core.common.StatefulFeature
@@ -24,7 +18,7 @@ import io.github.pknujsp.everyweather.feature.weather.info.currentweather.model.
 import io.github.pknujsp.everyweather.feature.weather.info.dailyforecast.model.DetailDailyForecast
 import io.github.pknujsp.everyweather.feature.weather.info.dailyforecast.model.SimpleDailyForecast
 import io.github.pknujsp.everyweather.feature.weather.info.hourlyforecast.model.DetailHourlyForecast
-import io.github.pknujsp.everyweather.feature.weather.info.hourlyforecast.model.SimpleHourlyForecast
+import io.github.pknujsp.everyweather.feature.weather.info.hourlyforecast.model.HourlyForecast
 import io.github.pknujsp.everyweather.feature.weather.summary.WeatherSummaryPrompt
 import java.time.ZonedDateTime
 
@@ -51,7 +45,7 @@ sealed interface WeatherContentUiState {
 @Stable
 class Weather(
     val currentWeather: CurrentWeather,
-    val simpleHourlyForecast: SimpleHourlyForecast,
+    val hourlyForecast: HourlyForecast,
     val detailHourlyForecast: DetailHourlyForecast,
     val simpleDailyForecast: SimpleDailyForecast,
     val detailDailyForecast: DetailDailyForecast,
@@ -94,7 +88,7 @@ fun rememberWeatherContentState(refresh: () -> Unit): WeatherContentState {
         }
 
     val state: WeatherContentState =
-        remember {
+        remember(refresh) {
             MutableWeatherContentState(refresh, windowInsetsControllerCompat)
         }
 

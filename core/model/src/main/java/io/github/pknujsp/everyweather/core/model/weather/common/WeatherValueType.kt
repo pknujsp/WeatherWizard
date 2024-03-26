@@ -7,7 +7,7 @@ import io.github.pknujsp.everyweather.core.resource.R
 import kotlinx.serialization.Serializable
 
 interface NoneValue<T> {
-    val none: T
+    val None: T
 }
 
 interface WeatherValueType<out T : Any> {
@@ -16,11 +16,8 @@ interface WeatherValueType<out T : Any> {
 
 interface WeatherValueUnitType<T : Any, U : WeatherDataUnit> : WeatherValueType<T> {
     val unit: U
-
+    val isNone: Boolean
     fun convertUnit(to: U): WeatherValueUnitType<T, U>
-
-    fun isNone(): Boolean
-
     fun toStringWithoutUnit(): String
 }
 
@@ -28,6 +25,15 @@ interface WeatherValueNotUnitType<out T : Any> : WeatherValueType<T>
 
 @Serializable
 data class DateTimeValueType(
+    override val value: String,
+) : WeatherValueNotUnitType<String> {
+    override fun toString(): String {
+        return value
+    }
+}
+
+@Serializable
+data class DateValueType(
     override val value: String,
 ) : WeatherValueNotUnitType<String> {
     override fun toString(): String {
@@ -45,11 +51,14 @@ data class TemperatureValueType(
     override val value: Short,
     override val unit: TemperatureUnit,
 ) : WeatherValueUnitType<Short, TemperatureUnit> {
+
     companion object : NoneValue<TemperatureValueType> {
-        override val none: TemperatureValueType = TemperatureValueType(Short.MIN_VALUE, TemperatureUnit.Celsius)
+        override val None: TemperatureValueType = TemperatureValueType(Short.MIN_VALUE, TemperatureUnit.default)
     }
 
     override fun convertUnit(to: TemperatureUnit): TemperatureValueType {
+        if (isNone) return this
+
         return when (unit to to) {
             TemperatureUnit.Celsius to TemperatureUnit.Fahrenheit -> (value * 9 / 5 + 32).toShort()
             TemperatureUnit.Fahrenheit to TemperatureUnit.Celsius -> ((value - 32) * 5 / 9).toShort()
@@ -59,20 +68,17 @@ data class TemperatureValueType(
         }
     }
 
+    override val isNone: Boolean
+        get() = value == Short.MIN_VALUE
+
     fun toStringWithOnlyDegree(): String {
-        return "$value°"
+        return if (isNone) "" else "$value°"
     }
 
-    override fun isNone(): Boolean {
-        return value == Short.MIN_VALUE
-    }
-
-    override fun toStringWithoutUnit(): String {
-        return if (isNone()) "" else value.toString()
-    }
+    override fun toStringWithoutUnit(): String = if (isNone) "" else value.toString()
 
     override fun toString(): String {
-        return "${value}${unit.symbol}"
+        return if (isNone) "" else "${value}${unit.symbol}"
     }
 }
 
@@ -81,30 +87,31 @@ data class WindSpeedValueType(
     override val value: Double,
     override val unit: WindSpeedUnit,
 ) : WeatherValueUnitType<Double, WindSpeedUnit> {
-    companion object : NoneValue<WindSpeedValueType> {
-        override val none: WindSpeedValueType = WindSpeedValueType(Double.MIN_VALUE, WindSpeedUnit.KilometerPerHour)
 
-        private val beaufortScale =
-            arrayOf(
-                0.0 to R.string.wind_strength_0,
-                1.0 to R.string.wind_strength_1,
-                5.0 to R.string.wind_strength_2,
-                12.0 to R.string.wind_strength_3,
-                20.0 to R.string.wind_strength_4,
-                29.0 to R.string.wind_strength_5,
-                39.0 to R.string.wind_strength_6,
-                50.0 to R.string.wind_strength_7,
-                62.0 to R.string.wind_strength_8,
-                75.0 to R.string.wind_strength_9,
-                89.0 to R.string.wind_strength_10,
-                103.0 to R.string.wind_strength_11,
-                Double.MAX_VALUE to R.string.wind_strength_12,
-            )
+    override val isNone: Boolean
+        get() = value == Double.MIN_VALUE
+
+    companion object : NoneValue<WindSpeedValueType> {
+
+        override val None: WindSpeedValueType = WindSpeedValueType(Double.MIN_VALUE, WindSpeedUnit.default)
+
+        private val beaufortScale = arrayOf(
+            0.0 to R.string.wind_strength_0,
+            1.0 to R.string.wind_strength_1,
+            5.0 to R.string.wind_strength_2,
+            12.0 to R.string.wind_strength_3,
+            20.0 to R.string.wind_strength_4,
+            29.0 to R.string.wind_strength_5,
+            39.0 to R.string.wind_strength_6,
+            50.0 to R.string.wind_strength_7,
+            62.0 to R.string.wind_strength_8,
+            75.0 to R.string.wind_strength_9,
+            89.0 to R.string.wind_strength_10,
+            103.0 to R.string.wind_strength_11,
+            Double.MAX_VALUE to R.string.wind_strength_12,
+        )
     }
 
-    /**
-     * https://en.wikipedia.org/wiki/Beaufort_scale
-     */
     fun strength(context: Context): String {
         val kmh = convertUnit(WindSpeedUnit.KilometerPerHour).value
         val id = beaufortScale.find { (speed, _) -> kmh < speed }!!.second
@@ -112,6 +119,8 @@ data class WindSpeedValueType(
     }
 
     override fun convertUnit(to: WindSpeedUnit): WindSpeedValueType {
+        if (isNone) return this
+
         return when (unit to to) {
             WindSpeedUnit.KilometerPerHour to WindSpeedUnit.MeterPerSecond -> value / 3.6
             WindSpeedUnit.MeterPerSecond to WindSpeedUnit.KilometerPerHour -> value * 3.6
@@ -122,116 +131,109 @@ data class WindSpeedValueType(
     }
 
     override fun toString(): String {
-        return "$value${unit.symbol}"
+        return if (isNone) "" else "$value${unit.symbol}"
     }
 
-    override fun toStringWithoutUnit(): String {
-        return if (isNone()) "" else value.toInt().toString()
-    }
-
-    override fun isNone(): Boolean {
-        return value == Double.MIN_VALUE
-    }
+    override fun toStringWithoutUnit(): String = if (isNone) "" else value.toString()
 }
 
 @Serializable
 data class WindDirectionValueType(
-    override val value: Int,
-    override val unit: WindDirectionUnit,
-) : WeatherValueUnitType<Int, WindDirectionUnit> {
+    override val value: Short,
+    override val unit: WindDirectionUnit = WindDirectionUnit.default,
+) : WeatherValueUnitType<Short, WindDirectionUnit> {
     companion object : NoneValue<WindDirectionValueType> {
-        override val none: WindDirectionValueType = WindDirectionValueType(Int.MIN_VALUE, WindDirectionUnit.Degree)
+        override val None: WindDirectionValueType = WindDirectionValueType(Short.MIN_VALUE, WindDirectionUnit.default)
 
-        @StringRes private val compassPoints =
-            arrayOf(
-                R.string.wind_direction_n,
-                R.string.wind_direction_ne,
-                R.string.wind_direction_e,
-                R.string.wind_direction_se,
-                R.string.wind_direction_s,
-                R.string.wind_direction_sw,
-                R.string.wind_direction_w,
-                R.string.wind_direction_nw,
-            )
+        @StringRes private val compassPointStringResources = arrayOf(
+            R.string.wind_direction_n,
+            R.string.wind_direction_ne,
+            R.string.wind_direction_e,
+            R.string.wind_direction_se,
+            R.string.wind_direction_s,
+            R.string.wind_direction_sw,
+            R.string.wind_direction_w,
+            R.string.wind_direction_nw,
+        )
+
+        private val compassPointString = arrayOf(
+            "N",
+            "NE",
+            "E",
+            "SE",
+            "S",
+            "SW",
+            "W",
+            "NW",
+        )
     }
 
-    override fun convertUnit(to: WindDirectionUnit): WindDirectionValueType {
-        return when (unit to to) {
-            WindDirectionUnit.Degree to WindDirectionUnit.Compass -> toCompass(value)
-            WindDirectionUnit.Compass to WindDirectionUnit.Degree -> toDegree(value)
-            else -> value
-        }.run {
-            WindDirectionValueType(this, to)
-        }
-    }
+    override val isNone: Boolean
+        get() = value == Short.MIN_VALUE
+
+    @get:StringRes val compassStringRes: Int
+        get() = compassPointStringResources[(value / 45) % 8]
+
+    val compassString: String
+        get() = compassPointString[(value / 45) % 8]
+
+    override fun convertUnit(to: WindDirectionUnit): WindDirectionValueType = this
 
     override fun toString(): String {
-        return "$value${unit.symbol}"
+        return if (isNone) "" else "$value${unit.symbol}"
     }
 
     override fun toStringWithoutUnit(): String {
-        return if (isNone()) "" else value.toString()
-    }
-
-    override fun isNone(): Boolean {
-        return value == Int.MIN_VALUE
-    }
-
-    private fun toCompass(degree: Int): Int {
-        val index = ((degree / 45.0) + 0.5).toInt() % 8
-        return compassPoints[index]
-    }
-
-    private fun toDegree(
-        @StringRes compass: Int,
-    ): Int {
-        return compassPoints.indexOf(compass) * 45
+        return if (isNone) "" else value.toString()
     }
 }
 
 @Serializable
 data class HumidityValueType(
-    override val value: Int,
-    override val unit: PercentageUnit,
-) : WeatherValueUnitType<Int, PercentageUnit> {
+    override val value: Short,
+    override val unit: PercentageUnit = PercentageUnit,
+) : WeatherValueUnitType<Short, PercentageUnit> {
     companion object : NoneValue<HumidityValueType> {
-        override val none: HumidityValueType = HumidityValueType(Int.MIN_VALUE, PercentageUnit)
+        override val None: HumidityValueType = HumidityValueType(Short.MIN_VALUE, PercentageUnit)
     }
 
+    override val isNone: Boolean
+        get() = value == Short.MIN_VALUE
+
     override fun convertUnit(to: PercentageUnit): HumidityValueType {
+        if (isNone) return this
+
         return HumidityValueType(value, to)
     }
 
     override fun toString(): String {
-        return "$value${unit.symbol}"
+        return if (isNone) "" else "$value${unit.symbol}"
     }
 
     override fun toStringWithoutUnit(): String {
-        return if (isNone()) "" else value.toString()
-    }
-
-    override fun isNone(): Boolean {
-        return value == Int.MIN_VALUE
+        return if (isNone) "" else value.toString()
     }
 }
 
 @Serializable
 data class PressureValueType(
-    override val value: Int,
+    override val value: Short,
     override val unit: PressureUnit,
-) : WeatherValueUnitType<Int, PressureUnit> {
+) : WeatherValueUnitType<Short, PressureUnit> {
     companion object : NoneValue<PressureValueType> {
-        override val none: PressureValueType = PressureValueType(Int.MIN_VALUE, PressureUnit.Hectopascal)
+        override val None: PressureValueType = PressureValueType(Short.MIN_VALUE, PressureUnit.default)
 
-        private val pressureScale =
-            arrayOf(
-                980 to R.string.pressure_very_low,
-                1000 to R.string.pressure_low,
-                1020 to R.string.pressure_normal,
-                1040 to R.string.pressure_high,
-                Int.MAX_VALUE to R.string.pressure_very_high,
-            )
+        private val pressureScale = arrayOf(
+            980 to R.string.pressure_very_low,
+            1000 to R.string.pressure_low,
+            1020 to R.string.pressure_normal,
+            1040 to R.string.pressure_high,
+            Int.MAX_VALUE to R.string.pressure_very_high,
+        )
     }
+
+    override val isNone: Boolean
+        get() = value == Short.MIN_VALUE
 
     fun strength(context: Context): String {
         val hPa = value
@@ -240,19 +242,17 @@ data class PressureValueType(
     }
 
     override fun convertUnit(to: PressureUnit): PressureValueType {
+        if (isNone) return this
+
         return PressureValueType(value, to)
     }
 
     override fun toString(): String {
-        return "$value${unit.symbol}"
+        return if (isNone) "" else "$value${unit.symbol}"
     }
 
     override fun toStringWithoutUnit(): String {
-        return if (isNone()) "" else value.toString()
-    }
-
-    override fun isNone(): Boolean {
-        return value == Int.MIN_VALUE
+        return if (isNone) "" else value.toString()
     }
 }
 
@@ -262,18 +262,20 @@ data class VisibilityValueType(
     override val unit: VisibilityUnit,
 ) : WeatherValueUnitType<Double, VisibilityUnit> {
     companion object : NoneValue<VisibilityValueType> {
-        override val none: VisibilityValueType = VisibilityValueType(Double.MIN_VALUE, VisibilityUnit.Kilometer)
+        override val None: VisibilityValueType = VisibilityValueType(Double.MIN_VALUE, VisibilityUnit.default)
 
-        private val visibilityScale =
-            listOf(
-                0.0 to R.string.visibility_extremely_low,
-                1.0 to R.string.visibility_very_low,
-                4.0 to R.string.visibility_low,
-                10.0 to R.string.visibility_moderate,
-                100.0 to R.string.visibility_high,
-                Double.MAX_VALUE to R.string.visibility_very_high,
-            )
+        private val visibilityScale = listOf(
+            0.0 to R.string.visibility_extremely_low,
+            1.0 to R.string.visibility_very_low,
+            4.0 to R.string.visibility_low,
+            10.0 to R.string.visibility_moderate,
+            100.0 to R.string.visibility_high,
+            Double.MAX_VALUE to R.string.visibility_very_high,
+        )
     }
+
+    override val isNone: Boolean
+        get() = value == Double.MIN_VALUE
 
     fun strength(context: Context): String {
         val km = value
@@ -282,19 +284,18 @@ data class VisibilityValueType(
     }
 
     override fun convertUnit(to: VisibilityUnit): VisibilityValueType {
+        if (isNone) return this
+
         return VisibilityValueType(value, to)
     }
 
     override fun toString(): String {
-        return "$value${unit.symbol}"
+        return if (isNone) "" else "$value${unit.symbol}"
     }
 
-    override fun isNone(): Boolean {
-        return value == Double.MIN_VALUE
-    }
 
     override fun toStringWithoutUnit(): String {
-        return if (isNone()) "" else value.toString()
+        return if (isNone) "" else value.toString()
     }
 }
 
@@ -304,15 +305,20 @@ data class PrecipitationValueType(
     override val unit: PrecipitationUnit,
 ) : WeatherValueUnitType<Double, PrecipitationUnit> {
     companion object : NoneValue<PrecipitationValueType> {
-        override val none: PrecipitationValueType = PrecipitationValueType(Double.NaN, PrecipitationUnit.Millimeter)
+        override val None: PrecipitationValueType = PrecipitationValueType(Double.MIN_VALUE, PrecipitationUnit.default)
         val rainDrop = PrecipitationValueType(0.1, PrecipitationUnit.Millimeter)
         val snowDrop = PrecipitationValueType(0.1, PrecipitationUnit.Millimeter)
     }
 
+    override val isNone: Boolean
+        get() = value == Double.MIN_VALUE
+
     override fun convertUnit(to: PrecipitationUnit): PrecipitationValueType {
+        if (isNone) return None
+
         return when (unit to to) {
-            PrecipitationUnit.Millimeter to PrecipitationUnit.Centimeter -> value / 10
-            PrecipitationUnit.Centimeter to PrecipitationUnit.Millimeter -> value * 10
+            PrecipitationUnit.Millimeter to PrecipitationUnit.Centimeter -> value / 10.0
+            PrecipitationUnit.Centimeter to PrecipitationUnit.Millimeter -> value * 10.0
             else -> value
         }.run {
             PrecipitationValueType(this, to)
@@ -320,22 +326,11 @@ data class PrecipitationValueType(
     }
 
     override fun toString(): String {
-        return if (value.isNaN()) "" else "$value${unit.symbol}"
+        return if (isNone) "" else "$value${unit.symbol}"
     }
 
-    override fun isNone(): Boolean {
-        return value.isNaN()
-    }
 
-    override fun toStringWithoutUnit(): String {
-        return if (isNone()) {
-            ""
-        } else if (value == rainDrop.value) {
-            "~1"
-        } else {
-            value.toString()
-        }
-    }
+    override fun toStringWithoutUnit(): String = if (isNone) "" else value.toString()
 }
 
 @Serializable
@@ -344,17 +339,19 @@ data class SnowfallValueType(
     override val unit: PrecipitationUnit,
 ) : WeatherValueUnitType<Double, PrecipitationUnit> {
     companion object : NoneValue<SnowfallValueType> {
-        override val none: SnowfallValueType = SnowfallValueType(Double.MIN_VALUE, PrecipitationUnit.Millimeter)
+        override val None: SnowfallValueType = SnowfallValueType(Double.MIN_VALUE, PrecipitationUnit.default)
 
-        private val snowfallScale =
-            listOf(
-                0.0 to R.string.snowfall_none,
-                2.5 to R.string.snowfall_light,
-                7.6 to R.string.snowfall_moderate,
-                15.2 to R.string.snowfall_heavy,
-                Double.MAX_VALUE to R.string.snowfall_very_heavy,
-            )
+        private val snowfallScale = listOf(
+            0.0 to R.string.snowfall_none,
+            2.5 to R.string.snowfall_light,
+            7.6 to R.string.snowfall_moderate,
+            15.2 to R.string.snowfall_heavy,
+            Double.MAX_VALUE to R.string.snowfall_very_heavy,
+        )
     }
+
+    override val isNone: Boolean
+        get() = value == Double.MIN_VALUE
 
     fun strength(context: Context): String {
         val cm = convertUnit(PrecipitationUnit.Centimeter).value
@@ -363,6 +360,8 @@ data class SnowfallValueType(
     }
 
     override fun convertUnit(to: PrecipitationUnit): SnowfallValueType {
+        if (isNone) return this
+
         return when (unit to to) {
             PrecipitationUnit.Millimeter to PrecipitationUnit.Centimeter -> value / 10
             PrecipitationUnit.Centimeter to PrecipitationUnit.Millimeter -> value * 10
@@ -373,15 +372,11 @@ data class SnowfallValueType(
     }
 
     override fun toString(): String {
-        return "$value${unit.symbol}"
-    }
-
-    override fun isNone(): Boolean {
-        return value == Double.MIN_VALUE
+        return if (isNone) "" else "$value${unit.symbol}"
     }
 
     override fun toStringWithoutUnit(): String {
-        return if (isNone()) "" else value.toString()
+        return if (isNone) "" else value.toString()
     }
 }
 
@@ -391,18 +386,20 @@ data class RainfallValueType(
     override val unit: PrecipitationUnit,
 ) : WeatherValueUnitType<Double, PrecipitationUnit> {
     companion object : NoneValue<RainfallValueType> {
-        override val none: RainfallValueType = RainfallValueType(Double.MIN_VALUE, PrecipitationUnit.Millimeter)
+        override val None: RainfallValueType = RainfallValueType(Double.MIN_VALUE, PrecipitationUnit.default)
 
-        private val rainfallScale =
-            listOf(
-                0.0 to R.string.rainfall_none,
-                1.0 to R.string.rainfall_very_light,
-                4.0 to R.string.rainfall_light,
-                10.0 to R.string.rainfall_moderate,
-                50.0 to R.string.rainfall_heavy,
-                Double.MAX_VALUE to R.string.rainfall_very_heavy,
-            )
+        private val rainfallScale = listOf(
+            0.0 to R.string.rainfall_none,
+            1.0 to R.string.rainfall_very_light,
+            4.0 to R.string.rainfall_light,
+            10.0 to R.string.rainfall_moderate,
+            50.0 to R.string.rainfall_heavy,
+            Double.MAX_VALUE to R.string.rainfall_very_heavy,
+        )
     }
+
+    override val isNone: Boolean
+        get() = value == Double.MIN_VALUE
 
     fun strength(context: Context): String {
         val mm = convertUnit(PrecipitationUnit.Millimeter).value
@@ -411,6 +408,8 @@ data class RainfallValueType(
     }
 
     override fun convertUnit(to: PrecipitationUnit): RainfallValueType {
+        if (isNone) return this
+
         return when (unit to to) {
             PrecipitationUnit.Millimeter to PrecipitationUnit.Centimeter -> value / 10
             PrecipitationUnit.Centimeter to PrecipitationUnit.Millimeter -> value * 10
@@ -421,49 +420,47 @@ data class RainfallValueType(
     }
 
     override fun toString(): String {
-        return "$value${unit.symbol}"
+        return if (isNone) "" else "$value${unit.symbol}"
     }
 
     override fun toStringWithoutUnit(): String {
-        return if (isNone()) "" else value.toString()
-    }
-
-    override fun isNone(): Boolean {
-        return value == Double.MIN_VALUE
+        return if (isNone) "" else value.toString()
     }
 }
 
 @Serializable
 data class ProbabilityValueType(
-    override val value: Int,
-    override val unit: PercentageUnit,
-) : WeatherValueUnitType<Int, PercentageUnit> {
+    override val value: Short,
+    override val unit: PercentageUnit = PercentageUnit,
+) : WeatherValueUnitType<Short, PercentageUnit> {
     companion object : NoneValue<ProbabilityValueType> {
-        override val none: ProbabilityValueType = ProbabilityValueType(Int.MIN_VALUE, PercentageUnit)
+        override val None: ProbabilityValueType = ProbabilityValueType(Short.MIN_VALUE, PercentageUnit)
     }
 
+    override val isNone: Boolean
+        get() = value == Short.MIN_VALUE
+
     override fun convertUnit(to: PercentageUnit): ProbabilityValueType {
+        if (isNone) return this
+
         return ProbabilityValueType(value, to)
     }
 
     override fun toString(): String {
-        return if (isNone()) "-" else "$value${unit.symbol}"
+        return if (isNone) "" else "$value${unit.symbol}"
     }
 
-    override fun isNone(): Boolean {
-        return value == Int.MIN_VALUE
-    }
 
     override fun toStringWithoutUnit(): String {
-        return if (isNone()) "" else value.toString()
+        return if (isNone) "" else value.toString()
     }
 }
 
 @Serializable
 data class AirQualityValueType(
-    override val value: Int,
+    override val value: Short,
     val airQualityDescription: AirQualityDescription,
-) : WeatherValueNotUnitType<Int> {
+) : WeatherValueNotUnitType<Short> {
     override fun toString(): String {
         return value.toString()
     }

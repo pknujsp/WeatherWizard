@@ -22,6 +22,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -48,10 +49,13 @@ import io.github.pknujsp.everyweather.core.ui.dialog.BottomSheetType
 import io.github.pknujsp.everyweather.core.ui.dialog.ContentWithTitle
 import io.github.pknujsp.everyweather.core.ui.lottie.CancellableLoadingScreen
 import io.github.pknujsp.everyweather.core.ui.time.DynamicDateTime
+import io.github.pknujsp.everyweather.core.ui.weather.item.DynamicDateTimeUiCreator
 import io.github.pknujsp.everyweather.feature.weather.comparison.common.CommonForecastItemsScreen
 import io.github.pknujsp.everyweather.feature.weather.comparison.common.CompareForecastCard
 import io.github.pknujsp.everyweather.feature.weather.info.hourlyforecast.model.CompareHourlyForecast
 import io.github.pknujsp.everyweather.feature.weather.info.hourlyforecast.model.HourlyForecastComparisonReport
+
+private val weatherDataProviderInfoHeight = 36.dp
 
 @Composable
 fun CompareHourlyForecastScreen(
@@ -59,6 +63,7 @@ fun CompareHourlyForecastScreen(
     viewModel: CompareHourlyForecastViewModel = hiltViewModel(),
     popBackStack: () -> Unit,
 ) {
+    val currentPopBackStack by rememberUpdatedState(newValue = popBackStack)
     LaunchedEffect(args) {
         viewModel.load(args)
     }
@@ -66,7 +71,7 @@ fun CompareHourlyForecastScreen(
     val hourlyForecast by viewModel.hourlyForecast.collectAsStateWithLifecycle()
     val hourlyForecastComparisonReport by viewModel.report.collectAsStateWithLifecycle()
 
-    BottomSheet(bottomSheetType = BottomSheetType.PERSISTENT, onDismissRequest = popBackStack) {
+    BottomSheet(bottomSheetType = BottomSheetType.PERSISTENT, onDismissRequest = currentPopBackStack) {
         ContentWithTitle(title = stringResource(id = R.string.title_comparison_hourly_forecast)) {
             Column(
                 modifier = Modifier
@@ -76,13 +81,15 @@ fun CompareHourlyForecastScreen(
             ) {
                 hourlyForecast.onLoading {
                     CancellableLoadingScreen(stringResource(id = R.string.loading_hourly_forecast_data)) {
-                        popBackStack()
+                        currentPopBackStack()
                     }
                 }.onSuccess {
                     CompareForecastCard.CompareCardSurface {
                         Column(verticalArrangement = Arrangement.spacedBy(4.dp), modifier = Modifier.padding(vertical = 16.dp)) {
                             val mainLazyListState = rememberLazyListState()
-                            DynamicDateTime(it.dateTimeInfo, mainLazyListState)
+                            val density = LocalDensity.current
+                            val dateTimeInfo = DynamicDateTimeUiCreator.create(density, it.times, CompareHourlyForecastInfo.itemWidth)
+                            DynamicDateTime(dateTimeInfo, mainLazyListState)
                             Content(it, mainLazyListState)
                         }
                     }
@@ -106,7 +113,6 @@ fun Content(
     val itemsCount = compareHourlyForecastInfo.items.size
     val itemModifier = remember { Modifier.width(CompareHourlyForecastInfo.itemWidth) }
     val context = LocalContext.current
-    val weatherDataProviderInfoHeight = 36.dp
     val weatherDataProviderInfoHeightPx = with(LocalDensity.current) {
         weatherDataProviderInfoHeight.toPx().toInt()
     }

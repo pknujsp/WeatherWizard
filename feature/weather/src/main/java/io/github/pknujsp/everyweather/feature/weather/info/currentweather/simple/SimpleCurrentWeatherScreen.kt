@@ -177,7 +177,7 @@ fun CurrentWeatherScreen(
 
         val items: List<@Composable () -> Unit> = listOf({
             FeatureItem(WeatherDataCategory.WIND_SPEED.stringId, current.windSpeed.strength(LocalContext.current))
-        }, { FeatureItem(WeatherDataCategory.WIND_DIRECTION.stringId, stringResource(id = current.windDirection.value)) }, {
+        }, { FeatureItem(WeatherDataCategory.WIND_DIRECTION.stringId, stringResource(id = current.windDirection.compassStringRes)) }, {
             FeatureItem(
                 WeatherDataCategory.AIR_QUALITY_INDEX.stringId,
                 stringResource(id = airQualityValueType()?.airQualityDescription?.descriptionStringId ?: R.string.no_data),

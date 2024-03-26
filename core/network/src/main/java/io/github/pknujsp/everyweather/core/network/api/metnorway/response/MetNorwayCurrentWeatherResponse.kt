@@ -1,6 +1,7 @@
 package io.github.pknujsp.everyweather.core.network.api.metnorway.response
 
 import io.github.pknujsp.everyweather.core.common.util.FeelsLikeTemperatureCalculator
+import io.github.pknujsp.everyweather.core.common.util.normalize
 import io.github.pknujsp.everyweather.core.model.weather.common.DateTimeValueType
 import io.github.pknujsp.everyweather.core.model.weather.common.HumidityValueType
 import io.github.pknujsp.everyweather.core.model.weather.common.PercentageUnit
@@ -38,53 +39,48 @@ class MetNorwayCurrentWeatherResponse(
 
     init {
         metNorwayResponse.run {
-            val temp =
-                TemperatureValueType(
-                    properties.timeseries[0].data.instant.details.airTemperature.toInt().toShort(),
-                    TemperatureUnit.Celsius,
-                )
+            val temp = TemperatureValueType(
+                properties.timeseries[0].data.instant.details.airTemperature.toInt().toShort(),
+                TemperatureUnit.Celsius,
+            )
             val wind = WindSpeedValueType(properties.timeseries[0].data.instant.details.windSpeed, WindSpeedUnit.MeterPerSecond)
             val relativeHumidity = properties.timeseries[0].data.instant.details.relativeHumidity
 
             dateTime =
                 DateTimeValueType(ZonedDateTime.parse(properties.timeseries[0].time).withZoneSameInstant(ZoneId.systemDefault()).toString())
             temperature = temp
-            feelsLikeTemperature =
-                TemperatureValueType(
-                    FeelsLikeTemperatureCalculator.calculateFeelsLikeTemperature(
-                        temp.value,
-                        wind.convertUnit(WindSpeedUnit.KilometerPerHour).value,
-                        relativeHumidity,
-                    ),
-                    TemperatureUnit.Celsius,
-                )
-            humidity = HumidityValueType(relativeHumidity.toInt(), PercentageUnit)
-            windDirection =
-                WindDirectionValueType(
-                    properties.timeseries[0].data.instant.details.windFromDirection.toInt(),
-                    WindDirectionUnit.Degree,
-                ).convertUnit(WindDirectionUnit.Compass)
+            feelsLikeTemperature = TemperatureValueType(
+                FeelsLikeTemperatureCalculator.calculateFeelsLikeTemperature(
+                    temp.value,
+                    wind.convertUnit(WindSpeedUnit.KilometerPerHour).value,
+                    relativeHumidity,
+                ),
+                TemperatureUnit.Celsius,
+            )
+            humidity = HumidityValueType(relativeHumidity.toInt().toShort(), PercentageUnit)
+            windDirection = WindDirectionValueType(
+                properties.timeseries[0].data.instant.details.windFromDirection.toInt().toShort(),
+                WindDirectionUnit.Degree,
+            )
             windSpeed = wind
             precipitationVolume =
-                PrecipitationValueType(properties.timeseries[0].data.next1Hours!!.details.precipitationAmount, PrecipitationUnit.Millimeter)
+                PrecipitationValueType(properties.timeseries[0].data.next1Hours!!.details.precipitationAmount.normalize(), PrecipitationUnit
+                    .Millimeter)
 
             val day = "_day"
             val night = "_night"
 
-            weatherCondition =
-                WeatherConditionValueType(
-                    symbols[
-                        properties.timeseries[0].data.next1Hours!!.summary.symbolCode.replace(night, "")
-                            .replace(day, ""),
-                    ]!!,
-                )
-            dewPointTemperature =
-                TemperatureValueType(
-                    properties.timeseries[0].data.instant.details.dewPointTemperature.toInt().toShort(),
-                    TemperatureUnit.Celsius,
-                )
-            airPressure =
-                PressureValueType(properties.timeseries[0].data.instant.details.airPressureAtSeaLevel.toInt(), PressureUnit.Hectopascal)
+            weatherCondition = WeatherConditionValueType(
+                symbols[
+                    properties.timeseries[0].data.next1Hours!!.summary.symbolCode.replace(night, "").replace(day, ""),
+                ]!!,
+            )
+            dewPointTemperature = TemperatureValueType(
+                properties.timeseries[0].data.instant.details.dewPointTemperature.toInt().toShort(),
+                TemperatureUnit.Celsius,
+            )
+            airPressure = PressureValueType(properties.timeseries[0].data.instant.details.airPressureAtSeaLevel.toInt().toShort(),
+                PressureUnit.Hectopascal)
         }
     }
 }

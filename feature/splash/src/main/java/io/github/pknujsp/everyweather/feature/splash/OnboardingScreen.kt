@@ -1,5 +1,11 @@
 package io.github.pknujsp.everyweather.feature.splash
 
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -23,11 +29,13 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -42,9 +50,8 @@ import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun OnboardingScreen(viewModel: OnboardingViewModel = hiltViewModel(), navigateToStart: () -> Unit) {
+fun OnboardingScreen(viewModel: OnboardingViewModel = hiltViewModel()) {
     val coroutineScope = rememberCoroutineScope()
-    val currentNavigateToStart by rememberUpdatedState(newValue = navigateToStart)
     val pagerState = rememberPagerState(pageCount = {
         onboardingItems.size
     })
@@ -121,10 +128,7 @@ fun OnboardingScreen(viewModel: OnboardingViewModel = hiltViewModel(), navigateT
                         text = stringResource(id = io.github.pknujsp.everyweather.core.resource.R.string.onboarding_button_start_app),
                         buttonSize = ButtonSize.MEDIUM,
                     ) {
-                        viewModel.completeOnboarding()
-                        coroutineScope.launch {
-                            currentNavigateToStart()
-                        }
+                        viewModel.initialize()
                     }
                 }
             }
@@ -139,18 +143,35 @@ fun DefaultOnBoardingItem(
     onboardingItem: DefaultOnboardingItem,
 ) {
     Box(modifier = modifier.padding(24.dp), contentAlignment = Alignment.Center) {
-        Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(16.dp)) {
-            AsyncImage(model = ImageRequest.Builder(LocalContext.current).data(onboardingItem.image).build(), contentDescription = null)
+        Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(24.dp)) {
+            val infiniteTransition = rememberInfiniteTransition(label = "")
+            val imageScale by infiniteTransition.animateFloat(
+                initialValue = INITIAL_VALUE,
+                targetValue = TARGET_VALUE,
+                animationSpec = infiniteRepeatable(animation = tween(TWEEN_DURATION, easing = LinearEasing),
+                    repeatMode = RepeatMode.Reverse),
+                label = "",
+            )
+
             Text(
                 text = stringResource(id = onboardingItem.title),
                 fontSize = 24.sp,
-                style = TextStyle.Default.copy(fontWeight = FontWeight.Bold),
+                style = TextStyle.Default.copy(fontWeight = FontWeight.Bold, textAlign = TextAlign.Center),
             )
+
+            AsyncImage(modifier = Modifier.scale(imageScale),
+                model = ImageRequest.Builder(LocalContext.current).data(onboardingItem.image).build(),
+                contentDescription = null)
+
             Text(
                 text = stringResource(id = onboardingItem.message),
                 fontSize = 16.sp,
-                style = TextStyle.Default.copy(fontWeight = FontWeight.Normal),
+                style = TextStyle.Default.copy(fontWeight = FontWeight.Normal, textAlign = TextAlign.Center),
             )
         }
     }
 }
+
+private const val INITIAL_VALUE = 0.95f
+private const val TARGET_VALUE = 1.05f
+private const val TWEEN_DURATION = 3000

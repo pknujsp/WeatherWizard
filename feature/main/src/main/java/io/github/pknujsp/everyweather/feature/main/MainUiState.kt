@@ -13,13 +13,23 @@ import io.github.pknujsp.everyweather.core.ui.MainRoutes
 import io.github.pknujsp.everyweather.core.ui.theme.SystemBarContentColor
 import io.github.pknujsp.everyweather.core.ui.theme.setNavigationBarContentColor
 import io.github.pknujsp.everyweather.core.ui.theme.setStatusBarContentColor
+import io.github.pknujsp.everyweather.feature.main.MainUiState.Companion.tabs
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.launch
 
 @Stable
 interface MainUiState {
-    val tabs: Map<String, MainRoutes>
     val navController: NavHostController
+    val tabs: Map<String, MainRoutes>
+        get() = Companion.tabs
+
+    private companion object {
+        val tabs = mapOf(
+            MainRoutes.Favorite.route to MainRoutes.Favorite,
+            MainRoutes.Settings.route to MainRoutes.Settings,
+            MainRoutes.Notification.route to MainRoutes.Notification,
+        )
+    }
 
     fun navigate(
         route: MainRoutes,
@@ -28,7 +38,6 @@ interface MainUiState {
 }
 
 private class MutableMainUiState(
-    override val tabs: Map<String, MainRoutes>,
     override val navController: NavHostController,
 ) : MainUiState {
     override fun navigate(
@@ -56,27 +65,18 @@ fun rememberMainState(
     requestedRoutes: SharedFlow<MainRoutes>,
     navController: NavHostController = rememberNavController(),
 ): MainUiState {
-    val tabs =
-        remember {
-            mapOf(
-                MainRoutes.Favorite.route to MainRoutes.Favorite,
-                MainRoutes.Settings.route to MainRoutes.Settings,
-                MainRoutes.Notification.route to MainRoutes.Notification,
-            )
-        }
     val window = LocalContext.current.asActivity()!!.window
-    val windowInsetsControllerCompat =
-        remember(window) {
-            WindowInsetsControllerCompat(window, window.decorView)
-        }
-    val state: MainUiState =
-        remember {
-            MutableMainUiState(tabs, navController)
-        }
+    val windowInsetsControllerCompat = remember(window, navController) {
+        WindowInsetsControllerCompat(window, window.decorView)
+    }
 
-    LaunchedEffect(Unit) {
+    val state: MainUiState = remember(navController) {
+        MutableMainUiState(navController)
+    }
+
+    LaunchedEffect(navController) {
         launch {
-            navController.currentBackStackEntryFlow.collect { backStackEntry ->
+            navController.currentBackStackEntryFlow.collect { _ ->
                 windowInsetsControllerCompat.run {
                     setStatusBarContentColor(SystemBarContentColor.BLACK)
                     setNavigationBarContentColor(SystemBarContentColor.BLACK)

@@ -6,12 +6,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
-import androidx.compose.material.icons.rounded.ArrowBack
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
@@ -19,6 +18,9 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+
+private val textStyle = TextStyle(fontSize = 18.sp, fontWeight = FontWeight.Bold)
+private val mediumTextStyle = TextStyle(fontSize = 16.sp, fontWeight = FontWeight.Bold)
 
 @Composable
 private fun TitleText(
@@ -28,8 +30,7 @@ private fun TitleText(
 ) {
     Text(
         text = title,
-        style = LocalTextStyle.current.merge(textStyle),
-        fontWeight = FontWeight.Bold,
+        style = textStyle,
         color = Color.Black,
         modifier = modifier.wrapContentSize(),
     )
@@ -43,7 +44,7 @@ fun TitleTextWithNavigation(
 ) {
     Row(
         modifier = modifier.padding(bottom = 12.dp, start = 16.dp),
-        verticalAlignment = androidx.compose.ui.Alignment.CenterVertically,
+        verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(12.dp),
     ) {
         IconButton(onClick = onClickNavigation) {
@@ -52,7 +53,7 @@ fun TitleTextWithNavigation(
                 contentDescription = stringResource(io.github.pknujsp.everyweather.core.resource.R.string.back),
             )
         }
-        TitleText(title = title, textStyle = TextStyle(fontSize = 20.sp))
+        TitleText(title = title, textStyle = textStyle)
     }
 }
 
@@ -63,11 +64,8 @@ fun TitleTextWithoutNavigation(
 ) {
     TitleText(
         title = title,
-        modifier =
-            modifier
-                .padding(bottom = 12.dp, start = 16.dp)
-                .then(modifier),
-        textStyle = TextStyle(fontSize = 20.sp),
+        modifier = modifier.padding(bottom = 12.dp, start = 16.dp),
+        textStyle = textStyle,
     )
 }
 
@@ -78,10 +76,7 @@ fun MediumTitleTextWithoutNavigation(
 ) {
     TitleText(
         title = title,
-        modifier =
-            modifier
-                .padding(bottom = 10.dp, start = 16.dp)
-                .then(modifier),
-        textStyle = TextStyle(fontSize = 18.sp),
+        modifier = modifier.padding(bottom = 12.dp, start = 16.dp),
+        textStyle = mediumTextStyle,
     )
 }

@@ -73,7 +73,7 @@ class WidgetAllInOneRemoteViewCreator : WidgetRemoteViewsCreator<WidgetAllInOneR
         val mockModel =
             WidgetAllInOneRemoteViewUiModel(
                 currentWeather =
-                    MockDataGenerator.currentWeatherEntity.run {
+                    MockDataGenerator.fakeCurrentWeatherEntity.run {
                         WidgetAllInOneRemoteViewUiModel.CurrentWeather(
                             temperature.convertUnit(units.temperatureUnit).toString(),
                             feelsLikeTemperature.convertUnit(units.temperatureUnit).toString(),
@@ -81,7 +81,7 @@ class WidgetAllInOneRemoteViewCreator : WidgetRemoteViewsCreator<WidgetAllInOneR
                         )
                     },
                 hourlyForecast =
-                    MockDataGenerator.hourlyForecastEntity.items.subList(0, 12).map {
+                    MockDataGenerator.fakeHourlyForecastEntity.items.subList(0, 12).map {
                         WidgetAllInOneRemoteViewUiModel.HourlyForecast(
                             it.temperature.convertUnit(units.temperatureUnit).toString(),
                             it.weatherCondition.value.dayWeatherIcon,
@@ -89,7 +89,7 @@ class WidgetAllInOneRemoteViewCreator : WidgetRemoteViewsCreator<WidgetAllInOneR
                         )
                     },
                 dailyForecast =
-                    MockDataGenerator.dailyForecastEntity.dayItems.subList(0, 5).map { dayItem ->
+                    MockDataGenerator.fakeDailyForecastEntity.dayItems.subList(0, 5).map { dayItem ->
                         WidgetAllInOneRemoteViewUiModel.DailyForecast(
                             "${dayItem.minTemperature.convertUnit(units.temperatureUnit)}/${
                                 dayItem.maxTemperature.convertUnit(units.temperatureUnit)

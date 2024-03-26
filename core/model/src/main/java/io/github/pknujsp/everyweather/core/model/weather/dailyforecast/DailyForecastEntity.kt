@@ -17,16 +17,29 @@ import java.time.format.DateTimeFormatter
 data class DailyForecastEntity(
     val dayItems: List<DayItem>,
 ) : WeatherEntityModel() {
+
+    val precipitationForecasted = dayItems.any { dayItem ->
+        dayItem.items.any { item ->
+            !item.precipitationProbability.isNone
+        }
+    }
+
+    val containsPrecipitationVolume = dayItems.any { dayItem ->
+        dayItem.items.any { item ->
+            !item.precipitationVolume.isNone || !item.rainfallVolume.isNone || !item.snowfallVolume.isNone
+        }
+    }
+
     override fun toString(): String {
         return StringBuilder().apply {
             appendLine(
                 """
-                Daily Forecast
-                - 일일 예보입니다. 약 7일간의 날씨 예보입니다.
+                ## 일별 예보
+                - 일별 예보입니다. 약 7일간의 날씨 예보입니다.
                 
                 """.trimIndent(),
             )
-            appendLine("Date, Min / Max Temperature, Day Weather, AM / PM Weather")
+            appendLine("필드 : 날짜, 최저/최고 기온, 날씨, 오전/오후 날씨")
             for (item in dayItems) {
                 append("${LocalDate.parse(item.dateTime.value, DateTimeFormatter.ISO_ZONED_DATE_TIME)}, ")
                 appendLine(
@@ -51,19 +64,19 @@ data class DailyForecastEntity(
         val dateTime: DateTimeValueType,
         val minTemperature: TemperatureValueType,
         val maxTemperature: TemperatureValueType,
-        val windMinSpeed: WindSpeedValueType = WindSpeedValueType.none,
-        val windMaxSpeed: WindSpeedValueType = WindSpeedValueType.none,
+        val windMinSpeed: WindSpeedValueType = WindSpeedValueType.None,
+        val windMaxSpeed: WindSpeedValueType = WindSpeedValueType.None,
         val items: List<Item>,
     ) {
         @Serializable
         data class Item(
             val weatherCondition: WeatherConditionValueType,
-            val rainfallVolume: RainfallValueType = RainfallValueType.none,
-            val snowfallVolume: SnowfallValueType = SnowfallValueType.none,
-            val rainfallProbability: ProbabilityValueType = ProbabilityValueType.none,
-            val snowfallProbability: ProbabilityValueType = ProbabilityValueType.none,
-            val precipitationVolume: PrecipitationValueType = PrecipitationValueType.none,
-            val precipitationProbability: ProbabilityValueType = ProbabilityValueType.none,
+            val rainfallVolume: RainfallValueType = RainfallValueType.None,
+            val snowfallVolume: SnowfallValueType = SnowfallValueType.None,
+            val rainfallProbability: ProbabilityValueType = ProbabilityValueType.None,
+            val snowfallProbability: ProbabilityValueType = ProbabilityValueType.None,
+            val precipitationVolume: PrecipitationValueType = PrecipitationValueType.None,
+            val precipitationProbability: ProbabilityValueType = ProbabilityValueType.None,
         )
     }
 }

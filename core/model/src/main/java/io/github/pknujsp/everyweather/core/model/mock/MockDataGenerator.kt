@@ -22,7 +22,7 @@ import java.time.ZonedDateTime
 
 open class MockDataGenerator {
     companion object {
-        val currentWeatherEntity by lazy {
+        val fakeCurrentWeatherEntity by lazy {
             CurrentWeatherEntity(
                 weatherCondition = WeatherConditionValueType(WeatherConditionCategory.Clear),
                 temperature = TemperatureValueType(22, TemperatureUnit.default),
@@ -30,11 +30,11 @@ open class MockDataGenerator {
                 humidity = HumidityValueType(50, PercentageUnit),
                 windSpeed = WindSpeedValueType(4.5, WindSpeedUnit.default),
                 windDirection = WindDirectionValueType(80, WindDirectionUnit.Degree),
-                precipitationVolume = PrecipitationValueType.none,
+                precipitationVolume = PrecipitationValueType.None,
             )
         }
 
-        val hourlyForecastEntity by lazy {
+        val fakeHourlyForecastEntity by lazy {
             val now = ZonedDateTime.now()
             val weatherCondition = WeatherConditionValueType(WeatherConditionCategory.Clear)
             val temperature = TemperatureValueType(20, TemperatureUnit.default)
@@ -52,17 +52,17 @@ open class MockDataGenerator {
                         humidity = humidity,
                         windSpeed = windSpeed,
                         windDirection = windDirection,
-                        rainfallVolume = RainfallValueType.none,
-                        snowfallVolume = SnowfallValueType.none,
-                        precipitationVolume = PrecipitationValueType.none,
-                        precipitationProbability = ProbabilityValueType.none,
+                        rainfallVolume = RainfallValueType.None,
+                        snowfallVolume = SnowfallValueType.None,
+                        precipitationVolume = PrecipitationValueType.None,
+                        precipitationProbability = ProbabilityValueType.None,
                         dateTime = DateTimeValueType(now.plusHours(index.toLong()).toString()),
                     )
                 }
             HourlyForecastEntity(list)
         }
 
-        val dailyForecastEntity by lazy {
+        val fakeDailyForecastEntity by lazy {
             val now = ZonedDateTime.now()
             val dayItems =
                 List(2) {

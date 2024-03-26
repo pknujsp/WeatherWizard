@@ -1,5 +1,6 @@
 package io.github.pknujsp.everyweather.feature.weather.info.dailyforecast.detail
 
+import android.widget.Toast
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -16,7 +17,10 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.Text
+import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -27,6 +31,7 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.util.fastJoinToString
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import io.github.pknujsp.everyweather.core.common.util.AStyle
@@ -42,14 +47,22 @@ fun DetailDailyForecastScreen(
     dailyForecast: DetailDailyForecast,
     popBackStack: () -> Unit,
 ) {
-    BottomSheet(bottomSheetType = BottomSheetType.PERSISTENT, onDismissRequest = popBackStack) {
+    val currentPopBackStack by rememberUpdatedState(newValue = popBackStack)
+    val context = LocalContext.current
+
+    BottomSheet(bottomSheetType = BottomSheetType.PERSISTENT, onDismissRequest = currentPopBackStack) {
         ContentWithTitle(title = stringResource(id = R.string.daily_forecast)) {
             LazyColumn(state = rememberLazyListState(), modifier = Modifier.fillMaxWidth()) {
                 itemsIndexed(dailyForecast.items) { i, item ->
                     Item(
                         item = item,
                         displayPrecipitationProbability = dailyForecast.displayPrecipitationProbability,
-                    ) {}
+                        displayPrecipitationVolume = dailyForecast.displayPrecipitationVolume,
+                    ) {
+                        Toast.makeText(context, item.weatherConditions.fastJoinToString { res ->
+                            context.getString(res)
+                        }, Toast.LENGTH_SHORT).show()
+                    }
                 }
             }
         }
@@ -60,6 +73,7 @@ fun DetailDailyForecastScreen(
 private fun Item(
     item: DetailDailyForecast.Item,
     displayPrecipitationProbability: Boolean,
+    displayPrecipitationVolume: Boolean,
     onClick: () -> Unit,
 ) {
     item.run {
@@ -97,12 +111,7 @@ private fun Item(
                         contentDescription = null,
                     )
                     if (i < weatherConditionIcons.lastIndex) {
-                        Box(
-                            modifier = Modifier
-                                .width(1.dp)
-                                .height(16.dp)
-                                .background(Color.LightGray),
-                        )
+                        VerticalDivider(modifier = Modifier.padding(vertical = 24.dp))
                     }
                 }
             }
@@ -111,17 +120,27 @@ private fun Item(
                 modifier = Modifier
                     .weight(0.4f, true)
                     .padding(end = 12.dp),
-                verticalArrangement = Arrangement.spacedBy(4.dp),
+                verticalArrangement = Arrangement.spacedBy(4.dp, Alignment.CenterVertically),
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
-                Row(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalAlignment = Alignment.CenterVertically) {
-                    if (displayPrecipitationProbability) {
+                if (displayPrecipitationProbability && precipitationProbabilities.isNotEmpty()) {
+                    Row(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalAlignment = Alignment.CenterVertically) {
                         AsyncImage(
                             model = ImageRequest.Builder(context = LocalContext.current).data(R.drawable.ic_umbrella).build(),
                             modifier = Modifier.size(14.dp),
                             contentDescription = null,
                         )
                         Text(text = precipitationProbabilities.joinToString("/"), style = TextStyle(fontSize = 14.sp, color = Color.Black))
+                    }
+                }
+                if (displayPrecipitationVolume && precipitationVolume.isNotEmpty()) {
+                    Row(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalAlignment = Alignment.CenterVertically) {
+                        AsyncImage(
+                            model = ImageRequest.Builder(context = LocalContext.current).data(R.drawable.ic_raindrop).build(),
+                            modifier = Modifier.size(14.dp),
+                            contentDescription = null,
+                        )
+                        Text(text = precipitationVolume, style = TextStyle(fontSize = 14.sp, color = Color.Black))
                     }
                 }
                 Text(text = "$minTemperature / $maxTemperature", style = TextStyle(fontSize = 15.sp, color = Color.Black))
