@@ -344,4 +344,6 @@
     <string name="onboarding_message_widget">앱을 실행할 필요없이 위젯으로도 날씨 정보를 확인할 수 있어요</string>
     <string name="onboarding_button_start_app">시작하기</string>
     <string name="nav_onboarding">온보딩</string>
+    <string name="title_privacy_policy">개인정보처리방침</string>
+    <string name="title_app_update_preview">앱 업데이트 미리보기</string>
 </resources>

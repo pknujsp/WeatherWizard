@@ -15,4 +15,5 @@ dependencies {
 
     implementation(libs.androidx.appcompat)
     implementation(libs.bundles.workmanager)
+    implementation(libs.androidx.browser)
 }

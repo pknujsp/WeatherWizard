@@ -2,9 +2,11 @@ package io.github.pknujsp.everyweather.feature.settings
 
 import android.content.Context
 import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
+import androidx.browser.customtabs.CustomTabsIntent
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBarsPadding
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -14,6 +16,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.core.net.toUri
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
@@ -35,6 +38,9 @@ import io.github.pknujsp.everyweather.feature.permoptimize.feature.SmallFeatureS
 import io.github.pknujsp.everyweather.feature.permoptimize.feature.rememberFeatureStateManager
 import io.github.pknujsp.everyweather.feature.permoptimize.permission.rememberPermissionStateManager
 import kotlinx.coroutines.launch
+
+private const val PRIVACY_POLICY_URL = "https://www.notion.so/everyweatherapp/0d146d8e00934c39b5effd671dada8db"
+private const val APP_UPDATE_PREVIEW_URL = "https://www.notion.so/everyweatherapp/72eb45a530f540d6a91c2fe286c51c0d"
 
 @Composable
 fun SettingsScreen(
@@ -103,14 +109,24 @@ fun SettingsScreen(
                 redrawAppWidgets(context)
             }
         }
+        HorizontalDivider(modifier = Modifier.padding(horizontal = 24.dp, vertical = 12.dp))
+        ClickableSettingItem(title = stringResource(id = R.string.title_privacy_policy), description = null, onClick = {
+            val customTabsIntent = CustomTabsIntent.Builder().build()
+            customTabsIntent.launchUrl(context, PRIVACY_POLICY_URL.toUri())
+        })
+        ClickableSettingItem(title = stringResource(id = R.string.title_app_update_preview), description = null, onClick = {
+            val customTabsIntent = CustomTabsIntent.Builder().build()
+            customTabsIntent.launchUrl(context, APP_UPDATE_PREVIEW_URL.toUri())
+        })
 
         if (settingsUiState.widgetAutoRefreshInterval != RefreshInterval.MANUAL) {
-            if (!batteryOptimizationFeatureState.isEnabled(LocalContext.current)) {
+            if (!batteryOptimizationFeatureState.isEnabled(context)) {
                 SmallFeatureStateScreen(Modifier.padding(8.dp), state = batteryOptimizationFeatureState.featureType, onClickAction = {
                     batteryOptimizationFeatureState.showSettingsActivity()
                 })
-            } else if (!backgroundLocationPermissionManager.isEnabled(context)) {
-                SmallFeatureStateScreen(Modifier.padding(8.dp), state = FeatureType.Permission.BackgroundLocation, onClickAction = {
+            }
+            if (!backgroundLocationPermissionManager.isEnabled(context)) {
+                SmallFeatureStateScreen(Modifier.padding(8.dp), state = backgroundLocationPermissionManager.featureType, onClickAction = {
                     backgroundLocationPermissionManager.showSettingsActivity()
                 })
             }
@@ -119,8 +135,9 @@ fun SettingsScreen(
                 ShowSettingsActivity(featureType = batteryOptimizationFeatureState.featureType) {
                     batteryOptimizationFeatureState.hideSettingsActivity()
                 }
-            } else if (backgroundLocationPermissionManager.isShowSettingsActivity) {
-                ShowSettingsActivity(featureType = FeatureType.Permission.BackgroundLocation) {
+            }
+            if (backgroundLocationPermissionManager.isShowSettingsActivity) {
+                ShowSettingsActivity(featureType = backgroundLocationPermissionManager.featureType) {
                     backgroundLocationPermissionManager.hideSettingsActivity()
                     backgroundLocationPermissionManager.requestPermission()
                 }
