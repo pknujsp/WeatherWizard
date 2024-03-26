@@ -2,7 +2,6 @@ package io.github.pknujsp.everyweather.feature.weather.info.hourlyforecast.detai
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -45,7 +44,7 @@ fun DetailHourlyForecastScreen(
                 state = rememberLazyListState(),
                 modifier = Modifier.fillMaxWidth(),
             ) {
-                hourlyForecast.items.forEach { (header, items) ->
+                hourlyForecast.items.forEachIndexed { headerIndex, (header, items) ->
                     stickyHeader(key = header.id) {
                         Box(
                             contentAlignment = Alignment.CenterStart,
@@ -59,13 +58,11 @@ fun DetailHourlyForecastScreen(
                             )
                         }
                     }
-                    itemsIndexed(items, key = { _, item -> item.id }) { _, item ->
+                    itemsIndexed(items, key = { _, item -> item.id }) { itemIndex, _ ->
                         Item(
-                            item = item,
-                            displayPrecipitationProbability = hourlyForecast.displayPrecipitationProbability,
-                            displayPrecipitationVolume = hourlyForecast.displayPrecipitationVolume,
-                            displaySnowfallVolume = hourlyForecast.displaySnowfallVolume,
-                            displayRainfallVolume = hourlyForecast.displayRainfallVolume,
+                            forecast = hourlyForecast,
+                            parentIndex = headerIndex,
+                            itemIndex = itemIndex,
                         )
                     }
                 }
@@ -76,22 +73,18 @@ fun DetailHourlyForecastScreen(
 
 @Composable
 private fun Item(
-    item: DetailHourlyForecast.Item,
-    displayPrecipitationProbability: Boolean,
-    displayPrecipitationVolume: Boolean,
-    displaySnowfallVolume: Boolean,
-    displayRainfallVolume: Boolean,
+    forecast: DetailHourlyForecast,
+    parentIndex: Int,
+    itemIndex: Int,
 ) {
-    item.run {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
+    forecast.items[parentIndex].second[itemIndex].run {
+        Row(verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             modifier = Modifier
                 .fillMaxWidth()
-                .height(52.dp)
-        ) {
+                .height(52.dp)) {
             Text(
-                text = time,
+                text = hour,
                 style = TextStyle(fontSize = 14.sp, color = Color.Gray),
                 modifier = Modifier
                     .weight(0.1f, true)
@@ -118,7 +111,7 @@ private fun Item(
                 horizontalArrangement = Arrangement.spacedBy(4.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                if (displayPrecipitationProbability) {
+                if (forecast.displayPrecipitationProbability) {
                     AsyncImage(
                         model = ImageRequest.Builder(context = LocalContext.current)
                             .data(io.github.pknujsp.everyweather.core.resource.R.drawable.ic_umbrella).build(),
@@ -134,7 +127,7 @@ private fun Item(
                 verticalArrangement = Arrangement.spacedBy(4.dp),
                 horizontalAlignment = Alignment.Start,
             ) {
-                if (displayPrecipitationVolume) {
+                if (forecast.displayPrecipitationVolume) {
                     Row(horizontalArrangement = Arrangement.spacedBy(4.dp), verticalAlignment = Alignment.CenterVertically) {
                         AsyncImage(
                             model = ImageRequest.Builder(context = LocalContext.current)
@@ -142,10 +135,10 @@ private fun Item(
                             modifier = Modifier.size(16.dp),
                             contentDescription = null,
                         )
-                        Text(text = item.precipitationVolume, style = TextStyle(fontSize = 13.sp, color = Color.Black))
+                        Text(text = precipitationVolume, style = TextStyle(fontSize = 13.sp, color = Color.Black))
                     }
                 }
-                if (displayRainfallVolume) {
+                if (forecast.displayRainfallVolume) {
                     Row(horizontalArrangement = Arrangement.spacedBy(4.dp), verticalAlignment = Alignment.CenterVertically) {
                         AsyncImage(
                             model = ImageRequest.Builder(context = LocalContext.current)
@@ -153,10 +146,10 @@ private fun Item(
                             modifier = Modifier.size(14.dp),
                             contentDescription = null,
                         )
-                        Text(text = item.rainfallVolume, style = TextStyle(fontSize = 13.sp, color = Color.Black))
+                        Text(text = rainfallVolume, style = TextStyle(fontSize = 13.sp, color = Color.Black))
                     }
                 }
-                if (displaySnowfallVolume) {
+                if (forecast.displaySnowfallVolume) {
                     Row(horizontalArrangement = Arrangement.spacedBy(4.dp), verticalAlignment = Alignment.CenterVertically) {
                         AsyncImage(
                             model = ImageRequest.Builder(context = LocalContext.current)
@@ -164,7 +157,7 @@ private fun Item(
                             modifier = Modifier.size(16.dp),
                             contentDescription = null,
                         )
-                        Text(text = item.snowfallVolume, style = TextStyle(fontSize = 13.sp, color = Color.Black))
+                        Text(text = snowfallVolume, style = TextStyle(fontSize = 13.sp, color = Color.Black))
                     }
                 }
             }

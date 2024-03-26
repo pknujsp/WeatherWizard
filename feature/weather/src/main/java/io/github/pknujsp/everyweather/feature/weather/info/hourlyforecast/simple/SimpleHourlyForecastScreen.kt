@@ -12,7 +12,7 @@ import io.github.pknujsp.everyweather.core.resource.R
 import io.github.pknujsp.everyweather.core.ui.time.DynamicDateTime
 import io.github.pknujsp.everyweather.core.ui.weather.item.DynamicDateTimeUiCreator
 import io.github.pknujsp.everyweather.core.ui.weather.item.WeatherItemCard
-import io.github.pknujsp.everyweather.feature.weather.info.hourlyforecast.model.SimpleHourlyForecast
+import io.github.pknujsp.everyweather.feature.weather.info.hourlyforecast.model.HourlyForecast
 import io.github.pknujsp.everyweather.feature.weather.info.ui.HourlyForecastItem
 import io.github.pknujsp.everyweather.feature.weather.info.ui.HourlyForecastItemParams
 import io.github.pknujsp.everyweather.feature.weather.route.NestedRoutes
@@ -20,7 +20,7 @@ import io.github.pknujsp.everyweather.feature.weather.route.NestedRoutes
 @Composable
 fun HourlyForecastScreen(
     modifier: Modifier = Modifier,
-    hourlyForecast: SimpleHourlyForecast,
+    hourlyForecast: HourlyForecast,
     navigate: (NestedRoutes) -> Unit,
 ) {
     val currentNavigate by rememberUpdatedState(newValue = navigate)
@@ -46,7 +46,7 @@ fun HourlyForecastScreen(
                 val dateTimeInfo =
                     DynamicDateTimeUiCreator.create(density, hourlyForecast.times, HourlyForecastItemParams.itemWidth)
                 DynamicDateTime(dateTimeInfo, lazyListState)
-                HourlyForecastItem(simpleHourlyForecast = hourlyForecast, lazyListState)
+                HourlyForecastItem(hourlyForecast = hourlyForecast, lazyListState)
             }
         })
 }

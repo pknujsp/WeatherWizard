@@ -25,7 +25,7 @@ import coil.request.ImageRequest
 import io.github.pknujsp.everyweather.core.ui.NewGraph
 import io.github.pknujsp.everyweather.core.ui.route.DrawInfo
 import io.github.pknujsp.everyweather.feature.weather.info.WeatherContentUiState
-import io.github.pknujsp.everyweather.feature.weather.info.hourlyforecast.model.SimpleHourlyForecast
+import io.github.pknujsp.everyweather.feature.weather.info.hourlyforecast.model.HourlyForecast
 
 @Composable
 fun ShareCard(
@@ -74,19 +74,19 @@ fun Content() {
 }
 
 @Composable
-fun HourlyForecast(simpleHourlyForecast: SimpleHourlyForecast) {
+fun HourlyForecast(hourlyForecast: HourlyForecast) {
     val graphHeight = with(LocalDensity.current) { 50.dp.toPx() }
     val linePoints =
-        remember(simpleHourlyForecast) {
-            NewGraph(listOf(simpleHourlyForecast.items.map { it.temperatureInt })).createNewGraph(graphHeight)[0]
+        remember(hourlyForecast) {
+            NewGraph(listOf(hourlyForecast.items.map { it.temperatureInt })).createNewGraph(graphHeight)[0]
         }
     val density = LocalDensity.current
     val graphDrawInfo = remember { DrawInfo(density = density) }
 
     Row(modifier = Modifier.fillMaxWidth()) {
-        simpleHourlyForecast.items.forEachIndexed { idx, item ->
+        hourlyForecast.items.forEachIndexed { idx, item ->
             Item(
-                simpleHourlyForecast = simpleHourlyForecast,
+                hourlyForecast = hourlyForecast,
                 item = item,
                 modifier = Modifier.width( 56.dp),
                 linePoint = linePoints[idx],
@@ -98,8 +98,8 @@ fun HourlyForecast(simpleHourlyForecast: SimpleHourlyForecast) {
 
 @Composable
 private fun Item(
-    simpleHourlyForecast: SimpleHourlyForecast,
-    item: SimpleHourlyForecast.Item,
+    hourlyForecast: HourlyForecast,
+    item: HourlyForecast.Item,
     modifier: Modifier,
     linePoint: NewGraph.LinePoint,
     drawInfo: DrawInfo,

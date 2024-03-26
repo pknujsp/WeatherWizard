@@ -31,7 +31,7 @@ import coil.request.ImageRequest
 import io.github.pknujsp.everyweather.core.ui.NewGraph
 import io.github.pknujsp.everyweather.core.ui.route.DrawInfo
 import io.github.pknujsp.everyweather.core.ui.route.SingleGraph
-import io.github.pknujsp.everyweather.feature.weather.info.hourlyforecast.model.SimpleHourlyForecast
+import io.github.pknujsp.everyweather.feature.weather.info.hourlyforecast.model.HourlyForecast
 
 private val iconRowSpacing = 4.dp
 private val iconSize = 16.dp
@@ -44,14 +44,14 @@ internal object HourlyForecastItemParams {
 
 @Composable
 fun HourlyForecastItem(
-    simpleHourlyForecast: SimpleHourlyForecast,
+    hourlyForecast: HourlyForecast,
     lazyListState: LazyListState,
 ) {
     val context = LocalContext.current
     val density = LocalDensity.current
     val graphHeight = with(LocalDensity.current) { temperatureGraphHeight.toPx() }
-    val linePoints = remember(simpleHourlyForecast) {
-        NewGraph(listOf(simpleHourlyForecast.items.map { it.temperatureInt })).createNewGraph(graphHeight)[0]
+    val linePoints = remember(hourlyForecast) {
+        NewGraph(listOf(hourlyForecast.items.map { it.temperatureInt })).createNewGraph(graphHeight)[0]
     }
     val itemModifier = remember { Modifier.width(HourlyForecastItemParams.itemWidth) }
     val graphDrawInfo = remember { DrawInfo(density = density) }
@@ -62,8 +62,8 @@ fun HourlyForecastItem(
             .wrapContentHeight(),
         state = lazyListState,
     ) {
-        items(count = simpleHourlyForecast.items.size, key = { simpleHourlyForecast.items[it].id }) { i ->
-            Item(i, simpleHourlyForecast, itemModifier, linePoints[i], graphDrawInfo) {
+        items(count = hourlyForecast.items.size, key = { hourlyForecast.items[it].id }) { i ->
+            Item(i, hourlyForecast, itemModifier, linePoints[i], graphDrawInfo) {
                 Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
             }
         }
@@ -73,14 +73,14 @@ fun HourlyForecastItem(
 @Composable
 private fun Item(
     index: Int,
-    simpleHourlyForecast: SimpleHourlyForecast,
+    hourlyForecast: HourlyForecast,
     modifier: Modifier,
     linePoint: NewGraph.LinePoint,
     drawInfo: DrawInfo,
     onClick: (String) -> Unit,
 ) {
     // 시각, 아이콘, 강수확률, 강수량
-    simpleHourlyForecast.items[index].run {
+    hourlyForecast.items[index].run {
         val weatherConditionText = stringResource(id = weatherCondition)
         Column(
             modifier = modifier.clickable { onClick(weatherConditionText) },
@@ -96,7 +96,7 @@ private fun Item(
             )
 
             // 강수확률
-            if (simpleHourlyForecast.displayPrecipitationProbability) {
+            if (hourlyForecast.displayPrecipitationProbability) {
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Center) {
                     AsyncImage(
                         model = ImageRequest.Builder(LocalContext.current)
@@ -109,7 +109,7 @@ private fun Item(
             }
 
             // 강수량
-            if (simpleHourlyForecast.displayPrecipitationVolume) {
+            if (hourlyForecast.displayPrecipitationVolume) {
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Center) {
                     AsyncImage(
                         model = ImageRequest.Builder(LocalContext.current)
@@ -123,7 +123,7 @@ private fun Item(
                         text = precipitationVolume,
                         style = TextStyle(
                             fontSize = 12.sp,
-                            color = if (simpleHourlyForecast.displayPrecipitationVolume && precipitationVolume.isNotEmpty()) {
+                            color = if (hourlyForecast.displayPrecipitationVolume && precipitationVolume.isNotEmpty()) {
                                 Color.White
                             } else {
                                 Color.Transparent
@@ -133,7 +133,7 @@ private fun Item(
                 }
             }
             // 강우량
-            if (simpleHourlyForecast.displayRainfallVolume) {
+            if (hourlyForecast.displayRainfallVolume) {
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Center) {
                     AsyncImage(
                         model = ImageRequest.Builder(LocalContext.current)
@@ -151,7 +151,7 @@ private fun Item(
             }
 
             // 강설량
-            if (simpleHourlyForecast.displaySnowfallVolume) {
+            if (hourlyForecast.displaySnowfallVolume) {
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Center) {
                     AsyncImage(
                         model = ImageRequest.Builder(LocalContext.current)

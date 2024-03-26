@@ -136,7 +136,7 @@ fun WeatherInfoScreen(
                 Box(modifier = Modifier.height(screenHeight - DEFAULT_PADDING), contentAlignment = Alignment.BottomStart) {
                     Column(verticalArrangement = Arrangement.spacedBy(COLUMN_ITEM_SPACING)) {
                         CurrentWeatherScreen(weather.currentWeather) { currentAirQuality }
-                        HourlyForecastScreen(hourlyForecast = weather.simpleHourlyForecast, navigate = {
+                        HourlyForecastScreen(hourlyForecast = weather.hourlyForecast, navigate = {
                             coroutineScope.launch {
                                 nestedRoutes = it
                             }

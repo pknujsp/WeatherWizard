@@ -1,6 +1,5 @@
 package io.github.pknujsp.everyweather.core.data.weather.kma
 
-import io.github.pknujsp.everyweather.core.common.util.toLeastZero
 import io.github.pknujsp.everyweather.core.data.weather.DefaultValueUnit
 import io.github.pknujsp.everyweather.core.data.weather.mapper.WeatherResponseMapper
 import io.github.pknujsp.everyweather.core.model.ApiResponseModel

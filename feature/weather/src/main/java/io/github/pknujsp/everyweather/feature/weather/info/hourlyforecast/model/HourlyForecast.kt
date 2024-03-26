@@ -1,12 +1,10 @@
 package io.github.pknujsp.everyweather.feature.weather.info.hourlyforecast.model
 
 import androidx.annotation.StringRes
-import androidx.compose.runtime.Stable
 import io.github.pknujsp.everyweather.core.model.UiModel
-import io.github.pknujsp.everyweather.core.ui.time.DateTimeInfo
 import java.time.ZonedDateTime
 
-class SimpleHourlyForecast(
+class HourlyForecast(
     val items: List<Item>,
     val times:List<ZonedDateTime>,
     val displayRainfallVolume: Boolean,

@@ -5,20 +5,18 @@ import io.github.pknujsp.everyweather.core.common.util.toCalendar
 import io.github.pknujsp.everyweather.core.model.settings.CurrentUnits
 import io.github.pknujsp.everyweather.core.model.weather.hourlyforecast.HourlyForecastEntity
 import io.github.pknujsp.everyweather.feature.weather.info.ForecastModelMapper
-import io.github.pknujsp.everyweather.feature.weather.info.hourlyforecast.model.SimpleHourlyForecast
+import io.github.pknujsp.everyweather.feature.weather.info.hourlyforecast.model.HourlyForecast
 import java.time.ZonedDateTime
 
-object HourlyForecastModelMapper : ForecastModelMapper<HourlyForecastEntity, SimpleHourlyForecast> {
+object HourlyForecastModelMapper : ForecastModelMapper<HourlyForecastEntity, HourlyForecast> {
 
-    private const val NON_POP = "-"
-
-    override fun mapTo(src: HourlyForecastEntity, units: CurrentUnits, dayNightCalculator: DayNightCalculator): SimpleHourlyForecast {
+    override fun mapTo(src: HourlyForecastEntity, units: CurrentUnits, dayNightCalculator: DayNightCalculator): HourlyForecast {
         val times = src.items.map { ZonedDateTime.parse(it.dateTime.value) }
         val items = src.items.mapIndexed { i, it ->
             val dateTime = times[i]
             val temperature = it.temperature.convertUnit(units.temperatureUnit)
 
-            SimpleHourlyForecast.Item(id = i,
+            HourlyForecast.Item(id = i,
                 time = dateTime.hour.toString(),
                 weatherCondition = it.weatherCondition.value.stringRes,
                 temperature = temperature.toString(),
@@ -50,7 +48,7 @@ object HourlyForecastModelMapper : ForecastModelMapper<HourlyForecastEntity, Sim
             }
         }
 
-        return SimpleHourlyForecast(items = items,
+        return HourlyForecast(items = items,
             times = times,
             displayRainfallVolume = displayRainfallVolume,
             displaySnowfallVolume = displaySnowfallVolume,
