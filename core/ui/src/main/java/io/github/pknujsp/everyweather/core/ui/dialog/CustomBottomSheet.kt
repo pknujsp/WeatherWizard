@@ -94,10 +94,10 @@ internal object BottomSheetLayoutParams {
     val scrimColor: Color = Color(0f, 0f, 0f, SCRIM_ALPHA)
     val containerColor: Color = Color.White
     val dialogHorizontalPadding = 12.dp
-    val dialogContentHorizontalPadding = 12.dp
-    val dialogContentVerticalPadding = 12.dp
+    val dialogContentHorizontalPadding = 14.dp
+    val dialogContentVerticalPadding = 16.dp
     val windowInsets = WindowInsets(0, 0, 0, 0)
-    val shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp, bottomEnd = 16.dp, bottomStart = 16.dp)
+    val shape = RoundedCornerShape(16.dp)
 
     fun height(viewHeight: Int, density: Float, ratio: Float) = (viewHeight * (ratio / density)).roundToInt().dp
 }

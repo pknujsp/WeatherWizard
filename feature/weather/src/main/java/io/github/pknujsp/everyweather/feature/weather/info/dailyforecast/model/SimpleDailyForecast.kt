@@ -1,15 +1,7 @@
 package io.github.pknujsp.everyweather.feature.weather.info.dailyforecast.model
 
-import androidx.annotation.DrawableRes
 import androidx.compose.runtime.Stable
-import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.dp
 import io.github.pknujsp.everyweather.core.model.UiModel
-import io.github.pknujsp.everyweather.core.model.settings.CurrentUnits
-import io.github.pknujsp.everyweather.core.model.weather.common.TemperatureValueType
-import io.github.pknujsp.everyweather.core.model.weather.dailyforecast.DailyForecastEntity
-import java.time.ZonedDateTime
-import java.time.format.DateTimeFormatter
 
 @Stable
 class SimpleDailyForecast(

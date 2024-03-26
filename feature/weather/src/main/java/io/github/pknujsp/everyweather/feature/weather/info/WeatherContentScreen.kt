@@ -13,13 +13,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.pknujsp.everyweather.core.data.favorite.SelectedLocationModel
-import io.github.pknujsp.everyweather.core.ui.lottie.CancellableLoadingScreen
+import io.github.pknujsp.everyweather.core.ui.lottie.CancellableLoadingDialog
 import io.github.pknujsp.everyweather.core.ui.theme.SystemBarContentColor
 import io.github.pknujsp.everyweather.feature.permoptimize.feature.FailedScreen
-import io.github.pknujsp.everyweather.feature.weather.comparison.dailyforecast.CompareDailyForecastScreen
-import io.github.pknujsp.everyweather.feature.weather.comparison.hourlyforecast.CompareHourlyForecastScreen
-import io.github.pknujsp.everyweather.feature.weather.info.dailyforecast.detail.DetailDailyForecastScreen
-import io.github.pknujsp.everyweather.feature.weather.info.hourlyforecast.detail.DetailHourlyForecastScreen
 import io.github.pknujsp.everyweather.feature.weather.main.TopBar
 
 @Composable
@@ -83,7 +79,7 @@ internal fun WeatherContentScreen(
     }
 
     if (viewModel.isLoading) {
-        CancellableLoadingScreen(stringResource(id = io.github.pknujsp.everyweather.core.resource.R.string.loading_weather_data)) {
+        CancellableLoadingDialog(stringResource(id = io.github.pknujsp.everyweather.core.resource.R.string.loading_weather_data)) {
             viewModel.cancel()
         }
     }

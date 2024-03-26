@@ -27,6 +27,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.util.fastJoinToString
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import io.github.pknujsp.everyweather.core.ui.NewGraph
@@ -73,7 +74,7 @@ fun SimpleDailyForecastItem(simpleDailyForecast: SimpleDailyForecast) {
     ) {
         items(count = simpleDailyForecast.items.size, key = { simpleDailyForecast.items[it].id }) { i ->
             Item(i, simpleDailyForecast, linePoints, graphDrawInfos) { conditions ->
-                Toast.makeText(context, conditions.joinToString(",") { context.getString(it) }, Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, conditions.fastJoinToString { context.getString(it) }, Toast.LENGTH_SHORT).show()
             }
         }
     }
@@ -96,6 +97,7 @@ private fun Item(
                     onClick(weatherConditions)
                 },
             horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(4.dp, Alignment.CenterVertically),
         ) {
             Text(text = date, style = TextStyle(fontSize = 13.sp, color = Color.White, textAlign = TextAlign.Center))
             Row(
@@ -119,7 +121,7 @@ private fun Item(
                             .data(io.github.pknujsp.everyweather.core.resource.R.drawable.ic_umbrella).crossfade(false).build(),
                         contentDescription = null,
                         modifier = Modifier
-                            .size(12.dp)
+                            .size(13.dp)
                             .padding(end = 4.dp),
                     )
                     Text(text = precipitationProbabilities.joinToString("/"), style = TextStyle(fontSize = 12.sp, color = Color.White))

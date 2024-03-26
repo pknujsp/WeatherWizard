@@ -1,7 +1,9 @@
 package io.github.pknujsp.everyweather.feature.weather.info.hourlyforecast.detail
 
+import android.widget.Toast
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -16,6 +18,8 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -38,7 +42,10 @@ fun DetailHourlyForecastScreen(
     hourlyForecast: DetailHourlyForecast,
     popBackStack: () -> Unit,
 ) {
-    BottomSheet(onDismissRequest = popBackStack, bottomSheetType = BottomSheetType.PERSISTENT) {
+    val currentPopBackStack by rememberUpdatedState(newValue = popBackStack)
+    val context = LocalContext.current
+
+    BottomSheet(onDismissRequest = currentPopBackStack, bottomSheetType = BottomSheetType.PERSISTENT) {
         ContentWithTitle(title = stringResource(id = io.github.pknujsp.everyweather.core.resource.R.string.hourly_forecast)) {
             LazyColumn(
                 state = rememberLazyListState(),
@@ -63,7 +70,11 @@ fun DetailHourlyForecastScreen(
                             forecast = hourlyForecast,
                             parentIndex = headerIndex,
                             itemIndex = itemIndex,
-                        )
+                        ) {
+                            Toast.makeText(context,
+                                context.getText(hourlyForecast.items[headerIndex].second[itemIndex].weatherCondition),
+                                Toast.LENGTH_SHORT).show()
+                        }
                     }
                 }
             }
@@ -76,13 +87,17 @@ private fun Item(
     forecast: DetailHourlyForecast,
     parentIndex: Int,
     itemIndex: Int,
+    onClick: () -> Unit,
 ) {
     forecast.items[parentIndex].second[itemIndex].run {
         Row(verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             modifier = Modifier
                 .fillMaxWidth()
-                .height(52.dp)) {
+                .height(52.dp)
+                .clickable {
+                    onClick()
+                }) {
             Text(
                 text = hour,
                 style = TextStyle(fontSize = 14.sp, color = Color.Gray),

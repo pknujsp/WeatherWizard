@@ -22,6 +22,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -62,6 +63,7 @@ fun CompareHourlyForecastScreen(
     viewModel: CompareHourlyForecastViewModel = hiltViewModel(),
     popBackStack: () -> Unit,
 ) {
+    val currentPopBackStack by rememberUpdatedState(newValue = popBackStack)
     LaunchedEffect(args) {
         viewModel.load(args)
     }
@@ -69,7 +71,7 @@ fun CompareHourlyForecastScreen(
     val hourlyForecast by viewModel.hourlyForecast.collectAsStateWithLifecycle()
     val hourlyForecastComparisonReport by viewModel.report.collectAsStateWithLifecycle()
 
-    BottomSheet(bottomSheetType = BottomSheetType.PERSISTENT, onDismissRequest = popBackStack) {
+    BottomSheet(bottomSheetType = BottomSheetType.PERSISTENT, onDismissRequest = currentPopBackStack) {
         ContentWithTitle(title = stringResource(id = R.string.title_comparison_hourly_forecast)) {
             Column(
                 modifier = Modifier
@@ -79,7 +81,7 @@ fun CompareHourlyForecastScreen(
             ) {
                 hourlyForecast.onLoading {
                     CancellableLoadingScreen(stringResource(id = R.string.loading_hourly_forecast_data)) {
-                        popBackStack()
+                        currentPopBackStack()
                     }
                 }.onSuccess {
                     CompareForecastCard.CompareCardSurface {
