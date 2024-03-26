@@ -29,9 +29,7 @@ import io.github.pknujsp.everyweather.core.model.airquality.SimpleAirQuality
 import io.github.pknujsp.everyweather.core.model.weather.RequestWeatherArguments
 import io.github.pknujsp.everyweather.core.model.weather.common.AirQualityValueType
 import io.github.pknujsp.everyweather.core.resource.R
-import io.github.pknujsp.everyweather.core.ui.weather.item.CardInfo
-import io.github.pknujsp.everyweather.core.ui.weather.item.SimpleWeatherFailedBox
-import io.github.pknujsp.everyweather.core.ui.weather.item.SimpleWeatherScreenBackground
+import io.github.pknujsp.everyweather.core.ui.weather.item.WeatherItemCard
 import java.time.ZonedDateTime
 
 @Composable
@@ -55,32 +53,19 @@ fun AirQualityScreen(
     }
 
     if (!airQuality.isLoading) {
-        if (airQuality.airQuality == null) {
-            SimpleWeatherFailedBox(
-                title = stringResource(id = R.string.air_quality_index),
-                description = stringResource(id = airQuality.failedReason!!.message),
-            ) {
-                viewModel.reload()
-            }
-        } else {
-            SimpleWeatherScreenBackground(
-                cardInfo =
-                    CardInfo(
-                        title = stringResource(io.github.pknujsp.everyweather.core.resource.R.string.air_quality_index),
-                        content = {
-                            Column(
-                                modifier =
-                                    Modifier
-                                        .fillMaxWidth()
-                                        .padding(start = 12.dp, end = 12.dp, bottom = 8.dp),
-                            ) {
-                                SimpleCurrentContent(simpleAirQuality = airQuality.airQuality!!)
-                                BarGraph(forecast = airQuality.airQuality!!.dailyForecast, dateTime.toLocalDate())
-                            }
-                        },
-                    ),
-            )
-        }
+        WeatherItemCard(title = stringResource(id = R.string.air_quality),
+            isSuccessful = { airQuality.airQuality != null },
+            onClickToRefresh = { viewModel.reload() },
+            content = {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(start = 12.dp, end = 12.dp, bottom = 8.dp),
+                ) {
+                    SimpleCurrentContent(simpleAirQuality = airQuality.airQuality!!)
+                    BarGraph(forecast = airQuality.airQuality!!.dailyForecast, dateTime.toLocalDate())
+                }
+            })
     }
 }
 
@@ -122,10 +107,9 @@ private fun FlowItem(
             horizontalArrangement = Arrangement.spacedBy(6.dp, Alignment.Start),
         ) {
             Box(
-                modifier =
-                    Modifier
-                        .size(15.dp)
-                        .background(value.airQualityDescription.color, CircleShape),
+                modifier = Modifier
+                    .size(15.dp)
+                    .background(value.airQualityDescription.color, CircleShape),
             )
             Text(
                 text = stringResource(value.airQualityDescription.descriptionStringId),

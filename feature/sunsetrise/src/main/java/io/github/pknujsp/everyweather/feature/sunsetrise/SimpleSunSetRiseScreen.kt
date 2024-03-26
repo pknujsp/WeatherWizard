@@ -23,8 +23,7 @@ import androidx.core.graphics.drawable.toBitmap
 import io.github.pknujsp.everyweather.core.common.util.DayNightCalculator
 import io.github.pknujsp.everyweather.core.common.util.SunSetRise
 import io.github.pknujsp.everyweather.core.common.util.toCalendar
-import io.github.pknujsp.everyweather.core.ui.weather.item.CardInfo
-import io.github.pknujsp.everyweather.core.ui.weather.item.SimpleWeatherScreenBackground
+import io.github.pknujsp.everyweather.core.ui.weather.item.WeatherItemCard
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 
@@ -41,11 +40,12 @@ class SunSetRiseInfo(
 
 @Composable
 fun SimpleSunSetRiseScreen(args: SunSetRiseInfo) {
-    SimpleWeatherScreenBackground(
-        cardInfo =
-            CardInfo(title = stringResource(io.github.pknujsp.everyweather.core.resource.R.string.sun_set_rise)) {
-                SunSetRiseContent(args)
-            },
+    WeatherItemCard(
+        title = stringResource(id = io.github.pknujsp.everyweather.core.resource.R.string.sun_set_rise),
+        isSuccessful = { true },
+        content = {
+            SunSetRiseContent(args)
+        },
     )
 }
 
@@ -53,9 +53,9 @@ fun SimpleSunSetRiseScreen(args: SunSetRiseInfo) {
 private fun SunSetRiseContent(args: SunSetRiseInfo) {
     Box(
         modifier =
-            Modifier
-                .fillMaxWidth()
-                .height(BOX_HEIGHT),
+        Modifier
+            .fillMaxWidth()
+            .height(BOX_HEIGHT),
     ) {
         val context = LocalContext.current
         val times = remember(args) { TimeInfo(args.dayNightCalculator, context, args.dateTime) }
