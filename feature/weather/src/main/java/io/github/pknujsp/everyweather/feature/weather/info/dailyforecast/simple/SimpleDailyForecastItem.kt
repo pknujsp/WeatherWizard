@@ -29,6 +29,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.util.fastJoinToString
 import coil.compose.AsyncImage
+import coil.request.CachePolicy
 import coil.request.ImageRequest
 import io.github.pknujsp.everyweather.core.ui.NewGraph
 import io.github.pknujsp.everyweather.core.ui.route.DrawInfo
@@ -107,7 +108,7 @@ private fun Item(
             ) {
                 weatherConditionIcons.forEach { icon ->
                     AsyncImage(
-                        model = ImageRequest.Builder(LocalContext.current).data(icon).crossfade(false).build(),
+                        model = ImageRequest.Builder(LocalContext.current).data(icon).memoryCachePolicy(CachePolicy.ENABLED).crossfade(false).build(),
                         contentDescription = null,
                         modifier = Modifier.weight(1f, true),
                     )

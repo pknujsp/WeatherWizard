@@ -85,6 +85,7 @@ fun WeatherInfoScreen(
     val currentOpenDrawer by rememberUpdatedState(openDrawer)
     val currentRefresh by rememberUpdatedState(refresh)
     val scrollState = rememberScrollState()
+
     var nestedRoutes by remember(weatherContentUiState) { mutableStateOf(NestedRoutes.MAIN) }
     val topAppBarUiState = targetLocationViewModel.topAppBarUiState
     var onClickedWeatherProviderButton by remember { mutableStateOf(false) }
@@ -122,7 +123,7 @@ fun WeatherInfoScreen(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(Color.Black.copy(alpha = 0.11f), RectangleShape),
+                .background(Color.Black.copy(alpha = 0.12f), RectangleShape),
         ) {
             Column(
                 modifier = Modifier
@@ -177,9 +178,7 @@ fun WeatherInfoScreen(
                 topAppBarUiState = topAppBarUiState,
                 weatherContentUiState = weatherContentUiState,
                 openDrawer = currentOpenDrawer,
-                reload = {
-                    currentRefresh()
-                },
+                reload = currentRefresh,
                 summarize = {
                     showAiSummary = true
                 },

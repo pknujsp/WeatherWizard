@@ -28,6 +28,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
+import coil.request.CachePolicy
 import coil.request.ImageRequest
 import io.github.pknujsp.everyweather.core.ui.NewGraph
 import io.github.pknujsp.everyweather.core.ui.route.DrawInfo
@@ -135,7 +136,7 @@ private fun SmallIconItem(
 ) {
     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(2.dp, Alignment.CenterHorizontally)) {
         AsyncImage(
-            model = ImageRequest.Builder(LocalContext.current).data(icon).crossfade(false).build(),
+            model = ImageRequest.Builder(LocalContext.current).data(icon).memoryCachePolicy(CachePolicy.ENABLED).crossfade(false).build(),
             contentDescription = null,
             modifier = Modifier
                 .alpha(if (text.isNotEmpty()) 1f else 0f)
