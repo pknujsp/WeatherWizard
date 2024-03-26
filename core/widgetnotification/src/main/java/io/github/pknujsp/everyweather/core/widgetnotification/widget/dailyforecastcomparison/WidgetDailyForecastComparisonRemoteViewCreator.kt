@@ -75,7 +75,7 @@ class WidgetDailyForecastComparisonRemoteViewCreator : WidgetRemoteViewsCreator<
         val dateFormatter = DateTimeFormatter.ofPattern("d E", Locale.getDefault())
 
         val forecast =
-            MockDataGenerator.dailyForecastEntity.dayItems.subList(0, 5).map { dayItem ->
+            MockDataGenerator.fakeDailyForecastEntity.dayItems.subList(0, 5).map { dayItem ->
                 WidgetDailyForecastComparisonRemoteViewUiModel.DailyForecast(
                     "${dayItem.minTemperature.convertUnit(units.temperatureUnit)}/${
                         dayItem.maxTemperature.convertUnit(units.temperatureUnit)

@@ -38,7 +38,7 @@ class DailyNotificationHourlyForecastRemoteViewsCreator :
         val dateRange = 0..4
 
         val hourlyForecast =
-            MockDataGenerator.hourlyForecastEntity.run {
+            MockDataGenerator.fakeHourlyForecastEntity.run {
                 items.subList(hourRange.first, hourRange.last).map { item ->
                     val calendar = ZonedDateTime.parse(item.dateTime.value)
 
@@ -53,7 +53,7 @@ class DailyNotificationHourlyForecastRemoteViewsCreator :
             }
 
         val dailyForecast =
-            MockDataGenerator.dailyForecastEntity.run {
+            MockDataGenerator.fakeDailyForecastEntity.run {
                 val dateFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("d E")
                 dayItems.subList(dateRange.first, dateRange.last).map { item ->
                     DailyNotificationForecastRemoteViewUiModel.DailyForecast(

@@ -63,14 +63,14 @@ class WidgetTimeHourlyForecastRemoteViewCreator : WidgetRemoteViewsCreator<Widge
         val mockModel =
             WidgetTimeHourlyForecastRemoteViewUiModel(
                 currentWeather =
-                    MockDataGenerator.currentWeatherEntity.run {
+                    MockDataGenerator.fakeCurrentWeatherEntity.run {
                         WidgetTimeHourlyForecastRemoteViewUiModel.CurrentWeather(
                             temperature.convertUnit(units.temperatureUnit).toString(),
                             weatherCondition.value.dayWeatherIcon,
                         )
                     },
                 hourlyForecast =
-                    MockDataGenerator.hourlyForecastEntity.items.subList(0, 4).map {
+                    MockDataGenerator.fakeHourlyForecastEntity.items.subList(0, 4).map {
                         WidgetTimeHourlyForecastRemoteViewUiModel.HourlyForecast(
                             it.temperature.convertUnit(units.temperatureUnit).toString(),
                             it.weatherCondition.value.dayWeatherIcon,

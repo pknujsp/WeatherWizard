@@ -22,7 +22,7 @@ import java.time.ZonedDateTime
 
 open class MockDataGenerator {
     companion object {
-        val currentWeatherEntity by lazy {
+        val fakeCurrentWeatherEntity by lazy {
             CurrentWeatherEntity(
                 weatherCondition = WeatherConditionValueType(WeatherConditionCategory.Clear),
                 temperature = TemperatureValueType(22, TemperatureUnit.default),
@@ -34,7 +34,7 @@ open class MockDataGenerator {
             )
         }
 
-        val hourlyForecastEntity by lazy {
+        val fakeHourlyForecastEntity by lazy {
             val now = ZonedDateTime.now()
             val weatherCondition = WeatherConditionValueType(WeatherConditionCategory.Clear)
             val temperature = TemperatureValueType(20, TemperatureUnit.default)
@@ -62,7 +62,7 @@ open class MockDataGenerator {
             HourlyForecastEntity(list)
         }
 
-        val dailyForecastEntity by lazy {
+        val fakeDailyForecastEntity by lazy {
             val now = ZonedDateTime.now()
             val dayItems =
                 List(2) {

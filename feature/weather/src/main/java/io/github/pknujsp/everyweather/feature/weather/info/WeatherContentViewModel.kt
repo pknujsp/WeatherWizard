@@ -28,12 +28,11 @@ import io.github.pknujsp.everyweather.core.model.weather.current.CurrentWeatherE
 import io.github.pknujsp.everyweather.core.model.weather.dailyforecast.DailyForecastEntity
 import io.github.pknujsp.everyweather.core.model.weather.hourlyforecast.HourlyForecastEntity
 import io.github.pknujsp.everyweather.core.model.weather.yesterday.YesterdayWeatherEntity
-import io.github.pknujsp.everyweather.core.ui.weather.item.DynamicDateTimeUiCreator
 import io.github.pknujsp.everyweather.feature.weather.info.currentweather.model.CurrentWeather
+import io.github.pknujsp.everyweather.feature.weather.info.dailyforecast.DailyForecastModelMapper
 import io.github.pknujsp.everyweather.feature.weather.info.dailyforecast.model.DetailDailyForecast
-import io.github.pknujsp.everyweather.feature.weather.info.dailyforecast.model.SimpleDailyForecast
+import io.github.pknujsp.everyweather.feature.weather.info.hourlyforecast.HourlyForecastModelMapper
 import io.github.pknujsp.everyweather.feature.weather.info.hourlyforecast.model.DetailHourlyForecast
-import io.github.pknujsp.everyweather.feature.weather.info.hourlyforecast.model.SimpleHourlyForecast
 import io.github.pknujsp.everyweather.feature.weather.summary.WeatherSummaryPrompt
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Job
@@ -65,6 +64,8 @@ class WeatherContentViewModel
     private val favoriteAreaListRepository: FavoriteAreaListRepository,
     @CoDispatcher(CoDispatcherType.IO) private val dispatcher: CoroutineDispatcher,
 ) : ViewModel() {
+
+    private val units get() = settingsRepository.settings.replayCache.last().units
     private var loadWeatherDataJob: Job? = null
     private var targetLocationJob: Job? = null
 
@@ -183,9 +184,9 @@ class WeatherContentViewModel
 
                 val currentWeather =
                     createCurrentWeatherUiModel(currentWeatherEntity, yesterdayWeather, dayNightCalculator, requestDateTime.toCalendar())
-                val simpleHourlyForecast = createSimpleHourlyForecastUiModel(hourlyForecastEntity, dayNightCalculator)
+                val simpleHourlyForecast = HourlyForecastModelMapper.mapTo(hourlyForecastEntity, units, dayNightCalculator)
                 val detailHourlyForecast = createDetailHourlyForecastUiModel(hourlyForecastEntity, dayNightCalculator)
-                val simpleDailyForecast = createSimpleDailyForecastUiModel(dailyForecastEntity)
+                val simpleDailyForecast = DailyForecastModelMapper.mapTo(dailyForecastEntity, units, dayNightCalculator)
                 val detailDailyForecast = createDetailDailyForecastUiModel(dailyForecastEntity)
 
                 val weather = Weather(
@@ -212,7 +213,7 @@ class WeatherContentViewModel
                     weather,
                     requestDateTime,
                     allModel,
-                    settingsRepository.settings.replayCache.last().units,
+                    units,
                 )
             }
             mutableUiState.emit(newState)
@@ -226,7 +227,7 @@ class WeatherContentViewModel
         currentCalendar: Calendar,
     ): CurrentWeather {
         return currentWeatherEntity.run {
-            val unit = settingsRepository.settings.replayCache.last().units
+            val unit = units
             CurrentWeather(
                 weatherCondition = weatherCondition,
                 temperature = temperature.convertUnit(unit.temperatureUnit),
@@ -242,39 +243,12 @@ class WeatherContentViewModel
         }
     }
 
-    private fun createSimpleHourlyForecastUiModel(
-        hourlyForecastEntity: HourlyForecastEntity,
-        dayNightCalculator: DayNightCalculator,
-    ): SimpleHourlyForecast {
-        val unit = settingsRepository.settings.replayCache.last().units
-
-        val simpleHourlyForecast = hourlyForecastEntity.items.mapIndexed { i, it ->
-            SimpleHourlyForecast.Item(
-                id = i,
-                dateTime = it.dateTime,
-                weatherCondition = it.weatherCondition,
-                temperature = it.temperature.convertUnit(unit.temperatureUnit),
-                feelsLikeTemperature = it.feelsLikeTemperature.convertUnit(unit.temperatureUnit),
-                humidity = it.humidity,
-                windSpeed = it.windSpeed.convertUnit(unit.windSpeedUnit),
-                windDirection = it.windDirection,
-                precipitationVolume = it.precipitationVolume.convertUnit(unit.precipitationUnit),
-                precipitationProbability = it.precipitationProbability,
-                dayNightCalculator = dayNightCalculator,
-            )
-        }
-
-        val dateItems =
-            DynamicDateTimeUiCreator(hourlyForecastEntity.items.map { it.dateTime.value }, SimpleHourlyForecast.itemWidth).invoke()
-
-        return SimpleHourlyForecast(simpleHourlyForecast, dateItems)
-    }
 
     private fun createDetailHourlyForecastUiModel(
         hourlyForecastEntity: HourlyForecastEntity,
         dayNightCalculator: DayNightCalculator,
     ): DetailHourlyForecast {
-        val unit = settingsRepository.settings.replayCache.last().units
+        val unit = units
         var keyId = 0
         val formatter = DateTimeFormatter.ofPattern("M.d EEE")
 
@@ -303,9 +277,7 @@ class WeatherContentViewModel
         return DetailHourlyForecast(detailHourlyForecast)
     }
 
-    private fun createSimpleDailyForecastUiModel(dailyForecastEntity: DailyForecastEntity) =
-        SimpleDailyForecast(dailyForecastEntity, settingsRepository.settings.replayCache.last().units)
 
     private fun createDetailDailyForecastUiModel(dailyForecastEntity: DailyForecastEntity) =
-        DetailDailyForecast(dailyForecastEntity, settingsRepository.settings.replayCache.last().units)
+        DetailDailyForecast(dailyForecastEntity, units)
 }

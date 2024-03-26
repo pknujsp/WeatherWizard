@@ -1,8 +1,5 @@
 package io.github.pknujsp.everyweather.core.ui.route
 
-import android.content.res.Resources
-import android.util.DisplayMetrics
-import android.util.TypedValue
 import androidx.compose.foundation.Canvas
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -13,6 +10,7 @@ import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.drawText
 import androidx.compose.ui.text.rememberTextMeasurer
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
@@ -37,9 +35,7 @@ fun SingleGraph(
                     start = Offset(0f, leftY + amountY),
                     end = Offset(center.x, centerY + amountY),
                     color = drawInfo.lineColor,
-                    strokeWidth =
-                        drawInfo
-                            .lineThickness,
+                    strokeWidth = drawInfo.lineThickness,
                 )
             }
             if (rightY != -1f) {
@@ -47,8 +43,7 @@ fun SingleGraph(
                     start = Offset(center.x, centerY + amountY),
                     end = Offset(size.width, rightY + amountY),
                     color = drawInfo.lineColor,
-                    strokeWidth =
-                        drawInfo.lineThickness,
+                    strokeWidth = drawInfo.lineThickness,
                 )
             }
 
@@ -86,9 +81,7 @@ fun MultiGraph(
                         start = Offset(0f, leftY + amountY),
                         end = Offset(center.x, centerY + amountY),
                         color = draw.lineColor,
-                        strokeWidth =
-                            draw
-                                .lineThickness,
+                        strokeWidth = draw.lineThickness,
                     )
                 }
                 if (rightY != -1f) {
@@ -96,8 +89,7 @@ fun MultiGraph(
                         start = Offset(center.x, centerY + amountY),
                         end = Offset(size.width, rightY + amountY),
                         color = draw.lineColor,
-                        strokeWidth =
-                            draw.lineThickness,
+                        strokeWidth = draw.lineThickness,
                     )
                 }
 
@@ -109,11 +101,10 @@ fun MultiGraph(
                 )
                 drawText(
                     textLayoutResult = textLayoutResult,
-                    topLeft =
-                        Offset(
-                            center.x - textLayoutResult.size.width / 2,
-                            amountY + centerY + (if (i != 0) -draw.textSpace - textLayoutResult.size.height else draw.textSpace),
-                        ),
+                    topLeft = Offset(
+                        center.x - textLayoutResult.size.width / 2,
+                        amountY + centerY + (if (i != 0) -draw.textSpace - textLayoutResult.size.height else draw.textSpace),
+                    ),
                 )
             }
         }
@@ -126,16 +117,15 @@ class DrawInfo(
     textColor: Color = Color.White,
     textSize: TextUnit = 13.sp,
     space: Dp = 4.dp,
-    displayMetrics: DisplayMetrics = Resources.getSystem().displayMetrics,
+    density: Density,
 ) {
-    val lineThickness: Float = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 1.5f, displayMetrics)
-    val pointRadius: Float = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 4f, displayMetrics)
-    val textSpace = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, space.value, displayMetrics)
+    val lineThickness: Float = with(density) { 1.5.dp.toPx() }
+    val pointRadius: Float = with(density) { 4.dp.toPx() }
+    val textSpace = with(density) { space.toPx() }
 
-    val textStyle =
-        TextStyle(
-            color = textColor,
-            fontSize = textSize,
-            textAlign = androidx.compose.ui.text.style.TextAlign.Center,
-        )
+    val textStyle = TextStyle(
+        color = textColor,
+        fontSize = textSize,
+        textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+    )
 }

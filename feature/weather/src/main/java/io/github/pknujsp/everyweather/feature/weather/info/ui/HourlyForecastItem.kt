@@ -23,6 +23,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
@@ -32,26 +33,33 @@ import io.github.pknujsp.everyweather.core.ui.route.DrawInfo
 import io.github.pknujsp.everyweather.core.ui.route.SingleGraph
 import io.github.pknujsp.everyweather.feature.weather.info.hourlyforecast.model.SimpleHourlyForecast
 
+private val iconRowSpacing = 4.dp
+private val iconSize = 16.dp
+private val temperatureGraphHeight: Dp = 60.dp
+
+
+internal object HourlyForecastItemParams {
+    val itemWidth: Dp = 54.dp
+}
+
 @Composable
 fun HourlyForecastItem(
     simpleHourlyForecast: SimpleHourlyForecast,
     lazyListState: LazyListState,
 ) {
     val context = LocalContext.current
-
-    val graphHeight = with(LocalDensity.current) { SimpleHourlyForecast.temperatureGraphHeight.toPx() }
-    val linePoints =
-        remember(simpleHourlyForecast) {
-            NewGraph(listOf(simpleHourlyForecast.items.map { it.temperatureInt })).createNewGraph(graphHeight)[0]
-        }
-    val itemModifier = remember { Modifier.width(SimpleHourlyForecast.itemWidth) }
-    val graphDrawInfo = remember { DrawInfo() }
+    val density = LocalDensity.current
+    val graphHeight = with(LocalDensity.current) { temperatureGraphHeight.toPx() }
+    val linePoints = remember(simpleHourlyForecast) {
+        NewGraph(listOf(simpleHourlyForecast.items.map { it.temperatureInt })).createNewGraph(graphHeight)[0]
+    }
+    val itemModifier = remember { Modifier.width(HourlyForecastItemParams.itemWidth) }
+    val graphDrawInfo = remember { DrawInfo(density = density) }
 
     LazyRow(
-        modifier =
-            Modifier
-                .fillMaxWidth()
-                .wrapContentHeight(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .wrapContentHeight(),
         state = lazyListState,
     ) {
         items(count = simpleHourlyForecast.items.size, key = { simpleHourlyForecast.items[it].id }) { i ->
@@ -91,11 +99,10 @@ private fun Item(
             if (simpleHourlyForecast.displayPrecipitationProbability) {
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Center) {
                     AsyncImage(
-                        model =
-                            ImageRequest.Builder(LocalContext.current).data(SimpleHourlyForecast.Item.probabilityIcon)
-                                .crossfade(false).build(),
+                        model = ImageRequest.Builder(LocalContext.current)
+                            .data(io.github.pknujsp.everyweather.core.resource.R.drawable.ic_umbrella).crossfade(false).build(),
                         contentDescription = null,
-                        modifier = SimpleHourlyForecast.Item.imageModifier,
+                        modifier = Modifier.size(iconSize),
                     )
                     Text(text = precipitationProbability, style = TextStyle(fontSize = 12.sp, color = Color.White))
                 }
@@ -105,27 +112,23 @@ private fun Item(
             if (simpleHourlyForecast.displayPrecipitationVolume) {
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Center) {
                     AsyncImage(
-                        model =
-                            ImageRequest.Builder(LocalContext.current).data(SimpleHourlyForecast.Item.rainfallIcon)
-                                .crossfade(false).build(),
+                        model = ImageRequest.Builder(LocalContext.current)
+                            .data(io.github.pknujsp.everyweather.core.resource.R.drawable.ic_raindrop).crossfade(false).build(),
                         contentDescription = null,
-                        modifier =
-                            Modifier
-                                .alpha(if (precipitationVolume.isNotEmpty()) 1f else 0f)
-                                .then(SimpleHourlyForecast.Item.imageModifier),
+                        modifier = Modifier
+                            .alpha(if (precipitationVolume.isNotEmpty()) 1f else 0f)
+                            .size(iconSize),
                     )
                     Text(
                         text = precipitationVolume,
-                        style =
-                            TextStyle(
-                                fontSize = 12.sp,
-                                color =
-                                    if (simpleHourlyForecast.displayPrecipitationVolume && precipitationVolume.isNotEmpty()) {
-                                        Color.White
-                                    } else {
-                                        Color.Transparent
-                                    },
-                            ),
+                        style = TextStyle(
+                            fontSize = 12.sp,
+                            color = if (simpleHourlyForecast.displayPrecipitationVolume && precipitationVolume.isNotEmpty()) {
+                                Color.White
+                            } else {
+                                Color.Transparent
+                            },
+                        ),
                     )
                 }
             }
@@ -133,14 +136,12 @@ private fun Item(
             if (simpleHourlyForecast.displayRainfallVolume) {
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Center) {
                     AsyncImage(
-                        model =
-                            ImageRequest.Builder(LocalContext.current).data(SimpleHourlyForecast.Item.rainfallIcon)
-                                .crossfade(false).build(),
+                        model = ImageRequest.Builder(LocalContext.current)
+                            .data(io.github.pknujsp.everyweather.core.resource.R.drawable.ic_raindrop).crossfade(false).build(),
                         contentDescription = null,
-                        modifier =
-                            Modifier
-                                .alpha(if (rainfallVolume.isNotEmpty()) 1f else 0f)
-                                .then(SimpleHourlyForecast.Item.imageModifier),
+                        modifier = Modifier
+                            .alpha(if (rainfallVolume.isNotEmpty()) 1f else 0f)
+                            .size(iconSize),
                     )
                     Text(
                         text = rainfallVolume,
@@ -153,14 +154,12 @@ private fun Item(
             if (simpleHourlyForecast.displaySnowfallVolume) {
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Center) {
                     AsyncImage(
-                        model =
-                            ImageRequest.Builder(LocalContext.current).data(SimpleHourlyForecast.Item.snowfallIcon)
-                                .crossfade(false).build(),
+                        model = ImageRequest.Builder(LocalContext.current)
+                            .data(io.github.pknujsp.everyweather.core.resource.R.drawable.ic_snow_particle).crossfade(false).build(),
                         contentDescription = null,
-                        modifier =
-                            Modifier
-                                .alpha(if (snowfallVolume.isNotEmpty()) 1f else 0f)
-                                .then(SimpleHourlyForecast.Item.imageModifier),
+                        modifier = Modifier
+                            .alpha(if (snowfallVolume.isNotEmpty()) 1f else 0f)
+                            .size(iconSize),
                     )
                     Text(
                         text = snowfallVolume,

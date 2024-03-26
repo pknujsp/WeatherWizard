@@ -48,10 +48,13 @@ import io.github.pknujsp.everyweather.core.ui.dialog.BottomSheetType
 import io.github.pknujsp.everyweather.core.ui.dialog.ContentWithTitle
 import io.github.pknujsp.everyweather.core.ui.lottie.CancellableLoadingScreen
 import io.github.pknujsp.everyweather.core.ui.time.DynamicDateTime
+import io.github.pknujsp.everyweather.core.ui.weather.item.DynamicDateTimeUiCreator
 import io.github.pknujsp.everyweather.feature.weather.comparison.common.CommonForecastItemsScreen
 import io.github.pknujsp.everyweather.feature.weather.comparison.common.CompareForecastCard
 import io.github.pknujsp.everyweather.feature.weather.info.hourlyforecast.model.CompareHourlyForecast
 import io.github.pknujsp.everyweather.feature.weather.info.hourlyforecast.model.HourlyForecastComparisonReport
+
+private val weatherDataProviderInfoHeight = 36.dp
 
 @Composable
 fun CompareHourlyForecastScreen(
@@ -82,7 +85,9 @@ fun CompareHourlyForecastScreen(
                     CompareForecastCard.CompareCardSurface {
                         Column(verticalArrangement = Arrangement.spacedBy(4.dp), modifier = Modifier.padding(vertical = 16.dp)) {
                             val mainLazyListState = rememberLazyListState()
-                            DynamicDateTime(it.dateTimeInfo, mainLazyListState)
+                            val density = LocalDensity.current
+                            val dateTimeInfo = DynamicDateTimeUiCreator.create(density, it.times, CompareHourlyForecastInfo.itemWidth)
+                            DynamicDateTime(dateTimeInfo, mainLazyListState)
                             Content(it, mainLazyListState)
                         }
                     }
@@ -106,7 +111,6 @@ fun Content(
     val itemsCount = compareHourlyForecastInfo.items.size
     val itemModifier = remember { Modifier.width(CompareHourlyForecastInfo.itemWidth) }
     val context = LocalContext.current
-    val weatherDataProviderInfoHeight = 36.dp
     val weatherDataProviderInfoHeightPx = with(LocalDensity.current) {
         weatherDataProviderInfoHeight.toPx().toInt()
     }

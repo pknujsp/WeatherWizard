@@ -17,8 +17,6 @@ import io.github.pknujsp.everyweather.core.model.weather.RequestWeatherArguments
 import io.github.pknujsp.everyweather.core.model.weather.common.MajorWeatherEntityType
 import io.github.pknujsp.everyweather.core.model.weather.common.WeatherProvider
 import io.github.pknujsp.everyweather.core.model.weather.hourlyforecast.ToCompareHourlyForecastEntity
-import io.github.pknujsp.everyweather.core.ui.time.DateTimeInfo
-import io.github.pknujsp.everyweather.core.ui.weather.item.DynamicDateTimeUiCreator
 import io.github.pknujsp.everyweather.feature.weather.comparison.common.CompareForecastViewModel
 import io.github.pknujsp.everyweather.feature.weather.info.hourlyforecast.model.CompareHourlyForecast
 import io.github.pknujsp.everyweather.feature.weather.info.hourlyforecast.model.HourlyForecastComparisonReport
@@ -33,62 +31,62 @@ import javax.inject.Inject
 
 @HiltViewModel
 class CompareHourlyForecastViewModel
-    @Inject
-    constructor(
-        private val getHourlyForecastToCompareUseCase: GetHourlyForecastToCompareUseCase,
-        private val settingsRepository: SettingsRepository,
-        @CoDispatcher(CoDispatcherType.IO) private val ioDispatcher: CoroutineDispatcher,
-    ) : CompareForecastViewModel() {
-        private val _hourlyForecast = MutableStateFlow<UiState<CompareHourlyForecastInfo>>(UiState.Loading)
-        val hourlyForecast: StateFlow<UiState<CompareHourlyForecastInfo>> = _hourlyForecast.asStateFlow()
+@Inject
+constructor(
+    private val getHourlyForecastToCompareUseCase: GetHourlyForecastToCompareUseCase,
+    private val settingsRepository: SettingsRepository,
+    @CoDispatcher(CoDispatcherType.IO) private val ioDispatcher: CoroutineDispatcher,
+) : CompareForecastViewModel() {
+    private val _hourlyForecast = MutableStateFlow<UiState<CompareHourlyForecastInfo>>(UiState.Loading)
+    val hourlyForecast: StateFlow<UiState<CompareHourlyForecastInfo>> = _hourlyForecast.asStateFlow()
 
-        private val _report = MutableStateFlow<UiState<HourlyForecastComparisonReport>>(UiState.Loading)
-        val report: StateFlow<UiState<HourlyForecastComparisonReport>> = _report.asStateFlow()
+    private val _report = MutableStateFlow<UiState<HourlyForecastComparisonReport>>(UiState.Loading)
+    val report: StateFlow<UiState<HourlyForecastComparisonReport>> = _report.asStateFlow()
 
-        override fun load(args: RequestWeatherArguments) {
-            viewModelScope.launch {
-                args.run {
-                    withContext(ioDispatcher) {
-                        val weatherDataRequestBuilder = WeatherDataRequest.Builder()
-                        weatherProviders.forEach {
-                            weatherDataRequestBuilder.add(
-                                WeatherDataRequest.Coordinate(targetLocation.latitude, targetLocation.longitude),
-                                arrayOf(MajorWeatherEntityType.HOURLY_FORECAST),
-                                it,
-                            )
-                        }
-                        getHourlyForecastToCompareUseCase(weatherDataRequestBuilder.build()).map { entity ->
-                            val (firstTime, endTime) =
-                                entity.run {
-                                    items.maxOf { ZonedDateTime.parse(it.second.first().dateTime.value) } to
+    override fun load(args: RequestWeatherArguments) {
+        viewModelScope.launch {
+            args.run {
+                withContext(ioDispatcher) {
+                    val weatherDataRequestBuilder = WeatherDataRequest.Builder()
+                    weatherProviders.forEach {
+                        weatherDataRequestBuilder.add(
+                            WeatherDataRequest.Coordinate(targetLocation.latitude, targetLocation.longitude),
+                            arrayOf(MajorWeatherEntityType.HOURLY_FORECAST),
+                            it,
+                        )
+                    }
+                    getHourlyForecastToCompareUseCase(weatherDataRequestBuilder.build()).map { entity ->
+                        val (firstTime, endTime) =
+                            entity.run {
+                                items.maxOf { ZonedDateTime.parse(it.second.first().dateTime.value) } to
                                         items.minOf {
                                             ZonedDateTime.parse(it.second.last().dateTime.value)
                                         }
-                                }
-                            val dayNightCalculator = DayNightCalculator(targetLocation.latitude, targetLocation.longitude)
-                            val dayOrNightList = mutableListOf<Pair<Boolean, ZonedDateTime>>()
-                            var time = firstTime
-                            while (time <= endTime) {
-                                dayOrNightList.add(calculateDayOrNight(dayNightCalculator, time) to time)
-                                time = time.plusHours(1)
                             }
+                        val dayNightCalculator = DayNightCalculator(targetLocation.latitude, targetLocation.longitude)
+                        val dayOrNightList = mutableListOf<Pair<Boolean, ZonedDateTime>>()
+                        var time = firstTime
+                        while (time <= endTime) {
+                            dayOrNightList.add(calculateDayOrNight(dayNightCalculator, time) to time)
+                            time = time.plusHours(1)
+                        }
 
-                            val units = settingsRepository.settings.replayCache.last().units
-                            val entities = mutableListOf<Pair<WeatherProvider, List<ToCompareHourlyForecastEntity.Item>>>()
+                        val units = settingsRepository.settings.replayCache.last().units
+                        val entities = mutableListOf<Pair<WeatherProvider, List<ToCompareHourlyForecastEntity.Item>>>()
 
-                            val items =
-                                entity.items.map { (provider, items) ->
-                                    val firstIndex = items.indexOfFirst { ZonedDateTime.parse(it.dateTime.value) == firstTime }
-                                    val endIndex =
-                                        items.indexOfFirst { ZonedDateTime.parse(it.dateTime.value) > endTime }.run {
-                                            if (this == -1) {
-                                                items.size
-                                            } else {
-                                                this
-                                            }
+                        val items =
+                            entity.items.map { (provider, items) ->
+                                val firstIndex = items.indexOfFirst { ZonedDateTime.parse(it.dateTime.value) == firstTime }
+                                val endIndex =
+                                    items.indexOfFirst { ZonedDateTime.parse(it.dateTime.value) > endTime }.run {
+                                        if (this == -1) {
+                                            items.size
+                                        } else {
+                                            this
                                         }
+                                    }
 
-                                    provider to
+                                provider to
                                         CompareHourlyForecast(
                                             items.subList(firstIndex, endIndex).apply {
                                                 entities.add(provider to this)
@@ -109,43 +107,37 @@ class CompareHourlyForecastViewModel
                                                 )
                                             },
                                         )
-                                }
-                            val dateTimeInfo =
-                                DynamicDateTimeUiCreator(
-                                    dayOrNightList.map {
-                                        it.second.toString()
-                                    },
-                                    CompareHourlyForecastInfo.itemWidth,
-                                ).invoke()
+                            }
 
-                            UiState.Success(CompareHourlyForecastInfo(items, dateTimeInfo)) to
+                        val times = dayOrNightList.map { it.second }
+                        UiState.Success(CompareHourlyForecastInfo(items, times)) to
                                 UiState.Success(
                                     HourlyForecastComparisonReport(
                                         entities,
                                         dayOrNightList,
                                     ),
                                 )
-                        }
-                    }.onSuccess { (compareHourlyForecastInfo, hourlyForecastComparisonReport) ->
-                        _hourlyForecast.value = compareHourlyForecastInfo
-                        _report.value = hourlyForecastComparisonReport
-                    }.onFailure {
-                        _hourlyForecast.value = UiState.Error(it)
                     }
+                }.onSuccess { (compareHourlyForecastInfo, hourlyForecastComparisonReport) ->
+                    _hourlyForecast.value = compareHourlyForecastInfo
+                    _report.value = hourlyForecastComparisonReport
+                }.onFailure {
+                    _hourlyForecast.value = UiState.Error(it)
                 }
             }
         }
-
-        private fun calculateDayOrNight(
-            dayNightCalculator: DayNightCalculator,
-            dateTime: ZonedDateTime,
-        ): Boolean = dayNightCalculator.calculate(dateTime.toCalendar()) == DayNightCalculator.DayNight.DAY
     }
+
+    private fun calculateDayOrNight(
+        dayNightCalculator: DayNightCalculator,
+        dateTime: ZonedDateTime,
+    ): Boolean = dayNightCalculator.calculate(dateTime.toCalendar()) == DayNightCalculator.DayNight.DAY
+}
 
 @Stable
 class CompareHourlyForecastInfo(
     items: List<Pair<WeatherProvider, CompareHourlyForecast>>,
-    val dateTimeInfo: DateTimeInfo,
+    val times: List<ZonedDateTime>,
 ) {
     val weatherDataProviders = items.map { it.first }.toTypedArray()
 
