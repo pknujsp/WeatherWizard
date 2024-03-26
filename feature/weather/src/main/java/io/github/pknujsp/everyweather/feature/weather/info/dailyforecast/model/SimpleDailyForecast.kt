@@ -5,7 +5,8 @@ import io.github.pknujsp.everyweather.core.model.UiModel
 
 @Stable
 class SimpleDailyForecast(
-    val items: List<Item>, val displayPrecipitationProbability: Boolean
+    val items: List<Item>, val displayPrecipitationProbability: Boolean = false,
+    val displayPrecipitationVolume: Boolean = false,
 ) : UiModel {
 
     data class Item(
@@ -18,5 +19,6 @@ class SimpleDailyForecast(
         val weatherConditionIcons: List<Int>,
         val weatherConditions: List<Int>,
         val precipitationProbabilities: List<String>,
+        val precipitationVolume: String = "",
     )
 }

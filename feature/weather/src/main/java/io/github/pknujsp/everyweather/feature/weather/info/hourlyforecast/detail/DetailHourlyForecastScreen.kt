@@ -102,7 +102,7 @@ private fun Item(
                 text = hour,
                 style = TextStyle(fontSize = 14.sp, color = Color.Gray),
                 modifier = Modifier
-                    .weight(0.1f, true)
+                    .weight(0.13f, true)
                     .padding(start = 16.dp),
             )
 

@@ -17,6 +17,19 @@ import java.time.format.DateTimeFormatter
 data class DailyForecastEntity(
     val dayItems: List<DayItem>,
 ) : WeatherEntityModel() {
+
+    val precipitationForecasted = dayItems.any { dayItem ->
+        dayItem.items.any { item ->
+            !item.precipitationProbability.isNone
+        }
+    }
+
+    val containsPrecipitationVolume = dayItems.any { dayItem ->
+        dayItem.items.any { item ->
+            !item.precipitationVolume.isNone || !item.rainfallVolume.isNone || !item.snowfallVolume.isNone
+        }
+    }
+
     override fun toString(): String {
         return StringBuilder().apply {
             appendLine(

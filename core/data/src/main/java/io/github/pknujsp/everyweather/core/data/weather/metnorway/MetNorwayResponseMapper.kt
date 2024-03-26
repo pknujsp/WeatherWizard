@@ -59,7 +59,6 @@ internal class MetNorwayResponseMapper : WeatherResponseMapper<WeatherEntityMode
                     rainfallVolume = RainfallValueType.None,
                     snowfallVolume = SnowfallValueType.None,
                     precipitationVolume = item.precipitationVolume,
-                    precipitationProbability = ProbabilityValueType.None,
                 )
             },
         )

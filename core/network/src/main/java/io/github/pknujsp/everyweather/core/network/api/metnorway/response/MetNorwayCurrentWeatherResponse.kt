@@ -1,6 +1,7 @@
 package io.github.pknujsp.everyweather.core.network.api.metnorway.response
 
 import io.github.pknujsp.everyweather.core.common.util.FeelsLikeTemperatureCalculator
+import io.github.pknujsp.everyweather.core.common.util.normalize
 import io.github.pknujsp.everyweather.core.model.weather.common.DateTimeValueType
 import io.github.pknujsp.everyweather.core.model.weather.common.HumidityValueType
 import io.github.pknujsp.everyweather.core.model.weather.common.PercentageUnit
@@ -63,7 +64,8 @@ class MetNorwayCurrentWeatherResponse(
             )
             windSpeed = wind
             precipitationVolume =
-                PrecipitationValueType(properties.timeseries[0].data.next1Hours!!.details.precipitationAmount, PrecipitationUnit.Millimeter)
+                PrecipitationValueType(properties.timeseries[0].data.next1Hours!!.details.precipitationAmount.normalize(), PrecipitationUnit
+                    .Millimeter)
 
             val day = "_day"
             val night = "_night"

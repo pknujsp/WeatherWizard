@@ -40,20 +40,19 @@ object DetailHourlyForecastModelMapper : ForecastModelMapper<HourlyForecastEntit
         var displayRainfallVolume = false
         var displaySnowfallVolume = false
         var displayPrecipitationVolume = false
-        var displayPrecipitationProbability = false
+        val displayPrecipitationProbability = src.precipitationForecasted
 
-        src.items.forEach {
-            if (!it.rainfallVolume.isNone) {
-                displayRainfallVolume = true
-            }
-            if (!it.snowfallVolume.isNone) {
-                displaySnowfallVolume = true
-            }
-            if (!it.precipitationVolume.isNone) {
-                displayPrecipitationVolume = true
-            }
-            if (!it.precipitationProbability.isNone) {
-                displayPrecipitationProbability = true
+        if (displayPrecipitationProbability) {
+            src.items.forEach {
+                if (!it.rainfallVolume.isNone) {
+                    displayRainfallVolume = true
+                }
+                if (!it.snowfallVolume.isNone) {
+                    displaySnowfallVolume = true
+                }
+                if (!it.precipitationVolume.isNone) {
+                    displayPrecipitationVolume = true
+                }
             }
         }
 

@@ -140,7 +140,7 @@ data class WindSpeedValueType(
 @Serializable
 data class WindDirectionValueType(
     override val value: Short,
-    override val unit: WindDirectionUnit,
+    override val unit: WindDirectionUnit = WindDirectionUnit.default,
 ) : WeatherValueUnitType<Short, WindDirectionUnit> {
     companion object : NoneValue<WindDirectionValueType> {
         override val None: WindDirectionValueType = WindDirectionValueType(Short.MIN_VALUE, WindDirectionUnit.default)
@@ -191,7 +191,7 @@ data class WindDirectionValueType(
 @Serializable
 data class HumidityValueType(
     override val value: Short,
-    override val unit: PercentageUnit,
+    override val unit: PercentageUnit = PercentageUnit,
 ) : WeatherValueUnitType<Short, PercentageUnit> {
     companion object : NoneValue<HumidityValueType> {
         override val None: HumidityValueType = HumidityValueType(Short.MIN_VALUE, PercentageUnit)

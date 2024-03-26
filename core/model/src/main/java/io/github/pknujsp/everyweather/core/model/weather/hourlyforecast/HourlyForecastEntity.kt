@@ -19,6 +19,12 @@ import java.time.format.DateTimeFormatter
 data class HourlyForecastEntity(
     val items: List<Item>,
 ) : WeatherEntityModel() {
+
+    val precipitationForecasted = items.any { item ->
+        !item.precipitationProbability.isNone || !item.precipitationVolume.isNone || !item.rainfallVolume.isNone || !item.snowfallVolume
+            .isNone
+    }
+
     override fun toString(): String {
         return StringBuilder().apply {
             appendLine(
@@ -55,6 +61,6 @@ data class HourlyForecastEntity(
         val rainfallProbability: ProbabilityValueType = ProbabilityValueType.None,
         val snowfallProbability: ProbabilityValueType = ProbabilityValueType.None,
         val precipitationVolume: PrecipitationValueType = PrecipitationValueType.None,
-        val precipitationProbability: ProbabilityValueType,
+        val precipitationProbability: ProbabilityValueType = ProbabilityValueType.None,
     )
 }
