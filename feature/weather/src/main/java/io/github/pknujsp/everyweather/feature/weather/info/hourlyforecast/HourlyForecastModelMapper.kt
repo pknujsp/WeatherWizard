@@ -33,19 +33,19 @@ object HourlyForecastModelMapper : ForecastModelMapper<HourlyForecastEntity, Sim
         var displayRainfallVolume = false
         var displaySnowfallVolume = false
         var displayPrecipitationVolume = false
-        var displayPrecipitationProbability  = false
+        var displayPrecipitationProbability = false
 
-        items.forEach {
-            if (it.rainfallVolume.isNotEmpty()) {
+        src.items.forEach {
+            if (!it.rainfallVolume.isNone) {
                 displayRainfallVolume = true
             }
-            if (it.snowfallVolume.isNotEmpty()  ) {
+            if (!it.snowfallVolume.isNone) {
                 displaySnowfallVolume = true
             }
-            if (it.precipitationVolume.isNotEmpty()) {
+            if (!it.precipitationVolume.isNone) {
                 displayPrecipitationVolume = true
             }
-            if (it.precipitationProbability != NON_POP) {
+            if (!it.precipitationProbability.isNone) {
                 displayPrecipitationProbability = true
             }
         }

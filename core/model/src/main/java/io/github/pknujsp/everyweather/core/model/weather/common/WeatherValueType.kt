@@ -57,6 +57,8 @@ data class TemperatureValueType(
     }
 
     override fun convertUnit(to: TemperatureUnit): TemperatureValueType {
+        if (isNone) return this
+
         return when (unit to to) {
             TemperatureUnit.Celsius to TemperatureUnit.Fahrenheit -> (value * 9 / 5 + 32).toShort()
             TemperatureUnit.Fahrenheit to TemperatureUnit.Celsius -> ((value - 32) * 5 / 9).toShort()
@@ -117,6 +119,8 @@ data class WindSpeedValueType(
     }
 
     override fun convertUnit(to: WindSpeedUnit): WindSpeedValueType {
+        if (isNone) return this
+
         return when (unit to to) {
             WindSpeedUnit.KilometerPerHour to WindSpeedUnit.MeterPerSecond -> value / 3.6
             WindSpeedUnit.MeterPerSecond to WindSpeedUnit.KilometerPerHour -> value * 3.6
@@ -197,6 +201,8 @@ data class HumidityValueType(
         get() = value == Short.MIN_VALUE
 
     override fun convertUnit(to: PercentageUnit): HumidityValueType {
+        if (isNone) return this
+
         return HumidityValueType(value, to)
     }
 
@@ -236,6 +242,8 @@ data class PressureValueType(
     }
 
     override fun convertUnit(to: PressureUnit): PressureValueType {
+        if (isNone) return this
+
         return PressureValueType(value, to)
     }
 
@@ -276,6 +284,8 @@ data class VisibilityValueType(
     }
 
     override fun convertUnit(to: VisibilityUnit): VisibilityValueType {
+        if (isNone) return this
+
         return VisibilityValueType(value, to)
     }
 
@@ -304,9 +314,11 @@ data class PrecipitationValueType(
         get() = value == Double.MIN_VALUE
 
     override fun convertUnit(to: PrecipitationUnit): PrecipitationValueType {
+        if (isNone) return None
+
         return when (unit to to) {
-            PrecipitationUnit.Millimeter to PrecipitationUnit.Centimeter -> value / 10
-            PrecipitationUnit.Centimeter to PrecipitationUnit.Millimeter -> value * 10
+            PrecipitationUnit.Millimeter to PrecipitationUnit.Centimeter -> value / 10.0
+            PrecipitationUnit.Centimeter to PrecipitationUnit.Millimeter -> value * 10.0
             else -> value
         }.run {
             PrecipitationValueType(this, to)
@@ -319,8 +331,6 @@ data class PrecipitationValueType(
 
 
     override fun toStringWithoutUnit(): String = if (isNone) "" else value.toString()
-
-
 }
 
 @Serializable
@@ -350,6 +360,8 @@ data class SnowfallValueType(
     }
 
     override fun convertUnit(to: PrecipitationUnit): SnowfallValueType {
+        if (isNone) return this
+
         return when (unit to to) {
             PrecipitationUnit.Millimeter to PrecipitationUnit.Centimeter -> value / 10
             PrecipitationUnit.Centimeter to PrecipitationUnit.Millimeter -> value * 10
@@ -396,6 +408,8 @@ data class RainfallValueType(
     }
 
     override fun convertUnit(to: PrecipitationUnit): RainfallValueType {
+        if (isNone) return this
+
         return when (unit to to) {
             PrecipitationUnit.Millimeter to PrecipitationUnit.Centimeter -> value / 10
             PrecipitationUnit.Centimeter to PrecipitationUnit.Millimeter -> value * 10
@@ -427,6 +441,8 @@ data class ProbabilityValueType(
         get() = value == Short.MIN_VALUE
 
     override fun convertUnit(to: PercentageUnit): ProbabilityValueType {
+        if (isNone) return this
+
         return ProbabilityValueType(value, to)
     }
 

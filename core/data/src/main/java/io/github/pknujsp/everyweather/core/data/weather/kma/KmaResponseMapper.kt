@@ -96,7 +96,11 @@ internal class KmaResponseMapper : WeatherResponseMapper<WeatherEntityModel> {
                 rainfallVolume = RainfallValueType(item.rainVolume, DEFAULT_PRECIPITATION_UNIT),
                 snowfallVolume = SnowfallValueType(item.snowVolume, DEFAULT_PRECIPITATION_UNIT),
                 precipitationVolume = PrecipitationValueType(
-                    if (item.rainVolume.isNaN() and item.snowVolume.isNaN()) PrecipitationValueType.None.value else item.rainVolume.toLeastZero() + item.snowVolume.toLeastZero(),
+                    if (item.rainVolume == Double.MIN_VALUE && item.snowVolume == Double.MIN_VALUE) {
+                        PrecipitationValueType.None.value
+                    } else {
+                        item.rainVolume.toLeastZero() + item.snowVolume.toLeastZero()
+                    },
                     DEFAULT_PRECIPITATION_UNIT,
                 ),
                 precipitationProbability = ProbabilityValueType(item.pop.toShort(), PercentageUnit),
