@@ -10,7 +10,7 @@ android {
 
     defaultConfig {
         applicationId = "io.github.pknujsp.everyweather"
-        versionCode = 9
+        versionCode = 10
         versionName = "1.0"
 
         vectorDrawables {
