@@ -29,11 +29,10 @@ fun TextPlaceHolder(isLoading: () -> Boolean) {
 @Composable
 private fun FakeBoxItem(modifier: Modifier) {
     Box(
-        modifier =
-            modifier
-                .clip(AppShapes.large)
-                .background(Color.LightGray)
-                .height(16.dp)
-                .shimmer(),
+        modifier = modifier
+            .clip(AppShapes.large)
+            .background(Color.LightGray)
+            .height(18.dp)
+            .shimmer(),
     )
 }
