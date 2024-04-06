@@ -66,15 +66,15 @@ fun rememberMainState(
     navController: NavHostController = rememberNavController(),
 ): MainUiState {
     val window = LocalContext.current.asActivity()!!.window
-    val windowInsetsControllerCompat = remember(window, navController) {
+    val windowInsetsControllerCompat = remember(window) {
         WindowInsetsControllerCompat(window, window.decorView)
     }
 
-    val state: MainUiState = remember(navController) {
+    val state: MainUiState = remember {
         MutableMainUiState(navController)
     }
 
-    LaunchedEffect(navController) {
+    LaunchedEffect(Unit) {
         launch {
             navController.currentBackStackEntryFlow.collect { _ ->
                 windowInsetsControllerCompat.run {

@@ -1,6 +1,5 @@
 package io.github.pknujsp.everyweather.core.network.api.metnorway
 
-import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -11,6 +10,7 @@ import kotlinx.serialization.json.Json
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
+import retrofit2.converter.kotlinx.serialization.asConverterFactory
 import retrofit2.converter.scalars.ScalarsConverterFactory
 import javax.inject.Singleton
 
@@ -24,15 +24,12 @@ object MetNorwayNetworkModule {
     fun providesNetworkApi(
         okHttpClient: OkHttpClient,
         @KtJson json: Json,
-    ): MetNorwayNetworkApi =
-        Retrofit.Builder().client(okHttpClient).baseUrl(URL)
-            .addCallAdapterFactory(NetworkApiCallAdapterFactory())
-            .addConverterFactory(
-                ScalarsConverterFactory.create(),
-            )
-            .addConverterFactory(
-                json.asConverterFactory("application/json".toMediaType()),
-            ).build().create(MetNorwayNetworkApi::class.java)
+    ): MetNorwayNetworkApi = Retrofit.Builder().client(okHttpClient).baseUrl(URL).addCallAdapterFactory(NetworkApiCallAdapterFactory())
+        .addConverterFactory(
+            ScalarsConverterFactory.create(),
+        ).addConverterFactory(
+            json.asConverterFactory("application/json".toMediaType()),
+        ).build().create(MetNorwayNetworkApi::class.java)
 
     @Provides
     @Singleton
