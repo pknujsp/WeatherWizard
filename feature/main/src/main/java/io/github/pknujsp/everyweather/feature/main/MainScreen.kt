@@ -82,12 +82,13 @@ fun MainScreen(
         }
     }
 
-    LaunchedEffect(Unit){
-/*        requestedRoutes.collect { newRoute ->
-            if (navController.currentBackStackEntry?.destination?.route != newRoute.route) {
-                state.navigate(newRoute)
-            }
-        }*/
+    val targetLocation by mainViewModel.targetLocation.collectAsStateWithLifecycle()
+
+    LaunchedEffect(targetLocation) {
+        if (isInitialized == null || mainUiState.navController.currentBackStackEntry?.destination?.route == MainRoutes.Weather.route) {
+            return@LaunchedEffect
+        }
+        mainUiState.navigate(MainRoutes.Weather)
     }
 
     if (isInitialized != null) {
