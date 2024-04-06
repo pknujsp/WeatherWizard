@@ -67,6 +67,8 @@ class WeatherContentViewModel
     private var loadWeatherDataJob: Job? = null
     private var targetLocationJob: Job? = null
 
+    private var baseLocation: SelectedLocationModel? = null
+
     var isLoading: Boolean by mutableStateOf(false)
         private set
 
@@ -80,12 +82,15 @@ class WeatherContentViewModel
     }.stateIn(viewModelScope, SharingStarted.Eagerly, null)
 
     private val mutableUiState = MutableSharedFlow<WeatherContentUiState>(1, 0, BufferOverflow.DROP_OLDEST)
+
     val uiState = mutableUiState.onEach {
         isLoading = false
     }.stateIn(viewModelScope, SharingStarted.Eagerly, null)
 
     fun load(selectedLocationModel: SelectedLocationModel) {
         viewModelScope.launch {
+            baseLocation = selectedLocationModel
+
             targetLocationJob?.cancel()
             loadWeatherDataJob?.cancel()
             isLoading = true
@@ -113,6 +118,11 @@ class WeatherContentViewModel
             }
         }
     }
+
+    fun isLoadedLocation(location: SelectedLocationModel): Boolean {
+        return baseLocation == location
+    }
+
 
     private suspend fun loadCurrentLocation() = callbackFlow {
         val now = LocalDateTime.now()
@@ -145,6 +155,7 @@ class WeatherContentViewModel
         viewModelScope.launch {
             targetLocationJob?.cancel()
             loadWeatherDataJob?.cancel()
+
             mutableUiState.emit(WeatherContentUiState.Error(FailedReason.CANCELED))
         }
     }
@@ -185,7 +196,7 @@ class WeatherContentViewModel
                 val simpleHourlyForecast = HourlyForecastModelMapper.mapTo(hourlyForecastEntity, units, dayNightCalculator)
                 val detailHourlyForecast = DetailHourlyForecastModelMapper.mapTo(hourlyForecastEntity, units, dayNightCalculator)
                 val simpleDailyForecast = DailyForecastModelMapper.mapTo(dailyForecastEntity, units, dayNightCalculator)
-                val detailDailyForecast = createDetailDailyForecastUiModel(dailyForecastEntity)
+                val detailDailyForecast = DetailDailyForecast(dailyForecastEntity, units)
 
                 val weather = Weather(
                     currentWeather,
@@ -242,5 +253,4 @@ class WeatherContentViewModel
     }
 
 
-    private fun createDetailDailyForecastUiModel(dailyForecastEntity: DailyForecastEntity) = DetailDailyForecast(dailyForecastEntity, units)
 }

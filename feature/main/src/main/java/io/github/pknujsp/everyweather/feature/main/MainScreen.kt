@@ -18,6 +18,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -25,6 +26,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -41,7 +43,6 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import io.github.pknujsp.everyweather.core.ads.AdMob
 import io.github.pknujsp.everyweather.core.ui.MainRoutes
-import io.github.pknujsp.everyweather.core.ui.RootNavControllerViewModel
 import io.github.pknujsp.everyweather.feature.componentservice.notification.HostNotificationScreen
 import io.github.pknujsp.everyweather.feature.favorite.HostFavoriteScreen
 import io.github.pknujsp.everyweather.feature.main.exit.AppCloseDialog
@@ -49,14 +50,15 @@ import io.github.pknujsp.everyweather.feature.main.sidebar.favorites.FavoriteLoc
 import io.github.pknujsp.everyweather.feature.settings.HostSettingsScreen
 import io.github.pknujsp.everyweather.feature.splash.OnboardingScreen
 import io.github.pknujsp.everyweather.feature.weather.HostWeatherScreen
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.filterNot
 import kotlinx.coroutines.launch
 
 @Composable
 fun MainScreen(
-    rootNavControllerViewModel: RootNavControllerViewModel = hiltViewModel(),
     mainViewModel: MainViewModel = hiltViewModel(),
 ) {
-    val mainUiState = rememberMainState(rootNavControllerViewModel.requestedRoute)
+    val mainUiState = rememberMainState()
     val onBackPressedDispatcherOwner = LocalOnBackPressedDispatcherOwner.current
     val currentOnBackPressedDispatcherOwner by rememberUpdatedState(newValue = onBackPressedDispatcherOwner!!)
     val lifeCycleOwner = LocalLifecycleOwner.current
@@ -82,6 +84,17 @@ fun MainScreen(
             callback.remove()
         }
     }
+
+    val targetLocationChanged by mainViewModel.isTargetLocationChanged.collectAsStateWithLifecycle()
+
+    LaunchedEffect(Unit) {
+        snapshotFlow { targetLocationChanged }.filter { it }.filterNot {
+            (isInitialized == null) || (mainUiState.navController.currentBackStackEntry?.destination?.route == MainRoutes.Weather.route)
+        }.collect {
+            mainUiState.navigate(MainRoutes.Weather)
+        }
+    }
+
     if (isInitialized != null) {
         if (currentCloseAppDialogVisible) {
             AppCloseDialog {

@@ -25,6 +25,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -86,13 +87,13 @@ fun WeatherInfoScreen(
     val currentRefresh by rememberUpdatedState(refresh)
     val scrollState = rememberScrollState()
 
-    var nestedRoutes by remember(weatherContentUiState) { mutableStateOf(NestedRoutes.MAIN) }
+    var nestedRoutes by rememberSaveable(weatherContentUiState) { mutableStateOf(NestedRoutes.MAIN) }
     val topAppBarUiState = targetLocationViewModel.topAppBarUiState
-    var onClickedWeatherProviderButton by remember { mutableStateOf(false) }
+    var onClickedWeatherProviderButton by rememberSaveable { mutableStateOf(false) }
 
     val coroutineScope = rememberCoroutineScope()
-    var imageUrl by remember { mutableStateOf("") }
-    var showAiSummary by remember { mutableStateOf(false) }
+    var imageUrl by rememberSaveable { mutableStateOf("") }
+    var showAiSummary by rememberSaveable { mutableStateOf(false) }
     val weather = weatherContentUiState.weather
 
     val localConfiguration = LocalConfiguration.current

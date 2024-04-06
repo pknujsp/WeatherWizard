@@ -27,7 +27,7 @@ abstract class BaseFeatureStateManager {
 
     fun isEnabled(context: Context) = featureType.isEnabled(context)
 
-    fun onChanged() {
+    open fun onChanged() {
         isChanged++
     }
 }

@@ -53,23 +53,18 @@ class Weather(
     longitude: Double,
     dateTime: ZonedDateTime,
 ) {
-    val flickrRequestParameters: FlickrRequestParameters =
-        FlickrRequestParameters(
-            weatherCondition = currentWeather.weatherCondition.value,
-            latitude = latitude,
-            longitude = longitude,
-            refreshDateTime = dateTime,
-        )
+    val flickrRequestParameters: FlickrRequestParameters = FlickrRequestParameters(
+        weatherCondition = currentWeather.weatherCondition.value,
+        latitude = latitude,
+        longitude = longitude,
+        refreshDateTime = dateTime,
+    )
 }
 
 @Stable
 private class MutableWeatherContentState(
-    private val refreshFunc: () -> Unit,
     private val windowInsetsControllerCompat: WindowInsetsControllerCompat,
 ) : WeatherContentState {
-    override fun refresh() {
-        refreshFunc()
-    }
 
     override fun setSystemBarColor(color: SystemBarContentColor) {
         windowInsetsControllerCompat.run {
@@ -80,17 +75,15 @@ private class MutableWeatherContentState(
 }
 
 @Composable
-fun rememberWeatherContentState(refresh: () -> Unit): WeatherContentState {
+fun rememberWeatherContentState(): WeatherContentState {
     val window = LocalContext.current.asActivity()!!.window
-    val windowInsetsControllerCompat =
-        remember(window) {
-            WindowInsetsControllerCompat(window, window.decorView)
-        }
+    val windowInsetsControllerCompat = remember(window) {
+        WindowInsetsControllerCompat(window, window.decorView)
+    }
 
-    val state: WeatherContentState =
-        remember(refresh) {
-            MutableWeatherContentState(refresh, windowInsetsControllerCompat)
-        }
+    val state: WeatherContentState = remember {
+        MutableWeatherContentState(windowInsetsControllerCompat)
+    }
 
     DisposableEffect(Unit) {
         onDispose {
@@ -104,5 +97,4 @@ fun rememberWeatherContentState(refresh: () -> Unit): WeatherContentState {
 @Stable
 interface WeatherContentState {
     fun setSystemBarColor(color: SystemBarContentColor)
-    fun refresh()
 }

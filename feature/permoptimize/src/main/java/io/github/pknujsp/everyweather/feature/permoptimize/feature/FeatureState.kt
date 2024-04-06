@@ -11,7 +11,7 @@ private class FeatureStateManagerImpl(override val featureType: FeatureType) : F
 
 @Composable
 fun rememberFeatureStateManager(featureType: FeatureType): FeatureStateManager {
-    val manager = remember(featureType) {
+    val manager = remember {
         FeatureStateManagerImpl(featureType)
     }
     return manager

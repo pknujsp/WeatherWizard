@@ -26,13 +26,14 @@ internal fun WeatherContentScreen(
 ) {
     val currentSelectedLocationModel by rememberUpdatedState(newValue = selectedLocationModel)
     val currentOpenDrawer by rememberUpdatedState(newValue = openDrawer)
-    val contentState = rememberWeatherContentState {
-        viewModel.load(currentSelectedLocationModel)
-    }
+    val contentState = rememberWeatherContentState()
 
     val weatherContentUiState by viewModel.uiState.collectAsStateWithLifecycle(null)
+
     LaunchedEffect(currentSelectedLocationModel) {
-        viewModel.load(currentSelectedLocationModel)
+        if (!viewModel.isLoadedLocation(currentSelectedLocationModel)) {
+            viewModel.load(currentSelectedLocationModel)
+        }
     }
     LaunchedEffect(weatherContentUiState) {
         contentState.setSystemBarColor(
@@ -48,7 +49,7 @@ internal fun WeatherContentScreen(
         is WeatherContentUiState.Success -> {
             WeatherInfoScreen(
                 refresh = {
-                    contentState.refresh()
+                    viewModel.load(currentSelectedLocationModel)
                 },
                 openDrawer = openDrawer,
                 weatherContentUiState = weatherContentUiState as WeatherContentUiState.Success,
@@ -69,7 +70,7 @@ internal fun WeatherContentScreen(
                     alertMessage = error.state.message,
                     actionMessage = error.state.action,
                     onClick = {
-                        contentState.refresh()
+                        viewModel.load(currentSelectedLocationModel)
                     },
                 )
             }

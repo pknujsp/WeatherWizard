@@ -22,28 +22,43 @@ private class NetworkStateManagerImpl(context: Context, override val featureType
     private val connectivityManager: ConnectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
     private var networkCallback: ConnectivityManager.NetworkCallback? = null
 
-    fun registerNetworkCallback(networkCallback: ConnectivityManager.NetworkCallback) {
+    override var isNetworkAvailable: Boolean = false
+        private set
+
+    override fun registerNetworkCallback(networkCallback: ConnectivityManager.NetworkCallback) {
         unregisterNetworkCallback()
         this.networkCallback = networkCallback
         connectivityManager.registerNetworkCallback(NetworkRequest.Builder().addTransportType(NetworkCapabilities.TRANSPORT_WIFI)
             .addTransportType(NetworkCapabilities.TRANSPORT_CELLULAR).build(), networkCallback)
     }
 
-    fun unregisterNetworkCallback() {
+    override fun unregisterNetworkCallback() {
         networkCallback?.let {
             connectivityManager.unregisterNetworkCallback(it)
             networkCallback = null
         }
     }
 
+    override fun updateNetworkState(isNetworkAvailable: Boolean) {
+        this.isNetworkAvailable = isNetworkAvailable
+        onChanged()
+    }
 }
 
 @Stable
-abstract class NetworkStateManager : BaseFeatureStateManager()
+abstract class NetworkStateManager : BaseFeatureStateManager() {
+
+    abstract val isNetworkAvailable: Boolean
+    abstract fun updateNetworkState(isNetworkAvailable: Boolean)
+
+    abstract fun registerNetworkCallback(networkCallback: ConnectivityManager.NetworkCallback)
+
+    abstract fun unregisterNetworkCallback()
+}
 
 @Composable
 fun rememberNetworkStateManager(context: Context = LocalContext.current): NetworkStateManager {
-    val appNetworkManager = remember {
+    val appNetworkManager: NetworkStateManager = remember {
         NetworkStateManagerImpl(context)
     }
 
@@ -52,12 +67,16 @@ fun rememberNetworkStateManager(context: Context = LocalContext.current): Networ
             object : ConnectivityManager.NetworkCallback() {
                 override fun onAvailable(network: Network) {
                     super.onAvailable(network)
-                    appNetworkManager.onChanged()
+                    if (!appNetworkManager.isNetworkAvailable) {
+                        appNetworkManager.updateNetworkState(true)
+                    }
                 }
 
                 override fun onLost(network: Network) {
                     super.onLost(network)
-                    appNetworkManager.onChanged()
+                    if (appNetworkManager.isNetworkAvailable) {
+                        appNetworkManager.updateNetworkState(false)
+                    }
                 }
             },
         )
