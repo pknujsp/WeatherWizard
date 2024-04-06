@@ -1,7 +1,6 @@
 package io.github.pknujsp.everyweather.feature.favorite.search
 
 import android.widget.Toast
-import androidx.activity.ComponentActivity
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -20,13 +19,13 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
@@ -39,7 +38,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import io.github.pknujsp.everyweather.core.resource.R
-import io.github.pknujsp.everyweather.core.ui.MainRoutes
 import io.github.pknujsp.everyweather.core.ui.TitleTextWithNavigation
 import io.github.pknujsp.everyweather.feature.permoptimize.feature.FeatureStateScreen
 import io.github.pknujsp.everyweather.feature.permoptimize.network.rememberNetworkStateManager
@@ -49,10 +47,8 @@ fun SearchAreaScreen(
     navController: NavController,
     searchAreaViewModel: SearchAreaViewModel = hiltViewModel(),
 ) {
-    val uiAction by searchAreaViewModel.uiAction.collectAsStateWithLifecycle()
-
     val networkManager = rememberNetworkStateManager()
-    var showSearchHistory by remember { mutableStateOf(true) }
+    var showSearchHistory by rememberSaveable { mutableStateOf(true) }
     val context = LocalContext.current
 
     Column(modifier = Modifier.fillMaxSize()) {
@@ -66,7 +62,7 @@ fun SearchAreaScreen(
 
         if (networkManager.isEnabled(LocalContext.current)) {
             val searchResult by searchAreaViewModel.searchResult.collectAsStateWithLifecycle()
-            var query by remember { mutableStateOf("" to 0L) }
+            var query by rememberSaveable { mutableStateOf("" to 0L) }
 
             SearchBar(Modifier.padding(horizontal = 16.dp), query, onChangeQuery = {
                 if (it.isEmpty()) {
@@ -94,7 +90,6 @@ fun SearchAreaScreen(
     }
 }
 
-@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun SearchBar(
     modifier: Modifier,
@@ -102,23 +97,21 @@ fun SearchBar(
     onChangeQuery: (String) -> Unit,
     onSendQuery: (String) -> Unit,
 ) {
+    val currentOnSendQuery by rememberUpdatedState(newValue = onSendQuery)
+    val currentOnChangeQuery by rememberUpdatedState(newValue = onChangeQuery)
+
     Row(
-        modifier =
-            modifier
-                .fillMaxWidth()
-                .background(Color.Transparent, shape = RectangleShape)
-                .padding(horizontal = 12.dp, vertical = 4.dp),
+        modifier = modifier
+            .fillMaxWidth()
+            .background(Color.Transparent, shape = RectangleShape)
+            .padding(horizontal = 12.dp, vertical = 4.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(8.dp),
     ) {
         val context = LocalContext.current
         val messageIfEmpty = stringResource(id = R.string.search_area)
         val keyboardController = LocalSoftwareKeyboardController.current
-        var text by remember { mutableStateOf(query.first) }
-
-        LaunchedEffect(query) {
-            text = query.first
-        }
+        var text by rememberSaveable { mutableStateOf(query.first) }
 
         Icon(imageVector = Icons.Rounded.Search, contentDescription = stringResource(R.string.search), tint = Color.Black)
         TextField(
@@ -126,34 +119,32 @@ fun SearchBar(
             label = { Text(text = stringResource(id = R.string.search_area)) },
             onValueChange = {
                 text = it
-                onChangeQuery(it)
+                currentOnChangeQuery(it)
             },
             singleLine = true,
             modifier = Modifier.fillMaxWidth(),
-            colors =
-                TextFieldDefaults.colors(
-                    unfocusedContainerColor = Color.Transparent,
-                    focusedContainerColor = Color.Transparent,
-                    focusedIndicatorColor = Color.Transparent,
-                    unfocusedIndicatorColor = Color.Transparent,
-                    focusedLabelColor = Color.Gray,
-                ),
+            colors = TextFieldDefaults.colors(
+                unfocusedContainerColor = Color.Transparent,
+                focusedContainerColor = Color.Transparent,
+                focusedIndicatorColor = Color.Transparent,
+                unfocusedIndicatorColor = Color.Transparent,
+                focusedLabelColor = Color.Gray,
+            ),
             shape = RectangleShape,
             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
-            keyboardActions =
-                KeyboardActions(onSearch = {
-                    if (text.isNotEmpty()) {
-                        keyboardController?.hide()
-                        onSendQuery(text)
-                    } else {
-                        Toast.makeText(context, messageIfEmpty, Toast.LENGTH_SHORT).show()
-                    }
-                }),
+            keyboardActions = KeyboardActions(onSearch = {
+                if (text.isNotEmpty()) {
+                    keyboardController?.hide()
+                    currentOnSendQuery(text)
+                } else {
+                    Toast.makeText(context, messageIfEmpty, Toast.LENGTH_SHORT).show()
+                }
+            }),
             trailingIcon = {
                 if (text.isNotEmpty()) {
                     IconButton(onClick = {
                         text = ""
-                        onChangeQuery("")
+                        currentOnChangeQuery("")
                     }) {
                         Icon(imageVector = Icons.Rounded.Clear, contentDescription = stringResource(id = R.string.clear_query))
                     }

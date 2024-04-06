@@ -9,6 +9,8 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -26,26 +28,27 @@ fun SearchLocationScreen(
     onSelectedLocation: (PickedLocation?) -> Unit,
     popBackStack: () -> Unit,
 ) {
+    val currentPopBackStack by rememberUpdatedState(newValue = popBackStack)
     BackHandler {
-        popBackStack()
+        currentPopBackStack()
     }
     Column(modifier = Modifier.fillMaxSize()) {
         val searchResult by searchAreaViewModel.searchResult.collectAsStateWithLifecycle()
         val uiAction by searchAreaViewModel.uiAction.collectAsStateWithLifecycle()
 
-        val query by remember { mutableStateOf("" to 0L) }
-        var showSearchHistory by remember { mutableStateOf(true) }
+        val query by rememberSaveable { mutableStateOf("" to 0L) }
+        var showSearchHistory by rememberSaveable { mutableStateOf(true) }
 
         LaunchedEffect(uiAction) {
             uiAction.onOnSelectedArea {
                 onSelectedLocation(it)
-                popBackStack()
+                currentPopBackStack()
             }
         }
 
         TitleTextWithNavigation(title = stringResource(id = R.string.add_new_area)) {
             if (showSearchHistory) {
-                popBackStack()
+                currentPopBackStack()
             } else {
                 showSearchHistory = false
             }

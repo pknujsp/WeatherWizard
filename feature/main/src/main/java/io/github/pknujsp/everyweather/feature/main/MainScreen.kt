@@ -26,6 +26,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -49,6 +50,8 @@ import io.github.pknujsp.everyweather.feature.main.sidebar.favorites.FavoriteLoc
 import io.github.pknujsp.everyweather.feature.settings.HostSettingsScreen
 import io.github.pknujsp.everyweather.feature.splash.OnboardingScreen
 import io.github.pknujsp.everyweather.feature.weather.HostWeatherScreen
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.filterNot
 import kotlinx.coroutines.launch
 
 @Composable
@@ -82,13 +85,14 @@ fun MainScreen(
         }
     }
 
-    val targetLocation by mainViewModel.targetLocation.collectAsStateWithLifecycle()
+    val targetLocationChanged by mainViewModel.isTargetLocationChanged.collectAsStateWithLifecycle()
 
-    LaunchedEffect(targetLocation) {
-        if (isInitialized == null || mainUiState.navController.currentBackStackEntry?.destination?.route == MainRoutes.Weather.route) {
-            return@LaunchedEffect
+    LaunchedEffect(Unit) {
+        snapshotFlow { targetLocationChanged }.filter { it }.filterNot {
+            (isInitialized == null) || (mainUiState.navController.currentBackStackEntry?.destination?.route == MainRoutes.Weather.route)
+        }.collect {
+            mainUiState.navigate(MainRoutes.Weather)
         }
-        mainUiState.navigate(MainRoutes.Weather)
     }
 
     if (isInitialized != null) {

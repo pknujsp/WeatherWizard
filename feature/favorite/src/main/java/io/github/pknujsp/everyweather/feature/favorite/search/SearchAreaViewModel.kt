@@ -3,7 +3,6 @@ package io.github.pknujsp.everyweather.feature.favorite.search
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import io.github.pknujsp.core.annotation.KBindFunc
 import io.github.pknujsp.everyweather.core.common.coroutines.CoDispatcher
 import io.github.pknujsp.everyweather.core.common.coroutines.CoDispatcherType
 import io.github.pknujsp.everyweather.core.data.favorite.FavoriteAreaListRepository
@@ -11,7 +10,6 @@ import io.github.pknujsp.everyweather.core.data.favorite.SelectedLocationModel
 import io.github.pknujsp.everyweather.core.data.favorite.TargetLocationRepository
 import io.github.pknujsp.everyweather.core.data.nominatim.NominatimRepository
 import io.github.pknujsp.everyweather.core.data.searchhistory.SearchHistoryRepository
-import io.github.pknujsp.everyweather.core.model.UiAction
 import io.github.pknujsp.everyweather.core.model.UiState
 import io.github.pknujsp.everyweather.core.model.coordinate.LocationType
 import io.github.pknujsp.everyweather.core.model.favorite.FavoriteAreaListEntity
@@ -35,9 +33,6 @@ class SearchAreaViewModel @Inject constructor(
 ) : ViewModel() {
     private val _searchResult = MutableStateFlow<UiState<List<GeoCode>>>(UiState.Loading)
     val searchResult: StateFlow<UiState<List<GeoCode>>> = _searchResult.asStateFlow()
-
-    private val _uiAction = MutableStateFlow<Action>(Action.Default)
-    val uiAction: StateFlow<Action> = _uiAction.asStateFlow()
 
     private companion object {
         val osmTypeFilters = arrayOf("node", "way", "relation")
@@ -98,16 +93,9 @@ class SearchAreaViewModel @Inject constructor(
                     ),
                 )
             }
-            _uiAction.value = Action.OnSelectedArea
         }
     }
 
     private fun List<GeoCodeEntity>.filterTypes(): List<GeoCodeEntity> =
         filter { it.osmType in osmTypeFilters && it.countryCode in countryCodeFilters }
-}
-
-@KBindFunc
-sealed interface Action : UiAction {
-    data object OnSelectedArea : Action
-    data object Default : Action
 }
