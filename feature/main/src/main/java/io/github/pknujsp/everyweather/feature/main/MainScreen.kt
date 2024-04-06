@@ -41,7 +41,6 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import io.github.pknujsp.everyweather.core.ads.AdMob
 import io.github.pknujsp.everyweather.core.ui.MainRoutes
-import io.github.pknujsp.everyweather.core.ui.RootNavControllerViewModel
 import io.github.pknujsp.everyweather.feature.componentservice.notification.HostNotificationScreen
 import io.github.pknujsp.everyweather.feature.favorite.HostFavoriteScreen
 import io.github.pknujsp.everyweather.feature.main.exit.AppCloseDialog
