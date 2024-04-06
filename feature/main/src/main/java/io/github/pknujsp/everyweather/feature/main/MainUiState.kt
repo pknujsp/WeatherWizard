@@ -13,7 +13,6 @@ import io.github.pknujsp.everyweather.core.ui.MainRoutes
 import io.github.pknujsp.everyweather.core.ui.theme.SystemBarContentColor
 import io.github.pknujsp.everyweather.core.ui.theme.setNavigationBarContentColor
 import io.github.pknujsp.everyweather.core.ui.theme.setStatusBarContentColor
-import io.github.pknujsp.everyweather.feature.main.MainUiState.Companion.tabs
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.launch
 

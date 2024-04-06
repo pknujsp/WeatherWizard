@@ -15,5 +15,5 @@ class WeatherMainViewModel @Inject constructor(
     targetLocationRepository: TargetLocationRepository,
 ) : ViewModel() {
     val selectedLocation: StateFlow<SelectedLocationModel?> =
-        targetLocationRepository.targetLocation.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000L), null)
+        targetLocationRepository.targetLocation.stateIn(viewModelScope, SharingStarted.Eagerly, null)
 }
