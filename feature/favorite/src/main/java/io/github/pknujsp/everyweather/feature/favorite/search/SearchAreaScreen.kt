@@ -48,15 +48,8 @@ import io.github.pknujsp.everyweather.feature.permoptimize.network.rememberNetwo
 fun SearchAreaScreen(
     navController: NavController,
     searchAreaViewModel: SearchAreaViewModel = hiltViewModel(),
-    rootNavControllerViewModel: RootNavControllerViewModel =
-        hiltViewModel(viewModelStoreOwner = (LocalContext.current as ComponentActivity)),
 ) {
     val uiAction by searchAreaViewModel.uiAction.collectAsStateWithLifecycle()
-    LaunchedEffect(uiAction) {
-        uiAction.onOnSelectedArea {
-            rootNavControllerViewModel.navigate(MainRoutes.Weather)
-        }
-    }
 
     val networkManager = rememberNetworkStateManager()
     var showSearchHistory by remember { mutableStateOf(true) }

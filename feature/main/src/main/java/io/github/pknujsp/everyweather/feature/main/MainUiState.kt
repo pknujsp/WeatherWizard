@@ -13,8 +13,6 @@ import io.github.pknujsp.everyweather.core.ui.MainRoutes
 import io.github.pknujsp.everyweather.core.ui.theme.SystemBarContentColor
 import io.github.pknujsp.everyweather.core.ui.theme.setNavigationBarContentColor
 import io.github.pknujsp.everyweather.core.ui.theme.setStatusBarContentColor
-import kotlinx.coroutines.flow.SharedFlow
-import kotlinx.coroutines.launch
 
 @Stable
 interface MainUiState {
@@ -61,11 +59,10 @@ private class MutableMainUiState(
 
 @Composable
 fun rememberMainState(
-    requestedRoutes: SharedFlow<MainRoutes>,
     navController: NavHostController = rememberNavController(),
 ): MainUiState {
     val window = LocalContext.current.asActivity()!!.window
-    val windowInsetsControllerCompat = remember(window) {
+    val windowInsetsControllerCompat = remember {
         WindowInsetsControllerCompat(window, window.decorView)
     }
 
@@ -74,20 +71,10 @@ fun rememberMainState(
     }
 
     LaunchedEffect(Unit) {
-        launch {
-            navController.currentBackStackEntryFlow.collect { _ ->
-                windowInsetsControllerCompat.run {
-                    setStatusBarContentColor(SystemBarContentColor.BLACK)
-                    setNavigationBarContentColor(SystemBarContentColor.BLACK)
-                }
-            }
-        }
-
-        launch {
-            requestedRoutes.collect { newRoute ->
-                if (navController.currentBackStackEntry?.destination?.route != newRoute.route) {
-                    state.navigate(newRoute)
-                }
+        navController.currentBackStackEntryFlow.collect { _ ->
+            windowInsetsControllerCompat.run {
+                setStatusBarContentColor(SystemBarContentColor.BLACK)
+                setNavigationBarContentColor(SystemBarContentColor.BLACK)
             }
         }
     }

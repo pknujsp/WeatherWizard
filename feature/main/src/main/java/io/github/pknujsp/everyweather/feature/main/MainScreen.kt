@@ -18,6 +18,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -52,10 +53,9 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun MainScreen(
-    rootNavControllerViewModel: RootNavControllerViewModel = hiltViewModel(),
     mainViewModel: MainViewModel = hiltViewModel(),
 ) {
-    val mainUiState = rememberMainState(rootNavControllerViewModel.requestedRoute)
+    val mainUiState = rememberMainState()
     val onBackPressedDispatcherOwner = LocalOnBackPressedDispatcherOwner.current
     val currentOnBackPressedDispatcherOwner by rememberUpdatedState(newValue = onBackPressedDispatcherOwner!!)
     val lifeCycleOwner = LocalLifecycleOwner.current
@@ -81,6 +81,15 @@ fun MainScreen(
             callback.remove()
         }
     }
+
+    LaunchedEffect(Unit){
+/*        requestedRoutes.collect { newRoute ->
+            if (navController.currentBackStackEntry?.destination?.route != newRoute.route) {
+                state.navigate(newRoute)
+            }
+        }*/
+    }
+
     if (isInitialized != null) {
         if (currentCloseAppDialogVisible) {
             AppCloseDialog {

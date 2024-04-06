@@ -71,9 +71,6 @@ fun FavoriteAreaListScreen(
     var showSettingsActivity by remember(targetLocation) { mutableStateOf(false) }
     var selectedLocationToDelete by remember { mutableStateOf<FavoriteArea?>(null) }
 
-    val rootNavControllerViewModel: RootNavControllerViewModel =
-        hiltViewModel(viewModelStoreOwner = (LocalContext.current as ComponentActivity))
-
     val onBackPressedDispatcherOwner = LocalOnBackPressedDispatcherOwner.current
     val backDispatcher = remember(onBackPressedDispatcherOwner) {
         onBackPressedDispatcherOwner?.onBackPressedDispatcher
@@ -82,12 +79,6 @@ fun FavoriteAreaListScreen(
     LaunchedEffect(favoriteLocations) {
         if (favoriteLocations.isEmpty() && selectedLocationToDelete != null) {
             selectedLocationToDelete = null
-        }
-    }
-
-    LaunchedEffect(targetLocation.isChanged) {
-        if (targetLocation.isChanged) {
-            rootNavControllerViewModel.navigate(MainRoutes.Weather)
         }
     }
 
