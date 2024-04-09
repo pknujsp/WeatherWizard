@@ -16,7 +16,9 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -29,7 +31,7 @@ import io.github.pknujsp.everyweather.core.resource.R
 import io.github.pknujsp.everyweather.core.ui.button.SecondaryButton
 import io.github.pknujsp.everyweather.core.ui.theme.AppShapes
 
-private val backgroundColor = Color(146, 146, 146, 216)
+private val backgroundColor = Color(22, 22, 22, 190)
 
 @Composable
 private fun BackgroundCard(
@@ -77,12 +79,11 @@ fun WeatherItemCard(
                     CustomTextButton(onClick = onClickToDetail, text = stringResource(id = R.string.detail))
                 }
             }
+
             if (isSuccessful()) {
                 content()
-            } else {
-                if (onClickToRefresh != null) {
-                    SecondaryButton(onClick = onClickToRefresh, text = stringResource(id = R.string.reload))
-                }
+            } else if (onClickToRefresh != null) {
+                FailedCard(onClickToRefresh)
             }
         }
     }
@@ -109,5 +110,13 @@ private fun CustomTextButton(
         contentAlignment = Alignment.Center,
     ) {
         Text(text = text, style = TextStyle(color = Color.White, fontSize = 14.sp, textAlign = TextAlign.Center))
+    }
+}
+
+@Composable
+private fun FailedCard(onClickToRefresh: () -> Unit) {
+    val currentOnClickToRefresh by rememberUpdatedState(newValue = onClickToRefresh)
+    Box(modifier = Modifier.padding(16.dp), contentAlignment = Alignment.Center) {
+        SecondaryButton(onClick = currentOnClickToRefresh, text = stringResource(id = R.string.reload))
     }
 }
