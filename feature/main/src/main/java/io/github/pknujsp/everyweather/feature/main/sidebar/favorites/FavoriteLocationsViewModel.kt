@@ -72,6 +72,7 @@ class FavoriteLocationsViewModel
                     }
                 }
             }
+
             getCurrentLocationUseCase.geoCodeFlow.filterNotNull().onEach { geoCode ->
                 onResultCurrentLocation(geoCode)
                 mutableTargetLocationUiState.isCurrentLocationLoading = false

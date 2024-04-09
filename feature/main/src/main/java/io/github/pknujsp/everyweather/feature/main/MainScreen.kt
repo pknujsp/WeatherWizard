@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBarsPadding
+import androidx.compose.material3.DrawerState
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ModalDrawerSheet
@@ -61,16 +62,26 @@ fun MainScreen(
     val mainUiState = rememberMainState()
     val onBackPressedDispatcherOwner = LocalOnBackPressedDispatcherOwner.current
     val currentOnBackPressedDispatcherOwner by rememberUpdatedState(newValue = onBackPressedDispatcherOwner!!)
-    val lifeCycleOwner = LocalLifecycleOwner.current
     var isCloseAppDialogVisible by remember { mutableStateOf(false) }
     val currentCloseAppDialogVisible by rememberUpdatedState(newValue = isCloseAppDialogVisible)
     val isInitialized by mainViewModel.initialized.collectAsStateWithLifecycle()
+    val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
+    val coroutineScope = rememberCoroutineScope()
 
     val destination by remember(isInitialized) {
         derivedStateOf { if (isInitialized == true) MainRoutes.Weather.route else MainRoutes.Onboarding.route }
     }
+
+    val lifeCycleOwner = LocalLifecycleOwner.current
     DisposableEffect(currentOnBackPressedDispatcherOwner, destination) {
         val callback = currentOnBackPressedDispatcherOwner.onBackPressedDispatcher.addCallback(lifeCycleOwner) {
+            if (drawerState.isOpen) {
+                coroutineScope.launch {
+                    drawerState.close()
+                }
+                return@addCallback
+            }
+
             mainUiState.navController.run {
                 if (currentBackStackEntry == null || currentBackStackEntry?.destination?.route == destination) {
                     isCloseAppDialogVisible = true
@@ -109,7 +120,7 @@ fun MainScreen(
             modifier = Modifier.fillMaxSize(),
         ) {
             composable(MainRoutes.Weather.route) {
-                WeatherMainScreen(mainUiState)
+                WeatherMainScreen(mainUiState, drawerState)
             }
             composable(MainRoutes.Favorite.route) {
                 HostFavoriteScreen()
@@ -129,10 +140,8 @@ fun MainScreen(
 
 
 @Composable
-private fun WeatherMainScreen(mainUiState: MainUiState) {
-    val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
+private fun WeatherMainScreen(mainUiState: MainUiState, drawerState: DrawerState) {
     val scope = rememberCoroutineScope()
-
     ModalNavigationDrawer(drawerState = drawerState, gesturesEnabled = true, drawerContent = {
         ModalDrawerSheet(drawerContainerColor = Color.White, modifier = Modifier.systemBarsPadding()) {
             Spacer(modifier = Modifier.height(24.dp))

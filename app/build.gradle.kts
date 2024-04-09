@@ -10,7 +10,7 @@ android {
 
     defaultConfig {
         applicationId = "io.github.pknujsp.everyweather"
-        versionCode = 10
+        versionCode = 11
         versionName = "1.0"
 
         vectorDrawables {
@@ -36,47 +36,8 @@ android {
             isMinifyEnabled = false
             isShrinkResources = false
         }
-/*        create("benchmark") {
-            initWith(release)
-            matchingFallbacks.add("release")
-            signingConfig = signingConfigs.getByName("debug")
-            proguardFiles("benchmark-rules.pro")
-        }*/
     }
 
-    packaging {
-        resources {
-            // excludes += "/META-INF/{AL2.0,LGPL2.1}"
-        }
-    }
-
-    lint {
-        // checkDependencies = true
-        // ignoreTestSources = true
-        // resourcePrefix = "gnt_"
-    }
-
-    hilt {
-        enableAggregatingTask = true
-    }
-
-    /*
-        flavorDimensions += "environment"
-        productFlavors {
-            create("staging") {
-                dimension = "environment"
-                configure<CrashlyticsExtension> {
-                    mappingFileUploadEnabled = false
-                }
-            }
-            create("prod") {
-                dimension = "environment"
-                configure<CrashlyticsExtension> {
-                    mappingFileUploadEnabled = true
-                }
-            }
-        }
-     */
 }
 
 dependencies {
