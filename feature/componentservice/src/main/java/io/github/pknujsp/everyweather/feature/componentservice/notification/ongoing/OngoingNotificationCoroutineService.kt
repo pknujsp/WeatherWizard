@@ -120,7 +120,7 @@ class OngoingNotificationCoroutineService
                         smallFailedContentRemoteViews =
                             UiStateRemoteViewCreator.createView(
                                 context,
-                                R.string.title_failed_to_load_data,
+                                R.string.failed_to_load_data,
                                 R.string.failed_to_load_data,
                                 R.string.refresh,
                                 RemoteViewCreator.ContainerType.NOTIFICATION_SMALL,
@@ -130,7 +130,7 @@ class OngoingNotificationCoroutineService
                         bigFailedContentRemoteViews =
                             UiStateRemoteViewCreator.createView(
                                 context,
-                                R.string.title_failed_to_load_data,
+                                R.string.failed_to_load_data,
                                 R.string.failed_to_load_data,
                                 R.string.refresh,
                                 RemoteViewCreator.ContainerType.NOTIFICATION_BIG,

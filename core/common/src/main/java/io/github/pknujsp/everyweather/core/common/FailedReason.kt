@@ -4,14 +4,14 @@ import io.github.pknujsp.everyweather.core.resource.R
 
 enum class FailedReason : StatefulFeature {
     SERVER_ERROR {
-        override val title: Int = R.string.server_error_title
+        override val title: Int = R.string.server_error
         override val message: Int = R.string.server_error_message
         override val action: Int = R.string.reload
         override val hasRetryAction: Boolean = true
         override val hasRepairAction: Boolean = false
     },
     UNKNOWN {
-        override val title: Int = R.string.unknown_error_title
+        override val title: Int = R.string.unknown_error
         override val message: Int = R.string.unknown_error_message
         override val action: Int = R.string.reload
         override val hasRetryAction: Boolean = true

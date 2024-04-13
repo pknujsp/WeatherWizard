@@ -46,12 +46,7 @@
     <string name="sun_set">일몰</string>
     <string name="refresh">새로고침</string>
     <string name="current_location">현재 위치</string>
-    <string name="network_unavailable">네트워크(WIFI, LTE, 5G 등)에 연결되어 있지 않습니다.</string>
-    <string name="location_service_disabled">위치 정보 기능이 꺼져있습니다.</string>
-    <string name="open_settings_to_ignore_battery_optimization">제외하기</string>
     <string name="okay">확인</string>
-    <string name="open_settings_for_location_service">위치 활성화</string>
-
     <string name="close">닫기</string>
     <string name="back">뒤로 가기</string>
     <string name="nav_weather">날씨</string>
@@ -63,10 +58,7 @@
     <string name="hourly_forecast">시간별 예보</string>
     <string name="daily_forecast">일별 예보</string>
     <string name="hourly_and_daily_forecast">시간+일별 예보</string>
-    <string name="title_network_is_unavailable">네트워크 연결 필요</string>
-    <string name="open_settings_for_network">연결하기</string>
-    <string name="title_location_is_disabled">위치 사용이 비활성화됨</string>
-    <string name="finding_current_location">현재 위치를 찾는 중이에요</string>
+
     <string name="title_comparison_hourly_forecast">시간별 예보 비교</string>
     <string name="title_comparison_daily_forecast">일별 예보 비교</string>
     <string name="comparison">비교</string>
@@ -92,27 +84,20 @@
     <string name="data_type">데이터 유형</string>
     <string name="no_location_is_selected">위치를 선택해주세요</string>
 
-    <string name="network">네트워크</string>
-    <string name="location_service">위치 정보 기능 비활성화됨</string>
-
     <string name="again">다시 시도</string>
     <string name="air_quality">대기질</string>
     <string name="current_weather_and_hourly_forecast">현재/시간별 예보</string>
-    <string name="server_error_title">서버 오류</string>
-    <string name="server_error_message">서버에서 문제가 발생하였습니다</string>
-    <string name="unknown_error_title">알수없는 오류</string>
-    <string name="unknown_error_message">알수없는 오류가 발생하였습니다</string>
-    <string name="title_failed_to_load_weather_data">날씨 자료 다운로드 실패</string>
+
     <string name="last_updated_time">업데이트 시각</string>
     <string name="address">주소</string>
-    <string name="title_failed_to_load_data">데이터 가져오기 실패</string>
-    <string name="failed_to_load_data">데이터를 가져오는 중 오류가 발생하였습니다</string>
 
     <string name="notification_working_title">작업 진행 중</string>
     <string name="notification_working_text">작업이 진행 중입니다</string>
 
     <string name="weather_info_head_info_update_time">업데이트</string>
     <string name="weather_icon_description">현재 날씨 상태</string>
+
+    <!-- 날씨 데이터 -->
 
     <string name="temperature">기온</string>
     <string name="min_temperature">최저 기온</string>
@@ -266,9 +251,7 @@
     <string name="configure_widget">위젯 추가</string>
     <string name="failed_to_update_widget">위젯 업데이트 실패</string>
     <string name="added_widget">위젯 추가 완료</string>
-    <string name="battery_optimization">배터리 최적화 켜져있음</string>
-    <string name="battery_optimization_enabled">앱이 배터리 최적화 대상으로 지정되어 있어 알림/위젯 작업이 불안정할 수 있습니다. 앱을 배터리 최적화에서 제외시켜주세요.</string>
-    <string name="min_5">5분</string>
+      <string name="min_5">5분</string>
     <string name="title_widget_auto_refresh_interval">위젯 자동 업데이트 주기</string>
     <string name="celsius">℃</string>
     <string name="fahrenheit">℉</string>

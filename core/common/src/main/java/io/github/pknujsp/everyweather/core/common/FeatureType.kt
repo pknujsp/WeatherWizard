@@ -42,7 +42,6 @@ sealed interface FeatureType : FeatureIntent, StatefulFeature {
             override val action: Int = io.github.pknujsp.everyweather.core.resource.R.string.grant_permissions
             override val hasRepairAction: Boolean = true
             override val hasRetryAction: Boolean = true
-            override val reason: Int = io.github.pknujsp.everyweather.core.resource.R.string.location_permission_description
             override val isUnrelatedSdkDevice: Boolean = false
 
             override fun getPendingIntent(context: Context): PendingIntent {
@@ -71,8 +70,6 @@ sealed interface FeatureType : FeatureIntent, StatefulFeature {
             override val action: Int = io.github.pknujsp.everyweather.core.resource.R.string.grant_permissions
             override val hasRepairAction: Boolean = true
             override val hasRetryAction: Boolean = true
-            override val reason: Int =
-                io.github.pknujsp.everyweather.core.resource.R.string.foreground_service_location_permission_description
 
             override fun getPendingIntent(context: Context): PendingIntent {
                 return PendingIntent.getActivity(
@@ -100,7 +97,6 @@ sealed interface FeatureType : FeatureIntent, StatefulFeature {
             override val action: Int = io.github.pknujsp.everyweather.core.resource.R.string.grant_permissions
             override val hasRetryAction: Boolean = true
             override val hasRepairAction: Boolean = true
-            override val reason: Int = io.github.pknujsp.everyweather.core.resource.R.string.background_location_permission_description
 
             override fun getPendingIntent(context: Context): PendingIntent {
                 return PendingIntent.getActivity(
@@ -128,7 +124,6 @@ sealed interface FeatureType : FeatureIntent, StatefulFeature {
             override val action: Int = io.github.pknujsp.everyweather.core.resource.R.string.grant_permissions
             override val hasRetryAction: Boolean = true
             override val hasRepairAction: Boolean = true
-            override val reason: Int = io.github.pknujsp.everyweather.core.resource.R.string.post_notification_permission_description
 
             override fun getPendingIntent(context: Context): PendingIntent {
                 return PendingIntent.getActivity(
@@ -167,7 +162,6 @@ sealed interface FeatureType : FeatureIntent, StatefulFeature {
             override val action: Int = io.github.pknujsp.everyweather.core.resource.R.string.grant_permissions
             override val hasRetryAction: Boolean = true
             override val hasRepairAction: Boolean = true
-            override val reason: Int = io.github.pknujsp.everyweather.core.resource.R.string.exact_alarm_permission_description
 
             override fun getPendingIntent(context: Context): PendingIntent {
                 return PendingIntent.getActivity(
@@ -188,8 +182,8 @@ sealed interface FeatureType : FeatureIntent, StatefulFeature {
     data object BatteryOptimization : FeatureType {
         override val intentAction: String = Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS
         override val title: Int = io.github.pknujsp.everyweather.core.resource.R.string.battery_optimization
-        override val message: Int = io.github.pknujsp.everyweather.core.resource.R.string.battery_optimization_enabled
-        override val action: Int = io.github.pknujsp.everyweather.core.resource.R.string.open_settings_to_ignore_battery_optimization
+        override val message: Int = io.github.pknujsp.everyweather.core.resource.R.string.battery_optimization_message
+        override val action: Int = io.github.pknujsp.everyweather.core.resource.R.string.battery_optimization_action
         override val hasRetryAction: Boolean = false
         override val hasRepairAction: Boolean = true
 
@@ -215,8 +209,8 @@ sealed interface FeatureType : FeatureIntent, StatefulFeature {
     data object Network : FeatureType {
         override val intentAction: String = Settings.ACTION_WIRELESS_SETTINGS
         override val title: Int = R.string.network
-        override val message: Int = R.string.network_unavailable
-        override val action: Int = io.github.pknujsp.everyweather.core.resource.R.string.open_settings_for_network
+        override val message: Int = R.string.network_message
+        override val action: Int = io.github.pknujsp.everyweather.core.resource.R.string.network_action
         override val hasRetryAction: Boolean = true
         override val hasRepairAction: Boolean = true
 
@@ -240,8 +234,8 @@ sealed interface FeatureType : FeatureIntent, StatefulFeature {
     data object LocationService : FeatureType {
         override val intentAction: String = Settings.ACTION_LOCATION_SOURCE_SETTINGS
         override val title: Int = R.string.location_service
-        override val message: Int = R.string.location_service_disabled
-        override val action: Int = io.github.pknujsp.everyweather.core.resource.R.string.open_settings_for_location_service
+        override val message: Int = R.string.location_service
+        override val action: Int = io.github.pknujsp.everyweather.core.resource.R.string.location_service_action
         override val hasRetryAction: Boolean = true
         override val hasRepairAction: Boolean = true
 
@@ -286,7 +280,6 @@ interface StatefulFeature {
     val title: Int
     val message: Int
     val action: Int
-    val reason: Int? get() = null
     val hasRepairAction: Boolean
     val hasRetryAction: Boolean
 }

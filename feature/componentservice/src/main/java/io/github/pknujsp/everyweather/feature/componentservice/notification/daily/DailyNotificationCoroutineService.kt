@@ -99,7 +99,7 @@ class DailyNotificationCoroutineService
                         smallFailedContentRemoteViews =
                             UiStateRemoteViewCreator.createView(
                                 context,
-                                R.string.title_failed_to_load_data,
+                                R.string.failed_to_load_data,
                                 R.string.failed_to_load_data,
                                 R.string.refresh,
                                 RemoteViewCreator.ContainerType.NOTIFICATION_SMALL,
@@ -108,7 +108,7 @@ class DailyNotificationCoroutineService
                         bigContentRemoteViews =
                             UiStateRemoteViewCreator.createView(
                                 context,
-                                R.string.title_failed_to_load_data,
+                                R.string.failed_to_load_data,
                                 R.string.failed_to_load_data,
                                 R.string.refresh,
                                 RemoteViewCreator.ContainerType.NOTIFICATION_BIG,
