@@ -38,8 +38,8 @@ sealed interface FeatureType : FeatureIntent, StatefulFeature {
             override val permissions: Array<String> =
                 arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION)
             override val title: Int = io.github.pknujsp.everyweather.core.resource.R.string.location_permission
-            override val message: Int = io.github.pknujsp.everyweather.core.resource.R.string.location_permission_denied
-            override val action: Int = io.github.pknujsp.everyweather.core.resource.R.string.grant_permissions
+            override val message: Int = io.github.pknujsp.everyweather.core.resource.R.string.location_permission_message
+            override val action: Int = io.github.pknujsp.everyweather.core.resource.R.string.grant_permission
             override val hasRepairAction: Boolean = true
             override val hasRetryAction: Boolean = true
             override val isUnrelatedSdkDevice: Boolean = false
@@ -67,7 +67,7 @@ sealed interface FeatureType : FeatureIntent, StatefulFeature {
             override val isUnrelatedSdkDevice: Boolean = Build.VERSION.SDK_INT < Build.VERSION_CODES.UPSIDE_DOWN_CAKE
             override val title: Int = io.github.pknujsp.everyweather.core.resource.R.string.foreground_service_location_permission
             override val message: Int = io.github.pknujsp.everyweather.core.resource.R.string.foreground_service_location_permission_denied
-            override val action: Int = io.github.pknujsp.everyweather.core.resource.R.string.grant_permissions
+            override val action: Int = io.github.pknujsp.everyweather.core.resource.R.string.grant_permission
             override val hasRepairAction: Boolean = true
             override val hasRetryAction: Boolean = true
 
@@ -93,8 +93,8 @@ sealed interface FeatureType : FeatureIntent, StatefulFeature {
                 arrayOf(Manifest.permission.ACCESS_BACKGROUND_LOCATION)
             override val isUnrelatedSdkDevice: Boolean = Build.VERSION.SDK_INT < Build.VERSION_CODES.Q
             override val title: Int = io.github.pknujsp.everyweather.core.resource.R.string.background_location_permission
-            override val message: Int = io.github.pknujsp.everyweather.core.resource.R.string.background_location_permission_denied
-            override val action: Int = io.github.pknujsp.everyweather.core.resource.R.string.grant_permissions
+            override val message: Int = io.github.pknujsp.everyweather.core.resource.R.string.background_location_permission_message
+            override val action: Int = io.github.pknujsp.everyweather.core.resource.R.string.grant_permission
             override val hasRetryAction: Boolean = true
             override val hasRepairAction: Boolean = true
 
@@ -120,8 +120,8 @@ sealed interface FeatureType : FeatureIntent, StatefulFeature {
                 arrayOf(Manifest.permission.POST_NOTIFICATIONS)
             override val isUnrelatedSdkDevice: Boolean = Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU
             override val title: Int = io.github.pknujsp.everyweather.core.resource.R.string.post_notification_permission
-            override val message: Int = io.github.pknujsp.everyweather.core.resource.R.string.post_notification_permission_denied
-            override val action: Int = io.github.pknujsp.everyweather.core.resource.R.string.grant_permissions
+            override val message: Int = io.github.pknujsp.everyweather.core.resource.R.string.post_notification_permission_message
+            override val action: Int = io.github.pknujsp.everyweather.core.resource.R.string.grant_permission
             override val hasRetryAction: Boolean = true
             override val hasRepairAction: Boolean = true
 
@@ -158,8 +158,8 @@ sealed interface FeatureType : FeatureIntent, StatefulFeature {
                 }
             override val isUnrelatedSdkDevice: Boolean = Build.VERSION.SDK_INT < Build.VERSION_CODES.S
             override val title: Int = io.github.pknujsp.everyweather.core.resource.R.string.exact_alarm_permission
-            override val message: Int = io.github.pknujsp.everyweather.core.resource.R.string.exact_alarm_permission_denied
-            override val action: Int = io.github.pknujsp.everyweather.core.resource.R.string.grant_permissions
+            override val message: Int = io.github.pknujsp.everyweather.core.resource.R.string.exact_alarm_permission_message
+            override val action: Int = io.github.pknujsp.everyweather.core.resource.R.string.grant_permission
             override val hasRetryAction: Boolean = true
             override val hasRepairAction: Boolean = true
 
